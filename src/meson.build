@@ -1,0 +1,27 @@
+src_files += files(
+    'application.cpp',
+    'application.hpp',
+    'color.hpp',
+    'game_manager.cpp',
+    'game_manager.hpp',
+    'grid.hpp',
+    'main.cpp',
+    'mino.cpp',
+    'mino.hpp',
+    'point.hpp',
+    'rect.hpp',
+    'renderer.cpp',
+    'renderer.hpp',
+    'sdl_context.cpp',
+    'sdl_context.hpp',
+    'tetris_application.cpp',
+    'tetris_application.hpp',
+    'tetromino.cpp',
+    'tetromino.hpp',
+    'tetromino_type.cpp',
+    'tetromino_type.hpp',
+    'window.cpp',
+    'window.hpp',
+)
+
+inc_dirs += include_directories('.')
