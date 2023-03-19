@@ -30,7 +30,7 @@ public:
     }
 
 protected:
-    virtual void handle_event(const SDL_Event& event);
+    virtual bool handle_event(const SDL_Event& event);
     virtual void update(double delta_time) = 0;
     virtual void render() const;
 };

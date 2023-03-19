@@ -29,10 +29,12 @@ void Application::run(int target_frames_per_second) {
     }
 }
 
-void Application::handle_event(const SDL_Event& event) {
+bool Application::handle_event(const SDL_Event& event) {
     if (event.type == SDL_QUIT || (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE)) {
         m_is_running = false;
+        return true;
     }
+    return false;
 }
 
 void Application::render() const {

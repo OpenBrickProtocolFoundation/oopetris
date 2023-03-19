@@ -10,6 +10,7 @@ enum class TetrominoType {
     S,
     T,
     Z,
+    LastType = Z,
 };
 
 Color get_foreground_color(TetrominoType type);

@@ -13,7 +13,7 @@ private:
     static constexpr int inset = 3;
 
 public:
-    explicit Mino(Point coords, TetrominoType type) : m_position{ coords }, m_type{ type } { }
+    explicit constexpr Mino(Point coords, TetrominoType type) : m_position{ coords }, m_type{ type } { }
 
     void render(const Application& app, const Grid& grid) const;
 

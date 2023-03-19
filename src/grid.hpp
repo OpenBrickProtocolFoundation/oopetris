@@ -29,6 +29,11 @@ public:
     }
 
     void render(const Application& app) const {
+        const Point bottom_right{
+            width * m_tile_size,
+            (height - invisible_rows) * m_tile_size,
+        };
+        app.renderer().draw_rect(Rect{ Point::zero(), bottom_right }, Color::white());
         for (const Mino& mino : m_minos) {
             if (mino.position().y >= invisible_rows) {
                 mino.render(app, *this);
