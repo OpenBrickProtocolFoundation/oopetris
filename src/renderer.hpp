@@ -1,6 +1,11 @@
 #pragma once
 
+#ifndef __SDL2__FOLDER_MISSING__
 #include "SDL2/SDL.h"
+#elif
+#include "SDL.h"
+#endif
+
 #include "color.hpp"
 #include "rect.hpp"
 #include "window.hpp"

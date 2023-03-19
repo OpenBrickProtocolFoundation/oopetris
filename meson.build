@@ -18,17 +18,24 @@ project(
 # msvc can handle c++14 and constexpr better (due to some NON standard conform fixes, but gcc can't, it needs c++17 for that!)
 cpp = meson.get_compiler('cpp')
 if cpp.get_id() != 'msvc'
-     add_project_arguments('-std=c++17', language: 'cpp')
+    add_project_arguments('-std=c++17', language: 'cpp')
 endif
 
 deps = []
 
 
-deps += dependency(
-    'sdl2',
-    required: true,
-    fallback: 'sdl2',
-)
+sdl2_dep = dependency('sdl2', required: false)
+if not sdl2_dep.found()
+    deps += dependency(
+        'sdl2',
+        required: true,
+        fallback: 'sdl2',
+    )
+    # to support both "SDL2/..." and "..." includes
+    add_project_arguments('-D__SDL2__FOLDER_MISSING__', language: 'cpp')
+else
+    deps += sdl2_dep
+endif
 
 inc_dirs = []
 src_files = []
