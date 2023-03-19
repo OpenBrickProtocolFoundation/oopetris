@@ -161,3 +161,6 @@ bool GameManager::is_valid_mino_position(Point position) const {
 TetrominoType GameManager::get_random_tetromino_type() {
     return static_cast<TetrominoType>(std::rand() % (static_cast<int>(TetrominoType::LastType) + 1));
 }
+
+std::array<int, 30> GameManager::frames_per_tile{ 48, 43, 38, 33, 28, 23, 18, 13, 8, 6, 5, 5, 5, 4, 4,
+                                                  4,  3,  3,  3,  2,  2,  2,  2,  2, 2, 2, 2, 2, 2, 1 };

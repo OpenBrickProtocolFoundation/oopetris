@@ -42,11 +42,10 @@ private:
     bool is_valid_mino_position(Point position) const;
     static TetrominoType get_random_tetromino_type();
 
-    static constexpr double get_gravity_delay(int level) {
+    static double get_gravity_delay(int level) {
         const int frames = (level >= frames_per_tile.size() ? frames_per_tile.back() : frames_per_tile[level]);
         return 1.0 / 60.0 * static_cast<double>(frames);
     }
 
-    static constexpr std::array<int, 30> frames_per_tile{ 48, 43, 38, 33, 28, 23, 18, 13, 8, 6, 5, 5, 5, 4, 4,
-                                                          4,  3,  3,  3,  2,  2,  2,  2,  2, 2, 2, 2, 2, 2, 1 };
+    static std::array<int, 30> frames_per_tile;
 };
