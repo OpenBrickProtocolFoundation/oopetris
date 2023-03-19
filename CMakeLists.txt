@@ -1,12 +1,8 @@
 cmake_minimum_required(VERSION 3.25)
 project(oopetris)
 
-if (MSVC)
-    set(CMAKE_CXX_STANDARD 14)
-else()
-    set(CMAKE_CXX_STANDARD 17)
-endif()
 
+set(CMAKE_CXX_STANDARD 17)
 
 
 
