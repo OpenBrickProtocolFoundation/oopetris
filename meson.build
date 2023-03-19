@@ -1,7 +1,6 @@
 project(
     'oopetris',
     'cpp',
-    license: 'MIT',
     default_options: [
         'buildtype=release',
         'optimization=3',
