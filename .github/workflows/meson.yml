@@ -52,7 +52,7 @@ jobs:
                 export CC=gcc-12
 
             - name: Configure
-              run: meson build -Dbuildtype=${{ matrix.config.buildtype }}
+              run: meson setup build -Dbuildtype=${{ matrix.config.buildtype }}
 
             - name: Build
               run: meson compile -C build
