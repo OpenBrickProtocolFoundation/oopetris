@@ -1,6 +1,6 @@
 #ifndef __SDL2__FOLDER_MISSING__
 #include "SDL2/SDL.h"
-#elif
+#else
 #include "SDL.h"
 #endif
 
