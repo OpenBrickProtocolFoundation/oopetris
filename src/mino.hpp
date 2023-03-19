@@ -1,18 +1,27 @@
 #pragma once
 
-#include "application.hpp"
-#include "grid.hpp"
 #include "point.hpp"
 #include "tetromino_type.hpp"
 
+struct Application;
+struct Grid;
+
 struct Mino final {
 private:
-    Point coords;
-    TetrominoType type;
+    Point m_position;
+    TetrominoType m_type;
     static constexpr int inset = 3;
 
 public:
-    Mino(Point coords, TetrominoType type) : coords{ coords }, type{ type } { }
+    explicit Mino(Point coords, TetrominoType type) : m_position{ coords }, m_type{ type } { }
 
     void render(const Application& app, const Grid& grid) const;
+
+    TetrominoType type() const {
+        return m_type;
+    }
+
+    Point position() const {
+        return m_position;
+    }
 };

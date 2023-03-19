@@ -11,28 +11,25 @@ public:
     static constexpr int tile_size = 30;
 
     Tetris() : Application{ "Tetris", WindowPosition::Centered, width, height }, m_grid{ Point::zero(), tile_size } {
-        minos.emplace_back(Point::zero(), TetrominoType::I);
-        minos.emplace_back(Point{ 1, 1 }, TetrominoType::J);
-        minos.emplace_back(Point{ 1, 3 }, TetrominoType::L);
-        minos.emplace_back(Point{ 3, 1 }, TetrominoType::O);
-        minos.emplace_back(Point{ 3, 1 }, TetrominoType::S);
-        minos.emplace_back(Point{ 2, 7 }, TetrominoType::T);
-        minos.emplace_back(Point{ 4, 6 }, TetrominoType::Z);
+        // clang-format off
+        m_grid.set(Point{ 0, 0 }, TetrominoType::I);
+        m_grid.set(Point{ 0, 1 }, TetrominoType::I);
+        m_grid.set(Point{ 0, 2 }, TetrominoType::I);
+        m_grid.set(Point{ 3, 5 }, TetrominoType::I);
+        m_grid.set(Point{ 3, 5 }, TetrominoType::J);
+        m_grid.set(Point{ 3, 6 }, TetrominoType::Z);
+        // clang-format on
     }
 
 private:
     Grid m_grid;
-    std::vector<Mino> minos;
 
 protected:
-    void update(double delta_time) override {
-    }
+    void update(double delta_time) override { }
 
     void render() const override {
-        Application::render();
-        for (const auto& mino : minos) {
-            mino.render(*this, m_grid);
-        }
+        Application::render(); // call parent function to clear the screen
+        m_grid.render(*this);
     }
 };
 
