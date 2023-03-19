@@ -22,8 +22,8 @@ jobs:
                       msvc: true
                       buildtype: Release
                     - name: Linux Release
-                      os: ubuntu-22.04,
-                      buildtype: Release,
+                      os: ubuntu-22.04
+                      buildtype: Release
 
         steps:
             - uses: actions/checkout@v3
@@ -39,7 +39,7 @@ jobs:
               shell: bash
               run: |
                   sudo apt-get update
-                  sudo apt install curl pkg-config zip unzip tar cmake git
+                  sudo apt install curl pkg-config zip unzip tar cmake git -y
 
             - name: Install cmake >= 3.25 (Linux)
               if: matrix.config.os == 'ubuntu-22.04'
@@ -50,7 +50,7 @@ jobs:
                   wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | sudo tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null
                   echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ jammy main' | sudo tee /etc/apt/sources.list.d/kitware.list >/dev/null
                   sudo apt-get update
-                  sudo apt-get install cmake
+                  sudo apt-get install cmake -y
 
             - name: Set Environment - Linux
               if: matrix.config.os == 'ubuntu-22.04'
