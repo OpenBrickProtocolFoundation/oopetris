@@ -22,8 +22,6 @@ if not sdl2_dep.found()
         required: true,
         fallback: 'sdl2',
     )
-    # to support both "SDL2/..." and "..." includes
-    add_project_arguments('-D__SDL2__FOLDER_MISSING__', language: 'cpp')
 else
     deps += sdl2_dep
 endif
