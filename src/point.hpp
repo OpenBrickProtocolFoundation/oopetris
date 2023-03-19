@@ -12,38 +12,38 @@ struct Point final {
     }
 };
 
-inline bool operator==(Point lhs, Point rhs) {
+inline constexpr bool operator==(Point lhs, Point rhs) {
     return lhs.x == rhs.x && lhs.y == rhs.y;
 }
 
-inline bool operator!=(Point lhs, Point rhs) {
+inline constexpr bool operator!=(Point lhs, Point rhs) {
     return !(lhs == rhs);
 }
 
-inline Point operator*(Point point, int scale) {
+inline constexpr Point operator*(Point point, int scale) {
     return Point{ point.x * scale, point.y * scale };
 }
 
-inline Point operator*(int scale, Point point) {
+inline constexpr Point operator*(int scale, Point point) {
     return point * scale;
 }
 
-inline Point operator/(Point point, int divisor) {
+inline constexpr Point operator/(Point point, int divisor) {
     return Point{ point.x / divisor, point.y / divisor };
 }
 
-inline Point operator+(Point lhs, Point rhs) {
+inline constexpr Point operator+(Point lhs, Point rhs) {
     return Point{ lhs.x + rhs.x, lhs.y + rhs.y };
 }
 
-inline Point operator+(Point point) {
+inline constexpr Point operator+(Point point) {
     return point;
 }
 
-inline Point operator-(Point point) {
+inline constexpr Point operator-(Point point) {
     return Point{ -point.x, -point.y };
 }
 
-inline Point operator-(Point lhs, Point rhs) {
+inline constexpr Point operator-(Point lhs, Point rhs) {
     return lhs + (-rhs);
 }
