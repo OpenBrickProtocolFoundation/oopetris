@@ -38,7 +38,8 @@ public:
 private:
     void clear_fully_occupied_lines();
     void freeze_active_tetromino();
-    bool is_active_tetromino_position_valid();
+    bool is_active_tetromino_position_valid() const;
+    bool is_valid_mino_position(Point position) const;
     static TetrominoType get_random_tetromino_type();
 
     static constexpr double get_gravity_delay(int level) {
