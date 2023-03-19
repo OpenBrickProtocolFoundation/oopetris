@@ -46,10 +46,10 @@ jobs:
 
             - name: Build
               # Build your program with the given configuration
-              run: cmake --build ${{github.workspace}}/build -j0 --config ${{env.BUILD_TYPE}}
+              run: cmake --build ${{github.workspace}}/build -j --config ${{env.BUILD_TYPE}}
 
             - name: Upload artifacts
-              uses: actions/upload-artifact@v2
+              uses: actions/upload-artifact@v3
               with:
                   name: linux oopetris
                   path: ${{github.workspace}}/build/oopetris
