@@ -7,8 +7,8 @@ project(
         'optimization=3',
         'c_std=c14',
         'cpp_std=c++14',
-        'warning_level=3',
-        'werror=true',
+        'warning_level=0',
+        'werror=false',
         'strip=true',
         'b_ndebug=if-release',
     ],
@@ -31,14 +31,10 @@ src_files = []
 
 subdir('src')
 
-# /home/totto/Code/vcpkg/packages/pkgconf_x64-linux
 executable(
-    'seatbelt',
+    'oopetris',
     src_files,
-    include_directories: [
-        inc_dirs,
-        include_directories('src'),
-    ],
+    include_directories: inc_dirs,
     dependencies: deps,
 )
 

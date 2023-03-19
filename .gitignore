@@ -78,3 +78,8 @@ fabric.properties
 
 cmake-build-*
 .idea/
+
+/build/
+
+.vscode/
+
