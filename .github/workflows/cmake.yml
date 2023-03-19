@@ -52,4 +52,4 @@ jobs:
               uses: actions/upload-artifact@v2
               with:
                   name: linux oopetris
-                  path: build/oopetris
+                  path: ${{github.workspace}}/build/oopetris

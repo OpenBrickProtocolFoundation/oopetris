@@ -5,7 +5,6 @@ project(
     default_options: [
         'buildtype=release',
         'optimization=3',
-        'c_std=c14',
         'cpp_std=c++14',
         'warning_level=0',
         'werror=false',
@@ -16,6 +15,13 @@ project(
 )
 
 
+# msvc can handle c++14 and constexpr better (due to some NON standard conform fixes, but gcc can't, it needs c++17 for that!)
+cpp = meson.get_compiler('cpp')
+if cpp.get_id() == 'msvc'
+    add_project_arguments('-std=c++14', language: 'cpp')
+else
+     add_project_arguments('-std=c++17', language: 'cpp')
+endif
 
 deps = []
 
@@ -37,5 +43,3 @@ executable(
     include_directories: inc_dirs,
     dependencies: deps,
 )
-
-
