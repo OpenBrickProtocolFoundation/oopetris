@@ -13,13 +13,14 @@ enum class Rotation {
 
 struct Tetromino final {
     using Pattern = std::array<Point, 4>;
-    using TetrominoPatterns = std::array<Pattern, 4>; // one pattern per rotation
 
     static constexpr Pattern get_pattern(TetrominoType type, Rotation rotation) {
         return tetrominos[static_cast<std::size_t>(type)][static_cast<std::size_t>(rotation)];
     }
 
 private:
+    using TetrominoPatterns = std::array<Pattern, 4>; // one pattern per rotation
+
     // clang-format off
     static constexpr std::array<TetrominoPatterns, 7> tetrominos = {
         // I
