@@ -1,0 +1,25 @@
+name: Flatpak build
+
+on:
+  release:
+    types: [published]
+    push:
+        branches: ["main"]
+    pull_request:
+        branches: ["main"]
+    workflow_dispatch:
+
+jobs:
+  flatpak:
+    name: "Flatpak build github.mgerhold.OOPetris"
+    runs-on: ubuntu-22.04
+    container:
+      image: bilelmoussaoui/flatpak-github-actions:freedesktop-22.08
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v3
+      - uses: bilelmoussaoui/flatpak-github-actions/flatpak-builder@v4
+        with:
+          bundle: oopetris.flatpak
+          manifest-path: github.mgerhold.OOPetris.yml
+          run-tests: false

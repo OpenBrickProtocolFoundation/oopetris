@@ -1,0 +1,29 @@
+app-id: github.mgerhold.OOPetris
+runtime: org.freedesktop.Platform
+runtime-version: "22.08"
+sdk: org.freedesktop.Sdk
+command: oopetris
+modules:
+  - name: OOPetris
+    buildsystem: meson
+    config-opts:
+      - -Dbuildtype=release
+    builddir: true
+    build-options:
+      build-args:
+    sources:
+      - type: dir
+        path: "."
+        skip: 
+          - .github/
+          - .vscode/
+          - build/
+    post-install:
+      - install -D oopetris /app/bin/oopetris
+    run-tests: true
+
+finish-args:
+  - --socket=x11
+  - --socket=wayland
+  - --device=all
+  - --device=dri

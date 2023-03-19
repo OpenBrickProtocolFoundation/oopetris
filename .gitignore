@@ -87,3 +87,5 @@ recordings/
 logs/
 /build-*
 /toolchains/
+.flatpak-builder/
+flatpak-build/
