@@ -13,6 +13,19 @@ enum class Rotation {
     LastRotation = West,
 };
 
+inline Rotation& operator++(Rotation& rotation) {
+    rotation = static_cast<Rotation>((static_cast<int>(rotation) + 1) % (static_cast<int>(Rotation::LastRotation) + 1));
+    return rotation;
+}
+
+inline Rotation& operator--(Rotation& rotation) {
+    rotation = static_cast<Rotation>(
+            (static_cast<int>(rotation) + static_cast<int>(Rotation::LastRotation))
+            % (static_cast<int>(Rotation::LastRotation) + 1)
+    );
+    return rotation;
+}
+
 struct Application;
 struct Grid;
 
@@ -35,21 +48,44 @@ public:
     void render(const Application& app, const Grid& grid) const;
 
     void rotate_right() {
-        m_rotation = static_cast<Rotation>(
-                (static_cast<int>(m_rotation) + 1) % (static_cast<int>(Rotation::LastRotation) + 1)
-        );
-        m_minos = create_minos(m_position, m_rotation, m_type);
+        ++m_rotation;
+        refresh_minos();
     }
 
     void rotate_left() {
-        m_rotation = static_cast<Rotation>(
-                (static_cast<int>(m_rotation) + static_cast<int>(Rotation::LastRotation))
-                % (static_cast<int>(Rotation::LastRotation) + 1)
-        );
-        m_minos = create_minos(m_position, m_rotation, m_type);
+        --m_rotation;
+        refresh_minos();
+    }
+
+    void move_down() {
+        ++m_position.y;
+        refresh_minos();
+    }
+
+    void move_up() {
+        --m_position.y;
+        refresh_minos();
+    }
+
+    void move_left() {
+        --m_position.x;
+        refresh_minos();
+    }
+
+    void move_right() {
+        ++m_position.x;
+        refresh_minos();
+    }
+
+    const std::array<Mino, 4>& minos() const {
+        return m_minos;
     }
 
 private:
+    void refresh_minos() {
+        m_minos = create_minos(m_position, m_rotation, m_type);
+    }
+
     static constexpr Pattern get_pattern(TetrominoType type, Rotation rotation) {
         return tetrominos[static_cast<std::size_t>(type)][static_cast<std::size_t>(rotation)];
     }

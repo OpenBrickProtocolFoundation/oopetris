@@ -24,4 +24,8 @@ public:
     Point position() const {
         return m_position;
     }
+
+    Point& position() {
+        return m_position;
+    }
 };
