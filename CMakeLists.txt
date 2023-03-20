@@ -4,9 +4,9 @@ project(oopetris)
 set(CMAKE_CXX_STANDARD 14)
 
 if(MSVC)
-        target_compile_options(/W4 /WX)
+        target_compile_options(oopetris PRIVATE /W4 /WX)
 else()
-        target_compile_options(-Wall -Wextra -pedantic -Werror)
+        target_compile_options(oopetris PRIVATE -Wall -Wextra -pedantic -Werror)
 endif()
 
 find_package(SDL2 CONFIG REQUIRED)
