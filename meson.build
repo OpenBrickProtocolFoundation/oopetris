@@ -35,6 +35,18 @@ if not sdl2_ttf_dep.found()
             required: true,
             fallback: ['freetype2', 'freetype'],
         )
+
+        zlib_dep = dependency('zlib', required: false)
+        if not zlib_dep.found()
+            deps += dependency(
+                'zlib',
+                required: true,
+                fallback: 'zlib',
+            )
+        else
+            deps += zlib_dep
+        endif
+
     else
         deps += freetype2_dep
     endif
