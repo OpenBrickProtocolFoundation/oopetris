@@ -27,6 +27,20 @@ if not sdl2_ttf_dep.found()
         required: true,
         fallback: 'sdl2_ttf',
     )
+
+    freetype2_dep = dependency('freetype2', required: false)
+    if not freetype2_dep.found()
+        deps += dependency(
+            'freetype2',
+            required: true,
+            fallback: ['freetype2', 'freetype'],
+        )
+    else
+        deps += freetype2_dep
+    endif
+
+
+
 else
     deps += sdl2_ttf_dep
 endif
