@@ -3,8 +3,11 @@ project(oopetris)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_compile_options(-Wall -Wextra -Wpedantic -Werror)
-
+if(MSVC)
+        add_compile_options(/W4 /WX)
+else()
+        add_compile_options(-Wall -Wextra -pedantic -Werror)
+endif()
 
 find_package(SDL2 CONFIG REQUIRED)
 find_package(SDL2_ttf CONFIG REQUIRED)
@@ -44,6 +47,6 @@ target_link_libraries(oopetris
         PRIVATE
         $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
         $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
-        )
+)
 
 target_link_libraries(oopetris PRIVATE $<IF:$<TARGET_EXISTS:SDL2_ttf::SDL2_ttf>,SDL2_ttf::SDL2_ttf,SDL2_ttf::SDL2_ttf-static>)
