@@ -27,12 +27,16 @@ void GameManager::render(const Application& app) const {
     if (m_active_tetromino) {
         m_active_tetromino->render(app, m_grid);
     }
+    if (m_preview_tetromino) {
+        m_preview_tetromino->render(app, m_grid);
+    }
 }
 
 void GameManager::spawn_next_tetromino() {
     static constexpr Point spawn_position{ 3, 0 };
     const TetrominoType next_type = get_next_tetromino_type();
     m_active_tetromino = std::make_unique<Tetromino>(spawn_position, next_type);
+    refresh_preview();
     if (!is_active_tetromino_position_valid()) {
         m_game_state = GameState::GameOver;
         std::cerr << "game over\n";
@@ -157,6 +161,11 @@ bool GameManager::is_valid_mino_position(Point position) const {
            && m_grid.is_empty(position);
 }
 
+void GameManager::refresh_preview() {
+    m_preview_tetromino =
+            std::make_unique<Tetromino>(Grid::preview_tetromino_position, m_sequence_bags[0][m_sequence_index]);
+}
+
 TetrominoType GameManager::get_next_tetromino_type() {
     const TetrominoType next_type = m_sequence_bags[0][m_sequence_index];
     m_sequence_index = (m_sequence_index + 1) % Bag::size();
@@ -166,10 +175,6 @@ TetrominoType GameManager::get_next_tetromino_type() {
         m_sequence_bags[1] = Bag{};
     }
     return next_type;
-}
-
-TetrominoType GameManager::get_random_tetromino_type() {
-    return static_cast<TetrominoType>(std::rand() % (static_cast<int>(TetrominoType::LastType) + 1));
 }
 std::array<int, 30> GameManager::frames_per_tile{ 48, 43, 38, 33, 28, 23, 18, 13, 8, 6, 5, 5, 5, 4, 4,
                                                   4,  3,  3,  3,  2,  2,  2,  2,  2, 2, 2, 2, 2, 2, 1 };

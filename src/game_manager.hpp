@@ -18,6 +18,7 @@ private:
     static constexpr int tile_size = 30;
     Grid m_grid;
     std::unique_ptr<Tetromino> m_active_tetromino;
+    std::unique_ptr<Tetromino> m_preview_tetromino;
     int m_level = 0;
     double m_next_gravity_step_time;
     int m_lines_cleared = 0;
@@ -42,8 +43,8 @@ private:
     void freeze_active_tetromino();
     bool is_active_tetromino_position_valid() const;
     bool is_valid_mino_position(Point position) const;
+    void refresh_preview();
     TetrominoType get_next_tetromino_type();
-    static TetrominoType get_random_tetromino_type();
 
     static double get_gravity_delay(int level) {
         const int frames = (level >= frames_per_tile.size() ? frames_per_tile.back() : frames_per_tile[level]);

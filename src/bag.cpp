@@ -1,6 +1,7 @@
 #include "bag.hpp"
 #include <cstdlib>
 #include <ctime>
+#include <iostream>
 
 bool Bag::s_seeded = false;
 
@@ -27,8 +28,12 @@ Bag::Bag() : m_tetromino_sequence{} {
                     break;
                 }
             }
+            if (type_is_okay) {
+                std::cerr << static_cast<int>(m_tetromino_sequence[i]) << " ";
+            }
         } while (!type_is_okay);
     }
+    std::cerr << "\n";
 }
 
 TetrominoType Bag::get_random_tetromino_type() {
