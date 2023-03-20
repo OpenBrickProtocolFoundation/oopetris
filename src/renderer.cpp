@@ -29,6 +29,12 @@ void Renderer::draw_filled_rect(Rect rect, Color color) const {
     SDL_RenderFillRect(m_renderer, &sdl_rect);
 }
 
+void Renderer::draw_rect_outline(Rect rect, Color color) const {
+    set_draw_color(color);
+    SDL_Rect sdl_rect = to_sdl_rect(rect);
+    SDL_RenderDrawRect(m_renderer, &sdl_rect);
+}
+
 void Renderer::present() const {
     SDL_RenderPresent(m_renderer);
 }
