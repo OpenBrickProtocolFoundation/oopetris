@@ -3,12 +3,6 @@ project(oopetris)
 
 set(CMAKE_CXX_STANDARD 14)
 
-if(MSVC)
-        target_compile_options(oopetris PRIVATE /W4 /WX)
-else()
-        target_compile_options(oopetris PRIVATE -Wall -Wextra -pedantic -Werror)
-endif()
-
 find_package(SDL2 CONFIG REQUIRED)
 find_package(SDL2_ttf CONFIG REQUIRED)
 
@@ -42,6 +36,12 @@ add_executable(oopetris
         src/font.hpp
         src/text.cpp
         src/text.hpp src/grid.cpp)
+
+if(MSVC)
+        target_compile_options(oopetris PRIVATE /W4 /WX)
+else()
+        target_compile_options(oopetris PRIVATE -Wall -Wextra -pedantic -Werror)
+endif()
 
 target_link_libraries(oopetris
         PRIVATE
