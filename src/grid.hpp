@@ -37,18 +37,20 @@ public:
     }
 
     void render(const Application& app) const {
-        const Point bottom_right{
-            width * m_tile_size - 1,
-            (height - invisible_rows) * m_tile_size,
-        };
+        draw_playing_field_background(app);
+        draw_preview_background(app);
+        draw_minos(app);
+    }
 
-        // background of playing field
-        app.renderer().draw_rect(Rect{ Point::zero(), bottom_right }, background_color);
-        app.renderer().draw_line(
-                Point{ bottom_right.x + 1, 0 }, Point{ bottom_right.x + 1, app.window().size().y - 1 }, border_color
-        );
+    void draw_minos(const Application& app) const {
+        for (const Mino& mino : m_minos) {
+            if (mino.position().y >= invisible_rows) {
+                mino.render(app, *this);
+            }
+        }
+    }
 
-        // background of preview
+    void draw_preview_background(const Application& app) const {
         const Point preview_top_left = to_screen_coords(preview_background_position);
         const Point preview_bottom_right =
                 preview_top_left
@@ -69,12 +71,17 @@ public:
                 Point{ preview_bottom_right.x + 1, preview_top_left.y },
                 Point{ preview_bottom_right.x + 1, preview_bottom_right.y }, border_color
         );
+    }
 
-        for (const Mino& mino : m_minos) {
-            if (mino.position().y >= invisible_rows) {
-                mino.render(app, *this);
-            }
-        }
+    void draw_playing_field_background(const Application& app) const {
+        const Point bottom_right{
+            width * m_tile_size - 1,
+            (height - invisible_rows) * m_tile_size,
+        };
+        app.renderer().draw_rect(Rect{ Point::zero(), bottom_right }, background_color);
+        app.renderer().draw_line(
+                Point{ bottom_right.x + 1, 0 }, Point{ bottom_right.x + 1, app.window().size().y - 1 }, border_color
+        );
     }
 
     void set(Point coordinates, TetrominoType type) {
