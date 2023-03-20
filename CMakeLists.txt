@@ -5,7 +5,6 @@ project(oopetris)
 set(CMAKE_CXX_STANDARD 17)
 
 
-
 find_package(SDL2 CONFIG REQUIRED)
 
 add_executable(oopetris
@@ -32,7 +31,8 @@ add_executable(oopetris
         src/tetris_application.cpp
         src/tetris_application.hpp
         src/tetromino.cpp
-)
+        src/bag.cpp
+        src/bag.hpp)
 
 target_link_libraries(oopetris
         PRIVATE

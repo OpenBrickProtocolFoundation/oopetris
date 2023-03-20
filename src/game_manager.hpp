@@ -1,9 +1,9 @@
 #pragma once
 
+#include "bag.hpp"
 #include "grid.hpp"
 #include "tetromino.hpp"
-#include <cstdlib>
-#include <ctime>
+#include <array>
 #include <memory>
 
 struct Application;
@@ -22,12 +22,14 @@ private:
     double m_next_gravity_step_time;
     int m_lines_cleared = 0;
     GameState m_game_state = GameState::Playing;
+    std::array<Bag, 2> m_sequence_bags{ Bag{}, Bag{} };
+    int m_sequence_index = 0;
 
 public:
     GameManager();
     void update();
     void render(const Application& app) const;
-    void spawn_tetromino();
+    void spawn_next_tetromino();
     void rotate_tetromino_right();
     void rotate_tetromino_left();
     void move_tetromino_down();
@@ -40,6 +42,7 @@ private:
     void freeze_active_tetromino();
     bool is_active_tetromino_position_valid() const;
     bool is_valid_mino_position(Point position) const;
+    TetrominoType get_next_tetromino_type();
     static TetrominoType get_random_tetromino_type();
 
     static double get_gravity_delay(int level) {

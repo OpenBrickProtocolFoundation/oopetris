@@ -4,9 +4,7 @@
 
 GameManager::GameManager()
     : m_grid{ Point::zero(), tile_size },
-      m_next_gravity_step_time{ Application::elapsed_time() + get_gravity_delay(0) } {
-    std::srand(std::time(nullptr));
-}
+      m_next_gravity_step_time{ Application::elapsed_time() + get_gravity_delay(0) } { }
 
 void GameManager::update() {
     switch (m_game_state) {
@@ -31,9 +29,10 @@ void GameManager::render(const Application& app) const {
     }
 }
 
-void GameManager::spawn_tetromino() {
+void GameManager::spawn_next_tetromino() {
     static constexpr Point spawn_position{ 3, 0 };
-    m_active_tetromino = std::make_unique<Tetromino>(spawn_position, get_random_tetromino_type());
+    const TetrominoType next_type = get_next_tetromino_type();
+    m_active_tetromino = std::make_unique<Tetromino>(spawn_position, next_type);
     if (!is_active_tetromino_position_valid()) {
         m_game_state = GameState::GameOver;
         std::cerr << "game over\n";
@@ -138,7 +137,7 @@ void GameManager::freeze_active_tetromino() {
         m_grid.set(mino.position(), mino.type());
     }
     clear_fully_occupied_lines();
-    spawn_tetromino();
+    spawn_next_tetromino();
 }
 
 bool GameManager::is_active_tetromino_position_valid() const {
@@ -158,9 +157,19 @@ bool GameManager::is_valid_mino_position(Point position) const {
            && m_grid.is_empty(position);
 }
 
+TetrominoType GameManager::get_next_tetromino_type() {
+    const TetrominoType next_type = m_sequence_bags[0][m_sequence_index];
+    m_sequence_index = (m_sequence_index + 1) % Bag::size();
+    if (m_sequence_index == 0) {
+        // we had a wrap-around
+        m_sequence_bags[0] = m_sequence_bags[1];
+        m_sequence_bags[1] = Bag{};
+    }
+    return next_type;
+}
+
 TetrominoType GameManager::get_random_tetromino_type() {
     return static_cast<TetrominoType>(std::rand() % (static_cast<int>(TetrominoType::LastType) + 1));
 }
-
 std::array<int, 30> GameManager::frames_per_tile{ 48, 43, 38, 33, 28, 23, 18, 13, 8, 6, 5, 5, 5, 4, 4,
                                                   4,  3,  3,  3,  2,  2,  2,  2,  2, 2, 2, 2, 2, 2, 1 };

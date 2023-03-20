@@ -10,7 +10,7 @@ public:
     static constexpr int height = 600;
 
     TetrisApplication() : Application{ "TetrisApplication", WindowPosition::Centered, width, height } {
-        m_game.spawn_tetromino();
+        m_game.spawn_next_tetromino();
     }
 
 private:
