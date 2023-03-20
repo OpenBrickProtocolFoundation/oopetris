@@ -56,21 +56,11 @@ public:
                 preview_top_left
                 + Point{ tile_size().x * preview_extends.x - 1, tile_size().y * preview_extends.y - 1 };
         app.renderer().draw_filled_rect(Rect{ preview_top_left, preview_bottom_right }, background_color);
-        app.renderer().draw_line(
-                preview_top_left - Point{ 1, 0 }, Point{ preview_top_left.x - 1, preview_bottom_right.y }, border_color
-        );
-        app.renderer().draw_line(
-                Point{ preview_top_left.x - 1, preview_bottom_right.y + 1 }, preview_bottom_right + Point{ 1, 1 },
-                border_color
-        );
-        app.renderer().draw_line(
-                Point{ preview_top_left.x - 1, preview_top_left.y - 1 },
-                Point{ preview_bottom_right.x + 1, preview_top_left.y - 1 }, border_color
-        );
-        app.renderer().draw_line(
-                Point{ preview_bottom_right.x + 1, preview_top_left.y },
-                Point{ preview_bottom_right.x + 1, preview_bottom_right.y }, border_color
-        );
+
+        const Point outline_top_left = preview_top_left - Point{ 1, 1 };
+        const Point outline_bottom_right = preview_bottom_right + Point{ 1, 1 };
+        const Rect outline_rect = Rect{ outline_top_left, outline_bottom_right };
+        app.renderer().draw_rect_outline(outline_rect, border_color);
     }
 
     void draw_playing_field_background(const Application& app) const {
