@@ -5,8 +5,6 @@ project(
         'buildtype=release',
         'optimization=3',
         'cpp_std=c++14',
-        'warning_level=3',
-        'werror=true',
         'strip=true',
         'b_ndebug=if-release',
     ],
@@ -17,11 +15,7 @@ deps = []
 
 sdl2_dep = dependency('sdl2', required: false)
 if not sdl2_dep.found()
-    deps += dependency(
-        'sdl2',
-        required: true,
-        fallback: 'sdl2',
-    )
+    deps += dependency('sdl2', required: true, fallback: 'sdl2')
 else
     deps += sdl2_dep
 endif
@@ -47,4 +41,8 @@ executable(
     src_files,
     include_directories: inc_dirs,
     dependencies: deps,
+    override_options: [
+        'warning_level=3',
+        'werror=true',
+    ],
 )
