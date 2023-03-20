@@ -36,7 +36,11 @@ public:
             width * m_tile_size - 1,
             (height - invisible_rows) * m_tile_size,
         };
-        app.renderer().draw_rect(Rect{ Point::zero(), bottom_right }, Color::white());
+        app.renderer().draw_rect(Rect{ Point::zero(), bottom_right }, Color{ 12, 12, 12 });
+        app.renderer().draw_line(
+                Point{ bottom_right.x + 1, 0 }, Point{ bottom_right.x + 1, app.window().size().y - 1 },
+                Color{ 42, 42, 42 }
+        );
         for (const Mino& mino : m_minos) {
             if (mino.position().y >= invisible_rows) {
                 mino.render(app, *this);
