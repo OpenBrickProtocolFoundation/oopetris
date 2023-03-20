@@ -7,6 +7,7 @@ bool Bag::s_seeded = false;
 Bag::Bag() : m_tetromino_sequence{} {
     if (!s_seeded) {
         std::srand(std::time(nullptr));
+        s_seeded = true;
     }
 
     // initialize array with invalid tetromino type
