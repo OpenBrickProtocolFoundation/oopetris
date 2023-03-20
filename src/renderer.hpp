@@ -1,10 +1,9 @@
 #pragma once
 
-#include "SDL.h"
-
 #include "color.hpp"
 #include "rect.hpp"
 #include "window.hpp"
+#include <SDL.h>
 
 struct Renderer final {
 private:

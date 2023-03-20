@@ -1,7 +1,5 @@
-#include "SDL.h"
-
-
 #include "tetris_application.hpp"
+#include <SDL.h>
 
 int main(int, char**) {
     static constexpr int target_fps = 60;
