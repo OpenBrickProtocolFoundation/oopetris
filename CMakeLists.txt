@@ -3,6 +3,9 @@ project(oopetris)
 
 set(CMAKE_CXX_STANDARD 14)
 
+add_compile_options(-Wall -Wextra -Wpedantic -Werror)
+
+
 find_package(SDL2 CONFIG REQUIRED)
 find_package(SDL2_ttf CONFIG REQUIRED)
 

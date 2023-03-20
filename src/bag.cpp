@@ -17,12 +17,12 @@ Bag::Bag() : m_tetromino_sequence{} {
     }
 
     // fill in the sequence with random order
-    for (int i = 0; i < m_tetromino_sequence.size(); ++i) {
+    for (size_t i = 0; i < m_tetromino_sequence.size(); ++i) {
         bool type_is_okay = true;
         do {
             type_is_okay = true;
             m_tetromino_sequence[i] = get_random_tetromino_type();
-            for (int j = 0; j < i; ++j) {
+            for (size_t j = 0; j < i; ++j) {
                 if (m_tetromino_sequence[j] == m_tetromino_sequence[i]) {
                     type_is_okay = false;
                     break;
