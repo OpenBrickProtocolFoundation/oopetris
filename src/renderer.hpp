@@ -17,7 +17,7 @@ public:
 
     void set_draw_color(Color color) const;
     void clear(Color clear_color = Color::black()) const;
-    void draw_filled_rect(Rect rect, Color color) const;
+    void draw_rect_filled(Rect rect, Color color) const;
     void draw_rect_outline(Rect rect, Color color) const;
     void draw_line(Point from, Point to, Color color) const;
 

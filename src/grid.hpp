@@ -55,7 +55,7 @@ public:
         const Point preview_bottom_right =
                 preview_top_left
                 + Point{ tile_size().x * preview_extends.x - 1, tile_size().y * preview_extends.y - 1 };
-        app.renderer().draw_filled_rect(Rect{ preview_top_left, preview_bottom_right }, background_color);
+        app.renderer().draw_rect_filled(Rect{ preview_top_left, preview_bottom_right }, background_color);
 
         const Point outline_top_left = preview_top_left - Point{ 1, 1 };
         const Point outline_bottom_right = preview_bottom_right + Point{ 1, 1 };
@@ -68,7 +68,7 @@ public:
             width * m_tile_size - 1,
             (height - invisible_rows) * m_tile_size,
         };
-        app.renderer().draw_filled_rect(Rect{ Point::zero(), bottom_right }, background_color);
+        app.renderer().draw_rect_filled(Rect{ Point::zero(), bottom_right }, background_color);
         app.renderer().draw_line(
                 Point{ bottom_right.x + 1, 0 }, Point{ bottom_right.x + 1, app.window().size().y - 1 }, border_color
         );

@@ -23,7 +23,7 @@ void Renderer::clear(Color clear_color) const {
     SDL_RenderClear(m_renderer);
 }
 
-void Renderer::draw_filled_rect(Rect rect, Color color) const {
+void Renderer::draw_rect_filled(Rect rect, Color color) const {
     set_draw_color(color);
     SDL_Rect sdl_rect = to_sdl_rect(rect);
     SDL_RenderFillRect(m_renderer, &sdl_rect);
