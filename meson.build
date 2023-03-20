@@ -26,6 +26,17 @@ else
     deps += sdl2_dep
 endif
 
+sdl2_ttf_dep = dependency('sdl2_ttf', required: false)
+if not sdl2_ttf_dep.found()
+    deps += dependency(
+        'sdl2_ttf',
+        required: true,
+        fallback: 'sdl2_ttf',
+    )
+else
+    deps += sdl2_ttf_dep
+endif
+
 inc_dirs = []
 src_files = []
 
