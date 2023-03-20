@@ -1,0 +1,89 @@
+name: CMake CI
+
+on:
+    push:
+        branches: ["main"]
+    pull_request:
+        branches: ["main"]
+    workflow_dispatch:
+
+jobs:
+    build:
+        name: ${{ matrix.config.name }}
+        runs-on: ${{ matrix.config.os }}
+
+        strategy:
+            fail-fast: false
+            matrix:
+                # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+                config:
+                    - name: Windows MSVC Release
+                      os: windows-latest
+                      msvc: true
+                      buildtype: Release
+                    - name: Linux Release
+                      os: ubuntu-22.04
+                      buildtype: Release
+
+        steps:
+            - uses: actions/checkout@v3
+              with:
+                  fetch-depth: "0"
+
+            - name: Setup MSVC
+              if: matrix.config.os == 'windows-latest' && matrix.config.msvc == true
+              uses: ilammy/msvc-dev-cmd@v1
+
+            - name: Install dependencies (Linux)
+              if: matrix.config.os == 'ubuntu-22.04'
+              shell: bash
+              run: |
+                  sudo apt-get update
+                  sudo apt install curl pkg-config zip unzip tar cmake git -y
+
+            - name: Install cmake >= 3.25 (Linux)
+              if: matrix.config.os == 'ubuntu-22.04'
+              shell: bash
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install gpg wget
+                  wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | sudo tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null
+                  echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ jammy main' | sudo tee /etc/apt/sources.list.d/kitware.list >/dev/null
+                  sudo apt-get update
+                  sudo apt-get install cmake -y
+
+            - name: Set Environment - Linux
+              if: matrix.config.os == 'ubuntu-22.04'
+              run: |
+                  export CXX=g++-12
+                  export CC=gcc-12
+
+            - name: Install vcpkg
+              shell: bash
+              run: |
+                  cd "${{github.workspace}}"
+                  git clone https://github.com/Microsoft/vcpkg.git
+                  "${{github.workspace}}/vcpkg/bootstrap-vcpkg.sh"
+
+            - name: Configure CMake
+              # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
+              # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
+              run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{ matrix.config.buildtype }} -DCMAKE_TOOLCHAIN_FILE="${{github.workspace}}/vcpkg/scripts/buildsystems/vcpkg.cmake" ${{github.workspace}}
+
+            - name: Build
+              # Build your program with the given configuration
+              run: cmake --build ${{github.workspace}}/build -j --config ${{ matrix.config.buildtype }}
+
+            - name: Upload artifacts - Linux
+              uses: actions/upload-artifact@v3
+              if: matrix.config.os == 'ubuntu-22.04'
+              with:
+                  name: ${{ matrix.config.name }} Executable
+                  path: build/oopetris
+
+            - name: Upload artifacts - Windows
+              uses: actions/upload-artifact@v3
+              if: matrix.config.os == 'windows-latest'
+              with:
+                  name: ${{ matrix.config.name }} Executable
+                  path: build/${{ matrix.config.buildtype }}\oopetris.exe
