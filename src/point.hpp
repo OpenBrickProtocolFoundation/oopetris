@@ -47,3 +47,13 @@ inline constexpr Point operator-(Point point) {
 inline constexpr Point operator-(Point lhs, Point rhs) {
     return lhs + (-rhs);
 }
+
+inline constexpr Point operator+=(Point& lhs, Point rhs) {
+    lhs = lhs + rhs;
+    return lhs;
+}
+
+inline constexpr Point operator-=(Point& lhs, Point rhs) {
+    lhs = lhs - rhs;
+    return lhs;
+}

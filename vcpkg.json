@@ -5,5 +5,8 @@
   "dependencies" : [ {
     "name" : "sdl2",
     "version>=" : "2.26.4"
+  }, {
+    "name" : "sdl2-ttf",
+    "version>=" : "2.20.2"
   } ]
 }

@@ -5,6 +5,9 @@
 #include "tetromino_type.hpp"
 
 struct TetrisApplication : public Application {
+private:
+    GameManager m_game;
+
 public:
     static constexpr int width = 800;
     static constexpr int height = 600;
@@ -12,9 +15,6 @@ public:
     TetrisApplication() : Application{ "TetrisApplication", WindowPosition::Centered, width, height } {
         m_game.spawn_next_tetromino();
     }
-
-private:
-    GameManager m_game;
 
 protected:
     bool handle_event(const SDL_Event& event) override {
@@ -31,7 +31,7 @@ protected:
                     m_game.rotate_tetromino_right();
                     return true;
                 case SDLK_s:
-                    m_game.move_tetromino_down();
+                    m_game.move_tetromino_down(MovementType::Forced);
                     return true;
                 case SDLK_a:
                     m_game.move_tetromino_left();

@@ -8,6 +8,8 @@ struct Color {
     std::uint8_t b;
     std::uint8_t a;
 
+    constexpr Color() : Color{ 0, 0, 0, 0 } { }
+
     constexpr Color(std::uint8_t r, std::uint8_t g, std::uint8_t b, std::uint8_t a) : r{ r }, g{ g }, b{ b }, a{ a } { }
 
     constexpr Color(std::uint8_t r, std::uint8_t g, std::uint8_t b) : Color{ r, g, b, 255 } { }

@@ -25,6 +25,7 @@ public:
         return m_window;
     }
 
+
     static double elapsed_time() {
         return static_cast<double>(SDL_GetTicks()) / 1000.0;
     }

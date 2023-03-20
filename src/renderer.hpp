@@ -22,4 +22,6 @@ public:
     void draw_line(Point from, Point to, Color color) const;
 
     void present() const;
+
+    friend struct Text;
 };

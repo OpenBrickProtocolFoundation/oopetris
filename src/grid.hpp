@@ -8,15 +8,15 @@
 
 struct Grid final {
 public:
-    static constexpr int width = 10;
-    static constexpr int height = 22;
-    static constexpr int invisible_rows = 2;
-    static constexpr int num_tiles = width * height;
-    static constexpr Point preview_background_position{ width + 1, 1 + invisible_rows };
-    static constexpr Point preview_tetromino_position = preview_background_position + Point{ 0, 1 };
-    static constexpr Point preview_extends{ 4, 4 };
-    static constexpr Color background_color{ 12, 12, 12 };
-    static constexpr Color border_color{ 42, 42, 42 };
+    static const int width;
+    static const int height;
+    static const int invisible_rows;
+    static const int num_tiles;
+    static const Point preview_background_position;
+    static const Point preview_tetromino_position;
+    static const Point preview_extends;
+    static const Color background_color;
+    static const Color border_color;
 
 private:
     Point m_offset;

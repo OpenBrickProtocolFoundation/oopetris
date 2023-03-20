@@ -1,11 +1,10 @@
 cmake_minimum_required(VERSION 3.25)
 project(oopetris)
 
-
-set(CMAKE_CXX_STANDARD 17)
-
+set(CMAKE_CXX_STANDARD 14)
 
 find_package(SDL2 CONFIG REQUIRED)
+find_package(SDL2_ttf CONFIG REQUIRED)
 
 add_executable(oopetris
         src/main.cpp
@@ -32,10 +31,16 @@ add_executable(oopetris
         src/tetris_application.hpp
         src/tetromino.cpp
         src/bag.cpp
-        src/bag.hpp)
+        src/bag.hpp
+        src/font.cpp
+        src/font.hpp
+        src/text.cpp
+        src/text.hpp src/grid.cpp)
 
 target_link_libraries(oopetris
         PRIVATE
         $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
         $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
         )
+
+target_link_libraries(oopetris PRIVATE $<IF:$<TARGET_EXISTS:SDL2_ttf::SDL2_ttf>,SDL2_ttf::SDL2_ttf,SDL2_ttf::SDL2_ttf-static>)

@@ -1,19 +1,35 @@
 #include "game_manager.hpp"
 #include "application.hpp"
 #include <iostream>
+#include <sstream>
 
 GameManager::GameManager()
     : m_grid{ Point::zero(), tile_size },
-      m_next_gravity_step_time{ Application::elapsed_time() + get_gravity_delay(0) } { }
+      m_next_gravity_step_time{ Application::elapsed_time() + get_gravity_delay(0) } {
+    m_fonts.push_back(std::make_shared<Font>("assets/fonts/PressStart2P.ttf", 18));
+    m_score_text = Text{
+        Point{ m_grid.to_screen_coords(Grid::preview_tetromino_position + Point{ 0, Grid::preview_extends.y }) },
+        Color::white(), "score: 0", m_fonts.front()
+    };
+    m_level_text = Text{
+        Point{ m_grid.to_screen_coords(Grid::preview_tetromino_position + Point{ 0, Grid::preview_extends.y + 1 }) },
+        Color::white(), "level: 0", m_fonts.front()
+    };
+    m_cleared_lines_text = Text{
+        Point{ m_grid.to_screen_coords(Grid::preview_tetromino_position + Point{ 0, Grid::preview_extends.y + 2 }) },
+        Color::white(), "lines: 0", m_fonts.front()
+    };
+}
 
 void GameManager::update() {
     switch (m_game_state) {
         case GameState::Playing: {
             const double current_time = Application::elapsed_time();
             if (current_time >= m_next_gravity_step_time) {
-                move_tetromino_down();
+                move_tetromino_down(MovementType::Gravity);
                 m_next_gravity_step_time += get_gravity_delay(m_level);
             }
+            refresh_texts();
             break;
         }
         case GameState::GameOver:
@@ -30,6 +46,9 @@ void GameManager::render(const Application& app) const {
     if (m_preview_tetromino) {
         m_preview_tetromino->render(app, m_grid);
     }
+    m_score_text.render(app);
+    m_level_text.render(app);
+    m_cleared_lines_text.render(app);
 }
 
 void GameManager::spawn_next_tetromino() {
@@ -66,7 +85,7 @@ void GameManager::rotate_tetromino_left() {
     }
 }
 
-void GameManager::move_tetromino_down() {
+void GameManager::move_tetromino_down(MovementType movement_type) {
     if (!m_active_tetromino) {
         return;
     }
@@ -74,6 +93,9 @@ void GameManager::move_tetromino_down() {
     if (!is_active_tetromino_position_valid()) {
         m_active_tetromino->move_up();
         freeze_active_tetromino();
+    }
+    if (movement_type == MovementType::Forced) {
+        m_score += 4;
     }
 }
 
@@ -101,15 +123,33 @@ void GameManager::drop_tetromino() {
     if (!m_active_tetromino) {
         return;
     }
+    int num_movements = 0;
     while (is_active_tetromino_position_valid()) {
+        ++num_movements;
         m_active_tetromino->move_down();
     }
     m_active_tetromino->move_up();
     freeze_active_tetromino();
+    m_score += 4 * num_movements;
+}
+
+void GameManager::refresh_texts() {
+    std::stringstream stream;
+    stream << "score: " << m_score;
+    m_score_text.set_text(stream.str());
+
+    stream = {};
+    stream << "level: " << m_level;
+    m_level_text.set_text(stream.str());
+
+    stream = {};
+    stream << "lines: " << m_lines_cleared;
+    m_cleared_lines_text.set_text(stream.str());
 }
 
 void GameManager::clear_fully_occupied_lines() {
     bool cleared = false;
+    const int lines_cleared_before = m_lines_cleared;
     do {
         cleared = false;
         for (int row = 0; row < Grid::height; ++row) {
@@ -133,6 +173,9 @@ void GameManager::clear_fully_occupied_lines() {
             }
         }
     } while (cleared);
+    const int num_lines_cleared = m_lines_cleared - lines_cleared_before;
+    static constexpr std::array<int, 5> score_per_line_multiplier{ 0, 40, 100, 300, 1200 };
+    m_score += score_per_line_multiplier.at(num_lines_cleared) * (m_level + 1);
 }
 
 void GameManager::freeze_active_tetromino() {
