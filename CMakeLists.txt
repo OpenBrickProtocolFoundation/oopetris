@@ -27,7 +27,12 @@ add_executable(oopetris
         src/tetromino_type.hpp
         src/tetromino_type.cpp
         src/mino.cpp
-        src/game_manager.cpp src/game_manager.hpp src/tetris_application.cpp src/tetris_application.hpp src/tetromino.cpp)
+        src/game_manager.cpp
+        src/game_manager.hpp
+        src/tetris_application.cpp
+        src/tetris_application.hpp
+        src/tetromino.cpp
+)
 
 target_link_libraries(oopetris
         PRIVATE
