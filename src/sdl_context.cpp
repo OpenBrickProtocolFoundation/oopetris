@@ -1,5 +1,5 @@
 #include "sdl_context.hpp"
-#include "SDL2/SDL.h"
+#include <SDL.h>
 
 SdlContext::SdlContext() {
     SDL_Init(SDL_INIT_VIDEO);

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "SDL2/SDL.h"
 #include "point.hpp"
+#include <SDL.h>
 #include <string>
 
 enum class WindowPosition {
