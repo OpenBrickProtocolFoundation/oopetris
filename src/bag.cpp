@@ -17,7 +17,7 @@ Bag::Bag() : m_tetromino_sequence{} {
     }
 
     // fill in the sequence with random order
-    for (size_t i = 0; i < m_tetromino_sequence.size(); ++i) {
+    for (std::size_t i = 0; i < m_tetromino_sequence.size(); ++i) {
         bool type_is_okay = true;
         do {
             type_is_okay = true;
