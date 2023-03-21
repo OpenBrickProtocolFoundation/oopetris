@@ -22,7 +22,7 @@ Bag::Bag() : m_tetromino_sequence{} {
         do {
             type_is_okay = true;
             m_tetromino_sequence[i] = get_random_tetromino_type();
-            for (size_t j = 0; j < i; ++j) {
+            for (std::size_t j = 0; j < i; ++j) {
                 if (m_tetromino_sequence[j] == m_tetromino_sequence[i]) {
                     type_is_okay = false;
                     break;
