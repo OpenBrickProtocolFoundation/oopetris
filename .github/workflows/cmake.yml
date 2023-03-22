@@ -65,10 +65,12 @@ jobs:
                   git clone https://github.com/Microsoft/vcpkg.git
                   "${{github.workspace}}/vcpkg/bootstrap-vcpkg.sh"
 
+            - uses: seanmiddleditch/gha-setup-ninja@master
+
             - name: Configure CMake
               # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
               # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-              run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{ matrix.config.buildtype }} -DCMAKE_TOOLCHAIN_FILE="${{github.workspace}}/vcpkg/scripts/buildsystems/vcpkg.cmake" ${{github.workspace}}
+              run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{ matrix.config.buildtype }} -DCMAKE_TOOLCHAIN_FILE="${{github.workspace}}/vcpkg/scripts/buildsystems/vcpkg.cmake" ${{github.workspace}} -G Ninja
 
             - name: Build
               # Build your program with the given configuration

@@ -37,10 +37,16 @@ add_executable(oopetris
         src/text.cpp
         src/text.hpp src/grid.cpp)
 
+if(MSVC)
+        target_compile_options(oopetris PRIVATE /W4 /WX)
+else()
+        target_compile_options(oopetris PRIVATE -Wall -Wextra -pedantic -Werror)
+endif()
+
 target_link_libraries(oopetris
         PRIVATE
         $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
         $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
-        )
+)
 
 target_link_libraries(oopetris PRIVATE $<IF:$<TARGET_EXISTS:SDL2_ttf::SDL2_ttf>,SDL2_ttf::SDL2_ttf,SDL2_ttf::SDL2_ttf-static>)

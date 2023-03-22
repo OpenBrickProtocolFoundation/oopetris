@@ -48,7 +48,7 @@ protected:
         return false;
     }
 
-    void update(double delta_time) override {
+    void update(double) override {
         m_game.update();
     }
 

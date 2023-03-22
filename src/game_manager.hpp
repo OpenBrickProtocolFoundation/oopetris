@@ -58,7 +58,7 @@ private:
     void refresh_preview();
     TetrominoType get_next_tetromino_type();
 
-    static double get_gravity_delay(int level) {
+    static double get_gravity_delay(std::size_t level) {
         const int frames = (level >= frames_per_tile.size() ? frames_per_tile.back() : frames_per_tile[level]);
         return 1.0 / 60.0 * static_cast<double>(frames);
     }
