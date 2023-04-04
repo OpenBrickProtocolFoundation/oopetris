@@ -53,8 +53,8 @@ private:
     void refresh_texts();
     void clear_fully_occupied_lines();
     void freeze_active_tetromino();
-    bool is_active_tetromino_position_valid() const;
-    bool is_valid_mino_position(Point position) const;
+    [[nodiscard]] bool is_active_tetromino_position_valid() const;
+    [[nodiscard]] bool is_valid_mino_position(Point position) const;
     void refresh_preview();
     TetrominoType get_next_tetromino_type();
 

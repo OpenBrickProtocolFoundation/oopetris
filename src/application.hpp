@@ -22,11 +22,11 @@ public:
 
     void run(int target_frames_per_second);
 
-    const Renderer& renderer() const {
+    [[nodiscard]] const Renderer& renderer() const {
         return m_renderer;
     }
 
-    const Window& window() const {
+    [[nodiscard]] const Window& window() const {
         return m_window;
     }
 
