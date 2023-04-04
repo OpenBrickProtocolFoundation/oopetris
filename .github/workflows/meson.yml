@@ -48,12 +48,12 @@ jobs:
             - name: Configure (Windows)
               if: matrix.config.os == 'windows-latest'
               shell: bash
-              run: PKG_CONFIG_PATH="${{github.workspace}}/tools/vcpkg_installed/x64-windows-${{ matrix.config.buildtype }}/lib/pkgconfig meson setup build -Dbuildtype=${{ matrix.config.buildtype }}
+              run: PKG_CONFIG_PATH="${{github.workspace}}/tools/vcpkg_installed/x64-windows-${{ matrix.config.buildtype }}/lib/pkgconfig" meson setup build -Dbuildtype=${{ matrix.config.buildtype }}
 
             - name: Configure (Linux)
               if: matrix.config.os == 'ubuntu-22.04'
               shell: bash
-              run: CXX=g++-12 CC=gcc-12 PKG_CONFIG_PATH="${{github.workspace}}/tools/vcpkg_installed/x64-linux-${{ matrix.config.buildtype }}/lib/pkgconfig meson setup build -Dbuildtype=${{ matrix.config.buildtype }}
+              run: CXX=g++-12 CC=gcc-12 PKG_CONFIG_PATH="${{github.workspace}}/tools/vcpkg_installed/x64-linux-${{ matrix.config.buildtype }}/lib/pkgconfig" meson setup build -Dbuildtype=${{ matrix.config.buildtype }}
 
             - name: Build
               run: meson compile -C build
