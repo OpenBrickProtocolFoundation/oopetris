@@ -5,7 +5,7 @@
 #include "tetromino.hpp"
 #include "text.hpp"
 #include <array>
-#include <memory>
+#include <tl/optional.hpp>
 
 struct Application;
 
@@ -23,8 +23,8 @@ struct GameManager final {
 private:
     static constexpr int tile_size = 30;
     Grid m_grid;
-    std::unique_ptr<Tetromino> m_active_tetromino;
-    std::unique_ptr<Tetromino> m_preview_tetromino;
+    tl::optional<Tetromino> m_active_tetromino;
+    tl::optional<Tetromino> m_preview_tetromino;
     int m_level = 0;
     double m_next_gravity_step_time;
     int m_lines_cleared = 0;

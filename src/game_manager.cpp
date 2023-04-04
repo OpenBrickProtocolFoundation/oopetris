@@ -54,7 +54,7 @@ void GameManager::render(const Application& app) const {
 void GameManager::spawn_next_tetromino() {
     static constexpr Point spawn_position{ 3, 0 };
     const TetrominoType next_type = get_next_tetromino_type();
-    m_active_tetromino = std::make_unique<Tetromino>(spawn_position, next_type);
+    m_active_tetromino = Tetromino{ spawn_position, next_type };
     refresh_preview();
     if (!is_active_tetromino_position_valid()) {
         m_game_state = GameState::GameOver;
@@ -206,7 +206,7 @@ bool GameManager::is_valid_mino_position(Point position) const {
 
 void GameManager::refresh_preview() {
     m_preview_tetromino =
-            std::make_unique<Tetromino>(Grid::preview_tetromino_position, m_sequence_bags[0][m_sequence_index]);
+            Tetromino{ Grid::preview_tetromino_position, m_sequence_bags[0][m_sequence_index] };
 }
 
 TetrominoType GameManager::get_next_tetromino_type() {

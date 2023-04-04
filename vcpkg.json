@@ -8,5 +8,8 @@
   }, {
     "name" : "sdl2-ttf",
     "version>=" : "2.20.2"
+  }, {
+    "name" : "tl-optional",
+    "version>=" : "2021-05-02"
   } ]
 }
