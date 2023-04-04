@@ -4,6 +4,7 @@
 #include "grid.hpp"
 #include "tetromino.hpp"
 #include "text.hpp"
+#include "input.hpp"
 #include <array>
 #include <tl/optional.hpp>
 
@@ -41,20 +42,23 @@ public:
     GameManager();
     void update();
     void render(const Application& app) const;
+
+    // returns if the input event lead to a movement
+    bool handle_input_event(Input::Event event);
     void spawn_next_tetromino();
-    void rotate_tetromino_right();
-    void rotate_tetromino_left();
-    void move_tetromino_down(MovementType movement_type);
-    void move_tetromino_left();
-    void move_tetromino_right();
-    void drop_tetromino();
+    bool rotate_tetromino_right();
+    bool rotate_tetromino_left();
+    bool move_tetromino_down(MovementType movement_type);
+    bool move_tetromino_left();
+    bool move_tetromino_right();
+    bool drop_tetromino();
 
 private:
     void refresh_texts();
     void clear_fully_occupied_lines();
     void freeze_active_tetromino();
-    bool is_active_tetromino_position_valid() const;
-    bool is_valid_mino_position(Point position) const;
+    [[nodiscard]] bool is_active_tetromino_position_valid() const;
+    [[nodiscard]] bool is_valid_mino_position(Point position) const;
     void refresh_preview();
     TetrominoType get_next_tetromino_type();
 

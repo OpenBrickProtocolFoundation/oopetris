@@ -1,5 +1,6 @@
 #include "game_manager.hpp"
 #include "application.hpp"
+#include <cassert>
 #include <iostream>
 #include <sstream>
 
@@ -51,6 +52,26 @@ void GameManager::render(const Application& app) const {
     m_cleared_lines_text.render(app);
 }
 
+bool GameManager::handle_input_event(Input::Event event) {
+    switch (event) {
+        case Input::Event::RotateLeft:
+            return rotate_tetromino_left();
+        case Input::Event::RotateRight:
+            return rotate_tetromino_right();
+        case Input::Event::MoveLeft:
+            return move_tetromino_left();
+        case Input::Event::MoveRight:
+            return move_tetromino_right();
+        case Input::Event::MoveDown:
+            return move_tetromino_down(MovementType::Forced);
+        case Input::Event::Drop:
+            return drop_tetromino();
+        default:
+            assert(false and "unknown event");
+            return false;
+    }
+}
+
 void GameManager::spawn_next_tetromino() {
     static constexpr Point spawn_position{ 3, 0 };
     const TetrominoType next_type = get_next_tetromino_type();
@@ -65,63 +86,74 @@ void GameManager::spawn_next_tetromino() {
     m_next_gravity_step_time = Application::elapsed_time() + get_gravity_delay(m_level);
 }
 
-void GameManager::rotate_tetromino_right() {
+bool GameManager::rotate_tetromino_right() {
     if (!m_active_tetromino) {
-        return;
+        return false;
     }
     m_active_tetromino->rotate_right();
     if (!is_active_tetromino_position_valid()) {
         m_active_tetromino->rotate_left();
+        return false;
     }
+    return true;
 }
 
-void GameManager::rotate_tetromino_left() {
+bool GameManager::rotate_tetromino_left() {
     if (!m_active_tetromino) {
-        return;
+        return false;
     }
     m_active_tetromino->rotate_left();
     if (!is_active_tetromino_position_valid()) {
         m_active_tetromino->rotate_right();
+        return false;
     }
+    return true;
 }
 
-void GameManager::move_tetromino_down(MovementType movement_type) {
+bool GameManager::move_tetromino_down(MovementType movement_type) {
     if (!m_active_tetromino) {
-        return;
-    }
-    m_active_tetromino->move_down();
-    if (!is_active_tetromino_position_valid()) {
-        m_active_tetromino->move_up();
-        freeze_active_tetromino();
+        return false;
     }
     if (movement_type == MovementType::Forced) {
         m_score += 4;
     }
+
+    m_active_tetromino->move_down();
+    if (!is_active_tetromino_position_valid()) {
+        m_active_tetromino->move_up();
+        freeze_active_tetromino();
+        return false;
+    }
+    return true;
 }
 
-void GameManager::move_tetromino_left() {
+bool GameManager::move_tetromino_left() {
     if (!m_active_tetromino) {
-        return;
+        return false;
     }
     m_active_tetromino->move_left();
     if (!is_active_tetromino_position_valid()) {
         m_active_tetromino->move_right();
+        return false;
     }
+    return true;
 }
 
-void GameManager::move_tetromino_right() {
+bool GameManager::move_tetromino_right() {
     if (!m_active_tetromino) {
-        return;
+        return false;
     }
     m_active_tetromino->move_right();
     if (!is_active_tetromino_position_valid()) {
         m_active_tetromino->move_left();
+        return false;
     }
+    return true;
 }
 
-void GameManager::drop_tetromino() {
+bool GameManager::drop_tetromino() {
     if (!m_active_tetromino) {
-        return;
+        return false;
     }
     int num_movements = 0;
     while (is_active_tetromino_position_valid()) {
@@ -131,6 +163,7 @@ void GameManager::drop_tetromino() {
     m_active_tetromino->move_up();
     freeze_active_tetromino();
     m_score += 4 * num_movements;
+    return num_movements > 0;
 }
 
 void GameManager::refresh_texts() {

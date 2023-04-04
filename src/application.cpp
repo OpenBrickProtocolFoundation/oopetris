@@ -11,11 +11,9 @@ Application::Application(const std::string& title, int x, int y, int width, int 
 void Application::run(int target_frames_per_second) {
     const double target_frame_duration = 1.0 / static_cast<double>(target_frames_per_second);
     Uint32 last_ticks = SDL_GetTicks();
+    m_event_dispatcher.register_listener(this);
     while (m_is_running) {
-        SDL_Event event;
-        while (SDL_PollEvent(&event)) {
-            handle_event(event);
-        }
+        m_event_dispatcher.dispatch_pending_events();
         const Uint32 current_ticks = SDL_GetTicks();
         const double delta_time = static_cast<double>(current_ticks - last_ticks) / 1000.0;
         last_ticks = current_ticks;
@@ -29,12 +27,10 @@ void Application::run(int target_frames_per_second) {
     }
 }
 
-bool Application::handle_event(const SDL_Event& event) {
+void Application::handle_event(const SDL_Event& event) {
     if (event.type == SDL_QUIT || (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE)) {
         m_is_running = false;
-        return true;
     }
-    return false;
 }
 
 void Application::render() const {
