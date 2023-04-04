@@ -23,13 +23,9 @@ subdir('tools')
 
 deps = []
 
-deps += dependency('sdl2', required: true, fallback: ['libsdl2', 'sdl2_dep'])
+deps += dependency('SDL2', required: true)
 deps += dependency('tl-optional', required: true) ## this is a header only lib!
-deps += dependency(
-    'sdl2_ttf',
-    required: true,
-    fallback: ['libsdl2_ttf', 'sdl2_ttf_dep'],
-)
+deps += dependency('SDL2_ttf', required: true)
 
 inc_dirs = []
 src_files = []
