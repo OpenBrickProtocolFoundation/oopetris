@@ -19,6 +19,8 @@ else
     add_project_arguments('-std=c++20', language: 'cpp')
 endif
 
+subdir('tools')
+
 deps = []
 
 deps += dependency('sdl2', required: true, fallback: ['libsdl2', 'sdl2_dep'])
@@ -28,8 +30,6 @@ deps += dependency(
     required: true,
     fallback: ['libsdl2_ttf', 'sdl2_ttf_dep'],
 )
-
-deps += dependency('tl-optional', required: true, fallback: ['tl-optional'])
 
 inc_dirs = []
 src_files = []
