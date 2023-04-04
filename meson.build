@@ -22,7 +22,7 @@ endif
 deps = []
 
 deps += dependency('sdl2', required: true, fallback: ['libsdl2', 'sdl2_dep'])
-# add this later: deps += dependency('tl-optional', required: true) ## this is a header only lib!
+deps += dependency('tl-optional', required: true) ## this is a header only lib!
 deps += dependency(
     'sdl2_ttf',
     required: true,
