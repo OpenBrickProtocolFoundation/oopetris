@@ -63,5 +63,6 @@ private:
         return 1.0 / 60.0 * static_cast<double>(frames);
     }
 
-    static std::array<int, 30> frames_per_tile;
+    static constexpr auto frames_per_tile = std::array<int, 30>{ 48, 43, 38, 33, 28, 23, 18, 13, 8, 6, 5, 5, 5, 4, 4,
+                                                                 4,  3,  3,  3,  2,  2,  2,  2,  2, 2, 2, 2, 2, 2, 1 };
 };

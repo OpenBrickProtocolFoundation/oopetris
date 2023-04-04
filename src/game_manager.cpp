@@ -219,5 +219,3 @@ TetrominoType GameManager::get_next_tetromino_type() {
     }
     return next_type;
 }
-std::array<int, 30> GameManager::frames_per_tile{ 48, 43, 38, 33, 28, 23, 18, 13, 8, 6, 5, 5, 5, 4, 4,
-                                                  4,  3,  3,  3,  2,  2,  2,  2,  2, 2, 2, 2, 2, 2, 1 };
