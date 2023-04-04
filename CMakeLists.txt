@@ -34,7 +34,13 @@ add_executable(oopetris
         src/font.cpp
         src/font.hpp
         src/text.cpp
-        src/text.hpp src/grid.cpp)
+        src/text.hpp
+        src/grid.cpp
+        src/input.hpp
+        src/event_dispatcher.cpp
+        src/event_dispatcher.hpp
+        src/event_listener.hpp
+        )
 
 if(MSVC)
         target_compile_options(oopetris PRIVATE /W4 /WX)
