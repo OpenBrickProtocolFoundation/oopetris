@@ -77,13 +77,20 @@ void GameManager::spawn_next_tetromino() {
     const TetrominoType next_type = get_next_tetromino_type();
     m_active_tetromino = Tetromino{ spawn_position, next_type };
     refresh_preview();
-    if (!is_active_tetromino_position_valid()) {
+    if (not is_active_tetromino_position_valid()) {
         m_game_state = GameState::GameOver;
         std::cerr << "game over\n";
         m_active_tetromino = {};
         return;
     }
-    m_next_gravity_step_time = Application::elapsed_time() + get_gravity_delay(m_level);
+    for (int i = 0; i < Grid::invisible_rows; ++i) {
+        m_active_tetromino->move_down();
+        if (not is_active_tetromino_position_valid()) {
+            m_active_tetromino->move_up();
+            break;
+        }
+    }
+    m_next_gravity_step_time = Application::elapsed_time() + get_gravity_delay();
 }
 
 bool GameManager::rotate_tetromino_right() {
