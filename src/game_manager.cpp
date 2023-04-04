@@ -6,7 +6,7 @@
 
 GameManager::GameManager()
     : m_grid{ Point::zero(), tile_size },
-      m_next_gravity_step_time{ Application::elapsed_time() + get_gravity_delay(0) } {
+      m_next_gravity_step_time{ Application::elapsed_time() + get_gravity_delay() } {
     m_fonts.push_back(std::make_shared<Font>("assets/fonts/PressStart2P.ttf", 18));
     m_score_text = Text{
         Point{ m_grid.to_screen_coords(Grid::preview_tetromino_position + Point{ 0, Grid::preview_extends.y }) },
@@ -27,8 +27,13 @@ void GameManager::update() {
         case GameState::Playing: {
             const double current_time = Application::elapsed_time();
             if (current_time >= m_next_gravity_step_time) {
-                move_tetromino_down(MovementType::Gravity);
-                m_next_gravity_step_time += get_gravity_delay(m_level);
+                if (m_is_accelerated_down_movement and not m_down_key_pressed) {
+                    m_next_gravity_step_time -= get_gravity_delay();
+                    m_is_accelerated_down_movement = false;
+                } else {
+                    move_tetromino_down(m_is_accelerated_down_movement ? MovementType::Forced : MovementType::Gravity);
+                }
+                m_next_gravity_step_time += get_gravity_delay();
             }
             refresh_texts();
             break;
@@ -63,9 +68,16 @@ bool GameManager::handle_input_event(Input::Event event) {
         case Input::Event::MoveRight:
             return move_tetromino_right();
         case Input::Event::MoveDown:
+            m_down_key_pressed = true;
+            m_is_accelerated_down_movement = true;
+            m_next_gravity_step_time = Application::elapsed_time() + get_gravity_delay();
             return move_tetromino_down(MovementType::Forced);
         case Input::Event::Drop:
             return drop_tetromino();
+        case Input::Event::ReleaseMoveDown: {
+            m_down_key_pressed = false;
+            return false;
+        }
         default:
             assert(false and "unknown event");
             return false;
@@ -77,13 +89,20 @@ void GameManager::spawn_next_tetromino() {
     const TetrominoType next_type = get_next_tetromino_type();
     m_active_tetromino = Tetromino{ spawn_position, next_type };
     refresh_preview();
-    if (!is_active_tetromino_position_valid()) {
+    if (not is_active_tetromino_position_valid()) {
         m_game_state = GameState::GameOver;
         std::cerr << "game over\n";
         m_active_tetromino = {};
         return;
     }
-    m_next_gravity_step_time = Application::elapsed_time() + get_gravity_delay(m_level);
+    for (int i = 0; i < Grid::invisible_rows; ++i) {
+        m_active_tetromino->move_down();
+        if (not is_active_tetromino_position_valid()) {
+            m_active_tetromino->move_up();
+            break;
+        }
+    }
+    m_next_gravity_step_time = Application::elapsed_time() + get_gravity_delay();
 }
 
 bool GameManager::rotate_tetromino_right() {
@@ -238,8 +257,7 @@ bool GameManager::is_valid_mino_position(Point position) const {
 }
 
 void GameManager::refresh_preview() {
-    m_preview_tetromino =
-            Tetromino{ Grid::preview_tetromino_position, m_sequence_bags[0][m_sequence_index] };
+    m_preview_tetromino = Tetromino{ Grid::preview_tetromino_position, m_sequence_bags[0][m_sequence_index] };
 }
 
 TetrominoType GameManager::get_next_tetromino_type() {
