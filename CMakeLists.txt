@@ -29,7 +29,6 @@ add_executable(oopetris
         src/game_manager.hpp
         src/tetris_application.cpp
         src/tetris_application.hpp
-        src/tetromino.cpp
         src/bag.cpp
         src/bag.hpp
         src/font.cpp
