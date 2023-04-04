@@ -3,54 +3,57 @@
 #include "application.hpp"
 #include "game_manager.hpp"
 #include "tetromino_type.hpp"
+#include <cassert>
+#include <iostream>
 
 struct TetrisApplication : public Application {
 private:
-    GameManager m_game;
+    enum class InputMethod {
+        Keyboard,
+    };
+
+    std::vector<std::unique_ptr<GameManager>> m_game_managers;
+    std::vector<std::unique_ptr<Input>> m_inputs;
 
 public:
     static constexpr int width = 800;
     static constexpr int height = 600;
 
     TetrisApplication() : Application{ "TetrisApplication", WindowPosition::Centered, width, height } {
-        m_game.spawn_next_tetromino();
-    }
-
-protected:
-    void handle_event(const SDL_Event& event) override {
-        // the parent implementation handles the escape key and the "close window" button
-        Application::handle_event(event);
-        if (event.type == SDL_KEYDOWN) {
-            switch (event.key.keysym.sym) {
-                case SDLK_LEFT:
-                    m_game.rotate_tetromino_left();
-                    break;
-                case SDLK_RIGHT:
-                    m_game.rotate_tetromino_right();
-                    break;
-                case SDLK_s:
-                    m_game.move_tetromino_down(MovementType::Forced);
-                    break;
-                case SDLK_a:
-                    m_game.move_tetromino_left();
-                    break;
-                case SDLK_d:
-                    m_game.move_tetromino_right();
-                    break;
-                case SDLK_SPACE:
-                case SDLK_w:
-                    m_game.drop_tetromino();
-                    break;
-            }
+        static constexpr auto num_players = 1;
+        for (int i = 0; i < num_players; ++i) {
+            m_game_managers.push_back(std::make_unique<GameManager>());
+            m_inputs.push_back(create_input(InputMethod::Keyboard, m_game_managers.back().get()));
+        }
+        for (const auto& game_manager : m_game_managers) {
+            game_manager->spawn_next_tetromino();
         }
     }
 
+protected:
     void update(double) override {
-        m_game.update();
+        for (const auto& game_manager : m_game_managers) {
+            game_manager->update();
+        }
     }
 
     void render() const override {
         Application::render(); // call parent function to clear the screen
-        m_game.render(*this);
+        for (const auto& game_manager : m_game_managers) {
+            game_manager->render(*this);
+        }
+    }
+
+private:
+    std::unique_ptr<Input> create_input(InputMethod input_method, GameManager* associated_game_manager) {
+        switch (input_method) {
+            case InputMethod::Keyboard: {
+                auto keyboard_input = std::make_unique<KeyboardInput>(associated_game_manager);
+                m_event_dispatcher.register_listener(keyboard_input.get());
+                return keyboard_input;
+            }
+        }
+        assert(false and "unreachable");
+        return {};
     }
 };

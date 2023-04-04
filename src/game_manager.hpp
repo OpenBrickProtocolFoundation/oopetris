@@ -4,6 +4,7 @@
 #include "grid.hpp"
 #include "tetromino.hpp"
 #include "text.hpp"
+#include "input.hpp"
 #include <array>
 #include <tl/optional.hpp>
 
@@ -41,6 +42,7 @@ public:
     GameManager();
     void update();
     void render(const Application& app) const;
+    void handle_input_event(Input::Event event);
     void spawn_next_tetromino();
     void rotate_tetromino_right();
     void rotate_tetromino_left();

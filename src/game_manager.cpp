@@ -1,5 +1,6 @@
 #include "game_manager.hpp"
 #include "application.hpp"
+#include <cassert>
 #include <iostream>
 #include <sstream>
 
@@ -49,6 +50,32 @@ void GameManager::render(const Application& app) const {
     m_score_text.render(app);
     m_level_text.render(app);
     m_cleared_lines_text.render(app);
+}
+
+void GameManager::handle_input_event(Input::Event event) {
+    switch (event) {
+        case Input::Event::RotateLeft:
+            rotate_tetromino_left();
+            break;
+        case Input::Event::RotateRight:
+            rotate_tetromino_right();
+            break;
+        case Input::Event::MoveLeft:
+            move_tetromino_left();
+            break;
+        case Input::Event::MoveRight:
+            move_tetromino_right();
+            break;
+        case Input::Event::MoveDown:
+            move_tetromino_down(MovementType::Forced);
+            break;
+        case Input::Event::Drop:
+            drop_tetromino();
+            break;
+        default:
+            assert(false and "unknown event");
+            break;
+    }
 }
 
 void GameManager::spawn_next_tetromino() {

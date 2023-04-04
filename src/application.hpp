@@ -11,8 +11,10 @@ private:
     SdlContext context;
     Window m_window;
     Renderer m_renderer;
-    EventDispatcher m_event_dispatcher;
     bool m_is_running{ true };
+
+protected:
+    EventDispatcher m_event_dispatcher;
 
 public:
     Application(const std::string& title, WindowPosition position, int width, int height);

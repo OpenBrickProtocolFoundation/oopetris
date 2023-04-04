@@ -40,7 +40,7 @@ add_executable(oopetris
         src/event_dispatcher.cpp
         src/event_dispatcher.hpp
         src/event_listener.hpp
-        )
+        src/input.cpp)
 
 if(MSVC)
         target_compile_options(oopetris PRIVATE /W4 /WX)
