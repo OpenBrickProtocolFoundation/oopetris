@@ -123,6 +123,7 @@ installed_libs = run_command(
     check: true,
 ).stdout().strip().split('\n')
 
+all_vcpkg_deps = []
 
 
 cpp = meson.get_compiler('cpp')
@@ -135,13 +136,23 @@ foreach dep : installed_libs
         required: true,
     )
 
+    include_dirs = ['./vcpkg_installed/' + vcpkg_triplet + '/include']
+
+    include_subdir =  './vcpkg_installed/' + vcpkg_triplet + '/include/' + dep
+
+    if fs.exists(include_subdir)
+        include_dirs += include_subdir
+    endif 
+
+
     temp_dep = declare_dependency(
         include_directories: include_directories(
-            './vcpkg_installed/' + vcpkg_triplet + '/include',
+            include_dirs
         ),
         dependencies: vcpkg_lib,
     )
     meson.override_dependency(dep, temp_dep)
+    all_vcpkg_deps += temp_dep
 
 endforeach
 
@@ -178,6 +189,7 @@ foreach header : header_libs
         required: false,
     )
     if not temp_dep_resolv.found()
+        message('header_only')
         header_only_libs += temp_dep
         meson.override_dependency(header, temp_dep)
     endif
