@@ -15,6 +15,7 @@ struct Input {
         MoveRight,
         MoveDown,
         Drop,
+        ReleaseMoveDown,
     };
 
 protected:

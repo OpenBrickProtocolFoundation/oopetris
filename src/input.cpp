@@ -48,6 +48,9 @@ void KeyboardInput::handle_event(const SDL_Event& event) {
         }
     } else if (event.type == SDL_KEYUP) {
         switch (event.key.keysym.sym) {
+            case SDLK_s:
+                m_target_game_manager->handle_input_event(Event::ReleaseMoveDown);
+                break;
             case SDLK_a:
                 m_keys_hold.erase(HoldableKey::Left);
                 break;
