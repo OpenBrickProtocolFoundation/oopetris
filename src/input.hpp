@@ -32,7 +32,6 @@ private:
     enum class HoldableKey {
         Left = static_cast<int>(Event::MoveLeft),
         Right = static_cast<int>(Event::MoveRight),
-        Down = static_cast<int>(Event::MoveDown),
     };
 
     static constexpr double auto_shift_delay = 1.0 / 6.0;

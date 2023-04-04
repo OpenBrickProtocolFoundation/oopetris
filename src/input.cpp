@@ -27,7 +27,6 @@ void KeyboardInput::handle_event(const SDL_Event& event) {
                 m_target_game_manager->handle_input_event(Event::RotateRight);
                 break;
             case SDLK_s:
-                m_keys_hold[HoldableKey::Down] = Application::elapsed_time() + auto_shift_delay;
                 m_target_game_manager->handle_input_event(Event::MoveDown);
                 break;
             case SDLK_a:
@@ -49,9 +48,6 @@ void KeyboardInput::handle_event(const SDL_Event& event) {
         }
     } else if (event.type == SDL_KEYUP) {
         switch (event.key.keysym.sym) {
-            case SDLK_s:
-                m_keys_hold.erase(HoldableKey::Down);
-                break;
             case SDLK_a:
                 m_keys_hold.erase(HoldableKey::Left);
                 break;
