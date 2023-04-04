@@ -39,6 +39,8 @@ else
     deps += sdl2_ttf_dep
 endif
 
+deps += dependency('tl-optional', required: true, fallback: ['tl-optional'])
+
 inc_dirs = []
 src_files = []
 
