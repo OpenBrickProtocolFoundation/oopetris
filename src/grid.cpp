@@ -28,6 +28,38 @@ void Grid::render(const Application& app) const {
     draw_minos(app);
 }
 
+void Grid::clear_row_and_let_sink(int row) {
+    m_minos.erase(
+            std::remove_if(m_minos.begin(), m_minos.end(), [&](const Mino& mino) { return mino.position().y == row; }),
+            m_minos.end()
+    );
+    for (Mino& mino : m_minos) {
+        if (mino.position().y < row) {
+            ++mino.position().y;
+        }
+    }
+}
+
+bool Grid::is_empty(Point coordinates) const {
+    for (const Mino& mino : m_minos) {
+        if (mino.position() == coordinates) {
+            return false;
+        }
+    }
+    return true;
+}
+
+void Grid::set(Point coordinates, TetrominoType type) {
+    const Mino to_insert = Mino{ coordinates, type };
+    for (Mino& current : m_minos) {
+        if (current.position() == coordinates) {
+            current = to_insert;
+            return;
+        }
+    }
+    m_minos.push_back(to_insert);
+}
+
 void Grid::draw_minos(const Application& app) const {
     for (const Mino& mino : m_minos) {
         if (mino.position().y >= invisible_rows) {
@@ -57,36 +89,4 @@ void Grid::draw_playing_field_background(const Application& app) const {
     app.renderer().draw_line(
             Point{ bottom_right.x + 1, 0 }, Point{ bottom_right.x + 1, app.window().size().y - 1 }, border_color
     );
-}
-
-void Grid::set(Point coordinates, TetrominoType type) {
-    const Mino to_insert = Mino{ coordinates, type };
-    for (Mino& current : m_minos) {
-        if (current.position() == coordinates) {
-            current = to_insert;
-            return;
-        }
-    }
-    m_minos.push_back(to_insert);
-}
-
-void Grid::clear_row_and_let_sink(int row) {
-    m_minos.erase(
-            std::remove_if(m_minos.begin(), m_minos.end(), [&](const Mino& mino) { return mino.position().y == row; }),
-            m_minos.end()
-    );
-    for (Mino& mino : m_minos) {
-        if (mino.position().y < row) {
-            ++mino.position().y;
-        }
-    }
-}
-
-bool Grid::is_empty(Point coordinates) const {
-    for (const Mino& mino : m_minos) {
-        if (mino.position() == coordinates) {
-            return false;
-        }
-    }
-    return true;
 }

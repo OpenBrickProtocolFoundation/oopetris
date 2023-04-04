@@ -28,10 +28,12 @@ public:
     Point tile_size() const;
     Point to_screen_coords(Point grid_coords) const;
     void render(const Application& app) const;
+    void clear_row_and_let_sink(int row);
+    bool is_empty(Point coordinates) const;
+    void set(Point coordinates, TetrominoType type);
+
+private:
     void draw_minos(const Application& app) const;
     void draw_preview_background(const Application& app) const;
     void draw_playing_field_background(const Application& app) const;
-    void set(Point coordinates, TetrominoType type);
-    void clear_row_and_let_sink(int row);
-    bool is_empty(Point coordinates) const;
 };
