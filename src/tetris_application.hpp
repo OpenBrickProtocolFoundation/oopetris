@@ -32,6 +32,10 @@ public:
 
 protected:
     void update(double) override {
+        for (const auto& input : m_inputs) {
+            input->update();
+        }
+
         for (const auto& game_manager : m_game_managers) {
             game_manager->update();
         }

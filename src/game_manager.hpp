@@ -42,14 +42,16 @@ public:
     GameManager();
     void update();
     void render(const Application& app) const;
-    void handle_input_event(Input::Event event);
+
+    // returns if the input event lead to a movement
+    bool handle_input_event(Input::Event event);
     void spawn_next_tetromino();
-    void rotate_tetromino_right();
-    void rotate_tetromino_left();
-    void move_tetromino_down(MovementType movement_type);
-    void move_tetromino_left();
-    void move_tetromino_right();
-    void drop_tetromino();
+    bool rotate_tetromino_right();
+    bool rotate_tetromino_left();
+    bool move_tetromino_down(MovementType movement_type);
+    bool move_tetromino_left();
+    bool move_tetromino_right();
+    bool drop_tetromino();
 
 private:
     void refresh_texts();
