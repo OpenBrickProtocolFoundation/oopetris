@@ -102,63 +102,7 @@ run_command(
     check: true,
 )
 
-
-library_extension = ['a']
-
-if build_machine.system() == 'windows'
-    library_extension = ['dll', 'lib']
-elif build_machine.system() == 'linux'
-    library_extension = ['a', 'so']
-else
-    error('Not supported system: ' + build_machine.system())
-endif
-
-## TODO(#3): note, that vcpkg builds / generates / installs .pc files, that could be used with pkg-config, use these for more stable support
 prog_python = find_program('python3', 'python', required: true)
-installed_libs = run_command(
-    prog_python,
-    meson.current_source_dir() + '/grabber.py',
-    meson.current_source_dir() + '/vcpkg_installed/' + vcpkg_triplet + '/lib',
-    library_extension,
-    check: true,
-).stdout().strip().split('\n')
-
-all_vcpkg_deps = []
-
-
-cpp = meson.get_compiler('cpp')
-
-foreach dep : installed_libs
-    vcpkg_lib = cpp.find_library(
-        dep,
-        dirs: meson.current_source_dir() + '/vcpkg_installed/' + vcpkg_triplet +
-        '/lib',
-        required: true,
-    )
-
-    include_dirs = ['./vcpkg_installed/' + vcpkg_triplet + '/include']
-
-    include_subdir =  './vcpkg_installed/' + vcpkg_triplet + '/include/' + dep
-
-    if fs.exists(include_subdir)
-        include_dirs += include_subdir
-    endif 
-
-
-    temp_dep = declare_dependency(
-        include_directories: include_directories(
-            include_dirs
-        ),
-        dependencies: vcpkg_lib,
-    )
-    meson.override_dependency(dep, temp_dep)
-    all_vcpkg_deps += temp_dep
-
-endforeach
-
-message(
-    'Found ' + installed_libs.length().to_string() + ' libraries via vcpkg manifest mode and made them available via their name',
-)
 
 ## add header only libraries
 header_libs = run_command(
@@ -173,12 +117,46 @@ header_only_libs = []
 
 foreach header : header_libs
 
+
+    vcpkg_status_file = (
+        meson.current_source_dir() + '/vcpkg_installed/vcpkg/status'
+    )
+
+
+    parsed_version = ''
+
+    if fs.exists(vcpkg_status_file)
+        return_version = run_command(
+            prog_python,
+            meson.current_source_dir() + '/version_grabber.py',
+            vcpkg_status_file,
+            header
+        )
+
+        if return_version.returncode() == 0
+            parsed_version = return_version.stdout().strip()
+        endif
+
+    endif
+
+
     temp_dep = declare_dependency(
         include_directories: include_directories(
             './vcpkg_installed/' + vcpkg_triplet + '/include',
         ),
         dependencies: [],
     )
+
+    if parsed_version != ''
+
+        temp_dep = declare_dependency(
+            include_directories: include_directories(
+                './vcpkg_installed/' + vcpkg_triplet + '/include',
+            ),
+            dependencies: [],
+            version: parsed_version,
+        )
+    endif
 
     meson.override_dependency(header + '_h', temp_dep)
 
@@ -189,7 +167,6 @@ foreach header : header_libs
         required: false,
     )
     if not temp_dep_resolv.found()
-        message('header_only')
         header_only_libs += temp_dep
         meson.override_dependency(header, temp_dep)
     endif

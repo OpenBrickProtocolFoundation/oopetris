@@ -23,12 +23,14 @@ subdir('tools')
 
 deps = []
 
+# if only meson would support setting this for the pkg-config inside dependency()
+#env = environment()
+#env.append('PKG_CONFIG_PATH','./tools/vcpkg_installed/x64-linux-release/lib/pkgconfig') 
+
 deps += dependency('SDL2', required: true)
 deps += dependency('tl-optional', required: true) ## this is a header only lib!
 deps += dependency('SDL2_ttf', required: true)
 
-# instead of parsing vcpkg files and adding necessary dependecies to them, I just add all libraries that vcpkg provides (that are all necessary)
-deps += all_vcpkg_deps
 
 inc_dirs = []
 src_files = []
