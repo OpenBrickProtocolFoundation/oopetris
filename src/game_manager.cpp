@@ -95,7 +95,7 @@ void GameManager::spawn_next_tetromino() {
         m_active_tetromino = {};
         return;
     }
-    for (int i = 0; i < Grid::invisible_rows; ++i) {
+    for (int i = 0; not is_active_tetromino_completely_visible() and i < Grid::invisible_rows; ++i) {
         m_active_tetromino->move_down();
         if (not is_active_tetromino_position_valid()) {
             m_active_tetromino->move_up();
@@ -254,6 +254,18 @@ bool GameManager::is_active_tetromino_position_valid() const {
 bool GameManager::is_valid_mino_position(Point position) const {
     return position.x >= 0 && position.x < Grid::width && position.y >= 0 && position.y < Grid::height
            && m_grid.is_empty(position);
+}
+
+bool GameManager::is_active_tetromino_completely_visible() const {
+    if (!m_active_tetromino) {
+        return false;
+    }
+    for (const Mino& mino : m_active_tetromino->minos()) {
+        if (mino.position().y < Grid::invisible_rows) {
+            return false;
+        }
+    }
+    return true;
 }
 
 void GameManager::refresh_preview() {

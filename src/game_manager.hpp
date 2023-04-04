@@ -65,6 +65,7 @@ private:
     void freeze_active_tetromino();
     [[nodiscard]] bool is_active_tetromino_position_valid() const;
     [[nodiscard]] bool is_valid_mino_position(Point position) const;
+    [[nodiscard]] bool is_active_tetromino_completely_visible() const;
     void refresh_preview();
     TetrominoType get_next_tetromino_type();
 
