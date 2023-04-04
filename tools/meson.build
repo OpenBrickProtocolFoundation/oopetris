@@ -130,7 +130,7 @@ foreach header : header_libs
             prog_python,
             meson.current_source_dir() + '/version_grabber.py',
             vcpkg_status_file,
-            header
+            header,
         )
 
         if return_version.returncode() == 0
@@ -172,6 +172,15 @@ foreach header : header_libs
     endif
 
 endforeach
+
+vcpkg_link_with = [
+    static_library(
+        'pseudo_static_lib',
+        include_directories: include_directories(
+            './vcpkg_installed/' + vcpkg_triplet + '/lib',
+        ),
+    ),
+]
 
 message(
     'Found ' + header_only_libs.length().to_string() + ' header only libraries via vcpkg manifest mode and made them available via their name',

@@ -41,6 +41,7 @@ executable(
     'oopetris',
     src_files,
     include_directories: inc_dirs,
+    link_with: vcpkg_link_with,
     dependencies: deps,
     override_options: [
         'warning_level=3',

@@ -53,7 +53,7 @@ jobs:
             - name: Configure (Windows)
               if: matrix.config.os == 'windows-latest'
               run: |
-                    echo "${{github.workspace}}/tools/vcpkg_installed/x64-windows-${{ matrix.config.buildtype }}/lib/pkgconfig" >> $PKG_CONFIG_PATH
+                    $env:PKG_CONFIG_PATH="${{github.workspace}}/tools/vcpkg_installed/x64-windows-${{ matrix.config.buildtype }}/lib/pkgconfig"
                     meson setup build -Dbuildtype=${{ matrix.config.buildtype }}
 
             - name: Configure (Linux)
