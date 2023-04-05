@@ -21,7 +21,7 @@ struct NetworkManager {
 private:
     std::vector<Connection> m_connections;
     static constexpr const char* ServerHost = "localhost";
-    static constexpr const int Port = 789;
+    static constexpr const int Port = 1212;
 
 public:
     explicit NetworkManager();

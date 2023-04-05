@@ -8,43 +8,45 @@ find_package(SDL2_ttf CONFIG REQUIRED)
 find_package(SDL2_net CONFIG REQUIRED)
 
 add_executable(oopetris
-        src/main.cpp
-        src/application.hpp
         src/application.cpp
+        src/application.hpp
+        src/bag.cpp
+        src/bag.hpp
+        src/color.hpp
+        src/event_dispatcher.cpp
+        src/event_dispatcher.hpp
+        src/event_listener.hpp
+        src/font.cpp
+        src/font.hpp
+        src/game_manager.cpp
+        src/game_manager.hpp
+        src/grid.cpp
+        src/grid.hpp
+        src/input.cpp
+        src/input.hpp
+        src/local_multiplayer.cpp
+        src/main.cpp
+        src/mino.cpp
+        src/mino.hpp
+        src/network/connection_manager.cpp
+        src/network/network_manager.cpp
+        src/network/network_transportable.cpp
+        src/play_manager.cpp
+        src/point.hpp
+        src/rect.hpp
         src/renderer.cpp
         src/renderer.hpp
         src/sdl_context.cpp
         src/sdl_context.hpp
-        src/window.cpp
-        src/window.hpp
-        src/color.hpp
-        src/rect.hpp
-        src/point.hpp
-        src/tetromino.hpp
-        src/mino.hpp
-        src/grid.hpp
-        src/tetromino_type.hpp
-        src/tetromino_type.cpp
-        src/mino.cpp
-        src/game_manager.cpp
-        src/game_manager.hpp
         src/tetris_application.cpp
         src/tetris_application.hpp
-        src/bag.cpp
-        src/bag.hpp
-        src/font.cpp
-        src/font.hpp
+        src/tetromino_type.cpp
+        src/tetromino_type.hpp
+        src/tetromino.hpp
         src/text.cpp
         src/text.hpp
-        src/grid.cpp
-        src/input.hpp
-        src/event_dispatcher.cpp
-        src/event_dispatcher.hpp
-        src/event_listener.hpp
-        src/input.cpp
-        src/network/network_manager.cpp
-        src/network/connection_manager.cpp
-        src/network/network_transportable.cpp
+        src/window.cpp
+        src/window.hpp
 )
 
 if(MSVC)

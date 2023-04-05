@@ -12,6 +12,7 @@ SdlContext::SdlContext() {
         printf("TTF_Init: %s\n", SDL_GetError());
         exit(2);
     }
+    //TODO: if we don't need the network, this should be disabled
     if (SDLNet_Init() == -1) {
         printf("SDLNet_Init: %s\n", SDLNet_GetError());
         exit(2);
