@@ -33,9 +33,3 @@ private:
     static void write_data(RawBytes bytes, const Transportable* transportable);
     static void write_checksum(RawBytes bytes);
 };
-
-template<typename T>
-RawBytes serialize_transportable(const T* transportable) {
-
-    return Transportable::serialize(transportable, sizeof(T));
-}

@@ -40,7 +40,7 @@ public:
 
         for (std::size_t i = 0; i < num_players; ++i) {
             m_game_managers.push_back(std::make_unique<GameManager>());
-            std::cout << "initializing manager input at" << i << " (online atm)\n";
+            std::cout << "initializing manager input at " << i << " (online atm)\n";
             m_inputs.push_back(m_manager->get_input(i, m_game_managers.back().get(), m_event_dispatcher));
         }
         for (const auto& game_manager : m_game_managers) {

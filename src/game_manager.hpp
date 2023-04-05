@@ -3,9 +3,11 @@
 #include "bag.hpp"
 #include "grid.hpp"
 #include "input.hpp"
+#include "network/online_handler.hpp"
 #include "tetromino.hpp"
 #include "text.hpp"
 #include <array>
+#include <memory>
 #include <tl/optional.hpp>
 
 struct Application;
@@ -43,6 +45,7 @@ private:
     Text m_cleared_lines_text;
     bool m_down_key_pressed = false;
     bool m_is_accelerated_down_movement = false;
+    std::unique_ptr<OnlineHandler> m_online_handler = nullptr;
 
 public:
     GameManager();
@@ -58,6 +61,7 @@ public:
     bool move_tetromino_left();
     bool move_tetromino_right();
     bool drop_tetromino();
+    void set_online_handler(std::unique_ptr<OnlineHandler> online_handler);
 
 private:
     void refresh_texts();

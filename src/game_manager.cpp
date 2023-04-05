@@ -58,6 +58,10 @@ void GameManager::render(const Application& app) const {
 }
 
 bool GameManager::handle_input_event(Input::Event event) {
+    if (m_online_handler) {
+        m_online_handler->handle_event(event);
+    }
+
     switch (event) {
         case Input::Event::RotateLeft:
             return rotate_tetromino_left();
@@ -183,6 +187,11 @@ bool GameManager::drop_tetromino() {
     freeze_active_tetromino();
     m_score += 4 * num_movements;
     return num_movements > 0;
+}
+
+
+void GameManager::set_online_handler(std::unique_ptr<OnlineHandler> online_handler) {
+    m_online_handler = std::move(online_handler);
 }
 
 void GameManager::refresh_texts() {

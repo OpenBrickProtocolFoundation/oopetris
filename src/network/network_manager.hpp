@@ -14,8 +14,8 @@
 #include <vector>
 
 
-using MaybeConnection = tl::expected<Connection, std::string>;
-using MaybeServer = tl::expected<Server, std::string>;
+using MaybeConnection = tl::expected<std::shared_ptr<Connection>, std::string>;
+using MaybeServer = tl::expected<std::shared_ptr<Server>, std::string>;
 
 struct NetworkManager {
 private:

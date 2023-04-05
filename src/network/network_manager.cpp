@@ -2,6 +2,7 @@
 #include "network_manager.hpp"
 #include "network_transportable.hpp"
 #include <SDL_net.h>
+#include <memory>
 #include <string>
 #include <tl/expected.hpp>
 #include <tl/optional.hpp>
@@ -26,7 +27,7 @@ MaybeConnection NetworkManager::try_connect(const char* host, std::size_t port) 
         return tl::make_unexpected(error);
     }
 
-    return Connection{ tcpsock };
+    return std::make_shared<Connection>(tcpsock);
 }
 
 MaybeServer NetworkManager::spawn_server(std::size_t port) {
@@ -43,5 +44,5 @@ MaybeServer NetworkManager::spawn_server(std::size_t port) {
         return tl::make_unexpected(error);
     }
 
-    return Server{ server };
+    return std::make_shared<Server>(server);
 }
