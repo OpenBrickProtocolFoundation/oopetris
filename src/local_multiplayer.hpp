@@ -14,7 +14,7 @@ private:
     std::size_t m_num_players;
     bool m_is_server;
     NetworkManager m_network_manager;
-    std::unique_ptr<Server> m_server;
+    std::shared_ptr<Server> m_server;
 
 public:
     explicit LocalMultiplayer(std::size_t num_players, bool is_server);

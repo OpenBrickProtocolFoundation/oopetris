@@ -6,6 +6,7 @@
 
 #include "network_transportable.hpp"
 #include <SDL_net.h>
+#include <memory>
 #include <string>
 #include <tl/optional.hpp>
 
@@ -18,7 +19,7 @@ private:
 public:
     explicit Connection(TCPsocket socket);
     ~Connection();
-    tl::optional<std::string> send_data(const Transportable transportable);
+    tl::optional<std::string> send_data(const Transportable* transportable);
 };
 
 

@@ -3,8 +3,8 @@
 #include "network/network_manager.hpp"
 #include "play_manager.hpp"
 #include <cstddef>
-#include <exception>
 #include <memory>
+#include <stdexcept>
 
 
 LocalMultiplayer::LocalMultiplayer(std::size_t num_players, bool is_server)
@@ -32,7 +32,7 @@ tl::optional<std::string> LocalMultiplayer::init() {
             return tl::make_optional("Error in initializing the server: " + server.error());
         }
 
-        m_server = std::make_unique<Server>(server.value());
+        m_server = std::make_shared<Server>(server.value());
     }
 
     return {};
@@ -48,9 +48,15 @@ LocalMultiplayer::get_input(std::size_t index, GameManager* associated_game_mana
     //TODO: the Keyboard input should broadcast it (if a server to all clients, otherwise to the server, which sends it to all clients!)
 
     if (index == 0) {
-        auto keyboard_input = std::make_unique<KeyboardInput>(associated_game_manager);
-        event_dispatcher.register_listener(keyboard_input.get());
-        return keyboard_input;
+        if (m_is_server) {
+            auto keyboard_input = std::make_unique<KeyboardInput>(associated_game_manager);
+            event_dispatcher.register_listener(keyboard_input.get());
+            return keyboard_input;
+        } else {
+            auto keyboard_input = std::make_unique<KeyboardInput>(associated_game_manager);
+            event_dispatcher.register_listener(keyboard_input.get());
+            return keyboard_input;
+        }
     } else {
 
         if (m_is_server) {
@@ -68,6 +74,7 @@ LocalMultiplayer::get_input(std::size_t index, GameManager* associated_game_mana
                     auto online_input = std::make_unique<OnlineInput>(associated_game_manager, connection.value());
                     return online_input;
                 }
+                SDL_Delay(200);
             }
 
             throw std::runtime_error{ "Error in getting a connection for InputMethod::OnlineNetwork: failed after "

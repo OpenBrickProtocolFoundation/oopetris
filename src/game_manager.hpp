@@ -71,7 +71,9 @@ private:
 
     [[nodiscard]] double get_gravity_delay() const {
         const double accelerated_gravity_delay_multiplier = (m_is_accelerated_down_movement ? 1.0 / 20.0 : 1.0);
-        const int frames = (m_level >= static_cast<int>(frames_per_tile.size()) ? frames_per_tile.back() : frames_per_tile[m_level]);
+        const int frames =
+                (m_level >= static_cast<int>(frames_per_tile.size()) ? frames_per_tile.back() : frames_per_tile[m_level]
+                );
         return 1.0 / 60.0 * static_cast<double>(frames) * accelerated_gravity_delay_multiplier;
     }
 

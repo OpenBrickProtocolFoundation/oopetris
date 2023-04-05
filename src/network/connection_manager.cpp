@@ -15,10 +15,10 @@ Connection::~Connection() {
     SDLNet_TCP_Close(m_socket);
 }
 
-tl::optional<std::string> Connection::send_data(const Transportable transportable) {
+tl::optional<std::string> Connection::send_data(const Transportable* transportable) {
 
 
-    auto [message, length] = Transportable::serialize(transportable);
+    auto [message, length] = serialize_transportable(transportable);
 
     const auto result = SDLNet_TCP_Send(m_socket, message, length);
     if (result == -1) {
