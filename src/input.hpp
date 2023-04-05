@@ -1,7 +1,9 @@
 #pragma once
 
 #include "event_listener.hpp"
+#include "network/connection_manager.hpp"
 #include <functional>
+#include <memory>
 #include <tl/optional.hpp>
 #include <unordered_map>
 
@@ -24,7 +26,7 @@ protected:
     explicit Input(GameManager* target_game_manager) : m_target_game_manager{ target_game_manager } { }
 
 public:
-    virtual void update() {}
+    virtual void update() { }
     virtual ~Input() = default;
 };
 
@@ -46,4 +48,17 @@ public:
     void update() override;
 
     void handle_event(const SDL_Event& event) override;
+};
+
+struct OnlineInput : public Input {
+private:
+    Connection m_connection;
+    //TODO
+
+public:
+    explicit OnlineInput(GameManager* target_game_manager, Connection connection)
+        : Input{ target_game_manager },
+          m_connection{ connection } { }
+
+    void update() override;
 };

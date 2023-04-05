@@ -60,3 +60,10 @@ void KeyboardInput::handle_event(const SDL_Event& event) {
         }
     }
 }
+
+
+void OnlineInput::update() {
+    Input::update();
+
+    //TODO
+}

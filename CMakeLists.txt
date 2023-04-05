@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 23)
 
 find_package(SDL2 CONFIG REQUIRED)
 find_package(SDL2_ttf CONFIG REQUIRED)
+find_package(SDL2_net CONFIG REQUIRED)
 
 add_executable(oopetris
         src/main.cpp
@@ -40,7 +41,10 @@ add_executable(oopetris
         src/event_dispatcher.cpp
         src/event_dispatcher.hpp
         src/event_listener.hpp
-        src/input.cpp)
+        src/input.cpp
+        src/network/network_manager.cpp
+        src/network/connection_manager.cpp
+)
 
 if(MSVC)
         target_compile_options(oopetris PRIVATE /W4 /WX)
@@ -55,3 +59,5 @@ target_link_libraries(oopetris
 )
 
 target_link_libraries(oopetris PRIVATE $<IF:$<TARGET_EXISTS:SDL2_ttf::SDL2_ttf>,SDL2_ttf::SDL2_ttf,SDL2_ttf::SDL2_ttf-static>)
+
+target_link_libraries(oopetris PRIVATE $<IF:$<TARGET_EXISTS:SDL2_net::SDL2_net>,SDL2_net::SDL2_net,SDL2_net::SDL2_net-static>)

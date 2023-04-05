@@ -39,7 +39,19 @@ else
     deps += sdl2_ttf_dep
 endif
 
+sdl2_ttf_dep = dependency('sdl2_net', required: false)
+if not sdl2_ttf_dep.found()
+    deps += dependency(
+        'sdl2_net',
+        required: true,
+        fallback: 'sdl2_net',
+    )
+else
+    deps += sdl2_ttf_dep
+endif
+
 deps += dependency('tl-optional', required: true, fallback: ['tl-optional'])
+deps += dependency('tl-expected', required: true, fallback: ['tl-expected'])
 
 inc_dirs = []
 src_files = []

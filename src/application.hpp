@@ -1,10 +1,10 @@
 #pragma once
 
+#include "event_dispatcher.hpp"
+#include "event_listener.hpp"
 #include "renderer.hpp"
 #include "sdl_context.hpp"
 #include "window.hpp"
-#include "event_dispatcher.hpp"
-#include "event_listener.hpp"
 
 struct Application : public EventListener {
 private:
