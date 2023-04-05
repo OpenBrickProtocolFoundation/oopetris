@@ -44,6 +44,7 @@ add_executable(oopetris
         src/input.cpp
         src/network/network_manager.cpp
         src/network/connection_manager.cpp
+        src/network/network_transportable.cpp
 )
 
 if(MSVC)

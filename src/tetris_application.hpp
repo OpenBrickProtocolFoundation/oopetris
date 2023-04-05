@@ -111,7 +111,7 @@ private:
                 return keyboard_input;
             }
             case InputMethod::OnlineNetwork: {
-                MaybeConnection connection = m_network_manager.add_connection(NetworkType::Client);
+                MaybeConnection connection = m_network_manager.try_connect();
                 if (connection.has_value()) {
                     auto online_input = std::make_unique<OnlineInput>(associated_game_manager, connection.value());
                     return online_input;
