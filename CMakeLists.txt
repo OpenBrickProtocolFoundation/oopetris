@@ -25,12 +25,16 @@ add_executable(oopetris
         src/input.cpp
         src/input.hpp
         src/local_multiplayer.cpp
+        src/local_multiplayer.cpp
         src/main.cpp
         src/mino.cpp
         src/mino.hpp
         src/network/connection_manager.cpp
+        src/network/network_data.cpp
         src/network/network_manager.cpp
         src/network/network_transportable.cpp
+        src/network/online_handler.cpp
+        src/play_manager.cpp
         src/play_manager.cpp
         src/point.hpp
         src/rect.hpp
