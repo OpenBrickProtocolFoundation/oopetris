@@ -110,11 +110,11 @@ void GameManager::spawn_next_tetromino() {
 }
 
 bool GameManager::rotate_tetromino_right() {
-    if (!m_active_tetromino) {
+    if (not m_active_tetromino) {
         return false;
     }
     m_active_tetromino->rotate_right();
-    if (!is_active_tetromino_position_valid()) {
+    if (not is_active_tetromino_position_valid()) {
         m_active_tetromino->rotate_left();
         return false;
     }
@@ -122,11 +122,11 @@ bool GameManager::rotate_tetromino_right() {
 }
 
 bool GameManager::rotate_tetromino_left() {
-    if (!m_active_tetromino) {
+    if (not m_active_tetromino) {
         return false;
     }
     m_active_tetromino->rotate_left();
-    if (!is_active_tetromino_position_valid()) {
+    if (not is_active_tetromino_position_valid()) {
         m_active_tetromino->rotate_right();
         return false;
     }
@@ -134,7 +134,7 @@ bool GameManager::rotate_tetromino_left() {
 }
 
 bool GameManager::move_tetromino_down(MovementType movement_type) {
-    if (!m_active_tetromino) {
+    if (not m_active_tetromino) {
         return false;
     }
     if (movement_type == MovementType::Forced) {
@@ -142,7 +142,7 @@ bool GameManager::move_tetromino_down(MovementType movement_type) {
     }
 
     m_active_tetromino->move_down();
-    if (!is_active_tetromino_position_valid()) {
+    if (not is_active_tetromino_position_valid()) {
         m_active_tetromino->move_up();
         freeze_active_tetromino();
         return false;
@@ -151,11 +151,11 @@ bool GameManager::move_tetromino_down(MovementType movement_type) {
 }
 
 bool GameManager::move_tetromino_left() {
-    if (!m_active_tetromino) {
+    if (not m_active_tetromino) {
         return false;
     }
     m_active_tetromino->move_left();
-    if (!is_active_tetromino_position_valid()) {
+    if (not is_active_tetromino_position_valid()) {
         m_active_tetromino->move_right();
         return false;
     }
@@ -163,11 +163,11 @@ bool GameManager::move_tetromino_left() {
 }
 
 bool GameManager::move_tetromino_right() {
-    if (!m_active_tetromino) {
+    if (not m_active_tetromino) {
         return false;
     }
     m_active_tetromino->move_right();
-    if (!is_active_tetromino_position_valid()) {
+    if (not is_active_tetromino_position_valid()) {
         m_active_tetromino->move_left();
         return false;
     }
@@ -175,7 +175,7 @@ bool GameManager::move_tetromino_right() {
 }
 
 bool GameManager::drop_tetromino() {
-    if (!m_active_tetromino) {
+    if (not m_active_tetromino) {
         return false;
     }
     int num_movements = 0;
@@ -251,12 +251,12 @@ bool GameManager::is_active_tetromino_position_valid() const {
 }
 
 bool GameManager::is_valid_mino_position(Point position) const {
-    return position.x >= 0 && position.x < Grid::width && position.y >= 0 && position.y < Grid::height
-           && m_grid.is_empty(position);
+    return position.x >= 0 and position.x < Grid::width and position.y >= 0 and position.y < Grid::height
+           and m_grid.is_empty(position);
 }
 
 bool GameManager::is_active_tetromino_completely_visible() const {
-    if (!m_active_tetromino) {
+    if (not m_active_tetromino) {
         return false;
     }
     for (const Mino& mino : m_active_tetromino->minos()) {

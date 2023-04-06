@@ -28,7 +28,7 @@ void Application::run(int target_frames_per_second) {
 }
 
 void Application::handle_event(const SDL_Event& event) {
-    if (event.type == SDL_QUIT || (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE)) {
+    if (event.type == SDL_QUIT or (event.type == SDL_KEYDOWN and event.key.keysym.sym == SDLK_ESCAPE)) {
         m_is_running = false;
     }
 }
