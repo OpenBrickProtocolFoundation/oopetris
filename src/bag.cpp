@@ -6,7 +6,7 @@
 bool Bag::s_seeded = false;
 
 Bag::Bag() : m_tetromino_sequence{} {
-    if (!s_seeded) {
+    if (not s_seeded) {
         std::srand(static_cast<unsigned int>(std::time(nullptr)));
         s_seeded = true;
     }
@@ -31,7 +31,7 @@ Bag::Bag() : m_tetromino_sequence{} {
             if (type_is_okay) {
                 std::cerr << static_cast<int>(m_tetromino_sequence[i]) << " ";
             }
-        } while (!type_is_okay);
+        } while (not type_is_okay);
     }
     std::cerr << "\n";
 }

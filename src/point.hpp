@@ -13,11 +13,11 @@ struct Point final {
 };
 
 inline constexpr bool operator==(Point lhs, Point rhs) {
-    return lhs.x == rhs.x && lhs.y == rhs.y;
+    return lhs.x == rhs.x and lhs.y == rhs.y;
 }
 
 inline constexpr bool operator!=(Point lhs, Point rhs) {
-    return !(lhs == rhs);
+    return not(lhs == rhs);
 }
 
 inline constexpr Point operator*(Point point, int scale) {
