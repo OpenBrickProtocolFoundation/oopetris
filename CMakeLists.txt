@@ -9,6 +9,8 @@ find_package(spdlog CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(magic_enum CONFIG REQUIRED)
 
+set(TARGET_LIST oopetris SDL2::SDL2-static)
+
 add_executable(oopetris
         src/main.cpp
         src/application.hpp
@@ -49,11 +51,31 @@ add_executable(oopetris
         src/magic_enum_wrapper.hpp
         )
 
-if (MSVC)
-    target_compile_options(oopetris PRIVATE /W4 /WX)
-else ()
-    target_compile_options(oopetris PRIVATE -Wall -Wextra -pedantic -Werror)
-endif ()
+foreach (target ${TARGET_LIST})
+    # set warning levels
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+        message("MSVC build")
+        if (CMAKE_BUILD_TYPE STREQUAL "Release")
+            target_compile_options(${target} INTERFACE /W4 /WX /permissive-)
+        else ()
+            target_compile_options(${target} INTERFACE /W4 /WX /permissive-)
+        endif ()
+    elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        message("GCC build")
+        if (CMAKE_BUILD_TYPE STREQUAL "Release")
+            target_compile_options(${target} INTERFACE -Wall -Wextra -Werror -pedantic -Wconversion)
+        else ()
+            target_compile_options(${target} INTERFACE -Wall -Wextra -Werror -pedantic -Wconversion)
+        endif ()
+    endif ()
+
+    # define DEBUG_BUILD
+    target_compile_definitions(${target} INTERFACE "$<$<CONFIG:DEBUG>:DEBUG_BUILD>")
+
+    # static runtime library
+    set_property(TARGET ${target} PROPERTY
+            MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endforeach ()
 
 target_link_libraries(oopetris
         PRIVATE
@@ -68,3 +90,7 @@ target_link_libraries(oopetris PRIVATE nlohmann_json::nlohmann_json)
 target_link_libraries(oopetris PRIVATE magic_enum::magic_enum)
 
 target_link_libraries(oopetris PRIVATE $<IF:$<TARGET_EXISTS:SDL2_ttf::SDL2_ttf>,SDL2_ttf::SDL2_ttf,SDL2_ttf::SDL2_ttf-static>)
+
+# static runtime library
+set_property(TARGET ${target} PROPERTY
+        MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
