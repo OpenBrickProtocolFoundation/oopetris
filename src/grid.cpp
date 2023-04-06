@@ -63,12 +63,12 @@ void Grid::draw_preview_background(const Application& app) const {
     const Point preview_top_left = to_screen_coords(preview_background_position);
     const Point preview_bottom_right =
             preview_top_left + Point{ tile_size().x * preview_extends.x - 1, tile_size().y * preview_extends.y - 1 };
-    app.renderer().draw_rect_filled(m_start_point + Rect{ preview_top_left, preview_bottom_right }, background_color);
+    app.renderer().draw_rect_filled(Rect{ preview_top_left, preview_bottom_right }, background_color);
 
     const Point outline_top_left = preview_top_left - Point{ 1, 1 };
     const Point outline_bottom_right = preview_bottom_right + Point{ 1, 1 };
     const Rect outline_rect = Rect{ outline_top_left, outline_bottom_right };
-    app.renderer().draw_rect_outline(m_start_point + outline_rect, border_color);
+    app.renderer().draw_rect_outline(outline_rect, border_color);
 }
 
 void Grid::draw_playing_field_background(const Application& app) const {
