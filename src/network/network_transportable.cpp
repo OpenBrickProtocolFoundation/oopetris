@@ -107,7 +107,7 @@ MaybeRawTransportData RawTransportData::from_raw_bytes(RawBytes raw_bytes) {
 
         advance(Transportable::header_size);
 
-        auto [protocol_version, serialUUID, data_size] = header.value();
+        auto [_protocol_version, serialUUID, data_size] = header.value();
 
         if (remaining_length < data_size) {
             return tl::make_unexpected(
