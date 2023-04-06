@@ -52,7 +52,7 @@ void KeyboardInput::handle_keydown(const SDL_Event& event) {
         m_keys_hold[HoldableKey::Right] = Application::elapsed_time() + auto_shift_delay;
         if (not m_keys_hold.contains(HoldableKey::Left)
             and not m_target_game_manager->handle_input_event(Event::MoveRight)) {
-            m_keys_hold[HoldableKey::Left] = Application::elapsed_time();
+            m_keys_hold[HoldableKey::Right] = Application::elapsed_time();
         }
     } else if (sdl_key == to_sdl_keycode(m_controls.drop)) {
         m_target_game_manager->handle_input_event(Event::Drop);
