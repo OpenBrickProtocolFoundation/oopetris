@@ -63,57 +63,33 @@ private:
 struct RawTransportData {
 private:
     std::uint32_t m_serialUUID;
-    RawBytes m_data;
+    std::shared_ptr<uint8_t> m_data;
+    uint32_t m_data_size;
 
 public:
-    RawTransportData(std::uint32_t serialUUID, RawBytes data);
+    RawTransportData(std::uint32_t serialUUID, std::shared_ptr<uint8_t> data, uint32_t data_size);
 
     // if you change the protocol behaviour in some way, change this number and the number in Transportable (this parses only packets with the same protocol_version)
     static constexpr std::uint32_t protocol_version = 1;
 
-    static tl::expected<std::vector<std::unique_ptr<RawTransportData>>, std::string> from_raw_bytes(RawBytes raw_bytes);
+    static tl::expected<std::vector<RawTransportData>, std::string> from_raw_bytes(RawBytes raw_bytes);
     static tl::expected<std::tuple<std::uint32_t, std::uint32_t, std::uint32_t>, std::string> read_header(RawBytes bytes
     );
     static tl::expected<std::uint32_t, std::string> read_checksum(RawBytes bytes, std::uint32_t data_size);
 
-    bool is_of_type(Transportable* transportable);
+    template<class T>
+    bool is_of_type() const {
+        return m_serialUUID == T::serialUUID;
+    }
+
+    template<class T>
+    std::shared_ptr<T> as_type() const {
+        if (!is_of_type<T>()) {
+            throw std::bad_cast{};
+        }
+
+        // using copy constructor, so that this only get's freed, when also the new usage of this raw malloced memory is done
+        std::shared_ptr<T> data = std::reinterpret_pointer_cast<T>(m_data);
+        return data;
+    }
 };
-
-using MaybeRawTransportData = tl::expected<std::vector<std::unique_ptr<RawTransportData>>, std::string>;
-
-
-template<class T>
-using RawUniqueTransportData = std::unique_ptr<T, std::function<void(T*)>>;
-
-
-template<class T>
-bool raw_transport_data_is_of_type(RawTransportData& data) {
-    return data.m_serialUUID == T::serialUUID;
-}
-
-template<class T, class P>
-bool ptr_raw_transport_data_is_of_type(P data) {
-    return data->m_serialUUID == T::serialUUID;
-}
-
-// TODO: RawTransportData data is invalid after this, that has to be enforced in some way (at compile time)
-template<class T>
-RawUniqueTransportData<T> raw_transport_data_to(RawTransportData& data) {
-    if (!raw_transport_data_is_of_type<T>(data)) {
-        throw std::bad_cast{};
-    }
-    // TODO: check if this is correct (with free. etc)!
-    RawUniqueTransportData<T> raw_unique_ptr{ std::move(data.m_data) /*.first*/, [](void* ptr) { free(ptr); } };
-    return raw_unique_ptr;
-}
-
-// TODO: RawTransportData data is invalid after this, that has to be enforced in some way (at compile time)
-template<class T, class R>
-RawUniqueTransportData<T> ptr_raw_transport_data_to(R data) {
-    if (!ptr_raw_transport_data_is_of_type<T>(data)) {
-        throw std::bad_cast{};
-    }
-    // TODO: check if this is correct (with free. etc)!
-    RawUniqueTransportData<T> raw_unique_ptr{ std::move(*data.m_data) /*.first*/, [](void* ptr) { free(ptr); } };
-    return raw_unique_ptr;
-}

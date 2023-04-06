@@ -13,7 +13,7 @@
 #include <vector>
 
 
-using MaybeData = tl::expected<tl::optional<std::vector<std::unique_ptr<RawTransportData>>>, std::string>;
+using MaybeData = tl::expected<tl::optional<std::vector<RawTransportData>>, std::string>;
 
 
 struct Connection {
@@ -31,16 +31,11 @@ public:
     tl::expected<bool, std::string> is_data_available(Uint32 timeout_ms = 3);
     tl::expected<RawBytes, std::string> get_all_data_blocking();
     MaybeData get_data();
-};
 
-template<class T>
-tl::optional<std::string> connection_send_data(Connection& connection, const T* transportable) {
-    return connection.send_data(transportable, sizeof(T));
-};
-
-template<class T, class C>
-tl::optional<std::string> ptr_connection_send_data(C connection, const T* transportable) {
-    return connection->send_data(transportable, sizeof(T));
+    template<class T>
+    tl::optional<std::string> send_data(const T* transportable) {
+        return send_data(transportable, sizeof(T));
+    }
 };
 
 
@@ -59,6 +54,6 @@ public:
 
     template<class T>
     tl::optional<std::string> send_all(const T* transportable) {
-        return server->send_all(transportable, sizeof(T));
-    };
+        return send_all(transportable, sizeof(T));
+    }
 };

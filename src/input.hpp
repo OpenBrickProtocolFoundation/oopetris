@@ -53,7 +53,6 @@ public:
 struct OnlineInput : public Input {
 private:
     std::shared_ptr<Connection> m_connection;
-    //TODO
 
 public:
     explicit OnlineInput(GameManager* target_game_manager, std::shared_ptr<Connection> connection)

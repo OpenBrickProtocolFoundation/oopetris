@@ -17,7 +17,7 @@ void OnlineHandler::handle_event(Input::Event event) {
     if (m_server) {
         auto event_data = EventData{ event };
         //TODO handle error
-        ptr_server_send_all(m_server, &event_data);
+        m_server->send_all<EventData>(&event_data);
 
         /*  m_server.send_all_if(EventData{ event }, []() {
 
@@ -26,7 +26,7 @@ void OnlineHandler::handle_event(Input::Event event) {
     } else if (m_connection) {
         auto event_data = EventData{ event };
         //TODO handle error
-        ptr_connection_send_data(m_connection, &event_data);
+        m_connection->send_data<EventData>(&event_data);
     } else {
         throw std::runtime_error{ "OnlineHandler needs either a connection (client mode) or server!" };
     }

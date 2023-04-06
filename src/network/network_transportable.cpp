@@ -65,12 +65,15 @@ void Transportable::write_checksum(RawBytes bytes) {
     data_ptr[0] = checksum;
 }
 
-RawTransportData::RawTransportData(std::uint32_t serialUUID, RawBytes data) : m_serialUUID{ serialUUID }, m_data{ data } {};
+RawTransportData::RawTransportData(std::uint32_t serialUUID, std::shared_ptr<uint8_t> data, uint32_t data_size)
+    : m_serialUUID{ serialUUID },
+      m_data{ data },
+      m_data_size{ data_size } {};
 
 
-MaybeRawTransportData RawTransportData::from_raw_bytes(RawBytes raw_bytes) {
+tl::expected<std::vector<RawTransportData>, std::string> RawTransportData::from_raw_bytes(RawBytes raw_bytes) {
 
-    auto result = std::vector<std::unique_ptr<RawTransportData>>{};
+    auto result = std::vector<RawTransportData>{};
 
     auto [start, length] = raw_bytes;
     long remaining_length = length;
@@ -96,17 +99,18 @@ MaybeRawTransportData RawTransportData::from_raw_bytes(RawBytes raw_bytes) {
         }
 
         //TODO check if implemented correctly
-        // this malloc get'S freed in the unique ptr destructor later
-        void* memory = std::malloc(data_size);
+        // this malloc get'S freed in the shared ptr destructor later
+        uint8_t* memory = (uint8_t*) std::malloc(data_size);
         if (!memory) {
-            return tl::make_unexpected("in RawTransportData::from_raw_bytes: error in malloc for RawTransportData");
+            return tl::make_unexpected("in RawTransportData::from_raw_bytes: error in malloc for raw data");
         }
-        auto data = RawBytes{ (uint8_t*) std::memcpy(memory, start, data_size), data_size };
+        std::memcpy(memory, start, data_size);
+        std::shared_ptr<uint8_t> data{ memory, std::free };
 
         auto checksum = RawTransportData::read_checksum(RawBytes{ start, remaining_length }, data_size);
 
         advance(data_size + Transportable::checksum_size);
-        result.push_back(std::make_unique<RawTransportData>(serialUUID, data));
+        result.emplace_back(serialUUID, data, data_size);
     }
 
     return result;

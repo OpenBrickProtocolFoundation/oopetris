@@ -169,5 +169,5 @@ MaybeData Connection::get_data() {
     }
 
     free(raw_bytes.first);
-    return tl::make_optional(std::move(result.value()));
+    return tl::make_optional(result.value());
 }

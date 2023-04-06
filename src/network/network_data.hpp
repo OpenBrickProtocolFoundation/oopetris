@@ -20,10 +20,8 @@ public:
 };
 
 struct EventData : public Transportable {
-private:
-    Input::Event m_event;
-
 public:
+    Input::Event m_event;
     static constexpr std::uint32_t serialUUID = 2;
     explicit EventData(Input::Event event);
 };

@@ -1,6 +1,7 @@
 #include "input.hpp"
 #include "application.hpp"
 #include "game_manager.hpp"
+#include "network/network_data.hpp"
 #include <array>
 
 void KeyboardInput::update() {
@@ -65,5 +66,25 @@ void KeyboardInput::handle_event(const SDL_Event& event) {
 void OnlineInput::update() {
     Input::update();
 
-    //TODO implement
+    auto data = m_connection->get_data();
+    if (!data.has_value()) {
+        // TODO: print error here (to log e.g.)
+        // auto error = data.error();
+        return;
+    }
+
+    if (!data.value().has_value()) {
+        // no data given
+        return;
+    }
+
+    const auto data_vector = data.value().value();
+    for (const auto& data : data_vector) {
+
+        if (data.is_of_type<EventData>()) {
+            auto event = data.as_type<EventData>();
+            //TODO maybe handle return value ?
+            m_target_game_manager->handle_input_event(event->m_event);
+        }
+    }
 }
