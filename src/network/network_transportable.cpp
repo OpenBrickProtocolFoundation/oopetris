@@ -29,7 +29,7 @@ std::uint32_t Transportable::checksum(RawBytes bytes) {
 }
 
 
-void Transportable::write_header(RawBytes bytes, std::uint32_t serialUUID, std::uint32_t data_size) {
+void Transportable::write_header(RawBytes bytes, std::uint32_t uuid, std::uint32_t data_size) {
     auto [start, length] = bytes;
 
     //TODO remove assert
@@ -39,7 +39,7 @@ void Transportable::write_header(RawBytes bytes, std::uint32_t serialUUID, std::
 
     data_ptr[0] = Transportable::protocol_version;
 
-    data_ptr[1] = serialUUID;
+    data_ptr[1] = uuid;
     data_ptr[2] = data_size;
 }
 
@@ -76,6 +76,7 @@ tl::expected<std::vector<RawTransportData>, std::string> RawTransportData::from_
     auto result = std::vector<RawTransportData>{};
 
     auto [start, length] = raw_bytes;
+
     long remaining_length = length;
     auto advance = [&](std::uint32_t size) {
         remaining_length -= size;
@@ -90,7 +91,7 @@ tl::expected<std::vector<RawTransportData>, std::string> RawTransportData::from_
 
         advance(Transportable::header_size);
 
-        auto [_protocol_version, serialUUID, data_size] = header.value();
+        auto [_protocol_version, uuid, data_size] = header.value();
 
         if (remaining_length < (long) data_size) {
             return tl::make_unexpected(
@@ -110,7 +111,9 @@ tl::expected<std::vector<RawTransportData>, std::string> RawTransportData::from_
         auto checksum = RawTransportData::read_checksum(RawBytes{ start, remaining_length }, data_size);
 
         advance(data_size + Transportable::checksum_size);
-        result.emplace_back(serialUUID, data, data_size);
+        result.emplace_back(uuid, data, data_size);
+
+        std::cout << "data was: serialUUID: " << uuid << " data_size: " << data_size << "\n";
     }
 
     return result;
@@ -135,9 +138,9 @@ tl::expected<std::tuple<std::uint32_t, std::uint32_t, std::uint32_t>, std::strin
         );
     }
 
-    std::uint32_t serialUUID = data_ptr[1];
+    std::uint32_t uuid = data_ptr[1];
     std::uint32_t data_size = data_ptr[2];
-    return std::tuple{ protocol_version_number, serialUUID, data_size };
+    return std::tuple{ protocol_version_number, uuid, data_size };
 }
 
 

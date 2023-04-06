@@ -84,7 +84,7 @@ void OnlineInput::update() {
         if (data.is_of_type<EventData>()) {
             auto event = data.as_type<EventData>();
             //TODO maybe handle return value ?
-            m_target_game_manager->handle_input_event(event->m_event);
+            m_target_game_manager->handle_input_event(event->event());
         }
     }
 }

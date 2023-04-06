@@ -15,27 +15,6 @@ Connection::~Connection() {
     SDLNet_TCP_Close(m_socket);
 }
 
-tl::optional<std::string> Connection::send_data(const Transportable* transportable, std::uint32_t data_size) {
-
-    auto [message, length] = Transportable::serialize(transportable, data_size);
-
-    const auto result = SDLNet_TCP_Send(m_socket, message, length);
-    if (result == -1) {
-        std::free(message);
-        return tl::make_optional("SDLNet_TCP_Send: invalid socket");
-    }
-
-    if ((std::size_t) result != length) {
-        std::free(message);
-        std::string error = "SDLNet_TCP_Send: " + std::string{ SDLNet_GetError() };
-        return tl::make_optional(error);
-    }
-
-    std::free(message);
-
-    return {};
-};
-
 
 Server::Server(TCPsocket socket) : m_socket{ socket }, m_connections{ std::vector<std::shared_ptr<Connection>>{} } {};
 
@@ -76,17 +55,6 @@ tl::optional<std::shared_ptr<Connection>> Server::get_client(Uint32 ms_delay, st
     }
 }
 
-tl::optional<std::string> Server::send_all(const Transportable* transportable, std::uint32_t data_size) {
-
-    for (std::size_t i = 0; i < m_connections.size(); ++i) {
-        auto result = m_connections.at(i)->send_data(transportable, data_size);
-        if (result.has_value()) {
-            return tl::make_optional("Error while sending to client: " + std::to_string(i) + " : " + result.value());
-        }
-    }
-
-    return {};
-}
 
 tl::expected<bool, std::string> Connection::is_data_available(Uint32 timeout_ms) {
 

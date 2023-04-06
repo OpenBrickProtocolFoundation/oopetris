@@ -5,7 +5,13 @@
 #include <cstdint>
 
 
-InitializationData::InitializationData(InitializationDataType type, std::uint32_t uuid) : m_type{ type }, m_uuid{ uuid } {};
+InitializationData::InitializationData(InitializationDataType type, std::uint32_t uuid)
+    : m_type{ type },
+      m_uuid{ uuid } {};
 
 
 EventData::EventData(Input::Event event) : m_event{ event } {};
+
+Input::Event EventData::event() const {
+    return m_event;
+}
