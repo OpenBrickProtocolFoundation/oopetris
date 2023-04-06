@@ -6,7 +6,9 @@
 #include <cstddef>
 #include <memory>
 #include <stdexcept>
-
+#include <string>
+#include <tl/expected.hpp>
+#include <tl/optional.hpp>
 
 LocalMultiplayer::LocalMultiplayer(std::size_t num_players, bool is_server)
     : PlayManager{},
@@ -40,13 +42,14 @@ tl::optional<std::string> LocalMultiplayer::init() {
 }
 
 
-std::unique_ptr<Input>
-LocalMultiplayer::get_input(std::size_t index, GameManager* associated_game_manager, EventDispatcher event_dispatcher) {
+std::unique_ptr<Input> LocalMultiplayer::get_input(
+        std::size_t index,
+        GameManager* associated_game_manager,
+        EventDispatcher* event_dispatcher
+) {
     if (index >= m_num_players) {
         throw std::range_error{ "LocalMultiplayer mode: error in index of get_input" };
     }
-
-    //TODO: the Keyboard input should broadcast it (if a server to all clients, otherwise to the server, which sends it to all clients!)
 
     if (index == 0) {
         if (m_is_server) {
@@ -54,14 +57,23 @@ LocalMultiplayer::get_input(std::size_t index, GameManager* associated_game_mana
             associated_game_manager->set_online_handler(std::make_unique<OnlineHandler>(m_server, nullptr, 0));
 
             auto keyboard_input = std::make_unique<KeyboardInput>(associated_game_manager);
-            event_dispatcher.register_listener(keyboard_input.get());
+            event_dispatcher->register_listener(keyboard_input.get());
             return keyboard_input;
         } else {
-            //TODO nullptr 2 has to be a connection!
-            associated_game_manager->set_online_handler(std::make_unique<OnlineHandler>(nullptr, nullptr, 0));
+
+
+            auto connection_result = get_connection_to_server();
+
+            if (!connection_result.has_value()) {
+                throw std::runtime_error{ connection_result.error() };
+            }
+
+            auto connection = connection_result.value();
+
+            associated_game_manager->set_online_handler(std::make_unique<OnlineHandler>(nullptr, connection, 0));
 
             auto keyboard_input = std::make_unique<KeyboardInput>(associated_game_manager);
-            event_dispatcher.register_listener(keyboard_input.get());
+            event_dispatcher->register_listener(keyboard_input.get());
             return keyboard_input;
         }
     } else {
@@ -74,27 +86,38 @@ LocalMultiplayer::get_input(std::size_t index, GameManager* associated_game_mana
             auto online_input = std::make_unique<OnlineInput>(associated_game_manager, client.value());
             return online_input;
         } else {
-            const constexpr std::uint32_t connection_attempts = 10;
-            for (std::uint32_t i = 0; i < connection_attempts; ++i) {
-                MaybeConnection connection = m_network_manager.try_connect();
-                if (connection.has_value()) {
-                    auto connection_value = connection.value();
-                    auto online_input = std::make_unique<OnlineInput>(associated_game_manager, connection_value);
-                    auto send_data = InitializationData{ InitializationDataType::Client, i };
-                    const auto send_result = ptr_connection_send_data(connection_value, &send_data);
-                    if (send_result.has_value()) {
-                        throw std::runtime_error{
-                            "Error in sending the InitializationData to the server for InputMethod::OnlineNetwork: "
-                            + send_result.value()
-                        };
-                    }
-                    return online_input;
-                }
-                SDL_Delay(200);
+
+            auto connection_result = get_connection_to_server();
+
+            if (!connection_result.has_value()) {
+                throw std::runtime_error{ connection_result.error() };
             }
 
-            throw std::runtime_error{ "Error in getting a connection for InputMethod::OnlineNetwork: failed after "
-                                      + std::to_string(connection_attempts) + " attempts" };
+            auto connection = connection_result.value();
+            auto online_input = std::make_unique<OnlineInput>(associated_game_manager, connection);
+            auto send_data = InitializationData{ InitializationDataType::Client, (uint32_t) index };
+            const auto send_result = ptr_connection_send_data(connection, &send_data);
+            if (send_result.has_value()) { }
+            return online_input;
         }
     }
+}
+
+
+tl::expected<std::shared_ptr<Connection>, std::string>
+LocalMultiplayer::get_connection_to_server(std::uint32_t delay_between_attempts, std::uint32_t connection_attempts) {
+
+
+    for (std::uint32_t i = 0; i < connection_attempts; ++i) {
+        MaybeConnection connection = m_network_manager.try_connect();
+        if (connection.has_value()) {
+            return connection.value();
+        }
+        SDL_Delay(delay_between_attempts);
+    }
+
+    return tl::make_unexpected(
+            "Error in getting a connection for LocalMultiplayer: failed after " + std::to_string(connection_attempts)
+            + " attempts"
+    );
 }

@@ -23,7 +23,7 @@ private:
     std::unique_ptr<PlayManager> m_manager;
 
 public:
-    static constexpr int width = 800;
+    static constexpr int width = 1200;
     static constexpr int height = 600;
 
     TetrisApplication(std::unique_ptr<PlayManager> manager)
@@ -39,14 +39,22 @@ public:
         auto num_players = m_manager->get_num_players();
 
         for (std::size_t i = 0; i < num_players; ++i) {
-            m_game_managers.push_back(std::make_unique<GameManager>());
+            m_game_managers.push_back(std::make_unique<GameManager>(i));
             std::cout << "initializing manager input at " << i << " (online atm)\n";
-            m_inputs.push_back(m_manager->get_input(i, m_game_managers.back().get(), m_event_dispatcher));
+            m_inputs.push_back(m_manager->get_input(i, m_game_managers.back().get(), &m_event_dispatcher));
         }
         for (const auto& game_manager : m_game_managers) {
             game_manager->spawn_next_tetromino();
         }
+
+        //TODO if this is to big to handle num_players, we have to resize in some way
+        [[maybe_unused]] const size_t game_field_size =
+                (GameManager::size_per_field * num_players) + ((num_players - 1) * GameManager::space_between);
+
+
+        //TODO: resize(), but then game_managers have to updated as well, to repaint or not?
     }
+
 
 protected:
     void update(double) override {

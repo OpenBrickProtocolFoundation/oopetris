@@ -16,7 +16,7 @@ public:
     virtual std::size_t get_num_players() = 0;
     virtual tl::optional<std::string> init() = 0;
     virtual std::unique_ptr<Input>
-    get_input(std::size_t index, GameManager* associated_game_manager, EventDispatcher event_dispatcher) = 0;
+    get_input(std::size_t index, GameManager* associated_game_manager, EventDispatcher* event_dispatcher) = 0;
 };
 
 
@@ -26,5 +26,5 @@ public:
     std::size_t get_num_players() override;
     tl::optional<std::string> init() override;
     std::unique_ptr<Input>
-    get_input(std::size_t index, GameManager* associated_game_manager, EventDispatcher event_dispatcher) override;
+    get_input(std::size_t index, GameManager* associated_game_manager, EventDispatcher* event_dispatcher) override;
 };

@@ -19,6 +19,7 @@ public:
     static constexpr Color border_color{ 42, 42, 42 };
 
 private:
+    Point m_start_point;
     Point m_offset;
     int m_tile_size;
     std::vector<Mino> m_minos;

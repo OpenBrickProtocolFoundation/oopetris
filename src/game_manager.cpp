@@ -4,9 +4,14 @@
 #include <iostream>
 #include <sstream>
 
-GameManager::GameManager()
-    : m_grid{ Point::zero(), tile_size },
+GameManager::GameManager(std::size_t uuid)
+    : m_uuid{ uuid },
+      m_grid{ Point{
+        (int) ((uuid * GameManager::size_per_field) + (uuid * GameManager::space_between)), 0
+    }, tile_size },
       m_next_gravity_step_time{ Application::elapsed_time() + get_gravity_delay() } {
+
+
     m_fonts.push_back(std::make_shared<Font>("assets/fonts/PressStart2P.ttf", 18));
     m_score_text = Text{
         Point{ m_grid.to_screen_coords(Grid::preview_tetromino_position + Point{ 0, Grid::preview_extends.y }) },

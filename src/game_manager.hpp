@@ -7,6 +7,7 @@
 #include "tetromino.hpp"
 #include "text.hpp"
 #include <array>
+#include <cstddef>
 #include <memory>
 #include <tl/optional.hpp>
 
@@ -23,12 +24,16 @@ enum class MovementType {
 };
 
 struct GameManager final {
-private:
-    static constexpr int tile_size = 30;
+public:
+    static constexpr std::size_t tile_size = 30;
+    static constexpr std::size_t legend_size = Grid::preview_extends.x;
+    static constexpr std::size_t size_per_field = tile_size * (Grid::width + legend_size);
+    static constexpr std::size_t space_between = 125;
 
+private:
     // while holding down, this level is assumed for gravity calculation
     static constexpr int accelerated_drop_movement_level = 10;
-
+    std::size_t m_uuid;
     Grid m_grid;
     tl::optional<Tetromino> m_active_tetromino;
     tl::optional<Tetromino> m_preview_tetromino;
@@ -48,7 +53,7 @@ private:
     std::unique_ptr<OnlineHandler> m_online_handler = nullptr;
 
 public:
-    GameManager();
+    GameManager(std::size_t uuid);
     void update();
     void render(const Application& app) const;
 

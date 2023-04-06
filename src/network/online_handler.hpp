@@ -12,6 +12,6 @@ private:
     std::uint32_t m_uuid;
 
 public:
-    OnlineHandler(std::shared_ptr<Server> server,  std::shared_ptr<Connection> connection, uint32_t uuid);
+    OnlineHandler(std::shared_ptr<Server> server, std::shared_ptr<Connection> connection, uint32_t uuid);
     void handle_event(Input::Event event);
 };
