@@ -1,7 +1,7 @@
 #include "input.hpp"
 #include "application.hpp"
 #include "game_manager.hpp"
-#include <array>
+#include "key_codes.hpp"
 
 void KeyboardInput::update() {
     Input::update();
@@ -19,44 +19,40 @@ void KeyboardInput::update() {
 
 void KeyboardInput::handle_event(const SDL_Event& event) {
     if (event.type == SDL_KEYDOWN and event.key.repeat == 0) {
-        switch (event.key.keysym.sym) {
-            case SDLK_LEFT:
-                m_target_game_manager->handle_input_event(Event::RotateLeft);
-                break;
-            case SDLK_RIGHT:
-                m_target_game_manager->handle_input_event(Event::RotateRight);
-                break;
-            case SDLK_s:
-                m_target_game_manager->handle_input_event(Event::MoveDown);
-                break;
-            case SDLK_a:
-                m_keys_hold[HoldableKey::Left] = Application::elapsed_time() + auto_shift_delay;
-                if (not m_target_game_manager->handle_input_event(Event::MoveLeft)) {
-                    m_keys_hold.erase(HoldableKey::Left);
-                }
-                break;
-            case SDLK_d:
-                m_keys_hold[HoldableKey::Right] = Application::elapsed_time() + auto_shift_delay;
-                if (not m_target_game_manager->handle_input_event(Event::MoveRight)) {
-                    m_keys_hold.erase(HoldableKey::Right);
-                }
-                break;
-            case SDLK_SPACE:
-            case SDLK_w:
-                m_target_game_manager->handle_input_event(Event::Drop);
-                break;
-        }
+        handle_keydown(event);
     } else if (event.type == SDL_KEYUP) {
-        switch (event.key.keysym.sym) {
-            case SDLK_s:
-                m_target_game_manager->handle_input_event(Event::ReleaseMoveDown);
-                break;
-            case SDLK_a:
-                m_keys_hold.erase(HoldableKey::Left);
-                break;
-            case SDLK_d:
-                m_keys_hold.erase(HoldableKey::Right);
-                break;
+        handle_keyup(event);
+    }
+}
+
+void KeyboardInput::handle_keydown(const SDL_Event& event) {
+    if (event.key.keysym.sym == to_sdl_keycode(m_controls.rotate_left)) {
+        m_target_game_manager->handle_input_event(Event::RotateLeft);
+    } else if (event.key.keysym.sym == to_sdl_keycode(m_controls.rotate_right)) {
+        m_target_game_manager->handle_input_event(Event::RotateRight);
+    } else if (event.key.keysym.sym == to_sdl_keycode(m_controls.move_down)) {
+        m_target_game_manager->handle_input_event(Event::MoveDown);
+    } else if (event.key.keysym.sym == to_sdl_keycode(m_controls.move_left)) {
+        m_keys_hold[HoldableKey::Left] = Application::elapsed_time() + auto_shift_delay;
+        if (not m_target_game_manager->handle_input_event(Event::MoveLeft)) {
+            m_keys_hold.erase(HoldableKey::Left);
         }
+    } else if (event.key.keysym.sym == to_sdl_keycode(m_controls.move_right)) {
+        m_keys_hold[HoldableKey::Right] = Application::elapsed_time() + auto_shift_delay;
+        if (not m_target_game_manager->handle_input_event(Event::MoveRight)) {
+            m_keys_hold.erase(HoldableKey::Right);
+        }
+    } else if (event.key.keysym.sym == to_sdl_keycode(m_controls.drop)) {
+        m_target_game_manager->handle_input_event(Event::Drop);
+    }
+}
+
+void KeyboardInput::handle_keyup(const SDL_Event& event) {
+    if (event.key.keysym.sym == to_sdl_keycode(m_controls.move_down)) {
+        m_target_game_manager->handle_input_event(Event::ReleaseMoveDown);
+    } else if (event.key.keysym.sym == to_sdl_keycode(m_controls.move_left)) {
+        m_keys_hold.erase(HoldableKey::Left);
+    } else if (event.key.keysym.sym == to_sdl_keycode(m_controls.move_right)) {
+        m_keys_hold.erase(HoldableKey::Right);
     }
 }
