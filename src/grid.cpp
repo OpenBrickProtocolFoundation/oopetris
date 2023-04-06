@@ -81,6 +81,4 @@ void Grid::draw_playing_field_background(const Application& app) const {
             m_start_point + Point{ bottom_right.x + 1, 0 },
             m_start_point + Point{ bottom_right.x + 1, app.window().size().y - 1 }, border_color
     );
-    printf("m_offset: y %d , y: %d, size %d\n", m_start_point.y,
-           (m_start_point + Point{ bottom_right.x + 1, app.window().size().y - 1 }).y, app.window().size().y);
 }

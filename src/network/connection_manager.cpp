@@ -9,10 +9,7 @@
 #include <tl/optional.hpp>
 #include <vector>
 
-Connection::Connection(TCPsocket socket)
-    : m_socket{ socket } {
-
-      };
+Connection::Connection(TCPsocket socket) : m_socket{ socket } {};
 
 Connection::~Connection() {
     SDLNet_TCP_Close(m_socket);
@@ -89,4 +86,88 @@ tl::optional<std::string> Server::send_all(const Transportable* transportable, u
     }
 
     return {};
+}
+
+tl::expected<bool, std::string> Server::is_data_available(Uint32 timeout_ms) {
+
+    SDLNet_SocketSet set = SDLNet_AllocSocketSet(1);
+    if (!set) {
+        return tl::make_unexpected("no more memory for creating a SDLNet_SocketSet");
+    }
+
+
+    auto num_sockets = SDLNet_TCP_AddSocket(set, m_socket);
+    if (num_sockets != 1) {
+        return tl::make_unexpected("SDLNet_AddSocket failed, this is an implementation error");
+    }
+
+    auto result = SDLNet_CheckSockets(set, timeout_ms);
+    if (result == -1) {
+        return tl::make_unexpected("SDLNet_CheckSockets error (select() system call error)");
+    }
+
+
+    SDLNet_FreeSocketSet(set);
+
+    return result == 1;
+}
+
+
+tl::expected<RawBytes, std::string> Server::get_all_data_blocking() {
+    void* memory = std::malloc(Server::chunk_size);
+    if (!memory) {
+        return tl::make_unexpected("error in malloc for receiving a socket message");
+    }
+    std::uint32_t data_size = 0;
+    while (true) {
+        int len = SDLNet_TCP_Recv(m_socket, memory, Server::chunk_size);
+        if (len <= 0) {
+            free(memory);
+            return tl::make_unexpected("SDLNet_TCP_Recv: " + std::string{ SDLNet_GetError() });
+        }
+
+        if (len != Server::chunk_size) {
+
+            return RawBytes{ (uint8_t*) memory, data_size + len };
+        }
+
+        data_size += Server::chunk_size;
+        void* new_memory = std::realloc(memory, data_size + Server::chunk_size);
+        if (!new_memory) {
+            free(memory);
+            return tl::make_unexpected("error in realloc for receiving a socket message");
+        }
+        memory = new_memory;
+    }
+
+    return tl::make_unexpected("error in SDLNet_TCP_Recv: somehow exited the while loop");
+}
+
+MaybeData Server::get_data() {
+
+    auto data_available = is_data_available();
+    if (!data_available.has_value()) {
+        return tl::make_unexpected("in is_data_available: " + data_available.error());
+    }
+
+    if (!data_available.value()) {
+        return {};
+    }
+
+    auto data = get_all_data_blocking();
+    if (!data.has_value()) {
+        return tl::make_unexpected("in get_all_data_blocking: " + data_available.error());
+    }
+
+
+    RawBytes raw_bytes = data.value();
+
+    auto result = RawTransportData::from_raw_bytes(raw_bytes);
+    if (!result.has_value()) {
+        free(raw_bytes.first);
+        return tl::make_unexpected("in RawTransportData::from_raw_bytes: " + result.error());
+    }
+
+    free(raw_bytes.first);
+    return tl::make_optional(std::move(result.value()));
 }
