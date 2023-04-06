@@ -11,7 +11,7 @@
 NetworkManager::NetworkManager() : m_connections{ std::vector<Connection>{} } {};
 
 
-MaybeConnection NetworkManager::try_connect(const char* host, std::size_t port) {
+MaybeConnection NetworkManager::try_connect(const char* host, Uint16 port) {
 
     IPaddress ip;
     TCPsocket tcpsock;
@@ -30,7 +30,7 @@ MaybeConnection NetworkManager::try_connect(const char* host, std::size_t port) 
     return std::make_shared<Connection>(tcpsock);
 }
 
-MaybeServer NetworkManager::spawn_server(std::size_t port) {
+MaybeServer NetworkManager::spawn_server(Uint16 port) {
 
     TCPsocket server;
     IPaddress ip;

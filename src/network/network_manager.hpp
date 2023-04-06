@@ -21,10 +21,10 @@ struct NetworkManager {
 private:
     std::vector<Connection> m_connections;
     static constexpr const char* ServerHost = "localhost";
-    static constexpr const int Port = 1212;
+    static constexpr const Uint16 Port = 1212;
 
 public:
     explicit NetworkManager();
-    MaybeConnection try_connect(const char* host = NetworkManager::ServerHost, std::size_t port = NetworkManager::Port);
-    MaybeServer spawn_server(std::size_t port = NetworkManager::Port);
+    MaybeConnection try_connect(const char* host = NetworkManager::ServerHost, Uint16 port = NetworkManager::Port);
+    MaybeServer spawn_server(Uint16 port = NetworkManager::Port);
 };

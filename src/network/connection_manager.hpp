@@ -52,7 +52,7 @@ public:
     ~Server();
     tl::optional<std::shared_ptr<Connection>> try_get_client();
     tl::optional<std::shared_ptr<Connection>>
-    get_client(std::size_t ms_delay = 100, std::size_t abort_after = 60 * 1000);
+    get_client(Uint32 ms_delay = 100, std::size_t abort_after = 60 * 1000);
     tl::optional<std::string> send_all(const Transportable* transportable, uint32_t data_size);
 
     MaybeData get_data();

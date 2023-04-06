@@ -57,7 +57,7 @@ tl::optional<std::shared_ptr<Connection>> Server::try_get_client() {
     return {};
 }
 
-tl::optional<std::shared_ptr<Connection>> Server::get_client(std::size_t ms_delay, std::size_t abort_after) {
+tl::optional<std::shared_ptr<Connection>> Server::get_client(Uint32 ms_delay, std::size_t abort_after) {
     auto start_time = SDL_GetTicks64();
     while (true) {
         /* try to accept a connection */

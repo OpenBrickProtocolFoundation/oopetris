@@ -109,7 +109,7 @@ MaybeRawTransportData RawTransportData::from_raw_bytes(RawBytes raw_bytes) {
 
         auto [_protocol_version, serialUUID, data_size] = header.value();
 
-        if (remaining_length < data_size) {
+        if (remaining_length < (long) data_size) {
             return tl::make_unexpected(
                     "in RawTransportData::from_raw_bytes: couldn't read data, since the raw data is to small"
             );
@@ -142,18 +142,18 @@ tl::expected<std::tuple<std::uint32_t, std::uint32_t, std::uint32_t>, std::strin
 
     uint32_t* data_ptr = (uint32_t*) start;
 
-    uint32_t protocol_version = data_ptr[0];
-    if (RawTransportData::protocol_version != protocol_version) {
+    uint32_t protocol_version_number = data_ptr[0];
+    if (RawTransportData::protocol_version != protocol_version_number) {
         return tl::make_unexpected(
                 "couldn't parse header, since the protocol version mismatches: parser can parse: "
                 + std::to_string(RawTransportData::protocol_version)
-                + "but received: " + std::to_string(protocol_version)
+                + "but received: " + std::to_string(protocol_version_number)
         );
     }
 
     uint32_t serialUUID = data_ptr[1];
     uint32_t data_size = data_ptr[2];
-    return std::tuple{ protocol_version, serialUUID, data_size };
+    return std::tuple{ protocol_version_number, serialUUID, data_size };
 }
 
 
