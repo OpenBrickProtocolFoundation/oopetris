@@ -35,7 +35,6 @@ void GameManager::update() {
                 }
                 m_next_gravity_step_time += get_gravity_delay();
             }
-            refresh_texts();
             refresh_ghost_tetromino();
             break;
         }
@@ -241,6 +240,7 @@ void GameManager::lock_active_tetromino() {
     }
     clear_fully_occupied_lines();
     spawn_next_tetromino();
+    refresh_texts();
 }
 
 bool GameManager::is_active_tetromino_position_valid() const {
