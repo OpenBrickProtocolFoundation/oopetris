@@ -36,6 +36,7 @@ void GameManager::update() {
                 m_next_gravity_step_time += get_gravity_delay();
             }
             refresh_texts();
+            refresh_ghost_tetromino();
             break;
         }
         case GameState::GameOver:
@@ -48,6 +49,9 @@ void GameManager::render(const Application& app) const {
     m_grid.render(app);
     if (m_active_tetromino) {
         m_active_tetromino->render(app, m_grid);
+    }
+    if (m_ghost_tetromino) {
+        m_ghost_tetromino->render(app, m_grid, true);
     }
     if (m_preview_tetromino) {
         m_preview_tetromino->render(app, m_grid);
@@ -240,15 +244,10 @@ void GameManager::freeze_active_tetromino() {
 }
 
 bool GameManager::is_active_tetromino_position_valid() const {
-    if (!m_active_tetromino) {
-        return true;
+    if (not m_active_tetromino) {
+        return false;
     }
-    for (const Mino& mino : m_active_tetromino->minos()) {
-        if (!is_valid_mino_position(mino.position())) {
-            return false;
-        }
-    }
-    return true;
+    return is_tetromino_position_valid(*m_active_tetromino);
 }
 
 bool GameManager::is_valid_mino_position(Point position) const {
@@ -268,6 +267,18 @@ bool GameManager::is_active_tetromino_completely_visible() const {
     return true;
 }
 
+void GameManager::refresh_ghost_tetromino() {
+    if (not m_active_tetromino.has_value()) {
+        m_ghost_tetromino = {};
+        return;
+    }
+    m_ghost_tetromino = *m_active_tetromino;
+    while (is_tetromino_position_valid(*m_ghost_tetromino)) {
+        m_ghost_tetromino->move_down();
+    }
+    m_ghost_tetromino->move_up();
+}
+
 void GameManager::refresh_preview() {
     m_preview_tetromino = Tetromino{ Grid::preview_tetromino_position, m_sequence_bags[0][m_sequence_index] };
 }
@@ -281,4 +292,13 @@ TetrominoType GameManager::get_next_tetromino_type() {
         m_sequence_bags[1] = Bag{};
     }
     return next_type;
+}
+
+bool GameManager::is_tetromino_position_valid(const Tetromino& tetromino) const {
+    for (const Mino& mino : tetromino.minos()) {
+        if (not is_valid_mino_position(mino.position())) {
+            return false;
+        }
+    }
+    return true;
 }

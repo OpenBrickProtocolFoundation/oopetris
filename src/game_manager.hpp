@@ -29,6 +29,7 @@ private:
 
     Grid m_grid;
     tl::optional<Tetromino> m_active_tetromino;
+    tl::optional<Tetromino> m_ghost_tetromino;
     tl::optional<Tetromino> m_preview_tetromino;
     int m_level = 0;
     double m_next_gravity_step_time;
@@ -66,8 +67,11 @@ private:
     [[nodiscard]] bool is_active_tetromino_position_valid() const;
     [[nodiscard]] bool is_valid_mino_position(Point position) const;
     [[nodiscard]] bool is_active_tetromino_completely_visible() const;
+    void refresh_ghost_tetromino();
     void refresh_preview();
     TetrominoType get_next_tetromino_type();
+
+    [[nodiscard]] bool is_tetromino_position_valid(const Tetromino& tetromino) const;
 
     [[nodiscard]] double get_gravity_delay() const {
         const double accelerated_gravity_delay_multiplier = (m_is_accelerated_down_movement ? 1.0 / 20.0 : 1.0);
