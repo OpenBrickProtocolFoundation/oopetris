@@ -48,7 +48,7 @@ public:
         }
 
         //TODO if this is to big to handle num_players, we have to resize in some way
-        [[maybe_unused]] const size_t game_field_size =
+        [[maybe_unused]] const std::size_t game_field_size =
                 (GameManager::size_per_field * num_players) + ((num_players - 1) * GameManager::space_between);
 
 

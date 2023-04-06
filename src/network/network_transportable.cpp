@@ -1,6 +1,7 @@
 
 
 #include "network_transportable.hpp"
+#include "../util.hpp"
 #include "crc32.h"
 #include <cassert>
 #include <cstddef>
@@ -12,34 +13,13 @@
 #include <tuple>
 
 
-//TODO fix inconsistency and don't raise exceptions, rather return tl:expected
-RawBytes Transportable::serialize(const Transportable* transportable, uint32_t data_size) {
-
-    const uint32_t send_size = Transportable::header_size + data_size + Transportable::checksum_size;
-
-    uint8_t* memory = (uint8_t*) std::malloc(send_size);
-    if (!memory) {
-        throw std::runtime_error{ "error in malloc for sending a message" };
-    }
-
-
-    Transportable::write_header(RawBytes{ memory, Transportable::header_size }, transportable->serialUUID(), data_size);
-
-    Transportable::write_data(RawBytes{ memory + Transportable::header_size, data_size }, transportable);
-    Transportable::write_checksum(RawBytes{ memory + Transportable::header_size,
-                                            data_size + Transportable::checksum_size });
-
-    return RawBytes{ memory, send_size };
-}
-
-
-uint32_t Transportable::checksum(RawBytes bytes) {
+std::uint32_t Transportable::checksum(RawBytes bytes) {
 
     auto [start, length] = bytes;
 
-    uint32_t table[256];
+    std::uint32_t table[256];
     crc32::generate_table(table);
-    uint32_t CRC = 0;
+    std::uint32_t CRC = 0;
     for (std::uint32_t i = 0; i < length; ++i) {
         CRC = crc32::update(table, CRC, start, 1);
         start++;
@@ -49,13 +29,13 @@ uint32_t Transportable::checksum(RawBytes bytes) {
 }
 
 
-void Transportable::write_header(RawBytes bytes, uint32_t serialUUID, uint32_t data_size) {
+void Transportable::write_header(RawBytes bytes, std::uint32_t serialUUID, std::uint32_t data_size) {
     auto [start, length] = bytes;
 
     //TODO remove assert
     assert(length == Transportable::header_size);
 
-    uint32_t* data_ptr = (uint32_t*) start;
+    std::uint32_t* data_ptr = (std::uint32_t*) start;
 
     data_ptr[0] = Transportable::protocol_version;
 
@@ -76,16 +56,16 @@ void Transportable::write_checksum(RawBytes bytes) {
 
     auto [start, length] = bytes;
 
-    uint32_t data_size = length - Transportable::checksum_size;
+    std::uint32_t data_size = length - Transportable::checksum_size;
 
-    uint32_t checksum = Transportable::checksum(RawBytes{ start, data_size });
+    std::uint32_t checksum = Transportable::checksum(RawBytes{ start, data_size });
 
-    uint32_t* data_ptr = (uint32_t*) ((uint8_t*) start + data_size);
+    std::uint32_t* data_ptr = (std::uint32_t*) ((uint8_t*) start + data_size);
 
     data_ptr[0] = checksum;
 }
 
-RawTransportData::RawTransportData(uint32_t serialUUID, RawBytes data) : m_serialUUID{ serialUUID }, m_data{ data } {};
+RawTransportData::RawTransportData(std::uint32_t serialUUID, RawBytes data) : m_serialUUID{ serialUUID }, m_data{ data } {};
 
 
 MaybeRawTransportData RawTransportData::from_raw_bytes(RawBytes raw_bytes) {
@@ -94,7 +74,7 @@ MaybeRawTransportData RawTransportData::from_raw_bytes(RawBytes raw_bytes) {
 
     auto [start, length] = raw_bytes;
     long remaining_length = length;
-    auto advance = [&](uint32_t size) {
+    auto advance = [&](std::uint32_t size) {
         remaining_length -= size;
         start += size;
     };
@@ -140,9 +120,9 @@ tl::expected<std::tuple<std::uint32_t, std::uint32_t, std::uint32_t>, std::strin
         return tl::make_unexpected("couldn't read header, since the raw data is to small");
     }
 
-    uint32_t* data_ptr = (uint32_t*) start;
+    std::uint32_t* data_ptr = (std::uint32_t*) start;
 
-    uint32_t protocol_version_number = data_ptr[0];
+    std::uint32_t protocol_version_number = data_ptr[0];
     if (RawTransportData::protocol_version != protocol_version_number) {
         return tl::make_unexpected(
                 "couldn't parse header, since the protocol version mismatches: parser can parse: "
@@ -151,35 +131,30 @@ tl::expected<std::tuple<std::uint32_t, std::uint32_t, std::uint32_t>, std::strin
         );
     }
 
-    uint32_t serialUUID = data_ptr[1];
-    uint32_t data_size = data_ptr[2];
+    std::uint32_t serialUUID = data_ptr[1];
+    std::uint32_t data_size = data_ptr[2];
     return std::tuple{ protocol_version_number, serialUUID, data_size };
 }
 
 
-tl::expected<std::uint32_t, std::string> RawTransportData::read_checksum(RawBytes bytes, uint32_t data_size) {
+tl::expected<std::uint32_t, std::string> RawTransportData::read_checksum(RawBytes bytes, std::uint32_t data_size) {
     auto [start, length] = bytes;
     if (length < data_size + Transportable::checksum_size) {
         return tl::make_unexpected("couldn't read checksum, since the raw data is to small");
     }
 
-    uint32_t calc_checksum = Transportable::checksum(RawBytes{ start, data_size });
+    std::uint32_t calc_checksum = Transportable::checksum(RawBytes{ start, data_size });
 
-    uint32_t* data_ptr = (uint32_t*) ((uint8_t*) start + data_size);
+    std::uint32_t* data_ptr = (std::uint32_t*) ((uint8_t*) start + data_size);
 
-    uint32_t read_checksum = data_ptr[0];
+    std::uint32_t read_checksum = data_ptr[0];
 
     if (read_checksum != calc_checksum) {
         return tl::make_unexpected(
-                "couldn't read data, since the checksum mismatches: read checksum: " + to_hex_str(read_checksum)
-                + "but calculated checksum: " + to_hex_str(calc_checksum)
+                "couldn't read data, since the checksum mismatches: read checksum: " + util::to_hex_str(read_checksum)
+                + "but calculated checksum: " + util::to_hex_str(calc_checksum)
         );
     }
 
     return read_checksum;
-}
-
-//TODO this shouldn't need an Transportable*, but just the type
-bool RawTransportData::is_of_type(Transportable* transportable) {
-    return m_serialUUID == transportable->serialUUID();
 }

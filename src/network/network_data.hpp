@@ -9,13 +9,14 @@
 enum class InitializationDataType : uint8_t { Client, Server };
 
 struct InitializationData : public Transportable {
+    static constexpr std::uint32_t serialUUID = 1;
+
 private:
     InitializationDataType m_type;
-    uint32_t m_uuid;
+    std::uint32_t m_uuid;
 
 public:
-    uint32_t serialUUID() const override;
-    explicit InitializationData(InitializationDataType type, uint32_t uuid);
+    explicit InitializationData(InitializationDataType type, std::uint32_t uuid);
 };
 
 struct EventData : public Transportable {
@@ -23,6 +24,6 @@ private:
     Input::Event m_event;
 
 public:
-    uint32_t serialUUID() const override;
+    static constexpr std::uint32_t serialUUID = 2;
     explicit EventData(Input::Event event);
 };

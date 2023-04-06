@@ -7,7 +7,7 @@
 #include <cstdint>
 #include <stdexcept>
 
-OnlineHandler::OnlineHandler(std::shared_ptr<Server> server, std::shared_ptr<Connection> connection, uint32_t uuid)
+OnlineHandler::OnlineHandler(std::shared_ptr<Server> server, std::shared_ptr<Connection> connection, std::uint32_t uuid)
     : m_server{ server },
       m_connection{ connection },
       m_uuid{ uuid } {};

@@ -15,7 +15,7 @@ Connection::~Connection() {
     SDLNet_TCP_Close(m_socket);
 }
 
-tl::optional<std::string> Connection::send_data(const Transportable* transportable, uint32_t data_size) {
+tl::optional<std::string> Connection::send_data(const Transportable* transportable, std::uint32_t data_size) {
 
     auto [message, length] = Transportable::serialize(transportable, data_size);
 
@@ -76,9 +76,9 @@ tl::optional<std::shared_ptr<Connection>> Server::get_client(Uint32 ms_delay, st
     }
 }
 
-tl::optional<std::string> Server::send_all(const Transportable* transportable, uint32_t data_size) {
+tl::optional<std::string> Server::send_all(const Transportable* transportable, std::uint32_t data_size) {
 
-    for (size_t i = 0; i < m_connections.size(); ++i) {
+    for (std::size_t i = 0; i < m_connections.size(); ++i) {
         auto result = m_connections.at(i)->send_data(transportable, data_size);
         if (result.has_value()) {
             return tl::make_optional("Error while sending to client: " + std::to_string(i) + " : " + result.value());
@@ -88,7 +88,7 @@ tl::optional<std::string> Server::send_all(const Transportable* transportable, u
     return {};
 }
 
-tl::expected<bool, std::string> Server::is_data_available(Uint32 timeout_ms) {
+tl::expected<bool, std::string> Connection::is_data_available(Uint32 timeout_ms) {
 
     SDLNet_SocketSet set = SDLNet_AllocSocketSet(1);
     if (!set) {
@@ -113,26 +113,26 @@ tl::expected<bool, std::string> Server::is_data_available(Uint32 timeout_ms) {
 }
 
 
-tl::expected<RawBytes, std::string> Server::get_all_data_blocking() {
-    void* memory = std::malloc(Server::chunk_size);
+tl::expected<RawBytes, std::string> Connection::get_all_data_blocking() {
+    void* memory = std::malloc(Connection::chunk_size);
     if (!memory) {
         return tl::make_unexpected("error in malloc for receiving a socket message");
     }
     std::uint32_t data_size = 0;
     while (true) {
-        int len = SDLNet_TCP_Recv(m_socket, memory, Server::chunk_size);
+        int len = SDLNet_TCP_Recv(m_socket, memory, Connection::chunk_size);
         if (len <= 0) {
             free(memory);
             return tl::make_unexpected("SDLNet_TCP_Recv: " + std::string{ SDLNet_GetError() });
         }
 
-        if (len != Server::chunk_size) {
+        if (len != Connection::chunk_size) {
 
             return RawBytes{ (uint8_t*) memory, data_size + len };
         }
 
-        data_size += Server::chunk_size;
-        void* new_memory = std::realloc(memory, data_size + Server::chunk_size);
+        data_size += Connection::chunk_size;
+        void* new_memory = std::realloc(memory, data_size + Connection::chunk_size);
         if (!new_memory) {
             free(memory);
             return tl::make_unexpected("error in realloc for receiving a socket message");
@@ -143,7 +143,7 @@ tl::expected<RawBytes, std::string> Server::get_all_data_blocking() {
     return tl::make_unexpected("error in SDLNet_TCP_Recv: somehow exited the while loop");
 }
 
-MaybeData Server::get_data() {
+MaybeData Connection::get_data() {
 
     auto data_available = is_data_available();
     if (!data_available.has_value()) {

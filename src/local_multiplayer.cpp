@@ -95,7 +95,7 @@ std::unique_ptr<Input> LocalMultiplayer::get_input(
 
             auto connection = connection_result.value();
             auto online_input = std::make_unique<OnlineInput>(associated_game_manager, connection);
-            auto send_data = InitializationData{ InitializationDataType::Client, (uint32_t) index };
+            auto send_data = InitializationData{ InitializationDataType::Client, (std::uint32_t) index };
             const auto send_result = ptr_connection_send_data(connection, &send_data);
             if (send_result.has_value()) { }
             return online_input;
