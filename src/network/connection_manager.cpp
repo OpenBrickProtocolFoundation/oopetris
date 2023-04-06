@@ -96,7 +96,7 @@ tl::expected<RawBytes, std::string> Connection::get_all_data_blocking() {
 
         if (len != Connection::chunk_size) {
 
-            return RawBytes{ (uint8_t*) memory, data_size + len };
+            return RawBytes{ static_cast<uint8_t*>(memory), data_size + len };
         }
 
         data_size += Connection::chunk_size;
@@ -110,7 +110,11 @@ tl::expected<RawBytes, std::string> Connection::get_all_data_blocking() {
 
     return tl::make_unexpected("error in SDLNet_TCP_Recv: somehow exited the while loop");
 }
-
+/*
+On error tl::unexpected<std:.string> is returned
+if no data is available tl::optional is returned
+if data is available a vector of such data is returned, it is guaranteed to be nonempty!
+*/
 MaybeData Connection::get_data() {
 
     auto data_available = is_data_available();

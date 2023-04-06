@@ -47,7 +47,7 @@ void Transportable::write_data(RawBytes bytes, const Transportable* transportabl
 
     auto [start, length] = bytes;
 
-    uint8_t* data_ptr = (uint8_t*) transportable;
+    uint8_t* data_ptr = (uint8_t*) (transportable);
     std::memcpy(start, data_ptr, length);
 }
 
@@ -60,7 +60,7 @@ void Transportable::write_checksum(RawBytes bytes) {
 
     std::uint32_t checksum = Transportable::checksum(RawBytes{ start, data_size });
 
-    std::uint32_t* data_ptr = (std::uint32_t*) ((uint8_t*) start + data_size);
+    std::uint32_t* data_ptr = (std::uint32_t*) (static_cast<uint8_t*>(start) + data_size);
 
     data_ptr[0] = checksum;
 }
@@ -101,7 +101,7 @@ tl::expected<std::vector<RawTransportData>, std::string> RawTransportData::from_
 
         //TODO check if implemented correctly
         // this malloc get'S freed in the shared ptr destructor later
-        uint8_t* memory = (uint8_t*) std::malloc(data_size);
+        uint8_t* memory = static_cast<uint8_t*>(std::malloc(data_size));
         if (!memory) {
             return tl::make_unexpected("in RawTransportData::from_raw_bytes: error in malloc for raw data");
         }
@@ -152,7 +152,7 @@ tl::expected<std::uint32_t, std::string> RawTransportData::read_checksum(RawByte
 
     std::uint32_t calc_checksum = Transportable::checksum(RawBytes{ start, data_size });
 
-    std::uint32_t* data_ptr = (std::uint32_t*) ((uint8_t*) start + data_size);
+    std::uint32_t* data_ptr = (std::uint32_t*) (static_cast<uint8_t*>(start) + data_size);
 
     std::uint32_t read_checksum = data_ptr[0];
 
