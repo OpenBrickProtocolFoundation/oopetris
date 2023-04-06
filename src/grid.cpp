@@ -53,7 +53,7 @@ void Grid::set(Point coordinates, TetrominoType type) {
 void Grid::draw_minos(const Application& app) const {
     for (const Mino& mino : m_minos) {
         if (mino.position().y >= invisible_rows) {
-            mino.render(app, *this);
+            mino.render(app, *this, false);
         }
     }
 }
