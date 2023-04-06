@@ -144,7 +144,7 @@ bool GameManager::move_tetromino_down(MovementType movement_type) {
     m_active_tetromino->move_down();
     if (not is_active_tetromino_position_valid()) {
         m_active_tetromino->move_up();
-        freeze_active_tetromino();
+        lock_active_tetromino();
         return false;
     }
     return true;
@@ -184,7 +184,7 @@ bool GameManager::drop_tetromino() {
         m_active_tetromino->move_down();
     }
     m_active_tetromino->move_up();
-    freeze_active_tetromino();
+    lock_active_tetromino();
     m_score += 4 * num_movements;
     return num_movements > 0;
 }
@@ -234,7 +234,7 @@ void GameManager::clear_fully_occupied_lines() {
     m_score += score_per_line_multiplier.at(num_lines_cleared) * (m_level + 1);
 }
 
-void GameManager::freeze_active_tetromino() {
+void GameManager::lock_active_tetromino() {
     // this function assumes that m_active_tetromino is not nullptr
     for (const Mino& mino : m_active_tetromino->minos()) {
         m_grid.set(mino.position(), mino.type());

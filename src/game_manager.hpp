@@ -63,7 +63,7 @@ public:
 private:
     void refresh_texts();
     void clear_fully_occupied_lines();
-    void freeze_active_tetromino();
+    void lock_active_tetromino();
     [[nodiscard]] bool is_active_tetromino_position_valid() const;
     [[nodiscard]] bool is_valid_mino_position(Point position) const;
     [[nodiscard]] bool is_active_tetromino_completely_visible() const;
