@@ -3,7 +3,7 @@
 #include "play_manager.hpp"
 #include "game_manager.hpp"
 #include <cstddef>
-#include <exception>
+#include <stdexcept>
 
 PlayManager::PlayManager(){};
 
