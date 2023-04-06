@@ -67,13 +67,13 @@ jobs:
 
             - uses: seanmiddleditch/gha-setup-ninja@master
 
-            - name: Configure CMake
+            - name: Configure CMake (Windows only)
               if: matrix.config.os == 'windows-latest'
               # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
               # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
               run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{ matrix.config.buildtype }} -DCMAKE_TOOLCHAIN_FILE="${{github.workspace}}/vcpkg/scripts/buildsystems/vcpkg.cmake" ${{github.workspace}} -DVCPKG_TARGET_TRIPLET=x64-windows-static -G Ninja
 
-            - name: Configure CMake
+            - name: Configure CMake (Linux only)
               if: matrix.config.os == 'ubuntu-22.04'
               # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
               # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
