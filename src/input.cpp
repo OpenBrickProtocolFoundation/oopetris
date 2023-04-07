@@ -19,7 +19,7 @@ void KeyboardInput::update() {
             while (target_simulation_step_index <= current_simulation_step_index) {
                 target_simulation_step_index += auto_repeat_rate_frames;
             }
-            if (not m_target_game_manager->handle_input_event(static_cast<Event>(key))) {
+            if (not m_target_game_manager->handle_input_event(static_cast<InputEvent>(key))) {
                 target_simulation_step_index = current_simulation_step_index + delayed_auto_shift_frames;
             }
         }
@@ -37,35 +37,61 @@ void KeyboardInput::handle_event(const SDL_Event& event) {
 void KeyboardInput::handle_keydown(const SDL_Event& event) {
     const auto sdl_key = event.key.keysym.sym;
     if (sdl_key == to_sdl_keycode(m_controls.rotate_left)) {
-        m_target_game_manager->handle_input_event(Event::RotateLeft);
+        m_target_game_manager->handle_input_event(InputEvent::RotateLeft);
     } else if (sdl_key == to_sdl_keycode(m_controls.rotate_right)) {
-        m_target_game_manager->handle_input_event(Event::RotateRight);
+        m_target_game_manager->handle_input_event(InputEvent::RotateRight);
     } else if (sdl_key == to_sdl_keycode(m_controls.move_down)) {
-        m_target_game_manager->handle_input_event(Event::MoveDown);
+        m_target_game_manager->handle_input_event(InputEvent::MoveDown);
     } else if (sdl_key == to_sdl_keycode(m_controls.move_left)) {
         m_keys_hold[HoldableKey::Left] = Application::simulation_step_index() + delayed_auto_shift_frames;
         if (not m_keys_hold.contains(HoldableKey::Right)
-            and not m_target_game_manager->handle_input_event(Event::MoveLeft)) {
+            and not m_target_game_manager->handle_input_event(InputEvent::MoveLeft)) {
             m_keys_hold[HoldableKey::Left] = Application::simulation_step_index();
         }
     } else if (sdl_key == to_sdl_keycode(m_controls.move_right)) {
         m_keys_hold[HoldableKey::Right] = Application::simulation_step_index() + delayed_auto_shift_frames;
         if (not m_keys_hold.contains(HoldableKey::Left)
-            and not m_target_game_manager->handle_input_event(Event::MoveRight)) {
+            and not m_target_game_manager->handle_input_event(InputEvent::MoveRight)) {
             m_keys_hold[HoldableKey::Right] = Application::simulation_step_index();
         }
     } else if (sdl_key == to_sdl_keycode(m_controls.drop)) {
-        m_target_game_manager->handle_input_event(Event::Drop);
+        m_target_game_manager->handle_input_event(InputEvent::Drop);
     }
 }
 
 void KeyboardInput::handle_keyup(const SDL_Event& event) {
     const auto sdl_key = event.key.keysym.sym;
     if (sdl_key == to_sdl_keycode(m_controls.move_down)) {
-        m_target_game_manager->handle_input_event(Event::ReleaseMoveDown);
+        m_target_game_manager->handle_input_event(InputEvent::ReleaseMoveDown);
     } else if (sdl_key == to_sdl_keycode(m_controls.move_left)) {
         m_keys_hold.erase(HoldableKey::Left);
     } else if (sdl_key == to_sdl_keycode(m_controls.move_right)) {
         m_keys_hold.erase(HoldableKey::Right);
+    }
+}
+
+
+ReplayInput::ReplayInput(GameManager* target_game_manager, Recording recording)
+    : Input{ target_game_manager },
+      m_recording{ std::move(recording) } { }
+
+void ReplayInput::update() {
+    Input::update();
+
+    while (true) {
+        if (is_end_of_recording()) {
+            break;
+        }
+
+        const auto& record = m_recording.at(m_next_record_index);
+        const auto is_record_for_current_step = (record.simulation_step_index == Application::simulation_step_index());
+
+        if (not is_record_for_current_step) {
+            break;
+        }
+
+        m_target_game_manager->handle_input_event(record.event);
+
+        ++m_next_record_index;
     }
 }

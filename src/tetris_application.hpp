@@ -20,7 +20,8 @@ public:
     static constexpr int width = 800;
     static constexpr int height = 600;
 
-    TetrisApplication() : Application{ "TetrisApplication", WindowPosition::Centered, width, height } {
+    explicit TetrisApplication(const tl::optional<std::filesystem::path>& recording_path)
+        : Application{ "TetrisApplication", WindowPosition::Centered, width, height } {
         const auto settings = load_settings();
         if (settings.has_value()) {
             m_settings = *settings;
@@ -31,10 +32,27 @@ public:
         }
 
         static constexpr auto num_players = 1;
-        const auto random_seed = Random::generate_seed();
+
+        const auto is_recording = recording_path.has_value();
+        auto recording = [&]() -> tl::optional<Recording> {
+            if (is_recording) {
+                return Recording{ *recording_path };
+            } else {
+                return {};
+            }
+        }();
+
+        const auto random_seed = (is_recording ? recording->seed() : Random::generate_seed());
         for (int i = 0; i < num_players; ++i) {
-            m_game_managers.push_back(std::make_unique<GameManager>(random_seed));
-            m_inputs.push_back(create_input(m_settings.controls.at(i), m_game_managers.back().get()));
+            spdlog::info("seed for player {}: {}", i + 1, random_seed);
+            const auto record_game = not is_recording;
+            m_game_managers.push_back(std::make_unique<GameManager>(random_seed, record_game));
+
+            if (is_recording) {
+                m_inputs.push_back(create_input(ReplayControls{ std::move(*recording) }, m_game_managers.back().get()));
+            } else {
+                m_inputs.push_back(create_input(m_settings.controls.at(i), m_game_managers.back().get()));
+            }
         }
         for (const auto& game_manager : m_game_managers) {
             game_manager->spawn_next_tetromino();
@@ -62,11 +80,17 @@ protected:
 private:
     std::unique_ptr<Input> create_input(Controls controls, GameManager* associated_game_manager) {
         return std::visit(
-                overloaded{ [&](const KeyboardControls& keyboard_controls) -> std::unique_ptr<Input> {
-                    auto keyboard_input = std::make_unique<KeyboardInput>(associated_game_manager, keyboard_controls);
-                    m_event_dispatcher.register_listener(keyboard_input.get());
-                    return keyboard_input;
-                } },
+                overloaded{ [&](KeyboardControls& keyboard_controls) -> std::unique_ptr<Input> {
+                               auto keyboard_input =
+                                       std::make_unique<KeyboardInput>(associated_game_manager, keyboard_controls);
+                               m_event_dispatcher.register_listener(keyboard_input.get());
+                               return keyboard_input;
+                           },
+                            [&](ReplayControls& replay_controls) -> std::unique_ptr<Input> {
+                                return std::make_unique<ReplayInput>(
+                                        associated_game_manager, std::move(replay_controls.recording)
+                                );
+                            } },
                 controls
         );
     }

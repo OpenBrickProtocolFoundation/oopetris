@@ -6,9 +6,11 @@
 #include "random.hpp"
 #include "tetromino.hpp"
 #include "text.hpp"
+#include "types.hpp"
 #include <array>
 #include <cmath>
 #include <tl/optional.hpp>
+#include <vector>
 
 struct Application;
 
@@ -47,14 +49,16 @@ private:
     Text m_cleared_lines_text;
     bool m_down_key_pressed = false;
     bool m_is_accelerated_down_movement = false;
+    Recording m_recording;
+    bool m_record_game;
 
 public:
-    explicit GameManager(Random::Seed random_seed);
+    GameManager(Random::Seed random_seed, bool record_game);
     void update();
     void render(const Application& app) const;
 
     // returns if the input event lead to a movement
-    bool handle_input_event(Input::Event event);
+    bool handle_input_event(InputEvent event);
     void spawn_next_tetromino();
     bool rotate_tetromino_right();
     bool rotate_tetromino_left();
@@ -85,6 +89,8 @@ private:
         }
         return frames;
     }
+
+    void save_recording() const;
 
     static constexpr auto frames_per_tile = std::array<u64, 30>{ 48, 43, 38, 33, 28, 23, 18, 13, 8, 6, 5, 5, 5, 4, 4,
                                                                  4,  3,  3,  3,  2,  2,  2,  2,  2, 2, 2, 2, 2, 2, 1 };

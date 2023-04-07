@@ -4,8 +4,7 @@
 Random::Random() : Random{ generate_seed() } { }
 
 Random::Random(const Seed seed) {
-    m_generator.seed(seed);
-    m_seed = seed;
+    this->seed(seed);
 }
 
 double Random::random() {
@@ -14,6 +13,11 @@ double Random::random() {
 
 Random::Seed Random::seed() const {
     return m_seed;
+}
+
+void Random::seed(Random::Seed seed) {
+    m_generator.seed(seed);
+    m_seed = seed;
 }
 
 Random::Seed Random::generate_seed() {

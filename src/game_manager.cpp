@@ -1,13 +1,18 @@
 #include "game_manager.hpp"
 #include "application.hpp"
 #include "spdlog/spdlog.h"
+#include "utils.hpp"
 #include <cassert>
+#include <fstream>
 #include <sstream>
+#include <utility>
 
-GameManager::GameManager(const Random::Seed random_seed)
+GameManager::GameManager(const Random::Seed random_seed, const bool record_game)
     : m_random{ random_seed },
       m_grid{ Point::zero(), tile_size },
-      m_next_gravity_simulation_step_index{ get_gravity_delay_frames() } {
+      m_next_gravity_simulation_step_index{ get_gravity_delay_frames() },
+      m_recording{ random_seed },
+      m_record_game{ record_game } {
     m_fonts.push_back(std::make_shared<Font>("assets/fonts/PressStart2P.ttf", 18));
     m_score_text = Text{
         Point{ m_grid.to_screen_coords(Grid::preview_tetromino_position + Point{ 0, Grid::preview_extends.y }) },
@@ -64,24 +69,25 @@ void GameManager::render(const Application& app) const {
     m_cleared_lines_text.render(app);
 }
 
-bool GameManager::handle_input_event(Input::Event event) {
+bool GameManager::handle_input_event(InputEvent event) {
+    m_recording.add_record(Application::simulation_step_index(), event);
     switch (event) {
-        case Input::Event::RotateLeft:
+        case InputEvent::RotateLeft:
             return rotate_tetromino_left();
-        case Input::Event::RotateRight:
+        case InputEvent::RotateRight:
             return rotate_tetromino_right();
-        case Input::Event::MoveLeft:
+        case InputEvent::MoveLeft:
             return move_tetromino_left();
-        case Input::Event::MoveRight:
+        case InputEvent::MoveRight:
             return move_tetromino_right();
-        case Input::Event::MoveDown:
+        case InputEvent::MoveDown:
             m_down_key_pressed = true;
             m_is_accelerated_down_movement = true;
             m_next_gravity_simulation_step_index = Application::simulation_step_index() + get_gravity_delay_frames();
             return move_tetromino_down(MovementType::Forced);
-        case Input::Event::Drop:
+        case InputEvent::Drop:
             return drop_tetromino();
-        case Input::Event::ReleaseMoveDown: {
+        case InputEvent::ReleaseMoveDown: {
             m_down_key_pressed = false;
             return false;
         }
@@ -99,6 +105,9 @@ void GameManager::spawn_next_tetromino() {
     if (not is_active_tetromino_position_valid()) {
         m_game_state = GameState::GameOver;
         spdlog::info("game over");
+        if (m_record_game) {
+            save_recording();
+        }
         m_active_tetromino = {};
         return;
     }
@@ -305,4 +314,24 @@ bool GameManager::is_tetromino_position_valid(const Tetromino& tetromino) const 
         }
     }
     return true;
+}
+
+void GameManager::save_recording() const {
+    const auto filename = fmt::format("recordings/{}.rec", utils::current_date_time_iso8601());
+    spdlog::info("writing recording to file {}", filename);
+    std::ofstream file{ filename, std::ios::out | std::ios::binary };
+    if (not file) {
+        spdlog::error("unable to write recording to disk");
+        return;
+    }
+
+    // store seed
+    const auto random_seed = m_random.seed();
+    file.write(reinterpret_cast<const char*>(&random_seed), sizeof(random_seed));
+
+    for (const auto& record : m_recording) {
+        file.write(reinterpret_cast<const char*>(&record.simulation_step_index), sizeof(record.simulation_step_index));
+        const auto event = std::to_underlying(record.event);
+        file.write(reinterpret_cast<const char*>(&event), sizeof(event));
+    }
 }
