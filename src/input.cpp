@@ -6,7 +6,7 @@
 void KeyboardInput::update() {
     Input::update();
 
-    const auto elapsed_time = Application::elapsed_time();
+    const auto current_simulation_step_index = Application::simulation_step_index();
 
     const auto is_left_key_down = m_keys_hold.contains(HoldableKey::Left);
     const auto is_right_key_down = m_keys_hold.contains(HoldableKey::Right);
@@ -14,13 +14,13 @@ void KeyboardInput::update() {
         return;
     }
 
-    for (auto& [key, time_point] : m_keys_hold) {
-        if (elapsed_time >= time_point) {
-            while (time_point <= elapsed_time) {
-                time_point += auto_repeat_rate;
+    for (auto& [key, target_simulation_step_index] : m_keys_hold) {
+        if (current_simulation_step_index >= target_simulation_step_index) {
+            while (target_simulation_step_index <= current_simulation_step_index) {
+                target_simulation_step_index += auto_repeat_rate_frames;
             }
             if (not m_target_game_manager->handle_input_event(static_cast<Event>(key))) {
-                time_point = elapsed_time + auto_shift_delay;
+                target_simulation_step_index = current_simulation_step_index + delayed_auto_shift_frames;
             }
         }
     }
@@ -43,16 +43,16 @@ void KeyboardInput::handle_keydown(const SDL_Event& event) {
     } else if (sdl_key == to_sdl_keycode(m_controls.move_down)) {
         m_target_game_manager->handle_input_event(Event::MoveDown);
     } else if (sdl_key == to_sdl_keycode(m_controls.move_left)) {
-        m_keys_hold[HoldableKey::Left] = Application::elapsed_time() + auto_shift_delay;
+        m_keys_hold[HoldableKey::Left] = Application::simulation_step_index() + delayed_auto_shift_frames;
         if (not m_keys_hold.contains(HoldableKey::Right)
             and not m_target_game_manager->handle_input_event(Event::MoveLeft)) {
-            m_keys_hold[HoldableKey::Left] = Application::elapsed_time();
+            m_keys_hold[HoldableKey::Left] = Application::simulation_step_index();
         }
     } else if (sdl_key == to_sdl_keycode(m_controls.move_right)) {
-        m_keys_hold[HoldableKey::Right] = Application::elapsed_time() + auto_shift_delay;
+        m_keys_hold[HoldableKey::Right] = Application::simulation_step_index() + delayed_auto_shift_frames;
         if (not m_keys_hold.contains(HoldableKey::Left)
             and not m_target_game_manager->handle_input_event(Event::MoveRight)) {
-            m_keys_hold[HoldableKey::Right] = Application::elapsed_time();
+            m_keys_hold[HoldableKey::Right] = Application::simulation_step_index();
         }
     } else if (sdl_key == to_sdl_keycode(m_controls.drop)) {
         m_target_game_manager->handle_input_event(Event::Drop);
