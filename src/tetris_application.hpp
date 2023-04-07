@@ -31,8 +31,9 @@ public:
         }
 
         static constexpr auto num_players = 1;
+        const auto random_seed = Random::generate_seed();
         for (int i = 0; i < num_players; ++i) {
-            m_game_managers.push_back(std::make_unique<GameManager>());
+            m_game_managers.push_back(std::make_unique<GameManager>(random_seed));
             m_inputs.push_back(create_input(m_settings.controls.at(i), m_game_managers.back().get()));
         }
         for (const auto& game_manager : m_game_managers) {

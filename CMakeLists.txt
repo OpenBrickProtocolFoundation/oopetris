@@ -50,7 +50,9 @@ add_executable(oopetris
         src/key_codes.hpp
         src/magic_enum_wrapper.hpp
         src/types.hpp
-        )
+        src/random.cpp
+        src/random.hpp
+)
 
 foreach (target ${TARGET_LIST})
     # set warning levels
