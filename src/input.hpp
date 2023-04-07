@@ -2,6 +2,7 @@
 
 #include "event_listener.hpp"
 #include "settings.hpp"
+#include "types.hpp"
 #include <functional>
 #include <tl/optional.hpp>
 #include <unordered_map>
@@ -36,10 +37,10 @@ private:
         Right = static_cast<int>(Event::MoveRight),
     };
 
-    static constexpr double auto_shift_delay = 1.0 / 6.0;
-    static constexpr double auto_repeat_rate = 1.0 / 30.0;
+    static constexpr u64 delayed_auto_shift_frames = 10;
+    static constexpr u64 auto_repeat_rate_frames = 2;
 
-    std::unordered_map<HoldableKey, double> m_keys_hold;
+    std::unordered_map<HoldableKey, u64> m_keys_hold;
     KeyboardControls m_controls;
 
 public:
