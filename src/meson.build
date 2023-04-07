@@ -36,6 +36,8 @@ src_files += files(
     'key_codes.hpp',
     'magic_enum_wrapper.hpp',
     'types.hpp',
+    'random.cpp',
+    'random.hpp',
 )
 
 inc_dirs += include_directories('.')

@@ -4,8 +4,9 @@
 #include <cassert>
 #include <sstream>
 
-GameManager::GameManager()
-    : m_grid{ Point::zero(), tile_size },
+GameManager::GameManager(const Random::Seed random_seed)
+    : m_random{ random_seed },
+      m_grid{ Point::zero(), tile_size },
       m_next_gravity_simulation_step_index{ get_gravity_delay_frames() } {
     m_fonts.push_back(std::make_shared<Font>("assets/fonts/PressStart2P.ttf", 18));
     m_score_text = Text{
@@ -292,7 +293,7 @@ TetrominoType GameManager::get_next_tetromino_type() {
     if (m_sequence_index == 0) {
         // we had a wrap-around
         m_sequence_bags[0] = m_sequence_bags[1];
-        m_sequence_bags[1] = Bag{};
+        m_sequence_bags[1] = Bag{ m_random };
     }
     return next_type;
 }

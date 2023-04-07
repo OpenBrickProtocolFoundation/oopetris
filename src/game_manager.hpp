@@ -3,6 +3,7 @@
 #include "bag.hpp"
 #include "grid.hpp"
 #include "input.hpp"
+#include "random.hpp"
 #include "tetromino.hpp"
 #include "text.hpp"
 #include <array>
@@ -28,6 +29,7 @@ private:
     // while holding down, this level is assumed for gravity calculation
     static constexpr int accelerated_drop_movement_level = 10;
 
+    Random m_random;
     Grid m_grid;
     tl::optional<Tetromino> m_active_tetromino;
     tl::optional<Tetromino> m_ghost_tetromino;
@@ -36,7 +38,7 @@ private:
     u64 m_next_gravity_simulation_step_index;
     int m_lines_cleared = 0;
     GameState m_game_state = GameState::Playing;
-    std::array<Bag, 2> m_sequence_bags{ Bag{}, Bag{} };
+    std::array<Bag, 2> m_sequence_bags{ Bag{ m_random }, Bag{ m_random } };
     int m_sequence_index = 0;
     std::vector<std::shared_ptr<Font>> m_fonts;
     Text m_score_text;
@@ -47,7 +49,7 @@ private:
     bool m_is_accelerated_down_movement = false;
 
 public:
-    GameManager();
+    explicit GameManager(Random::Seed random_seed);
     void update();
     void render(const Application& app) const;
 
