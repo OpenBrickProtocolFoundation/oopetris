@@ -38,7 +38,12 @@ public:
     tl::optional<std::string> send_data(const T* transportable) {
 
 
-        auto [message, length] = Transportable::serialize<T>(transportable);
+        const auto serialized = Transportable::serialize<T>(transportable);
+        if (!serialized.has_value()) {
+            return tl::make_optional("In Connection::send_data: " + serialized.error());
+        }
+
+        auto [message, length] = serialized.value();
 
         const auto result = SDLNet_TCP_Send(m_socket, message, length);
         if (result == -1) {
