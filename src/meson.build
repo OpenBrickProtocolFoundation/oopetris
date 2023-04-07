@@ -38,6 +38,10 @@ src_files += files(
     'types.hpp',
     'random.cpp',
     'random.hpp',
+    'recording.hpp',
+    'input_event.hpp',
+    'utils.hpp',
+    'utils.cpp',
 )
 
 inc_dirs += include_directories('.')

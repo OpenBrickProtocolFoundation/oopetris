@@ -24,5 +24,6 @@ public:
 
     [[nodiscard]] double random();
     [[nodiscard]] Seed seed() const;
+    void seed(Seed seed);
     static Seed generate_seed();
 };

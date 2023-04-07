@@ -52,7 +52,11 @@ add_executable(oopetris
         src/types.hpp
         src/random.cpp
         src/random.hpp
-)
+        src/recording.hpp
+        src/input_event.hpp
+        src/utils.hpp
+        src/utils.cpp
+        )
 
 foreach (target ${TARGET_LIST})
     # set warning levels
