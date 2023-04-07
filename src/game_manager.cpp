@@ -64,6 +64,9 @@ void GameManager::render(const Application& app) const {
     if (m_preview_tetromino) {
         m_preview_tetromino->render(app, m_grid);
     }
+    if (m_tetromino_on_hold) {
+        m_tetromino_on_hold->render(app, m_grid);
+    }
     m_score_text.render(app);
     m_level_text.render(app);
     m_cleared_lines_text.render(app);
@@ -91,6 +94,13 @@ bool GameManager::handle_input_event(InputEvent event) {
             m_down_key_pressed = false;
             return false;
         }
+        case InputEvent::Hold:
+            if (m_allowed_to_hold) {
+                hold_tetromino();
+                m_allowed_to_hold = false;
+                return true;
+            }
+            return false;
         default:
             assert(false and "unknown event");
             return false;
@@ -98,9 +108,12 @@ bool GameManager::handle_input_event(InputEvent event) {
 }
 
 void GameManager::spawn_next_tetromino() {
+    spawn_next_tetromino(get_next_tetromino_type());
+}
+
+void GameManager::spawn_next_tetromino(const TetrominoType type) {
     static constexpr Point spawn_position{ 3, 0 };
-    const TetrominoType next_type = get_next_tetromino_type();
-    m_active_tetromino = Tetromino{ spawn_position, next_type };
+    m_active_tetromino = Tetromino{ spawn_position, type };
     refresh_preview();
     if (not is_active_tetromino_position_valid()) {
         m_game_state = GameState::GameOver;
@@ -201,6 +214,21 @@ bool GameManager::drop_tetromino() {
     return num_movements > 0;
 }
 
+void GameManager::hold_tetromino() {
+    if (not m_active_tetromino.has_value()) {
+        return;
+    }
+
+    if (not m_tetromino_on_hold.has_value()) {
+        m_tetromino_on_hold = Tetromino{ Grid::hold_tetromino_position, m_active_tetromino->type() };
+        spawn_next_tetromino();
+    } else {
+        const auto on_hold = m_tetromino_on_hold->type();
+        m_tetromino_on_hold = Tetromino{ Grid::hold_tetromino_position, m_active_tetromino->type() };
+        spawn_next_tetromino(on_hold);
+    }
+}
+
 void GameManager::refresh_texts() {
     std::stringstream stream;
     stream << "score: " << m_score;
@@ -251,6 +279,7 @@ void GameManager::lock_active_tetromino() {
     for (const Mino& mino : m_active_tetromino->minos()) {
         m_grid.set(mino.position(), mino.type());
     }
+    m_allowed_to_hold = true;
     clear_fully_occupied_lines();
     spawn_next_tetromino();
     refresh_texts();

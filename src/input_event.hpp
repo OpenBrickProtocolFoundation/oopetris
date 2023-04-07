@@ -8,4 +8,5 @@ enum class InputEvent {
     MoveDown,
     Drop,
     ReleaseMoveDown,
+    Hold,
 };
