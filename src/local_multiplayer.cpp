@@ -75,8 +75,10 @@ tl::expected<StartState, std::string> LocalMultiplayer::init() {
 
             if (initializer_message->m_type == InitializationDataType::Send) {
 
-                //TODO assert
-                // initializer_message->m_uuid == 0;
+                if (initializer_message->m_uuid != 0) {
+                    throw std::runtime_error{ "Wrong InitializationData: first connection must have uuid 0 but has "
+                                              + std::to_string(initializer_message->m_uuid) };
+                }
 
                 //this is correct fro online_input, set this client connection as player index, query conenction for info like starting piece and eventual other information
 
@@ -243,8 +245,13 @@ std::pair<std::size_t, std::unique_ptr<Input>> LocalMultiplayer::get_input(
 
             auto connection_result = get_connection_to_server();
 
-            //TODO assert
-            // m_input_connections.size() == 1
+            if (m_input_connections.size() != 1) {
+                throw std::runtime_error{
+                    "LocalMultiplayer::init was implemented wrong, client only has one value in m_input_connections, "
+                    "but were: "
+                    + std::to_string(m_input_connections.size())
+                };
+            }
 
             associated_game_manager->set_online_handler(
                     std::make_unique<OnlineHandler>(nullptr, m_input_connections.at(0).first.second)
@@ -265,7 +272,13 @@ std::pair<std::size_t, std::unique_ptr<Input>> LocalMultiplayer::get_input(
             return std::pair<std::size_t, std::unique_ptr<Input>>{ index, std::move(online_input) };
         } else {
 
-            // assert m_input_connections.size() == 1
+            if (m_input_connections.size() != 1) {
+                throw std::runtime_error{
+                    "LocalMultiplayer::init was implemented wrong, client only has one value in m_input_connections, "
+                    "but were: "
+                    + std::to_string(m_input_connections.size())
+                };
+            }
 
             std::shared_ptr<Connection> connection = nullptr;
             std::size_t player_num = 0;
