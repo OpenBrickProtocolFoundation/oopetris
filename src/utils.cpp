@@ -12,10 +12,17 @@ namespace utils {
         char buffer[16];
 
         std::tm tm{};
+#ifdef _MSC_VER
         if (gmtime_s(&tm, &time) != 0) {
             spdlog::error("error calling gmtime_s");
             return "error";
         }
+#else
+        if (gmtime_r(&time, &tm) == nullptr) {
+            spdlog::error("error calling gmtime_r");
+            return "error";
+        }
+#endif
         std::strftime(buffer, sizeof(buffer), "%Y%m%dT%H%M%S", &tm);
 
         return std::string{ buffer };
