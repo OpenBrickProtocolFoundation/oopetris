@@ -112,8 +112,6 @@ tl::expected<std::vector<RawTransportData>, std::string> RawTransportData::from_
 
         advance(data_size + Transportable::checksum_size);
         result.emplace_back(uuid, data, data_size);
-
-        std::cout << "data was: serialUUID: " << uuid << " data_size: " << data_size << "\n";
     }
 
     return result;

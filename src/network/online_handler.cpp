@@ -7,22 +7,28 @@
 #include <cstdint>
 #include <stdexcept>
 
-OnlineHandler::OnlineHandler(std::shared_ptr<Server> server, std::shared_ptr<Connection> connection, std::uint32_t uuid)
+OnlineHandler::OnlineHandler(std::shared_ptr<Server> server, std::shared_ptr<Connection> connection)
     : m_server{ server },
       m_connection{ connection },
-      m_uuid{ uuid } {};
+      m_send_to{ std::vector<std::shared_ptr<Connection>>{} } {};
+
+
+OnlineHandler::OnlineHandler(
+        std::shared_ptr<Server> server,
+        std::shared_ptr<Connection> connection,
+        std::vector<std::shared_ptr<Connection>> send_to
+)
+    : m_server{ server },
+      m_connection{ connection },
+      m_send_to{ send_to } {};
 
 
 void OnlineHandler::handle_event(Input::Event event) {
     if (m_server) {
         auto event_data = EventData{ event };
         //TODO handle error
-        m_server->send_all<EventData>(&event_data);
+        m_server->send_all<EventData>(&event_data, m_send_to);
 
-        /*  m_server.send_all_if(EventData{ event }, []() {
-
-
-        }); */
     } else if (m_connection) {
         auto event_data = EventData{ event };
         //TODO handle error

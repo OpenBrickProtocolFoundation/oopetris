@@ -66,17 +66,18 @@ tl::expected<bool, std::string> Connection::is_data_available(Uint32 timeout_ms)
 
     auto num_sockets = SDLNet_TCP_AddSocket(set, m_socket);
     if (num_sockets != 1) {
+        SDLNet_FreeSocketSet(set);
         return tl::make_unexpected("SDLNet_AddSocket failed, this is an implementation error");
     }
 
     auto result = SDLNet_CheckSockets(set, timeout_ms);
     if (result == -1) {
+        SDLNet_FreeSocketSet(set);
         return tl::make_unexpected("SDLNet_CheckSockets error (select() system call error)");
     }
 
 
     SDLNet_FreeSocketSet(set);
-
     return result == 1;
 }
 
@@ -158,9 +159,8 @@ Connection::wait_for_data(std::size_t abort_after, Uint32 ms_delay) {
             }
 
             if (!result.value().has_value()) {
-                return tl::make_unexpected(
-                        "In Connection::wait_for_data: fatal, even if data is available, there is none??"
-                );
+                SDL_Delay(ms_delay);
+                continue;
             }
 
             return result.value().value();

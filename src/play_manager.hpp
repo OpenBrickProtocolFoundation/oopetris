@@ -6,16 +6,23 @@
 #include <cstddef>
 #include <memory>
 #include <string>
-#include <tl/optional.hpp>
+#include <tl/expected.hpp>
+#include <utility>
+#include <vector>
+
+struct StartState {
+    std::size_t num_players;
+    // std::vector<void> state;
+    //TODO
+};
 
 
 /* abstract */ struct PlayManager {
 public:
     explicit PlayManager();
     virtual ~PlayManager() = default;
-    virtual std::size_t get_num_players() = 0;
-    virtual tl::optional<std::string> init() = 0;
-    virtual std::unique_ptr<Input>
+    virtual tl::expected<StartState, std::string> init() = 0;
+    virtual std::pair<std::size_t, std::unique_ptr<Input>>
     get_input(std::size_t index, GameManager* associated_game_manager, EventDispatcher* event_dispatcher) = 0;
 };
 
@@ -23,8 +30,7 @@ public:
 struct SinglePlayer : public PlayManager {
 public:
     explicit SinglePlayer();
-    std::size_t get_num_players() override;
-    tl::optional<std::string> init() override;
-    std::unique_ptr<Input>
+    tl::expected<StartState, std::string> init() override;
+    std::pair<std::size_t, std::unique_ptr<Input>>
     get_input(std::size_t index, GameManager* associated_game_manager, EventDispatcher* event_dispatcher) override;
 };

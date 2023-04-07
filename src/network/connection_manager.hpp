@@ -72,11 +72,10 @@ public:
     tl::optional<std::shared_ptr<Connection>> get_client(Uint32 ms_delay = 100, std::size_t abort_after = 60 * 1000);
 
     template<class T>
-    tl::optional<std::string> send_all(const T* transportable) {
+    tl::optional<std::string> send_all(const T* transportable, std::vector<std::shared_ptr<Connection>> send_to) {
 
-
-        for (std::size_t i = 0; i < m_connections.size(); ++i) {
-            auto result = m_connections.at(i)->send_data<T>(transportable);
+        for (std::size_t i = 0; i < send_to.size(); ++i) {
+            auto result = send_to.at(i)->send_data<T>(transportable);
             if (result.has_value()) {
                 return tl::make_optional(
                         "Error while sending to client: " + std::to_string(i) + " : " + result.value()
@@ -85,5 +84,11 @@ public:
         }
 
         return {};
+    }
+
+    template<class T>
+    tl::optional<std::string> send_all(const T* transportable) {
+
+        return send_all<T>(transportable, m_connections);
     }
 };

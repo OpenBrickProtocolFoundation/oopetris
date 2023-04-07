@@ -15,3 +15,7 @@ EventData::EventData(Input::Event event) : m_event{ event } {};
 Input::Event EventData::event() const {
     return m_event;
 }
+
+ClientInitializationData::ClientInitializationData(std::uint32_t player_num, std::uint32_t your_player_id)
+    : player_num{ player_num },
+      your_player_id{ your_player_id } {};

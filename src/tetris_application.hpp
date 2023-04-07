@@ -31,17 +31,21 @@ public:
           m_manager{ std::move(manager) } {
 
         auto is_valid = m_manager->init();
-        if (is_valid.has_value()) {
-            std::cerr << "Error in initializing PlayManager: " << is_valid.value() << "\n";
+        if (!is_valid.has_value()) {
+            std::cerr << "Error in initializing PlayManager: " << is_valid.error() << "\n";
             std::exit(2);
         }
 
-        auto num_players = m_manager->get_num_players();
+        auto start_state = is_valid.value();
+        const auto num_players = start_state.num_players;
 
         for (std::size_t i = 0; i < num_players; ++i) {
+            //TODO get the start state from the client:
+            //   m_game_managers.push_back(std::make_unique<GameManager>(i, start_state.state.at(i)));
             m_game_managers.push_back(std::make_unique<GameManager>(i));
-            std::cout << "initializing manager input at " << i << " (online atm)\n";
-            m_inputs.push_back(m_manager->get_input(i, m_game_managers.back().get(), &m_event_dispatcher));
+            auto input_pair = m_manager->get_input(i, m_game_managers.back().get(), &m_event_dispatcher);
+            m_game_managers.back().get()->set_player_num(input_pair.first);
+            m_inputs.push_back(std::move(input_pair.second));
         }
         for (const auto& game_manager : m_game_managers) {
             game_manager->spawn_next_tetromino();

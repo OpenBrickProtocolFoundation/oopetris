@@ -10,6 +10,7 @@
 #include <cstddef>
 #include <memory>
 #include <tl/optional.hpp>
+#include <vector>
 
 struct Application;
 
@@ -44,13 +45,12 @@ private:
     std::array<Bag, 2> m_sequence_bags{ Bag{}, Bag{} };
     int m_sequence_index = 0;
     std::vector<std::shared_ptr<Font>> m_fonts;
-    Text m_score_text;
+    std::vector<Text> m_text_rows;
     int m_score = 0;
-    Text m_level_text;
-    Text m_cleared_lines_text;
     bool m_down_key_pressed = false;
     bool m_is_accelerated_down_movement = false;
     std::unique_ptr<OnlineHandler> m_online_handler = nullptr;
+    tl::optional<std::size_t> m_player_num = tl::nullopt;
 
 public:
     GameManager(std::size_t uuid);
@@ -67,6 +67,7 @@ public:
     bool move_tetromino_right();
     bool drop_tetromino();
     void set_online_handler(std::unique_ptr<OnlineHandler> online_handler);
+    void set_player_num(std::size_t player_num);
 
 private:
     void refresh_texts();
