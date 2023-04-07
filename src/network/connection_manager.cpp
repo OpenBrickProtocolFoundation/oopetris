@@ -91,7 +91,7 @@ tl::expected<RawBytes, std::string> Connection::get_all_data_blocking() {
         int len = SDLNet_TCP_Recv(m_socket, memory, Connection::chunk_size);
         if (len <= 0) {
             free(memory);
-            return tl::make_unexpected("SDLNet_TCP_Recv: " + network_util::get_latest_sdl_net_error());
+            return tl::make_unexpected("SDLNet_TCP_Recv: " + network_util::latest_sdl_net_error());
         }
 
         if (len != Connection::chunk_size) {
@@ -128,7 +128,6 @@ MaybeData Connection::get_data() {
 
     auto data = get_all_data_blocking();
     if (!data.has_value()) {
-        printf("%s\n", data_available.error().c_str());
         return tl::make_unexpected("in get_all_data_blocking: " + data_available.error());
     }
 

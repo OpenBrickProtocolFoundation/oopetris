@@ -5,6 +5,7 @@
 
 
 #include "network_transportable.hpp"
+#include "network_util.hpp"
 #include <SDL_net.h>
 #include <memory>
 #include <string>
@@ -47,7 +48,7 @@ public:
 
         if ((std::size_t) result != length) {
             std::free(message);
-            std::string error = "SDLNet_TCP_Send: " + network_util::get_latest_sdl_net_error();
+            std::string error = "SDLNet_TCP_Send: " + network_util::latest_sdl_net_error();
             return tl::make_optional(error);
         }
 

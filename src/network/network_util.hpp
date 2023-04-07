@@ -9,7 +9,7 @@
 namespace network_util {
 
 
-    std::string get_latest_sdl_net_error() {
+    inline std::string latest_sdl_net_error() {
 
 
         const char* sdl_err = SDLNet_GetError();

@@ -17,7 +17,7 @@ std::uint32_t Transportable::checksum(RawBytes bytes) {
 
     auto [start, length] = bytes;
 
-    std::uint32_t table[256];
+    std::uint32_t table[256] = {};
     crc32::generate_table(table);
     std::uint32_t CRC = 0;
     for (std::uint32_t i = 0; i < length; ++i) {

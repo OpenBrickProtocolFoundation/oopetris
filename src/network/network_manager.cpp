@@ -18,13 +18,13 @@ MaybeConnection NetworkManager::try_connect(const char* host, Uint16 port) {
     TCPsocket tcpsock;
 
     if (SDLNet_ResolveHost(&ip, host, port) == -1) {
-        std::string error = "SDLNet_ResolveHost: " + network_util::get_latest_sdl_net_error();
+        std::string error = "SDLNet_ResolveHost: " + network_util::latest_sdl_net_error();
         return tl::make_unexpected(error);
     }
 
     tcpsock = SDLNet_TCP_Open(&ip);
     if (!tcpsock) {
-        std::string error = "SDLNet_TCP_Open: " + network_util::get_latest_sdl_net_error();
+        std::string error = "SDLNet_TCP_Open: " + network_util::latest_sdl_net_error();
         return tl::make_unexpected(error);
     }
 
@@ -36,12 +36,12 @@ MaybeServer NetworkManager::spawn_server(Uint16 port) {
     TCPsocket server;
     IPaddress ip;
     if (SDLNet_ResolveHost(&ip, NULL, port) == -1) {
-        std::string error = "SDLNet_ResolveHost: " + network_util::get_latest_sdl_net_error();
+        std::string error = "SDLNet_ResolveHost: " + network_util::latest_sdl_net_error();
         return tl::make_unexpected(error);
     }
     server = SDLNet_TCP_Open(&ip);
     if (!server) {
-        std::string error = "SDLNet_TCP_Open: " + network_util::get_latest_sdl_net_error();
+        std::string error = "SDLNet_TCP_Open: " + network_util::latest_sdl_net_error();
         return tl::make_unexpected(error);
     }
 

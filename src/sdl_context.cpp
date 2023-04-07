@@ -15,7 +15,7 @@ SdlContext::SdlContext() {
     }
     //TODO: if we don't need the network, this should be disabled
     if (SDLNet_Init() == -1) {
-        printf("SDLNet_Init: %s\n", network_util::get_latest_sdl_net_error());
+        printf("SDLNet_Init: %s\n", network_util::latest_sdl_net_error().c_str());
         exit(2);
     }
 }
