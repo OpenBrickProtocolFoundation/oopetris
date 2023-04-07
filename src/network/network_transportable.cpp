@@ -36,7 +36,7 @@ void Transportable::write_header(RawBytes bytes, std::uint32_t uuid, std::uint32
         throw std::runtime_error{ "Wrong call of Transportable::write_header : header size mismatch" };
     }
 
-    std::uint32_t* data_ptr = (std::uint32_t*) start;
+    std::uint32_t* data_ptr = reinterpret_cast<std::uint32_t*>(start);
 
     data_ptr[0] = Transportable::protocol_version;
 
@@ -48,7 +48,7 @@ void Transportable::write_data(RawBytes bytes, const Transportable* transportabl
 
     auto [start, length] = bytes;
 
-    uint8_t* data_ptr = (uint8_t*) (transportable);
+    const uint8_t* data_ptr = reinterpret_cast<const uint8_t*>(transportable);
     std::memcpy(start, data_ptr, length);
 }
 
@@ -61,7 +61,7 @@ void Transportable::write_checksum(RawBytes bytes) {
 
     std::uint32_t checksum = Transportable::checksum(RawBytes{ start, data_size });
 
-    std::uint32_t* data_ptr = (std::uint32_t*) (static_cast<uint8_t*>(start) + data_size);
+    std::uint32_t* data_ptr = reinterpret_cast<std::uint32_t*>(static_cast<uint8_t*>(start) + data_size);
 
     data_ptr[0] = checksum;
 }
@@ -94,7 +94,7 @@ tl::expected<std::vector<RawTransportData>, std::string> RawTransportData::from_
 
         auto [_protocol_version, uuid, data_size] = header.value();
 
-        if (remaining_length < (long) data_size) {
+        if (remaining_length < static_cast<long>(data_size)) {
             return tl::make_unexpected(
                     "in RawTransportData::from_raw_bytes: couldn't read data, since the raw data is to small"
             );
@@ -126,7 +126,7 @@ tl::expected<std::tuple<std::uint32_t, std::uint32_t, std::uint32_t>, std::strin
         return tl::make_unexpected("couldn't read header, since the raw data is to small");
     }
 
-    std::uint32_t* data_ptr = (std::uint32_t*) start;
+    std::uint32_t* data_ptr = reinterpret_cast<std::uint32_t*>(start);
 
     std::uint32_t protocol_version_number = data_ptr[0];
     if (RawTransportData::protocol_version != protocol_version_number) {
@@ -151,7 +151,7 @@ tl::expected<std::uint32_t, std::string> RawTransportData::read_checksum(RawByte
 
     std::uint32_t calc_checksum = Transportable::checksum(RawBytes{ start, data_size });
 
-    std::uint32_t* data_ptr = (std::uint32_t*) (static_cast<uint8_t*>(start) + data_size);
+    std::uint32_t* data_ptr = reinterpret_cast<std::uint32_t*>(static_cast<uint8_t*>(start) + data_size);
 
     std::uint32_t read_checksum = data_ptr[0];
 

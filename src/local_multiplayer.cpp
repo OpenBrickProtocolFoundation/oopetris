@@ -89,7 +89,8 @@ tl::expected<StartState, std::string> LocalMultiplayer::init() {
 
                 // TODO add seed here, the server generates one seed
 
-                auto send_data = ClientInitializationData{ (std::uint32_t) m_num_players, (std::uint32_t) i + 1 };
+                auto send_data = ClientInitializationData{ static_cast<std::uint32_t>(m_num_players),
+                                                           static_cast<std::uint32_t>(i + 1) };
                 const auto send_result = connection->send_data<ClientInitializationData>(&send_data);
                 if (send_result.has_value()) {
                     throw std::runtime_error{ "ClientInitializationData failed to send" + send_result.value() };
@@ -167,7 +168,7 @@ tl::expected<StartState, std::string> LocalMultiplayer::init() {
         }
 
         auto connection = connection_result.value();
-        auto send_data = InitializationData{ InitializationDataType::Send, (std::uint32_t) 0 };
+        auto send_data = InitializationData{ InitializationDataType::Send, static_cast<std::uint32_t>(0) };
         const auto send_result = connection->send_data<InitializationData>(&send_data);
         if (send_result.has_value()) {
             throw std::runtime_error{ "InitializationData failed to send" + send_result.value() };
@@ -193,7 +194,8 @@ tl::expected<StartState, std::string> LocalMultiplayer::init() {
             }
 
             auto receive_connection = receive_connection_result.value();
-            auto receive_send_data = InitializationData{ InitializationDataType::Receive, (std::uint32_t) i };
+            auto receive_send_data =
+                    InitializationData{ InitializationDataType::Receive, static_cast<std::uint32_t>(i) };
             const auto receive_send_result = receive_connection->send_data<InitializationData>(&receive_send_data);
             if (receive_send_result.has_value()) {
                 throw std::runtime_error{ "InitializationData failed to send" + receive_send_result.value() };
@@ -203,7 +205,8 @@ tl::expected<StartState, std::string> LocalMultiplayer::init() {
         }
 
         m_input_connections.emplace_back(
-                std::pair<std::size_t, std::shared_ptr<Connection>>{ (std ::size_t) my_player_id, connection },
+                std::pair<std::size_t, std::shared_ptr<Connection>>{ static_cast<std ::size_t>(my_player_id),
+                                                                     connection },
                 receive_connections
         );
 

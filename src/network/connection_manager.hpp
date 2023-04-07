@@ -51,7 +51,7 @@ public:
             return tl::make_optional("SDLNet_TCP_Send: invalid socket");
         }
 
-        if ((std::size_t) result != length) {
+        if (static_cast<std::size_t>(result) != length) {
             std::free(message);
             std::string error = "SDLNet_TCP_Send: " + network_util::latest_sdl_net_error();
             return tl::make_optional(error);

@@ -32,7 +32,7 @@ public:
 
         const std::uint32_t send_size = Transportable::header_size + data_size + Transportable::checksum_size;
 
-        uint8_t* memory = (uint8_t*) std::malloc(send_size);
+        uint8_t* memory = static_cast<uint8_t*>(std::malloc(send_size));
         if (!memory) {
             return tl::make_unexpected("error in malloc for sending a message");
         }

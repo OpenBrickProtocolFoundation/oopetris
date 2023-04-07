@@ -7,7 +7,7 @@
 GameManager::GameManager(std::size_t uuid)
     : m_uuid{ uuid },
       m_grid{ Point{
-        (int) ((uuid * GameManager::size_per_field) + (uuid * GameManager::space_between)), 0
+        static_cast<int>((uuid * GameManager::size_per_field) + (uuid * GameManager::space_between)), 0
     }, tile_size },
       m_next_gravity_step_time{ Application::elapsed_time() + get_gravity_delay() } {
 
