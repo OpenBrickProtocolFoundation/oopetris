@@ -36,6 +36,7 @@ private:
     tl::optional<Tetromino> m_active_tetromino;
     tl::optional<Tetromino> m_ghost_tetromino;
     tl::optional<Tetromino> m_preview_tetromino;
+    tl::optional<Tetromino> m_tetromino_on_hold;
     int m_level = 0;
     u64 m_next_gravity_simulation_step_index;
     int m_lines_cleared = 0;
@@ -51,6 +52,7 @@ private:
     bool m_is_accelerated_down_movement = false;
     Recording m_recording;
     bool m_record_game;
+    bool m_allowed_to_hold = true;
 
 public:
     GameManager(Random::Seed random_seed, bool record_game);
@@ -60,12 +62,14 @@ public:
     // returns if the input event lead to a movement
     bool handle_input_event(InputEvent event);
     void spawn_next_tetromino();
+    void spawn_next_tetromino(TetrominoType type);
     bool rotate_tetromino_right();
     bool rotate_tetromino_left();
     bool move_tetromino_down(MovementType movement_type);
     bool move_tetromino_left();
     bool move_tetromino_right();
     bool drop_tetromino();
+    void hold_tetromino();
 
 private:
     void refresh_texts();

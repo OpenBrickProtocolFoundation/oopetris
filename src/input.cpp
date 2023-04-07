@@ -56,6 +56,8 @@ void KeyboardInput::handle_keydown(const SDL_Event& event) {
         }
     } else if (sdl_key == to_sdl_keycode(m_controls.drop)) {
         m_target_game_manager->handle_input_event(InputEvent::Drop);
+    } else if (sdl_key == to_sdl_keycode(m_controls.hold)) {
+        m_target_game_manager->handle_input_event(InputEvent::Hold);
     }
 }
 
@@ -69,7 +71,6 @@ void KeyboardInput::handle_keyup(const SDL_Event& event) {
         m_keys_hold.erase(HoldableKey::Right);
     }
 }
-
 
 ReplayInput::ReplayInput(GameManager* target_game_manager, Recording recording)
     : Input{ target_game_manager },
