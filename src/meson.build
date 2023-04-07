@@ -27,7 +27,6 @@ src_files += files(
     'sdl_context.cpp',
     'sdl_context.hpp',
     'settings.hpp',
-    'tetris_application.cpp',
     'tetris_application.hpp',
     'tetromino.hpp',
     'tetromino_type.cpp',
