@@ -28,9 +28,6 @@ Bag::Bag() : m_tetromino_sequence{} {
                     break;
                 }
             }
-            if (type_is_okay) {
-                std::cerr << static_cast<int>(m_tetromino_sequence[i]) << " ";
-            }
         } while (!type_is_okay);
     }
     std::cerr << "\n";
