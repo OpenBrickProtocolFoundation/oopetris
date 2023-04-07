@@ -6,7 +6,7 @@
 
 GameManager::GameManager()
     : m_grid{ Point::zero(), tile_size },
-      m_next_gravity_step_time{ Application::elapsed_time() + get_gravity_delay() } {
+      m_next_gravity_simulation_step_index{ get_gravity_delay_frames() } {
     m_fonts.push_back(std::make_shared<Font>("assets/fonts/PressStart2P.ttf", 18));
     m_score_text = Text{
         Point{ m_grid.to_screen_coords(Grid::preview_tetromino_position + Point{ 0, Grid::preview_extends.y }) },
@@ -25,16 +25,19 @@ GameManager::GameManager()
 void GameManager::update() {
     switch (m_game_state) {
         case GameState::Playing: {
-            const double current_time = Application::elapsed_time();
-            if (current_time >= m_next_gravity_step_time) {
+            if (Application::simulation_step_index() >= m_next_gravity_simulation_step_index) {
+                assert(Application::simulation_step_index() == m_next_gravity_simulation_step_index
+                       and "frame skipped?!");
                 if (m_is_accelerated_down_movement and not m_down_key_pressed) {
-                    m_next_gravity_step_time -= get_gravity_delay();
+                    assert(m_next_gravity_simulation_step_index >= get_gravity_delay_frames() and "overflow");
+                    m_next_gravity_simulation_step_index -= get_gravity_delay_frames();
                     m_is_accelerated_down_movement = false;
                 } else {
                     move_tetromino_down(m_is_accelerated_down_movement ? MovementType::Forced : MovementType::Gravity);
                 }
-                m_next_gravity_step_time += get_gravity_delay();
+                m_next_gravity_simulation_step_index += get_gravity_delay_frames();
             }
+
             refresh_ghost_tetromino();
             break;
         }
@@ -73,7 +76,7 @@ bool GameManager::handle_input_event(Input::Event event) {
         case Input::Event::MoveDown:
             m_down_key_pressed = true;
             m_is_accelerated_down_movement = true;
-            m_next_gravity_step_time = Application::elapsed_time() + get_gravity_delay();
+            m_next_gravity_simulation_step_index = Application::simulation_step_index() + get_gravity_delay_frames();
             return move_tetromino_down(MovementType::Forced);
         case Input::Event::Drop:
             return drop_tetromino();
@@ -105,7 +108,7 @@ void GameManager::spawn_next_tetromino() {
             break;
         }
     }
-    m_next_gravity_step_time = Application::elapsed_time() + get_gravity_delay();
+    m_next_gravity_simulation_step_index = Application::simulation_step_index() + get_gravity_delay_frames();
 }
 
 bool GameManager::rotate_tetromino_right() {

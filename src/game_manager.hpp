@@ -6,6 +6,7 @@
 #include "tetromino.hpp"
 #include "text.hpp"
 #include <array>
+#include <cmath>
 #include <tl/optional.hpp>
 
 struct Application;
@@ -32,7 +33,7 @@ private:
     tl::optional<Tetromino> m_ghost_tetromino;
     tl::optional<Tetromino> m_preview_tetromino;
     int m_level = 0;
-    double m_next_gravity_step_time;
+    u64 m_next_gravity_simulation_step_index;
     int m_lines_cleared = 0;
     GameState m_game_state = GameState::Playing;
     std::array<Bag, 2> m_sequence_bags{ Bag{}, Bag{} };
@@ -73,12 +74,16 @@ private:
 
     [[nodiscard]] bool is_tetromino_position_valid(const Tetromino& tetromino) const;
 
-    [[nodiscard]] double get_gravity_delay() const {
-        const double accelerated_gravity_delay_multiplier = (m_is_accelerated_down_movement ? 1.0 / 20.0 : 1.0);
-        const int frames = (m_level >= static_cast<int>(frames_per_tile.size()) ? frames_per_tile.back() : frames_per_tile[m_level]);
-        return 1.0 / 60.0 * static_cast<double>(frames) * accelerated_gravity_delay_multiplier;
+    [[nodiscard]] u64 get_gravity_delay_frames() const {
+        const auto frames =
+                (m_level >= static_cast<int>(frames_per_tile.size()) ? frames_per_tile.back() : frames_per_tile[m_level]
+                );
+        if (m_is_accelerated_down_movement) {
+            return std::max(u64{ 1 }, static_cast<u64>(std::round(static_cast<double>(frames) / 20.0)));
+        }
+        return frames;
     }
 
-    static constexpr auto frames_per_tile = std::array<int, 30>{ 48, 43, 38, 33, 28, 23, 18, 13, 8, 6, 5, 5, 5, 4, 4,
+    static constexpr auto frames_per_tile = std::array<u64, 30>{ 48, 43, 38, 33, 28, 23, 18, 13, 8, 6, 5, 5, 5, 4, 4,
                                                                  4,  3,  3,  3,  2,  2,  2,  2,  2, 2, 2, 2, 2, 2, 1 };
 };
