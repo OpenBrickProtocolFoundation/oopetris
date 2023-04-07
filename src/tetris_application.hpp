@@ -42,7 +42,7 @@ public:
     }
 
 protected:
-    void update(double) override {
+    void update() override {
         for (const auto& input : m_inputs) {
             input->update();
         }

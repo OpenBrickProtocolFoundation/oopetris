@@ -5,6 +5,7 @@
 #include "window.hpp"
 #include "event_dispatcher.hpp"
 #include "event_listener.hpp"
+#include "types.hpp"
 
 struct Application : public EventListener {
 private:
@@ -22,7 +23,7 @@ public:
     Application(const Application&) = delete;
     Application& operator=(const Application&) = delete;
 
-    void run(int target_frames_per_second);
+    void run(u64 simulation_steps_per_second);
 
     [[nodiscard]] const Renderer& renderer() const {
         return m_renderer;
@@ -40,6 +41,6 @@ public:
     void handle_event(const SDL_Event& event) override;
 
 protected:
-    virtual void update(double delta_time) = 0;
+    virtual void update() = 0;
     virtual void render() const;
 };
