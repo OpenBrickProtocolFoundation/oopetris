@@ -1,7 +1,7 @@
 #include "game_manager.hpp"
 #include "application.hpp"
+#include "spdlog/spdlog.h"
 #include <cassert>
-#include <iostream>
 #include <sstream>
 
 GameManager::GameManager()
@@ -94,7 +94,7 @@ void GameManager::spawn_next_tetromino() {
     refresh_preview();
     if (not is_active_tetromino_position_valid()) {
         m_game_state = GameState::GameOver;
-        std::cerr << "game over\n";
+        spdlog::info("game over");
         m_active_tetromino = {};
         return;
     }
@@ -220,7 +220,7 @@ void GameManager::clear_fully_occupied_lines() {
                 ++m_lines_cleared;
                 if (m_lines_cleared % 10 == 0) {
                     ++m_level;
-                    std::cerr << "new level: " << m_level << "\n";
+                    spdlog::info("new level: {}", m_level);
                 }
                 m_grid.clear_row_and_let_sink(row);
                 cleared = true;
