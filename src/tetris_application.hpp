@@ -50,7 +50,8 @@ public:
             game_manager->spawn_next_tetromino();
         }
 
-        //TODO if this is to big to handle num_players, we have to resize in some way
+        //TODO if the window is to small to handle num_players, we have to resize in some way ,
+        //TODO: if it's to big it has to be resized into an appropiate width
         [[maybe_unused]] const std::size_t game_field_size =
                 (GameManager::size_per_field * num_players) + ((num_players - 1) * GameManager::space_between);
 
