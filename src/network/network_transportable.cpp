@@ -100,7 +100,7 @@ tl::expected<std::vector<RawTransportData>, std::string> RawTransportData::from_
             );
         }
 
-        //TODO check if implemented correctly
+        //TODO check if implemented correctly (check with valgrind --tool=memcheck --leak-check=full)
         // this malloc get'S freed in the shared ptr destructor later
         uint8_t* memory = static_cast<uint8_t*>(std::malloc(data_size));
         if (!memory) {
