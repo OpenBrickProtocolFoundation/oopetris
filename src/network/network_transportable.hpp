@@ -21,10 +21,10 @@ public:
     static constexpr std::uint32_t protocol_version = 1;
     static constexpr std::uint32_t checksum_size = sizeof(std::uint32_t);
     static constexpr std::uint32_t header_size = sizeof(std::uint32_t) + sizeof(std::uint32_t) + sizeof(std::uint32_t);
-
     // every class has to have such a serialUUID in some way
     //TODO enforce this in some compile time way, that they are unique!
     /* virtual */ static constexpr std::uint32_t serialUUID = 0;
+
     //TODO fix inconsistency and don't raise exceptions, rather return tl:expected
     template<class T>
     static RawBytes serialize(const T* transportable) {

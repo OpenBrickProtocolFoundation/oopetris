@@ -9,13 +9,12 @@
 enum class InitializationDataType : uint8_t { Client, Server };
 
 struct InitializationData : public Transportable {
-    static constexpr std::uint32_t serialUUID = 1;
-
 private:
     InitializationDataType m_type;
     std::uint32_t m_uuid;
 
 public:
+    static constexpr std::uint32_t serialUUID = 1;
     explicit InitializationData(InitializationDataType type, std::uint32_t uuid);
 };
 

@@ -83,9 +83,11 @@ std::unique_ptr<Input> LocalMultiplayer::get_input(
             if (!client.has_value()) {
                 throw std::runtime_error{ "Waited to long for new client" };
             }
-            auto online_input = std::make_unique<OnlineInput>(associated_game_manager, client.value());
 
-            auto send_initializer = client.value()->wait_for_data(10 * 1000, 100);
+            const auto connection = client.value();
+            auto online_input = std::make_unique<OnlineInput>(associated_game_manager, connection);
+
+            auto send_initializer = connection->wait_for_data(10 * 1000, 100);
             if (!send_initializer.has_value()) {
                 throw std::runtime_error{ "client didn't send InitializationData in time: "
                                           + send_initializer.error() };

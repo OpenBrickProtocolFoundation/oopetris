@@ -128,7 +128,7 @@ MaybeData Connection::get_data() {
 
     auto data = get_all_data_blocking();
     if (!data.has_value()) {
-        return tl::make_unexpected("in get_all_data_blocking: " + data_available.error());
+        return tl::make_unexpected("in get_all_data_blocking: " + data.error());
     }
 
 
