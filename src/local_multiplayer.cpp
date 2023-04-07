@@ -22,14 +22,16 @@ LocalMultiplayer::LocalMultiplayer(std::size_t num_players, bool is_server)
 
 
 tl::expected<StartState, std::string> LocalMultiplayer::init() {
-    if (m_num_players > 4 || m_num_players < 2) {
-        return tl::make_unexpected(
-                "The LocalMultiplayer mode only allows between 2 and 4 players, but got: "
-                + std::to_string(m_num_players)
-        );
-    }
+
 
     if (m_is_server) {
+
+        if (m_num_players > 4 || m_num_players < 2) {
+            return tl::make_unexpected(
+                    "The LocalMultiplayer mode only allows between 2 and 4 players, but got: "
+                    + std::to_string(m_num_players)
+            );
+        }
         auto server = m_network_manager.spawn_server();
         if (!server.has_value()) {
             return tl::make_unexpected("Error in initializing the server: " + server.error());
@@ -40,7 +42,6 @@ tl::expected<StartState, std::string> LocalMultiplayer::init() {
 
         //TODO in here refactor some routines to separate functions!
         for (std::size_t i = 0; i < m_num_players - 1; ++i) {
-
             auto client = m_server->get_client();
             if (!client.has_value()) {
                 throw std::runtime_error{ "Waited to long for new client nr. " + std::to_string(i) };
@@ -84,6 +85,8 @@ tl::expected<StartState, std::string> LocalMultiplayer::init() {
                 // send the information about how many players partecipate in response, await the creation of x-1 sockets to send them the event from them, not that the client doesn't have a static player number, only the server can (later select this from a menu) set this size
 
 
+                // TODO add seed here, the server generates one seed
+
                 auto send_data = ClientInitializationData{ (std::uint32_t) m_num_players, (std::uint32_t) i + 1 };
                 const auto send_result = connection->send_data<ClientInitializationData>(&send_data);
                 if (send_result.has_value()) {
@@ -95,7 +98,6 @@ tl::expected<StartState, std::string> LocalMultiplayer::init() {
                 receive_connections.reserve(m_num_players - 1);
 
                 for (std::size_t j = 0; j < m_num_players - 1; ++j) {
-
                     auto receive_client = m_server->get_client();
                     if (!receive_client.has_value()) {
                         throw std::runtime_error{ "Waited to long for new receive client nr. " + std::to_string(j) };
@@ -151,9 +153,9 @@ tl::expected<StartState, std::string> LocalMultiplayer::init() {
         }
 
 
+        return StartState{ m_num_players };
+
     } else {
-
-
         // client start here
 
         auto connection_result = get_connection_to_server();
@@ -189,8 +191,8 @@ tl::expected<StartState, std::string> LocalMultiplayer::init() {
             }
 
             auto receive_connection = receive_connection_result.value();
-            auto receive_send_data = InitializationData{ InitializationDataType::Receive, (std::uint32_t) i + 1 };
-            const auto receive_send_result = connection->send_data<InitializationData>(&receive_send_data);
+            auto receive_send_data = InitializationData{ InitializationDataType::Receive, (std::uint32_t) i };
+            const auto receive_send_result = receive_connection->send_data<InitializationData>(&receive_send_data);
             if (receive_send_result.has_value()) {
                 throw std::runtime_error{ "InitializationData failed to send" + receive_send_result.value() };
             }
@@ -202,10 +204,10 @@ tl::expected<StartState, std::string> LocalMultiplayer::init() {
                 std::pair<std::size_t, std::shared_ptr<Connection>>{ (std ::size_t) my_player_id, connection },
                 receive_connections
         );
+
+
+        return StartState{ data->player_num };
     }
-
-
-    return {};
 }
 
 

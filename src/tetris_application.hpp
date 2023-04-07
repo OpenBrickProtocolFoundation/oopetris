@@ -38,7 +38,6 @@ public:
 
         auto start_state = is_valid.value();
         const auto num_players = start_state.num_players;
-
         for (std::size_t i = 0; i < num_players; ++i) {
             //TODO get the start state from the client:
             //   m_game_managers.push_back(std::make_unique<GameManager>(i, start_state.state.at(i)));

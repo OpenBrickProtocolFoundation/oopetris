@@ -13,7 +13,7 @@
 struct StartState {
     std::size_t num_players;
     // std::vector<void> state;
-    //TODO
+    //TODO add seed here
 };
 
 

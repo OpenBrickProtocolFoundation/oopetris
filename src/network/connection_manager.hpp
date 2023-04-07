@@ -54,7 +54,7 @@ public:
 
         std::free(message);
 
-        return {};
+        return tl::nullopt;
     }
 };
 
@@ -83,7 +83,7 @@ public:
             }
         }
 
-        return {};
+        return tl::nullopt;
     }
 
     template<class T>

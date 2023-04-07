@@ -33,7 +33,7 @@ tl::optional<std::shared_ptr<Connection>> Server::try_get_client() {
         m_connections.push_back(connection);
         return connection;
     }
-    return {};
+    return tl::nullopt;
 }
 
 tl::optional<std::shared_ptr<Connection>> Server::get_client(Uint32 ms_delay, std::size_t abort_after) {
@@ -47,7 +47,7 @@ tl::optional<std::shared_ptr<Connection>> Server::get_client(Uint32 ms_delay, st
 
         auto elapsed_time = SDL_GetTicks64() - start_time;
         if (elapsed_time >= abort_after) {
-            return {};
+            return tl::nullopt;
         }
 
         SDL_Delay(ms_delay);
@@ -124,7 +124,7 @@ MaybeData Connection::get_data() {
     }
 
     if (!data_available.value()) {
-        return {};
+        return tl::nullopt;
     }
 
     auto data = get_all_data_blocking();
@@ -152,15 +152,18 @@ Connection::wait_for_data(std::size_t abort_after, Uint32 ms_delay) {
     while (true) {
         /* try if data is available  */
         auto is_data = is_data_available();
-        if (is_data) {
+        if (!is_data.has_value()) {
+            return tl::make_unexpected("In Connection::wait_for_data: " + is_data.error());
+        }
+
+        if (is_data.value()) {
             auto result = get_data();
             if (!result.has_value()) {
                 return tl::make_unexpected("In Connection::wait_for_data: " + result.error());
             }
 
             if (!result.value().has_value()) {
-                SDL_Delay(ms_delay);
-                continue;
+                return tl::make_unexpected("In Connection::wait_for_data: " + result.error());
             }
 
             return result.value().value();
@@ -168,7 +171,7 @@ Connection::wait_for_data(std::size_t abort_after, Uint32 ms_delay) {
 
         auto elapsed_time = SDL_GetTicks64() - start_time;
         if (elapsed_time >= abort_after) {
-            return {};
+            return tl::make_unexpected("In Connection::wait_for_data: took to long");
         }
 
         SDL_Delay(ms_delay);
