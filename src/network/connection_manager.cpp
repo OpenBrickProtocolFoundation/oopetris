@@ -40,7 +40,7 @@ tl::optional<std::shared_ptr<Connection>> Server::get_client(Uint32 ms_delay, st
     auto start_time = SDL_GetTicks64();
     while (true) {
         /* try to accept a connection */
-        auto client = this->try_get_client();
+        auto client = try_get_client();
         if (client.has_value()) {
             return client;
         }
@@ -91,7 +91,7 @@ tl::expected<RawBytes, std::string> Connection::get_all_data_blocking() {
         int len = SDLNet_TCP_Recv(m_socket, memory, Connection::chunk_size);
         if (len <= 0) {
             free(memory);
-            return tl::make_unexpected("SDLNet_TCP_Recv: " + std::string{ SDLNet_GetError() });
+            return tl::make_unexpected("SDLNet_TCP_Recv: " + network_util::get_latest_sdl_net_error());
         }
 
         if (len != Connection::chunk_size) {
@@ -128,6 +128,7 @@ MaybeData Connection::get_data() {
 
     auto data = get_all_data_blocking();
     if (!data.has_value()) {
+        printf("%s\n", data_available.error().c_str());
         return tl::make_unexpected("in get_all_data_blocking: " + data_available.error());
     }
 
@@ -142,4 +143,36 @@ MaybeData Connection::get_data() {
 
     free(raw_bytes.first);
     return tl::make_optional(result.value());
+}
+
+
+tl::expected<std::vector<RawTransportData>, std::string>
+Connection::wait_for_data(std::size_t abort_after, Uint32 ms_delay) {
+    auto start_time = SDL_GetTicks64();
+    while (true) {
+        /* try if data is available  */
+        auto is_data = is_data_available();
+        if (is_data) {
+            auto result = get_data();
+            if (!result.has_value()) {
+                return tl::make_unexpected("In Connection::wait_for_data: " + result.error());
+            }
+
+            if (!result.value().has_value()) {
+                return tl::make_unexpected(
+                        "In Connection::wait_for_data: fatal, even if data is available, there is none??"
+                );
+            }
+
+            return result.value().value();
+        }
+
+        auto elapsed_time = SDL_GetTicks64() - start_time;
+        if (elapsed_time >= abort_after) {
+            return {};
+        }
+
+        SDL_Delay(ms_delay);
+        continue;
+    }
 }

@@ -29,6 +29,9 @@ public:
     tl::expected<bool, std::string> is_data_available(Uint32 timeout_ms = 3);
     tl::expected<RawBytes, std::string> get_all_data_blocking();
     MaybeData get_data();
+    tl::expected<std::vector<RawTransportData>, std::string>
+    wait_for_data(std::size_t abort_after = 60 * 1000, Uint32 ms_delay = 100);
+
 
     template<class T>
     tl::optional<std::string> send_data(const T* transportable) {
@@ -44,7 +47,7 @@ public:
 
         if ((std::size_t) result != length) {
             std::free(message);
-            std::string error = "SDLNet_TCP_Send: " + std::string{ SDLNet_GetError() };
+            std::string error = "SDLNet_TCP_Send: " + network_util::get_latest_sdl_net_error();
             return tl::make_optional(error);
         }
 

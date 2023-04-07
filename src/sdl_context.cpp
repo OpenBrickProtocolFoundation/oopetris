@@ -1,4 +1,5 @@
 #include "sdl_context.hpp"
+#include "network/network_util.hpp"
 #include <SDL.h>
 #include <SDL_net.h>
 #include <SDL_ttf.h>
@@ -14,7 +15,7 @@ SdlContext::SdlContext() {
     }
     //TODO: if we don't need the network, this should be disabled
     if (SDLNet_Init() == -1) {
-        printf("SDLNet_Init: %s\n", SDLNet_GetError());
+        printf("SDLNet_Init: %s\n", network_util::get_latest_sdl_net_error());
         exit(2);
     }
 }
