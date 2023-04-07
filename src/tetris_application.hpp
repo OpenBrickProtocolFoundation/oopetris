@@ -6,7 +6,6 @@
 #include "tetromino_type.hpp"
 #include <cassert>
 #include <fstream>
-#include <iostream>
 #include <spdlog/spdlog.h>
 
 struct TetrisApplication : public Application {
