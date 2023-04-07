@@ -32,8 +32,9 @@ std::uint32_t Transportable::checksum(RawBytes bytes) {
 void Transportable::write_header(RawBytes bytes, std::uint32_t uuid, std::uint32_t data_size) {
     auto [start, length] = bytes;
 
-    //TODO remove assert
-    assert(length == Transportable::header_size);
+    if (length != Transportable::header_size) {
+        throw std::runtime_error{ "Wrong call of Transportable::write_header : header size mismatch" };
+    }
 
     std::uint32_t* data_ptr = (std::uint32_t*) start;
 
