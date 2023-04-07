@@ -50,6 +50,7 @@ add_executable(oopetris
         src/settings.hpp
         src/key_codes.hpp
         src/magic_enum_wrapper.hpp
+        src/types.hpp
         )
 
 foreach (target ${TARGET_LIST})
