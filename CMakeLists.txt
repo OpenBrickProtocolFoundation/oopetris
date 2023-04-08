@@ -56,6 +56,7 @@ add_executable(oopetris
         src/input_event.hpp
         src/utils.hpp
         src/utils.cpp
+        src/command_line_arguments.hpp
         )
 
 foreach (target ${TARGET_LIST})
