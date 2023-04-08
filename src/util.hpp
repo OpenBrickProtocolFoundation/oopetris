@@ -18,4 +18,12 @@ namespace util {
         return ss.str();
     }
 
+    inline std::string to_hex_str(uint32_t number) {
+        std::ostringstream ss{};
+
+        ss << "0x" << std::hex << std::setfill('0');
+        ss << std::hex << std::setw(8) << static_cast<long>(number);
+        return ss.str();
+    }
+
 } // namespace util
