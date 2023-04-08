@@ -2,18 +2,19 @@
 #include "application.hpp"
 #include "utils.hpp"
 #include <cassert>
+#include <filesystem>
 #include <fstream>
 #include <spdlog/spdlog.h>
 #include <sstream>
 #include <utility>
-#include <filesystem>
 
 GameManager::GameManager(const Random::Seed random_seed, const bool record_game)
     : m_random{ random_seed },
       m_grid{ Point::zero(), tile_size },
       m_next_gravity_simulation_step_index{ get_gravity_delay_frames() },
       m_recording{ random_seed },
-      m_record_game{ record_game } {
+      m_record_game{ record_game },
+      m_lock_delay_step_index{ Application::simulation_step_index() + lock_delay } {
     m_fonts.push_back(std::make_shared<Font>("assets/fonts/PressStart2P.ttf", 18));
     m_score_text = Text{
         Point{ m_grid.to_screen_coords(Grid::preview_tetromino_position + Point{ 0, Grid::preview_extends.y }) },
@@ -41,6 +42,7 @@ void GameManager::update() {
                     m_is_accelerated_down_movement = false;
                 } else {
                     move_tetromino_down(m_is_accelerated_down_movement ? MovementType::Forced : MovementType::Gravity);
+                    reset_lock_delay();
                 }
                 m_next_gravity_simulation_step_index += get_gravity_delay_frames();
             }
@@ -77,19 +79,40 @@ bool GameManager::handle_input_event(InputEvent event) {
     m_recording.add_record(Application::simulation_step_index(), event);
     switch (event) {
         case InputEvent::RotateLeft:
-            return rotate_tetromino_left();
+            if (rotate_tetromino_left()) {
+                reset_lock_delay();
+                return true;
+            }
+            return false;
         case InputEvent::RotateRight:
-            return rotate_tetromino_right();
+            if (rotate_tetromino_right()) {
+                reset_lock_delay();
+                return true;
+            }
+            return false;
         case InputEvent::MoveLeft:
-            return move_tetromino_left();
+            if (move_tetromino_left()) {
+                reset_lock_delay();
+                return true;
+            }
+            return false;
         case InputEvent::MoveRight:
-            return move_tetromino_right();
+            if (move_tetromino_right()) {
+                reset_lock_delay();
+                return true;
+            }
+            return false;
         case InputEvent::MoveDown:
             m_down_key_pressed = true;
             m_is_accelerated_down_movement = true;
             m_next_gravity_simulation_step_index = Application::simulation_step_index() + get_gravity_delay_frames();
-            return move_tetromino_down(MovementType::Forced);
+            if (move_tetromino_down(MovementType::Forced)) {
+                reset_lock_delay();
+                return true;
+            }
+            return false;
         case InputEvent::Drop:
+            m_lock_delay_step_index = Application::simulation_step_index(); // lock instantly
             return drop_tetromino();
         case InputEvent::ReleaseMoveDown: {
             m_down_key_pressed = false;
@@ -98,6 +121,7 @@ bool GameManager::handle_input_event(InputEvent event) {
         case InputEvent::Hold:
             if (m_allowed_to_hold) {
                 hold_tetromino();
+                reset_lock_delay();
                 m_allowed_to_hold = false;
                 return true;
             }
@@ -170,7 +194,12 @@ bool GameManager::move_tetromino_down(MovementType movement_type) {
     m_active_tetromino->move_down();
     if (not is_active_tetromino_position_valid()) {
         m_active_tetromino->move_up();
-        lock_active_tetromino();
+        if (Application::simulation_step_index() >= m_lock_delay_step_index) {
+            lock_active_tetromino();
+            reset_lock_delay();
+        } else {
+            m_next_gravity_simulation_step_index = Application::simulation_step_index() + 1;
+        }
         return false;
     }
     return true;
@@ -230,6 +259,10 @@ void GameManager::hold_tetromino() {
     }
 }
 
+void GameManager::reset_lock_delay() {
+    m_lock_delay_step_index = Application::simulation_step_index() + lock_delay;
+}
+
 void GameManager::refresh_texts() {
     std::stringstream stream;
     stream << "score: " << m_score;
@@ -284,6 +317,7 @@ void GameManager::lock_active_tetromino() {
     clear_fully_occupied_lines();
     spawn_next_tetromino();
     refresh_texts();
+    reset_lock_delay();
 }
 
 bool GameManager::is_active_tetromino_position_valid() const {
