@@ -115,7 +115,7 @@ tl::optional<Input::Command> KeyboardInput::sdl_key_to_command(SDL_Keycode key) 
     } else if (key == to_sdl_keycode(m_controls.hold)) {
         return Command::Hold;
     }
-    return {};
+    return tl::nullopt;
 }
 
 ReplayInput::ReplayInput(GameManager* target_game_manager, Recording recording)
