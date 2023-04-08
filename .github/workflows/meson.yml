@@ -21,6 +21,10 @@ jobs:
                       os: windows-latest
                       msvc: true
                       buildtype: release
+                    - name: Windows MingGW Release
+                      os: windows-latest
+                      msvc: false
+                      buildtype: release
                     - name: Linux Release
                       os: ubuntu-22.04
                       buildtype: release
@@ -39,18 +43,24 @@ jobs:
                   python -m pip install --upgrade pip
                   pip install meson
 
-            - name: Setup MSVC
+            - name: Setup MSVC (Windows)
               if: matrix.config.os == 'windows-latest' && matrix.config.msvc == true
               uses: ilammy/msvc-dev-cmd@v1
 
-            - name: Setup Clang
+            - name: Setup MinGW (Windows)
+              if: matrix.config.os == 'windows-latest' && matrix.config.msvc == false
+              uses: egor-tensin/setup-mingw@v2
+              with:
+                platform: x64
+
+            - name: Setup Clang (Linux)
               if: matrix.config.os == 'ubuntu-22.04' && matrix.config.use-clang == true
               uses: egor-tensin/setup-clang@v1
               with:
                 version: 15
                 platform: x64
 
-            - name: Setup GCC
+            - name: Setup GCC (Linux)
               if: matrix.config.os == 'ubuntu-22.04' && matrix.config.use-clang == false
               uses: egor-tensin/setup-gcc@v1
               with:
