@@ -252,6 +252,7 @@ void GameManager::hold_tetromino() {
     if (not m_tetromino_on_hold.has_value()) {
         m_tetromino_on_hold = Tetromino{ Grid::hold_tetromino_position, m_active_tetromino->type() };
         spawn_next_tetromino();
+    } else {
         const auto on_hold = m_tetromino_on_hold->type();
         m_tetromino_on_hold = Tetromino{ Grid::hold_tetromino_position, m_active_tetromino->type() };
         spawn_next_tetromino(on_hold);
@@ -275,7 +276,7 @@ void GameManager::refresh_texts() {
     if (m_use_player_text and m_player_num.has_value()) {
         stream = {};
         // for humans it' more readable, when it's 1 indexed
-        stream << "player " << m_player_num.value() +1 ;
+        stream << "player " << m_player_num.value() + 1;
         m_text_rows.at(i++).set_text(stream.str());
     }
 }
