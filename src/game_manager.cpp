@@ -163,28 +163,50 @@ void GameManager::spawn_next_tetromino(const TetrominoType type) {
 }
 
 bool GameManager::rotate_tetromino_right() {
-    if (not m_active_tetromino) {
-        return false;
-    }
-    m_active_tetromino->rotate_right();
-    if (not is_active_tetromino_position_valid()) {
-        m_active_tetromino->rotate_left();
-        return false;
-    }
-    return true;
+    return rotate(RotationDirection::Right);
 }
 
 bool GameManager::rotate_tetromino_left() {
+    return rotate(RotationDirection::Left);
+}
+
+bool GameManager::rotate(GameManager::RotationDirection rotation_direction) {
     if (not m_active_tetromino) {
         return false;
     }
-    m_active_tetromino->rotate_left();
-    if (not is_active_tetromino_position_valid()) {
-        m_active_tetromino->rotate_right();
+
+    const auto wall_kick_table = get_wall_kick_table();
+    if (not wall_kick_table.has_value()) {
         return false;
     }
-    return true;
+
+    const auto from_rotation = m_active_tetromino->rotation();
+    const auto to_rotation = from_rotation + (rotation_direction == RotationDirection::Left ? -1 : 1);
+    const auto table_index = rotation_to_index(from_rotation, to_rotation);
+
+    if (rotation_direction == RotationDirection::Left) {
+        m_active_tetromino->rotate_left();
+    } else {
+        m_active_tetromino->rotate_right();
+    }
+
+    for (const auto translation : wall_kick_table->at(table_index)) {
+        m_active_tetromino->move(translation);
+        spdlog::info("applying translation: {}, {}", translation.x, translation.y);
+        if (is_active_tetromino_position_valid()) {
+            return true;
+        }
+        m_active_tetromino->move(-translation);
+    }
+
+    if (rotation_direction == RotationDirection::Left) {
+        m_active_tetromino->rotate_right();
+    } else {
+        m_active_tetromino->rotate_left();
+    }
+    return false;
 }
+
 
 bool GameManager::move_tetromino_down(MovementType movement_type) {
     if (not m_active_tetromino) {
@@ -408,4 +430,23 @@ void GameManager::save_recording() const {
         const auto event = std::to_underlying(record.event);
         file.write(reinterpret_cast<const char*>(&event), sizeof(event));
     }
+}
+
+tl::optional<const GameManager::WallKickTable&> GameManager::get_wall_kick_table() const {
+    assert(m_active_tetromino.has_value() and "no active tetromino");
+    const auto type = m_active_tetromino->type();
+    switch (type) {
+        case TetrominoType::J:
+        case TetrominoType::L:
+        case TetrominoType::T:
+        case TetrominoType::S:
+        case TetrominoType::Z:
+            return wall_kick_data_jltsz;
+        case TetrominoType::I:
+            return wall_kick_data_i;
+        case TetrominoType::O:
+            return {};
+    }
+    assert(false and "unreachable");
+    return {};
 }
