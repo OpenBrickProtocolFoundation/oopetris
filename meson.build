@@ -10,6 +10,13 @@ project(
     version: '1.0.0-alpha',
 )
 
+if meson.version().version_compare('<0.60.0')
+    error(
+        'meson version must be higher than 0.60.0 to support some used features',
+    )
+endif
+
+
 cpp = meson.get_compiler('cpp')
 if cpp.get_id() == 'msvc'
     add_project_arguments('/std:c++latest', language: 'cpp')
@@ -21,45 +28,10 @@ endif
 
 deps = []
 
-sdl2_dep = dependency('sdl2', required: false)
-if not sdl2_dep.found()
-    deps += dependency('sdl2', required: true, fallback: 'sdl2')
-else
-    deps += sdl2_dep
-endif
-
-sdl2_ttf_dep = dependency('sdl2_ttf', required: false)
-if not sdl2_ttf_dep.found()
-    deps += dependency(
-        'sdl2_ttf',
-        required: true,
-        fallback: 'sdl2_ttf',
-    )
-else
-    deps += sdl2_ttf_dep
-endif
-
-spdlog_dep = dependency('spdlog', required: false)
-if not spdlog_dep.found()
-    deps += dependency(
-        'spdlog',
-        required: true,
-        fallback: 'spdlog',
-    )
-else
-    deps += spdlog_dep
-endif
-
-nlohmann_json_dep = dependency('nlohmann_json', required: false)
-if not nlohmann_json_dep.found()
-    deps += dependency(
-        'nlohmann_json',
-        required: true,
-        fallback: 'nlohmann_json',
-    )
-else
-    deps += nlohmann_json_dep
-endif
+deps += dependency('sdl2', 'SDL2', required: true, fallback: 'sdl2')
+deps += dependency('sdl2_ttf', 'SDL2_ttf', required: true, fallback: 'sdl2_ttf')
+deps += dependency('spdlog', required: true, fallback: 'spdlog')
+deps += dependency('nlohmann_json', required: true, fallback: 'nlohmann_json')
 
 deps += dependency('tl-optional', required: true, fallback: ['tl-optional'])
 deps += dependency('tl-expected', required: true, fallback: ['tl-expected'])
