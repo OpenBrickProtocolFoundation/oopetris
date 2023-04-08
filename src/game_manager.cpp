@@ -6,6 +6,7 @@
 #include <fstream>
 #include <sstream>
 #include <utility>
+#include <filesystem>
 
 GameManager::GameManager(const Random::Seed random_seed, const bool record_game)
     : m_random{ random_seed },
@@ -346,9 +347,16 @@ bool GameManager::is_tetromino_position_valid(const Tetromino& tetromino) const 
 }
 
 void GameManager::save_recording() const {
-    const auto filename = fmt::format("recordings/{}.rec", utils::current_date_time_iso8601());
+    static constexpr auto recordings_directory = "recordings";
+    const auto recording_directory_path = std::filesystem::path{ recordings_directory };
+    if (not std::filesystem::exists(recording_directory_path)) {
+        std::filesystem::create_directory(recording_directory_path);
+    }
+    const auto filename = fmt::format("{}.rec", utils::current_date_time_iso8601());
+    const auto file_path = recording_directory_path / filename;
+
     spdlog::info("writing recording to file {}", filename);
-    std::ofstream file{ filename, std::ios::out | std::ios::binary };
+    std::ofstream file{ file_path, std::ios::out | std::ios::binary };
     if (not file) {
         spdlog::error("unable to write recording to disk");
         return;
