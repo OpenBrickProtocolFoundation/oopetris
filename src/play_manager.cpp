@@ -34,23 +34,23 @@ SinglePlayer::get_input(std::size_t index, GameManager* associated_game_manager,
         throw std::range_error{ "SinglePlayer mode: error in index of get_input" };
     }
 
-    auto keyboard_input = std::make_unique<KeyboardInput>(associated_game_manager, util::assert_is_keyboard_controls(settings().controls.at(index)));
+    auto keyboard_input = std::make_unique<KeyboardInput>(
+            associated_game_manager, util::assert_is_keyboard_controls(settings().controls.at(index))
+    );
+    event_dispatcher->register_listener(keyboard_input.get());
     return std::pair<std::size_t, std::unique_ptr<Input>>{ 0, std::move(keyboard_input) };
 }
 
 
-
-
 namespace util {
-    KeyboardControls assert_is_keyboard_controls(Controls& controls){
-     return std::visit(
-                overloaded{ [&](KeyboardControls& keyboard_controls) ->KeyboardControls {
-                               return keyboard_controls;
-                           },
-                            [&](ReplayControls& replay_controls) -> KeyboardControls {
-                                throw std::runtime_error{"in assert_is_keyboard_controls: input is not KeyboardControls"};
-                            } },
+    KeyboardControls assert_is_keyboard_controls(Controls& controls) {
+        return std::visit(
+                overloaded{
+                        [&](KeyboardControls& keyboard_controls) -> KeyboardControls { return keyboard_controls; },
+                        [&]([[maybe_unused]] ReplayControls& replay_controls) -> KeyboardControls {
+                            throw std::runtime_error{ "in assert_is_keyboard_controls: input is not KeyboardControls" };
+                        } },
                 controls
         );
     }
-}
+} // namespace util

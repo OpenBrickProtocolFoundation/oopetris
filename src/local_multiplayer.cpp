@@ -94,8 +94,6 @@ tl::expected<StartState, std::string> LocalMultiplayer::init(Settings settings) 
                 // send the information about how many players partecipate in response, await the creation of x-1 sockets to send them the event from them, not that the client doesn't have a static player number, only the server can (later select this from a menu) set this size
 
 
-                // TODO add seed here, the server generates one seed
-
                 auto send_data = ClientInitializationData{ static_cast<std::uint32_t>(m_num_players),
                                                            static_cast<std::uint32_t>(i + 1) };
                 const auto send_result = connection->send_data<ClientInitializationData>(&send_data);

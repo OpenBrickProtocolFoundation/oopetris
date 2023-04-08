@@ -9,11 +9,12 @@
 #include <tl/expected.hpp>
 #include <utility>
 #include <vector>
+#include "random.hpp"
 
 struct StartState {
     std::size_t num_players;
     // std::vector<void> state;
-    //TODO add seed here
+    //TODO: Random::Seed seed;
 };
 
 

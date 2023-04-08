@@ -25,7 +25,6 @@ public:
     //TODO enforce this in some compile time way, that they are unique!
     /* virtual */ static constexpr std::uint32_t serialUUID = 0;
 
-    //TODO fix inconsistency and don't raise exceptions, rather return tl:expected
     template<class T>
     static tl::expected<RawBytes, std::string> serialize(const T* transportable) {
         constexpr std::uint32_t data_size = sizeof(T);
