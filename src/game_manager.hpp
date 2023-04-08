@@ -27,6 +27,7 @@ enum class MovementType {
 struct GameManager final {
 private:
     static constexpr int tile_size = 30;
+    static constexpr u64 lock_delay = 30;
 
     // while holding down, this level is assumed for gravity calculation
     static constexpr int accelerated_drop_movement_level = 10;
@@ -53,6 +54,7 @@ private:
     Recording m_recording;
     bool m_record_game;
     bool m_allowed_to_hold = true;
+    u64 m_lock_delay_step_index;
 
 public:
     GameManager(Random::Seed random_seed, bool record_game);
@@ -72,6 +74,7 @@ public:
     void hold_tetromino();
 
 private:
+    void reset_lock_delay();
     void refresh_texts();
     void clear_fully_occupied_lines();
     void lock_active_tetromino();
