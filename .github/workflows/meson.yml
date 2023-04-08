@@ -24,7 +24,11 @@ jobs:
                     - name: Linux Release
                       os: ubuntu-22.04
                       buildtype: release
-
+                      use-clang: false
+                    - name: Linux Clang Release
+                      os: ubuntu-22.04
+                      buildtype: release
+                      use-clang: true
         steps:
             - uses: actions/checkout@v3
               with:
@@ -39,17 +43,25 @@ jobs:
               if: matrix.config.os == 'windows-latest' && matrix.config.msvc == true
               uses: ilammy/msvc-dev-cmd@v1
 
+            - name: Setup Clang
+              if: matrix.config.os == 'ubuntu-22.04' && matrix.config.use-clang == true
+              uses: egor-tensin/setup-clang@v1
+              with:
+                version: latest
+                platform: x64
+
+            - name: Setup GCC
+              if: matrix.config.os == 'ubuntu-22.04' && matrix.config.use-clang == false
+              uses: egor-tensin/setup-gcc@v1
+              with:
+                version: latest
+                platform: x64
+
             - name: Install dependencies (Linux)
               if: matrix.config.os == 'ubuntu-22.04'
               run: |
                   sudo apt-get update
-                  sudo apt-get install ninja-build build-essential libx11-dev gcc-12 g++-12 libwxgtk3.0-gtk3-dev libgtk-3-dev libsdl2-2.0-0 libsdl2-dev -y
-
-            - name: Set Environment - Linux
-              if: matrix.config.os == 'ubuntu-22.04'
-              run: |
-                export CXX=g++-12
-                export CC=gcc-12
+                  sudo apt-get install ninja-build libsdl2-2.0-0 libsdl2-dev libsdl2-net* libsdl2-ttf* -y
 
             - name: Configure
               run: meson setup build -Dbuildtype=${{ matrix.config.buildtype }}
