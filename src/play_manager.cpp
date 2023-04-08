@@ -2,6 +2,7 @@
 
 #include "play_manager.hpp"
 #include "game_manager.hpp"
+#include "random.hpp"
 #include <cstddef>
 #include <memory>
 #include <stdexcept>
@@ -10,9 +11,9 @@
 
 PlayManager::PlayManager(){};
 
-tl::expected<StartState, std::string> PlayManager::init(Settings settings) {
+tl::expected<StartState, std::string> PlayManager::init(Settings settings, Random::Seed seed) {
     m_settings = settings;
-    return StartState{ 0 };
+    return StartState{ 0, seed };
 };
 
 Settings PlayManager::settings() {
@@ -22,9 +23,9 @@ Settings PlayManager::settings() {
 SinglePlayer::SinglePlayer() : PlayManager{} {};
 
 
-tl::expected<StartState, std::string> SinglePlayer::init(Settings settings) {
-    PlayManager::init(settings);
-    return StartState{ 1 };
+tl::expected<StartState, std::string> SinglePlayer::init(Settings settings, Random::Seed seed) {
+    PlayManager::init(settings, seed);
+    return StartState{ 1, seed };
 }
 
 std::pair<std::size_t, std::unique_ptr<Input>>

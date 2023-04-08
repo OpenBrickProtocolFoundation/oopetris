@@ -5,6 +5,7 @@
 #include "network/network_data.hpp"
 #include "network/network_manager.hpp"
 #include "play_manager.hpp"
+#include "random.hpp"
 #include <cstddef>
 #include <memory>
 #include <stdexcept>
@@ -31,7 +32,7 @@ private:
 
 public:
     explicit LocalMultiplayer(std::size_t num_players, bool is_server);
-    tl::expected<StartState, std::string> init(Settings settings) override;
+    tl::expected<StartState, std::string> init(Settings settings, Random::Seed seed) override;
     std::pair<std::size_t, std::unique_ptr<Input>>
     get_input(std::size_t index, GameManager* associated_game_manager, EventDispatcher* event_dispatcher) override;
 };

@@ -14,7 +14,7 @@
 struct StartState {
     std::size_t num_players;
     // std::vector<void> state;
-    //TODO: Random::Seed seed;
+    Random::Seed seed;
 };
 
 
@@ -24,7 +24,7 @@ struct StartState {
 public:
     explicit PlayManager();
     virtual ~PlayManager() = default;
-    virtual tl::expected<StartState, std::string> init(Settings settings);
+    virtual tl::expected<StartState, std::string> init(Settings settings, Random::Seed seed);
     virtual std::pair<std::size_t, std::unique_ptr<Input>>
     get_input(std::size_t index, GameManager* associated_game_manager, EventDispatcher* event_dispatcher) = 0;
     Settings settings();
@@ -34,7 +34,7 @@ public:
 struct SinglePlayer : public PlayManager {
 public:
     explicit SinglePlayer();
-    tl::expected<StartState, std::string> init(Settings settings) override;
+    tl::expected<StartState, std::string> init(Settings settings, Random::Seed seed) override;
     std::pair<std::size_t, std::unique_ptr<Input>>
     get_input(std::size_t index, GameManager* associated_game_manager, EventDispatcher* event_dispatcher) override;
 };

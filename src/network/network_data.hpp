@@ -32,8 +32,8 @@ struct ClientInitializationData : public Transportable {
 public:
     std::uint32_t player_num;
     std::uint32_t your_player_id;
-    //TODO: Random::Seed seed;
+    Random::Seed seed;
 
     static constexpr std::uint32_t serialUUID = 3;
-    explicit ClientInitializationData(std::uint32_t player_num, std::uint32_t your_player_id);
+    explicit ClientInitializationData(std::uint32_t player_num, std::uint32_t your_player_id, Random::Seed seed);
 };

@@ -62,7 +62,7 @@ public:
         //TODO: to handle recording support for multiplayer, we have to say in some way, which player is recorded, this has to be done with a custom PlayerManager, like ghostdata in Mario kart you can battle against a recorded data from yourself our from the cloud/ online ranking / leaderboard
         const auto random_seed = (is_recording ? recording->seed() : Random::generate_seed());
 
-        auto is_valid = m_manager->init(m_settings/* , random_seed */);
+        auto is_valid = m_manager->init(m_settings, random_seed);
         if (!is_valid.has_value()) {
             std::cerr << "Error in initializing PlayManager: " << is_valid.error() << "\n";
             std::exit(2);
@@ -70,17 +70,15 @@ public:
 
         auto start_state = is_valid.value();
         const auto num_players = start_state.num_players;
-
-
-
+        const auto seed_to_use = start_state.seed;
 
         for (std::size_t i = 0; i < num_players; ++i) {
-            spdlog::info("seed for player {}: {}", i + 1, random_seed);
+            spdlog::info("seed for player {}: {}", i + 1, seed_to_use);
             //TODO get a more detailed start state from the client:
             //   m_game_managers.push_back(std::make_unique<GameManager>(i, start_state.state.at(i)));
             const auto record_game = not is_recording;
             //TODO get these from the manager, before calling get_input()!
-            m_game_managers.push_back(std::make_unique<GameManager>(i, random_seed, record_game));
+            m_game_managers.push_back(std::make_unique<GameManager>(i, seed_to_use, record_game));
             if (is_recording) {
                 m_inputs.push_back(create_input(ReplayControls{ std::move(*recording) }, m_game_managers.back().get()));
             } else {
