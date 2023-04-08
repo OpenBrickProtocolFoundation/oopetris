@@ -13,7 +13,9 @@ jobs:
         with:
           style: file
           version: 14
-          extra-args: -std:c++2b -Wall -Wextra -Wpedantic
+          extra-args: -std=c++2b -Wall -Wextra -Wpedantic
+          files-changed-only: false
+          lines-changed-only: false
 
       - name: Fail CI run if linter checks failed
         if: steps.linter.outputs.checks-failed > 0
