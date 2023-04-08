@@ -1,9 +1,9 @@
 #include "game_manager.hpp"
 #include "application.hpp"
-#include "spdlog/spdlog.h"
 #include "utils.hpp"
 #include <cassert>
 #include <fstream>
+#include <spdlog/spdlog.h>
 #include <sstream>
 #include <utility>
 #include <filesystem>
