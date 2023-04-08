@@ -22,6 +22,8 @@ if cpp.get_id() == 'msvc'
     add_project_arguments('/std:c++latest', language: 'cpp')
 elif cpp.get_id() == 'gcc'
     add_project_arguments('-std=c++23', language: 'cpp')
+elif cpp.get_id() == 'clang'
+    add_project_arguments('-std=c++2b', language: 'cpp')
 else
     add_project_arguments('-std=c++20', language: 'cpp')
 endif
