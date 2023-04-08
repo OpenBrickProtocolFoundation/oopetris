@@ -31,6 +31,10 @@ std::tuple<tl::optional<std::filesystem::path>, PlayMode, bool> parse_args(std::
             return { tl::nullopt, PlayMode::SinglePlayer, false };
         }
         case 2: {
+            if ("--help" == args.at(1) or "-h" == args.at(1) or "?" == args.at(1)) {
+                usage(args.at(0));
+                std::exit(0);
+            }
             return { args.at(1), PlayMode::SinglePlayer, false };
         }
         case 3: {
