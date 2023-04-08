@@ -116,10 +116,10 @@ void OnlineInput::update() {
     }
 
     const auto data_vector = data.value().value();
-    for (const auto& data : data_vector) {
+    for (const auto& received_data : data_vector) {
 
-        if (data.is_of_type<EventData>()) {
-            auto event = data.as_type<EventData>();
+        if (received_data.is_of_type<EventData>()) {
+            auto event = received_data.as_type<EventData>();
             //TODO maybe handle return value ?
             m_target_game_manager->handle_input_event(event->event());
         }
