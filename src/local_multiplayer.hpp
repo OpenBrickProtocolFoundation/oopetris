@@ -31,7 +31,7 @@ private:
 
 public:
     explicit LocalMultiplayer(std::size_t num_players, bool is_server);
-    tl::expected<StartState, std::string> init() override;
+    tl::expected<StartState, std::string> init(Settings settings) override;
     std::pair<std::size_t, std::unique_ptr<Input>>
     get_input(std::size_t index, GameManager* associated_game_manager, EventDispatcher* event_dispatcher) override;
 };

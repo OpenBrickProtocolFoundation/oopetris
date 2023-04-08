@@ -1,21 +1,47 @@
 {
-  "name" : "oopetris",
-  "version-string" : "1.0.0",
-  "builtin-baseline" : "ffe7360e0f5ba62f98b620575294ecb9d8a02980",
-  "dependencies" : [ {
-    "name" : "sdl2",
-    "version>=" : "2.26.4"
-  }, {
-    "name" : "sdl2-ttf",
-    "version>=" : "2.20.2"
-  }, {
-    "name" : "tl-optional",
-    "version>=" : "2021-05-02"
-  }, {
-    "name" : "tl-expected",
-    "version>=" : "2022-11-24"
-  }, {
-    "name" : "sdl2-net",
-    "version>=" : "2.2.0"
-  } ]
+  "name": "oopetris",
+  "version-string": "1.0.0",
+  "builtin-baseline": "ffe7360e0f5ba62f98b620575294ecb9d8a02980",
+  "dependencies": [
+    {
+      "name": "sdl2",
+      "version>=": "2.26.4",
+      "platform" : "(x64 & static)"
+    },
+    {
+      "name": "sdl2-ttf",
+      "version>=": "2.20.2",
+      "platform" : "(x64 & static)"
+    },
+    {
+      "name" : "sdl2-net",
+      "version>=" : "2.2.0",
+      "platform" : "(x64 & static)"
+    },
+    {
+      "name": "tl-optional",
+      "version>=": "2021-05-02",
+      "platform" : "(x64 & static)"
+    },
+    {
+      "name" : "tl-expected",
+      "version>=" : "2022-11-24",
+      "platform" : "(x64 & static)"
+    },
+    {
+      "name": "nlohmann-json",
+      "version>=": "3.11.2",
+      "platform" : "(x64 & static)"
+    },
+    {
+      "name": "magic-enum",
+      "version>=": "0.8.2",
+      "platform" : "(x64 & static)"
+    },
+    {
+      "name": "spdlog",
+      "version>=": "1.11.0",
+      "platform" : "(x64 & static)"
+    }
+  ]
 }

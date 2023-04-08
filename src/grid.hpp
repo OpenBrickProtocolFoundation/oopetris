@@ -17,6 +17,8 @@ public:
     static constexpr Point preview_extends{ 4, 4 };
     static constexpr Color background_color{ 12, 12, 12 };
     static constexpr Color border_color{ 42, 42, 42 };
+    static constexpr Point hold_background_position{ width + 1, 1 + invisible_rows + height - preview_extends.y - 4 };
+    static constexpr Point hold_tetromino_position = hold_background_position + Point{ 0, 1 };
 
 private:
     Point m_start_point;
@@ -36,5 +38,7 @@ public:
 private:
     void draw_minos(const Application& app) const;
     void draw_preview_background(const Application& app) const;
+    void draw_hold_background(const Application& app) const;
+    void draw_small_background(const Application& app, Point position) const;
     void draw_playing_field_background(const Application& app) const;
 };

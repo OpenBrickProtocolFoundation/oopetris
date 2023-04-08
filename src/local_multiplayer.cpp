@@ -11,6 +11,7 @@
 #include <tl/optional.hpp>
 #include <utility>
 #include <vector>
+#include <variant>
 
 LocalMultiplayer::LocalMultiplayer(std::size_t num_players, bool is_server)
     : PlayManager{},
@@ -21,8 +22,8 @@ LocalMultiplayer::LocalMultiplayer(std::size_t num_players, bool is_server)
       m_input_connections{ ConnectionStore{} } {};
 
 
-tl::expected<StartState, std::string> LocalMultiplayer::init() {
-
+tl::expected<StartState, std::string> LocalMultiplayer::init(Settings settings) {
+    PlayManager::init(settings);
 
     if (m_is_server) {
 
@@ -32,6 +33,12 @@ tl::expected<StartState, std::string> LocalMultiplayer::init() {
                     + std::to_string(m_num_players)
             );
         }
+
+        if (settings.controls.size() < m_num_players) {
+            return tl::make_unexpected("Noz enough controls provided: needed: " + std::to_string(m_num_players)
+                                               + " got: " + std::to_string(settings.controls.size()));
+        }
+
         auto server = m_network_manager.spawn_server();
         if (!server.has_value()) {
             return tl::make_unexpected("Error in initializing the server: " + server.error());
@@ -157,7 +164,6 @@ tl::expected<StartState, std::string> LocalMultiplayer::init() {
 
 
         return StartState{ m_num_players };
-
     } else {
         // client start here
 
@@ -241,7 +247,9 @@ std::pair<std::size_t, std::unique_ptr<Input>> LocalMultiplayer::get_input(
 
             associated_game_manager->set_online_handler(std::make_unique<OnlineHandler>(m_server, nullptr, send_to));
 
-            auto keyboard_input = std::make_unique<KeyboardInput>(associated_game_manager);
+
+    
+            auto keyboard_input = std::make_unique<KeyboardInput>(associated_game_manager, util::assert_is_keyboard_controls(settings().controls.at(index)));
             event_dispatcher->register_listener(keyboard_input.get());
             return std::pair<std::size_t, std::unique_ptr<Input>>{ 0, std::move(keyboard_input) };
         } else {
@@ -260,7 +268,7 @@ std::pair<std::size_t, std::unique_ptr<Input>> LocalMultiplayer::get_input(
                     std::make_unique<OnlineHandler>(nullptr, m_input_connections.at(0).first.second)
             );
 
-            auto keyboard_input = std::make_unique<KeyboardInput>(associated_game_manager);
+            auto keyboard_input = std::make_unique<KeyboardInput>(associated_game_manager, util::assert_is_keyboard_controls(settings().controls.at(index)));
             event_dispatcher->register_listener(keyboard_input.get());
             return std::pair<std::size_t, std::unique_ptr<Input>>{ m_input_connections.at(0).first.first,
                                                                    std::move(keyboard_input) };

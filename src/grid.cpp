@@ -16,6 +16,7 @@ Point Grid::to_screen_coords(Point grid_coords) const {
 void Grid::render(const Application& app) const {
     draw_playing_field_background(app);
     draw_preview_background(app);
+    draw_hold_background(app);
     draw_minos(app);
 }
 
@@ -54,13 +55,21 @@ void Grid::set(Point coordinates, TetrominoType type) {
 void Grid::draw_minos(const Application& app) const {
     for (const Mino& mino : m_minos) {
         if (mino.position().y >= invisible_rows) {
-            mino.render(app, *this);
+            mino.render(app, *this, false);
         }
     }
 }
 
 void Grid::draw_preview_background(const Application& app) const {
-    const Point preview_top_left = to_screen_coords(preview_background_position);
+    draw_small_background(app, preview_background_position);
+}
+
+void Grid::draw_hold_background(const Application& app) const {
+    draw_small_background(app, hold_background_position);
+}
+
+void Grid::draw_small_background(const Application& app, Point position) const {
+    const Point preview_top_left = to_screen_coords(position);
     const Point preview_bottom_right =
             preview_top_left + Point{ tile_size().x * preview_extends.x - 1, tile_size().y * preview_extends.y - 1 };
     app.renderer().draw_rect_filled(Rect{ preview_top_left, preview_bottom_right }, background_color);
@@ -70,7 +79,6 @@ void Grid::draw_preview_background(const Application& app) const {
     const Rect outline_rect = Rect{ outline_top_left, outline_bottom_right };
     app.renderer().draw_rect_outline(outline_rect, border_color);
 }
-
 void Grid::draw_playing_field_background(const Application& app) const {
     const Point bottom_right{
         width * m_tile_size - 1,

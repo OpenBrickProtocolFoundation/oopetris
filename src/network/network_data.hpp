@@ -19,12 +19,12 @@ public:
 
 struct EventData : public Transportable {
 private:
-    Input::Event m_event;
+    InputEvent m_event;
 
 public:
     static constexpr std::uint32_t serialUUID = 2;
-    explicit EventData(Input::Event event);
-    Input::Event event() const;
+    explicit EventData(InputEvent event);
+    InputEvent event() const;
 };
 
 struct ClientInitializationData : public Transportable {

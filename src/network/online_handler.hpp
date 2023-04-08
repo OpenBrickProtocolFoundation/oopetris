@@ -19,5 +19,5 @@ public:
             std::shared_ptr<Connection> connection,
             std::vector<std::shared_ptr<Connection>> send_to
     );
-    void handle_event(Input::Event event);
+    void handle_event(InputEvent event);
 };

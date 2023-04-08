@@ -50,8 +50,33 @@ else
     deps += sdl2_ttf_dep
 endif
 
+spdlog_dep = dependency('spdlog', required: false)
+if not spdlog_dep.found()
+    deps += dependency(
+        'spdlog',
+        required: true,
+        fallback: 'spdlog',
+    )
+else
+    deps += spdlog_dep
+endif
+
+nlohmann_json_dep = dependency('nlohmann_json', required: false)
+if not nlohmann_json_dep.found()
+    deps += dependency(
+        'nlohmann_json',
+        required: true,
+        fallback: 'nlohmann_json',
+    )
+else
+    deps += nlohmann_json_dep
+endif
+
 deps += dependency('tl-optional', required: true, fallback: ['tl-optional'])
 deps += dependency('tl-expected', required: true, fallback: ['tl-expected'])
+deps += dependency('magic_enum', required: true, fallback: ['magic_enum'])
+
+
 
 inc_dirs = []
 src_files = []

@@ -45,9 +45,13 @@ public:
           m_type{ type },
           m_minos{ create_minos(position, m_rotation, type) } { }
 
-    void render(const Application& app, const Grid& grid) const {
+    [[nodiscard]] TetrominoType type() const {
+        return m_type;
+    }
+
+    void render(const Application& app, const Grid& grid, bool as_ghost = false) const {
         for (const auto& mino : m_minos) {
-            mino.render(app, grid);
+            mino.render(app, grid, as_ghost);
         }
     }
 

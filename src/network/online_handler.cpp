@@ -23,7 +23,7 @@ OnlineHandler::OnlineHandler(
       m_send_to{ send_to } {};
 
 
-void OnlineHandler::handle_event(Input::Event event) {
+void OnlineHandler::handle_event(InputEvent event) {
     if (m_server) {
         auto event_data = EventData{ event };
         //TODO handle error

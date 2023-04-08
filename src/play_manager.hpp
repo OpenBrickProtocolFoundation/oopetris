@@ -18,19 +18,27 @@ struct StartState {
 
 
 /* abstract */ struct PlayManager {
+    private:
+        Settings m_settings;
 public:
     explicit PlayManager();
     virtual ~PlayManager() = default;
-    virtual tl::expected<StartState, std::string> init() = 0;
+    virtual tl::expected<StartState, std::string> init(Settings settings);
     virtual std::pair<std::size_t, std::unique_ptr<Input>>
     get_input(std::size_t index, GameManager* associated_game_manager, EventDispatcher* event_dispatcher) = 0;
+    Settings settings();
 };
 
 
 struct SinglePlayer : public PlayManager {
 public:
     explicit SinglePlayer();
-    tl::expected<StartState, std::string> init() override;
+    tl::expected<StartState, std::string> init(Settings settings) override;
     std::pair<std::size_t, std::unique_ptr<Input>>
     get_input(std::size_t index, GameManager* associated_game_manager, EventDispatcher* event_dispatcher) override;
 };
+
+
+namespace util {
+    KeyboardControls assert_is_keyboard_controls(Controls& controls);
+}

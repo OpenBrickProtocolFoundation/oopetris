@@ -10,9 +10,9 @@ InitializationData::InitializationData(InitializationDataType type, std::uint32_
       m_uuid{ uuid } {};
 
 
-EventData::EventData(Input::Event event) : m_event{ event } {};
+EventData::EventData(InputEvent event) : m_event{ event } {};
 
-Input::Event EventData::event() const {
+InputEvent EventData::event() const {
     return m_event;
 }
 

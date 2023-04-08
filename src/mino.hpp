@@ -15,7 +15,7 @@ private:
 public:
     explicit constexpr Mino(Point coords, TetrominoType type) : m_position{ coords }, m_type{ type } { }
 
-    void render(const Application& app, const Grid& grid) const;
+    void render(const Application& app, const Grid& grid, bool as_ghost) const;
 
     TetrominoType type() const {
         return m_type;
