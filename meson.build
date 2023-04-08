@@ -39,15 +39,15 @@ else
     deps += sdl2_ttf_dep
 endif
 
-sdl2_ttf_dep = dependency('sdl2_net', required: false)
-if not sdl2_ttf_dep.found()
+sdl2_net_dep = dependency('sdl2_net', required: false)
+if not sdl2_net_dep.found()
     deps += dependency(
         'sdl2_net',
         required: true,
         fallback: 'sdl2_net',
     )
 else
-    deps += sdl2_ttf_dep
+    deps += sdl2_net_dep
 endif
 
 spdlog_dep = dependency('spdlog', required: false)
