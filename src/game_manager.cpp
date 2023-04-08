@@ -241,6 +241,7 @@ void GameManager::set_online_handler(std::unique_ptr<OnlineHandler> online_handl
 
 void GameManager::set_player_num(std::size_t player_num) {
     m_player_num = player_num;
+    refresh_texts();
 }
 
 void GameManager::hold_tetromino() {
@@ -273,7 +274,8 @@ void GameManager::refresh_texts() {
 
     if (m_use_player_text and m_player_num.has_value()) {
         stream = {};
-        stream << "player " << m_player_num.value();
+        // for humans it' more readable, when it's 1 indexed
+        stream << "player " << m_player_num.value() +1 ;
         m_text_rows.at(i++).set_text(stream.str());
     }
 }
