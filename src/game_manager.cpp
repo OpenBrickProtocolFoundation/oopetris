@@ -41,8 +41,11 @@ void GameManager::update() {
                     m_next_gravity_simulation_step_index -= get_gravity_delay_frames();
                     m_is_accelerated_down_movement = false;
                 } else {
-                    move_tetromino_down(m_is_accelerated_down_movement ? MovementType::Forced : MovementType::Gravity);
-                    reset_lock_delay();
+                    if (move_tetromino_down(
+                                m_is_accelerated_down_movement ? MovementType::Forced : MovementType::Gravity
+                        )) {
+                        reset_lock_delay();
+                    }
                 }
                 m_next_gravity_simulation_step_index += get_gravity_delay_frames();
             }
