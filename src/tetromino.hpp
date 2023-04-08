@@ -26,6 +26,28 @@ inline Rotation& operator--(Rotation& rotation) {
     return rotation;
 }
 
+inline Rotation operator+(Rotation rotation, const int offset) {
+    if (offset == 0) {
+        return rotation;
+    }
+
+    if (offset > 0) {
+        for (int i = 0; i < offset; ++i) {
+            ++rotation;
+        }
+        return rotation;
+    }
+
+    for (int i = 0; i < -offset; ++i) {
+        --rotation;
+    }
+    return rotation;
+}
+
+inline Rotation operator-(const Rotation rotation, const int offset) {
+    return rotation + (-offset);
+}
+
 struct Application;
 struct Grid;
 
@@ -49,6 +71,10 @@ public:
         return m_type;
     }
 
+    [[nodiscard]] Rotation rotation() const {
+        return m_rotation;
+    }
+
     void render(const Application& app, const Grid& grid, bool as_ghost = false) const {
         for (const auto& mino : m_minos) {
             mino.render(app, grid, as_ghost);
@@ -66,22 +92,23 @@ public:
     }
 
     void move_down() {
-        ++m_position.y;
-        refresh_minos();
+        move({ 0, 1 });
     }
 
     void move_up() {
-        --m_position.y;
-        refresh_minos();
+        move({ 0, -1 });
     }
 
     void move_left() {
-        --m_position.x;
-        refresh_minos();
+        move({ -1, 0 });
     }
 
     void move_right() {
-        ++m_position.x;
+        move({ 1, 0 });
+    }
+
+    void move(const Point offset) {
+        m_position += offset;
         refresh_minos();
     }
 
