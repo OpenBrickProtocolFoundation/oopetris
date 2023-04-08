@@ -8,25 +8,40 @@
 #include <utility>
 #include <filesystem>
 
-GameManager::GameManager(const Random::Seed random_seed, const bool record_game)
-    : m_random{ random_seed },
-      m_grid{ Point::zero(), tile_size },
-      m_next_gravity_simulation_step_index{ get_gravity_delay_frames() },
-      m_recording{ random_seed },
-      m_record_game{ record_game } {
+GameManager::GameManager(const std::size_t field_num, const Random::Seed random_seed, const bool record_game,  const bool use_player_text)
+    : m_field_num{ field_num },
+     m_random{ random_seed },
+      m_grid{ Point{
+        static_cast<int>((field_num * GameManager::size_per_field) + (field_num * GameManager::space_between)), 0
+    }, tile_size },
+      m_next_gravity_simulation_step_index{ get_gravity_delay_frames()},m_recording{ random_seed },
+      m_record_game{ record_game }, m_use_player_text{use_player_text}  {
     m_fonts.push_back(std::make_shared<Font>("assets/fonts/PressStart2P.ttf", 18));
-    m_score_text = Text{
-        Point{ m_grid.to_screen_coords(Grid::preview_tetromino_position + Point{ 0, Grid::preview_extends.y }) },
-        Color::white(), "score: 0", m_fonts.front()
-    };
-    m_level_text = Text{
-        Point{ m_grid.to_screen_coords(Grid::preview_tetromino_position + Point{ 0, Grid::preview_extends.y + 1 }) },
-        Color::white(), "level: 0", m_fonts.front()
-    };
-    m_cleared_lines_text = Text{
-        Point{ m_grid.to_screen_coords(Grid::preview_tetromino_position + Point{ 0, Grid::preview_extends.y + 2 }) },
-        Color::white(), "lines: 0", m_fonts.front()
-    };
+    m_text_rows = std::vector<Text>{};
+    m_text_rows.emplace_back(
+            Point{ m_grid.to_screen_coords(Grid::preview_tetromino_position + Point{ 0, Grid::preview_extends.y }) },
+            Color::white(), "score: 0", m_fonts.front()
+    );
+    m_text_rows.emplace_back(
+            Point{ m_grid.to_screen_coords(
+                    Grid::preview_tetromino_position + Point{ 0, Grid::preview_extends.y + 1 }
+            ) },
+            Color::white(), "level: 0", m_fonts.front()
+    );
+    m_text_rows.emplace_back(
+            Point{ m_grid.to_screen_coords(
+                    Grid::preview_tetromino_position + Point{ 0, Grid::preview_extends.y + 2 }
+            ) },
+            Color::white(), "lines: 0", m_fonts.front()
+    );
+    if (m_use_player_text) {
+        m_text_rows.emplace_back(
+                Point{ m_grid.to_screen_coords(
+                        Grid::preview_tetromino_position + Point{ 0, Grid::preview_extends.y + 3 }
+                ) },
+                Color::white(), "player: 0", m_fonts.front()
+        );
+    }
 }
 
 void GameManager::update() {
@@ -65,16 +80,21 @@ void GameManager::render(const Application& app) const {
     if (m_preview_tetromino) {
         m_preview_tetromino->render(app, m_grid);
     }
+
     if (m_tetromino_on_hold) {
         m_tetromino_on_hold->render(app, m_grid);
     }
-    m_score_text.render(app);
-    m_level_text.render(app);
-    m_cleared_lines_text.render(app);
+
+    for (const auto& text : m_text_rows) {
+        text.render(app);
+    }
 }
 
 bool GameManager::handle_input_event(InputEvent event) {
     m_recording.add_record(Application::simulation_step_index(), event);
+    if (m_online_handler) {
+        m_online_handler->handle_event(event);
+    }
     switch (event) {
         case InputEvent::RotateLeft:
             return rotate_tetromino_left();
@@ -215,6 +235,16 @@ bool GameManager::drop_tetromino() {
     return num_movements > 0;
 }
 
+
+void GameManager::set_online_handler(std::unique_ptr<OnlineHandler> online_handler) {
+    m_online_handler = std::move(online_handler);
+}
+
+void GameManager::set_player_num(std::size_t player_num) {
+    m_player_num = player_num;
+    refresh_texts();
+}
+
 void GameManager::hold_tetromino() {
     if (not m_active_tetromino.has_value()) {
         return;
@@ -231,17 +261,25 @@ void GameManager::hold_tetromino() {
 }
 
 void GameManager::refresh_texts() {
+    auto i = 0;
     std::stringstream stream;
     stream << "score: " << m_score;
-    m_score_text.set_text(stream.str());
+    m_text_rows.at(i++).set_text(stream.str());
 
     stream = {};
     stream << "level: " << m_level;
-    m_level_text.set_text(stream.str());
+    m_text_rows.at(i++).set_text(stream.str());
 
     stream = {};
     stream << "lines: " << m_lines_cleared;
-    m_cleared_lines_text.set_text(stream.str());
+    m_text_rows.at(i++).set_text(stream.str());
+
+    if (m_use_player_text and m_player_num.has_value()) {
+        stream = {};
+        // for humans it' more readable, when it's 1 indexed
+        stream << "player " << m_player_num.value() + 1;
+        m_text_rows.at(i++).set_text(stream.str());
+    }
 }
 
 void GameManager::clear_fully_occupied_lines() {

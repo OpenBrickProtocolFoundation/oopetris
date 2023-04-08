@@ -1,6 +1,7 @@
 #include "grid.hpp"
+#include "rect.hpp"
 
-Grid::Grid(Point offset, int tile_size) : m_offset{ offset - Point{ 0, invisible_rows * tile_size }}, m_tile_size{ tile_size } {
+Grid::Grid(Point offset, int tile_size) : m_start_point{ offset }, m_offset{ offset - Point{ 0, invisible_rows * tile_size }},m_tile_size{ tile_size } {
     m_minos.reserve(num_tiles);
 }
 
@@ -9,7 +10,7 @@ Point Grid::tile_size() const {
 }
 
 Point Grid::to_screen_coords(Point grid_coords) const {
-    return m_offset + grid_coords * m_tile_size;
+    return m_offset + (grid_coords * m_tile_size);
 }
 
 void Grid::render(const Application& app) const {
@@ -83,8 +84,9 @@ void Grid::draw_playing_field_background(const Application& app) const {
         width * m_tile_size - 1,
         (height - invisible_rows) * m_tile_size,
     };
-    app.renderer().draw_rect_filled(Rect{ Point::zero(), bottom_right }, background_color);
+    app.renderer().draw_rect_filled(m_start_point + Rect{ Point::zero(), bottom_right }, background_color);
     app.renderer().draw_line(
-            Point{ bottom_right.x + 1, 0 }, Point{ bottom_right.x + 1, app.window().size().y - 1 }, border_color
+            m_start_point + Point{ bottom_right.x + 1, 0 },
+            m_start_point + Point{ bottom_right.x + 1, app.window().size().y - 1 }, border_color
     );
 }

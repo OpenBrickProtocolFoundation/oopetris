@@ -21,6 +21,7 @@ public:
     static constexpr Point hold_tetromino_position = hold_background_position + Point{ 0, 1 };
 
 private:
+    Point m_start_point;
     Point m_offset;
     int m_tile_size;
     std::vector<Mino> m_minos;

@@ -2,6 +2,8 @@
 #include "application.hpp"
 #include "game_manager.hpp"
 #include "key_codes.hpp"
+#include "network/network_data.hpp"
+#include <array>
 
 void Input::handle_command(Input::Command command, Input::CommandType type) {
     if (type == CommandType::KeyDown) {
@@ -138,5 +140,32 @@ void ReplayInput::update() {
         m_target_game_manager->handle_input_event(record.event);
 
         ++m_next_record_index;
+    }
+}
+
+
+void OnlineInput::update() {
+    Input::update();
+
+    auto data = m_connection->get_data();
+    if (!data.has_value()) {
+        // TODO: print error here (to log e.g.)
+        // auto error = data.error();
+        return;
+    }
+
+    if (!data.value().has_value()) {
+        // no data given
+        return;
+    }
+
+    const auto data_vector = data.value().value();
+    for (const auto& received_data : data_vector) {
+
+        if (received_data.is_of_type<EventData>()) {
+            auto event = received_data.as_type<EventData>();
+            //TODO maybe handle return value ?
+            m_target_game_manager->handle_input_event(event->event());
+        }
     }
 }

@@ -2,12 +2,14 @@
 
 #include "event_listener.hpp"
 #include "input_event.hpp"
+#include "network/connection_manager.hpp"
 #include "random.hpp"
 #include "settings.hpp"
 #include "types.hpp"
 #include <filesystem>
 #include <fstream>
 #include <functional>
+#include <memory>
 #include <tl/optional.hpp>
 #include <unordered_map>
 
@@ -82,4 +84,16 @@ private:
     [[nodiscard]] bool is_end_of_recording() const {
         return m_next_record_index >= m_recording.num_records();
     }
+};
+
+struct OnlineInput : public Input {
+private:
+    std::shared_ptr<Connection> m_connection;
+
+public:
+    explicit OnlineInput(GameManager* target_game_manager, std::shared_ptr<Connection> connection)
+        : Input{ target_game_manager },
+          m_connection{ connection } { }
+
+    void update() override;
 };

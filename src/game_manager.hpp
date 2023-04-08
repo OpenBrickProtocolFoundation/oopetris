@@ -3,12 +3,15 @@
 #include "bag.hpp"
 #include "grid.hpp"
 #include "input.hpp"
+#include "network/online_handler.hpp"
 #include "random.hpp"
 #include "tetromino.hpp"
 #include "text.hpp"
 #include "types.hpp"
 #include <array>
 #include <cmath>
+#include <cstddef>
+#include <memory>
 #include <tl/optional.hpp>
 #include <vector>
 
@@ -25,12 +28,16 @@ enum class MovementType {
 };
 
 struct GameManager final {
-private:
-    static constexpr int tile_size = 30;
+public:
+    static constexpr std::size_t tile_size = 30;
+    static constexpr std::size_t legend_size = Grid::preview_extends.x;
+    static constexpr std::size_t size_per_field = tile_size * (Grid::width + legend_size);
+    static constexpr std::size_t space_between = 125;
 
+private:
     // while holding down, this level is assumed for gravity calculation
     static constexpr int accelerated_drop_movement_level = 10;
-
+    std::size_t m_field_num;
     Random m_random;
     Grid m_grid;
     tl::optional<Tetromino> m_active_tetromino;
@@ -44,18 +51,19 @@ private:
     std::array<Bag, 2> m_sequence_bags{ Bag{ m_random }, Bag{ m_random } };
     int m_sequence_index = 0;
     std::vector<std::shared_ptr<Font>> m_fonts;
-    Text m_score_text;
+    std::vector<Text> m_text_rows;
     int m_score = 0;
-    Text m_level_text;
-    Text m_cleared_lines_text;
     bool m_down_key_pressed = false;
     bool m_is_accelerated_down_movement = false;
     Recording m_recording;
     bool m_record_game;
     bool m_allowed_to_hold = true;
+    std::unique_ptr<OnlineHandler> m_online_handler = nullptr;
+    tl::optional<std::size_t> m_player_num = tl::nullopt;
+    bool m_use_player_text;
 
 public:
-    GameManager(Random::Seed random_seed, bool record_game);
+    GameManager(const std::size_t field_num, const Random::Seed random_seed, const bool record_game, const bool use_player_text);
     void update();
     void render(const Application& app) const;
 
@@ -69,6 +77,9 @@ public:
     bool move_tetromino_left();
     bool move_tetromino_right();
     bool drop_tetromino();
+    void set_online_handler(std::unique_ptr<OnlineHandler> online_handler);
+    void set_player_num(std::size_t player_num);
+
     void hold_tetromino();
 
 private:

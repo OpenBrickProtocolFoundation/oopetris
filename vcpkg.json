@@ -14,8 +14,18 @@
       "platform" : "(x64 & static)"
     },
     {
+      "name" : "sdl2-net",
+      "version>=" : "2.2.0",
+      "platform" : "(x64 & static)"
+    },
+    {
       "name": "tl-optional",
       "version>=": "2021-05-02",
+      "platform" : "(x64 & static)"
+    },
+    {
+      "name" : "tl-expected",
+      "version>=" : "2022-11-24",
       "platform" : "(x64 & static)"
     },
     {

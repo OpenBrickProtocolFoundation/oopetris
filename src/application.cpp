@@ -25,7 +25,8 @@ void Application::run(const u64 simulation_steps_per_second) {
         m_renderer.present();
 
         const auto time_of_next_simulation_step =
-                (static_cast<double>(s_num_steps_simulated + 1) * 1.0 / static_cast<double>(simulation_steps_per_second));
+                (static_cast<double>(s_num_steps_simulated + 1) * 1.0 / static_cast<double>(simulation_steps_per_second)
+                );
         const auto time_until_next_simulation_step = time_of_next_simulation_step - elapsed_time();
         if (time_until_next_simulation_step > 0.0) {
             SDL_Delay(static_cast<Uint32>(time_until_next_simulation_step * 1000.0));

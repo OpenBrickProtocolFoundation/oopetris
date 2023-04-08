@@ -14,7 +14,7 @@ cpp = meson.get_compiler('cpp')
 if cpp.get_id() == 'msvc'
     add_project_arguments('/std:c++latest', language: 'cpp')
 elif cpp.get_id() == 'gcc'
-    add_project_arguments('-std=c++23', language: 'cpp')
+    add_project_arguments('-std=c++23', '-Wold-style-cast', language: 'cpp')
 else
     add_project_arguments('-std=c++20', language: 'cpp')
 endif
@@ -37,6 +37,17 @@ if not sdl2_ttf_dep.found()
     )
 else
     deps += sdl2_ttf_dep
+endif
+
+sdl2_net_dep = dependency('sdl2_net', required: false)
+if not sdl2_net_dep.found()
+    deps += dependency(
+        'sdl2_net',
+        required: true,
+        fallback: 'sdl2_net',
+    )
+else
+    deps += sdl2_net_dep
 endif
 
 spdlog_dep = dependency('spdlog', required: false)
@@ -62,7 +73,10 @@ else
 endif
 
 deps += dependency('tl-optional', required: true, fallback: ['tl-optional'])
+deps += dependency('tl-expected', required: true, fallback: ['tl-expected'])
 deps += dependency('magic_enum', required: true, fallback: ['magic_enum'])
+
+
 
 inc_dirs = []
 src_files = []
