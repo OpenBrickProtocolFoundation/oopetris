@@ -163,50 +163,12 @@ void GameManager::spawn_next_tetromino(const TetrominoType type) {
 }
 
 bool GameManager::rotate_tetromino_right() {
-    return rotate(RotationDirection::Right);
+    return with_lock_delay([&]() { return rotate(RotationDirection::Right); });
 }
 
 bool GameManager::rotate_tetromino_left() {
-    return rotate(RotationDirection::Left);
+    return with_lock_delay([&]() { return rotate(RotationDirection::Left); });
 }
-
-bool GameManager::rotate(GameManager::RotationDirection rotation_direction) {
-    if (not m_active_tetromino) {
-        return false;
-    }
-
-    const auto wall_kick_table = get_wall_kick_table();
-    if (not wall_kick_table.has_value()) {
-        return false;
-    }
-
-    const auto from_rotation = m_active_tetromino->rotation();
-    const auto to_rotation = from_rotation + (rotation_direction == RotationDirection::Left ? -1 : 1);
-    const auto table_index = rotation_to_index(from_rotation, to_rotation);
-
-    if (rotation_direction == RotationDirection::Left) {
-        m_active_tetromino->rotate_left();
-    } else {
-        m_active_tetromino->rotate_right();
-    }
-
-    for (const auto translation : wall_kick_table->at(table_index)) {
-        m_active_tetromino->move(translation);
-        spdlog::info("applying translation: {}, {}", translation.x, translation.y);
-        if (is_active_tetromino_position_valid()) {
-            return true;
-        }
-        m_active_tetromino->move(-translation);
-    }
-
-    if (rotation_direction == RotationDirection::Left) {
-        m_active_tetromino->rotate_right();
-    } else {
-        m_active_tetromino->rotate_left();
-    }
-    return false;
-}
-
 
 bool GameManager::move_tetromino_down(MovementType movement_type) {
     if (not m_active_tetromino) {
@@ -218,8 +180,10 @@ bool GameManager::move_tetromino_down(MovementType movement_type) {
 
     m_active_tetromino->move_down();
     if (not is_active_tetromino_position_valid()) {
+        m_is_in_lock_delay = true;
         m_active_tetromino->move_up();
-        if (Application::simulation_step_index() >= m_lock_delay_step_index) {
+        if ((m_is_in_lock_delay and m_num_executed_lock_delays >= num_lock_delays)
+            or Application::simulation_step_index() >= m_lock_delay_step_index) {
             lock_active_tetromino();
             reset_lock_delay();
         } else {
@@ -231,27 +195,11 @@ bool GameManager::move_tetromino_down(MovementType movement_type) {
 }
 
 bool GameManager::move_tetromino_left() {
-    if (not m_active_tetromino) {
-        return false;
-    }
-    m_active_tetromino->move_left();
-    if (not is_active_tetromino_position_valid()) {
-        m_active_tetromino->move_right();
-        return false;
-    }
-    return true;
+    return with_lock_delay([&]() { return move(MoveDirection::Left); });
 }
 
 bool GameManager::move_tetromino_right() {
-    if (not m_active_tetromino) {
-        return false;
-    }
-    m_active_tetromino->move_right();
-    if (not is_active_tetromino_position_valid()) {
-        m_active_tetromino->move_left();
-        return false;
-    }
-    return true;
+    return with_lock_delay([&]() { return move(MoveDirection::Right); });
 }
 
 bool GameManager::drop_tetromino() {
@@ -339,6 +287,8 @@ void GameManager::lock_active_tetromino() {
         m_grid.set(mino.position(), mino.type());
     }
     m_allowed_to_hold = true;
+    m_is_in_lock_delay = false;
+    m_num_executed_lock_delays = 0;
     clear_fully_occupied_lines();
     spawn_next_tetromino();
     refresh_texts();
@@ -430,6 +380,68 @@ void GameManager::save_recording() const {
         const auto event = std::to_underlying(record.event);
         file.write(reinterpret_cast<const char*>(&event), sizeof(event));
     }
+}
+
+bool GameManager::rotate(GameManager::RotationDirection rotation_direction) {
+    if (not m_active_tetromino) {
+        return false;
+    }
+
+    const auto wall_kick_table = get_wall_kick_table();
+    if (not wall_kick_table.has_value()) {
+        return false;
+    }
+
+    const auto from_rotation = m_active_tetromino->rotation();
+    const auto to_rotation = from_rotation + (rotation_direction == RotationDirection::Left ? -1 : 1);
+    const auto table_index = rotation_to_index(from_rotation, to_rotation);
+
+    if (rotation_direction == RotationDirection::Left) {
+        m_active_tetromino->rotate_left();
+    } else {
+        m_active_tetromino->rotate_right();
+    }
+
+    for (const auto translation : wall_kick_table->at(table_index)) {
+        m_active_tetromino->move(translation);
+        if (is_active_tetromino_position_valid()) {
+            return true;
+        }
+        m_active_tetromino->move(-translation);
+    }
+
+    if (rotation_direction == RotationDirection::Left) {
+        m_active_tetromino->rotate_right();
+    } else {
+        m_active_tetromino->rotate_left();
+    }
+    return false;
+}
+
+bool GameManager::move(const GameManager::MoveDirection move_direction) {
+    if (not m_active_tetromino) {
+        return false;
+    }
+
+    switch (move_direction) {
+        case MoveDirection::Left:
+            m_active_tetromino->move_left();
+            if (not is_active_tetromino_position_valid()) {
+                m_active_tetromino->move_right();
+                return false;
+            }
+            return true;
+        case MoveDirection::Right:
+            m_active_tetromino->move_right();
+            if (not is_active_tetromino_position_valid()) {
+                m_active_tetromino->move_left();
+                return false;
+            }
+            return true;
+    }
+
+    assert(false and "unreachable");
+    return false;
 }
 
 tl::optional<const GameManager::WallKickTable&> GameManager::get_wall_kick_table() const {

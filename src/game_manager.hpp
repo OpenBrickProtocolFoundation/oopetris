@@ -9,6 +9,7 @@
 #include "types.hpp"
 #include <array>
 #include <cmath>
+#include <concepts>
 #include <tl/optional.hpp>
 #include <vector>
 
@@ -30,8 +31,14 @@ private:
 
     static constexpr int tile_size = 30;
     static constexpr u64 lock_delay = 30;
+    static constexpr int num_lock_delays = 15;
 
     enum class RotationDirection {
+        Left,
+        Right,
+    };
+
+    enum class MoveDirection {
         Left,
         Right,
     };
@@ -62,6 +69,8 @@ private:
     bool m_record_game;
     bool m_allowed_to_hold = true;
     u64 m_lock_delay_step_index;
+    bool m_is_in_lock_delay = false;
+    int m_num_executed_lock_delays = 0;
 
 public:
     GameManager(Random::Seed random_seed, bool record_game);
@@ -74,7 +83,6 @@ public:
     void spawn_next_tetromino(TetrominoType type);
     bool rotate_tetromino_right();
     bool rotate_tetromino_left();
-    bool rotate(RotationDirection rotation_direction);
     bool move_tetromino_down(MovementType movement_type);
     bool move_tetromino_left();
     bool move_tetromino_right();
@@ -82,7 +90,18 @@ public:
     void hold_tetromino();
 
 private:
-    tl::optional<const WallKickTable&> get_wall_kick_table() const;
+    template<std::invocable Callable>
+    bool with_lock_delay(Callable movement) {
+        const auto result = movement();
+        if (result and m_is_in_lock_delay) {
+            ++m_num_executed_lock_delays;
+        }
+        return result;
+    }
+
+    bool rotate(RotationDirection rotation_direction);
+    bool move(MoveDirection move_direction);
+    [[nodiscard]] tl::optional<const WallKickTable&> get_wall_kick_table() const;
     void reset_lock_delay();
     void refresh_texts();
     void clear_fully_occupied_lines();
