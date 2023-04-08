@@ -60,9 +60,10 @@ private:
     bool m_allowed_to_hold = true;
     std::unique_ptr<OnlineHandler> m_online_handler = nullptr;
     tl::optional<std::size_t> m_player_num = tl::nullopt;
+    bool m_use_player_text;
 
 public:
-    GameManager(const std::size_t field_num, const Random::Seed random_seed, const bool record_game);
+    GameManager(const std::size_t field_num, const Random::Seed random_seed, const bool record_game, const bool use_player_text);
     void update();
     void render(const Application& app) const;
 

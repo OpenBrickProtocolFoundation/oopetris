@@ -74,11 +74,8 @@ public:
 
         for (std::size_t i = 0; i < num_players; ++i) {
             spdlog::info("seed for player {}: {}", i + 1, seed_to_use);
-            //TODO get a more detailed start state from the client:
-            //   m_game_managers.push_back(std::make_unique<GameManager>(i, start_state.state.at(i)));
             const auto record_game = not is_recording;
-            //TODO get these from the manager, before calling get_input()!
-            m_game_managers.push_back(std::make_unique<GameManager>(i, seed_to_use, record_game));
+            m_game_managers.push_back(std::make_unique<GameManager>(i, seed_to_use, record_game, num_players > 1));
             if (is_recording) {
                 m_inputs.push_back(create_input(ReplayControls{ std::move(*recording) }, m_game_managers.back().get()));
             } else {

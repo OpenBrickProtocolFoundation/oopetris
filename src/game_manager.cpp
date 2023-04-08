@@ -7,14 +7,14 @@
 #include <sstream>
 #include <utility>
 
-GameManager::GameManager(const std::size_t field_num, const Random::Seed random_seed, const bool record_game)
+GameManager::GameManager(const std::size_t field_num, const Random::Seed random_seed, const bool record_game,  const bool use_player_text)
     : m_field_num{ field_num },
      m_random{ random_seed },
       m_grid{ Point{
         static_cast<int>((field_num * GameManager::size_per_field) + (field_num * GameManager::space_between)), 0
     }, tile_size },
       m_next_gravity_simulation_step_index{ get_gravity_delay_frames()},m_recording{ random_seed },
-      m_record_game{ record_game }  {
+      m_record_game{ record_game }, m_use_player_text{use_player_text}  {
     m_fonts.push_back(std::make_shared<Font>("assets/fonts/PressStart2P.ttf", 18));
     m_text_rows = std::vector<Text>{};
     m_text_rows.emplace_back(
@@ -33,12 +33,14 @@ GameManager::GameManager(const std::size_t field_num, const Random::Seed random_
             ) },
             Color::white(), "lines: 0", m_fonts.front()
     );
-    m_text_rows.emplace_back(
-            Point{ m_grid.to_screen_coords(
-                    Grid::preview_tetromino_position + Point{ 0, Grid::preview_extends.y + 3 }
-            ) },
-            Color::white(), "", m_fonts.front()
-    );
+    if (m_use_player_text) {
+        m_text_rows.emplace_back(
+                Point{ m_grid.to_screen_coords(
+                        Grid::preview_tetromino_position + Point{ 0, Grid::preview_extends.y + 3 }
+                ) },
+                Color::white(), "player: 0", m_fonts.front()
+        );
+    }
 }
 
 void GameManager::update() {
@@ -261,6 +263,7 @@ void GameManager::refresh_texts() {
     stream << "score: " << m_score;
     m_text_rows.at(i++).set_text(stream.str());
 
+    stream = {};
     stream << "level: " << m_level;
     m_text_rows.at(i++).set_text(stream.str());
 
@@ -268,7 +271,7 @@ void GameManager::refresh_texts() {
     stream << "lines: " << m_lines_cleared;
     m_text_rows.at(i++).set_text(stream.str());
 
-    if (m_player_num.has_value()) {
+    if (m_use_player_text and m_player_num.has_value()) {
         stream = {};
         stream << "player " << m_player_num.value();
         m_text_rows.at(i++).set_text(stream.str());
