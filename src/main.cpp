@@ -1,18 +1,11 @@
 #include "tetris_application.hpp"
+#include "command_line_arguments.hpp"
 
 int main(int argc, char** argv) {
-    static constexpr int target_fps = 60;
+    const auto command_line_arguments = CommandLineArguments{ argc, argv };
 
-    const auto recording_path = [&]() -> tl::optional<std::filesystem::path> {
-        if (argc == 2) {
-            return argv[1];
-        } else {
-            return {};
-        }
-    }();
-
-    TetrisApplication tetris_app(recording_path);
-    tetris_app.run(target_fps);
+    TetrisApplication tetris_app(command_line_arguments.recording_path);
+    tetris_app.run(command_line_arguments.target_fps);
 
     return 0;
 }
