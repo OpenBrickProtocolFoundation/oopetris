@@ -1,4 +1,4 @@
-name: clang-format Check
+name: c++ lints(clang-format + clang-tidy)
 on: pull_request
 jobs:
   cpp-linter:
