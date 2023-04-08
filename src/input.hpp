@@ -6,8 +6,6 @@
 #include "settings.hpp"
 #include "types.hpp"
 #include <filesystem>
-#include <fstream>
-#include <functional>
 #include <tl/optional.hpp>
 #include <unordered_map>
 
