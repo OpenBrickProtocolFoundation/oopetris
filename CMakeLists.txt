@@ -3,6 +3,7 @@ project(oopetris)
 
 set(CMAKE_CXX_STANDARD 23)
 
+find_package(argparse CONFIG REQUIRED)
 find_package(SDL2 CONFIG REQUIRED)
 find_package(SDL2_ttf CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
@@ -91,6 +92,7 @@ target_link_libraries(oopetris
         $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
         )
 
+target_link_libraries(oopetris PRIVATE argparse::argparse)
 target_link_libraries(oopetris PRIVATE spdlog::spdlog spdlog::spdlog_header_only)
 target_link_libraries(oopetris PRIVATE nlohmann_json::nlohmann_json)
 target_link_libraries(oopetris PRIVATE magic_enum::magic_enum)
