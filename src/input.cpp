@@ -4,8 +4,6 @@
 #include "key_codes.hpp"
 
 void Input::handle_event(const InputEvent event) {
-    spdlog::info("handling event {} in step {}", magic_enum::enum_name(event), Application::simulation_step_index());
-
     if (m_on_event_callback) {
         m_on_event_callback(event);
     }
