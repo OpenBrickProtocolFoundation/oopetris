@@ -140,13 +140,11 @@ void TetrisApplication::try_load_settings() try {
     const auto num_tetrions = seeds.size();
     auto headers = TetrionHeaders{};
     headers.reserve(num_tetrions);
-    const auto common_seed = Random::generate_seed();
     for (u8 tetrion_index = 0; tetrion_index < num_tetrions; ++tetrion_index) {
-        const auto tetrion_seed = seed_for_tetrion(tetrion_index, common_seed);
+        assert(tetrion_index < seeds.size());
+        const auto tetrion_seed = seeds[tetrion_index];
         const auto starting_level = starting_level_for_tetrion(tetrion_index);
         headers.push_back(Recording::TetrionHeader{ .seed{ tetrion_seed }, .starting_level{ starting_level } });
-        spdlog::info("seed for tetrion {}: {}", tetrion_index, tetrion_seed);
-        spdlog::info("starting level for tetrion {}: {}", tetrion_index, starting_level);
     }
     return headers;
 }
@@ -169,7 +167,9 @@ void TetrisApplication::try_load_settings() try {
     seeds.reserve(num_tetrions);
     const auto common_seed = Random::generate_seed();
     for (u8 tetrion_index = 0; tetrion_index < num_tetrions; ++tetrion_index) {
-        seeds.push_back(seed_for_tetrion(tetrion_index, common_seed));
+        const auto seed = seed_for_tetrion(tetrion_index, common_seed);
+        spdlog::info("seed for tetrion {}: {}", tetrion_index, seed);
+        seeds.push_back(seed);
     }
     return seeds;
 }
