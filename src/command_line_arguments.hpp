@@ -44,7 +44,7 @@ public:
             }
 
             const auto level = parser.get<int>("--level");
-            if (level >= 0) {
+            if (level >= 0 and level <= 30) {
                 starting_level = level;
             } else {
                 spdlog::error(
