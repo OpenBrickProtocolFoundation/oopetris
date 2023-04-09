@@ -15,7 +15,7 @@ private:
 public:
     tl::optional<std::filesystem::path> recording_path{};
     u64 target_fps{ default_target_fps };
-    int starting_level{ default_starting_level };
+    i32 starting_level{ default_starting_level };
 
     CommandLineArguments(int argc, char** argv) {
         argparse::ArgumentParser parser{ "oopetris", "0.0.1", argparse::default_arguments::all };
