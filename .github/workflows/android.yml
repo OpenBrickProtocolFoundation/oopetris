@@ -33,15 +33,10 @@ jobs:
             - name: Setup Android SDK
               uses: android-actions/setup-android@v2
 
-            - name: Install cmake >= 3.25
-              shell: bash
+            - name: Setup Meson
               run: |
-                  sudo apt-get update
-                  sudo apt-get install gpg wget
-                  wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | sudo tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null
-                  echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ jammy main' | sudo tee /etc/apt/sources.list.d/kitware.list >/dev/null
-                  sudo apt-get update
-                  sudo apt-get install cmake -y
+                  python -m pip install --upgrade pip
+                  pip install meson
 
             - name: Install vcpkg
               shell: bash
@@ -50,14 +45,12 @@ jobs:
                   git clone https://github.com/Microsoft/vcpkg.git
                   "${{github.workspace}}/vcpkg/bootstrap-vcpkg.sh"
 
-            - uses: seanmiddleditch/gha-setup-ninja@master
 
-            - name: Configure CMake
-              run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{ matrix.config.buildtype }} -DCMAKE_TOOLCHAIN_FILE="${{github.workspace}}/vcpkg/scripts/buildsystems/vcpkg.cmake" ${{github.workspace}} -G Ninja
+            - name: Setup ninja
+              uses: seanmiddleditch/gha-setup-ninja@master
 
-            - name: Build
-              # Build your program with the given configuration
-              run: cmake --build ${{github.workspace}}/build -j --config ${{ matrix.config.buildtype }}
+            - name: Run meson
+              run: bash ./android/run.sh
 
           
             - name: Upload artifacts - Android
