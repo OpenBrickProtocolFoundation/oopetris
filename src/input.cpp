@@ -10,33 +10,33 @@ void Input::handle_event(const InputEvent event) {
 
     switch (event) {
         case InputEvent::RotateLeftPressed:
-            m_target_game_manager->handle_input_command(InputCommand::RotateLeft);
+            m_target_tetrion->handle_input_command(InputCommand::RotateLeft);
             break;
         case InputEvent::RotateRightPressed:
-            m_target_game_manager->handle_input_command(InputCommand::RotateRight);
+            m_target_tetrion->handle_input_command(InputCommand::RotateRight);
             break;
         case InputEvent::MoveLeftPressed:
             m_keys_hold[HoldableKey::Left] = Application::simulation_step_index() + delayed_auto_shift_frames;
             if (not m_keys_hold.contains(HoldableKey::Right)
-                and not m_target_game_manager->handle_input_command(InputCommand::MoveLeft)) {
+                and not m_target_tetrion->handle_input_command(InputCommand::MoveLeft)) {
                 m_keys_hold[HoldableKey::Left] = Application::simulation_step_index();
             }
             break;
         case InputEvent::MoveRightPressed:
             m_keys_hold[HoldableKey::Right] = Application::simulation_step_index() + delayed_auto_shift_frames;
             if (not m_keys_hold.contains(HoldableKey::Left)
-                and not m_target_game_manager->handle_input_command(InputCommand::MoveRight)) {
+                and not m_target_tetrion->handle_input_command(InputCommand::MoveRight)) {
                 m_keys_hold[HoldableKey::Right] = Application::simulation_step_index();
             }
             break;
         case InputEvent::MoveDownPressed:
-            m_target_game_manager->handle_input_command(InputCommand::MoveDown);
+            m_target_tetrion->handle_input_command(InputCommand::MoveDown);
             break;
         case InputEvent::DropPressed:
-            m_target_game_manager->handle_input_command(InputCommand::Drop);
+            m_target_tetrion->handle_input_command(InputCommand::Drop);
             break;
         case InputEvent::HoldPressed:
-            m_target_game_manager->handle_input_command(InputCommand::Hold);
+            m_target_tetrion->handle_input_command(InputCommand::Hold);
             break;
         case InputEvent::MoveLeftReleased:
             m_keys_hold.erase(HoldableKey::Left);
@@ -45,7 +45,7 @@ void Input::handle_event(const InputEvent event) {
             m_keys_hold.erase(HoldableKey::Right);
             break;
         case InputEvent::MoveDownReleased:
-            m_target_game_manager->handle_input_command(InputCommand::ReleaseMoveDown);
+            m_target_tetrion->handle_input_command(InputCommand::ReleaseMoveDown);
             break;
         case InputEvent::RotateLeftReleased:
         case InputEvent::RotateRightReleased:
@@ -72,9 +72,9 @@ void Input::update() {
             while (target_simulation_step_index <= current_simulation_step_index) {
                 target_simulation_step_index += auto_repeat_rate_frames;
             }
-            if ((key == HoldableKey::Left and not m_target_game_manager->handle_input_command(InputCommand::MoveLeft))
-                or (key == HoldableKey::Right
-                    and not m_target_game_manager->handle_input_command(InputCommand::MoveRight))) {
+            if ((key == HoldableKey::Left and not m_target_tetrion->handle_input_command(InputCommand::MoveLeft))
+                or (key == HoldableKey::Right and not m_target_tetrion->handle_input_command(InputCommand::MoveRight)
+                )) {
                 target_simulation_step_index = current_simulation_step_index + delayed_auto_shift_frames;
             }
         }
@@ -140,12 +140,12 @@ tl::optional<InputEvent> KeyboardInput::sdl_event_to_input_event(const SDL_Event
 }
 
 ReplayInput::ReplayInput(
-        Tetrion* target_game_manager,
+        Tetrion* target_tetrion,
         u8 tetrion_index,
         OnEventCallback on_event_callback,
         RecordingReader* recording_reader
 )
-    : Input{ target_game_manager, std::move(on_event_callback) },
+    : Input{ target_tetrion, std::move(on_event_callback) },
       m_tetrion_index{ tetrion_index },
       m_recording_reader{ recording_reader } { }
 

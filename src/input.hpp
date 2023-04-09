@@ -39,13 +39,13 @@ private:
     std::unordered_map<HoldableKey, u64> m_keys_hold;
 
 protected:
-    Tetrion* m_target_game_manager;
+    Tetrion* m_target_tetrion;
     OnEventCallback m_on_event_callback;
 
 protected:
-    explicit Input(Tetrion* target_game_manager) : m_target_game_manager{ target_game_manager } { }
-    explicit Input(Tetrion* target_game_manager, OnEventCallback on_event_callback)
-        : m_target_game_manager{ target_game_manager },
+    explicit Input(Tetrion* target_tetrion) : m_target_tetrion{ target_tetrion } { }
+    explicit Input(Tetrion* target_tetrion, OnEventCallback on_event_callback)
+        : m_target_tetrion{ target_tetrion },
           m_on_event_callback{ std::move(on_event_callback) } { }
     void handle_event(InputEvent event);
 
@@ -59,15 +59,12 @@ private:
     KeyboardControls m_controls;
 
 public:
-    explicit KeyboardInput(Tetrion* target_game_manager, KeyboardControls controls)
-        : Input{ target_game_manager },
+    explicit KeyboardInput(Tetrion* target_tetrion, KeyboardControls controls)
+        : Input{ target_tetrion },
           m_controls{ controls } { }
 
-    explicit KeyboardInput(Tetrion* target_game_manager,
-            OnEventCallback on_event_callback,
-            KeyboardControls controls
-    )
-        : Input{ target_game_manager, std::move(on_event_callback) },
+    explicit KeyboardInput(Tetrion* target_tetrion, OnEventCallback on_event_callback, KeyboardControls controls)
+        : Input{ target_tetrion, std::move(on_event_callback) },
           m_controls{ controls } { }
 
     void handle_event(const SDL_Event& event) override;
@@ -84,7 +81,7 @@ private:
 
 public:
     ReplayInput(
-            Tetrion* target_game_manager,
+            Tetrion* target_tetrion,
             u8 tetrion_index,
             OnEventCallback on_event_callback,
             RecordingReader* recording_reader
