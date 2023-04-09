@@ -81,7 +81,11 @@ else
     deps += spdlog_dep
 endif
 
-nlohmann_json_dep = dependency('nlohmann_json', required: false)
+nlohmann_json_dep = dependency(
+    'nlohmann_json',
+    required: false,
+    native: native,
+)
 if not nlohmann_json_dep.found()
     deps += dependency(
         'nlohmann_json',
