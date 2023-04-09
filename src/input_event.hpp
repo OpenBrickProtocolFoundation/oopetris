@@ -1,12 +1,18 @@
 #pragma once
 
 enum class InputEvent {
-    RotateLeft,
-    RotateRight,
-    MoveLeft,
-    MoveRight,
-    MoveDown,
-    Drop,
-    ReleaseMoveDown,
-    Hold,
+    RotateLeftPressed,
+    RotateRightPressed,
+    MoveLeftPressed,
+    MoveRightPressed,
+    MoveDownPressed,
+    DropPressed,
+    HoldPressed,
+    RotateLeftReleased,
+    RotateRightReleased,
+    MoveLeftReleased,
+    MoveRightReleased,
+    MoveDownReleased,
+    DropReleased,
+    HoldReleased,
 };

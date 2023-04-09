@@ -10,6 +10,7 @@ find_package(spdlog CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(magic_enum CONFIG REQUIRED)
 find_package(tl-optional CONFIG REQUIRED)
+find_package(tl-expected CONFIG REQUIRED)
 
 set(TARGET_LIST oopetris SDL2::SDL2-static)
 
@@ -58,7 +59,8 @@ add_executable(oopetris
         src/utils.hpp
         src/utils.cpp
         src/command_line_arguments.hpp
-        )
+        src/controls.hpp
+    )
 
 foreach (target ${TARGET_LIST})
     # set warning levels
@@ -98,6 +100,7 @@ target_link_libraries(oopetris PRIVATE nlohmann_json::nlohmann_json)
 target_link_libraries(oopetris PRIVATE magic_enum::magic_enum)
 target_link_libraries(oopetris PRIVATE $<IF:$<TARGET_EXISTS:SDL2_ttf::SDL2_ttf>,SDL2_ttf::SDL2_ttf,SDL2_ttf::SDL2_ttf-static>)
 target_link_libraries(oopetris PRIVATE tl::optional)
+target_link_libraries(oopetris PRIVATE tl::expected)
 
 # static runtime library
 set_property(TARGET ${target} PROPERTY

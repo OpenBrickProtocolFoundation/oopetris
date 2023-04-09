@@ -1,6 +1,6 @@
 #pragma once
 
-#include "key_codes.hpp"
+#include "controls.hpp"
 #include "magic_enum_wrapper.hpp"
 #include "recording.hpp"
 #include <array>
@@ -9,22 +9,6 @@
 #include <variant>
 
 inline constexpr auto max_num_players = 4;
-
-struct KeyboardControls {
-    KeyCode rotate_left = KeyCode::Left;
-    KeyCode rotate_right = KeyCode::Right;
-    KeyCode move_left = KeyCode::A;
-    KeyCode move_right = KeyCode::D;
-    KeyCode move_down = KeyCode::S;
-    KeyCode drop = KeyCode::W;
-    KeyCode hold = KeyCode::Tab;
-};
-
-struct ReplayControls {
-    Recording recording;
-
-    explicit ReplayControls(Recording recording) : recording{ std::move(recording) } { }
-};
 
 inline void to_json(nlohmann::json& j, const KeyboardControls& controls) {
     j = nlohmann::json{
