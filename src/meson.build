@@ -20,6 +20,7 @@ src_files += files(
     'tetrion.cpp',
     'tetrion.hpp',
     'tetris_application.hpp',
+    'tetris_application.cpp',
     'bag.cpp',
     'bag.hpp',
     'font.cpp',

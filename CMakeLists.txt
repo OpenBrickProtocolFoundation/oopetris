@@ -36,6 +36,7 @@ add_executable(oopetris
         src/tetrion.cpp
         src/tetrion.hpp
         src/tetris_application.hpp
+        src/tetris_application.cpp
         src/bag.cpp
         src/bag.hpp
         src/font.cpp
@@ -60,7 +61,7 @@ add_executable(oopetris
         src/utils.cpp
         src/command_line_arguments.hpp
         src/controls.hpp
-    )
+        )
 
 foreach (target ${TARGET_LIST})
     # set warning levels
