@@ -33,8 +33,6 @@ elif cpp.get_id() == 'gcc'
             '-Wno-complain-wrong-lang',
             language: 'cpp',
         )
-
-        add_global_arguments('-Wno-shadow', language: 'cpp')
     endif
 
 elif cpp.get_id() == 'clang'
