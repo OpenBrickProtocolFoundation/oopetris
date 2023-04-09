@@ -23,10 +23,17 @@ if cpp.get_id() == 'msvc'
 elif cpp.get_id() == 'gcc'
     add_project_arguments(
         '-std=c++23',
-        '-Wno-shadow',
-        '-Wno-declaration-after-statement',
         language: 'cpp',
     )
+
+    if host_machine.system() == 'windows'
+        add_project_arguments(
+            '-Wno-shadow',
+            '-Wno-complain-wrong-lang',
+            language: 'cpp',
+        )
+    endif
+
 elif cpp.get_id() == 'clang'
     add_project_arguments('-std=c++2b', language: 'cpp')
 else
