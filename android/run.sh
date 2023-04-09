@@ -4,15 +4,15 @@ set -xe
 
 mkdir -p toolchains
 
-# cd toolchains
+cd toolchains
 
-# export NDK_VER="25c"
+export NDK_VER="25c"
 
-# wget "https://dl.google.com/android/repository/android-ndk-$NDK_VER-linux.zip"
+wget "https://dl.google.com/android/repository/android-ndk-r$NDK_VER-linux.zip"
 
-# unzip -q "android-ndk-r$NDK_VER-linux.zip"
+unzip -q "android-ndk-r$NDK_VER-linux.zip"
 
-# cd ..
+cd ..
 
 export BASE_PATH="$PWD/toolchains/android-ndk-r$NDK_VER"
 
