@@ -26,36 +26,25 @@ public:
         : Application{ "TetrisApplication", WindowPosition::Centered, width, height,
                        std::move(command_line_arguments) } {
         try_load_settings();
-        static constexpr auto num_players = u8{ 1 };
+        static constexpr auto num_tetrions = u8{ 1 };
 
         if (is_replay_mode()) {
             m_recording_reader = std::make_unique<RecordingReader>(*(this->command_line_arguments().recording_path));
         }
 
+        auto seeds = std::vector<Random::Seed>{};
+        seeds.reserve(num_tetrions);
         const auto common_seed = Random::generate_seed();
-        for (u8 tetrion_index = 0; tetrion_index < num_players; ++tetrion_index) {
-            const auto tetrion_seed = seed_for_tetrion(tetrion_index, common_seed);
-            spdlog::info("seed for tetrion {}: {}", tetrion_index + 1, tetrion_seed);
+        for (u8 tetrion_index = 0; tetrion_index < num_tetrions; ++tetrion_index) {
+            seeds.push_back(seed_for_tetrion(tetrion_index, common_seed));
+        }
 
-            if (not is_replay_mode()) {
-                static constexpr auto recordings_directory = "recordings";
-                const auto recording_directory_path = std::filesystem::path{ recordings_directory };
-                if (not std::filesystem::exists(recording_directory_path)) {
-                    std::filesystem::create_directory(recording_directory_path);
-                }
-                const auto filename = fmt::format("{}.rec", utils::current_date_time_iso8601());
-                const auto file_path = recording_directory_path / filename;
+        if (game_is_recorded()) {
+            const auto seeds_span = std::span{ seeds.data(), seeds.size() };
+            m_recording_writer = create_recording_writer(create_tetrion_headers(seeds_span));
+        }
 
-                // todo: add more headers when there are more players
-                auto tetrion_headers = std::vector<Recording::TetrionHeader>{
-                    Recording::TetrionHeader{
-                                             .seed{ tetrion_seed },
-                                             .starting_level{ this->command_line_arguments().starting_level },
-                                             }
-                };
-                m_recording_writer = std::make_unique<RecordingWriter>(file_path, std::move(tetrion_headers));
-            };
-
+        for (u8 tetrion_index = 0; tetrion_index < num_tetrions; ++tetrion_index) {
             const auto recording_writer_optional = [&]() -> tl::optional<RecordingWriter*> {
                 if (m_recording_writer) {
                     return m_recording_writer.get();
@@ -63,13 +52,12 @@ public:
                 return tl::nullopt;
             }();
 
-            const auto starting_level =
-                    (is_replay_mode() ? m_recording_reader->tetrion_headers().at(tetrion_index).starting_level
-                                      : this->command_line_arguments().starting_level);
+            const auto starting_level = starting_level_for_tetrion(tetrion_index);
+            spdlog::info("starting level for tetrion {}: {}", tetrion_index, starting_level);
 
-            spdlog::info("starting level for player {}: {}", tetrion_index + 1, starting_level);
-
-            m_tetrions.push_back(std::make_unique<Tetrion>(tetrion_seed, starting_level, recording_writer_optional));
+            m_tetrions.push_back(
+                    std::make_unique<Tetrion>(seeds.at(tetrion_index), starting_level, recording_writer_optional)
+            );
 
             auto on_event_callback = create_on_event_callback(tetrion_index);
 
@@ -160,7 +148,47 @@ private:
         return this->command_line_arguments().recording_path.has_value();
     }
 
+    [[nodiscard]] bool game_is_recorded() const {
+        return not is_replay_mode();
+    }
+
     [[nodiscard]] Random::Seed seed_for_tetrion(const u8 tetrion_index, const Random::Seed common_seed) const {
         return (is_replay_mode() ? m_recording_reader->tetrion_headers().at(tetrion_index).seed : common_seed);
+    }
+
+    [[nodiscard]] auto starting_level_for_tetrion(const u8 tetrion_index) const
+            -> decltype(CommandLineArguments::starting_level) {
+        return is_replay_mode() ? m_recording_reader->tetrion_headers().at(tetrion_index).starting_level
+                                : this->command_line_arguments().starting_level;
+    }
+
+    [[nodiscard]] std::vector<Recording::TetrionHeader> create_tetrion_headers(const std::span<Random::Seed> seeds
+    ) const {
+        const auto num_tetrions = seeds.size();
+        auto headers = std::vector<Recording::TetrionHeader>{};
+        headers.reserve(num_tetrions);
+        const auto common_seed = Random::generate_seed();
+        for (u8 tetrion_index = 0; tetrion_index < num_tetrions; ++tetrion_index) {
+            const auto tetrion_seed = seed_for_tetrion(tetrion_index, common_seed);
+            const auto starting_level = starting_level_for_tetrion(tetrion_index);
+            headers.push_back(Recording::TetrionHeader{ .seed{ tetrion_seed }, .starting_level{ starting_level } });
+            spdlog::info("seed for tetrion {}: {}", tetrion_index, tetrion_seed);
+            spdlog::info("starting level for tetrion {}: {}", tetrion_index, starting_level);
+        }
+        return headers;
+    }
+
+    [[nodiscard]] static std::unique_ptr<RecordingWriter> create_recording_writer(
+            std::vector<Recording::TetrionHeader> tetrion_headers
+    ) {
+        static constexpr auto recordings_directory = "recordings";
+        const auto recording_directory_path = std::filesystem::path{ recordings_directory };
+        if (not std::filesystem::exists(recording_directory_path)) {
+            std::filesystem::create_directory(recording_directory_path);
+        }
+        const auto filename = fmt::format("{}.rec", utils::current_date_time_iso8601());
+        const auto file_path = recording_directory_path / filename;
+
+        return std::make_unique<RecordingWriter>(file_path, std::move(tetrion_headers));
     }
 };
