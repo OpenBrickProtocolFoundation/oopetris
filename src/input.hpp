@@ -6,16 +6,31 @@
 #include "settings.hpp"
 #include "types.hpp"
 #include <filesystem>
+#include <functional>
 #include <tl/optional.hpp>
 #include <unordered_map>
 
 struct GameManager;
 
+enum class InputCommand {
+    MoveLeft,
+    MoveRight,
+    MoveDown,
+    RotateLeft,
+    RotateRight,
+    Drop,
+    Hold,
+    ReleaseMoveDown,
+};
+
 struct Input {
+public:
+    using OnEventCallback = std::function<void(InputEvent)>;
+
 private:
     enum class HoldableKey {
-        Left = static_cast<int>(InputEvent::MoveLeft),
-        Right = static_cast<int>(InputEvent::MoveRight),
+        Left,
+        Right,
     };
 
     static constexpr u64 delayed_auto_shift_frames = 10;
@@ -24,27 +39,15 @@ private:
     std::unordered_map<HoldableKey, u64> m_keys_hold;
 
 protected:
-    enum class Command {
-        MoveLeft,
-        MoveRight,
-        MoveDown,
-        RotateLeft,
-        RotateRight,
-        Hold,
-        Drop,
-    };
-
-    enum class CommandType {
-        KeyDown,
-        KeyUp,
-    };
-
-protected:
     GameManager* m_target_game_manager;
+    OnEventCallback m_on_event_callback;
 
 protected:
     explicit Input(GameManager* target_game_manager) : m_target_game_manager{ target_game_manager } { }
-    void handle_command(Command command, CommandType type);
+    explicit Input(GameManager* target_game_manager, OnEventCallback on_event_callback)
+        : m_target_game_manager{ target_game_manager },
+          m_on_event_callback{ std::move(on_event_callback) } { }
+    void handle_event(InputEvent event);
 
 public:
     virtual void update();
@@ -60,19 +63,28 @@ public:
         : Input{ target_game_manager },
           m_controls{ controls } { }
 
+    explicit KeyboardInput(
+            GameManager* target_game_manager,
+            OnEventCallback on_event_callback,
+            KeyboardControls controls
+    )
+        : Input{ target_game_manager, std::move(on_event_callback) },
+          m_controls{ controls } { }
+
     void handle_event(const SDL_Event& event) override;
 
 private:
-    [[nodiscard]] tl::optional<Input::Command> sdl_key_to_command(SDL_Keycode key) const;
+    [[nodiscard]] tl::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event) const;
 };
 
 struct ReplayInput : public Input {
 private:
-    Recording m_recording;
+    RecordingReader m_recording;
     usize m_next_record_index{ 0 };
 
 public:
-    explicit ReplayInput(GameManager* target_game_manager, Recording recording);
+    ReplayInput(GameManager* target_game_manager, RecordingReader recording);
+    ReplayInput(GameManager* target_game_manager, OnEventCallback on_event_callback, RecordingReader recording);
 
     void update() override;
 

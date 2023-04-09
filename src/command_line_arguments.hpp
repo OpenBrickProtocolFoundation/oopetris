@@ -1,9 +1,9 @@
 #pragma once
 
-#include "spdlog/spdlog.h"
 #include "types.hpp"
 #include <argparse/argparse.hpp>
 #include <filesystem>
+#include <spdlog/spdlog.h>
 #include <string>
 #include <tl/optional.hpp>
 

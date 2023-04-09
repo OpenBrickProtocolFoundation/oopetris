@@ -3,58 +3,60 @@
 #include "game_manager.hpp"
 #include "key_codes.hpp"
 
-void Input::handle_command(Input::Command command, Input::CommandType type) {
-    if (type == CommandType::KeyDown) {
-        switch (command) {
-            case Command::MoveLeft:
-                m_keys_hold[HoldableKey::Left] = Application::simulation_step_index() + delayed_auto_shift_frames;
-                if (not m_keys_hold.contains(HoldableKey::Right)
-                    and not m_target_game_manager->handle_input_event(InputEvent::MoveLeft)) {
-                    m_keys_hold[HoldableKey::Left] = Application::simulation_step_index();
-                }
-                break;
-            case Command::MoveRight:
-                m_keys_hold[HoldableKey::Right] = Application::simulation_step_index() + delayed_auto_shift_frames;
-                if (not m_keys_hold.contains(HoldableKey::Left)
-                    and not m_target_game_manager->handle_input_event(InputEvent::MoveRight)) {
-                    m_keys_hold[HoldableKey::Right] = Application::simulation_step_index();
-                }
-                break;
-            case Command::MoveDown:
-                m_target_game_manager->handle_input_event(InputEvent::MoveDown);
-                break;
-            case Command::RotateLeft:
-                m_target_game_manager->handle_input_event(InputEvent::RotateLeft);
-                break;
-            case Command::RotateRight:
-                m_target_game_manager->handle_input_event(InputEvent::RotateRight);
-                break;
-            case Command::Hold:
-                m_target_game_manager->handle_input_event(InputEvent::Hold);
-                break;
-            case Command::Drop:
-                m_target_game_manager->handle_input_event(InputEvent::Drop);
-                break;
-        }
-    } else if (type == CommandType::KeyUp) {
-        switch (command) {
-            case Command::MoveLeft:
-                m_keys_hold.erase(HoldableKey::Left);
-                break;
-            case Command::MoveRight:
-                m_keys_hold.erase(HoldableKey::Right);
-                break;
-            case Command::MoveDown:
-                m_target_game_manager->handle_input_event(InputEvent::ReleaseMoveDown);
-                break;
-            case Command::RotateLeft:
-            case Command::RotateRight:
-            case Command::Hold:
-            case Command::Drop:
-                break;
-        }
-    } else {
-        assert(false and "unreachable");
+void Input::handle_event(const InputEvent event) {
+    spdlog::info("handling event {} in step {}", magic_enum::enum_name(event), Application::simulation_step_index());
+
+    if (m_on_event_callback) {
+        m_on_event_callback(event);
+    }
+
+    switch (event) {
+        case InputEvent::RotateLeftPressed:
+            m_target_game_manager->handle_input_command(InputCommand::RotateLeft);
+            break;
+        case InputEvent::RotateRightPressed:
+            m_target_game_manager->handle_input_command(InputCommand::RotateRight);
+            break;
+        case InputEvent::MoveLeftPressed:
+            m_keys_hold[HoldableKey::Left] = Application::simulation_step_index() + delayed_auto_shift_frames;
+            if (not m_keys_hold.contains(HoldableKey::Right)
+                and not m_target_game_manager->handle_input_command(InputCommand::MoveLeft)) {
+                m_keys_hold[HoldableKey::Left] = Application::simulation_step_index();
+            }
+            break;
+        case InputEvent::MoveRightPressed:
+            m_keys_hold[HoldableKey::Right] = Application::simulation_step_index() + delayed_auto_shift_frames;
+            if (not m_keys_hold.contains(HoldableKey::Left)
+                and not m_target_game_manager->handle_input_command(InputCommand::MoveRight)) {
+                m_keys_hold[HoldableKey::Right] = Application::simulation_step_index();
+            }
+            break;
+        case InputEvent::MoveDownPressed:
+            m_target_game_manager->handle_input_command(InputCommand::MoveDown);
+            break;
+        case InputEvent::DropPressed:
+            m_target_game_manager->handle_input_command(InputCommand::Drop);
+            break;
+        case InputEvent::HoldPressed:
+            m_target_game_manager->handle_input_command(InputCommand::Hold);
+            break;
+        case InputEvent::MoveLeftReleased:
+            m_keys_hold.erase(HoldableKey::Left);
+            break;
+        case InputEvent::MoveRightReleased:
+            m_keys_hold.erase(HoldableKey::Right);
+            break;
+        case InputEvent::MoveDownReleased:
+            m_target_game_manager->handle_input_command(InputCommand::ReleaseMoveDown);
+            break;
+        case InputEvent::RotateLeftReleased:
+        case InputEvent::RotateRightReleased:
+        case InputEvent::DropReleased:
+        case InputEvent::HoldReleased:
+            break;
+        default:
+            assert(false and "unreachable");
+            break;
     }
 }
 
@@ -72,7 +74,9 @@ void Input::update() {
             while (target_simulation_step_index <= current_simulation_step_index) {
                 target_simulation_step_index += auto_repeat_rate_frames;
             }
-            if (not m_target_game_manager->handle_input_event(static_cast<InputEvent>(key))) {
+            if ((key == HoldableKey::Left and not m_target_game_manager->handle_input_command(InputCommand::MoveLeft))
+                or (key == HoldableKey::Right
+                    and not m_target_game_manager->handle_input_command(InputCommand::MoveRight))) {
                 target_simulation_step_index = current_simulation_step_index + delayed_auto_shift_frames;
             }
         }
@@ -80,46 +84,69 @@ void Input::update() {
 }
 
 void KeyboardInput::handle_event(const SDL_Event& event) {
-    const auto command_type = [&]() -> tl::optional<CommandType> {
-        if (event.type == SDL_KEYDOWN and event.key.repeat == 0) {
-            return CommandType::KeyDown;
-        } else if (event.type == SDL_KEYUP) {
-            return CommandType::KeyUp;
-        }
-        return {};
-    }();
-    const auto is_keydown_or_keyup = command_type.has_value();
-    if (is_keydown_or_keyup) {
-        const auto sdl_key = event.key.keysym.sym;
-        const auto command = sdl_key_to_command(sdl_key);
-        const auto is_command = command.has_value();
-        if (is_command) {
-            handle_command(*command, *command_type);
-        }
+    const auto input_event = sdl_event_to_input_event(event);
+    if (input_event.has_value()) {
+        Input::handle_event(*input_event);
     }
 }
 
-tl::optional<Input::Command> KeyboardInput::sdl_key_to_command(SDL_Keycode key) const {
-    if (key == to_sdl_keycode(m_controls.rotate_left)) {
-        return Command::RotateLeft;
-    } else if (key == to_sdl_keycode(m_controls.rotate_right)) {
-        return Command::RotateRight;
-    } else if (key == to_sdl_keycode(m_controls.move_down)) {
-        return Command::MoveDown;
-    } else if (key == to_sdl_keycode(m_controls.move_left)) {
-        return Command::MoveLeft;
-    } else if (key == to_sdl_keycode(m_controls.move_right)) {
-        return Command::MoveRight;
-    } else if (key == to_sdl_keycode(m_controls.drop)) {
-        return Command::Drop;
-    } else if (key == to_sdl_keycode(m_controls.hold)) {
-        return Command::Hold;
+tl::optional<InputEvent> KeyboardInput::sdl_event_to_input_event(const SDL_Event& event) const {
+    if (event.type == SDL_KEYDOWN and event.key.repeat == 0) {
+        const auto key = event.key.keysym.sym;
+        if (key == to_sdl_keycode(m_controls.rotate_left)) {
+            return InputEvent::RotateLeftPressed;
+        }
+        if (key == to_sdl_keycode(m_controls.rotate_right)) {
+            return InputEvent::RotateRightPressed;
+        }
+        if (key == to_sdl_keycode(m_controls.move_down)) {
+            return InputEvent::MoveDownPressed;
+        }
+        if (key == to_sdl_keycode(m_controls.move_left)) {
+            return InputEvent::MoveLeftPressed;
+        }
+        if (key == to_sdl_keycode(m_controls.move_right)) {
+            return InputEvent::MoveRightPressed;
+        }
+        if (key == to_sdl_keycode(m_controls.drop)) {
+            return InputEvent::DropPressed;
+        }
+        if (key == to_sdl_keycode(m_controls.hold)) {
+            return InputEvent::HoldPressed;
+        }
+    } else if (event.type == SDL_KEYUP) {
+        const auto key = event.key.keysym.sym;
+        if (key == to_sdl_keycode(m_controls.rotate_left)) {
+            return InputEvent::RotateLeftReleased;
+        }
+        if (key == to_sdl_keycode(m_controls.rotate_right)) {
+            return InputEvent::RotateRightReleased;
+        }
+        if (key == to_sdl_keycode(m_controls.move_down)) {
+            return InputEvent::MoveDownReleased;
+        }
+        if (key == to_sdl_keycode(m_controls.move_left)) {
+            return InputEvent::MoveLeftReleased;
+        }
+        if (key == to_sdl_keycode(m_controls.move_right)) {
+            return InputEvent::MoveRightReleased;
+        }
+        if (key == to_sdl_keycode(m_controls.drop)) {
+            return InputEvent::DropReleased;
+        }
+        if (key == to_sdl_keycode(m_controls.hold)) {
+            return InputEvent::HoldReleased;
+        }
     }
     return tl::nullopt;
 }
 
-ReplayInput::ReplayInput(GameManager* target_game_manager, Recording recording)
+ReplayInput::ReplayInput(GameManager* target_game_manager, RecordingReader recording)
     : Input{ target_game_manager },
+      m_recording{ std::move(recording) } { }
+
+ReplayInput::ReplayInput(GameManager* target_game_manager, OnEventCallback on_event_callback, RecordingReader recording)
+    : Input{ target_game_manager, std::move(on_event_callback) },
       m_recording{ std::move(recording) } { }
 
 void ReplayInput::update() {
@@ -135,8 +162,10 @@ void ReplayInput::update() {
             break;
         }
 
-        m_target_game_manager->handle_input_event(record.event);
+        Input::handle_event(record.event);
 
         ++m_next_record_index;
     }
+
+    Input::update();
 }

@@ -43,6 +43,7 @@ src_files += files(
     'utils.hpp',
     'utils.cpp',
     'command_line_arguments.hpp',
+    'controls.hpp',
 )
 
 inc_dirs += include_directories('.')

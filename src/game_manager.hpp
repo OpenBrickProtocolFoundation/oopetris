@@ -65,20 +65,23 @@ private:
     Text m_cleared_lines_text;
     bool m_down_key_pressed = false;
     bool m_is_accelerated_down_movement = false;
-    Recording m_recording;
-    bool m_record_game;
+    tl::optional<RecordingWriter*> m_recording_writer;
     bool m_allowed_to_hold = true;
     u64 m_lock_delay_step_index;
     bool m_is_in_lock_delay = false;
     int m_num_executed_lock_delays = 0;
 
 public:
-    GameManager(Random::Seed random_seed, int starting_level, bool record_game);
+    GameManager(
+            Random::Seed random_seed,
+            int starting_level,
+            tl::optional<RecordingWriter*> recording_writer = tl::nullopt
+    );
     void update();
     void render(const Application& app) const;
 
     // returns if the input event lead to a movement
-    bool handle_input_event(InputEvent event);
+    bool handle_input_command(InputCommand command);
     void spawn_next_tetromino();
     void spawn_next_tetromino(TetrominoType type);
     bool rotate_tetromino_right();
@@ -124,8 +127,6 @@ private:
         }
         return frames;
     }
-
-    void save_recording() const;
 
     static usize rotation_to_index(const Rotation from, const Rotation to) {
         if (from == Rotation::North and to == Rotation::East) {

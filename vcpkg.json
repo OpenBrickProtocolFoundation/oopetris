@@ -37,6 +37,10 @@
       "name": "argparse",
       "version>=": "2.9",
       "platform": "(x64 & static)"
+    },
+    {
+      "name": "tl-expected",
+      "platform": "(x64 & static)"
     }
   ]
 }
