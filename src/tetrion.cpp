@@ -1,11 +1,11 @@
-#include "game_manager.hpp"
 #include "application.hpp"
+#include "tetrion.hpp"
 #include <cassert>
 #include <fstream>
 #include <spdlog/spdlog.h>
 #include <sstream>
 
-GameManager::GameManager(
+Tetrion::Tetrion(
         const Random::Seed random_seed,
         const int starting_level,
         tl::optional<RecordingWriter*> recording_writer
@@ -32,7 +32,7 @@ GameManager::GameManager(
     refresh_texts();
 }
 
-void GameManager::update() {
+void Tetrion::update() {
     switch (m_game_state) {
         case GameState::Playing: {
             if (Application::simulation_step_index() >= m_next_gravity_simulation_step_index) {
@@ -61,7 +61,7 @@ void GameManager::update() {
     }
 }
 
-void GameManager::render(const Application& app) const {
+void Tetrion::render(const Application& app) const {
     m_grid.render(app);
     if (m_active_tetromino) {
         m_active_tetromino->render(app, m_grid);
@@ -80,7 +80,7 @@ void GameManager::render(const Application& app) const {
     m_cleared_lines_text.render(app);
 }
 
-bool GameManager::handle_input_command(const InputCommand command) {
+bool Tetrion::handle_input_command(const InputCommand command) {
     switch (command) {
         case InputCommand::RotateLeft:
             if (rotate_tetromino_left()) {
@@ -136,11 +136,11 @@ bool GameManager::handle_input_command(const InputCommand command) {
     }
 }
 
-void GameManager::spawn_next_tetromino() {
+void Tetrion::spawn_next_tetromino() {
     spawn_next_tetromino(get_next_tetromino_type());
 }
 
-void GameManager::spawn_next_tetromino(const TetrominoType type) {
+void Tetrion::spawn_next_tetromino(const TetrominoType type) {
     static constexpr Point spawn_position{ 3, 0 };
     m_active_tetromino = Tetromino{ spawn_position, type };
     refresh_preview();
@@ -161,15 +161,15 @@ void GameManager::spawn_next_tetromino(const TetrominoType type) {
     refresh_ghost_tetromino();
 }
 
-bool GameManager::rotate_tetromino_right() {
+bool Tetrion::rotate_tetromino_right() {
     return with_lock_delay([&]() { return rotate(RotationDirection::Right); });
 }
 
-bool GameManager::rotate_tetromino_left() {
+bool Tetrion::rotate_tetromino_left() {
     return with_lock_delay([&]() { return rotate(RotationDirection::Left); });
 }
 
-bool GameManager::move_tetromino_down(MovementType movement_type) {
+bool Tetrion::move_tetromino_down(MovementType movement_type) {
     if (not m_active_tetromino) {
         return false;
     }
@@ -193,15 +193,15 @@ bool GameManager::move_tetromino_down(MovementType movement_type) {
     return true;
 }
 
-bool GameManager::move_tetromino_left() {
+bool Tetrion::move_tetromino_left() {
     return with_lock_delay([&]() { return move(MoveDirection::Left); });
 }
 
-bool GameManager::move_tetromino_right() {
+bool Tetrion::move_tetromino_right() {
     return with_lock_delay([&]() { return move(MoveDirection::Right); });
 }
 
-bool GameManager::drop_tetromino() {
+bool Tetrion::drop_tetromino() {
     if (not m_active_tetromino) {
         return false;
     }
@@ -216,7 +216,7 @@ bool GameManager::drop_tetromino() {
     return num_movements > 0;
 }
 
-void GameManager::hold_tetromino() {
+void Tetrion::hold_tetromino() {
     if (not m_active_tetromino.has_value()) {
         return;
     }
@@ -231,11 +231,11 @@ void GameManager::hold_tetromino() {
     }
 }
 
-void GameManager::reset_lock_delay() {
+void Tetrion::reset_lock_delay() {
     m_lock_delay_step_index = Application::simulation_step_index() + lock_delay;
 }
 
-void GameManager::refresh_texts() {
+void Tetrion::refresh_texts() {
     std::stringstream stream;
     stream << "score: " << m_score;
     m_score_text.set_text(stream.str());
@@ -249,7 +249,7 @@ void GameManager::refresh_texts() {
     m_cleared_lines_text.set_text(stream.str());
 }
 
-void GameManager::clear_fully_occupied_lines() {
+void Tetrion::clear_fully_occupied_lines() {
     bool cleared = false;
     const int lines_cleared_before = m_lines_cleared;
     do {
@@ -280,7 +280,7 @@ void GameManager::clear_fully_occupied_lines() {
     m_score += score_per_line_multiplier.at(num_lines_cleared) * (m_level + 1);
 }
 
-void GameManager::lock_active_tetromino() {
+void Tetrion::lock_active_tetromino() {
     // this function assumes that m_active_tetromino is not nullptr
     for (const Mino& mino : m_active_tetromino->minos()) {
         m_grid.set(mino.position(), mino.type());
@@ -294,19 +294,19 @@ void GameManager::lock_active_tetromino() {
     reset_lock_delay();
 }
 
-bool GameManager::is_active_tetromino_position_valid() const {
+bool Tetrion::is_active_tetromino_position_valid() const {
     if (not m_active_tetromino) {
         return false;
     }
     return is_tetromino_position_valid(*m_active_tetromino);
 }
 
-bool GameManager::is_valid_mino_position(Point position) const {
+bool Tetrion::is_valid_mino_position(Point position) const {
     return position.x >= 0 and position.x < Grid::width and position.y >= 0 and position.y < Grid::height
            and m_grid.is_empty(position);
 }
 
-bool GameManager::is_active_tetromino_completely_visible() const {
+bool Tetrion::is_active_tetromino_completely_visible() const {
     if (not m_active_tetromino) {
         return false;
     }
@@ -318,7 +318,7 @@ bool GameManager::is_active_tetromino_completely_visible() const {
     return true;
 }
 
-void GameManager::refresh_ghost_tetromino() {
+void Tetrion::refresh_ghost_tetromino() {
     if (not m_active_tetromino.has_value()) {
         m_ghost_tetromino = {};
         return;
@@ -330,11 +330,11 @@ void GameManager::refresh_ghost_tetromino() {
     m_ghost_tetromino->move_up();
 }
 
-void GameManager::refresh_preview() {
+void Tetrion::refresh_preview() {
     m_preview_tetromino = Tetromino{ Grid::preview_tetromino_position, m_sequence_bags[0][m_sequence_index] };
 }
 
-TetrominoType GameManager::get_next_tetromino_type() {
+TetrominoType Tetrion::get_next_tetromino_type() {
     const TetrominoType next_type = m_sequence_bags[0][m_sequence_index];
     m_sequence_index = (m_sequence_index + 1) % Bag::size();
     if (m_sequence_index == 0) {
@@ -345,7 +345,7 @@ TetrominoType GameManager::get_next_tetromino_type() {
     return next_type;
 }
 
-bool GameManager::is_tetromino_position_valid(const Tetromino& tetromino) const {
+bool Tetrion::is_tetromino_position_valid(const Tetromino& tetromino) const {
     for (const Mino& mino : tetromino.minos()) {
         if (not is_valid_mino_position(mino.position())) {
             return false;
@@ -354,7 +354,7 @@ bool GameManager::is_tetromino_position_valid(const Tetromino& tetromino) const 
     return true;
 }
 
-bool GameManager::rotate(GameManager::RotationDirection rotation_direction) {
+bool Tetrion::rotate(Tetrion::RotationDirection rotation_direction) {
     if (not m_active_tetromino) {
         return false;
     }
@@ -390,7 +390,7 @@ bool GameManager::rotate(GameManager::RotationDirection rotation_direction) {
     return false;
 }
 
-bool GameManager::move(const GameManager::MoveDirection move_direction) {
+bool Tetrion::move(const Tetrion::MoveDirection move_direction) {
     if (not m_active_tetromino) {
         return false;
     }
@@ -416,7 +416,7 @@ bool GameManager::move(const GameManager::MoveDirection move_direction) {
     return false;
 }
 
-tl::optional<const GameManager::WallKickTable&> GameManager::get_wall_kick_table() const {
+tl::optional<const Tetrion::WallKickTable&> Tetrion::get_wall_kick_table() const {
     assert(m_active_tetromino.has_value() and "no active tetromino");
     const auto type = m_active_tetromino->type();
     switch (type) {

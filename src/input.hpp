@@ -10,7 +10,7 @@
 #include <tl/optional.hpp>
 #include <unordered_map>
 
-struct GameManager;
+struct Tetrion;
 
 enum class InputCommand {
     MoveLeft,
@@ -39,12 +39,12 @@ private:
     std::unordered_map<HoldableKey, u64> m_keys_hold;
 
 protected:
-    GameManager* m_target_game_manager;
+    Tetrion* m_target_game_manager;
     OnEventCallback m_on_event_callback;
 
 protected:
-    explicit Input(GameManager* target_game_manager) : m_target_game_manager{ target_game_manager } { }
-    explicit Input(GameManager* target_game_manager, OnEventCallback on_event_callback)
+    explicit Input(Tetrion* target_game_manager) : m_target_game_manager{ target_game_manager } { }
+    explicit Input(Tetrion* target_game_manager, OnEventCallback on_event_callback)
         : m_target_game_manager{ target_game_manager },
           m_on_event_callback{ std::move(on_event_callback) } { }
     void handle_event(InputEvent event);
@@ -59,12 +59,11 @@ private:
     KeyboardControls m_controls;
 
 public:
-    explicit KeyboardInput(GameManager* target_game_manager, KeyboardControls controls)
+    explicit KeyboardInput(Tetrion* target_game_manager, KeyboardControls controls)
         : Input{ target_game_manager },
           m_controls{ controls } { }
 
-    explicit KeyboardInput(
-            GameManager* target_game_manager,
+    explicit KeyboardInput(Tetrion* target_game_manager,
             OnEventCallback on_event_callback,
             KeyboardControls controls
     )
@@ -85,7 +84,7 @@ private:
 
 public:
     ReplayInput(
-            GameManager* target_game_manager,
+            Tetrion* target_game_manager,
             u8 tetrion_index,
             OnEventCallback on_event_callback,
             RecordingReader* recording_reader
