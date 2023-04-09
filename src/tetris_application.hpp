@@ -32,13 +32,13 @@ public:
             m_recording_reader = std::make_unique<RecordingReader>(*(this->command_line_arguments().recording_path));
         }
 
-        const auto random_seed = Random::generate_seed();
+        const auto common_random_seed = Random::generate_seed();
         for (u8 tetrion_index = 0; tetrion_index < num_players; ++tetrion_index) {
             const auto this_players_seed = [&]() {
                 if (is_replay_mode()) {
                     return m_recording_reader->tetrion_headers().at(tetrion_index).seed;
                 } else {
-                    return random_seed;
+                    return common_random_seed;
                 }
             }();
 
