@@ -42,7 +42,7 @@ src_files += files(
     'input_event.hpp',
     'utils.hpp',
     'utils.cpp',
-    'src/command_line_arguments.hpp',
+    'command_line_arguments.hpp',
 )
 
 inc_dirs += include_directories('.')
