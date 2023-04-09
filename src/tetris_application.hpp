@@ -10,6 +10,8 @@
 
 struct TetrisApplication : public Application {
 private:
+    using TetrionHeaders = std::vector<Recording::TetrionHeader>;
+
     static constexpr auto settings_filename = "settings.json";
 
     std::vector<std::unique_ptr<Tetrion>> m_tetrions;
@@ -32,12 +34,7 @@ public:
             m_recording_reader = std::make_unique<RecordingReader>(*(this->command_line_arguments().recording_path));
         }
 
-        auto seeds = std::vector<Random::Seed>{};
-        seeds.reserve(num_tetrions);
-        const auto common_seed = Random::generate_seed();
-        for (u8 tetrion_index = 0; tetrion_index < num_tetrions; ++tetrion_index) {
-            seeds.push_back(seed_for_tetrion(tetrion_index, common_seed));
-        }
+        const auto seeds = create_seeds(num_tetrions);
 
         if (game_is_recorded()) {
             const auto seeds_span = std::span{ seeds.data(), seeds.size() };
@@ -162,10 +159,9 @@ private:
                                 : this->command_line_arguments().starting_level;
     }
 
-    [[nodiscard]] std::vector<Recording::TetrionHeader> create_tetrion_headers(const std::span<Random::Seed> seeds
-    ) const {
+    [[nodiscard]] TetrionHeaders create_tetrion_headers(const std::span<const Random::Seed> seeds) const {
         const auto num_tetrions = seeds.size();
-        auto headers = std::vector<Recording::TetrionHeader>{};
+        auto headers = TetrionHeaders{};
         headers.reserve(num_tetrions);
         const auto common_seed = Random::generate_seed();
         for (u8 tetrion_index = 0; tetrion_index < num_tetrions; ++tetrion_index) {
@@ -178,9 +174,7 @@ private:
         return headers;
     }
 
-    [[nodiscard]] static std::unique_ptr<RecordingWriter> create_recording_writer(
-            std::vector<Recording::TetrionHeader> tetrion_headers
-    ) {
+    [[nodiscard]] static std::unique_ptr<RecordingWriter> create_recording_writer(TetrionHeaders tetrion_headers) {
         static constexpr auto recordings_directory = "recordings";
         const auto recording_directory_path = std::filesystem::path{ recordings_directory };
         if (not std::filesystem::exists(recording_directory_path)) {
@@ -190,5 +184,15 @@ private:
         const auto file_path = recording_directory_path / filename;
 
         return std::make_unique<RecordingWriter>(file_path, std::move(tetrion_headers));
+    }
+
+    [[nodiscard]] std::vector<Random::Seed> create_seeds(const u8 num_tetrions) const {
+        auto seeds = std::vector<Random::Seed>{};
+        seeds.reserve(num_tetrions);
+        const auto common_seed = Random::generate_seed();
+        for (u8 tetrion_index = 0; tetrion_index < num_tetrions; ++tetrion_index) {
+            seeds.push_back(seed_for_tetrion(tetrion_index, common_seed));
+        }
+        return seeds;
     }
 };
