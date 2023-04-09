@@ -63,6 +63,7 @@ endif
 
 deps += dependency('tl-optional', required: true, fallback: ['tl-optional'])
 deps += dependency('magic_enum', required: true, fallback: ['magic_enum'])
+deps += dependency('argparse', required: true, fallback: ['argparse'])
 
 inc_dirs = []
 src_files = []
