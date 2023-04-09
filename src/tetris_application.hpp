@@ -96,10 +96,6 @@ public:
             auto on_event_callback = [&]() -> Input::OnEventCallback {
                 if (m_recording_writer) {
                     return [i, this](InputEvent event) {
-                        spdlog::info(
-                                "recording event {} at step {}", magic_enum::enum_name(event),
-                                Application::simulation_step_index()
-                        );
                         m_recording_writer->add_event(static_cast<u8>(i), Application::simulation_step_index(), event);
                     };
                 } else {
