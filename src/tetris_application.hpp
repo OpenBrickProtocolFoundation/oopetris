@@ -1,8 +1,8 @@
 #pragma once
 
 #include "application.hpp"
-#include "game_manager.hpp"
 #include "settings.hpp"
+#include "tetrion.hpp"
 #include "tetromino_type.hpp"
 #include <cassert>
 #include <fstream>
@@ -12,7 +12,7 @@ struct TetrisApplication : public Application {
 private:
     static constexpr auto settings_filename = "settings.json";
 
-    std::vector<std::unique_ptr<GameManager>> m_game_managers;
+    std::vector<std::unique_ptr<Tetrion>> m_game_managers;
     std::vector<std::unique_ptr<Input>> m_inputs;
     Settings m_settings;
     std::unique_ptr<RecordingWriter> m_recording_writer;
@@ -87,7 +87,7 @@ public:
             spdlog::info("starting level for player {}: {}", tetrion_index + 1, starting_level);
 
             m_game_managers.push_back(
-                    std::make_unique<GameManager>(this_players_seed, starting_level, recording_writer_optional)
+                    std::make_unique<Tetrion>(this_players_seed, starting_level, recording_writer_optional)
             );
 
             auto on_event_callback = create_on_event_callback(tetrion_index);
@@ -128,7 +128,7 @@ protected:
 
 private:
     [[nodiscard]] std::unique_ptr<Input>
-    create_input(Controls controls, GameManager* associated_game_manager, Input::OnEventCallback on_event_callback) {
+    create_input(Controls controls, Tetrion* associated_game_manager, Input::OnEventCallback on_event_callback) {
         return std::visit(
                 overloaded{
                         [&](KeyboardControls& keyboard_controls) -> std::unique_ptr<Input> {
@@ -146,7 +146,7 @@ private:
     [[nodiscard]] static std::unique_ptr<Input> create_recording_input(
             const u8 tetrion_index,
             RecordingReader* const recording_reader,
-            GameManager* const associated_game_manager,
+            Tetrion* const associated_game_manager,
             Input::OnEventCallback on_event_callback
     ) {
         return std::make_unique<ReplayInput>(

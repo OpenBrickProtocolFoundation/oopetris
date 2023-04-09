@@ -1,7 +1,7 @@
 #include "input.hpp"
 #include "application.hpp"
-#include "game_manager.hpp"
 #include "key_codes.hpp"
+#include "tetrion.hpp"
 
 void Input::handle_event(const InputEvent event) {
     if (m_on_event_callback) {
@@ -140,7 +140,7 @@ tl::optional<InputEvent> KeyboardInput::sdl_event_to_input_event(const SDL_Event
 }
 
 ReplayInput::ReplayInput(
-        GameManager* target_game_manager,
+        Tetrion* target_game_manager,
         u8 tetrion_index,
         OnEventCallback on_event_callback,
         RecordingReader* recording_reader

@@ -33,8 +33,8 @@ add_executable(oopetris
         src/tetromino_type.hpp
         src/tetromino_type.cpp
         src/mino.cpp
-        src/game_manager.cpp
-        src/game_manager.hpp
+        src/tetrion.cpp
+        src/tetrion.hpp
         src/tetris_application.hpp
         src/bag.cpp
         src/bag.hpp

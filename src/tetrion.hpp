@@ -25,7 +25,7 @@ enum class MovementType {
     Forced,
 };
 
-struct GameManager final {
+struct Tetrion final {
 private:
     using WallKickTable = std::array<std::array<Point, 5>, 8>;
 
@@ -72,7 +72,7 @@ private:
     int m_num_executed_lock_delays = 0;
 
 public:
-    GameManager(
+    Tetrion(
             Random::Seed random_seed,
             int starting_level,
             tl::optional<RecordingWriter*> recording_writer = tl::nullopt

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "input_event.hpp"
 #include "random.hpp"
 #include "types.hpp"
 #include "utils.hpp"
