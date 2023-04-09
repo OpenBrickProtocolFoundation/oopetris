@@ -1,0 +1,32 @@
+[host_machine]
+system = 'android'
+cpu_family = 'arm'
+cpu = 'arm'
+endian = 'little'
+
+[constants]
+android_ndk = '/home/totto/Code/coder2k/oopetris/toolchain/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin'
+toolchain = '/home/totto/Code/coder2k/oopetris/toolchain/android-ndk-r25c/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi33-'
+outdir = '/home/totto/Code/coder2k/oopetris/build/out'
+
+[binaries]
+c = 'armv7a-linux-androideabi33-clang'
+cpp = 'armv7a-linux-androideabi33-clang++'
+ar = 'llvm-ar'
+ld = 'llvm-link'
+objcopy = 'llvm-objcop'
+strip = 'llvm-strip'
+pkgconfig = '/usr/bin/pkg-config'
+
+[built-in options]
+c_std = 'c11'
+cpp_std = 'c++20'
+prefix = '/home/totto/Code/coder2k/oopetris/build/out'
+c_args = ['-fPIC','-I/home/totto/Code/coder2k/oopetris/build/out/include']
+cpp_args = ['-fPIC','-I/home/totto/Code/coder2k/oopetris/build/out/include']
+c_link_args = ['-fPIE','-L/home/totto/Code/coder2k/oopetris/build/out/lib']
+cpp_link_args = ['-fPIE','-L/home/totto/Code/coder2k/oopetris/build/out/lib']
+
+pkg_config_path = '/home/totto/Code/coder2k/oopetris/build/out/lib/pkgconfig'
+
+default_library = 'static'
