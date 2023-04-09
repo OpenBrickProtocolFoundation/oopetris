@@ -26,6 +26,7 @@ public:
     /* virtual */ static constexpr std::uint32_t serialUUID = 0;
 
     template<class T>
+    requires std::derived_from<T, Transportable> std::shared_ptr<T> 
     static tl::expected<RawBytes, std::string> serialize(const T* transportable) {
         constexpr std::uint32_t data_size = sizeof(T);
 
@@ -78,11 +79,13 @@ public:
     static tl::expected<std::uint32_t, std::string> read_checksum(RawBytes bytes, std::uint32_t data_size);
 
     template<class T>
+    requires std::derived_from<T, Transportable> std::shared_ptr<T> 
     bool is_of_type() const {
         return m_serialUUID == T::serialUUID;
     }
 
     template<class T>
+    requires std::derived_from<T, Transportable> std::shared_ptr<T> 
     std::shared_ptr<T> as_type() const {
         if (!is_of_type<T>()) {
             throw std::bad_cast{};

@@ -6,6 +6,7 @@
 #include "network/network_manager.hpp"
 #include "play_manager.hpp"
 #include "random.hpp"
+#include <concepts>
 #include <cstddef>
 #include <memory>
 #include <stdexcept>
@@ -41,7 +42,8 @@ public:
 // little fast helper,
 //TODO refactor better and move in some reasonable cpp, and don't use exceptions to handle this
 template<class T>
-std::shared_ptr<T> await_exact_one(std::shared_ptr<Connection> connection) {
+requires std::derived_from<T, Transportable> std::shared_ptr<T> await_exact_one(std::shared_ptr<Connection> connection
+) {
     //TODO make this number customizable
     auto send_initializer = connection->wait_for_data(10 * 1000, 100);
     if (!send_initializer.has_value()) {
