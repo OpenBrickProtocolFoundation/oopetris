@@ -40,7 +40,7 @@ inline void from_json(const nlohmann::json& j, KeyboardControls& controls) {
     controls.hold = magic_enum::enum_cast<KeyCode>(str).value();
 }
 
-using Controls = std::variant<KeyboardControls, ReplayControls>;
+using Controls = std::variant<KeyboardControls>;
 
 template<class... Ts>
 struct overloaded : Ts... {
@@ -51,13 +51,12 @@ overloaded(Ts...) -> overloaded<Ts...>;
 
 inline void to_json(nlohmann::json& j, const Controls& controls) {
     std::visit(
-            overloaded{ [&](const KeyboardControls& keyboard_controls) {
-                           to_json(j, keyboard_controls);
-                           j["type"] = "keyboard";
-                       },
-                        [&](const ReplayControls&) {
-                            throw std::exception{}; // should never be serialized
-                        } },
+            overloaded{
+                    [&](const KeyboardControls& keyboard_controls) {
+                        to_json(j, keyboard_controls);
+                        j["type"] = "keyboard";
+                    },
+            },
             controls
     );
 }
