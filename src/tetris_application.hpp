@@ -16,6 +16,7 @@ private:
     std::vector<std::unique_ptr<Input>> m_inputs;
     Settings m_settings;
     std::unique_ptr<RecordingWriter> m_recording_writer;
+    std::unique_ptr<RecordingReader> m_recording_reader;
 
 public:
     static constexpr int width = 800;
@@ -33,28 +34,24 @@ public:
             spdlog::warn("applying default settings");
         }
 
-        static constexpr auto num_players = 1;
+        static constexpr auto num_players = u8{ 1 };
 
         const auto is_recording = this->command_line_arguments().recording_path.has_value();
-        auto recording = [&]() -> tl::optional<RecordingReader> {
-            if (is_recording) {
-                return RecordingReader{ *(this->command_line_arguments().recording_path) };
-            } else {
-                return tl::nullopt;
-            }
-        }();
+        if (is_recording) {
+            m_recording_reader = std::make_unique<RecordingReader>(*(this->command_line_arguments().recording_path));
+        }
 
         const auto random_seed = Random::generate_seed();
-        for (int i = 0; i < num_players; ++i) {
+        for (u8 tetrion_index = 0; tetrion_index < num_players; ++tetrion_index) {
             const auto this_players_seed = [&]() {
                 if (is_recording) {
-                    return recording->tetrion_headers().at(i).seed;
+                    return m_recording_reader->tetrion_headers().at(tetrion_index).seed;
                 } else {
                     return random_seed;
                 }
             }();
 
-            spdlog::info("seed for player {}: {}", i + 1, this_players_seed);
+            spdlog::info("seed for player {}: {}", tetrion_index + 1, this_players_seed);
 
 
             if (not is_recording) {
@@ -84,34 +81,25 @@ public:
             }();
 
             const auto starting_level =
-                    (is_recording ? recording->tetrion_headers().at(i).starting_level
+                    (is_recording ? m_recording_reader->tetrion_headers().at(tetrion_index).starting_level
                                   : this->command_line_arguments().starting_level);
 
-            spdlog::info("starting level for player {}: {}", i + 1, starting_level);
+            spdlog::info("starting level for player {}: {}", tetrion_index + 1, starting_level);
 
             m_game_managers.push_back(
                     std::make_unique<GameManager>(this_players_seed, starting_level, recording_writer_optional)
             );
 
-            auto on_event_callback = [&]() -> Input::OnEventCallback {
-                if (m_recording_writer) {
-                    return [i, this](InputEvent event) {
-                        m_recording_writer->add_event(static_cast<u8>(i), Application::simulation_step_index(), event);
-                    };
-                } else {
-                    return [](InputEvent) {
-                        // we don't want to record events => do nothing
-                    };
-                }
-            }();
+            auto on_event_callback = create_on_event_callback(tetrion_index);
 
+            const auto game_manager = m_game_managers.back().get();
             if (is_recording) {
-                m_inputs.push_back(create_input(
-                        ReplayControls{ *recording }, m_game_managers.back().get(), std::move(on_event_callback)
-                ));
+                m_inputs.push_back(
+                        create_recording_input(tetrion_index, m_recording_reader.get(), game_manager, [](InputEvent) {})
+                );
             } else {
                 m_inputs.push_back(create_input(
-                        std::move(m_settings.controls.at(i)), m_game_managers.back().get(), std::move(on_event_callback)
+                        std::move(m_settings.controls.at(tetrion_index)), game_manager, std::move(on_event_callback)
                 ));
             }
         }
@@ -139,25 +127,43 @@ protected:
     }
 
 private:
-    std::unique_ptr<Input>
+    [[nodiscard]] std::unique_ptr<Input>
     create_input(Controls controls, GameManager* associated_game_manager, Input::OnEventCallback on_event_callback) {
         return std::visit(
-                overloaded{ [&](KeyboardControls& keyboard_controls) -> std::unique_ptr<Input> {
-                               auto keyboard_input = std::make_unique<KeyboardInput>(
-                                       associated_game_manager, std::move(on_event_callback), keyboard_controls
-                               );
-                               m_event_dispatcher.register_listener(keyboard_input.get());
-                               return keyboard_input;
-                           },
-                            [&](ReplayControls& replay_controls) -> std::unique_ptr<Input> {
-                                return std::make_unique<ReplayInput>(
-                                        associated_game_manager, std::move(on_event_callback),
-                                        std::move(replay_controls.recording)
-
-                                );
-                            } },
+                overloaded{
+                        [&](KeyboardControls& keyboard_controls) -> std::unique_ptr<Input> {
+                            auto keyboard_input = std::make_unique<KeyboardInput>(
+                                    associated_game_manager, std::move(on_event_callback), keyboard_controls
+                            );
+                            m_event_dispatcher.register_listener(keyboard_input.get());
+                            return keyboard_input;
+                        },
+                },
                 controls
         );
+    }
+
+    [[nodiscard]] static std::unique_ptr<Input> create_recording_input(
+            const u8 tetrion_index,
+            RecordingReader* const recording_reader,
+            GameManager* const associated_game_manager,
+            Input::OnEventCallback on_event_callback
+    ) {
+        return std::make_unique<ReplayInput>(
+                associated_game_manager, tetrion_index, std::move(on_event_callback), recording_reader
+        );
+    }
+
+    [[nodiscard]] Input::OnEventCallback create_on_event_callback(const int tetrion_index) {
+        if (m_recording_writer) {
+            return [tetrion_index, this](InputEvent event) {
+                m_recording_writer->add_event(
+                        static_cast<u8>(tetrion_index), Application::simulation_step_index(), event
+                );
+            };
+        } else {
+            return Input::OnEventCallback{}; // empty std::function object
+        }
     }
 
     static tl::optional<Settings> load_settings() try {

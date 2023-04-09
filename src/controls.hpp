@@ -3,7 +3,7 @@
 #include "key_codes.hpp"
 #include "recording.hpp"
 
-struct KeyboardControls {
+struct KeyboardControls final {
     KeyCode rotate_left = KeyCode::Left;
     KeyCode rotate_right = KeyCode::Right;
     KeyCode move_left = KeyCode::A;
@@ -11,10 +11,4 @@ struct KeyboardControls {
     KeyCode move_down = KeyCode::S;
     KeyCode drop = KeyCode::W;
     KeyCode hold = KeyCode::Tab;
-};
-
-struct ReplayControls {
-    RecordingReader recording;
-
-    explicit ReplayControls(RecordingReader recording) : recording{ std::move(recording) } { }
 };

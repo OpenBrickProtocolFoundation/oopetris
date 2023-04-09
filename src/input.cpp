@@ -139,13 +139,15 @@ tl::optional<InputEvent> KeyboardInput::sdl_event_to_input_event(const SDL_Event
     return tl::nullopt;
 }
 
-ReplayInput::ReplayInput(GameManager* target_game_manager, RecordingReader recording)
-    : Input{ target_game_manager },
-      m_recording{ std::move(recording) } { }
-
-ReplayInput::ReplayInput(GameManager* target_game_manager, OnEventCallback on_event_callback, RecordingReader recording)
+ReplayInput::ReplayInput(
+        GameManager* target_game_manager,
+        u8 tetrion_index,
+        OnEventCallback on_event_callback,
+        RecordingReader* recording_reader
+)
     : Input{ target_game_manager, std::move(on_event_callback) },
-      m_recording{ std::move(recording) } { }
+      m_tetrion_index{ tetrion_index },
+      m_recording_reader{ recording_reader } { }
 
 void ReplayInput::update() {
     while (true) {
@@ -153,7 +155,14 @@ void ReplayInput::update() {
             break;
         }
 
-        const auto& record = m_recording.at(m_next_record_index);
+        const auto& record = m_recording_reader->at(m_next_record_index);
+
+        if (record.tetrion_index != m_tetrion_index) {
+            // the current record is not for this tetrion => discard record and keep reading
+            ++m_next_record_index;
+            continue;
+        }
+
         const auto is_record_for_current_step = (record.simulation_step_index == Application::simulation_step_index());
 
         if (not is_record_for_current_step) {

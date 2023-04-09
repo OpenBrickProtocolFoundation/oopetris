@@ -79,17 +79,22 @@ private:
 
 struct ReplayInput : public Input {
 private:
-    RecordingReader m_recording;
+    u8 m_tetrion_index;
+    RecordingReader* m_recording_reader;
     usize m_next_record_index{ 0 };
 
 public:
-    ReplayInput(GameManager* target_game_manager, RecordingReader recording);
-    ReplayInput(GameManager* target_game_manager, OnEventCallback on_event_callback, RecordingReader recording);
+    ReplayInput(
+            GameManager* target_game_manager,
+            u8 tetrion_index,
+            OnEventCallback on_event_callback,
+            RecordingReader* recording_reader
+    );
 
     void update() override;
 
 private:
     [[nodiscard]] bool is_end_of_recording() const {
-        return m_next_record_index >= m_recording.num_records();
+        return m_next_record_index >= m_recording_reader->num_records();
     }
 };
