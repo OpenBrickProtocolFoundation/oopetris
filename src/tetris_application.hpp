@@ -32,18 +32,10 @@ public:
             m_recording_reader = std::make_unique<RecordingReader>(*(this->command_line_arguments().recording_path));
         }
 
-        const auto common_random_seed = Random::generate_seed();
+        const auto common_seed = Random::generate_seed();
         for (u8 tetrion_index = 0; tetrion_index < num_players; ++tetrion_index) {
-            const auto this_players_seed = [&]() {
-                if (is_replay_mode()) {
-                    return m_recording_reader->tetrion_headers().at(tetrion_index).seed;
-                } else {
-                    return common_random_seed;
-                }
-            }();
-
-            spdlog::info("seed for player {}: {}", tetrion_index + 1, this_players_seed);
-
+            const auto tetrion_seed = seed_for_tetrion(tetrion_index, common_seed);
+            spdlog::info("seed for tetrion {}: {}", tetrion_index + 1, tetrion_seed);
 
             if (not is_replay_mode()) {
                 static constexpr auto recordings_directory = "recordings";
@@ -57,7 +49,7 @@ public:
                 // todo: add more headers when there are more players
                 auto tetrion_headers = std::vector<Recording::TetrionHeader>{
                     Recording::TetrionHeader{
-                                             .seed{ this_players_seed },
+                                             .seed{ tetrion_seed },
                                              .starting_level{ this->command_line_arguments().starting_level },
                                              }
                 };
@@ -77,8 +69,7 @@ public:
 
             spdlog::info("starting level for player {}: {}", tetrion_index + 1, starting_level);
 
-            m_tetrions.push_back(std::make_unique<Tetrion>(this_players_seed, starting_level, recording_writer_optional)
-            );
+            m_tetrions.push_back(std::make_unique<Tetrion>(tetrion_seed, starting_level, recording_writer_optional));
 
             auto on_event_callback = create_on_event_callback(tetrion_index);
 
@@ -167,5 +158,9 @@ private:
 
     [[nodiscard]] bool is_replay_mode() const {
         return this->command_line_arguments().recording_path.has_value();
+    }
+
+    [[nodiscard]] Random::Seed seed_for_tetrion(const u8 tetrion_index, const Random::Seed common_seed) const {
+        return (is_replay_mode() ? m_recording_reader->tetrion_headers().at(tetrion_index).seed : common_seed);
     }
 };
