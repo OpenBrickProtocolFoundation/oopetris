@@ -28,15 +28,14 @@ public:
         try_load_settings();
         static constexpr auto num_players = u8{ 1 };
 
-        const auto is_recording = this->command_line_arguments().recording_path.has_value();
-        if (is_recording) {
+        if (is_replay_mode()) {
             m_recording_reader = std::make_unique<RecordingReader>(*(this->command_line_arguments().recording_path));
         }
 
         const auto random_seed = Random::generate_seed();
         for (u8 tetrion_index = 0; tetrion_index < num_players; ++tetrion_index) {
             const auto this_players_seed = [&]() {
-                if (is_recording) {
+                if (is_replay_mode()) {
                     return m_recording_reader->tetrion_headers().at(tetrion_index).seed;
                 } else {
                     return random_seed;
@@ -46,7 +45,7 @@ public:
             spdlog::info("seed for player {}: {}", tetrion_index + 1, this_players_seed);
 
 
-            if (not is_recording) {
+            if (not is_replay_mode()) {
                 static constexpr auto recordings_directory = "recordings";
                 const auto recording_directory_path = std::filesystem::path{ recordings_directory };
                 if (not std::filesystem::exists(recording_directory_path)) {
@@ -73,8 +72,8 @@ public:
             }();
 
             const auto starting_level =
-                    (is_recording ? m_recording_reader->tetrion_headers().at(tetrion_index).starting_level
-                                  : this->command_line_arguments().starting_level);
+                    (is_replay_mode() ? m_recording_reader->tetrion_headers().at(tetrion_index).starting_level
+                                      : this->command_line_arguments().starting_level);
 
             spdlog::info("starting level for player {}: {}", tetrion_index + 1, starting_level);
 
@@ -84,7 +83,7 @@ public:
             auto on_event_callback = create_on_event_callback(tetrion_index);
 
             const auto tetrion_pointer = m_tetrions.back().get();
-            if (is_recording) {
+            if (is_replay_mode()) {
                 m_inputs.push_back(create_recording_input(
                         tetrion_index, m_recording_reader.get(), tetrion_pointer, [](InputEvent) {}
                 ));
@@ -164,5 +163,9 @@ private:
     } catch (...) {
         spdlog::error("unable to load settings from \"{}\"", settings_filename);
         spdlog::warn("applying default settings");
+    }
+
+    [[nodiscard]] bool is_replay_mode() const {
+        return this->command_line_arguments().recording_path.has_value();
     }
 };
