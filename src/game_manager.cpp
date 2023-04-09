@@ -8,9 +8,10 @@
 #include <sstream>
 #include <utility>
 
-GameManager::GameManager(const Random::Seed random_seed, const bool record_game)
+GameManager::GameManager(const Random::Seed random_seed, const int starting_level, const bool record_game)
     : m_random{ random_seed },
       m_grid{ Point::zero(), tile_size },
+      m_level{ starting_level },
       m_next_gravity_simulation_step_index{ get_gravity_delay_frames() },
       m_recording{ random_seed },
       m_record_game{ record_game },

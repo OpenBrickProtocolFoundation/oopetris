@@ -20,8 +20,9 @@ public:
     static constexpr int width = 800;
     static constexpr int height = 600;
 
-    explicit TetrisApplication(const tl::optional<std::filesystem::path>& recording_path)
-        : Application{ "TetrisApplication", WindowPosition::Centered, width, height } {
+    explicit TetrisApplication(CommandLineArguments command_line_arguments)
+        : Application{ "TetrisApplication", WindowPosition::Centered, width, height,
+                       std::move(command_line_arguments) } {
         const auto settings = load_settings();
         if (settings.has_value()) {
             m_settings = *settings;
@@ -33,12 +34,12 @@ public:
 
         static constexpr auto num_players = 1;
 
-        const auto is_recording = recording_path.has_value();
+        const auto is_recording = this->command_line_arguments().recording_path.has_value();
         auto recording = [&]() -> tl::optional<Recording> {
             if (is_recording) {
-                return Recording{ *recording_path };
+                return Recording{ *(this->command_line_arguments().recording_path) };
             } else {
-                return {};
+                return tl::nullopt;
             }
         }();
 
@@ -46,7 +47,9 @@ public:
         for (int i = 0; i < num_players; ++i) {
             spdlog::info("seed for player {}: {}", i + 1, random_seed);
             const auto record_game = not is_recording;
-            m_game_managers.push_back(std::make_unique<GameManager>(random_seed, record_game));
+            m_game_managers.push_back(std::make_unique<GameManager>(
+                    random_seed, this->command_line_arguments().starting_level, record_game
+            ));
 
             if (is_recording) {
                 m_inputs.push_back(create_input(ReplayControls{ std::move(*recording) }, m_game_managers.back().get()));
