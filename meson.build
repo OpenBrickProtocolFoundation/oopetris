@@ -32,6 +32,8 @@ elif cpp.get_id() == 'gcc'
             '-Wno-complain-wrong-lang',
             language: 'cpp',
         )
+
+        add_global_arguments('-Wno-shadow', language: 'cpp')
     endif
 
 elif cpp.get_id() == 'clang'
@@ -42,7 +44,24 @@ endif
 
 deps = []
 
-deps += dependency('sdl2', 'SDL2', required: true, fallback: 'sdl2')
+if cpp.get_id() == 'gcc' and host_machine.system() == 'windows'
+    deps += dependency(
+        'sdl2',
+        'SDL2',
+        required: true,
+        fallback: 'sdl2',
+        default_options: [
+            'buildtype=release',
+            'optimization=3',
+            'strip=true',
+            'b_ndebug=if-release',
+            'cpp_args=-Wno-shadow',
+        ],
+    )
+else
+    deps += dependency('sdl2', 'SDL2', required: true, fallback: 'sdl2')
+endif
+
 deps += dependency('sdl2_ttf', 'SDL2_ttf', required: true, fallback: 'sdl2_ttf')
 deps += dependency('spdlog', required: true, fallback: 'spdlog')
 deps += dependency('nlohmann_json', required: true, fallback: 'nlohmann_json')
@@ -62,6 +81,9 @@ executable(
     src_files,
     include_directories: inc_dirs,
     dependencies: deps,
+    cpp_args: [
+        
+    ],
     override_options: [
         'warning_level=3',
         'werror=true',
