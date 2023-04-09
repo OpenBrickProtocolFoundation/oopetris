@@ -73,7 +73,7 @@ private:
     int m_num_executed_lock_delays = 0;
 
 public:
-    GameManager(Random::Seed random_seed, bool record_game);
+    GameManager(Random::Seed random_seed, int starting_level, bool record_game);
     void update();
     void render(const Application& app) const;
 
