@@ -12,7 +12,7 @@ struct TetrisApplication : public Application {
 private:
     static constexpr auto settings_filename = "settings.json";
 
-    std::vector<std::unique_ptr<Tetrion>> m_game_managers;
+    std::vector<std::unique_ptr<Tetrion>> m_tetrions;
     std::vector<std::unique_ptr<Input>> m_inputs;
     Settings m_settings;
     std::unique_ptr<RecordingWriter> m_recording_writer;
@@ -86,25 +86,24 @@ public:
 
             spdlog::info("starting level for player {}: {}", tetrion_index + 1, starting_level);
 
-            m_game_managers.push_back(
-                    std::make_unique<Tetrion>(this_players_seed, starting_level, recording_writer_optional)
+            m_tetrions.push_back(std::make_unique<Tetrion>(this_players_seed, starting_level, recording_writer_optional)
             );
 
             auto on_event_callback = create_on_event_callback(tetrion_index);
 
-            const auto game_manager = m_game_managers.back().get();
+            const auto tetrion_pointer = m_tetrions.back().get();
             if (is_recording) {
-                m_inputs.push_back(
-                        create_recording_input(tetrion_index, m_recording_reader.get(), game_manager, [](InputEvent) {})
-                );
+                m_inputs.push_back(create_recording_input(
+                        tetrion_index, m_recording_reader.get(), tetrion_pointer, [](InputEvent) {}
+                ));
             } else {
                 m_inputs.push_back(create_input(
-                        std::move(m_settings.controls.at(tetrion_index)), game_manager, std::move(on_event_callback)
+                        std::move(m_settings.controls.at(tetrion_index)), tetrion_pointer, std::move(on_event_callback)
                 ));
             }
         }
-        for (const auto& game_manager : m_game_managers) {
-            game_manager->spawn_next_tetromino();
+        for (const auto& tetrion : m_tetrions) {
+            tetrion->spawn_next_tetromino();
         }
     }
 
@@ -114,26 +113,26 @@ protected:
             input->update();
         }
 
-        for (const auto& game_manager : m_game_managers) {
-            game_manager->update();
+        for (const auto& tetrion : m_tetrions) {
+            tetrion->update();
         }
     }
 
     void render() const override {
         Application::render(); // call parent function to clear the screen
-        for (const auto& game_manager : m_game_managers) {
-            game_manager->render(*this);
+        for (const auto& tetrion : m_tetrions) {
+            tetrion->render(*this);
         }
     }
 
 private:
     [[nodiscard]] std::unique_ptr<Input>
-    create_input(Controls controls, Tetrion* associated_game_manager, Input::OnEventCallback on_event_callback) {
+    create_input(Controls controls, Tetrion* associated_tetrion, Input::OnEventCallback on_event_callback) {
         return std::visit(
                 overloaded{
                         [&](KeyboardControls& keyboard_controls) -> std::unique_ptr<Input> {
                             auto keyboard_input = std::make_unique<KeyboardInput>(
-                                    associated_game_manager, std::move(on_event_callback), keyboard_controls
+                                    associated_tetrion, std::move(on_event_callback), keyboard_controls
                             );
                             m_event_dispatcher.register_listener(keyboard_input.get());
                             return keyboard_input;
@@ -146,11 +145,11 @@ private:
     [[nodiscard]] static std::unique_ptr<Input> create_recording_input(
             const u8 tetrion_index,
             RecordingReader* const recording_reader,
-            Tetrion* const associated_game_manager,
+            Tetrion* const associated_tetrion,
             Input::OnEventCallback on_event_callback
     ) {
         return std::make_unique<ReplayInput>(
-                associated_game_manager, tetrion_index, std::move(on_event_callback), recording_reader
+                associated_tetrion, tetrion_index, std::move(on_event_callback), recording_reader
         );
     }
 
