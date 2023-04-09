@@ -14,6 +14,9 @@ private:
     struct Record {
         usize simulation_step_index;
         InputEvent event;
+        Record(usize simulation_step_index, InputEvent event)
+            : simulation_step_index{ simulation_step_index },
+              event{ event } { }
     };
 
     Random::Seed m_seed;
@@ -50,12 +53,7 @@ public:
     }
 
     void add_record(const usize simulation_step_index, const InputEvent event) {
-        //TODO: can this be solved in a better way?
-#ifdef __clang__
-        m_records.push_back(Record{ simulation_step_index, event });
-#else
         m_records.emplace_back(simulation_step_index, event);
-#endif
     }
 
     [[nodiscard]] const Record& at(const usize index) const {
