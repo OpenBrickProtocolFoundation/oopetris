@@ -28,12 +28,7 @@ elif cpp.get_id() == 'gcc'
     )
 
     if host_machine.system() == 'windows'
-        compile_args += ['-Wno-shadow']
-        add_project_arguments(
-            '-Wno-shadow',
-            '-Wno-complain-wrong-lang',
-            language: 'cpp',
-        )
+        compile_args += ['-Wno-shadow', '-Wno-complain-wrong-lang']
     endif
 
 elif cpp.get_id() == 'clang'
