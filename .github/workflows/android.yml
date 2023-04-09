@@ -15,41 +15,15 @@ jobs:
               with:
                   fetch-depth: "0"
 
-            - name: Install Android Tools
-              shell: bash
-              run: |
-                  sudo apt-get update
-                  sudo apt install curl pkg-config zip unzip tar git openjdk-19-jdk ant android-sdk-platform-tools-common -y
-                  mkdir toolchains
-
-            - name: Install Android NDK
-              uses: ravinderjangra/android-ndk-toolchain-setup@0.2
-              with:
-                api: '33'
-                arch: 'x86'
-                install-location: 'toolchains'
-                force: true
-
-            - name: Setup Android SDK
-              uses: android-actions/setup-android@v2
-
             - name: Setup Meson
               run: |
                   python -m pip install --upgrade pip
                   pip install meson
 
-            - name: Install vcpkg
-              shell: bash
-              run: |
-                  cd "${{github.workspace}}"
-                  git clone https://github.com/Microsoft/vcpkg.git
-                  "${{github.workspace}}/vcpkg/bootstrap-vcpkg.sh"
-
-
             - name: Setup ninja
               uses: seanmiddleditch/gha-setup-ninja@master
 
-            - name: Run meson
+            - name: Run all
               run: bash ./android/run.sh
 
           
