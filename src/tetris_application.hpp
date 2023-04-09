@@ -90,7 +90,7 @@ public:
                 ));
             } else {
                 m_inputs.push_back(create_input(
-                        std::move(m_settings.controls.at(tetrion_index)), tetrion_pointer, std::move(on_event_callback)
+                        m_settings.controls.at(tetrion_index), tetrion_pointer, std::move(on_event_callback)
                 ));
             }
         }
