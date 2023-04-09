@@ -25,15 +25,7 @@ public:
     explicit TetrisApplication(CommandLineArguments command_line_arguments)
         : Application{ "TetrisApplication", WindowPosition::Centered, width, height,
                        std::move(command_line_arguments) } {
-        const auto settings = load_settings();
-        if (settings.has_value()) {
-            m_settings = *settings;
-            spdlog::info("settings loaded");
-        } else {
-            spdlog::error("unable to load settings from \"{}\"", settings_filename);
-            spdlog::warn("applying default settings");
-        }
-
+        try_load_settings();
         static constexpr auto num_players = u8{ 1 };
 
         const auto is_recording = this->command_line_arguments().recording_path.has_value();
@@ -165,11 +157,12 @@ private:
         }
     }
 
-    static tl::optional<Settings> load_settings() try {
+    void try_load_settings() try {
         std::ifstream settings_file{ settings_filename };
-        Settings settings = nlohmann::json::parse(settings_file);
-        return settings;
+        m_settings = nlohmann::json::parse(settings_file);
+        spdlog::info("settings loaded");
     } catch (...) {
-        return {};
+        spdlog::error("unable to load settings from \"{}\"", settings_filename);
+        spdlog::warn("applying default settings");
     }
 };
