@@ -248,11 +248,11 @@ void Tetrion::refresh_texts() {
     stream << "score: " << m_score;
     m_score_text.set_text(stream.str());
 
-    stream = {};
+    stream = std::stringstream{};
     stream << "level: " << m_level;
     m_level_text.set_text(stream.str());
 
-    stream = {};
+    stream = std::stringstream{};
     stream << "lines: " << m_lines_cleared;
     m_cleared_lines_text.set_text(stream.str());
 }

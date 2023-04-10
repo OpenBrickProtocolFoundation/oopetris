@@ -44,10 +44,12 @@ else
 endif
 
 deps = []
+inc_dirs = []
 
 native = true
 if meson.is_cross_build() and host_machine.system() == 'android'
     native = false
+    inc_dirs += include_directories('android/helper_headers')
 endif
 
 
@@ -144,7 +146,6 @@ deps += dependency(
 )
 
 
-inc_dirs = []
 src_files = []
 
 subdir('src')
