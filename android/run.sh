@@ -25,12 +25,9 @@ export ABI="armeabi-v7a"
 
 export SDK_VERSION="33"
 
-export ANDROID_SDK_HOME="/home/totto/Android/Sdk"
-export ANDROID_NDK_HOME="${ANDROID_SDK_HOME}/ndk/25.2.9519653"
-export ANDROID_NDK="$ANDROID_NDK_HOME"
-export BASE_PATH="$ANDROID_NDK_HOME"
+export ANDROID_NDK_HOME="$BASE_PATH"
+export ANDROID_NDK="$BASE_PATH"
 
-export TOOLCHAIN="$BASE_PATH/build/cmake/android.toolchain.cmake"
 export HOST_ROOT="$BASE_PATH/toolchains/llvm/prebuilt/linux-x86_64"
 # export SYS_ROOT="${HOST_ROOT}/sysroot"
 export SYS_ROOT="${HOST_ROOT}/sysroot_sym"
@@ -45,21 +42,20 @@ INC_PATH="${SYS_ROOT}/usr/include"
 
 # XXX I not sure how much of this cmake config is actually having an impact
 export CMAKE_PREFIX_PATH="$SYS_ROOT"
-export CMAKE_ROOT="$ANDROID_SDK_HOME/cmake/3.22.1"
 export CMAKE_LIBRARY_PATH="$LIB_PATH"
 export CMAKE_INCLUDE_PATH="$INC_PATH"
 
 export LIBRARY_PATH="$SYS_ROOT/usr/lib/$ARCH-linux-androideabi/$SDK_VERSION"
 
-export CFLAGS="-DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN} \
-  -DANDROID_STL=c++_shared \
-  -DANDROID_TOOLCHAIN=clang \
-  -DANDROID_PLATFORM=android-${SDK_VERSION} \
-  -DANDROID_ABI=${ABI} \
-  -isystems '$LIBRARY_PATH' \
-  -isystem'usr/lib/$ARCH-linux-androideabi/$SDK_VERSION'
-  "
-export CXXFLAGS="$CFLAGS"
+# export CFLAGS="-DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN} \
+#   -DANDROID_STL=c++_shared \
+#   -DANDROID_TOOLCHAIN=clang \
+#   -DANDROID_PLATFORM=android-${SDK_VERSION} \
+#   -DANDROID_ABI=${ABI} \
+#   -isystems '$LIBRARY_PATH' \
+#   -isystem'usr/lib/$ARCH-linux-androideabi/$SDK_VERSION'
+#   "
+# export CXXFLAGS="$CFLAGS"
 
 LAST_DIR=$PWD
 
@@ -86,6 +82,10 @@ if [ ! -d "$BASE_PATH/toolchains/llvm/prebuilt/linux-x86_64/sysroot_sym/" ]; the
     cd "$LAST_DIR"
 
 fi
+
+export BUILD_DIR="build"
+
+export SDL2_VERSION="2.26.0"
 
 export CC=armv7a-linux-androideabi$SDK_VERSION-clang
 export CPP=armv7a-linux-androideabi$SDK_VERSION-clang++
@@ -121,7 +121,7 @@ llvm-config = 'llvm-config'
 [built-in options]
 c_std = 'c11'
 cpp_std = 'c++20'
-c_args = ['--sysroot=$BASE_PATH/toolchains/llvm/prebuilt/linux-x86_64/sysroot_sym','-fPIE','-fPIC','--target=$ARM_VERSION-none-linux-androideabi','-DHAVE_USR_INCLUDE_MALLOC_H','-D_MALLOC_H', '-I/home/totto/Android/Sdk/ndk/25.2.9519653/sources/android/cpufeatures/']
+c_args = ['--sysroot=$BASE_PATH/toolchains/llvm/prebuilt/linux-x86_64/sysroot_sym','-fPIE','-fPIC','--target=$ARM_VERSION-none-linux-androideabi','-DHAVE_USR_INCLUDE_MALLOC_H','-D_MALLOC_H', '-I$BASE_PATH/sources/android/cpufeatures/']
 cpp_args = ['--sysroot=$BASE_PATH/toolchains/llvm/prebuilt/linux-x86_64/sysroot_sym','-fPIE','-fPIC','--target=$ARM_VERSION-none-linux-androideabi']
 c_link_args = ['-fPIE']
 cpp_link_args = ['-fPIE']
@@ -134,18 +134,32 @@ sys_root = '$BASE_PATH/toolchains/llvm/prebuilt/linux-x86_64/sysroot_sym'
 
 EOF
 
-export BUILD_DIR="build"
-
 export LIBRARY_PATH="$LIBRARY_PATH:usr/lib/$ARCH-linux-androideabi/$SDK_VERSION:$LIB_PATH"
 
+set +e
+
 meson setup $BUILD_DIR \
-    --prefix=${SYS_ROOT} \
-    --includedir=${INC_PATH} \
+    "--prefix=$SYS_ROOT" \
+    "--includedir=$INC_PATH" \
     "--libdir=usr/lib/$ARCH-linux-androideabi/$SDK_VERSION" \
-    "--build.cmake-prefix-path=${SYS_ROOT}" \
+    "--build.cmake-prefix-path=$SYS_ROOT" \
     --cross-file ./android/crossbuilt.ini \
     -Dsdl2:use_hidapi=disabled \
-    -Dsdl2:NDK_ROOT=$ANDROID_NDK \
+    -Dsdl2:test=false
+
+set -e
+
+if [ ! -e "$PWD/subprojects/SDL2-$SDL2_VERSION/src/core/android/cpu-features.c" ]; then
+    ln -s "$BASE_PATH/sources/android/cpufeatures/cpu-features.c" "$PWD/subprojects/SDL2-$SDL2_VERSION/src/core/android/cpu-features.c"
+fi
+
+meson setup --wipe $BUILD_DIR \
+    "--prefix=$SYS_ROOT" \
+    "--includedir=$INC_PATH" \
+    "--libdir=usr/lib/$ARCH-linux-androideabi/$SDK_VERSION" \
+    "--build.cmake-prefix-path=$SYS_ROOT" \
+    --cross-file ./android/crossbuilt.ini \
+    -Dsdl2:use_hidapi=disabled \
     -Dsdl2:test=false
 
 meson compile -C $BUILD_DIR
