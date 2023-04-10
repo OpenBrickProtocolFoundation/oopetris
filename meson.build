@@ -158,13 +158,9 @@ if meson.is_cross_build() and host_machine.system() == 'android'
         include_directories: inc_dirs,
         dependencies: deps,
         cpp_args: compile_args,
-        override_options: [
-            'warning_level=3',
-            'werror=true',
-        ],
+        override_options: ['warning_level=3', 'werror=true'],
         native: native,
     )
-
 
 else
     executable(
