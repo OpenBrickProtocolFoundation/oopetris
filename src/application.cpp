@@ -23,6 +23,21 @@ Application::Application(
       m_renderer{ m_window },
       m_command_line_arguments{ std::move(command_line_arguments) } { }
 
+Application::Application(const std::string& title, WindowPosition position, CommandLineArguments command_line_arguments)
+    : m_window{ title, position },
+      m_renderer{ m_window },
+      m_command_line_arguments{ std::move(command_line_arguments) } { }
+
+Application::Application(
+        const std::string& title,
+        int x,
+        int y,
+        CommandLineArguments command_line_arguments
+)
+    : m_window{ title, x, y, },
+      m_renderer{ m_window },
+      m_command_line_arguments{ std::move(command_line_arguments) } { }
+
 void Application::run() {
     const auto start_time = elapsed_time();
     s_num_steps_simulated = 0;

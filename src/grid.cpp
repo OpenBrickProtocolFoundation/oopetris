@@ -32,10 +32,10 @@ void Grid::draw_small_background(const Application& app, Point position) const {
             preview_top_left + Point{ tile_size().x * preview_extends.x - 1, tile_size().y * preview_extends.y - 1 };
     app.renderer().draw_rect_filled(Rect{ preview_top_left, preview_bottom_right }, background_color);
 
-    const Point outline_top_left = preview_top_left - Point{ 1, 1 };
-    const Point outline_bottom_right = preview_bottom_right + Point{ 1, 1 };
-    const Rect outline_rect = Rect{ outline_top_left, outline_bottom_right };
-    app.renderer().draw_rect_outline(outline_rect, border_color);
+    const Point preview_outline_top_left = preview_top_left - Point{ 1, 1 };
+    const Point preview_outline_bottom_right = preview_bottom_right + Point{ 1, 1 };
+    const Rect preview_outline_rect = Rect{ preview_outline_top_left, preview_outline_bottom_right };
+    app.renderer().draw_rect_outline(preview_outline_rect, border_color);
 }
 void Grid::draw_playing_field_background(const Application& app) const {
     const Point bottom_right{
@@ -43,7 +43,10 @@ void Grid::draw_playing_field_background(const Application& app) const {
         (height - invisible_rows) * m_tile_size,
     };
     app.renderer().draw_rect_filled(Rect{ Point::zero(), bottom_right }, background_color);
-    app.renderer().draw_line(
-            Point{ bottom_right.x + 1, 0 }, Point{ bottom_right.x + 1, app.window().size().y - 1 }, border_color
-    );
+    const Rect outline_rect = Rect{
+        Point{m_offset.x,                   m_offset.y}
+        + Point{         0, invisible_rows * m_tile_size},
+        bottom_right
+    };
+    app.renderer().draw_rect_outline(outline_rect, border_color);
 }

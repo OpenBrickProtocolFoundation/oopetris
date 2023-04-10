@@ -16,6 +16,8 @@ private:
 public:
     Window(const std::string& title, WindowPosition position, int width, int height);
     Window(const std::string& title, int x, int y, int width, int height);
+    Window(const std::string& title, WindowPosition position);
+    Window(const std::string& title, int x, int y);
     Window(const Window&) = delete;
     ~Window();
     Window& operator=(const Window&) = delete;

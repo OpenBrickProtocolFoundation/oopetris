@@ -21,11 +21,13 @@ Tetrion::Tetrion(
       m_lock_delay_step_index{ Application::simulation_step_index() + lock_delay } {
 
 #if defined(__ANDROID__)
-    const auto font_path = "fonts/PressStart2P.ttf";
+    constexpr auto font_path = "fonts/PressStart2P.ttf";
+    constexpr auto font_size = 35;
 #else
-    const auto font_path = "assets/fonts/PressStart2P.ttf";
+    constexpr auto font_path = "assets/fonts/PressStart2P.ttf";
+    constexpr auto font_size = 18;
 #endif
-    m_fonts.push_back(std::make_shared<Font>(font_path, 18));
+    m_fonts.push_back(std::make_shared<Font>(font_path, font_size));
     m_score_text = Text{
         Point{ m_grid.to_screen_coords(Grid::preview_tetromino_position + Point{ 0, Grid::preview_extends.y }) },
         Color::white(), "score: 0", m_fonts.front()
