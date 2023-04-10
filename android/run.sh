@@ -12,7 +12,7 @@ if [ ! -d "$BASE_PATH" ]; then
 
     cd toolchains
 
-    wget "https://dl.google.com/android/repository/android-ndk-r$NDK_VER-linux.zip"
+    wget -q "https://dl.google.com/android/repository/android-ndk-r$NDK_VER-linux.zip"
 
     unzip -q "android-ndk-r$NDK_VER-linux.zip"
 
