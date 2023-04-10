@@ -21,10 +21,10 @@ jobs:
                       os: windows-latest
                       msvc: true
                       buildtype: release
-                    - name: Windows MingGW Release
-                      os: windows-latest
-                      msvc: false
-                      buildtype: release
+                    # - name: Windows MingGW Release
+                    #   os: windows-latest
+                    #   msvc: false
+                    #   buildtype: release
                     - name: Linux Release
                       os: ubuntu-22.04
                       buildtype: release
