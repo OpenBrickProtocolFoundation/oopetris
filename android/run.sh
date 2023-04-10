@@ -147,19 +147,27 @@ meson setup $BUILD_DIR \
     -Dsdl2:use_hidapi=disabled \
     -Dsdl2:test=false
 
-set -e
+EXIT_CODE=$?
 
-if [ ! -e "$PWD/subprojects/SDL2-$SDL2_VERSION/src/core/android/cpu-features.c" ]; then
-    ln -s "$BASE_PATH/sources/android/cpufeatures/cpu-features.c" "$PWD/subprojects/SDL2-$SDL2_VERSION/src/core/android/cpu-features.c"
+if [ $EXIT_CODE -ne 0]; then
+
+    set -e
+
+    if [ ! -e "$PWD/subprojects/SDL2-$SDL2_VERSION/src/core/android/cpu-features.c" ]; then
+        ln -s "$BASE_PATH/sources/android/cpufeatures/cpu-features.c" "$PWD/subprojects/SDL2-$SDL2_VERSION/src/core/android/cpu-features.c"
+    fi
+
+    rm -rf $BUILD_DIR
+
+    meson setup $BUILD_DIR \
+        "--prefix=$SYS_ROOT" \
+        "--includedir=$INC_PATH" \
+        "--libdir=usr/lib/$ARCH-linux-androideabi/$SDK_VERSION" \
+        "--build.cmake-prefix-path=$SYS_ROOT" \
+        --cross-file ./android/crossbuilt.ini \
+        -Dsdl2:use_hidapi=disabled \
+        -Dsdl2:test=false
+
 fi
-
-meson setup --wipe $BUILD_DIR \
-    "--prefix=$SYS_ROOT" \
-    "--includedir=$INC_PATH" \
-    "--libdir=usr/lib/$ARCH-linux-androideabi/$SDK_VERSION" \
-    "--build.cmake-prefix-path=$SYS_ROOT" \
-    --cross-file ./android/crossbuilt.ini \
-    -Dsdl2:use_hidapi=disabled \
-    -Dsdl2:test=false
 
 meson compile -C $BUILD_DIR
