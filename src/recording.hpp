@@ -25,9 +25,6 @@ protected:
         u8 tetrion_index;
         u64 simulation_step_index;
         InputEvent event;
-        Record(usize simulation_step_index, InputEvent event)
-            : simulation_step_index{ simulation_step_index },
-              event{ event } { }
     };
 
     std::vector<TetrionHeader> m_tetrion_headers;
@@ -82,14 +79,6 @@ public:
             }
             m_records.push_back(*record);
         }
-    }
-
-    [[nodiscard]] Random::Seed seed() const {
-        return m_seed;
-    }
-
-    void add_record(const usize simulation_step_index, const InputEvent event) {
-        m_records.emplace_back(simulation_step_index, event);
     }
 
     [[nodiscard]] const Record& at(const usize index) const {
