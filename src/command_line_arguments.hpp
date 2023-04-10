@@ -53,6 +53,7 @@ public:
             }
         } catch (const std::exception& err) {
             spdlog::error("error parsing command line arguments: {}", err.what());
+            //TODO don't call in android 
             std::exit(1);
         }
     }
