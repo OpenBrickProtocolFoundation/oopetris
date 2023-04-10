@@ -9,6 +9,7 @@
 #include <fstream>
 #include <span>
 #include <spdlog/spdlog.h>
+#include <stdexcept>
 
 struct TetrisApplication : public Application {
 private:
