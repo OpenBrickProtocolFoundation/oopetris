@@ -28,6 +28,7 @@ public:
             int height,
             CommandLineArguments command_line_arguments
     );
+
     Application(
             const std::string& title,
             int x,
@@ -36,6 +37,11 @@ public:
             int height,
             CommandLineArguments command_line_arguments
     );
+
+    Application(const std::string& title, WindowPosition position, CommandLineArguments command_line_arguments);
+
+    Application(const std::string& title, int x, int y, CommandLineArguments command_line_arguments);
+
     Application(const Application&) = delete;
     Application& operator=(const Application&) = delete;
 

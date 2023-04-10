@@ -1,7 +1,11 @@
 #include "tetris_application.hpp"
 
 TetrisApplication::TetrisApplication(CommandLineArguments command_line_arguments)
-    : Application{ "TetrisApplication", WindowPosition::Centered, width, height, std::move(command_line_arguments) } {
+#if defined(__ANDROID__)
+    : Application{ "OOPetris", WindowPosition::Centered, std::move(command_line_arguments) } {
+#else
+    : Application{ "OOPetris", WindowPosition::Centered, width, height, std::move(command_line_arguments) } {
+#endif
     try_load_settings();
     static constexpr auto num_tetrions = u8{ 1 };
 
@@ -80,10 +84,15 @@ void TetrisApplication::render() const {
 ) {
     return std::visit(
             overloaded{
-                    [&](KeyboardControls& keyboard_controls) -> std::unique_ptr<Input> {
+                    [&]([[maybe_unused]] KeyboardControls& keyboard_controls) -> std::unique_ptr<Input> {
+#if defined(__ANDROID__)
+                        auto keyboard_input =
+                                std::make_unique<TouchInput>(associated_tetrion, std::move(on_event_callback));
+#else
                         auto keyboard_input = std::make_unique<KeyboardInput>(
                                 associated_tetrion, std::move(on_event_callback), keyboard_controls
                         );
+#endif
                         m_event_dispatcher.register_listener(keyboard_input.get());
                         return keyboard_input;
                     },
