@@ -1,5 +1,6 @@
 project(
     'oopetris',
+    'c',
     'cpp',
     default_options: [
         'buildtype=release',
@@ -146,6 +147,7 @@ inc_dirs = []
 src_files = []
 
 subdir('src')
+
 
 executable(
     'oopetris',
