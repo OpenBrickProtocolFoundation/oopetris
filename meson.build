@@ -150,16 +150,33 @@ src_files = []
 
 subdir('src')
 
+if meson.is_cross_build() and host_machine.system() == 'android'
 
-executable(
-    'oopetris',
-    src_files,
-    include_directories: inc_dirs,
-    dependencies: deps,
-    cpp_args: compile_args,
-    override_options: [
-        'warning_level=3',
-        'werror=true',
-    ],
-    native: native,
-)
+    library(
+        'oopetris',
+        src_files,
+        include_directories: inc_dirs,
+        dependencies: deps,
+        cpp_args: compile_args,
+        override_options: [
+            'warning_level=3',
+            'werror=true',
+        ],
+        native: native,
+    )
+
+
+else
+    executable(
+        'oopetris',
+        src_files,
+        include_directories: inc_dirs,
+        dependencies: deps,
+        cpp_args: compile_args,
+        override_options: [
+            'warning_level=3',
+            'werror=true',
+        ],
+        native: native,
+    )
+endif
