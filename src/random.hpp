@@ -1,6 +1,9 @@
 #pragma once
 
 #include <concepts>
+#if defined(__ANDROID__)
+#include "concepts.hpp"
+#endif
 #include <random>
 
 struct Random {
