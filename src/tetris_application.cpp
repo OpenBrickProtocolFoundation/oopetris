@@ -144,7 +144,7 @@ void TetrisApplication::try_load_settings() try {
         assert(tetrion_index < seeds.size());
         const auto tetrion_seed = seeds[tetrion_index];
         const auto starting_level = starting_level_for_tetrion(tetrion_index);
-        headers.push_back(Recording::TetrionHeader{ .seed{ tetrion_seed }, .starting_level{ starting_level } });
+        headers.push_back(Recording::TetrionHeader{ .seed = tetrion_seed, .starting_level = starting_level });
     }
     return headers;
 }

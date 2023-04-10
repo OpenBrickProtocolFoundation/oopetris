@@ -139,7 +139,7 @@ private:
             return tl::unexpected{ ReadError::Incomplete };
         }
 
-        return TetrionHeader{ .seed{ *seed }, .starting_level{ *starting_level } };
+        return TetrionHeader{ .seed = *seed, .starting_level = *starting_level };
     }
 
     [[nodiscard]] static ReadResult<Record> read_record_from_file(std::ifstream& file) {
@@ -164,9 +164,9 @@ private:
         }
 
         return Record{
-            .tetrion_index{ *tetrion_index },
-            .simulation_step_index{ *simulation_step_index },
-            .event{ static_cast<InputEvent>(*event) }, // todo: validation
+            .tetrion_index = *tetrion_index,
+            .simulation_step_index = *simulation_step_index,
+            .event = static_cast<InputEvent>(*event), // todo: validation
         };
     }
 };
