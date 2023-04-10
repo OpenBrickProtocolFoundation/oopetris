@@ -265,8 +265,9 @@ void Tetrion::clear_fully_occupied_lines() {
 
             if (fully_occupied) {
                 ++m_lines_cleared;
-                if (m_lines_cleared % 10 == 0) {
-                    ++m_level;
+                const auto level = m_lines_cleared / 10;
+                if (level > m_level) {
+                    m_level = level;
                     spdlog::info("new level: {}", m_level);
                 }
                 m_grid.clear_row_and_let_sink(row);
