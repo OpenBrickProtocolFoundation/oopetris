@@ -217,7 +217,6 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     protected static Hashtable<Integer, PointerIcon> mCursors;
     protected static int mLastCursorID;
     protected static SDLGenericMotionListener_API12 mMotionListener;
-    protected static HIDDeviceManager mHIDDeviceManager;
 
     // This is what SDL runs in. It invokes SDL_main(), eventually
     protected static Thread mSDLThread;
@@ -269,12 +268,13 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
      */
     protected String[] getLibraries() {
         return new String[] {
-            "SDL2",
+            "sdl2",
             // "SDL2_image",
             // "SDL2_mixer",
             // "SDL2_net",
-            "SDL2_ttf",
-            "main"
+            "sdl2_ttf",
+            "main",
+            "oopetris"
         };
     }
 
@@ -282,6 +282,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     public void loadLibraries() {
        for (String lib : getLibraries()) {
           SDL.loadLibrary(lib);
+          Log.w(TAG, lib + " loaded");
        }
     }
 
@@ -390,7 +391,6 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
 
         mClipboardHandler = new SDLClipboardHandler();
 
-        mHIDDeviceManager = HIDDeviceManager.acquire(this);
 
         // Set up the surface
         mSurface = createSDLSurface(getApplication());
@@ -457,9 +457,6 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         Log.v(TAG, "onPause()");
         super.onPause();
 
-        if (mHIDDeviceManager != null) {
-            mHIDDeviceManager.setFrozen(true);
-        }
         if (!mHasMultiWindow) {
             pauseNativeThread();
         }
@@ -470,9 +467,6 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         Log.v(TAG, "onResume()");
         super.onResume();
 
-        if (mHIDDeviceManager != null) {
-            mHIDDeviceManager.setFrozen(false);
-        }
         if (!mHasMultiWindow) {
             resumeNativeThread();
         }
@@ -583,10 +577,6 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     protected void onDestroy() {
         Log.v(TAG, "onDestroy()");
 
-        if (mHIDDeviceManager != null) {
-            HIDDeviceManager.release(mHIDDeviceManager);
-            mHIDDeviceManager = null;
-        }
 
         if (SDLActivity.mBrokenLibraries) {
            super.onDestroy();
