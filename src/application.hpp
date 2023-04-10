@@ -20,7 +20,7 @@ private:
 protected:
     EventDispatcher m_event_dispatcher;
 
-public:
+protected:
     Application(
             const std::string& title,
             WindowPosition position,
@@ -29,19 +29,9 @@ public:
             CommandLineArguments command_line_arguments
     );
 
-    Application(
-            const std::string& title,
-            int x,
-            int y,
-            int width,
-            int height,
-            CommandLineArguments command_line_arguments
-    );
-
     Application(const std::string& title, WindowPosition position, CommandLineArguments command_line_arguments);
 
-    Application(const std::string& title, int x, int y, CommandLineArguments command_line_arguments);
-
+public:
     Application(const Application&) = delete;
     Application& operator=(const Application&) = delete;
 
