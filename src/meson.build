@@ -41,8 +41,6 @@ src_files += files(
     'random.hpp',
     'recording.hpp',
     'input_event.hpp',
-    'utils.hpp',
-    'utils.cpp',
     'command_line_arguments.hpp',
     'controls.hpp',
     'mino_stack.hpp',
