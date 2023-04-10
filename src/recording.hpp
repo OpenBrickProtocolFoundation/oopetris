@@ -5,7 +5,7 @@
 #include "tetrion.hpp"
 #include "tetrion_snapshot.hpp"
 #include "types.hpp"
-#include "utils.hpp"
+#include "utils/utils.hpp"
 #include <filesystem>
 #include <fstream>
 #include <spdlog/spdlog.h>
