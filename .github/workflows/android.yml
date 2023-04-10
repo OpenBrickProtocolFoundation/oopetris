@@ -26,9 +26,10 @@ jobs:
             - name: Run all
               run: bash ./android/run.sh
 
-          
-            - name: Upload artifacts - Android
-              uses: actions/upload-artifact@v3
+            - name: Build and Upload apk
+              uses: sparkfabrik/android-build-action@v1.3.4
               with:
-                  name: ${{ matrix.config.name }} Executable
-                  path: build/${{ matrix.config.buildtype }}\oopetris.apk
+                  build-type: assemble
+                  gradle-task: assembleRelease
+                  project-path: android/project
+                  output-path: oopetris.apk
