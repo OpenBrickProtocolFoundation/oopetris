@@ -19,7 +19,13 @@ Tetrion::Tetrion(
       m_next_gravity_simulation_step_index{ get_gravity_delay_frames() },
       m_recording_writer{ recording_writer },
       m_lock_delay_step_index{ Application::simulation_step_index() + lock_delay } {
-    m_fonts.push_back(std::make_shared<Font>("assets/fonts/PressStart2P.ttf", 18));
+
+#if defined(__ANDROID__)
+    const auto font_path = "fonts/PressStart2P.ttf";
+#else
+    const auto font_path = "assets/fonts/PressStart2P.ttf";
+#endif
+    m_fonts.push_back(std::make_shared<Font>(font_path, 18));
     m_score_text = Text{
         Point{ m_grid.to_screen_coords(Grid::preview_tetromino_position + Point{ 0, Grid::preview_extends.y }) },
         Color::white(), "score: 0", m_fonts.front()
