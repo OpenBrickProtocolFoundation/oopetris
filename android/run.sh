@@ -149,7 +149,7 @@ meson setup $BUILD_DIR \
 
 EXIT_CODE=$?
 
-if [ $EXIT_CODE -ne 0]; then
+if [ $EXIT_CODE -ne 0 ]; then
 
     set -e
 
