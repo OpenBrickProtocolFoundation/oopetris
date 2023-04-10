@@ -164,10 +164,10 @@ if [ $EXIT_CODE -ne 0 ]; then
         "--includedir=$INC_PATH" \
         "--libdir=usr/lib/$ARCH-linux-androideabi/$SDK_VERSION" \
         "--build.cmake-prefix-path=$SYS_ROOT" \
-        --cross-file ./android/crossbuilt.ini \
-        -Dsdl2:use_hidapi=disabled \
-        -Dsdl2:test=false
+        --cross-file ./android/crossbuilt.ini
 
 fi
 
 meson compile -C $BUILD_DIR
+
+llvm-readelf --needed-libs ./build/liboopetris.so
