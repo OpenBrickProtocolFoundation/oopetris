@@ -3,7 +3,7 @@ LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := SDL2
-SDL_PATH := ../../../../build-$(TARGET_ARCH_ABI)/subprojects/SDL2-2.26.0
+SDL_PATH := ../../../../build-$(TARGET_ARCH_ABI)/subprojects/SDL2-2.26.5
 LOCAL_C_INCLUDES := $(SDL_PATH)/include
 LOCAL_SRC_FILES := $(SDL_PATH)/libsdl2.so
 include $(PREBUILT_SHARED_LIBRARY)
