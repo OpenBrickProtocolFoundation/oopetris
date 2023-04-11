@@ -68,6 +68,13 @@ void Application::handle_event(const SDL_Event& event) {
     if (event.type == SDL_QUIT or (event.type == SDL_KEYDOWN and event.key.keysym.sym == SDLK_ESCAPE)) {
         m_is_running = false;
     }
+
+#if defined(__ANDROID__)
+    if (event.type == SDL_KEYDOWN and event.key.keysym.sym == SDLK_AC_BACK) {
+        //TODO: also catch the resume event from the app (see SDlActivity.java)
+       // pause()
+    }
+#endif
 }
 
 void Application::render() const {

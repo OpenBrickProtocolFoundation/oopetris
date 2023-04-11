@@ -84,8 +84,6 @@ for INDEX in "${!ARCH_LIST[@]}"; do
 
     export BUILD_DIR="build-$ARM_TARET_ARCH"
 
-    export SDL2_VERSION="2.26.0"
-
     export CC=$ARM_VERSION-linux-$ARM_NAME$SDK_VERSION-clang
     export CPP=$ARM_VERSION-linux-$ARM_NAME$SDK_VERSION-clang++
     export CXX=$CPP
@@ -160,8 +158,6 @@ EOF
 
     ##TODO debug the usage of this
     export LD_FLAGS="-Wl,--no-undefined"
-
-    rm -rf "$BUILD_DIR"
 
     meson setup "$BUILD_DIR" \
         "--prefix=$SYS_ROOT" \
