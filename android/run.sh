@@ -48,11 +48,6 @@ for INDEX in "${!ARCH_LIST[@]}"; do
     LIB_PATH="${SYS_ROOT}/usr/lib/${ARCH}-linux-$ARM_NAME:${SYS_ROOT}/usr/lib/${ARCH}-linux-$ARM_NAME/${SDK_VERSION}"
     INC_PATH="${SYS_ROOT}/usr/include"
 
-    # XXX I not sure how much of this cmake config is actually having an impact
-    export CMAKE_PREFIX_PATH="$SYS_ROOT"
-    export CMAKE_LIBRARY_PATH="$LIB_PATH"
-    export CMAKE_INCLUDE_PATH="$INC_PATH"
-
     export LIBRARY_PATH="$SYS_ROOT/usr/lib/$ARCH-linux-$ARM_NAME/$SDK_VERSION"
 
     LAST_DIR=$PWD
@@ -160,7 +155,6 @@ EOF
         "--prefix=$SYS_ROOT" \
         "--includedir=$INC_PATH" \
         "--libdir=usr/lib/$ARCH-linux-$ARM_NAME/$SDK_VERSION" \
-        "--build.cmake-prefix-path=$SYS_ROOT" \
         --cross-file "./android/crossbuilt-$ARM_TARET_ARCH.ini" \
         -Dsdl2:use_hidapi=disabled \
         -Dsdl2:test=false
