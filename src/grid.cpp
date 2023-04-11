@@ -1,14 +1,13 @@
 #include "grid.hpp"
 
 Grid::Grid(Point offset, int tile_size) : m_offset{ offset - Point{ 0, invisible_rows * tile_size }}, m_tile_size{ tile_size } {
-    m_minos.reserve(num_tiles);
 }
 
-Point Grid::tile_size() const {
+[[nodiscard]] Point Grid::tile_size() const {
     return Point{ m_tile_size, m_tile_size };
 }
 
-Point Grid::to_screen_coords(Point grid_coords) const {
+[[nodiscard]] Point Grid::to_screen_coords(Point grid_coords) const {
     return m_offset + grid_coords * m_tile_size;
 }
 
@@ -16,48 +15,8 @@ void Grid::render(const Application& app) const {
     draw_playing_field_background(app);
     draw_preview_background(app);
     draw_hold_background(app);
-    draw_minos(app);
 }
 
-void Grid::clear_row_and_let_sink(int row) {
-    m_minos.erase(
-            std::remove_if(m_minos.begin(), m_minos.end(), [&](const Mino& mino) { return mino.position().y == row; }),
-            m_minos.end()
-    );
-    for (Mino& mino : m_minos) {
-        if (mino.position().y < row) {
-            ++mino.position().y;
-        }
-    }
-}
-
-bool Grid::is_empty(Point coordinates) const {
-    for (const Mino& mino : m_minos) {
-        if (mino.position() == coordinates) {
-            return false;
-        }
-    }
-    return true;
-}
-
-void Grid::set(Point coordinates, TetrominoType type) {
-    const Mino to_insert = Mino{ coordinates, type };
-    for (Mino& current : m_minos) {
-        if (current.position() == coordinates) {
-            current = to_insert;
-            return;
-        }
-    }
-    m_minos.push_back(to_insert);
-}
-
-void Grid::draw_minos(const Application& app) const {
-    for (const Mino& mino : m_minos) {
-        if (mino.position().y >= invisible_rows) {
-            mino.render(app, *this, false);
-        }
-    }
-}
 
 void Grid::draw_preview_background(const Application& app) const {
     draw_small_background(app, preview_background_position);
