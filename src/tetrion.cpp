@@ -119,9 +119,11 @@ bool Tetrion::handle_input_command(const InputCommand command) {
             }
             return false;
         case InputCommand::MoveDown:
+#if not defined(__ANDROID__)
             m_down_key_pressed = true;
             m_is_accelerated_down_movement = true;
             m_next_gravity_simulation_step_index = Application::simulation_step_index() + get_gravity_delay_frames();
+#endif
             if (move_tetromino_down(MovementType::Forced)) {
                 reset_lock_delay();
                 return true;
