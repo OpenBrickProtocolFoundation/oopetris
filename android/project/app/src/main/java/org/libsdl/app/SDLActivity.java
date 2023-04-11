@@ -61,7 +61,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     private static final String TAG = "SDL";
     private static final int SDL_MAJOR_VERSION = 2;
     private static final int SDL_MINOR_VERSION = 26;
-    private static final int SDL_MICRO_VERSION = 0;
+    private static final int SDL_MICRO_VERSION = 5;
 /*
     // Display InputType.SOURCE/CLASS of events and devices
     //
@@ -282,7 +282,6 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     public void loadLibraries() {
        for (String lib : getLibraries()) {
           SDL.loadLibrary(lib);
-          Log.w(TAG, lib + " loaded");
        }
     }
 
