@@ -101,15 +101,29 @@ private:
 
 #if defined(__ANDROID__)
 struct TouchInput : public Input, public EventListener {
+private:
+    struct PressedState {
+        Uint32 timestamp;
+        float x;
+        float y;
+        explicit PressedState(Uint32 timestamp, float x, float y) : timestamp{ timestamp }, x{ x }, y{ y } { }
+    };
+
+    std::unordered_map<SDL_FingerID, tl::optional<PressedState>> m_finger_state;
+
+
 public:
-    explicit TouchInput(Tetrion* target_tetrion) : Input{ target_tetrion } { }
+    explicit TouchInput(Tetrion* target_tetrion)
+        : Input{ target_tetrion },
+          m_finger_state{ std::unordered_map<SDL_FingerID, tl::optional<PressedState>>{} } { }
 
     explicit TouchInput(Tetrion* target_tetrion, OnEventCallback on_event_callback)
-        : Input{ target_tetrion, std::move(on_event_callback) } { }
+        : Input{ target_tetrion, std::move(on_event_callback) },
+          m_finger_state{ std::unordered_map<SDL_FingerID, tl::optional<PressedState>>{} } { }
 
     void handle_event(const SDL_Event& event) override;
 
 private:
-    [[nodiscard]] tl::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event) const;
+    [[nodiscard]] tl::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event);
 };
 #endif
