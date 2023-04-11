@@ -13,10 +13,10 @@ android {
         if (buildAsApplication) {
             applicationId "com.github.oopetris"
         }
-        minSdkVersion 16
+        minSdkVersion 19
         targetSdkVersion 33
         versionCode 1
-        versionName "1.0"
+        versionName "1.0.0-alpha"
         externalNativeBuild {
             ndkBuild {
                 arguments "APP_PLATFORM=android-33"
