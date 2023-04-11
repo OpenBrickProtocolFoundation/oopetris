@@ -133,11 +133,35 @@ sys_root = '$BASE_PATH/toolchains/llvm/prebuilt/linux-x86_64/$SYM_LINK_PATH'
 
 EOF
 
+    if [ ! -d "$PWD/subprojects/cpu-features" ]; then
+        mkdir -p "$PWD/subprojects/cpu-features/src/"
+        mkdir -p "$PWD/subprojects/cpu-features/include/"
+        ln -s "$BASE_PATH/sources/android/cpufeatures/cpu-features.c" "$PWD/subprojects/cpu-features/src/cpu-features.c"
+        ln -s "$BASE_PATH/sources/android/cpufeatures/cpu-features.h" "$PWD/subprojects/cpu-features/include/cpu-features.h"
+        cat <<EOF >"$PWD/subprojects/cpu-features/meson.build"
+project('cpu-features', 'c')
+
+meson.override_dependency(
+    'cpu-features',
+    declare_dependency(
+        sources: files('src/cpu-features.c'),
+        compile_args: [
+            '-Wno-declaration-after-statement',
+            '-Wno-error',
+        ],
+        include_directories: include_directories('include'),
+    ),
+)
+
+EOF
+    fi
+
     export LIBRARY_PATH="$LIBRARY_PATH:usr/lib/$ARCH-linux-$ARM_NAME/$SDK_VERSION:$LIB_PATH"
 
+    ##TODO debug the usage of this
     export LD_FLAGS="-Wl,--no-undefined"
 
-    set +e
+    rm -rf "$BUILD_DIR"
 
     meson setup "$BUILD_DIR" \
         "--prefix=$SYS_ROOT" \
@@ -148,29 +172,7 @@ EOF
         -Db_asneeded=false -Db_lundef=false \
         -Dsdl2:use_hidapi=disabled \
         -Dsdl2:test=false
-
-    EXIT_CODE=$?
-    set -e
-
-    if [ $EXIT_CODE -ne 0 ]; then
-
-        if [ ! -e "$PWD/subprojects/SDL2-$SDL2_VERSION/src/core/android/cpu-features.c" ]; then
-            ln -s "$BASE_PATH/sources/android/cpufeatures/cpu-features.c" "$PWD/subprojects/SDL2-$SDL2_VERSION/src/core/android/cpu-features.c"
-        fi
-
-        rm -rf "$BUILD_DIR"
-
-        meson setup "$BUILD_DIR" \
-            "--prefix=$SYS_ROOT" \
-            "--includedir=$INC_PATH" \
-            "--libdir=usr/lib/$ARCH-linux-$ARM_NAME/$SDK_VERSION" \
-            "--build.cmake-prefix-path=$SYS_ROOT" \
-            --cross-file "./android/crossbuilt-$ARM_TARET_ARCH.ini" \
-            -Db_asneeded=false -Db_lundef=false \
-            -Dsdl2:use_hidapi=disabled \
-            -Dsdl2:test=false
-
-    fi
+    ##TODO debug the usage of this:   -Db_asneeded=false -Db_lundef=false
 
     meson compile -C "$BUILD_DIR"
 
