@@ -156,19 +156,14 @@ EOF
 
     export LIBRARY_PATH="$LIBRARY_PATH:usr/lib/$ARCH-linux-$ARM_NAME/$SDK_VERSION:$LIB_PATH"
 
-    ##TODO debug the usage of this
-    export LD_FLAGS="-Wl,--no-undefined"
-
     meson setup "$BUILD_DIR" \
         "--prefix=$SYS_ROOT" \
         "--includedir=$INC_PATH" \
         "--libdir=usr/lib/$ARCH-linux-$ARM_NAME/$SDK_VERSION" \
         "--build.cmake-prefix-path=$SYS_ROOT" \
         --cross-file "./android/crossbuilt-$ARM_TARET_ARCH.ini" \
-        -Db_asneeded=false -Db_lundef=false \
         -Dsdl2:use_hidapi=disabled \
         -Dsdl2:test=false
-    ##TODO debug the usage of this:   -Db_asneeded=false -Db_lundef=false
 
     meson compile -C "$BUILD_DIR"
 
