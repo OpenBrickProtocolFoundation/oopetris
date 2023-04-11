@@ -295,9 +295,10 @@ tl::optional<InputEvent> TouchInput::sdl_event_to_input_event(const SDL_Event& e
         const auto y = event.tfinger.y;
         const auto timestamp = event.tfinger.timestamp;
 
-        constexpr auto threshold_x = 300 / screen_w_reference;
+        constexpr auto threshold_x = 150 / screen_w_reference;
         constexpr auto threshold_y = 400 / screen_h_reference;
         constexpr auto duration_threshold = 500;
+        constexpr auto duration_drop_threshold = 200;
 
         const auto dx = x - pressed_state.x;
         const auto dy = y - pressed_state.y;
@@ -326,7 +327,7 @@ tl::optional<InputEvent> TouchInput::sdl_event_to_input_event(const SDL_Event& e
 
 
         // swipe right
-        if (dx < threshold_x && day < threshold_y) {
+        if (dx > threshold_x && day < threshold_y) {
             android_logger->critical("MoveRightPressed dx : {}\n", dx);
             return InputEvent::MoveRightPressed;
         }
@@ -338,8 +339,8 @@ tl::optional<InputEvent> TouchInput::sdl_event_to_input_event(const SDL_Event& e
         // swipe down
         if (dy > threshold_y && dax < threshold_x) {
             android_logger->critical("MoveDownPressed dy : {}\n", dy);
-            // swipe down to drop //TODO this has to be also fast
-            if (dy > 2 * threshold_y && dax < threshold_x) {
+            // swipe down to drop
+            if (duration < duration_drop_threshold) {
                 return InputEvent::DropPressed;
             }
             return InputEvent::MoveDownPressed;
