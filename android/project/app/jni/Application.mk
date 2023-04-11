@@ -8,6 +8,3 @@ APP_ABI := armeabi-v7a arm64-v8a
 
 # Min runtime API level
 APP_PLATFORM=android-33
-
-#TODO is this needed?
-APP_STRIP_MODE=none
