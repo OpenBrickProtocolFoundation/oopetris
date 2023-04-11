@@ -98,3 +98,18 @@ public:
 private:
     [[nodiscard]] bool is_end_of_recording() const;
 };
+
+#if defined(__ANDROID__)
+struct TouchInput : public Input, public EventListener {
+public:
+    explicit TouchInput(Tetrion* target_tetrion) : Input{ target_tetrion } { }
+
+    explicit TouchInput(Tetrion* target_tetrion, OnEventCallback on_event_callback)
+        : Input{ target_tetrion, std::move(on_event_callback) } { }
+
+    void handle_event(const SDL_Event& event) override;
+
+private:
+    [[nodiscard]] tl::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event) const;
+};
+#endif

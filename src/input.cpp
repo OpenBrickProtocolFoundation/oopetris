@@ -4,6 +4,11 @@
 #include "recording.hpp"
 #include "tetrion.hpp"
 
+#if defined(__ANDROID__)
+#include <cmath>
+#include <spdlog/spdlog.h>
+#endif
+
 void Input::handle_event(const InputEvent event) {
     if (m_on_event_callback) {
         m_on_event_callback(event);
@@ -85,6 +90,7 @@ void Input::update() {
 void KeyboardInput::handle_event(const SDL_Event& event) {
     const auto input_event = sdl_event_to_input_event(event);
     if (input_event.has_value()) {
+        //TODO here we have to make sure, that it behaves correctly on all actions (without adding key pressed, released or esle)
         Input::handle_event(*input_event);
     }
 }
@@ -225,3 +231,69 @@ void ReplayInput::late_update() {
 [[nodiscard]] bool ReplayInput::is_end_of_recording() const {
     return m_next_record_index >= m_recording_reader->num_records();
 }
+
+
+#if defined(__ANDROID__)
+void TouchInput::handle_event(const SDL_Event& event) {
+    const auto input_event = sdl_event_to_input_event(event);
+    if (input_event.has_value()) {
+        Input::handle_event(*input_event);
+    }
+}
+
+tl::optional<InputEvent> TouchInput::sdl_event_to_input_event(const SDL_Event& event) const {
+    //TODO to handle those things better, on finger down we see how much time goes by until he leaves, if its short, its a tap, if its longer its a swipe, it has to be saved in between event callbacks
+    // also take into accounts fingerId, since there may be multipel fingers
+    if (event.type == SDL_FINGERMOTION) {
+        //my devices values
+        spdlog::info("SDL_FINGERMOTION dx {}; dy {}", event.tfinger.dx * 1080, event.tfinger.dy * 2160);
+        constexpr auto threshold_x = 0.07;
+        constexpr auto threshold_y = 0.1;
+
+        const auto dx = event.tfinger.dx;
+        const auto dy = event.tfinger.dy;
+
+        const auto dax = std::abs(event.tfinger.dx);
+        const auto day = std::abs(event.tfinger.dy);
+
+        // swipe right
+        if (dx > threshold_x && day < threshold_y) {
+            return InputEvent::MoveRightPressed;
+        }
+        // swipe left
+        if (dx < -threshold_x && day < threshold_y) {
+            return InputEvent::MoveLeftPressed;
+        }
+        // swipe down
+        if (dy > threshold_y && dax < threshold_x) {
+            // swipe down to drop //TODO this has to be also fast
+            if (dy > 2 * threshold_y && dax < threshold_x) {
+                return InputEvent::DropPressed;
+            }
+            return InputEvent::MoveDownPressed;
+        }
+
+        // swipe up
+        if (dy < -threshold_y && dax < threshold_x) {
+            return InputEvent::HoldPressed;
+        }
+    }
+
+    if (event.type == SDL_FINGERDOWN) {
+        //my devices values
+        spdlog::info("SDL_FINGERDOWN x {}; y {}", event.tfinger.x * 1080, event.tfinger.y * 2160);
+        const auto x = event.tfinger.x;
+
+        // tap on the right side of the screen
+        if (x > 0.5) {
+            return InputEvent::RotateRightPressed;
+        }
+        // tap on the left side of the screen
+        if (x <= 0.5) {
+            return InputEvent::RotateLeftPressed;
+        }
+    }
+
+    return tl::nullopt;
+}
+#endif
