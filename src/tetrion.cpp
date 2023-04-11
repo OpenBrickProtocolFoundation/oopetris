@@ -1,5 +1,5 @@
-#include "application.hpp"
 #include "tetrion.hpp"
+#include "application.hpp"
 #include <cassert>
 #include <fstream>
 #include <spdlog/spdlog.h>
@@ -63,6 +63,7 @@ void Tetrion::update() {
 
 void Tetrion::render(const Application& app) const {
     m_grid.render(app);
+    m_mino_stack.draw_minos(app, m_grid);
     if (m_active_tetromino) {
         m_active_tetromino->render(app, m_grid);
     }
@@ -257,7 +258,7 @@ void Tetrion::clear_fully_occupied_lines() {
         for (int row = 0; row < Grid::height; ++row) {
             bool fully_occupied = true;
             for (int column = 0; column < Grid::width; ++column) {
-                if (m_grid.is_empty(Point{ column, row })) {
+                if (m_mino_stack.is_empty(Point{ column, row })) {
                     fully_occupied = false;
                     break;
                 }
@@ -270,7 +271,7 @@ void Tetrion::clear_fully_occupied_lines() {
                     m_level = level;
                     spdlog::info("new level: {}", m_level);
                 }
-                m_grid.clear_row_and_let_sink(row);
+                m_mino_stack.clear_row_and_let_sink(row);
                 cleared = true;
                 break;
             }
@@ -284,7 +285,7 @@ void Tetrion::clear_fully_occupied_lines() {
 void Tetrion::lock_active_tetromino() {
     // this function assumes that m_active_tetromino is not nullptr
     for (const Mino& mino : m_active_tetromino->minos()) {
-        m_grid.set(mino.position(), mino.type());
+        m_mino_stack.set(mino.position(), mino.type());
     }
     m_allowed_to_hold = true;
     m_is_in_lock_delay = false;
@@ -304,7 +305,7 @@ bool Tetrion::is_active_tetromino_position_valid() const {
 
 bool Tetrion::is_valid_mino_position(Point position) const {
     return position.x >= 0 and position.x < Grid::width and position.y >= 0 and position.y < Grid::height
-           and m_grid.is_empty(position);
+           and m_mino_stack.is_empty(position);
 }
 
 bool Tetrion::is_active_tetromino_completely_visible() const {

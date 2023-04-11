@@ -45,6 +45,8 @@ src_files += files(
     'utils.cpp',
     'command_line_arguments.hpp',
     'controls.hpp',
+    'mino_stack.hpp',
+    'mino_stack.cpp',
 )
 
 inc_dirs += include_directories('.')

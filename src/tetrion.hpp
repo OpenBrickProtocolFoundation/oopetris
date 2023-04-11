@@ -3,6 +3,7 @@
 #include "bag.hpp"
 #include "grid.hpp"
 #include "input.hpp"
+#include "mino_stack.hpp"
 #include "random.hpp"
 #include "tetromino.hpp"
 #include "text.hpp"
@@ -48,6 +49,7 @@ private:
 
     Random m_random;
     Grid m_grid;
+    MinoStack m_mino_stack;
     tl::optional<Tetromino> m_active_tetromino;
     tl::optional<Tetromino> m_ghost_tetromino;
     tl::optional<Tetromino> m_preview_tetromino;
@@ -72,10 +74,7 @@ private:
     int m_num_executed_lock_delays = 0;
 
 public:
-    Tetrion(
-            Random::Seed random_seed,
-            int starting_level,
-            tl::optional<RecordingWriter*> recording_writer = tl::nullopt
+    Tetrion(Random::Seed random_seed, int starting_level, tl::optional<RecordingWriter*> recording_writer = tl::nullopt
     );
     void update();
     void render(const Application& app) const;

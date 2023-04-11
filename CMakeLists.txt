@@ -61,6 +61,8 @@ add_executable(oopetris
         src/utils.cpp
         src/command_line_arguments.hpp
         src/controls.hpp
+        src/mino_stack.cpp
+        src/mino_stack.hpp
         )
 
 foreach (target ${TARGET_LIST})
