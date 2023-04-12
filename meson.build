@@ -41,55 +41,33 @@ if meson.is_cross_build() and host_machine.system() == 'android'
 endif
 
 
-deps += dependency(
+sdl2_dep = dependency(
     'sdl2',
-    'SDL2',
-    required: true,
-    fallback: 'sdl2',
-    native: native,
-)
-
-
-sdl2_ttf_dep = dependency('sdl2_ttf', required: false, native: native)
-if not sdl2_ttf_dep.found()
-    deps += dependency(
-        'sdl2_ttf',
-        required: true,
-        fallback: 'sdl2_ttf',
-        native: native,
-    )
-else
-    deps += sdl2_ttf_dep
-endif
-
-spdlog_dep = dependency('spdlog', required: false, native: native)
-if not spdlog_dep.found()
-    deps += dependency(
-        'spdlog',
-        required: true,
-        fallback: 'spdlog',
-        native: native,
-    )
-else
-    deps += spdlog_dep
-endif
-
-nlohmann_json_dep = dependency(
-    'nlohmann_json',
+    allow_fallback: false,
     required: false,
     native: native,
 )
-if not nlohmann_json_dep.found()
+
+if sdl2_dep.found()
+    deps += sdl2_dep
+else
     deps += dependency(
-        'nlohmann_json',
+        'sdl2',
         required: true,
-        fallback: 'nlohmann_json',
+        fallback: 'sdl2',
         native: native,
     )
-else
-    deps += nlohmann_json_dep
+    deps += dependency(
+        'sdl2main',
+        required: true,
+        fallback: 'sdl2',
+        native: native,
+    )
 endif
 
+deps += dependency('sdl2_ttf', 'SDL2_ttf', required: true, native: native)
+deps += dependency('spdlog', required: true, native: native)
+deps += dependency('nlohmann_json', required: true, native: native)
 deps += dependency(
     'tl-optional',
     required: true,
