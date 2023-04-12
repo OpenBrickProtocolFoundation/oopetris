@@ -1,5 +1,6 @@
 #pragma once
 
+#include "helper/compatibility.hpp"
 #include "input_event.hpp"
 #include "random.hpp"
 #include "tetrion.hpp"
@@ -90,7 +91,7 @@ public:
                 }
                 break;
             }
-            if (*magic_byte == std::to_underlying(MagicByte::Record)) {
+            if (*magic_byte == compatibility::to_underlying(MagicByte::Record)) {
                 const auto record = read_record_from_file(file);
                 if (not record.has_value()) {
                     if (record.error() == ReadError::EndOfFile) {
@@ -101,7 +102,7 @@ public:
                     throw RecordingError{};
                 }
                 m_records.push_back(*record);
-            } else if (*magic_byte == std::to_underlying(MagicByte::Snapshot)) {
+            } else if (*magic_byte == compatibility::to_underlying(MagicByte::Snapshot)) {
                 auto snapshot = TetrionSnapshot{ file }; // todo: handle exception
                 m_snapshots.push_back(std::move(snapshot));
                 spdlog::info("read snapshot");
@@ -227,14 +228,14 @@ public:
 
     void add_event(const u8 tetrion_index, const u64 simulation_step_index, const InputEvent event) {
         assert(tetrion_index < m_tetrion_headers.size());
-        write(std::to_underlying(MagicByte::Record));
+        write(compatibility::to_underlying(MagicByte::Record));
         write(tetrion_index);
         write(simulation_step_index);
         write(static_cast<u8>(event));
     }
 
     void add_snapshot(const u8 tetrion_index, const u64 simulation_step_index, const Tetrion& tetrion) {
-        write(std::to_underlying(MagicByte::Snapshot));
+        write(compatibility::to_underlying(MagicByte::Snapshot));
         const auto snapshot = TetrionSnapshot{ tetrion_index,           tetrion.level(),       tetrion.score(),
                                                tetrion.lines_cleared(), simulation_step_index, tetrion.mino_stack() };
         const auto bytes = snapshot.to_bytes();
