@@ -1,6 +1,7 @@
 #include "input.hpp"
 #include "application.hpp"
 #include "key_codes.hpp"
+#include "recording.hpp"
 #include "tetrion.hpp"
 
 void Input::handle_event(const InputEvent event) {
@@ -175,4 +176,52 @@ void ReplayInput::update() {
     }
 
     Input::update();
+}
+
+void ReplayInput::late_update() {
+    Input::late_update();
+
+    while (true) {
+        if (m_next_snapshot_index >= m_recording_reader->m_snapshots.size()) {
+            break;
+        }
+
+        const auto& snapshot = m_recording_reader->m_snapshots.at(m_next_snapshot_index);
+        if (snapshot.tetrion_index() != m_tetrion_index) {
+            ++m_next_snapshot_index;
+            continue;
+        }
+
+        // the snapshot corresponds to this tetrion
+        assert(snapshot.tetrion_index() == m_tetrion_index);
+
+        if (snapshot.simulation_step_index() != Application::simulation_step_index()) {
+            break;
+        }
+
+        // create a snapshot from the current state of the tetrion and compare it to the loaded snapshot
+        const auto current_snapshot = TetrionSnapshot{ *m_target_tetrion };
+#ifdef DEBUG_BUILD
+        static constexpr auto verbose_logging = true;
+#else
+        static constepxr auto verbose_logging = false;
+#endif
+        if constexpr (verbose_logging) {
+            spdlog::info("comparing tetrion snapshots");
+        }
+        const auto snapshots_are_equal = current_snapshot.compare_to(snapshot, verbose_logging);
+        if (snapshots_are_equal) {
+            if constexpr (verbose_logging) {
+                spdlog::info("snapshots are equal");
+            }
+        } else {
+            spdlog::error("snapshots are not equal");
+            throw std::exception{};
+        }
+        ++m_next_snapshot_index;
+    }
+}
+
+[[nodiscard]] bool ReplayInput::is_end_of_recording() const {
+    return m_next_record_index >= m_recording_reader->num_records();
 }

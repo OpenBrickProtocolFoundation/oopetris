@@ -20,16 +20,16 @@ TetrisApplication::TetrisApplication(CommandLineArguments command_line_arguments
         const auto starting_level = starting_level_for_tetrion(tetrion_index);
         spdlog::info("starting level for tetrion {}: {}", tetrion_index, starting_level);
 
-        m_tetrions.push_back(
-                std::make_unique<Tetrion>(seeds.at(tetrion_index), starting_level, recording_writer_optional())
-        );
+        m_tetrions.push_back(std::make_unique<Tetrion>(
+                tetrion_index, seeds.at(tetrion_index), starting_level, recording_writer_optional()
+        ));
 
         auto on_event_callback = create_on_event_callback(tetrion_index);
 
         const auto tetrion_pointer = m_tetrions.back().get();
         if (is_replay_mode()) {
             m_inputs.push_back(
-                    create_recording_input(tetrion_index, m_recording_reader.get(), tetrion_pointer, [](InputEvent) {})
+                    create_replay_input(tetrion_index, m_recording_reader.get(), tetrion_pointer, [](InputEvent) {})
             );
         } else {
             m_inputs.push_back(
@@ -48,6 +48,12 @@ void TetrisApplication::update_inputs() {
     }
 }
 
+void TetrisApplication::late_update_inputs() {
+    for (const auto& input : m_inputs) {
+        input->late_update();
+    }
+}
+
 void TetrisApplication::update_tetrions() {
     for (const auto& tetrion : m_tetrions) {
         tetrion->update();
@@ -57,6 +63,7 @@ void TetrisApplication::update_tetrions() {
 void TetrisApplication::update() {
     update_inputs();
     update_tetrions();
+    late_update_inputs();
 }
 
 void TetrisApplication::render() const {
@@ -85,7 +92,7 @@ void TetrisApplication::render() const {
     );
 }
 
-[[nodiscard]] std::unique_ptr<Input> TetrisApplication::create_recording_input(
+[[nodiscard]] std::unique_ptr<Input> TetrisApplication::create_replay_input(
         const u8 tetrion_index,
         RecordingReader* const recording_reader,
         Tetrion* const associated_tetrion,

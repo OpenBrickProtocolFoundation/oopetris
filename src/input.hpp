@@ -1,5 +1,6 @@
 #pragma once
 
+#include "controls.hpp"
 #include "event_listener.hpp"
 #include "input_event.hpp"
 #include "random.hpp"
@@ -51,6 +52,7 @@ protected:
 
 public:
     virtual void update();
+    virtual void late_update() {};
     virtual ~Input() = default;
 };
 
@@ -73,11 +75,14 @@ private:
     [[nodiscard]] tl::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event) const;
 };
 
+struct RecordingReader;
+
 struct ReplayInput : public Input {
 private:
     u8 m_tetrion_index;
     RecordingReader* m_recording_reader;
     usize m_next_record_index{ 0 };
+    usize m_next_snapshot_index{ 0 };
 
 public:
     ReplayInput(
@@ -88,9 +93,8 @@ public:
     );
 
     void update() override;
+    void late_update() override;
 
 private:
-    [[nodiscard]] bool is_end_of_recording() const {
-        return m_next_record_index >= m_recording_reader->num_records();
-    }
+    [[nodiscard]] bool is_end_of_recording() const;
 };
