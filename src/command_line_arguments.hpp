@@ -4,6 +4,7 @@
 #include <argparse/argparse.hpp>
 #include <filesystem>
 #include <spdlog/spdlog.h>
+#include <stdexcept>
 #include <string>
 #include <tl/optional.hpp>
 
@@ -53,8 +54,12 @@ public:
             }
         } catch (const std::exception& err) {
             spdlog::error("error parsing command line arguments: {}", err.what());
-            //TODO don't call in android 
+#if defined(__ANDROID__)
+            // calling exit() in android doesn't to the correct job, it completely avoids resource cleanup by the underlying SDLActivity.java (java wrapper), that calls the main and expects it to return ALWAYS  and throwing an exception in a catch statement is bad, but is required here
+            throw std::runtime_error{ "exit with status code 1: " + err.what() };
+#else
             std::exit(1);
+#endif
         }
     }
 };
