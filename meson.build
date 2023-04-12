@@ -24,19 +24,7 @@ cpp = meson.get_compiler('cpp')
 if cpp.get_id() == 'msvc'
     add_project_arguments('/std:c++latest', language: 'cpp')
 elif cpp.get_id() == 'gcc'
-    add_project_arguments(
-        '-std=c++23',
-        language: 'cpp',
-    )
-
-    if host_machine.system() == 'windows'
-        compile_args += ['-Wno-shadow', '-Wno-complain-wrong-lang']
-        add_project_arguments(
-            '-Wno-complain-wrong-lang',
-            language: 'cpp',
-        )
-    endif
-
+    add_project_arguments('-std=c++23', language: 'cpp')
 elif cpp.get_id() == 'clang'
     add_project_arguments('-std=c++2b', language: 'cpp')
 else
@@ -53,30 +41,14 @@ if meson.is_cross_build() and host_machine.system() == 'android'
 endif
 
 
+deps += dependency(
+    'sdl2',
+    'SDL2',
+    required: true,
+    fallback: 'sdl2',
+    native: native,
+)
 
-if cpp.get_id() == 'gcc' and host_machine.system() == 'windows'
-    deps += dependency(
-        'sdl2',
-        'SDL2',
-        required: true,
-        fallback: 'sdl2',
-        default_options: [
-            'buildtype=release',
-            'optimization=3',
-            'strip=true',
-            'b_ndebug=if-release',
-            'cpp_args=-Wno-shadow',
-        ],
-    )
-else
-    deps += dependency(
-        'sdl2',
-        'SDL2',
-        required: true,
-        fallback: 'sdl2',
-        native: native,
-    )
-endif
 
 sdl2_ttf_dep = dependency('sdl2_ttf', required: false, native: native)
 if not sdl2_ttf_dep.found()
