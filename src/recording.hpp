@@ -11,6 +11,7 @@
 #include <spdlog/spdlog.h>
 #include <tl/expected.hpp>
 #include <tl/optional.hpp>
+#include <utility>
 #include <vector>
 
 struct RecordingError : public std::exception { };
