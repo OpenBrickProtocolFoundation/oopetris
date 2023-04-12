@@ -204,7 +204,7 @@ void ReplayInput::late_update() {
 #ifdef DEBUG_BUILD
         static constexpr auto verbose_logging = true;
 #else
-        static constepxr auto verbose_logging = false;
+        static constexpr auto verbose_logging = false;
 #endif
         if constexpr (verbose_logging) {
             spdlog::info("comparing tetrion snapshots");
