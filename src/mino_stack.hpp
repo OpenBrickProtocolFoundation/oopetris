@@ -5,8 +5,12 @@
 #include <algorithm>
 #include <iostream>
 #include <magic_enum.hpp>
-#include <ranges>
 #include <vector>
+#if defined(__ANDROID__)
+#include <algorithm>
+#else
+#include <ranges>
+#endif
 
 struct Grid;
 
@@ -29,7 +33,12 @@ public:
     }
 
     [[nodiscard]] bool operator==(const MinoStack& other) const {
+#if defined(__ANDROID__)
+        using std::all_of, std::find, std::end;
+#else
         using std::ranges::all_of, std::ranges::find, std::ranges::end;
+#endif
+
 
         if (m_minos.size() != other.m_minos.size()) {
             return false;
