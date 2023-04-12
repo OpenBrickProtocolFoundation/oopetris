@@ -71,6 +71,12 @@ private:
     create_input(Controls controls, Tetrion* associated_tetrion, Input::OnEventCallback on_event_callback);
 
     [[nodiscard]] static std::unique_ptr<Input> create_replay_input(
+            u8 tetrion_index,
+            RecordingReader* recording_reader,
+            Tetrion* associated_tetrion,
+            Input::OnEventCallback on_event_callback
+    );
+
     /**
      * @brief Creates an input that replays a recorded game.
      * @param tetrion_index The index of the tetrion that is targeted by this input.
@@ -82,7 +88,7 @@ private:
     [[nodiscard]] static std::unique_ptr<Input> create_recording_input(
             u8 tetrion_index,
             RecordingReader* constrecording_reader,
-            Tetrion *constassociated_tetrion,
+            Tetrion* constassociated_tetrion,
             Input::OnEventCallback on_event_callback
     );
 
