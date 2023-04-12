@@ -1,16 +1,19 @@
 #include "tetrion.hpp"
 #include "application.hpp"
+#include "recording.hpp"
 #include <cassert>
 #include <fstream>
 #include <spdlog/spdlog.h>
 #include <sstream>
 
 Tetrion::Tetrion(
+        const u8 tetrion_index,
         const Random::Seed random_seed,
         const int starting_level,
         tl::optional<RecordingWriter*> recording_writer
 )
-    : m_random{ random_seed },
+    : m_tetrion_index{ tetrion_index },
+      m_random{ random_seed },
       m_grid{ Point::zero(), tile_size },
       m_level{ starting_level },
       m_next_gravity_simulation_step_index{ get_gravity_delay_frames() },
@@ -148,6 +151,10 @@ void Tetrion::spawn_next_tetromino(const TetrominoType type) {
     if (not is_active_tetromino_position_valid()) {
         m_game_state = GameState::GameOver;
         spdlog::info("game over");
+        if (m_recording_writer.has_value()) {
+            spdlog::info("writing snapshot");
+            (*m_recording_writer)->add_snapshot(m_tetrion_index, Application::simulation_step_index(), *this);
+        }
         m_active_tetromino = {};
         return;
     }
@@ -212,8 +219,8 @@ bool Tetrion::drop_tetromino() {
         m_active_tetromino->move_down();
     }
     m_active_tetromino->move_up();
-    lock_active_tetromino();
     m_score += 4 * num_movements;
+    lock_active_tetromino();
     return num_movements > 0;
 }
 
@@ -283,7 +290,7 @@ void Tetrion::clear_fully_occupied_lines() {
 }
 
 void Tetrion::lock_active_tetromino() {
-    // this function assumes that m_active_tetromino is not nullptr
+    assert(m_active_tetromino.has_value());
     for (const Mino& mino : m_active_tetromino->minos()) {
         m_mino_stack.set(mino.position(), mino.type());
     }
@@ -294,6 +301,13 @@ void Tetrion::lock_active_tetromino() {
     spawn_next_tetromino();
     refresh_texts();
     reset_lock_delay();
+
+    // save a snapshot on every freeze (only in debug builds)
+#ifdef DEBUG_BUILD
+    if (m_recording_writer) {
+        (*m_recording_writer)->add_snapshot(m_tetrion_index, Application::simulation_step_index(), *this);
+    }
+#endif
 }
 
 bool Tetrion::is_active_tetromino_position_valid() const {

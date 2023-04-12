@@ -15,6 +15,7 @@
 #include <vector>
 
 struct Application;
+struct RecordingWriter;
 
 enum class GameState {
     Playing,
@@ -47,6 +48,7 @@ private:
     // while holding down, this level is assumed for gravity calculation
     static constexpr int accelerated_drop_movement_level = 10;
 
+    u8 m_tetrion_index;
     Random m_random;
     Grid m_grid;
     MinoStack m_mino_stack;
@@ -54,9 +56,9 @@ private:
     tl::optional<Tetromino> m_ghost_tetromino;
     tl::optional<Tetromino> m_preview_tetromino;
     tl::optional<Tetromino> m_tetromino_on_hold;
-    int m_level = 0;
+    int m_level = 0;         // todo: change into u32
     u64 m_next_gravity_simulation_step_index;
-    int m_lines_cleared = 0;
+    int m_lines_cleared = 0; // todo: change into u32
     GameState m_game_state = GameState::Playing;
     std::array<Bag, 2> m_sequence_bags{ Bag{ m_random }, Bag{ m_random } };
     int m_sequence_index = 0;
@@ -74,8 +76,10 @@ private:
     int m_num_executed_lock_delays = 0;
 
 public:
-    Tetrion(Random::Seed random_seed, int starting_level, tl::optional<RecordingWriter*> recording_writer = tl::nullopt
-    );
+    Tetrion(u8 tetrion_index,
+            Random::Seed random_seed,
+            int starting_level,
+            tl::optional<RecordingWriter*> recording_writer = tl::nullopt);
     void update();
     void render(const Application& app) const;
 
@@ -90,6 +94,26 @@ public:
     bool move_tetromino_right();
     bool drop_tetromino();
     void hold_tetromino();
+
+    [[nodiscard]] auto tetrion_index() const {
+        return m_tetrion_index;
+    }
+
+    [[nodiscard]] auto level() const {
+        return m_level;
+    }
+
+    [[nodiscard]] auto score() const {
+        return m_score;
+    }
+
+    [[nodiscard]] auto lines_cleared() const {
+        return m_lines_cleared;
+    }
+
+    [[nodiscard]] const MinoStack& mino_stack() const {
+        return m_mino_stack;
+    }
 
 private:
     template<std::invocable Callable>
@@ -292,4 +316,6 @@ private:
 
     static constexpr auto frames_per_tile = std::array<u64, 30>{ 48, 43, 38, 33, 28, 23, 18, 13, 8, 6, 5, 5, 5, 4, 4,
                                                                  4,  3,  3,  3,  2,  2,  2,  2,  2, 2, 2, 2, 2, 2, 1 };
+
+    friend struct TetrionSnapshot;
 };

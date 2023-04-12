@@ -40,3 +40,17 @@ void MinoStack::draw_minos(const Application& app, const Grid& grid) const {
         }
     }
 }
+
+std::ostream& operator<<(std::ostream& os, const MinoStack& mino_stack) {
+    os << "MinoStack(";
+    for (usize i = 0; i < mino_stack.num_minos(); ++i) {
+        const auto& mino = mino_stack.minos().at(i);
+        os << "{" << mino.position().x << ", " << mino.position().y << ", " << magic_enum::enum_name(mino.type())
+           << "}";
+        if (i < mino_stack.num_minos() - 1) {
+            os << ", ";
+        }
+    }
+    os << ")";
+    return os;
+}

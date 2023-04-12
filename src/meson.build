@@ -47,6 +47,8 @@ src_files += files(
     'controls.hpp',
     'mino_stack.hpp',
     'mino_stack.cpp',
+    'tetrion_snapshot.hpp',
+    'tetrion_snapshot.cpp',
 )
 
 inc_dirs += include_directories('.')

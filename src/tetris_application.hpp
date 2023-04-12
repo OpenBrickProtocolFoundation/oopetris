@@ -1,6 +1,7 @@
 #pragma once
 
 #include "application.hpp"
+#include "recording.hpp"
 #include "settings.hpp"
 #include "tetrion.hpp"
 #include "tetromino_type.hpp"
@@ -29,6 +30,7 @@ public:
 
 protected:
     void update_inputs();
+    void late_update_inputs();
     void update_tetrions();
     void update() override;
     void render() const override;
@@ -37,10 +39,10 @@ private:
     [[nodiscard]] std::unique_ptr<Input>
     create_input(Controls controls, Tetrion* associated_tetrion, Input::OnEventCallback on_event_callback);
 
-    [[nodiscard]] static std::unique_ptr<Input> create_recording_input(
+    [[nodiscard]] static std::unique_ptr<Input> create_replay_input(
             u8 tetrion_index,
-            RecordingReader* recording_reader,
-            Tetrion* associated_tetrion,
+            RecordingReader* constrecording_reader,
+            Tetrion *constassociated_tetrion,
             Input::OnEventCallback on_event_callback
     );
 

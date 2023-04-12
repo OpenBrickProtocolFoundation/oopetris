@@ -1,7 +1,6 @@
 #pragma once
 
 #include "key_codes.hpp"
-#include "recording.hpp"
 
 struct KeyboardControls final {
     KeyCode rotate_left = KeyCode::Left;

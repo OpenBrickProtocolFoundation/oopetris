@@ -2,6 +2,8 @@
 
 #include "input_event.hpp"
 #include "random.hpp"
+#include "tetrion.hpp"
+#include "tetrion_snapshot.hpp"
 #include "types.hpp"
 #include "utils.hpp"
 #include <filesystem>
@@ -14,6 +16,12 @@
 struct RecordingError : public std::exception { };
 
 struct Recording {
+protected:
+    enum class MagicByte : u8 {
+        Record = 42,
+        Snapshot = 43,
+    };
+
 public:
     struct TetrionHeader final {
         Random::Seed seed;
@@ -34,6 +42,10 @@ protected:
     explicit Recording(std::vector<TetrionHeader> tetrion_headers) : m_tetrion_headers{ std::move(tetrion_headers) } { }
 
 public:
+    Recording(const Recording&) = delete;
+    Recording(Recording&&) = delete;
+    Recording& operator=(const Recording&) = delete;
+    Recording& operator=(Recording&&) = delete;
     virtual ~Recording() = default;
 
     [[nodiscard]] const std::vector<TetrionHeader>& tetrion_headers() const {
@@ -43,6 +55,7 @@ public:
 
 struct RecordingReader : public Recording {
     std::vector<Record> m_records;
+    std::vector<TetrionSnapshot> m_snapshots;
 
 public:
     explicit RecordingReader(const std::filesystem::path& path) {
@@ -68,16 +81,33 @@ public:
         }
 
         while (true) {
-            const auto record = read_record_from_file(file);
-            if (not record.has_value()) {
-                if (record.error() == ReadError::EndOfFile) {
-                    // finished reading
-                    break;
+            const auto magic_byte = read_integral_from_file<std::underlying_type_t<MagicByte>>(file);
+            if (not magic_byte.has_value()) {
+                if (magic_byte.error() == ReadError::InvalidStream) {
+                    spdlog::error("unable to read magic byte");
+                    throw RecordingError{};
                 }
-                spdlog::error("invalid record while reading recorded game");
+                break;
+            }
+            if (*magic_byte == std::to_underlying(MagicByte::Record)) {
+                const auto record = read_record_from_file(file);
+                if (not record.has_value()) {
+                    if (record.error() == ReadError::EndOfFile) {
+                        // finished reading
+                        break;
+                    }
+                    spdlog::error("invalid record while reading recorded game");
+                    throw RecordingError{};
+                }
+                m_records.push_back(*record);
+            } else if (*magic_byte == std::to_underlying(MagicByte::Snapshot)) {
+                auto snapshot = TetrionSnapshot{ file }; // todo: handle exception
+                m_snapshots.push_back(std::move(snapshot));
+                spdlog::info("read snapshot");
+            } else {
+                spdlog::error("invalid magic byte: {}", static_cast<int>(*magic_byte));
                 throw RecordingError{};
             }
-            m_records.push_back(*record);
         }
     }
 
@@ -95,6 +125,10 @@ public:
 
     [[nodiscard]] auto end() const {
         return m_records.cend();
+    }
+
+    [[nodiscard]] const std::vector<TetrionSnapshot>& snapshots() const {
+        return m_snapshots;
     }
 
 private:
@@ -192,9 +226,18 @@ public:
 
     void add_event(const u8 tetrion_index, const u64 simulation_step_index, const InputEvent event) {
         assert(tetrion_index < m_tetrion_headers.size());
+        write(std::to_underlying(MagicByte::Record));
         write(tetrion_index);
         write(simulation_step_index);
         write(static_cast<u8>(event));
+    }
+
+    void add_snapshot(const u8 tetrion_index, const u64 simulation_step_index, const Tetrion& tetrion) {
+        write(std::to_underlying(MagicByte::Snapshot));
+        const auto snapshot = TetrionSnapshot{ tetrion_index,           tetrion.level(),       tetrion.score(),
+                                               tetrion.lines_cleared(), simulation_step_index, tetrion.mino_stack() };
+        const auto bytes = snapshot.to_bytes();
+        m_output_file.write(bytes.data(), static_cast<std::streamsize>(bytes.size()));
     }
 
 private:
