@@ -105,7 +105,6 @@ void Input::update() {
 void KeyboardInput::handle_event(const SDL_Event& event) {
     const auto input_event = sdl_event_to_input_event(event);
     if (input_event.has_value()) {
-        //TODO here we have to make sure, that it behaves correctly on all actions (without adding key pressed, released or esle)
         Input::handle_event(*input_event);
     }
 }
@@ -256,15 +255,13 @@ void TouchInput::handle_event(const SDL_Event& event) {
     }
 }
 
-std::string tag = "spdlog-android";
-auto android_logger = spdlog::android_logger_mt("android", tag);
-
-
 tl::optional<InputEvent> TouchInput::sdl_event_to_input_event(const SDL_Event& event) {
-    //TODO to handle those things better, on finger down we see how much time goes by until he leaves, if its short, its a tap, if its longer its a swipe, it has to be saved in between event callbacks
+    //TODO to handle those things better, holding has to be supported
 
 
+    // also take into accounts fingerId, since there may be multipel fingers, each finger has it's own saved state
     const SDL_FingerID finger_id = event.tfinger.fingerId;
+
     // this is used, to get the percentage, since it' all constexpr it's mainly for the developer to not think about percentages but about a pixel range on a certain device, but then it works as expected everywhere
     constexpr auto screen_h_reference = 2160.0;
     constexpr auto screen_w_reference = 1080.0;
@@ -273,8 +270,7 @@ tl::optional<InputEvent> TouchInput::sdl_event_to_input_event(const SDL_Event& e
         if (m_finger_state.contains(finger_id) && m_finger_state.at(finger_id).has_value()) {
             std::runtime_error{ "A finger was pressed somehow more then once without releasing it in between!" };
         }
-        //my devices values
-        // android_logger->critical("SDL_FINGERDOWN x {}; y {}\n", event.tfinger.x * 1080, event.tfinger.y * 2160);
+
         const auto x = event.tfinger.x;
         const auto y = event.tfinger.y;
         const auto timestamp = event.tfinger.timestamp;
@@ -303,9 +299,6 @@ tl::optional<InputEvent> TouchInput::sdl_event_to_input_event(const SDL_Event& e
         const auto dx = x - pressed_state.x;
         const auto dy = y - pressed_state.y;
         const auto duration = timestamp - pressed_state.timestamp;
-        android_logger->critical(
-                "SDL_FINGERUP dx {}, dy {}, duration: {}\n", dx * screen_w_reference, dy * screen_h_reference, duration
-        );
 
         const auto dax = std::fabs(dx);
         const auto day = std::fabs(dy);
@@ -313,7 +306,6 @@ tl::optional<InputEvent> TouchInput::sdl_event_to_input_event(const SDL_Event& e
         m_finger_state.insert_or_assign(finger_id, tl::nullopt);
         if (duration < duration_threshold) {
             if (dax < threshold_x && day < threshold_y) {
-                android_logger->critical("SDL_FINGERUP Rotate: {}\n", x);
                 // tap on the right side of the screen
                 if (x > 0.5) {
                     return InputEvent::RotateRightPressed;
@@ -328,17 +320,15 @@ tl::optional<InputEvent> TouchInput::sdl_event_to_input_event(const SDL_Event& e
 
         // swipe right
         if (dx > threshold_x && day < threshold_y) {
-            android_logger->critical("MoveRightPressed dx : {}\n", dx);
             return InputEvent::MoveRightPressed;
         }
         // swipe left
         if (dx < -threshold_x && day < threshold_y) {
-            android_logger->critical("MoveLeftPressed dx : {}\n", dx);
+
             return InputEvent::MoveLeftPressed;
         }
         // swipe down
         if (dy > threshold_y && dax < threshold_x) {
-            android_logger->critical("MoveDownPressed dy : {}\n", dy);
             // swipe down to drop
             if (duration < duration_drop_threshold) {
                 return InputEvent::DropPressed;
@@ -348,16 +338,13 @@ tl::optional<InputEvent> TouchInput::sdl_event_to_input_event(const SDL_Event& e
 
         // swipe up
         if (dy < -threshold_y && dax < threshold_x) {
-            android_logger->critical("swipe up dx {}; dy {}\n", dx * screen_w_reference, dy * screen_h_reference);
             return InputEvent::HoldPressed;
         }
     }
 
 
-    // also take into accounts fingerId, since there may be multipel fingers
     if (event.type == SDL_FINGERMOTION) {
-        //TODO hold!
-        // android_logger->critical("SDL_FINGERMOTION dx {}; dy {}\n",dx * 1080, dy * 2160);
+        //TODO support hold
     }
 
 
