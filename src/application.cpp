@@ -71,7 +71,7 @@ void Application::handle_event(const SDL_Event& event) {
 
 #if defined(__ANDROID__)
     if (event.type == SDL_KEYDOWN and event.key.keysym.sym == SDLK_AC_BACK) {
-        //TODO: also catch the resume event from the app (see SDlActivity.java)
+        //TODO: also catch the resume event from the app (see SDLActivity.java)
        // pause()
     }
 #endif
