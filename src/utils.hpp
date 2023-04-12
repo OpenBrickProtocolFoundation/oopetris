@@ -5,17 +5,14 @@
 #include <array>
 #include <bit>
 #include <concepts>
+#include <string>
 #if defined(__ANDROID__)
 #include "bit.hpp"
 #include "concepts.hpp"
-#endif
-
-#if not defined(__ANDROID__)
-#include <ranges>
-#else
 #include <algorithm>
+#else
+#include <ranges>
 #endif
-#include <string>
 
 namespace utils {
     [[nodiscard]] std::string current_date_time_iso8601();
