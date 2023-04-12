@@ -9,7 +9,7 @@
 #if defined(__ANDROID__)
 #include "bit.hpp"
 #include "concepts.hpp"
-#include <algorithm>
+#include "ranges.hpp"
 #else
 #include <ranges>
 #endif
@@ -22,11 +22,8 @@ namespace utils {
         // source: https://en.cppreference.com/w/cpp/numeric/byteswap
         static_assert(std::has_unique_object_representations_v<Integral>, "T may not have padding bits");
         auto value_representation = std::bit_cast<std::array<std::byte, sizeof(Integral)>>(value);
-#if not defined(__ANDROID__)
+
         std::ranges::reverse(value_representation);
-#else
-        std::reverse(value_representation);
-#endif
 
         return std::bit_cast<Integral>(value_representation);
     }
