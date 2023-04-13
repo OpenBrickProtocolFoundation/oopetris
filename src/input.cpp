@@ -5,7 +5,6 @@
 #include "tetrion.hpp"
 
 #if defined(__ANDROID__)
-#include "spdlog/sinks/android_sink.h"
 #include <cmath>
 #include <spdlog/spdlog.h>
 #include <stdexcept>
