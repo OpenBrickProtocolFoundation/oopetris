@@ -113,13 +113,8 @@ private:
 
 
 public:
-    explicit TouchInput(Tetrion* target_tetrion)
-        : Input{ target_tetrion },
-          m_finger_state{ std::unordered_map<SDL_FingerID, tl::optional<PressedState>>{} } { }
-
-    explicit TouchInput(Tetrion* target_tetrion, OnEventCallback on_event_callback)
-        : Input{ target_tetrion, std::move(on_event_callback) },
-          m_finger_state{ std::unordered_map<SDL_FingerID, tl::optional<PressedState>>{} } { }
+    explicit TouchInput(Tetrion* target_tetrion, OnEventCallback on_event_callback = OnEventCallback{})
+        : Input{ target_tetrion, std::move(on_event_callback) } { }
 
     void handle_event(const SDL_Event& event) override;
 
