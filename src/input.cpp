@@ -266,7 +266,7 @@ tl::optional<InputEvent> TouchInput::sdl_event_to_input_event(const SDL_Event& e
     constexpr auto screen_w_reference = 1080.0;
 
     if (event.type == SDL_FINGERDOWN) {
-        if (m_finger_state.contains(finger_id) && m_finger_state.at(finger_id).has_value()) {
+        if (m_finger_state.contains(finger_id) and m_finger_state.at(finger_id).has_value()) {
             std::runtime_error{ "A finger was pressed somehow more then once without releasing it in between!" };
         }
 
@@ -304,7 +304,7 @@ tl::optional<InputEvent> TouchInput::sdl_event_to_input_event(const SDL_Event& e
 
         m_finger_state.insert_or_assign(finger_id, tl::nullopt);
         if (duration < duration_threshold) {
-            if (dax < threshold_x && day < threshold_y) {
+            if (dax < threshold_x and day < threshold_y) {
                 // tap on the right side of the screen
                 if (x > 0.5) {
                     return InputEvent::RotateRightPressed;
@@ -318,16 +318,16 @@ tl::optional<InputEvent> TouchInput::sdl_event_to_input_event(const SDL_Event& e
 
 
         // swipe right
-        if (dx > threshold_x && day < threshold_y) {
+        if (dx > threshold_x and day < threshold_y) {
             return InputEvent::MoveRightPressed;
         }
         // swipe left
-        if (dx < -threshold_x && day < threshold_y) {
+        if (dx < -threshold_x and day < threshold_y) {
 
             return InputEvent::MoveLeftPressed;
         }
         // swipe down
-        if (dy > threshold_y && dax < threshold_x) {
+        if (dy > threshold_y and dax < threshold_x) {
             // swipe down to drop
             if (duration < duration_drop_threshold) {
                 return InputEvent::DropPressed;
@@ -336,7 +336,7 @@ tl::optional<InputEvent> TouchInput::sdl_event_to_input_event(const SDL_Event& e
         }
 
         // swipe up
-        if (dy < -threshold_y && dax < threshold_x) {
+        if (dy < -threshold_y and dax < threshold_x) {
             return InputEvent::HoldPressed;
         }
     }
