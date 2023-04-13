@@ -30,7 +30,7 @@ jobs:
               uses: sparkfabrik/android-build-action@v1.3.4
               with:
                   build-type: assemble
-                  gradle-task: assembleRelease
+                  gradle-task: assembleDebug
                   project-path: android/project
                   output-path: oopetris.apk
 
