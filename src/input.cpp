@@ -258,7 +258,7 @@ tl::optional<InputEvent> TouchInput::sdl_event_to_input_event(const SDL_Event& e
     //TODO to handle those things better, holding has to be supported
 
 
-    // also take into accounts fingerId, since there may be multipel fingers, each finger has it's own saved state
+    // also take into accounts fingerId, since there may be multiple fingers, each finger has it's own saved state
     const SDL_FingerID finger_id = event.tfinger.fingerId;
 
     // this is used, to get the percentage, since it' all constexpr it's mainly for the developer to not think about percentages but about a pixel range on a certain device, but then it works as expected everywhere
