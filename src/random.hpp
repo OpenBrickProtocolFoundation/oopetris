@@ -1,6 +1,6 @@
 #pragma once
 
-#include "utils.hpp"
+#include "utils/utils.hpp"
 #include <random>
 
 struct Random {
