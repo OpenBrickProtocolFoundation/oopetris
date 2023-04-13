@@ -100,7 +100,7 @@ private:
 };
 
 #if defined(__ANDROID__)
-struct TouchInput : public Input, public EventListener {
+struct TouchInput final : public Input, public EventListener {
 private:
     struct PressedState {
         Uint32 timestamp;
