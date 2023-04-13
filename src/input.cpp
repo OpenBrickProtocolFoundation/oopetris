@@ -279,7 +279,7 @@ tl::optional<InputEvent> TouchInput::sdl_event_to_input_event(const SDL_Event& e
 
 
     if (event.type == SDL_FINGERUP) {
-        if (!m_finger_state.contains(finger_id) || !m_finger_state.at(finger_id).has_value()) {
+        if (!m_finger_state.contains(finger_id) or !m_finger_state.at(finger_id).has_value()) {
             std::runtime_error{ "A finger was released without being pressed!" };
         }
 
