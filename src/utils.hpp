@@ -6,6 +6,7 @@
 #include <bit>
 #include <concepts>
 #include <string>
+#include <type_traits>
 #if defined(__ANDROID__)
 #include "bit.hpp"
 #include "concepts.hpp"
@@ -18,7 +19,7 @@ namespace utils {
     [[nodiscard]] std::string current_date_time_iso8601();
 
     template<std::integral Integral>
-    [[nodiscard]] constexpr inline Integral byte_swap(Integral value) noexcept {
+    [[nodiscard]] constexpr Integral byte_swap(Integral value) noexcept {
         // source: https://en.cppreference.com/w/cpp/numeric/byteswap
         static_assert(std::has_unique_object_representations_v<Integral>, "T may not have padding bits");
         auto value_representation = std::bit_cast<std::array<std::byte, sizeof(Integral)>>(value);
@@ -38,5 +39,10 @@ namespace utils {
 
     [[nodiscard]] constexpr inline auto from_little_endian(std::integral auto value) {
         return to_little_endian(value);
+    }
+
+    template<class Enum>
+    [[nodiscard]] constexpr std::underlying_type_t<Enum> to_underlying(Enum e) noexcept {
+        return static_cast<std::underlying_type_t<Enum>>(e);
     }
 } // namespace utils
