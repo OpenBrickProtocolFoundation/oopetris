@@ -116,7 +116,7 @@ public:
     }
 
 private:
-    template<utils::invocable Callable>
+    template<typename Callable>
     bool with_lock_delay(Callable movement) {
         const auto result = movement();
         if (result and m_is_in_lock_delay) {

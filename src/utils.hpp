@@ -15,13 +15,6 @@ namespace utils {
     template<class T>
     concept integral = std::is_integral_v<T>;
 
-    //from: https://github.com/llvm/llvm-project/blob/main/libcxx/include/__concepts/invocable.h#L24-L29
-    // [concept.invocable]
-    template<class Fn, class... Args>
-    concept invocable = requires(Fn&& fn, Args&&... args) {
-        std::invoke(std::forward<Fn>(fn), std::forward<Args>(args)...); // not required to be equality preserving
-    };
-
     [[nodiscard]] std::string current_date_time_iso8601();
 
     template<integral Integral>
