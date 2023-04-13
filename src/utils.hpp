@@ -1,35 +1,42 @@
 #pragma once
 
+#include "types.hpp"
 #include "utils.hpp"
 #include <algorithm>
 #include <array>
 #include <bit>
-#include <concepts>
+#include <climits>
 #include <string>
 #include <type_traits>
-#if defined(__ANDROID__)
-#include "bit.hpp"
-#include "concepts.hpp"
-#include "ranges.hpp"
-#else
-#include <ranges>
-#endif
 
 namespace utils {
+    // taken from llvm: https://github.com/llvm/llvm-project/blob/main/libcxx/include/__concepts/arithmetic.h#L27-L30
+    // [concepts.arithmetic], arithmetic concepts
+    template<class T>
+    concept integral = std::is_integral_v<T>;
+
+    //from: https://github.com/llvm/llvm-project/blob/main/libcxx/include/__concepts/invocable.h#L24-L29
+    // [concept.invocable]
+    template<class Fn, class... Args>
+    concept invocable = requires(Fn&& fn, Args&&... args) {
+        std::invoke(std::forward<Fn>(fn), std::forward<Args>(args)...); // not required to be equality preserving
+    };
+
     [[nodiscard]] std::string current_date_time_iso8601();
 
-    template<std::integral Integral>
+    template<integral Integral>
     [[nodiscard]] constexpr Integral byte_swap(Integral value) noexcept {
-        // source: https://en.cppreference.com/w/cpp/numeric/byteswap
-        static_assert(std::has_unique_object_representations_v<Integral>, "T may not have padding bits");
-        auto value_representation = std::bit_cast<std::array<std::byte, sizeof(Integral)>>(value);
-
-        std::ranges::reverse(value_representation);
-
-        return std::bit_cast<Integral>(value_representation);
+        // based on source: slartibartswift
+        auto result = Integral{};
+        for (usize i = 0; i < sizeof(Integral); ++i) {
+            result <<= CHAR_BIT;
+            result |= value & 0xFF;
+            value >>= CHAR_BIT;
+        }
+        return result;
     }
 
-    [[nodiscard]] constexpr inline auto to_little_endian(std::integral auto value) {
+    [[nodiscard]] constexpr auto to_little_endian(integral auto value) {
         if constexpr (std::endian::native == std::endian::little) {
             return value;
         } else {
@@ -37,7 +44,7 @@ namespace utils {
         }
     }
 
-    [[nodiscard]] constexpr inline auto from_little_endian(std::integral auto value) {
+    [[nodiscard]] constexpr auto from_little_endian(integral auto value) {
         return to_little_endian(value);
     }
 

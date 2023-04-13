@@ -8,9 +8,9 @@
 #include "tetromino.hpp"
 #include "text.hpp"
 #include "types.hpp"
+#include "utils.hpp"
 #include <array>
 #include <cmath>
-#include <concepts>
 #include <tl/optional.hpp>
 #include <vector>
 
@@ -116,7 +116,7 @@ public:
     }
 
 private:
-    template<std::invocable Callable>
+    template<utils::invocable Callable>
     bool with_lock_delay(Callable movement) {
         const auto result = movement();
         if (result and m_is_in_lock_delay) {

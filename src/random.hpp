@@ -1,9 +1,6 @@
 #pragma once
 
-#include <concepts>
-#if defined(__ANDROID__)
-#include "concepts.hpp"
-#endif
+#include "utils.hpp"
 #include <random>
 
 struct Random {
@@ -19,7 +16,7 @@ public:
     Random();
     explicit Random(std::mt19937_64::result_type seed);
 
-    template<std::integral Integer>
+    template<utils::integral Integer>
     [[nodiscard]] Integer random(const Integer upper_bound_exclusive) {
         auto distribution = std::uniform_int_distribution<Integer>{ 0, upper_bound_exclusive - 1 };
         return distribution(m_generator);

@@ -4,8 +4,6 @@
 #include "tetrion.hpp"
 #include "utils.hpp"
 #include <array>
-#include <concepts>
-#include <cstdlib>
 #include <span>
 #include <vector>
 
@@ -55,7 +53,7 @@ public:
     bool compare_to(const TetrionSnapshot& other, bool log_result) const;
 
 private:
-    template<std::integral Integral>
+    template<utils::integral Integral>
     static void append(std::vector<char>& vector, const Integral value) {
         const auto little_endian_value = utils::to_little_endian(value);
         const char* const start = reinterpret_cast<const char*>(&little_endian_value);
@@ -65,7 +63,7 @@ private:
         }
     }
 
-    template<std::integral Integral>
+    template<utils::integral Integral>
     [[nodiscard]] static tl::optional<Integral> read_from_istream(std::istream& istream) {
         if (not istream) {
             return tl::nullopt;
