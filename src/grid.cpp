@@ -27,15 +27,15 @@ void Grid::draw_hold_background(const Application& app) const {
 }
 
 void Grid::draw_small_background(const Application& app, Point position) const {
-    const Point preview_top_left = to_screen_coords(position);
-    const Point preview_bottom_right =
-            preview_top_left + Point{ tile_size().x * preview_extends.x - 1, tile_size().y * preview_extends.y - 1 };
-    app.renderer().draw_rect_filled(Rect{ preview_top_left, preview_bottom_right }, background_color);
+    const Point top_left = to_screen_coords(position);
+    const Point bottom_right =
+            top_left + Point{ tile_size().x * preview_extends.x - 1, tile_size().y * preview_extends.y - 1 };
+    app.renderer().draw_rect_filled(Rect{ top_left, bottom_right }, background_color);
 
-    const Point preview_outline_top_left = preview_top_left - Point{ 1, 1 };
-    const Point preview_outline_bottom_right = preview_bottom_right + Point{ 1, 1 };
-    const Rect preview_outline_rect = Rect{ preview_outline_top_left, preview_outline_bottom_right };
-    app.renderer().draw_rect_outline(preview_outline_rect, border_color);
+    const Point outline_top_left = top_left - Point{ 1, 1 };
+    const Point outline_bottom_right = bottom_right + Point{ 1, 1 };
+    const Rect outline_rect = Rect{ outline_top_left, outline_bottom_right };
+    app.renderer().draw_rect_outline(outline_rect, border_color);
 }
 void Grid::draw_playing_field_background(const Application& app) const {
     const Point bottom_right{
