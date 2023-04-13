@@ -55,7 +55,9 @@ public:
         } catch (const std::exception& err) {
             spdlog::error("error parsing command line arguments: {}", err.what());
 #if defined(__ANDROID__)
-            // calling exit() in android doesn't to the correct job, it completely avoids resource cleanup by the underlying SDLActivity.java (java wrapper), that calls the main and expects it to return ALWAYS  and throwing an exception in a catch statement is bad, but is required here
+            // calling exit() in android doesn't do the correct job, it completely avoids resource cleanup by the underlying SDLActivity.java
+            // (java wrapper), that calls the main and expects it to return ALWAYS and throwing an exception in a catch statement is bad,
+            // but is required here
             throw std::runtime_error{ "exit with status code 1: " + std::string{ err.what() } };
 #else
             std::exit(1);
