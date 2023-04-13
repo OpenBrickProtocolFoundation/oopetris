@@ -86,15 +86,14 @@ void TetrisApplication::render() const {
             overloaded{
                     [&]([[maybe_unused]] KeyboardControls& keyboard_controls) -> std::unique_ptr<Input> {
 #if defined(__ANDROID__)
-                        auto keyboard_input =
-                                std::make_unique<TouchInput>(associated_tetrion, std::move(on_event_callback));
+                        auto input = std::make_unique<TouchInput>(associated_tetrion, std::move(on_event_callback));
 #else
-                        auto keyboard_input = std::make_unique<KeyboardInput>(
+                        auto input = std::make_unique<KeyboardInput>(
                                 associated_tetrion, std::move(on_event_callback), keyboard_controls
                         );
 #endif
-                        m_event_dispatcher.register_listener(keyboard_input.get());
-                        return keyboard_input;
+                        m_event_dispatcher.register_listener(input.get());
+                        return input;
                     },
             },
             controls
