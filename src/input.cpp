@@ -257,7 +257,6 @@ void TouchInput::handle_event(const SDL_Event& event) {
 tl::optional<InputEvent> TouchInput::sdl_event_to_input_event(const SDL_Event& event) {
     //TODO to handle those things better, holding has to be supported
 
-
     // also take into accounts fingerId, since there may be multiple fingers, each finger has it's own saved state
     const SDL_FingerID finger_id = event.tfinger.fingerId;
 
@@ -283,7 +282,6 @@ tl::optional<InputEvent> TouchInput::sdl_event_to_input_event(const SDL_Event& e
             std::runtime_error{ "A finger was released without being pressed!" };
         }
 
-
         const auto pressed_state = m_finger_state.at(finger_id).value();
 
         const auto x = event.tfinger.x;
@@ -299,12 +297,12 @@ tl::optional<InputEvent> TouchInput::sdl_event_to_input_event(const SDL_Event& e
         const auto dy = y - pressed_state.y;
         const auto duration = timestamp - pressed_state.timestamp;
 
-        const auto dax = std::fabs(dx);
-        const auto day = std::fabs(dy);
+        const auto dx_abs = std::fabs(dx);
+        const auto dy_abs = std::fabs(dy);
 
         m_finger_state.insert_or_assign(finger_id, tl::nullopt);
         if (duration < duration_threshold) {
-            if (dax < threshold_x and day < threshold_y) {
+            if (dx_abs < threshold_x and dy_abs < threshold_y) {
                 // tap on the right side of the screen
                 if (x > 0.5) {
                     return InputEvent::RotateRightPressed;
@@ -316,18 +314,16 @@ tl::optional<InputEvent> TouchInput::sdl_event_to_input_event(const SDL_Event& e
             }
         }
 
-
         // swipe right
-        if (dx > threshold_x and day < threshold_y) {
+        if (dx > threshold_x and dy_abs < threshold_y) {
             return InputEvent::MoveRightPressed;
         }
         // swipe left
-        if (dx < -threshold_x and day < threshold_y) {
-
+        if (dx < -threshold_x and dy_abs < threshold_y) {
             return InputEvent::MoveLeftPressed;
         }
         // swipe down
-        if (dy > threshold_y and dax < threshold_x) {
+        if (dy > threshold_y and dx_abs < threshold_x) {
             // swipe down to drop
             if (duration < duration_drop_threshold) {
                 return InputEvent::DropPressed;
@@ -336,7 +332,7 @@ tl::optional<InputEvent> TouchInput::sdl_event_to_input_event(const SDL_Event& e
         }
 
         // swipe up
-        if (dy < -threshold_y and dax < threshold_x) {
+        if (dy < -threshold_y and dx_abs < threshold_x) {
             return InputEvent::HoldPressed;
         }
     }
