@@ -290,10 +290,10 @@ tl::optional<InputEvent> TouchInput::sdl_event_to_input_event(const SDL_Event& e
         const auto y = event.tfinger.y;
         const auto timestamp = event.tfinger.timestamp;
 
-        constexpr auto threshold_x = 150 / screen_w_reference;
-        constexpr auto threshold_y = 400 / screen_h_reference;
-        constexpr auto duration_threshold = 500;
-        constexpr auto duration_drop_threshold = 200;
+        constexpr auto threshold_x = 150.0 / screen_w_reference;
+        constexpr auto threshold_y = 400.0 / screen_h_reference;
+        constexpr auto duration_threshold = 500.0;
+        constexpr auto duration_drop_threshold = 200.0;
 
         const auto dx = x - pressed_state.x;
         const auto dy = y - pressed_state.y;
