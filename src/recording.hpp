@@ -142,7 +142,7 @@ private:
     template<typename Result>
     using ReadResult = tl::expected<Result, ReadError>;
 
-    template<std::integral Integral>
+    template<utils::integral Integral>
     [[nodiscard]] static ReadResult<Integral> read_integral_from_file(std::ifstream& file) {
         if (not file) {
             spdlog::error("failed to read data from file");
@@ -242,7 +242,7 @@ public:
     }
 
 private:
-    static void write_integral_to_file(std::ofstream& file, const std::integral auto data) {
+    static void write_integral_to_file(std::ofstream& file, const utils::integral auto data) {
         if (not file) {
             spdlog::error("failed to write data \"{}\"", data);
             return;
@@ -258,7 +258,7 @@ private:
         write_integral_to_file(file, header.starting_level);
     }
 
-    void write(const std::integral auto data) {
+    void write(const utils::integral auto data) {
         write_integral_to_file(m_output_file, data);
     }
 };
