@@ -16,6 +16,6 @@ jobs:
             - uses: DenverCoder1/doxygen-github-pages-action@v1.2.0
               with:
                 github_token: ${{ secrets.GITHUB_TOKEN }}
-                branch: 63-add-documentation ## TODO change when all changes are in main
+                branch: gh-pages
                 folder: docs
                 config_file: Doxyfile
