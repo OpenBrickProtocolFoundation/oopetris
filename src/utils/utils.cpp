@@ -1,7 +1,7 @@
 #include "utils.hpp"
+#include "spdlog/spdlog.h"
 #include <chrono>
 #include <ctime>
-#include <spdlog/spdlog.h>
 
 namespace utils {
     [[nodiscard]] std::string current_date_time_iso8601() {

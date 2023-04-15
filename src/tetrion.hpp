@@ -8,7 +8,7 @@
 #include "tetromino.hpp"
 #include "text.hpp"
 #include "types.hpp"
-#include "utils.hpp"
+#include "utils/utils.hpp"
 #include <array>
 #include <cmath>
 #include <tl/optional.hpp>

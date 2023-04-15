@@ -2,7 +2,7 @@
 
 #include "application.hpp"
 #include "tetrion.hpp"
-#include "utils.hpp"
+#include "utils/utils.hpp"
 #include <array>
 #include <span>
 #include <vector>

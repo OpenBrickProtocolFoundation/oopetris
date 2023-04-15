@@ -57,8 +57,8 @@ add_executable(oopetris
         src/random.hpp
         src/recording.hpp
         src/input_event.hpp
-        src/utils.hpp
-        src/utils.cpp
+        src/utils/utils.hpp
+        src/utils/utils.cpp
         src/command_line_arguments.hpp
         src/controls.hpp
         src/mino_stack.cpp
