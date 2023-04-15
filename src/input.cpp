@@ -286,7 +286,7 @@ tl::optional<InputEvent> TouchInput::sdl_event_to_input_event(const SDL_Event& e
 
     if (event.type == SDL_FINGERDOWN) {
         if (m_finger_state.contains(finger_id) and m_finger_state.at(finger_id).has_value()) {
-            std::runtime_error{ "A finger was pressed somehow more then once without releasing it in between!" };
+            throw std::runtime_error{ "A finger was pressed somehow more then once without releasing it in between!" };
         }
 
         const auto x = event.tfinger.x;
@@ -299,7 +299,7 @@ tl::optional<InputEvent> TouchInput::sdl_event_to_input_event(const SDL_Event& e
 
     if (event.type == SDL_FINGERUP) {
         if (!m_finger_state.contains(finger_id) or !m_finger_state.at(finger_id).has_value()) {
-            std::runtime_error{ "A finger was released without being pressed!" };
+            throw std::runtime_error{ "A finger was released without being pressed!" };
         }
 
         const auto pressed_state = m_finger_state.at(finger_id).value();
