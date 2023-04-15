@@ -17,6 +17,9 @@ jobs:
               with:
                   fetch-depth: "0"
 
+            - name: test
+              run: ls -lsa 
+
             - uses: mattnotmitt/doxygen-action@v1.9.5
               with:
                   doxyfile-path: ./Doxyfile
