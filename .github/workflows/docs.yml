@@ -1,0 +1,29 @@
+name: Doxygen Generation
+
+on:
+    push:
+        branches: ["main"]
+    pull_request:
+        branches: ["main"]
+    workflow_dispatch:
+
+jobs:
+    generate-docs:
+        runs-on: ubuntu-22.04
+        permissions:
+          contents: write
+        steps:
+            - uses: actions/checkout@v3
+              with:
+                  fetch-depth: "0"
+
+            - uses: mattnotmitt/doxygen-action@v1.9.5
+              with:
+                  doxyfile-path: ./Doxyfile
+                  working-directory: "."
+
+            - name: Deploy
+              uses: peaceiris/actions-gh-pages@v3
+              with:
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
+                  publish_dir: ./docs

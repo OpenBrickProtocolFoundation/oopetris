@@ -86,3 +86,4 @@ cmake-build-*
 recordings/
 /build-*
 /toolchains/
+docs/
