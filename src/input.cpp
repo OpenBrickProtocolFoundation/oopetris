@@ -11,26 +11,26 @@
 #include <tl/optional.hpp>
 #endif
 
-void Input::handle_event(const InputEvent event) {
+void Input::handle_event(const InputEvent event, const SimulationStep simulation_step_index) {
     if (m_on_event_callback) {
         m_on_event_callback(event);
     }
 
     switch (event) {
         case InputEvent::RotateLeftPressed:
-            m_target_tetrion->handle_input_command(InputCommand::RotateLeft);
+            m_target_tetrion->handle_input_command(InputCommand::RotateLeft, simulation_step_index);
             break;
         case InputEvent::RotateRightPressed:
-            m_target_tetrion->handle_input_command(InputCommand::RotateRight);
+            m_target_tetrion->handle_input_command(InputCommand::RotateRight, simulation_step_index);
             break;
         case InputEvent::MoveLeftPressed:
 #if defined(__ANDROID__)
             m_target_tetrion->handle_input_command(InputCommand::MoveLeft);
 #else
-            m_keys_hold[HoldableKey::Left] = Application::simulation_step_index() + delayed_auto_shift_frames;
+            m_keys_hold[HoldableKey::Left] = simulation_step_index + delayed_auto_shift_frames;
             if (not m_keys_hold.contains(HoldableKey::Right)
-                and not m_target_tetrion->handle_input_command(InputCommand::MoveLeft)) {
-                m_keys_hold[HoldableKey::Left] = Application::simulation_step_index();
+                and not m_target_tetrion->handle_input_command(InputCommand::MoveLeft, simulation_step_index)) {
+                m_keys_hold[HoldableKey::Left] = simulation_step_index;
             }
 #endif
             break;
@@ -38,21 +38,21 @@ void Input::handle_event(const InputEvent event) {
 #if defined(__ANDROID__)
             m_target_tetrion->handle_input_command(InputCommand::MoveRight);
 #else
-            m_keys_hold[HoldableKey::Right] = Application::simulation_step_index() + delayed_auto_shift_frames;
+            m_keys_hold[HoldableKey::Right] = simulation_step_index + delayed_auto_shift_frames;
             if (not m_keys_hold.contains(HoldableKey::Left)
-                and not m_target_tetrion->handle_input_command(InputCommand::MoveRight)) {
-                m_keys_hold[HoldableKey::Right] = Application::simulation_step_index();
+                and not m_target_tetrion->handle_input_command(InputCommand::MoveRight, simulation_step_index)) {
+                m_keys_hold[HoldableKey::Right] = simulation_step_index;
             }
 #endif
             break;
         case InputEvent::MoveDownPressed:
-            m_target_tetrion->handle_input_command(InputCommand::MoveDown);
+            m_target_tetrion->handle_input_command(InputCommand::MoveDown, simulation_step_index);
             break;
         case InputEvent::DropPressed:
-            m_target_tetrion->handle_input_command(InputCommand::Drop);
+            m_target_tetrion->handle_input_command(InputCommand::Drop, simulation_step_index);
             break;
         case InputEvent::HoldPressed:
-            m_target_tetrion->handle_input_command(InputCommand::Hold);
+            m_target_tetrion->handle_input_command(InputCommand::Hold, simulation_step_index);
             break;
         case InputEvent::MoveLeftReleased:
 #if not defined(__ANDROID__)
@@ -65,7 +65,7 @@ void Input::handle_event(const InputEvent event) {
 #endif
             break;
         case InputEvent::MoveDownReleased:
-            m_target_tetrion->handle_input_command(InputCommand::ReleaseMoveDown);
+            m_target_tetrion->handle_input_command(InputCommand::ReleaseMoveDown, simulation_step_index);
             break;
         case InputEvent::RotateLeftReleased:
         case InputEvent::RotateRightReleased:
@@ -78,8 +78,8 @@ void Input::handle_event(const InputEvent event) {
     }
 }
 
-void Input::update() {
-    const auto current_simulation_step_index = Application::simulation_step_index();
+void Input::update(const SimulationStep simulation_step_index) {
+    const auto current_simulation_step_index = simulation_step_index;
 
     const auto is_left_key_down = m_keys_hold.contains(HoldableKey::Left);
     const auto is_right_key_down = m_keys_hold.contains(HoldableKey::Right);
@@ -92,9 +92,10 @@ void Input::update() {
             while (target_simulation_step_index <= current_simulation_step_index) {
                 target_simulation_step_index += auto_repeat_rate_frames;
             }
-            if ((key == HoldableKey::Left and not m_target_tetrion->handle_input_command(InputCommand::MoveLeft))
-                or (key == HoldableKey::Right and not m_target_tetrion->handle_input_command(InputCommand::MoveRight)
-                )) {
+            if ((key == HoldableKey::Left
+                 and not m_target_tetrion->handle_input_command(InputCommand::MoveLeft, simulation_step_index))
+                or (key == HoldableKey::Right
+                    and not m_target_tetrion->handle_input_command(InputCommand::MoveRight, simulation_step_index))) {
                 target_simulation_step_index = current_simulation_step_index + delayed_auto_shift_frames;
             }
         }
@@ -102,10 +103,19 @@ void Input::update() {
 }
 
 void KeyboardInput::handle_event(const SDL_Event& event) {
-    const auto input_event = sdl_event_to_input_event(event);
-    if (input_event.has_value()) {
-        Input::handle_event(*input_event);
+    m_event_buffer.push_back(event);
+}
+
+void KeyboardInput::update(SimulationStep simulation_step_index) {
+    for (const auto& event : m_event_buffer) {
+        const auto input_event = sdl_event_to_input_event(event);
+        if (input_event.has_value()) {
+            Input::handle_event(*input_event, simulation_step_index);
+        }
     }
+    m_event_buffer.clear();
+
+    Input::update(simulation_step_index);
 }
 
 tl::optional<InputEvent> KeyboardInput::sdl_event_to_input_event(const SDL_Event& event) const {
@@ -160,16 +170,14 @@ tl::optional<InputEvent> KeyboardInput::sdl_event_to_input_event(const SDL_Event
 }
 
 ReplayInput::ReplayInput(
-        Tetrion* target_tetrion,
-        u8 tetrion_index,
+        Tetrion* const target_tetrion,
         OnEventCallback on_event_callback,
-        RecordingReader* recording_reader
+        RecordingReader* const recording_reader
 )
     : Input{ target_tetrion, std::move(on_event_callback) },
-      m_tetrion_index{ tetrion_index },
       m_recording_reader{ recording_reader } { }
 
-void ReplayInput::update() {
+void ReplayInput::update(const SimulationStep simulation_step_index) {
     while (true) {
         if (is_end_of_recording()) {
             break;
@@ -177,28 +185,30 @@ void ReplayInput::update() {
 
         const auto& record = m_recording_reader->at(m_next_record_index);
 
-        if (record.tetrion_index != m_tetrion_index) {
+        if (record.tetrion_index != m_target_tetrion->tetrion_index()) {
             // the current record is not for this tetrion => discard record and keep reading
             ++m_next_record_index;
             continue;
         }
 
-        const auto is_record_for_current_step = (record.simulation_step_index == Application::simulation_step_index());
+        const auto is_record_for_current_step = (record.simulation_step_index == simulation_step_index);
 
         if (not is_record_for_current_step) {
             break;
         }
 
-        Input::handle_event(record.event);
+        spdlog::debug("replaying event {} at step {}", magic_enum::enum_name(record.event), simulation_step_index);
+
+        Input::handle_event(record.event, simulation_step_index);
 
         ++m_next_record_index;
     }
 
-    Input::update();
+    Input::update(simulation_step_index);
 }
 
-void ReplayInput::late_update() {
-    Input::late_update();
+void ReplayInput::late_update(const SimulationStep simulation_step_index) {
+    Input::late_update(simulation_step_index);
 
     while (true) {
         if (m_next_snapshot_index >= m_recording_reader->m_snapshots.size()) {
@@ -206,20 +216,20 @@ void ReplayInput::late_update() {
         }
 
         const auto& snapshot = m_recording_reader->m_snapshots.at(m_next_snapshot_index);
-        if (snapshot.tetrion_index() != m_tetrion_index) {
+        if (snapshot.tetrion_index() != m_target_tetrion->tetrion_index()) {
             ++m_next_snapshot_index;
             continue;
         }
 
         // the snapshot corresponds to this tetrion
-        assert(snapshot.tetrion_index() == m_tetrion_index);
+        assert(snapshot.tetrion_index() == m_target_tetrion->tetrion_index());
 
-        if (snapshot.simulation_step_index() != Application::simulation_step_index()) {
+        if (snapshot.simulation_step_index() != simulation_step_index) {
             break;
         }
 
         // create a snapshot from the current state of the tetrion and compare it to the loaded snapshot
-        const auto current_snapshot = TetrionSnapshot{ *m_target_tetrion };
+        const auto current_snapshot = TetrionSnapshot{ *m_target_tetrion, simulation_step_index };
 #ifdef DEBUG_BUILD
         static constexpr auto verbose_logging = true;
 #else

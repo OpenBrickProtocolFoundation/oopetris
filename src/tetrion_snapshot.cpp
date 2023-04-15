@@ -8,7 +8,7 @@ TetrionSnapshot::TetrionSnapshot(
         const Level level,
         const Score score,
         const LineCount lines_cleared,
-        const SimulationStepIndex simulation_step_index,
+        const SimulationStep simulation_step_index,
         MinoStack mino_stack
 )
     : m_tetrion_index{ tetrion_index },
@@ -47,7 +47,7 @@ TetrionSnapshot::TetrionSnapshot(std::istream& istream) {
     }
     m_lines_cleared = *lines_cleared;
 
-    const auto simulation_step_index = read_from_istream<SimulationStepIndex>(istream);
+    const auto simulation_step_index = read_from_istream<SimulationStep>(istream);
     if (not simulation_step_index.has_value()) {
         spdlog::error("unable to read simulation step index from snapshot");
         throw std::exception{};
@@ -88,13 +88,9 @@ TetrionSnapshot::TetrionSnapshot(std::istream& istream) {
     }
 }
 
-TetrionSnapshot::TetrionSnapshot(const Tetrion& tetrion)
-    : TetrionSnapshot{ tetrion.tetrion_index(),
-                       tetrion.level(),
-                       tetrion.score(),
-                       tetrion.lines_cleared(),
-                       Application::simulation_step_index(),
-                       tetrion.mino_stack() } { }
+TetrionSnapshot::TetrionSnapshot(const Tetrion& tetrion, const SimulationStep simulation_step_index)
+    : TetrionSnapshot{ tetrion.tetrion_index(), tetrion.level(),       tetrion.score(),
+                       tetrion.lines_cleared(), simulation_step_index, tetrion.mino_stack() } { }
 
 [[nodiscard]] std::vector<char> TetrionSnapshot::to_bytes() const {
     auto bytes = std::vector<char>{};
@@ -121,11 +117,7 @@ static void compare_values(
         const bool log_result,
         bool& result
 ) {
-    if (this_value == other_value) {
-        if (log_result) {
-            spdlog::info("{} match ({})", name, this_value);
-        }
-    } else {
+    if (this_value != other_value) {
         if (log_result) {
             spdlog::error("{} do not match ({} vs. {})", name, this_value, other_value);
         }
@@ -150,7 +142,6 @@ bool TetrionSnapshot::compare_to(const TetrionSnapshot& other, const bool log_re
         if (log_result) {
             std::stringstream ss;
             ss << m_mino_stack;
-            spdlog::info("mino stacks match ({})", ss.str());
         }
     } else {
         if (log_result) {

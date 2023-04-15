@@ -21,6 +21,10 @@ TetrisApplication::TetrisApplication(CommandLineArguments command_line_arguments
     }
 
     for (u8 tetrion_index = 0; tetrion_index < num_tetrions; ++tetrion_index) {
+        m_clock_sources.push_back(
+                std::make_unique<LocalClock>(static_cast<u32>(this->command_line_arguments().target_fps))
+        );
+        m_simulation_step_indices.push_back(0);
         const auto starting_level = starting_level_for_tetrion(tetrion_index);
         spdlog::info("starting level for tetrion {}: {}", tetrion_index, starting_level);
 
@@ -32,9 +36,7 @@ TetrisApplication::TetrisApplication(CommandLineArguments command_line_arguments
 
         const auto tetrion_pointer = m_tetrions.back().get();
         if (is_replay_mode()) {
-            m_inputs.push_back(
-                    create_replay_input(tetrion_index, m_recording_reader.get(), tetrion_pointer, [](InputEvent) {})
-            );
+            m_inputs.push_back(create_replay_input(m_recording_reader.get(), tetrion_pointer, [](InputEvent) {}));
         } else {
             m_inputs.push_back(
                     create_input(m_settings.controls.at(tetrion_index), tetrion_pointer, std::move(on_event_callback))
@@ -42,32 +44,26 @@ TetrisApplication::TetrisApplication(CommandLineArguments command_line_arguments
         }
     }
     for (const auto& tetrion : m_tetrions) {
-        tetrion->spawn_next_tetromino();
-    }
-}
-
-void TetrisApplication::update_inputs() {
-    for (const auto& input : m_inputs) {
-        input->update();
-    }
-}
-
-void TetrisApplication::late_update_inputs() {
-    for (const auto& input : m_inputs) {
-        input->late_update();
-    }
-}
-
-void TetrisApplication::update_tetrions() {
-    for (const auto& tetrion : m_tetrions) {
-        tetrion->update();
+        tetrion->spawn_next_tetromino(0);
     }
 }
 
 void TetrisApplication::update() {
-    update_inputs();
-    update_tetrions();
-    late_update_inputs();
+    assert(m_inputs.size() == m_tetrions.size());
+    assert(m_inputs.size() == m_simulation_step_indices.size());
+
+    for (usize i = 0; i < m_tetrions.size(); ++i) {
+        auto& tetrion = *m_tetrions.at(i);
+        auto& input = *m_inputs.at(i);
+
+        auto& simulation_step_index = m_simulation_step_indices.at(i);
+        while (simulation_step_index < m_clock_sources.at(i)->simulation_step_index()) {
+            ++simulation_step_index;
+            input.update(simulation_step_index);
+            tetrion.update(simulation_step_index);
+            input.late_update(simulation_step_index);
+        }
+    }
 }
 
 void TetrisApplication::render() const {
@@ -89,7 +85,7 @@ void TetrisApplication::render() const {
                         auto input = std::make_unique<TouchInput>(associated_tetrion, std::move(on_event_callback));
 #else
                         auto input = std::make_unique<KeyboardInput>(
-                                associated_tetrion, std::move(on_event_callback), keyboard_controls
+                                associated_tetrion, keyboard_controls, std::move(on_event_callback)
                         );
 #endif
                         m_event_dispatcher.register_listener(input.get());
@@ -101,20 +97,23 @@ void TetrisApplication::render() const {
 }
 
 [[nodiscard]] std::unique_ptr<Input> TetrisApplication::create_replay_input(
-        const u8 tetrion_index,
         RecordingReader* const recording_reader,
         Tetrion* const associated_tetrion,
         Input::OnEventCallback on_event_callback
 ) {
-    return std::make_unique<ReplayInput>(
-            associated_tetrion, tetrion_index, std::move(on_event_callback), recording_reader
-    );
+    return std::make_unique<ReplayInput>(associated_tetrion, std::move(on_event_callback), recording_reader);
 }
 
 [[nodiscard]] Input::OnEventCallback TetrisApplication::create_on_event_callback(const int tetrion_index) {
     if (m_recording_writer) {
         return [tetrion_index, this](InputEvent event) {
-            m_recording_writer->add_event(static_cast<u8>(tetrion_index), Application::simulation_step_index(), event);
+            spdlog::debug(
+                    "event: {} (step {})", magic_enum::enum_name(event),
+                    m_clock_sources.at(tetrion_index)->simulation_step_index()
+            );
+            m_recording_writer->add_event(
+                    static_cast<u8>(tetrion_index), m_clock_sources.at(tetrion_index)->simulation_step_index(), event
+            );
         };
     } else {
         return Input::OnEventCallback{}; // empty std::function object

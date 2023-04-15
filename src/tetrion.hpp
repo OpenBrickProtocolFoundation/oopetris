@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bag.hpp"
+#include "clock_source.hpp"
 #include "grid.hpp"
 #include "input.hpp"
 #include "mino_stack.hpp"
@@ -32,7 +33,7 @@ private:
     using WallKickTable = std::array<std::array<Point, 5>, 8>;
 
     static constexpr int tile_size = 30;
-    static constexpr u64 lock_delay = 30;
+    static constexpr SimulationStep lock_delay = 30;
     static constexpr int num_lock_delays = 30;
 
     enum class RotationDirection {
@@ -80,20 +81,20 @@ public:
             Random::Seed random_seed,
             int starting_level,
             tl::optional<RecordingWriter*> recording_writer = tl::nullopt);
-    void update();
+    void update(SimulationStep simulation_step_index);
     void render(const Application& app) const;
 
     // returns if the input event lead to a movement
-    bool handle_input_command(InputCommand command);
-    void spawn_next_tetromino();
-    void spawn_next_tetromino(TetrominoType type);
+    bool handle_input_command(InputCommand command, SimulationStep simulation_step_index);
+    void spawn_next_tetromino(SimulationStep simulation_step_index);
+    void spawn_next_tetromino(TetrominoType type, SimulationStep simulation_step_index);
     bool rotate_tetromino_right();
     bool rotate_tetromino_left();
-    bool move_tetromino_down(MovementType movement_type);
+    bool move_tetromino_down(MovementType movement_type, SimulationStep simulation_step_index);
     bool move_tetromino_left();
     bool move_tetromino_right();
-    bool drop_tetromino();
-    void hold_tetromino();
+    bool drop_tetromino(SimulationStep simulation_step_index);
+    void hold_tetromino(SimulationStep simulation_step_index);
 
     [[nodiscard]] auto tetrion_index() const {
         return m_tetrion_index;
@@ -128,10 +129,10 @@ private:
     bool rotate(RotationDirection rotation_direction);
     bool move(MoveDirection move_direction);
     [[nodiscard]] tl::optional<const WallKickTable&> get_wall_kick_table() const;
-    void reset_lock_delay();
+    void reset_lock_delay(SimulationStep simulation_step_index);
     void refresh_texts();
     void clear_fully_occupied_lines();
-    void lock_active_tetromino();
+    void lock_active_tetromino(SimulationStep simulation_step_index);
     [[nodiscard]] bool is_active_tetromino_position_valid() const;
     [[nodiscard]] bool is_valid_mino_position(Point position) const;
     [[nodiscard]] bool is_active_tetromino_completely_visible() const;

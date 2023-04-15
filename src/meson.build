@@ -49,6 +49,8 @@ src_files += files(
     'mino_stack.cpp',
     'tetrion_snapshot.hpp',
     'tetrion_snapshot.cpp',
+    'clock_source.cpp',
+    'clock_source.hpp',
 )
 
 inc_dirs += include_directories('.')

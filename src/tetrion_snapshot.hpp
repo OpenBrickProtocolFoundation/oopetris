@@ -12,14 +12,13 @@ public:
     using Level = decltype(Tetrion::m_level);
     using Score = decltype(Tetrion::m_score);
     using LineCount = decltype(Tetrion::m_lines_cleared);
-    using SimulationStepIndex = decltype(Application::simulation_step_index());
 
 private:
     u8 m_tetrion_index;
     Level m_level;
     Score m_score;
     LineCount m_lines_cleared;
-    SimulationStepIndex m_simulation_step_index;
+    SimulationStep m_simulation_step_index;
     MinoStack m_mino_stack;
 
 public:
@@ -32,13 +31,13 @@ public:
             Level level,
             Score score,
             LineCount lines_cleared,
-            SimulationStepIndex simulation_step_index,
+            SimulationStep simulation_step_index,
             MinoStack mino_stack
     );
 
     explicit TetrionSnapshot(std::istream& istream);
 
-    explicit TetrionSnapshot(const Tetrion& tetrion);
+    TetrionSnapshot(const Tetrion& tetrion, const SimulationStep simulation_step_index);
 
     [[nodiscard]] auto tetrion_index() const {
         return m_tetrion_index;

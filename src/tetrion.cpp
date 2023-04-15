@@ -18,7 +18,7 @@ Tetrion::Tetrion(
       m_level{ starting_level },
       m_next_gravity_simulation_step_index{ get_gravity_delay_frames() },
       m_recording_writer{ recording_writer },
-      m_lock_delay_step_index{ Application::simulation_step_index() + lock_delay } {
+      m_lock_delay_step_index{ lock_delay } {
 
 #if defined(__ANDROID__)
     constexpr auto font_path = "fonts/PressStart2P.ttf";
@@ -43,21 +43,21 @@ Tetrion::Tetrion(
     refresh_texts();
 }
 
-void Tetrion::update() {
+void Tetrion::update(const SimulationStep simulation_step_index) {
     switch (m_game_state) {
         case GameState::Playing: {
-            if (Application::simulation_step_index() >= m_next_gravity_simulation_step_index) {
-                assert(Application::simulation_step_index() == m_next_gravity_simulation_step_index
-                       and "frame skipped?!");
+            if (simulation_step_index >= m_next_gravity_simulation_step_index) {
+                assert(simulation_step_index == m_next_gravity_simulation_step_index and "frame skipped?!");
                 if (m_is_accelerated_down_movement and not m_down_key_pressed) {
                     assert(m_next_gravity_simulation_step_index >= get_gravity_delay_frames() and "overflow");
                     m_next_gravity_simulation_step_index -= get_gravity_delay_frames();
                     m_is_accelerated_down_movement = false;
                 } else {
                     if (move_tetromino_down(
-                                m_is_accelerated_down_movement ? MovementType::Forced : MovementType::Gravity
+                                m_is_accelerated_down_movement ? MovementType::Forced : MovementType::Gravity,
+                                simulation_step_index
                         )) {
-                        reset_lock_delay();
+                        reset_lock_delay(simulation_step_index);
                     }
                 }
                 m_next_gravity_simulation_step_index += get_gravity_delay_frames();
@@ -92,29 +92,29 @@ void Tetrion::render(const Application& app) const {
     m_cleared_lines_text.render(app);
 }
 
-bool Tetrion::handle_input_command(const InputCommand command) {
+bool Tetrion::handle_input_command(const InputCommand command, const SimulationStep simulation_step_index) {
     switch (command) {
         case InputCommand::RotateLeft:
             if (rotate_tetromino_left()) {
-                reset_lock_delay();
+                reset_lock_delay(simulation_step_index);
                 return true;
             }
             return false;
         case InputCommand::RotateRight:
             if (rotate_tetromino_right()) {
-                reset_lock_delay();
+                reset_lock_delay(simulation_step_index);
                 return true;
             }
             return false;
         case InputCommand::MoveLeft:
             if (move_tetromino_left()) {
-                reset_lock_delay();
+                reset_lock_delay(simulation_step_index);
                 return true;
             }
             return false;
         case InputCommand::MoveRight:
             if (move_tetromino_right()) {
-                reset_lock_delay();
+                reset_lock_delay(simulation_step_index);
                 return true;
             }
             return false;
@@ -122,24 +122,24 @@ bool Tetrion::handle_input_command(const InputCommand command) {
 #if not defined(__ANDROID__)
             m_down_key_pressed = true;
             m_is_accelerated_down_movement = true;
-            m_next_gravity_simulation_step_index = Application::simulation_step_index() + get_gravity_delay_frames();
+            m_next_gravity_simulation_step_index = simulation_step_index + get_gravity_delay_frames();
 #endif
-            if (move_tetromino_down(MovementType::Forced)) {
-                reset_lock_delay();
+            if (move_tetromino_down(MovementType::Forced, simulation_step_index)) {
+                reset_lock_delay(simulation_step_index);
                 return true;
             }
             return false;
         case InputCommand::Drop:
-            m_lock_delay_step_index = Application::simulation_step_index(); // lock instantly
-            return drop_tetromino();
+            m_lock_delay_step_index = simulation_step_index; // lock instantly
+            return drop_tetromino(simulation_step_index);
         case InputCommand::ReleaseMoveDown: {
             m_down_key_pressed = false;
             return false;
         }
         case InputCommand::Hold:
             if (m_allowed_to_hold) {
-                hold_tetromino();
-                reset_lock_delay();
+                hold_tetromino(simulation_step_index);
+                reset_lock_delay(simulation_step_index);
                 m_allowed_to_hold = false;
                 return true;
             }
@@ -150,11 +150,11 @@ bool Tetrion::handle_input_command(const InputCommand command) {
     }
 }
 
-void Tetrion::spawn_next_tetromino() {
-    spawn_next_tetromino(get_next_tetromino_type());
+void Tetrion::spawn_next_tetromino(const SimulationStep simulation_step_index) {
+    spawn_next_tetromino(get_next_tetromino_type(), simulation_step_index);
 }
 
-void Tetrion::spawn_next_tetromino(const TetrominoType type) {
+void Tetrion::spawn_next_tetromino(const TetrominoType type, const SimulationStep simulation_step_index) {
     static constexpr Point spawn_position{ 3, 0 };
     m_active_tetromino = Tetromino{ spawn_position, type };
     refresh_preview();
@@ -163,7 +163,7 @@ void Tetrion::spawn_next_tetromino(const TetrominoType type) {
         spdlog::info("game over");
         if (m_recording_writer.has_value()) {
             spdlog::info("writing snapshot");
-            (*m_recording_writer)->add_snapshot(m_tetrion_index, Application::simulation_step_index(), *this);
+            (*m_recording_writer)->add_snapshot(m_tetrion_index, simulation_step_index, *this);
         }
         m_active_tetromino = {};
         return;
@@ -175,7 +175,7 @@ void Tetrion::spawn_next_tetromino(const TetrominoType type) {
             break;
         }
     }
-    m_next_gravity_simulation_step_index = Application::simulation_step_index() + get_gravity_delay_frames();
+    m_next_gravity_simulation_step_index = simulation_step_index + get_gravity_delay_frames();
     refresh_ghost_tetromino();
 }
 
@@ -187,7 +187,7 @@ bool Tetrion::rotate_tetromino_left() {
     return with_lock_delay([&]() { return rotate(RotationDirection::Left); });
 }
 
-bool Tetrion::move_tetromino_down(MovementType movement_type) {
+bool Tetrion::move_tetromino_down(MovementType movement_type, const SimulationStep simulation_step_index) {
     if (not m_active_tetromino) {
         return false;
     }
@@ -200,11 +200,11 @@ bool Tetrion::move_tetromino_down(MovementType movement_type) {
         m_is_in_lock_delay = true;
         m_active_tetromino->move_up();
         if ((m_is_in_lock_delay and m_num_executed_lock_delays >= num_lock_delays)
-            or Application::simulation_step_index() >= m_lock_delay_step_index) {
-            lock_active_tetromino();
-            reset_lock_delay();
+            or simulation_step_index >= m_lock_delay_step_index) {
+            lock_active_tetromino(simulation_step_index);
+            reset_lock_delay(simulation_step_index);
         } else {
-            m_next_gravity_simulation_step_index = Application::simulation_step_index() + 1;
+            m_next_gravity_simulation_step_index = simulation_step_index + 1;
         }
         return false;
     }
@@ -219,7 +219,7 @@ bool Tetrion::move_tetromino_right() {
     return with_lock_delay([&]() { return move(MoveDirection::Right); });
 }
 
-bool Tetrion::drop_tetromino() {
+bool Tetrion::drop_tetromino(const SimulationStep simulation_step_index) {
     if (not m_active_tetromino) {
         return false;
     }
@@ -230,27 +230,27 @@ bool Tetrion::drop_tetromino() {
     }
     m_active_tetromino->move_up();
     m_score += 4 * num_movements;
-    lock_active_tetromino();
+    lock_active_tetromino(simulation_step_index);
     return num_movements > 0;
 }
 
-void Tetrion::hold_tetromino() {
+void Tetrion::hold_tetromino(const SimulationStep simulation_step_index) {
     if (not m_active_tetromino.has_value()) {
         return;
     }
 
     if (not m_tetromino_on_hold.has_value()) {
         m_tetromino_on_hold = Tetromino{ Grid::hold_tetromino_position, m_active_tetromino->type() };
-        spawn_next_tetromino();
+        spawn_next_tetromino(simulation_step_index);
     } else {
         const auto on_hold = m_tetromino_on_hold->type();
         m_tetromino_on_hold = Tetromino{ Grid::hold_tetromino_position, m_active_tetromino->type() };
-        spawn_next_tetromino(on_hold);
+        spawn_next_tetromino(on_hold, simulation_step_index);
     }
 }
 
-void Tetrion::reset_lock_delay() {
-    m_lock_delay_step_index = Application::simulation_step_index() + lock_delay;
+void Tetrion::reset_lock_delay(const SimulationStep simulation_step_index) {
+    m_lock_delay_step_index = simulation_step_index + lock_delay;
 }
 
 void Tetrion::refresh_texts() {
@@ -299,7 +299,7 @@ void Tetrion::clear_fully_occupied_lines() {
     m_score += score_per_line_multiplier.at(num_lines_cleared) * (m_level + 1);
 }
 
-void Tetrion::lock_active_tetromino() {
+void Tetrion::lock_active_tetromino(const SimulationStep simulation_step_index) {
     assert(m_active_tetromino.has_value());
     for (const Mino& mino : m_active_tetromino->minos()) {
         m_mino_stack.set(mino.position(), mino.type());
@@ -308,14 +308,15 @@ void Tetrion::lock_active_tetromino() {
     m_is_in_lock_delay = false;
     m_num_executed_lock_delays = 0;
     clear_fully_occupied_lines();
-    spawn_next_tetromino();
+    spawn_next_tetromino(simulation_step_index);
     refresh_texts();
-    reset_lock_delay();
+    reset_lock_delay(simulation_step_index);
 
     // save a snapshot on every freeze (only in debug builds)
 #ifdef DEBUG_BUILD
     if (m_recording_writer) {
-        (*m_recording_writer)->add_snapshot(m_tetrion_index, Application::simulation_step_index(), *this);
+        spdlog::debug("adding snapshot at step {}", simulation_step_index);
+        (*m_recording_writer)->add_snapshot(m_tetrion_index, simulation_step_index, *this);
     }
 #endif
 }
