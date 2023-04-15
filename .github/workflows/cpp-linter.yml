@@ -42,5 +42,5 @@ jobs:
             - name: Fail CI run if linter checks failed
               if: steps.linter.outputs.checks-failed != 0
               run: |
-                  echo "some linter checks failed. ${{ steps.linter.outputs.checks-failed }}"
+                  echo "${{ steps.linter.outputs.checks-failed }} linter checks failed"
                   exit 1
