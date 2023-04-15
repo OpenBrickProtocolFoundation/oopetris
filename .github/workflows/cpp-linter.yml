@@ -1,10 +1,13 @@
 name: C++ lints(clang-format + clang-tidy)
 on: pull_request
+permissions:
+    contents: read
+    pull-requests: write
+    issues: write
 
 jobs:
     cpp-linter:
         runs-on: ubuntu-22.04
-        permissions: write-all # TODO debug and use only necessary ones
         steps:
             - uses: actions/checkout@v3
 
