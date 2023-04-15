@@ -25,7 +25,7 @@ void Input::handle_event(const InputEvent event, const SimulationStep simulation
             break;
         case InputEvent::MoveLeftPressed:
 #if defined(__ANDROID__)
-            m_target_tetrion->handle_input_command(InputCommand::MoveLeft);
+            m_target_tetrion->handle_input_command(InputCommand::MoveLeft, simulation_step_index);
 #else
             m_keys_hold[HoldableKey::Left] = simulation_step_index + delayed_auto_shift_frames;
             if (not m_keys_hold.contains(HoldableKey::Right)
@@ -36,7 +36,7 @@ void Input::handle_event(const InputEvent event, const SimulationStep simulation
             break;
         case InputEvent::MoveRightPressed:
 #if defined(__ANDROID__)
-            m_target_tetrion->handle_input_command(InputCommand::MoveRight);
+            m_target_tetrion->handle_input_command(InputCommand::MoveRight, simulation_step_index);
 #else
             m_keys_hold[HoldableKey::Right] = simulation_step_index + delayed_auto_shift_frames;
             if (not m_keys_hold.contains(HoldableKey::Left)
@@ -257,11 +257,21 @@ void ReplayInput::late_update(const SimulationStep simulation_step_index) {
 
 
 #if defined(__ANDROID__)
+
 void TouchInput::handle_event(const SDL_Event& event) {
-    const auto input_event = sdl_event_to_input_event(event);
-    if (input_event.has_value()) {
-        Input::handle_event(*input_event);
+    m_event_buffer.push_back(event);
+}
+
+void TouchInput::update(SimulationStep simulation_step_index) {
+    for (const auto& event : m_event_buffer) {
+        const auto input_event = sdl_event_to_input_event(event);
+        if (input_event.has_value()) {
+            Input::handle_event(*input_event, simulation_step_index);
+        }
     }
+    m_event_buffer.clear();
+
+    Input::update(simulation_step_index);
 }
 
 tl::optional<InputEvent> TouchInput::sdl_event_to_input_event(const SDL_Event& event) {
