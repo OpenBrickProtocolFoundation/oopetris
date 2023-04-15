@@ -104,7 +104,6 @@ public:
             } else if (*magic_byte == utils::to_underlying(MagicByte::Snapshot)) {
                 auto snapshot = TetrionSnapshot{ file }; // todo: handle exception
                 m_snapshots.push_back(std::move(snapshot));
-                spdlog::info("read snapshot");
             } else {
                 spdlog::error("invalid magic byte: {}", static_cast<int>(*magic_byte));
                 throw RecordingError{};

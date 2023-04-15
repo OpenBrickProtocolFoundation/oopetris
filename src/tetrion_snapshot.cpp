@@ -32,7 +32,6 @@ TetrionSnapshot::TetrionSnapshot(std::istream& istream) {
         throw std::exception{};
     }
     m_level = *level;
-    spdlog::info("read level from snapshot: {}", m_level);
 
     const auto score = read_from_istream<Score>(istream);
     if (not score.has_value()) {
@@ -40,7 +39,6 @@ TetrionSnapshot::TetrionSnapshot(std::istream& istream) {
         throw std::exception{};
     }
     m_score = *score;
-    spdlog::info("read score from snapshot: {}", m_score);
 
     const auto lines_cleared = read_from_istream<LineCount>(istream);
     if (not lines_cleared.has_value()) {
@@ -48,7 +46,6 @@ TetrionSnapshot::TetrionSnapshot(std::istream& istream) {
         throw std::exception{};
     }
     m_lines_cleared = *lines_cleared;
-    spdlog::info("read number of lines cleared from snapshot: {}", m_lines_cleared);
 
     const auto simulation_step_index = read_from_istream<SimulationStepIndex>(istream);
     if (not simulation_step_index.has_value()) {
@@ -56,14 +53,12 @@ TetrionSnapshot::TetrionSnapshot(std::istream& istream) {
         throw std::exception{};
     }
     m_simulation_step_index = *simulation_step_index;
-    spdlog::info("read simulation step index from snapshot: {}", m_simulation_step_index);
 
     const auto num_minos = read_from_istream<MinoCount>(istream);
     if (not num_minos.has_value()) {
         spdlog::error("unable to read number of minos from snapshot");
         throw std::exception{};
     }
-    spdlog::info("read number of minos from snapshot: {}", *num_minos);
 
     for (MinoCount i = 0; i < *num_minos; ++i) {
         const auto x = read_from_istream<Coordinate>(istream);
@@ -82,7 +77,6 @@ TetrionSnapshot::TetrionSnapshot(std::istream& istream) {
         if (not type.has_value()) {
             spdlog::error("unable to read tetromino type of mino from snapshot");
             throw std::exception{};
-            ;
         }
 
         using PointCoordinate = decltype(Point::x);
@@ -138,8 +132,8 @@ static void compare_values(
         result = false;
     }
 }
-bool TetrionSnapshot::compare_to(const TetrionSnapshot& other, const bool log_result)
-        const {
+
+bool TetrionSnapshot::compare_to(const TetrionSnapshot& other, const bool log_result) const {
     bool snapshots_are_equal = true;
 
     compare_values("tetrion indices", m_tetrion_index, other.m_tetrion_index, log_result, snapshots_are_equal);
