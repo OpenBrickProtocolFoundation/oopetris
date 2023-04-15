@@ -1,0 +1,8 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$structEventListener.html" title=" " alt="" coords="5,19,116,45"/>
+<area shape="rect" id="node2" href="$structApplication.html" title="Abstract base for an application. Inherit from this struct to create an application and customize the..." alt="" coords="175,5,269,32"/>
+<area shape="rect" id="node4" href="$structKeyboardInput.html" title=" " alt="" coords="164,56,280,83"/>
+<area shape="rect" id="node3" href="$structTetrisApplication.html" title="This struct inherits from Application and implements the game&#39;s functionality. Instantiate this struc..." alt="" coords="328,5,459,32"/>
+<area shape="rect" id="node5" href="$structInput.html" title=" " alt="" coords="33,81,88,108"/>
+<area shape="rect" id="node6" href="$structReplayInput.html" title=" " alt="" coords="172,107,272,133"/>
+</map>

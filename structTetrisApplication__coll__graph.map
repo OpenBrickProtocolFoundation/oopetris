@@ -1,0 +1,6 @@
+<map id="TetrisApplication" name="TetrisApplication">
+<area shape="rect" id="node1" title="This struct inherits from Application and implements the game&#39;s functionality. Instantiate this struc..." alt="" coords="67,171,198,197"/>
+<area shape="rect" id="node2" href="$structApplication.html" title="Abstract base for an application. Inherit from this struct to create an application and customize the..." alt="" coords="85,95,180,121"/>
+<area shape="rect" id="node3" href="$structEventListener.html" title=" " alt="" coords="5,5,116,32"/>
+<area shape="rect" id="node4" href="$structEventDispatcher.html" title=" " alt="" coords="140,5,269,32"/>
+</map>
