@@ -65,6 +65,8 @@ add_executable(oopetris
         src/mino_stack.hpp
         src/tetrion_snapshot.hpp
         src/tetrion_snapshot.cpp
+        src/clock_source.cpp
+        src/clock_source.hpp
         )
 
 foreach (target ${TARGET_LIST})

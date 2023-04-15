@@ -1,5 +1,6 @@
 #include "mino_stack.hpp"
 #include "grid.hpp"
+#include <algorithm>
 
 void MinoStack::clear_row_and_let_sink(int row) {
     m_minos.erase(
@@ -42,15 +43,23 @@ void MinoStack::draw_minos(const Application& app, const Grid& grid) const {
 }
 
 std::ostream& operator<<(std::ostream& os, const MinoStack& mino_stack) {
-    os << "MinoStack(";
-    for (usize i = 0; i < mino_stack.num_minos(); ++i) {
-        const auto& mino = mino_stack.minos().at(i);
-        os << "{" << mino.position().x << ", " << mino.position().y << ", " << magic_enum::enum_name(mino.type())
-           << "}";
-        if (i < mino_stack.num_minos() - 1) {
-            os << ", ";
+    os << "MinoStack(\n";
+    for (int y = 0; y < Grid::height; ++y) {
+        for (int x = 0; x < Grid::width; ++x) {
+            const auto find_iterator =
+                    std::find_if(mino_stack.minos().cbegin(), mino_stack.minos().cend(), [&](const auto& mino) {
+                        return mino.position() == Point{ x, y };
+                    });
+            const auto found = (find_iterator != mino_stack.minos().cend());
+            if (found) {
+                os << magic_enum::enum_name(find_iterator->type());
+            } else {
+                os << " ";
+            }
         }
+        os << "\n";
     }
+
     os << ")";
     return os;
 }

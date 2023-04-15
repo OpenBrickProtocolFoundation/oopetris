@@ -17,6 +17,8 @@ private:
 
     static constexpr auto settings_filename = "settings.json";
 
+    std::vector<std::unique_ptr<ClockSource>> m_clock_sources;
+    std::vector<SimulationStep> m_simulation_step_indices;
     std::vector<std::unique_ptr<Tetrion>> m_tetrions;
     std::vector<std::unique_ptr<Input>> m_inputs;
     Settings m_settings;
@@ -30,9 +32,6 @@ public:
     explicit TetrisApplication(CommandLineArguments command_line_arguments);
 
 protected:
-    void update_inputs();
-    void late_update_inputs();
-    void update_tetrions();
     void update() override;
     void render() const override;
 
@@ -40,10 +39,9 @@ private:
     [[nodiscard]] std::unique_ptr<Input>
     create_input(Controls controls, Tetrion* associated_tetrion, Input::OnEventCallback on_event_callback);
 
-    [[nodiscard]] static std::unique_ptr<Input> create_replay_input(
-            u8 tetrion_index,
-            RecordingReader* constrecording_reader,
-            Tetrion *constassociated_tetrion,
+    [[nodiscard]] std::unique_ptr<Input> create_replay_input(
+            RecordingReader* recording_reader,
+            Tetrion* associated_tetrion,
             Input::OnEventCallback on_event_callback
     );
 

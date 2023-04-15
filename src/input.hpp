@@ -1,5 +1,6 @@
 #pragma once
 
+#include "clock_source.hpp"
 #include "controls.hpp"
 #include "event_listener.hpp"
 #include "input_event.hpp"
@@ -44,32 +45,35 @@ protected:
     OnEventCallback m_on_event_callback;
 
 protected:
-    explicit Input(Tetrion* target_tetrion) : m_target_tetrion{ target_tetrion } { }
-    explicit Input(Tetrion* target_tetrion, OnEventCallback on_event_callback)
+    Input(Tetrion* target_tetrion, OnEventCallback on_event_callback = OnEventCallback{})
         : m_target_tetrion{ target_tetrion },
           m_on_event_callback{ std::move(on_event_callback) } { }
-    void handle_event(InputEvent event);
+
+    void handle_event(InputEvent event, SimulationStep simulation_step_index);
 
 public:
-    virtual void update();
-    virtual void late_update() {};
+    virtual void update(SimulationStep simulation_step_index);
+    virtual void late_update(SimulationStep){};
     virtual ~Input() = default;
 };
 
 struct KeyboardInput : public Input, public EventListener {
 private:
     KeyboardControls m_controls;
+    std::vector<SDL_Event> m_event_buffer;
 
 public:
-    explicit KeyboardInput(Tetrion* target_tetrion, KeyboardControls controls)
-        : Input{ target_tetrion },
-          m_controls{ controls } { }
-
-    explicit KeyboardInput(Tetrion* target_tetrion, OnEventCallback on_event_callback, KeyboardControls controls)
+    explicit KeyboardInput(
+            Tetrion* target_tetrion,
+            KeyboardControls controls,
+            OnEventCallback on_event_callback = OnEventCallback{}
+    )
         : Input{ target_tetrion, std::move(on_event_callback) },
           m_controls{ controls } { }
 
     void handle_event(const SDL_Event& event) override;
+
+    void update(SimulationStep simulation_step_index) override;
 
 private:
     [[nodiscard]] tl::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event) const;
@@ -79,21 +83,15 @@ struct RecordingReader;
 
 struct ReplayInput : public Input {
 private:
-    u8 m_tetrion_index;
     RecordingReader* m_recording_reader;
     usize m_next_record_index{ 0 };
     usize m_next_snapshot_index{ 0 };
 
 public:
-    ReplayInput(
-            Tetrion* target_tetrion,
-            u8 tetrion_index,
-            OnEventCallback on_event_callback,
-            RecordingReader* recording_reader
-    );
+    ReplayInput(Tetrion* target_tetrion, OnEventCallback on_event_callback, RecordingReader* recording_reader);
 
-    void update() override;
-    void late_update() override;
+    void update(SimulationStep simulation_step_index) override;
+    void late_update(SimulationStep simulation_step_index) override;
 
 private:
     [[nodiscard]] bool is_end_of_recording() const;
