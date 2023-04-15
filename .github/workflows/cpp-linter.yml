@@ -31,9 +31,11 @@ jobs:
                   sudo apt-get install ninja-build libsdl2-2.0-0 libsdl2-dev libsdl2-net* libsdl2-ttf* -y
                   meson setup build -Dbuildtype=release
 
-
             - uses: cpp-linter/cpp-linter-action@v2
               id: linter
+              continue-on-error: true
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               with:
                   style: file
                   version: 15
@@ -42,9 +44,10 @@ jobs:
                   lines-changed-only: false
                   thread-comments: true
                   file-annotations: false
-                  tidy-checks: "boost-*,bugprone-*,performance-*,readability-*,portability-*,modernize-*,clang-analyzer-*,cppcoreguidelines-*"
                   ignore: subprojects|build|android|assets|recordings|docs|toolchains
 
             - name: Fail CI run if linter checks failed
-              if: steps.linter.outputs.checks-failed > 0
-              run: exit 1
+              if: steps.linter.outputs.checks-failed != 0
+              run: |
+                  echo "some linter checks failed. ${{ steps.linter.outputs.checks-failed }}"
+                  exit 1
