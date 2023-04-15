@@ -1,9 +1,5 @@
 name: C++ lints(clang-format + clang-tidy)
 on: pull_request
-permissions:
-    contents: read
-    pull-requests: write
-    issues: write
 
 jobs:
     cpp-linter:
@@ -32,7 +28,7 @@ jobs:
               id: linter
               continue-on-error: true
               env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  GITHUB_TOKEN: ${{ secrets.CPP_LINT_TOKEN }}
               with:
                   style: file
                   version: 15
