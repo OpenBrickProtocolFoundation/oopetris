@@ -1,6 +1,7 @@
 #include "tetrion.hpp"
 #include "application.hpp"
 #include "recording.hpp"
+#include "utils.hpp"
 #include <cassert>
 #include <fstream>
 #include <spdlog/spdlog.h>
@@ -20,11 +21,10 @@ Tetrion::Tetrion(
       m_recording_writer{ recording_writer },
       m_lock_delay_step_index{ lock_delay } {
 
+    const auto font_path = utils::get_assets_folder() / "fonts" / "PressStart2P.ttf";
 #if defined(__ANDROID__)
-    constexpr auto font_path = "fonts/PressStart2P.ttf";
     constexpr auto font_size = 35;
 #else
-    constexpr auto font_path = "assets/fonts/PressStart2P.ttf";
     constexpr auto font_size = 18;
 #endif
     m_fonts.push_back(std::make_shared<Font>(font_path, font_size));

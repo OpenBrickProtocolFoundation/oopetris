@@ -6,6 +6,7 @@
 #include <array>
 #include <bit>
 #include <climits>
+#include <filesystem>
 #include <string>
 #include <type_traits>
 
@@ -45,4 +46,10 @@ namespace utils {
     [[nodiscard]] constexpr std::underlying_type_t<Enum> to_underlying(Enum e) noexcept {
         return static_cast<std::underlying_type_t<Enum>>(e);
     }
+
+    [[nodiscard]] std::filesystem::path get_assets_folder();
+
+    [[nodiscard]] std::filesystem::path get_root_folder();
+
+    [[nodiscard]] std::filesystem::path get_subfolder_to_root(std::string folder);
 } // namespace utils
