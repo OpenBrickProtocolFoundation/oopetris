@@ -1,7 +1,11 @@
 #include "utils.hpp"
 #include <chrono>
 #include <ctime>
+#include <filesystem>
 #include <spdlog/spdlog.h>
+#include <stdexcept>
+#include <string>
+#include <SDL.h>
 
 namespace utils {
     [[nodiscard]] std::string current_date_time_iso8601() {
@@ -27,4 +31,31 @@ namespace utils {
 
         return std::string{ buffer };
     }
+
+    [[nodiscard]] std::filesystem::path get_root_folder() {
+#if defined(__ANDROID__)
+        char* pref_path = SDL_GetPrefPath("coder2k", "oopetris");
+        if (!pref_path) {
+            throw std::runtime_error{ "Failed in getting the Pref Path on android!" };
+        }
+        return std::filesystem::path{ std::string{ pref_path } };
+#else
+        return std::filesystem::path{ "." };
+#endif
+    }
+
+    [[nodiscard]] std::filesystem::path get_assets_folder() {
+#if defined(__ANDROID__)
+        return std::filesystem::path{ "." };
+#else
+        return std::filesystem::path{ "assets" };
+#endif
+    }
+
+
+    [[nodiscard]] std::filesystem::path get_subfolder_to_root(std::string folder) {
+        return get_root_folder() / folder;
+    }
+
+
 } // namespace utils

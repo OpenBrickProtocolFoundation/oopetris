@@ -1,4 +1,5 @@
 #include "tetris_application.hpp"
+#include "utils.hpp"
 
 TetrisApplication::TetrisApplication(CommandLineArguments command_line_arguments)
 #if defined(__ANDROID__)
@@ -165,17 +166,10 @@ void TetrisApplication::try_load_settings() try {
 
 [[nodiscard]] std::unique_ptr<RecordingWriter> TetrisApplication::create_recording_writer(TetrionHeaders tetrion_headers
 ) {
-#if defined(__ANDROID__)
-    // ON android the path where the app runs is not writeable, so get a writebale path
-    char* pref_path = SDL_GetPrefPath("coder2k", "oopetris");
-    if (!pref_path) {
-        throw std::runtime_error{ "Failed in getting the Pref Path on android!" };
-    }
-    const auto recording_directory_path = std::filesystem::path{ std::string{ pref_path } } / "recordings";
-#else
+
     static constexpr auto recordings_directory = "recordings";
-    const auto recording_directory_path = std::filesystem::path{ recordings_directory };
-#endif
+    const auto recording_directory_path = utils::get_subfolder_to_root(recordings_directory);
+
     if (not std::filesystem::exists(recording_directory_path)) {
         std::filesystem::create_directory(recording_directory_path);
     }

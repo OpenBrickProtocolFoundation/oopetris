@@ -7,7 +7,6 @@
 #include "random.hpp"
 #include "settings.hpp"
 #include "types.hpp"
-#include <filesystem>
 #include <functional>
 #include <tl/optional.hpp>
 #include <unordered_map>

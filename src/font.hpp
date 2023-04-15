@@ -1,8 +1,8 @@
 #pragma once
 
 #include <SDL_ttf.h>
+#include <filesystem>
 #include <string>
-
 struct FontLoadingError final : public std::exception {
 private:
     std::string message;
@@ -21,6 +21,7 @@ private:
 
 public:
     Font(const std::string& path, int size);
+    Font(const std::filesystem::path& path, int size);
     Font(const Font&) = delete;
     Font& operator=(const Font&) = delete;
     ~Font();

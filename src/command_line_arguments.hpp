@@ -1,6 +1,7 @@
 #pragma once
 
 #include "types.hpp"
+#include "utils.hpp"
 #include <argparse/argparse.hpp>
 #include <filesystem>
 #include <spdlog/spdlog.h>
@@ -34,7 +35,7 @@ public:
 
             if (auto path = parser.present("--recording")) {
                 spdlog::info("recording is present");
-                recording_path = std::filesystem::path{ *path };
+                recording_path = utils::get_subfolder_to_root(*path);
             }
 
             const auto fps = parser.get<int>("--target-fps");

@@ -1,12 +1,13 @@
 #include "command_line_arguments.hpp"
 #include "tetris_application.hpp"
+#include "utils.hpp"
 #include <filesystem>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/rotating_file_sink.h>
 #include <spdlog/sinks/stdout_sinks.h>
 
 int main(int argc, char** argv) {
-    const auto logs_path = std::filesystem::path{ "logs" };
+    const auto logs_path = utils::get_subfolder_to_root("logs");
     if (not exists(logs_path)) {
         std::filesystem::create_directory(logs_path);
     }
