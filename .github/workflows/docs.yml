@@ -13,19 +13,9 @@ jobs:
         permissions:
           contents: write
         steps:
-            - uses: actions/checkout@v3
+            - uses: DenverCoder1/doxygen-github-pages-action@v1.2.0
               with:
-                  fetch-depth: "0"
-
-            - name: test
-              run: ls -lsa 
-
-            - uses: mattnotmitt/doxygen-action@v1.9.5
-              with:
-                  doxyfile-path: ./Doxyfile
-
-            - name: Deploy
-              uses: peaceiris/actions-gh-pages@v3
-              with:
-                  github_token: ${{ secrets.GITHUB_TOKEN }}
-                  publish_dir: ./docs
+                github_token: ${{ secrets.GITHUB_TOKEN }}
+                branch: 63-add-documentation ## TODO change when all changes are in main
+                folder: docs
+                config_file: Doxyfile
