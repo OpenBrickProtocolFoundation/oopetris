@@ -108,13 +108,16 @@ private:
     };
 
     std::unordered_map<SDL_FingerID, tl::optional<PressedState>> m_finger_state;
+    std::vector<SDL_Event> m_event_buffer;
 
 
 public:
     explicit TouchInput(Tetrion* target_tetrion, OnEventCallback on_event_callback = OnEventCallback{})
-        : Input{ target_tetrion, std::move(on_event_callback) } { }
+        : Input{ target_tetrion, std::move(on_event_callback) },
+          m_event_buffer{ std::vector<SDL_Event>{} } { }
 
     void handle_event(const SDL_Event& event) override;
+    void update(SimulationStep simulation_step_index) override;
 
 private:
     [[nodiscard]] tl::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event);
