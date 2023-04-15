@@ -33,7 +33,7 @@ private:
 
     static constexpr int tile_size = 30;
     static constexpr u64 lock_delay = 30;
-    static constexpr int num_lock_delays = 15;
+    static constexpr int num_lock_delays = 30;
 
     enum class RotationDirection {
         Left,
