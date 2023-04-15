@@ -1,8 +1,8 @@
 # taken from https://github.com/cpp-linter/cpp-linter-action/blob/main/demo/.clang-tidy
 ---
-Checks: "clang-diagnostic-*,clang-analyzer-*,bugprone-*,misc-*,performance-*,readability-*,portability-*,modernize-*,cppcoreguidelines-*"
+Checks: "clang-diagnostic-*,clang-analyzer-*,bugprone-*,misc-*,performance-*,readability-*,portability-*,modernize-*,cppcoreguidelines-*,-modernize-use-trailing-return-type"
 WarningsAsErrors: ""
-HeaderFilterRegex: ""
+HeaderFilterRegex: "oopetris/src/.*"
 AnalyzeTemporaryDtors: false
 FormatStyle: "file"
 CheckOptions:
@@ -103,7 +103,7 @@ CheckOptions:
     - key: modernize-loop-convert.MinConfidence
       value: reasonable
     - key: modernize-use-trailing-return-type
-      value: "0"
+      value: "false"
     - key: modernize-loop-convert.NamingStyle
       value: CamelCase
     - key: modernize-pass-by-value.IncludeStyle
