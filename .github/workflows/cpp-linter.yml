@@ -12,12 +12,31 @@ jobs:
 
         steps:
             - uses: actions/checkout@v3
+
+            - name: Setup Meson
+              run: |
+                  python -m pip install --upgrade pip
+                  pip install meson
+
+            - name: Setup Clang
+              uses: egor-tensin/setup-clang@v1
+              with:
+                  version: 15
+                  platform: x64
+
+            - name: Prepare compile_commands.json
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install ninja-build libsdl2-2.0-0 libsdl2-dev libsdl2-net* libsdl2-ttf* -y
+                  meson setup build -Dbuildtype=release
+
+
             - uses: cpp-linter/cpp-linter-action@v2
               id: linter
               with:
                   style: file
                   version: 15
-                  extra-args: -std=c++2b -Wall -Wextra -Wpedantic
+                  database: build
                   files-changed-only: false
                   lines-changed-only: false
                   thread-comments: true
