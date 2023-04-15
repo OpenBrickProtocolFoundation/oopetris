@@ -2,6 +2,7 @@
 #include "tetris_application.hpp"
 #include "utils.hpp"
 #include <filesystem>
+#include <spdlog/sinks/android_sink.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/rotating_file_sink.h>
 #include <spdlog/sinks/stdout_sinks.h>
@@ -13,7 +14,11 @@ int main(int argc, char** argv) {
     }
 
     std::vector<spdlog::sink_ptr> sinks;
+#if defined(__ANDROID__)
+    sinks.push_back(std::make_shared<spdlog::sinks::android_sink_mt>());
+#else
     sinks.push_back(std::make_shared<spdlog::sinks::stdout_sink_st>());
+#endif
     sinks.push_back(std::make_shared<spdlog::sinks::rotating_file_sink_mt>(
             fmt::format("{}/oopetris.log", logs_path.string()), 1024 * 1024 * 10, 5, true
     ));
