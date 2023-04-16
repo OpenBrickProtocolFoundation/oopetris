@@ -68,8 +68,7 @@ public:
             OnEventCallback on_event_callback = OnEventCallback{}
     )
         : Input{ target_tetrion, std::move(on_event_callback) },
-          m_controls{ controls },
-          m_event_buffer{ std::vector<SDL_Event>{} } { }
+          m_controls{ controls } { }
 
     void handle_event(const SDL_Event& event) override;
 
