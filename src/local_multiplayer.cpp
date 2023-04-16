@@ -2,7 +2,9 @@
 #include "local_multiplayer.hpp"
 #include "network/network_data.hpp"
 #include "network/network_manager.hpp"
-#include "play_manager.hpp"
+#include "network/online_input.hpp"
+#include "play_mode.hpp"
+#include "tetrion.hpp"
 #include <cstddef>
 #include <memory>
 #include <stdexcept>
@@ -13,8 +15,8 @@
 #include <variant>
 #include <vector>
 
-LocalMultiplayer::LocalMultiplayer(std::size_t num_players, bool is_server)
-    : PlayManager{},
+LocalMultiplayer::LocalMultiplayer(const bool is_replay_mode, const std::size_t num_players, const bool is_server)
+    : PlayMode{ is_replay_mode },
       m_num_players{ num_players },
       m_is_server{ is_server },
       m_network_manager{ NetworkManager{} },
@@ -23,7 +25,7 @@ LocalMultiplayer::LocalMultiplayer(std::size_t num_players, bool is_server)
 
 
 tl::expected<StartState, std::string> LocalMultiplayer::init(Settings settings, Random::Seed seed) {
-    PlayManager::init(settings, seed);
+    PlayMode::init(settings, seed);
 
     if (m_is_server) {
 
@@ -82,11 +84,11 @@ tl::expected<StartState, std::string> LocalMultiplayer::init(Settings settings, 
 
             const auto initializer_message = received_value.as_type<InitializationData>();
 
-            if (initializer_message->m_type == InitializationDataType::Send) {
+            if (initializer_message->type == InitializationDataType::Send) {
 
-                if (initializer_message->m_uuid != 0) {
+                if (initializer_message->uuid != 0) {
                     throw std::runtime_error{ "Wrong InitializationData: first connection must have uuid 0 but has "
-                                              + std::to_string(initializer_message->m_uuid) };
+                                              + std::to_string(initializer_message->uuid) };
                 }
 
                 //this is correct fro online_input, set this client connection as player index, query conenction for info like starting piece and eventual other information
@@ -142,9 +144,9 @@ tl::expected<StartState, std::string> LocalMultiplayer::init(Settings settings, 
 
                     const auto receive_initializer_message = receive_received_value.as_type<InitializationData>();
 
-                    if (receive_initializer_message->m_type == InitializationDataType::Receive) {
+                    if (receive_initializer_message->type == InitializationDataType::Receive) {
 
-                        receive_connections.emplace_back(receive_initializer_message->m_uuid, receive_connection);
+                        receive_connections.emplace_back(receive_initializer_message->uuid, receive_connection);
 
                     } else {
                         throw std::runtime_error{
@@ -219,14 +221,15 @@ tl::expected<StartState, std::string> LocalMultiplayer::init(Settings settings, 
         );
 
 
-        return StartState{ num_players , data->seed};
+        return StartState{ num_players, data->seed };
     }
 }
 
 
-std::pair<std::size_t, std::unique_ptr<Input>> LocalMultiplayer::get_input(
-        std::size_t index,
-        GameManager* associated_game_manager,
+std::unique_ptr<Input> LocalMultiplayer::get_input(
+        u8 index,
+        Tetrion* tetrion,
+        Input::OnEventCallback event_callback,
         EventDispatcher* event_dispatcher
 ) {
     if (index >= m_num_players) {
@@ -247,14 +250,22 @@ std::pair<std::size_t, std::unique_ptr<Input>> LocalMultiplayer::get_input(
                 }
             }
 
-            associated_game_manager->set_online_handler(std::make_unique<OnlineHandler>(m_server, nullptr, send_to));
-
-
-            auto keyboard_input = std::make_unique<KeyboardInput>(
-                    associated_game_manager, util::assert_is_keyboard_controls(settings().controls.at(index))
+            m_online_handlers.push_back(
+                    std::make_unique<OnlineHandler>(m_server, nullptr, send_to, std::move(event_callback))
             );
-            event_dispatcher->register_listener(keyboard_input.get());
-            return std::pair<std::size_t, std::unique_ptr<Input>>{ 0, std::move(keyboard_input) };
+
+            auto modified_event_callback = m_online_handlers.back()->get_callback_function();
+
+            tetrion->set_player_num(0);
+            return utils::create_input(
+                    settings().controls.at(index), tetrion, std::move(modified_event_callback), event_dispatcher
+            );
+
+            /*    tetrion->set_player_num(0);
+            return TetrisApplication::create_input(
+                    settings().controls.at(index), tetrion, std::move(event_callback), event_dispatcher
+            );
+ */
         } else {
 
             auto connection_result = get_connection_to_server();
@@ -267,25 +278,25 @@ std::pair<std::size_t, std::unique_ptr<Input>> LocalMultiplayer::get_input(
                 };
             }
 
-            associated_game_manager->set_online_handler(
-                    std::make_unique<OnlineHandler>(nullptr, m_input_connections.at(0).first.second)
-            );
+            m_online_handlers.push_back(std::make_unique<OnlineHandler>(
+                    nullptr, m_input_connections.at(0).first.second, std::move(event_callback)
+            ));
 
-            auto keyboard_input = std::make_unique<KeyboardInput>(
-                    associated_game_manager, util::assert_is_keyboard_controls(settings().controls.at(index))
+
+            auto modified_event_callback = m_online_handlers.back()->get_callback_function();
+
+            tetrion->set_player_num(m_input_connections.at(0).first.first);
+            return utils::create_input(
+                    settings().controls.at(index), tetrion, std::move(modified_event_callback), event_dispatcher
             );
-            event_dispatcher->register_listener(keyboard_input.get());
-            return std::pair<std::size_t, std::unique_ptr<Input>>{ m_input_connections.at(0).first.first,
-                                                                   std::move(keyboard_input) };
         }
     } else {
 
         if (m_is_server) {
 
-            auto online_input = std::make_unique<OnlineInput>(
-                    associated_game_manager, m_input_connections.at(index - 1).first.second
-            );
-            return std::pair<std::size_t, std::unique_ptr<Input>>{ index, std::move(online_input) };
+            auto online_input = std::make_unique<OnlineInput>(tetrion, m_input_connections.at(index - 1).first.second);
+            tetrion->set_player_num(index);
+            return online_input;
         } else {
 
             if (m_input_connections.size() != 1) {
@@ -300,7 +311,7 @@ std::pair<std::size_t, std::unique_ptr<Input>> LocalMultiplayer::get_input(
             std::size_t player_num = 0;
             const auto my_id = m_input_connections.at(0).first.first;
             for (auto [num, receive_connection] : m_input_connections.at(0).second) {
-                const auto actual_index = index <= my_id ? index - 1 : index;
+                const u8 actual_index = index <= my_id ? index - 1 : index;
                 if (actual_index == num) {
                     connection = receive_connection;
                     player_num = num;
@@ -314,9 +325,10 @@ std::pair<std::size_t, std::unique_ptr<Input>> LocalMultiplayer::get_input(
             }
 
 
-            auto online_input = std::make_unique<OnlineInput>(associated_game_manager, connection);
+            auto online_input = std::make_unique<OnlineInput>(tetrion, connection);
 
-            return std::pair<std::size_t, std::unique_ptr<Input>>{ player_num, std::move(online_input) };
+            tetrion->set_player_num(player_num);
+            return online_input;
         }
     }
 }

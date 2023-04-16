@@ -1,9 +1,10 @@
 #include "font.hpp"
+#include <string>
 
 Font::Font(const std::string& path, int size) {
     m_font = TTF_OpenFont(path.c_str(), size);
     if (m_font == nullptr) {
-        throw FontLoadingError{ "error loading font" };
+        throw FontLoadingError{ "error loading font: '" + std::string{ TTF_GetError() } + "'" };
     }
 }
 

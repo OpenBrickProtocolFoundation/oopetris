@@ -4,6 +4,7 @@ src_files += files(
     'network_manager.cpp',
     'network_transportable.cpp',
     'online_handler.cpp',
+    'online_input.cpp',
 )
 
 inc_dirs += include_directories('.')

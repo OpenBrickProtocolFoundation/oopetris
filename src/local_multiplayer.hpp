@@ -2,9 +2,11 @@
 
 #pragma once
 
+#include "application.hpp"
 #include "network/network_data.hpp"
 #include "network/network_manager.hpp"
-#include "play_manager.hpp"
+#include "network/online_handler.hpp"
+#include "play_mode.hpp"
 #include "random.hpp"
 #include <concepts>
 #include <cstddef>
@@ -20,30 +22,36 @@ using ConnectionStore = std::vector<std::pair<
         std::pair<std::size_t, std::shared_ptr<Connection>>,
         std::vector<std::pair<std::size_t, std::shared_ptr<Connection>>>>>;
 
-struct LocalMultiplayer : public PlayManager {
+struct LocalMultiplayer : public PlayMode {
 private:
     std::size_t m_num_players;
     bool m_is_server;
     NetworkManager m_network_manager;
     std::shared_ptr<Server> m_server;
     ConnectionStore m_input_connections;
+    std::vector<std::unique_ptr<OnlineHandler>> m_online_handlers;
 
     tl::expected<std::shared_ptr<Connection>, std::string>
     get_connection_to_server(std::uint32_t delay_between_attempts = 200, std::uint32_t connection_attempts = 10);
 
 public:
-    explicit LocalMultiplayer(std::size_t num_players, bool is_server);
+    explicit LocalMultiplayer(const bool is_replay_mode, const std::size_t num_players, const bool is_server);
     tl::expected<StartState, std::string> init(Settings settings, Random::Seed seed) override;
-    std::pair<std::size_t, std::unique_ptr<Input>>
-    get_input(std::size_t index, GameManager* associated_game_manager, EventDispatcher* event_dispatcher) override;
+    std::unique_ptr<Input> get_input(
+            u8 index,
+            Tetrion* tetrion,
+            Input::OnEventCallback event_callback,
+            EventDispatcher* event_dispatcher
+    ) override;
 };
 
 
 // little fast helper,
 //TODO refactor better and move in some reasonable cpp, and don't use exceptions to handle this
 template<class T>
-requires std::derived_from<T, Transportable> std::shared_ptr<T> await_exact_one(std::shared_ptr<Connection> connection
-) {
+//TODO add again
+// requires std::derived_from<T, Transportable>
+std::shared_ptr<T> await_exact_one(std::shared_ptr<Connection> connection) {
     //TODO make this number customizable
     auto send_initializer = connection->wait_for_data(10 * 1000, 100);
     if (!send_initializer.has_value()) {

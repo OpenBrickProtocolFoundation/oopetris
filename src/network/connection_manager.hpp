@@ -7,15 +7,17 @@
 #include "network_transportable.hpp"
 #include "network_util.hpp"
 #include <SDL_net.h>
+#include <concepts>
 #include <memory>
 #include <string>
 #include <tl/expected.hpp>
 #include <tl/optional.hpp>
 #include <vector>
-#include <concepts>
 
 using MaybeData = tl::expected<tl::optional<std::vector<RawTransportData>>, std::string>;
 
+
+//TODO write a method to check if the connection was destroyed
 
 struct Connection {
 
@@ -36,7 +38,8 @@ public:
 
 
     template<class T>
-    requires std::derived_from<T, Transportable> std::shared_ptr<T> 
+    //TODO add again
+    //requires std::derived_from<T, Transportable> std::shared_ptr<T>
     tl::optional<std::string> send_data(const T* transportable) {
 
 
@@ -65,6 +68,7 @@ public:
     }
 };
 
+//TODO shutdown server on quit
 
 struct Server {
 
@@ -79,7 +83,8 @@ public:
     tl::optional<std::shared_ptr<Connection>> get_client(Uint32 ms_delay = 100, std::size_t abort_after = 60 * 1000);
 
     template<class T>
-    requires std::derived_from<T, Transportable> std::shared_ptr<T> 
+    //TODO add again
+    //requires std::derived_from<T, Transportable> std::shared_ptr<T>
     tl::optional<std::string> send_all(const T* transportable, std::vector<std::shared_ptr<Connection>> send_to) {
 
         for (std::size_t i = 0; i < send_to.size(); ++i) {
@@ -95,7 +100,8 @@ public:
     }
 
     template<class T>
-    requires std::derived_from<T, Transportable> std::shared_ptr<T> 
+    //TODO add again
+    //requires std::derived_from<T, Transportable> std::shared_ptr<T>
     tl::optional<std::string> send_all(const T* transportable) {
 
         return send_all<T>(transportable, m_connections);

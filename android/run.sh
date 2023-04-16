@@ -1,0 +1,173 @@
+#!/usr/bin/env bash
+
+set -e
+
+mkdir -p toolchains
+
+export NDK_VER="25c"
+export SDK_VERSION="33"
+
+export BASE_PATH="$PWD/toolchains/android-ndk-r$NDK_VER"
+export ANDROID_NDK_HOME="$BASE_PATH"
+export ANDROID_NDK="$BASE_PATH"
+
+if [ ! -d "$BASE_PATH" ]; then
+
+    cd toolchains
+
+    wget -q "https://dl.google.com/android/repository/android-ndk-r$NDK_VER-linux.zip"
+
+    unzip -q "android-ndk-r$NDK_VER-linux.zip"
+
+    cd ..
+fi
+
+if [ ! -e "$BASE_PATH/meta/abis.json" ]; then
+
+    echo "no abis.json file found, to determine supported abis"
+    exit 2
+
+fi
+
+echo
+
+mapfile -t ARCH_KEYS < <(jq 'keys' -M -r -c "$BASE_PATH/meta/abis.json" | tr -d '[]"' | sed 's/,/\n/g')
+
+for INDEX in "${!ARCH_KEYS[@]}"; do
+    export KEY=${ARCH_KEYS[$INDEX]}
+
+    RAW_JSON=$(jq '.[$KEY]' -M -r -c --arg KEY "$KEY" "$BASE_PATH/meta/abis.json")
+
+    BITNESS=$(echo "$RAW_JSON" | jq -M -r -c '."bitness"') || true
+    ARCH=$(echo "$RAW_JSON" | jq -M -r -c '."arch"')
+    ARM_VERSION=$(echo "$RAW_JSON" | jq -M -r -c '."proc"' | tr -d "-")
+    ARM_NAME_TRIPLE=$(echo "$RAW_JSON" | jq -M -r -c '."triple"')
+    ARM_TARET_ARCH=$KEY
+    ARM_TRIPLE=$ARM_NAME_TRIPLE$SDK_VERSION
+    ARM_COMPILER_TRIPLE=$(echo "$RAW_JSON" | jq -M -r -c '."llvm_triple"')
+    ARM_TOOL_TRIPLE=$(echo "$ARM_NAME_TRIPLE$SDK_VERSION" | sed s/$ARCH/$ARM_VERSION/)
+
+    export SYM_LINK_PATH=sysroot_sym-$ARM_VERSION
+
+    export HOST_ROOT="$BASE_PATH/toolchains/llvm/prebuilt/linux-x86_64"
+    export SYS_ROOT="${HOST_ROOT}/$SYM_LINK_PATH"
+    export BIN_DIR="$HOST_ROOT/bin"
+    export PATH="$BIN_DIR:$PATH"
+
+    LIB_PATH="${SYS_ROOT}/usr/lib/$ARM_TRIPLE:${SYS_ROOT}/usr/lib/$ARM_TRIPLE/${SDK_VERSION}"
+    INC_PATH="${SYS_ROOT}/usr/include"
+
+    export LIBRARY_PATH="$SYS_ROOT/usr/lib/$ARM_NAME_TRIPLE/$SDK_VERSION"
+
+    LAST_DIR=$PWD
+
+    if [ -d "${SYS_ROOT:?}/" ]; then
+
+        rm -rf "${SYS_ROOT:?}/"
+    fi
+
+    mkdir -p "${SYS_ROOT:?}/usr/lib"
+
+    cd "${SYS_ROOT:?}/usr/"
+
+    ln -s "$HOST_ROOT/sysroot/usr/local" "${SYS_ROOT:?}/usr/"
+
+    ln -s "$HOST_ROOT/sysroot/usr/include" "${SYS_ROOT:?}/usr/"
+
+    find "$HOST_ROOT/sysroot/usr/lib/$ARM_NAME_TRIPLE/" -maxdepth 1 -name "*.so" -exec ln -s "{}" "${SYS_ROOT:?}/usr/lib/" \;
+
+    find "$HOST_ROOT/sysroot/usr/lib/$ARM_NAME_TRIPLE/" -maxdepth 1 -name "*.a" -exec ln -s "{}" "${SYS_ROOT:?}/usr/lib/" \;
+
+    find "$HOST_ROOT/sysroot/usr/lib/$ARM_NAME_TRIPLE/$SDK_VERSION/" -maxdepth 1 -name "*.a" -exec ln -s "{}" "${SYS_ROOT:?}/usr/lib/" \;
+
+    find "$HOST_ROOT/sysroot/usr/lib/$ARM_NAME_TRIPLE/$SDK_VERSION/" -maxdepth 1 -name "*.so" -exec ln -s "{}" "${SYS_ROOT:?}/usr/lib/" \;
+
+    find "$HOST_ROOT/sysroot/usr/lib/$ARM_NAME_TRIPLE/$SDK_VERSION/" -maxdepth 1 -name "*.o" -exec ln -s "{}" "${SYS_ROOT:?}/usr/lib/" \;
+
+    cd "$LAST_DIR"
+
+    export BUILD_DIR="build-$ARM_TARET_ARCH"
+
+    export CC=$ARM_TRIPLE-clang
+    export CPP=$ARM_TRIPLE-clang++
+    export CXX=$CPP
+    export LD=llvm-ld
+    export AS=llvm-as
+    export AR=llvm-ar
+    export RANLIB=llvm-ranlib
+
+    cat <<EOF >"./android/crossbuilt-$ARM_TARET_ARCH.ini"
+[host_machine]
+system = 'android'
+cpu_family = '$ARCH'
+cpu = '$ARM_VERSION'
+endian = 'little'
+
+[constants]
+android_ndk = '$BIN_DIR'
+toolchain = '$BIN_DIR/$ARM_TRIPLE'
+
+[binaries]
+c = '$ARM_TOOL_TRIPLE-clang'
+cpp = '$ARM_TOOL_TRIPLE-clang++'
+ar      = 'llvm-ar'
+as      = 'llvm-as'
+ranlib  = 'llvm-ranlib'
+ld      = 'llvm-link'
+strip   = 'llvm-strip'
+objcopy = 'llvm-objcop'
+pkgconfig = 'false'
+llvm-config = 'llvm-config'
+
+[built-in options]
+c_std = 'c11'
+cpp_std = 'c++20'
+c_args = ['--sysroot=${SYS_ROOT:?}','-fPIE','-fPIC','--target=$ARM_COMPILER_TRIPLE','-DHAVE_USR_INCLUDE_MALLOC_H','-D_MALLOC_H','-D__BITNESS=$BITNESS']
+cpp_args = ['--sysroot=${SYS_ROOT:?}','-fPIE','-fPIC','--target=$ARM_COMPILER_TRIPLE','-D__BITNESS=$BITNESS']
+c_link_args = ['-fPIE']
+cpp_link_args = ['-fPIE']
+prefix = '$SYS_ROOT'
+libdir = '$LIB_PATH'
+
+[properties]
+pkg_config_libdir = '$LIB_PATH'
+sys_root = '${SYS_ROOT}'
+
+EOF
+
+    if [ ! -d "$PWD/subprojects/cpu-features" ]; then
+        mkdir -p "$PWD/subprojects/cpu-features/src/"
+        mkdir -p "$PWD/subprojects/cpu-features/include/"
+        ln -s "$BASE_PATH/sources/android/cpufeatures/cpu-features.c" "$PWD/subprojects/cpu-features/src/cpu-features.c"
+        ln -s "$BASE_PATH/sources/android/cpufeatures/cpu-features.h" "$PWD/subprojects/cpu-features/include/cpu-features.h"
+        cat <<EOF >"$PWD/subprojects/cpu-features/meson.build"
+project('cpu-features', 'c')
+
+meson.override_dependency(
+    'cpu-features',
+    declare_dependency(
+        sources: files('src/cpu-features.c'),
+        compile_args: [
+            '-Wno-declaration-after-statement',
+            '-Wno-error',
+        ],
+        include_directories: include_directories('include'),
+    ),
+)
+
+EOF
+    fi
+
+    export LIBRARY_PATH="$LIBRARY_PATH:usr/lib/$ARM_NAME_TRIPLE/$SDK_VERSION:$LIB_PATH"
+
+    meson setup "$BUILD_DIR" \
+        "--prefix=$SYS_ROOT" \
+        "--includedir=$INC_PATH" \
+        "--libdir=usr/lib/$ARM_NAME_TRIPLE/$SDK_VERSION" \
+        --cross-file "./android/crossbuilt-$ARM_TARET_ARCH.ini" \
+        -Dsdl2:use_hidapi=disabled \
+        -Dsdl2:test=false
+
+    meson compile -C "$BUILD_DIR"
+
+done

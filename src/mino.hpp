@@ -28,4 +28,12 @@ public:
     Point& position() {
         return m_position;
     }
+
+    [[nodiscard]] bool operator==(const Mino& other) const {
+        return m_position == other.m_position and m_type == other.m_type;
+    }
+
+    [[nodiscard]] bool operator!=(const Mino& other) const {
+        return not(*this == other);
+    }
 };

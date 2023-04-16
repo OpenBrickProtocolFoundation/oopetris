@@ -4,14 +4,14 @@ src_files += files(
     'bag.cpp',
     'bag.hpp',
     'color.hpp',
+    'color.hpp',
+    'command_line_arguments.hpp',
+    'controls.hpp',
     'event_dispatcher.cpp',
     'event_dispatcher.hpp',
     'event_listener.hpp',
-    'event_listener.hpp',
     'font.cpp',
     'font.hpp',
-    'game_manager.cpp',
-    'game_manager.hpp',
     'grid.cpp',
     'grid.hpp',
     'input.cpp',
@@ -23,8 +23,8 @@ src_files += files(
     'main.cpp',
     'mino.cpp',
     'mino.hpp',
-    'play_manager.cpp',
-    'point.hpp',
+    'mino_stack.cpp',
+    'play_mode.cpp',
     'random.cpp',
     'random.hpp',
     'recording.hpp',
@@ -34,6 +34,11 @@ src_files += files(
     'sdl_context.cpp',
     'sdl_context.hpp',
     'settings.hpp',
+    'tetrion.cpp',
+    'tetrion.hpp',
+    'tetrion_snapshot.cpp',
+    'tetrion_snapshot.hpp',
+    'tetris_application.cpp',
     'tetris_application.hpp',
     'tetromino.hpp',
     'tetromino_type.cpp',
@@ -47,6 +52,5 @@ src_files += files(
     'window.hpp',
 )
 
-inc_dirs += include_directories('.')
 
 subdir('network')

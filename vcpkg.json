@@ -6,12 +6,12 @@
     {
       "name": "sdl2",
       "version>=": "2.26.4",
-      "platform" : "(x64 & static)"
+      "platform": "(x64 & static)"
     },
     {
       "name": "sdl2-ttf",
       "version>=": "2.20.2",
-      "platform" : "(x64 & static)"
+      "platform": "(x64 & static)"
     },
     {
       "name" : "sdl2-net",
@@ -21,7 +21,7 @@
     {
       "name": "tl-optional",
       "version>=": "2021-05-02",
-      "platform" : "(x64 & static)"
+      "platform": "(x64 & static)"
     },
     {
       "name" : "tl-expected",
@@ -31,17 +31,26 @@
     {
       "name": "nlohmann-json",
       "version>=": "3.11.2",
-      "platform" : "(x64 & static)"
+      "platform": "(x64 & static)"
     },
     {
       "name": "magic-enum",
       "version>=": "0.8.2",
-      "platform" : "(x64 & static)"
+      "platform": "(x64 & static)"
     },
     {
       "name": "spdlog",
       "version>=": "1.11.0",
-      "platform" : "(x64 & static)"
+      "platform": "(x64 & static)"
+    },
+    {
+      "name": "argparse",
+      "version>=": "2.9",
+      "platform": "(x64 & static)"
+    },
+    {
+      "name": "tl-expected",
+      "platform": "(x64 & static)"
     }
   ]
 }

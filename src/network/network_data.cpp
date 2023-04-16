@@ -6,16 +6,13 @@
 #include <cstdint>
 
 
-InitializationData::InitializationData(InitializationDataType type, std::uint32_t uuid)
-    : m_type{ type },
-      m_uuid{ uuid } {};
+InitializationData::InitializationData(InitializationDataType type, std::uint32_t uuid) : type{ type }, uuid{ uuid } {};
 
 
-EventData::EventData(InputEvent event) : m_event{ event } {};
+EventData::EventData(InputEvent event, u64 simulation_step_index)
+    : event{ event },
+      simulation_step_index{ simulation_step_index } {};
 
-InputEvent EventData::event() const {
-    return m_event;
-}
 
 ClientInitializationData::ClientInitializationData(
         std::uint32_t player_num,

@@ -1,30 +1,13 @@
 #pragma once
 
-#include "key_codes.hpp"
+#include "controls.hpp"
 #include "magic_enum_wrapper.hpp"
-#include "recording.hpp"
 #include <array>
 #include <nlohmann/json.hpp>
 #include <string>
 #include <variant>
 
 inline constexpr auto max_num_players = 4;
-
-struct KeyboardControls {
-    KeyCode rotate_left = KeyCode::Left;
-    KeyCode rotate_right = KeyCode::Right;
-    KeyCode move_left = KeyCode::A;
-    KeyCode move_right = KeyCode::D;
-    KeyCode move_down = KeyCode::S;
-    KeyCode drop = KeyCode::W;
-    KeyCode hold = KeyCode::Tab;
-};
-
-struct ReplayControls {
-    Recording recording;
-
-    explicit ReplayControls(Recording recording) : recording{ std::move(recording) } { }
-};
 
 inline void to_json(nlohmann::json& j, const KeyboardControls& controls) {
     j = nlohmann::json{
@@ -56,7 +39,7 @@ inline void from_json(const nlohmann::json& j, KeyboardControls& controls) {
     controls.hold = magic_enum::enum_cast<KeyCode>(str).value();
 }
 
-using Controls = std::variant<KeyboardControls, ReplayControls>;
+using Controls = std::variant<KeyboardControls>;
 
 template<class... Ts>
 struct overloaded : Ts... {
@@ -67,13 +50,12 @@ overloaded(Ts...) -> overloaded<Ts...>;
 
 inline void to_json(nlohmann::json& j, const Controls& controls) {
     std::visit(
-            overloaded{ [&](const KeyboardControls& keyboard_controls) {
-                           to_json(j, keyboard_controls);
-                           j["type"] = "keyboard";
-                       },
-                        [&](const ReplayControls&) {
-                            throw std::exception{}; // should never be serialized
-                        } },
+            overloaded{
+                    [&](const KeyboardControls& keyboard_controls) {
+                        to_json(j, keyboard_controls);
+                        j["type"] = "keyboard";
+                    },
+            },
             controls
     );
 }

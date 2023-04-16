@@ -84,3 +84,5 @@ cmake-build-*
 .vscode/
 
 recordings/
+/build-*
+/toolchains/

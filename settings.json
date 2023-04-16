@@ -2,7 +2,7 @@
   "controls": [
     {
       "drop": "W",
-      "hold": "Tab",
+      "hold": "E",
       "move_down": "S",
       "move_left": "A",
       "move_right": "D",
