@@ -4,6 +4,9 @@ on: pull_request
 jobs:
     cpp-linter:
         runs-on: ubuntu-22.04
+        permissions:
+            pull-requests: write
+            issues: write
         steps:
             - uses: actions/checkout@v3
 
@@ -28,7 +31,7 @@ jobs:
               id: linter
               continue-on-error: true
               env:
-                  GITHUB_TOKEN: ${{ secrets.CPP_LINT_TOKEN }}
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               with:
                   style: file
                   version: 15
