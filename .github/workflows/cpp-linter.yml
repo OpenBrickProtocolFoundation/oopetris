@@ -39,9 +39,10 @@ jobs:
                   style: file
                   version: 15
                   database: build
-                  files-changed-only: false
-                  lines-changed-only: false
+                  files-changed-only: ${{ github.event_name != 'workflow_dispatch' }}
+                  lines-changed-only: ${{ github.event_name != 'workflow_dispatch' }}
                   thread-comments: true
+                  tidy-checks: "clang-diagnostic-*,clang-analyzer-*,bugprone-*,misc-*,performance-*,readability-*,portability-*,modernize-*,cppcoreguidelines-*,-modernize-use-trailing-return-type"
                   file-annotations: false
                   ignore: subprojects|build|android|assets|recordings|docs|toolchains
 
