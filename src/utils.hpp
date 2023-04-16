@@ -8,6 +8,7 @@
 #include <climits>
 #include <filesystem>
 #include <string>
+#include <string_view>
 #include <type_traits>
 
 namespace utils {
@@ -51,5 +52,5 @@ namespace utils {
 
     [[nodiscard]] std::filesystem::path get_root_folder();
 
-    [[nodiscard]] std::filesystem::path get_subfolder_to_root(std::string folder);
+    [[nodiscard]] std::filesystem::path get_subfolder_to_root(std::string_view folder);
 } // namespace utils

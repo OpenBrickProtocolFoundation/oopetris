@@ -1,11 +1,10 @@
 #include "utils.hpp"
+#include <SDL.h>
 #include <chrono>
 #include <ctime>
 #include <filesystem>
 #include <spdlog/spdlog.h>
 #include <stdexcept>
-#include <string>
-#include <SDL.h>
 
 namespace utils {
     [[nodiscard]] std::string current_date_time_iso8601() {
@@ -53,7 +52,7 @@ namespace utils {
     }
 
 
-    [[nodiscard]] std::filesystem::path get_subfolder_to_root(std::string folder) {
+    [[nodiscard]] std::filesystem::path get_subfolder_to_root(const std::string_view folder) {
         return get_root_folder() / folder;
     }
 
