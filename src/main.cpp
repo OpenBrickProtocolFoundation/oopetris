@@ -2,7 +2,9 @@
 #include "tetris_application.hpp"
 #include "utils.hpp"
 #include <filesystem>
+#if defined(__ANDROID__)
 #include <spdlog/sinks/android_sink.h>
+#endif
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/rotating_file_sink.h>
 #include <spdlog/sinks/stdout_sinks.h>
