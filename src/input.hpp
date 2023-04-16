@@ -62,7 +62,7 @@ private:
     std::vector<SDL_Event> m_event_buffer;
 
 public:
-    explicit KeyboardInput(
+    KeyboardInput(
             Tetrion* target_tetrion,
             KeyboardControls controls,
             OnEventCallback on_event_callback = OnEventCallback{}
@@ -111,7 +111,7 @@ private:
 
 
 public:
-    explicit TouchInput(Tetrion* target_tetrion, OnEventCallback on_event_callback = OnEventCallback{})
+    TouchInput(Tetrion* target_tetrion, OnEventCallback on_event_callback = OnEventCallback{})
         : Input{ target_tetrion, std::move(on_event_callback) },
           m_event_buffer{ std::vector<SDL_Event>{} } { }
 
