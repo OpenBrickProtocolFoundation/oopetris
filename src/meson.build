@@ -51,6 +51,8 @@ src_files += files(
     'tetrion_snapshot.cpp',
     'clock_source.cpp',
     'clock_source.hpp',
+    'static_string.hpp',
+    'constants.hpp',
 )
 
 inc_dirs += include_directories('.')

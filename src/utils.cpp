@@ -1,4 +1,5 @@
 #include "utils.hpp"
+#include "constants.hpp"
 #include <SDL.h>
 #include <chrono>
 #include <ctime>
@@ -34,7 +35,7 @@ namespace utils {
 
     [[nodiscard]] std::filesystem::path get_root_folder() {
 #if defined(__ANDROID__)
-        char* pref_path = SDL_GetPrefPath("coder2k", "oopetris");
+        char* pref_path = SDL_GetPrefPath(constants::author, constants::program_name);
         if (!pref_path) {
             throw std::runtime_error{ "Failed in getting the Pref Path on android!" };
         }

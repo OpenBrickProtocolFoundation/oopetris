@@ -1,5 +1,6 @@
 #pragma once
 
+#include "constants.hpp"
 #include "types.hpp"
 #include "utils.hpp"
 #include <argparse/argparse.hpp>
@@ -20,7 +21,8 @@ public:
     i32 starting_level{ default_starting_level };
 
     CommandLineArguments(int argc, char** argv) {
-        argparse::ArgumentParser parser{ "oopetris", "0.0.1", argparse::default_arguments::all };
+        argparse::ArgumentParser parser{ constants::program_name, constants::version,
+                                         argparse::default_arguments::all };
         parser.add_argument("-r", "--recording").help("the path of a recorded game used for replay");
         parser.add_argument("-f", "--target-fps")
                 .help("the number of simulation steps per second")
