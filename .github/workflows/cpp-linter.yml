@@ -1,6 +1,9 @@
 name: C++ lints(clang-format + clang-tidy)
-on: pull_request
-
+on:
+    push:
+        branches: ["main"]
+    pull_request:
+    workflow_dispatch:
 jobs:
     cpp-linter:
         runs-on: ubuntu-22.04
