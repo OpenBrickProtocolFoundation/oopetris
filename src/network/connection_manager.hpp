@@ -14,10 +14,10 @@
 
 /**
  * @brief This is a wrapper for a client TCPSocket. It has convenience functions to interact with the socket and send serialized data over it,
- *  note that the type 'TCPsocket' is a typedef for some '_TCPsocket *' so it's a raw pointer. You can't a connection yourself, 
+ *  note that the type 'TCPsocket' is a typedef for some '_TCPsocket *' so it's a raw pointer. You shouldn't create a connection yourself, 
  * to get one you have to call 'Server::try_get_client()' instead. That will handle everything for you automatically. 
- * If you would like to add some friend classes to do it manually, here are some notes about that: 
- * The lifetime of the underlying TCPsocket is managed by SDL and therefore it's closed and deallocated on Destruction of this class. 
+ * If you would like to create a Connection manually, here are some notes about that: 
+ * The lifetime of the underlying TCPsocket is managed by SDL functions and therefore it's closed and deallocated on Destruction of this class. 
  * By passing in a socket you give the connection the ownership of this pointer!
  */
 struct Connection {
