@@ -33,6 +33,9 @@ private:
 public:
     explicit Connection(TCPsocket socket);
     ~Connection();
+    // these have to be deleted, since a Socket can't be copied, since a copied socket would be closed by destruction of the original and vice versa
+    explicit Connection(Connection& connection) = delete;
+    [[nodiscard]] Connection& operator=(Connection& other) = delete;
 
     //TODO write a method to check if the connection was destroyed
 
@@ -118,10 +121,15 @@ private:
 public:
     explicit Server(TCPsocket socket);
     ~Server();
+    // these have to be deleted, since a Socket can't be copied, since a copied socket would be closed by destruction of the original and vice versa
+    explicit Server(Server& server) = delete;
+    [[nodiscard]] Server& operator=(Server& other) = delete;
+
     [[nodiscard]] tl::optional<std::shared_ptr<Connection>> try_get_client();
 
     [[nodiscard]] tl::optional<std::shared_ptr<Connection>>
     get_client(Uint32 ms_delay = 100, std::size_t abort_after = 60 * 1000);
+
     template<class T>
     //TODO add again
     //requires std::derived_from<T, Transportable> std::shared_ptr<T>
