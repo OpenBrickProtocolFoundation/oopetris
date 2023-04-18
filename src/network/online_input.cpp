@@ -11,12 +11,13 @@ void OnlineInput::get_data() {
         return;
     }
 
-    if (!data.value().has_value()) {
+    const auto data_vector = data.value();
+
+    if (data_vector.size() == 0) {
         // no data given
         return;
     }
 
-    const auto data_vector = data.value().value();
     for (const auto& received_data : data_vector) {
 
         if (received_data.is_of_type<EventData>()) {

@@ -34,13 +34,13 @@ OnlineHandler::OnlineHandler(
 void OnlineHandler::handle_event(InputEvent event, u64 simulation_step_index) {
     if (m_server) {
         auto event_data = EventData{ event, simulation_step_index };
-        //TODO handle error
-        m_server->send_all<EventData>(&event_data, m_send_to);
+        //TODO handle error with spdlog
+        [[maybe_unused]] auto temp = m_server->send_all<EventData>(&event_data, m_send_to);
 
     } else if (m_connection) {
         auto event_data = EventData{ event, simulation_step_index };
-        //TODO handle error
-        m_connection->send_data<EventData>(&event_data);
+        //TODO handle error with spdlog
+        [[maybe_unused]] auto temp = m_connection->send_data<EventData>(&event_data);
     } else {
         throw std::runtime_error{ "OnlineHandler needs either a connection (client mode) or server!" };
     }
