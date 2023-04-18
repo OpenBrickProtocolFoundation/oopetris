@@ -92,7 +92,7 @@ tl::expected<RawBytes, std::string> Connection::get_all_data_blocking() {
         int len = SDLNet_TCP_Recv(m_socket, memory, Connection::chunk_size);
         if (len <= 0) {
             free(memory);
-            return tl::make_unexpected("SDLNet_TCP_Recv: " + network_util::latest_sdl_net_error());
+            return tl::make_unexpected("SDLNet_TCP_Recv: " +std::string{ SDLNet_GetError() });
         }
 
         if (len != Connection::chunk_size) {
