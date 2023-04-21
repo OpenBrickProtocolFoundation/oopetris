@@ -84,10 +84,6 @@ export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
 			-I$(CURDIR)/$(BUILD) \
 			-I$(DEVKITPRO)/portlibs/switch/include/SDL2/ 
 
-
-
-$(info    ${INCLUDE})
-
 export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib)
 
 export BUILD_EXEFS_SRC := $(TOPDIR)/$(EXEFS_SRC)
@@ -110,7 +106,7 @@ ifeq ($(strip $(NO_ICON)),)
 endif
 
 ifeq ($(strip $(NO_NACP)),)
-	export NROFLAGS += --nacp=$(CURDIR)/$(TARGET).nacp
+	export NROFLAGS += --nacp=$(OUTPUT).nacp
 endif
 
 ifneq ($(APP_TITLEID),)
@@ -129,7 +125,7 @@ $(BUILD):
 #---------------------------------------------------------------------------------
 clean:
 	@echo clean ...
-	@rm -fr $(BUILD) $(TARGET).pfs0 $(TARGET).nso $(TARGET).nro $(TARGET).nacp $(TARGET).elf
+	@rm -fr $(BUILD) $(OUTPUT).pfs0 $(OUTPUT).nso $(OUTPUT).nro $(OUTPUT).nacp $(OUTPUT).elf
 
 
 #---------------------------------------------------------------------------------
