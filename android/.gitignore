@@ -1,2 +1,8 @@
 crossbuilt.ini
 crossbuilt-*.ini
+
+*.elf
+*.nacp
+*.nso
+*.nro
+*.pfs0

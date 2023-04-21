@@ -1,0 +1,44 @@
+name: Android CI
+
+on:
+    push:
+        branches: ["main"]
+    pull_request:
+    workflow_dispatch:
+
+jobs:
+    android-build:
+        runs-on: ubuntu-22.04
+        steps:
+            - uses: actions/checkout@v3
+              with:
+                  fetch-depth: "0"
+
+            - name: Setup Meson
+              run: |
+                  python -m pip install --upgrade pip
+                  pip install meson
+
+            - name: Setup ninja
+              uses: seanmiddleditch/gha-setup-ninja@master
+
+            - name: Install toolchain
+              run: |
+                  wget https://apt.devkitpro.org/install-devkitpro-pacman
+                  chmod +x ./install-devkitpro-pacman
+                  ./install-devkitpro-pacman
+                  echo -e "all\ny" | dkp-pacman -S switch-dev
+                  echo "y" | dkp-pacman -S switch-sdl2
+                  echo "y" | dkp-pacman -S switch-sdl2_ttf
+                  source /etc/profile.d/devkit-env.sh
+
+            - name: Build executable
+              run: |
+                  meson setup build
+                  bash ./android/run-switch.sh
+
+            - name: Upload artifacts
+              uses: actions/upload-artifact@v3
+              with:
+                  name: oopetris.nro
+                  path: android/oopetris.nro
