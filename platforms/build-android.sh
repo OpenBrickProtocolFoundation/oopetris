@@ -96,7 +96,7 @@ for INDEX in "${!ARCH_KEYS[@]}"; do
     export AR=llvm-ar
     export RANLIB=llvm-ranlib
 
-    cat <<EOF >"./android/crossbuilt-$ARM_TARET_ARCH.ini"
+    cat <<EOF >"./platforms/crossbuilt-$ARM_TARET_ARCH.ini"
 [host_machine]
 system = 'android'
 cpu_family = '$ARCH'
@@ -164,7 +164,7 @@ EOF
         "--prefix=$SYS_ROOT" \
         "--includedir=$INC_PATH" \
         "--libdir=usr/lib/$ARM_NAME_TRIPLE/$SDK_VERSION" \
-        --cross-file "./android/crossbuilt-$ARM_TARET_ARCH.ini" \
+        --cross-file "./platforms/crossbuilt-$ARM_TARET_ARCH.ini" \
         -Dsdl2:use_hidapi=disabled \
         -Dsdl2:test=false
 

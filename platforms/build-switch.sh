@@ -23,7 +23,7 @@ export PATH="$BIN_DIR:$PATH"
 
 #TODO generate switch.mk
 
-make -f ./android/switch.mk
+make -f ./platforms/switch.mk
 
 # cat <<EOF >"./android/crossbuilt-switch.ini"
 # [host_machine]

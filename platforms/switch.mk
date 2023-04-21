@@ -47,7 +47,7 @@ LIBDIRS	:= $(PORTLIBS) $(LIBNX)
 ifneq ($(BUILD),$(notdir $(CURDIR)))
 #---------------------------------------------------------------------------------
 
-export OUTPUT	:=	$(CURDIR)/android/$(TARGET)
+export OUTPUT	:=	$(CURDIR)/platforms/$(TARGET)
 export TOPDIR	:=	$(CURDIR)
 
 export VPATH	:=	$(foreach dir,$(SOURCES),$(CURDIR)/$(dir)) \
@@ -124,7 +124,7 @@ all: $(BUILD)
 
 $(BUILD):
 	@[ -d $@ ] || mkdir -p $@
-	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/android/switch.mk
+	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/platforms/switch.mk
 
 #---------------------------------------------------------------------------------
 clean:
