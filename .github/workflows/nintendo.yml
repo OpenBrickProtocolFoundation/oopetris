@@ -26,10 +26,10 @@ jobs:
               run: |
                   wget https://apt.devkitpro.org/install-devkitpro-pacman
                   chmod +x ./install-devkitpro-pacman
-                  ./install-devkitpro-pacman
-                  echo -e "\nY" | dkp-pacman -S switch-dev
-                  echo "Y" | dkp-pacman -S switch-sdl2
-                  echo "Y" | dkp-pacman -S switch-sdl2_ttf
+                  sudo ./install-devkitpro-pacman
+                  echo -e "\nY" | sudo dkp-pacman -S switch-dev
+                  echo "Y" | sudo dkp-pacman -S switch-sdl2
+                  echo "Y" | sudo dkp-pacman -S switch-sdl2_ttf
                   source /etc/profile.d/devkit-env.sh
 
             - name: Build executable
