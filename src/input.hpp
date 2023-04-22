@@ -128,10 +128,7 @@ private:
     std::vector<SDL_Event> m_event_buffer;
 
 public:
-    JoystickInput(
-            Tetrion* target_tetrion,
-            OnEventCallback on_event_callback = OnEventCallback{}
-    )
+    JoystickInput(Tetrion* target_tetrion, OnEventCallback on_event_callback = OnEventCallback{})
         : Input{ target_tetrion, std::move(on_event_callback) } { }
 
     void handle_event(const SDL_Event& event) override;
