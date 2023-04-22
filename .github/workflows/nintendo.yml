@@ -9,6 +9,8 @@ on:
 jobs:
     switch-build:
         runs-on: ubuntu-22.04
+        container:
+          image: devkitpro/devkita64
         steps:
             - uses: actions/checkout@v3
               with:
@@ -21,16 +23,6 @@ jobs:
 
             - name: Setup ninja
               uses: seanmiddleditch/gha-setup-ninja@master
-
-            - name: Install toolchain
-              run: |
-                  wget https://apt.devkitpro.org/install-devkitpro-pacman
-                  chmod +x ./install-devkitpro-pacman
-                  sudo ./install-devkitpro-pacman
-                  echo -e "\nY" | sudo dkp-pacman -S switch-dev
-                  echo "Y" | sudo dkp-pacman -S switch-sdl2
-                  echo "Y" | sudo dkp-pacman -S switch-sdl2_ttf
-                  source /etc/profile.d/devkit-env.sh
 
             - name: Build executable
               run: |
