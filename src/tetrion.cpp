@@ -28,18 +28,12 @@ Tetrion::Tetrion(
     constexpr auto font_size = 18;
 #endif
     m_fonts.push_back(std::make_shared<Font>(font_path, font_size));
-    m_score_text = Text{
-        Point{ m_grid.to_screen_coords(Grid::preview_tetromino_position + Point{ 0, Grid::preview_extends.y }) },
-        Color::white(), "score: 0", m_fonts.front()
-    };
-    m_level_text = Text{
-        Point{ m_grid.to_screen_coords(Grid::preview_tetromino_position + Point{ 0, Grid::preview_extends.y + 1 }) },
-        Color::white(), "level: 0", m_fonts.front()
-    };
-    m_cleared_lines_text = Text{
-        Point{ m_grid.to_screen_coords(Grid::preview_tetromino_position + Point{ 0, Grid::preview_extends.y + 2 }) },
-        Color::white(), "lines: 0", m_fonts.front()
-    };
+    m_score_text = Text{ Point{ m_grid.to_screen_coords(Point{ 0, Grid::height + 1 }) }, Color::white(), "score: 0",
+                         m_fonts.front() };
+    m_level_text = Text{ Point{ m_grid.to_screen_coords(Point{ 0, Grid::height + 2 }) }, Color::white(), "level: 0",
+                         m_fonts.front() };
+    m_cleared_lines_text = Text{ Point{ m_grid.to_screen_coords(Point{ 0, Grid::height + 3 }) }, Color::white(),
+                                 "lines: 0", m_fonts.front() };
     refresh_texts();
 }
 
