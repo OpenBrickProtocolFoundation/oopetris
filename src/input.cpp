@@ -3,10 +3,10 @@
 #include "key_codes.hpp"
 #include "recording.hpp"
 #include "tetrion.hpp"
+#include <spdlog/spdlog.h>
 
 #if defined(__ANDROID__)
 #include <cmath>
-#include <spdlog/spdlog.h>
 #include <stdexcept>
 #include <tl/optional.hpp>
 #endif
