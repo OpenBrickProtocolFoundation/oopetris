@@ -2,9 +2,22 @@
 
 #include "point.hpp"
 #include "tetromino_type.hpp"
+#include "types.hpp"
+#include <array>
 
 struct Application;
 struct Grid;
+
+enum class MinoTransparency : u8 {
+    Preview0,
+    Preview1,
+    Preview2,
+    Preview3,
+    Preview4,
+    Preview5,
+    Ghost = 50,
+    Solid = 255,
+};
 
 struct Mino final {
 private:
@@ -15,7 +28,7 @@ private:
 public:
     explicit constexpr Mino(Point coords, TetrominoType type) : m_position{ coords }, m_type{ type } { }
 
-    void render(const Application& app, const Grid& grid, bool as_ghost) const;
+    void render(const Application& app, const Grid& grid, MinoTransparency transparency) const;
 
     [[nodiscard]] TetrominoType type() const {
         return m_type;

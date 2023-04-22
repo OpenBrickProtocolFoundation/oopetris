@@ -11,4 +11,12 @@ struct Rect final {
     constexpr Rect(int x, int y, int width, int height)
         : top_left{ x, y },
           bottom_right{ x + width - 1, y + height - 1 } { }
+
+    [[nodiscard]] constexpr auto width() const {
+        return bottom_right.x - top_left.x + 1;
+    }
+
+    [[nodiscard]] constexpr auto height() const {
+        return bottom_right.y - top_left.y + 1;
+    }
 };

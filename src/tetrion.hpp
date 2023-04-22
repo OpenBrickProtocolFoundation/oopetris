@@ -32,7 +32,7 @@ struct Tetrion final {
 private:
     using WallKickTable = std::array<std::array<Point, 5>, 8>;
 
-    static constexpr int tile_size = 30;
+    static constexpr int tile_size = 26;
     static constexpr SimulationStep lock_delay = 30;
     static constexpr int num_lock_delays = 30;
 

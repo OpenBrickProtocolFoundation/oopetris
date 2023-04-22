@@ -2,8 +2,30 @@
 #include "application.hpp"
 #include "grid.hpp"
 
-void Mino::render(const Application& app, const Grid& grid, bool as_ghost) const {
-    const auto alpha = static_cast<std::uint8_t>(as_ghost ? 50 : 255);
+static constexpr std::array<u8, 6> transparency_values = { 255, 173, 118, 80, 55, 37 };
+
+namespace {
+    [[nodiscard]] u8 get_transparency_value(const MinoTransparency transparency) {
+        switch (transparency) {
+            case MinoTransparency::Preview0:
+            case MinoTransparency::Preview1:
+            case MinoTransparency::Preview2:
+            case MinoTransparency::Preview3:
+            case MinoTransparency::Preview4:
+            case MinoTransparency::Preview5:
+                return transparency_values.at(static_cast<usize>(transparency));
+            case MinoTransparency::Ghost:
+            case MinoTransparency::Solid:
+                return utils::to_underlying(transparency);
+            default:
+                assert(false and "unreachable");
+                return 0;
+        }
+    }
+} // namespace
+
+void Mino::render(const Application& app, const Grid& grid, const MinoTransparency transparency) const {
+    const auto alpha = get_transparency_value(transparency);
     const auto alpha_factor = static_cast<double>(alpha) / 255.0;
     const Color foreground = get_foreground_color(m_type, alpha);
     const Color background = get_background_color(m_type, alpha);

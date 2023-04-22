@@ -15,7 +15,7 @@ Tetrion::Tetrion(
 )
     : m_tetrion_index{ tetrion_index },
       m_random{ random_seed },
-      m_grid{ Point{ 6 * tile_size, tile_size }, tile_size },
+      m_grid{ Point{ static_cast<int>(5.5 * tile_size), tile_size / 2 }, tile_size },
       m_level{ starting_level },
       m_next_gravity_simulation_step_index{ get_gravity_delay_frames() },
       m_recording_writer{ recording_writer },
@@ -70,18 +70,22 @@ void Tetrion::render(const Application& app) const {
     m_grid.render(app);
     m_mino_stack.draw_minos(app, m_grid);
     if (m_active_tetromino) {
-        m_active_tetromino->render(app, m_grid);
+        m_active_tetromino->render(app, m_grid, MinoTransparency::Solid);
     }
     if (m_ghost_tetromino) {
-        m_ghost_tetromino->render(app, m_grid, true);
+        m_ghost_tetromino->render(app, m_grid, MinoTransparency::Ghost);
     }
-    for (const auto& preview_tetromino : m_preview_tetrominos) {
-        if (preview_tetromino) {
-            preview_tetromino->render(app, m_grid);
+    for (std::underlying_type_t<MinoTransparency> i = 0; i < static_cast<decltype(i)>(m_preview_tetrominos.size());
+         ++i) {
+        if (m_preview_tetrominos.at(i)) {
+            const auto enum_index = *magic_enum::enum_index(MinoTransparency::Preview0) + i;
+            const auto transparency = magic_enum::enum_value<MinoTransparency>(enum_index);
+            spdlog::debug("transparency: {}", magic_enum::enum_name(transparency));
+            m_preview_tetrominos.at(i)->render(app, m_grid, transparency);
         }
     }
     if (m_tetromino_on_hold) {
-        m_tetromino_on_hold->render(app, m_grid);
+        m_tetromino_on_hold->render(app, m_grid, MinoTransparency::Solid);
     }
     m_score_text.render(app);
     m_level_text.render(app);
@@ -358,7 +362,7 @@ void Tetrion::refresh_previews() {
     auto bag_index = usize{ 0 };
     for (std::remove_cvref_t<decltype(num_preview_tetrominos)> i = 0; i < num_preview_tetrominos; ++i) {
         m_preview_tetrominos.at(i) = Tetromino{
-            Grid::preview_tetromino_position + Point{0, Grid::preview_extends.y * i},
+            Grid::preview_tetromino_position + Point{0, Grid::preview_padding * i},
             m_sequence_bags.at(bag_index)[sequence_index]
         };
         ++sequence_index;

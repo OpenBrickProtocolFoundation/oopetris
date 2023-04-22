@@ -26,8 +26,8 @@ private:
     std::unique_ptr<RecordingReader> m_recording_reader;
 
 public:
-    static constexpr int width = 1600;
-    static constexpr int height = 900;
+    static constexpr int width = 1280;
+    static constexpr int height = 720;
 
     explicit TetrisApplication(CommandLineArguments command_line_arguments);
 
