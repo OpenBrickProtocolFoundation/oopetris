@@ -54,7 +54,7 @@ struct Grid;
 struct Tetromino final {
 private:
     Point m_position;
-    Rotation m_rotation;
+    Rotation m_rotation{ Rotation::North };
     TetrominoType m_type;
     std::array<Mino, 4> m_minos;
 
@@ -63,7 +63,6 @@ public:
 
     Tetromino(Point position, TetrominoType type)
         : m_position{ position },
-          m_rotation{ Rotation::North },
           m_type{ type },
           m_minos{ create_minos(position, m_rotation, type) } { }
 
@@ -75,9 +74,9 @@ public:
         return m_rotation;
     }
 
-    void render(const Application& app, const Grid& grid, bool as_ghost = false) const {
+    void render(const Application& app, const Grid& grid, const MinoTransparency transparency) const {
         for (const auto& mino : m_minos) {
-            mino.render(app, grid, as_ghost);
+            mino.render(app, grid, transparency);
         }
     }
 

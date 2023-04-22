@@ -37,7 +37,7 @@ void MinoStack::set(Point coordinates, TetrominoType type) {
 void MinoStack::draw_minos(const Application& app, const Grid& grid) const {
     for (const Mino& mino : m_minos) {
         if (mino.position().y >= Grid::invisible_rows) {
-            mino.render(app, grid, false);
+            mino.render(app, grid, MinoTransparency::Solid);
         }
     }
 }
