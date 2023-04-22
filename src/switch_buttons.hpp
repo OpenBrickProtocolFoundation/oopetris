@@ -2,55 +2,46 @@
 
 #pragma once
 
+#include <switch.h>
 
-// some switch buttons, from https://github.com/carstene1ns/switch-sdl2-demo
-
+// some switch buttons, from libnx,  but since SDL doesn't hanlde inputs as flags, like libnx, the have to be reversed and reversing << x = log_2(), this is done constexpr
 //using C enum (not enum class) on purpose
+
+
+namespace {
+    // this is rounding down since >> 1 throws away the least significant bit, but if its a power of two it is spot on
+    constexpr unsigned c_log2(unsigned x) {
+        return x == 1 ? 0 : 1 + c_log2(x >> 1);
+    }
+}; // namespace
+
+#define BITL_REVERSE(x) c_log2(x)
+
+
 enum JOYCON {
 
-    JOYCON_A = 0,
-    JOYCON_B = 1,
-    JOYCON_X = 2,
-    JOYCON_Y = 3,
-    // SDL_CONTROLLER_BUTTON_MISC1 = is plus according to SDL but thats incorrect ?
-    JOYCON_PLUS = 10,
-    JOYCON_MINUS = 11,
-    JOYCON_CROSS_LEFT = 12,
-    JOYCON_CROSS_UP = 13,
-    JOYCON_CROSS_RIGHT = 14,
-    JOYCON_CROSS_DOWN = 15,
-    JOYCON_LDPAD_LEFT = 16,
-    JOYCON_LDPAD_UP = 17,
-    JOYCON_LDPAD_RIGHT = 18,
-    JOYCON_LDPAD_DOWN = 19,
-    JOYCON_RDPAD_LEFT = 20,
-    JOYCON_RDPAD_UP = 21,
-    JOYCON_RDPAD_RIGHT = 22,
-    JOYCON_RDPAD_DOWN = 23
+    JOYCON_A = BITL_REVERSE(HidNpadButton_A),
+    JOYCON_B = BITL_REVERSE(HidNpadButton_B),
+    JOYCON_X = BITL_REVERSE(HidNpadButton_X),
+    JOYCON_Y = BITL_REVERSE(HidNpadButton_Y),
+
+    JOYCON_PLUS = BITL_REVERSE(HidNpadButton_Plus),
+    JOYCON_MINUS = BITL_REVERSE(HidNpadButton_Minus),
+    JOYCON_CROSS_LEFT = BITL_REVERSE(HidNpadButton_Left),
+    JOYCON_CROSS_UP = BITL_REVERSE(HidNpadButton_Up),
+    JOYCON_CROSS_RIGHT = BITL_REVERSE(HidNpadButton_Right),
+    JOYCON_CROSS_DOWN = BITL_REVERSE(HidNpadButton_Down),
+    JOYCON_LDPAD_LEFT = BITL_REVERSE(HidNpadButton_StickLLeft),
+    JOYCON_LDPAD_UP = BITL_REVERSE(HidNpadButton_StickLUp),
+    JOYCON_LDPAD_RIGHT = BITL_REVERSE(HidNpadButton_StickLRight),
+    JOYCON_LDPAD_DOWN = BITL_REVERSE(HidNpadButton_StickLDown),
+    JOYCON_RDPAD_LEFT = BITL_REVERSE(HidNpadButton_StickRLeft),
+    JOYCON_RDPAD_UP = BITL_REVERSE(HidNpadButton_StickRUp),
+    JOYCON_RDPAD_RIGHT = BITL_REVERSE(HidNpadButton_StickRRight),
+    JOYCON_RDPAD_DOWN = BITL_REVERSE(HidNpadButton_StickRDown)
+
 };
 
-//TODO debug the SDL mapping if it's just wrong or what the problem might be.
-// These are the SDL CONSTANTS; but they seem invalid, I tested it and the ones from the example work, the SDl ones not??
-//  SDL_CONTROLLER_BUTTON_INVALID = -1,
-//     SDL_CONTROLLER_BUTTON_A,
-//     SDL_CONTROLLER_BUTTON_B,
-//     SDL_CONTROLLER_BUTTON_X,
-//     SDL_CONTROLLER_BUTTON_Y,
-//     SDL_CONTROLLER_BUTTON_BACK,
-//     SDL_CONTROLLER_BUTTON_GUIDE,
-//     SDL_CONTROLLER_BUTTON_START,
-//     SDL_CONTROLLER_BUTTON_LEFTSTICK,
-//     SDL_CONTROLLER_BUTTON_RIGHTSTICK,
-//     SDL_CONTROLLER_BUTTON_LEFTSHOULDER,
-//     SDL_CONTROLLER_BUTTON_RIGHTSHOULDER,
-//     SDL_CONTROLLER_BUTTON_DPAD_UP,
-//     SDL_CONTROLLER_BUTTON_DPAD_DOWN,
-//     SDL_CONTROLLER_BUTTON_DPAD_LEFT,
-//     SDL_CONTROLLER_BUTTON_DPAD_RIGHT,
-//     SDL_CONTROLLER_BUTTON_MISC1,    /* Xbox Series X share button, PS5 microphone button, Nintendo Switch Pro capture button, Amazon Luna microphone button */
-//     SDL_CONTROLLER_BUTTON_PADDLE1,  /* Xbox Elite paddle P1 */
-//     SDL_CONTROLLER_BUTTON_PADDLE2,  /* Xbox Elite paddle P3 */
-//     SDL_CONTROLLER_BUTTON_PADDLE3,  /* Xbox Elite paddle P2 */
-//     SDL_CONTROLLER_BUTTON_PADDLE4,  /* Xbox Elite paddle P4 */
-//     SDL_CONTROLLER_BUTTON_TOUCHPAD, /* PS4/PS5 touchpad button */
-//     SDL_CONTROLLER_BUTTON_MAX
+// some static asserts to check if BITL_REVERSE works as expected
+static_assert(BITL(JOYCON_B) == HidNpadButton_B);
+static_assert(BITL(JOYCON_PLUS) == HidNpadButton_Plus);
