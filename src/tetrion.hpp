@@ -48,6 +48,7 @@ private:
 
     // while holding down, this level is assumed for gravity calculation
     static constexpr int accelerated_drop_movement_level = 10;
+    static constexpr int num_preview_tetrominos = 6;
 
     u8 m_tetrion_index;
     Random m_random;
@@ -55,7 +56,7 @@ private:
     MinoStack m_mino_stack;
     tl::optional<Tetromino> m_active_tetromino;
     tl::optional<Tetromino> m_ghost_tetromino;
-    tl::optional<Tetromino> m_preview_tetromino;
+    std::array<tl::optional<Tetromino>, num_preview_tetrominos> m_preview_tetrominos;
     tl::optional<Tetromino> m_tetromino_on_hold;
     int m_level = 0;         // todo: change into u32
     u64 m_next_gravity_simulation_step_index;
@@ -137,7 +138,7 @@ private:
     [[nodiscard]] bool is_valid_mino_position(Point position) const;
     [[nodiscard]] bool is_active_tetromino_completely_visible() const;
     void refresh_ghost_tetromino();
-    void refresh_preview();
+    void refresh_previews();
     TetrominoType get_next_tetromino_type();
 
     [[nodiscard]] bool is_tetromino_position_valid(const Tetromino& tetromino) const;
