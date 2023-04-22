@@ -75,8 +75,10 @@ void Tetrion::render(const Application& app) const {
     if (m_ghost_tetromino) {
         m_ghost_tetromino->render(app, m_grid, true);
     }
-    if (m_preview_tetromino) {
-        m_preview_tetromino->render(app, m_grid);
+    for (const auto& preview_tetromino : m_preview_tetrominos) {
+        if (preview_tetromino) {
+            preview_tetromino->render(app, m_grid);
+        }
     }
     if (m_tetromino_on_hold) {
         m_tetromino_on_hold->render(app, m_grid);
@@ -151,7 +153,7 @@ void Tetrion::spawn_next_tetromino(const SimulationStep simulation_step_index) {
 void Tetrion::spawn_next_tetromino(const TetrominoType type, const SimulationStep simulation_step_index) {
     static constexpr Point spawn_position{ 3, 0 };
     m_active_tetromino = Tetromino{ spawn_position, type };
-    refresh_preview();
+    refresh_previews();
     if (not is_active_tetromino_position_valid()) {
         m_game_state = GameState::GameOver;
         spdlog::info("game over");
@@ -351,8 +353,23 @@ void Tetrion::refresh_ghost_tetromino() {
     m_ghost_tetromino->move_up();
 }
 
-void Tetrion::refresh_preview() {
-    m_preview_tetromino = Tetromino{ Grid::preview_tetromino_position, m_sequence_bags[0][m_sequence_index] };
+void Tetrion::refresh_previews() {
+    auto sequence_index = m_sequence_index;
+    auto bag_index = usize{ 0 };
+    for (std::remove_cvref_t<decltype(num_preview_tetrominos)> i = 0; i < num_preview_tetrominos; ++i) {
+        m_preview_tetrominos.at(i) = Tetromino{
+            Grid::preview_tetromino_position + Point{0, Grid::preview_extends.y * i},
+            m_sequence_bags.at(bag_index)[sequence_index]
+        };
+        ++sequence_index;
+        static constexpr auto bag_size = decltype(m_sequence_bags)::value_type::size();
+        if (sequence_index >= bag_size) {
+            assert(sequence_index == bag_size);
+            sequence_index = 0;
+            ++bag_index;
+            assert(bag_index < m_sequence_bags.size());
+        }
+    }
 }
 
 TetrominoType Tetrion::get_next_tetromino_type() {
