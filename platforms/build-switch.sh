@@ -21,7 +21,12 @@ export RANLIB=$TOOL_PREFIX-gcc-ranlib
 
 export PATH="$BIN_DIR:$PATH"
 
-#TODO generate switch.mk
+#TODO generate switch.mk or use meson in the future
+
+mkdir -p platforms/romfs
+
+cp -r assets platforms/romfs/
+
 
 make -f ./platforms/switch.mk
 

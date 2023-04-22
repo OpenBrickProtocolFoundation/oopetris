@@ -1,3 +1,6 @@
+## based on: https://github.com/vgmoose/space-nx
+## with some chnages based on https://github.com/carstene1ns/switch-sdl2-demo 
+
 DEVKITPRO ?= /opt/devkitpro
 export DEVKITPRO
 
@@ -9,6 +12,7 @@ BUILD		:=	build-switch
 SOURCES		:=	./src/
 INCLUDES	:=	./subprojects/argparse-2.9 ./subprojects/spdlog-1.11.0 ./subprojects/optional-1.0.0 ./subprojects/magic_enum-0.8.1 ./subprojects/nlohmann_json-3.11.2 ./subprojects/expected-1.0.0
 EXEFS_SRC	:=	exefs_src
+ROMFS		:=	platforms/romfs
 
 APP_TITLE	:= oopetris
 APP_AUTHOR 	:= coder2k
@@ -23,7 +27,7 @@ CFLAGS	:=	-g -Wall -O2 \
 			-ffast-math \
 			$(ARCH) $(DEFINES)
 
-CFLAGS	+=	$(INCLUDE) -DSWITCH -D__LIBNX__ -DNOSTYLUS -D_XOPEN_SOURCE
+CFLAGS	+=	$(INCLUDE) -D__SWITCH__ -D__LIBNX__ -DNOSTYLUS -D_XOPEN_SOURCE
 
 
 CXXFLAGS	:= $(CFLAGS) -fno-rtti -std=gnu++20
@@ -111,6 +115,10 @@ endif
 
 ifneq ($(APP_TITLEID),)
 	export NACPFLAGS += --titleid=$(APP_TITLEID)
+endif
+
+ifneq ($(ROMFS),)
+	export NROFLAGS += --romfsdir=$(CURDIR)/$(ROMFS)
 endif
 
 .PHONY: $(BUILD) clean all

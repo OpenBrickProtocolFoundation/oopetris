@@ -6,3 +6,4 @@ crossbuilt-*.ini
 *.nso
 *.nro
 *.pfs0
+romfs/
