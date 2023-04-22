@@ -19,10 +19,14 @@ enum JOYCON {
     JOYCON_CROSS_UP = 13,
     JOYCON_CROSS_RIGHT = 14,
     JOYCON_CROSS_DOWN = 15,
-    JOYCON_DPAD_LEFT = 16,
-    JOYCON_DPAD_UP = 17,
-    JOYCON_DPAD_RIGHT = 18,
-    JOYCON_DPAD_DOWN = 19
+    JOYCON_LDPAD_LEFT = 16,
+    JOYCON_LDPAD_UP = 17,
+    JOYCON_LDPAD_RIGHT = 18,
+    JOYCON_LDPAD_DOWN = 19,
+    JOYCON_RDPAD_LEFT = 20,
+    JOYCON_RDPAD_UP = 21,
+    JOYCON_RDPAD_RIGHT = 22,
+    JOYCON_RDPAD_DOWN = 23
 };
 
 //TODO debug the SDL mapping if it's just wrong or what the problem might be.
