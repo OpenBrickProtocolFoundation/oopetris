@@ -416,7 +416,7 @@ tl::optional<InputEvent> JoystickInput::sdl_event_to_input_event(const SDL_Event
             return InputEvent::HoldPressed;
         }
     } else if (event.type == SDL_JOYBUTTONUP) {
-        const auto button = event.key.keysym.sym;
+        const auto button = event.jbutton.button;
         if (button == JOYCON_CROSS_LEFT) {
             return InputEvent::RotateLeftReleased;
         }
