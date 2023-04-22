@@ -17,7 +17,7 @@ public:
     static constexpr Color background_color{ 12, 12, 12 };
     static constexpr Color border_color{ 42, 42, 42 };
     static constexpr Color grid_color{ 31, 31, 31 };
-    static constexpr Point hold_background_position{ width + 1, 1 + invisible_rows + height - preview_extends.y - 4 };
+    static constexpr Point hold_background_position{ -preview_extends.x - 1, 1 + invisible_rows };
     static constexpr Point hold_tetromino_position = hold_background_position + Point{ 0, 1 };
 
 private:
