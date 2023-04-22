@@ -17,15 +17,15 @@ public:
 
     void render(const Application& app, const Grid& grid, bool as_ghost) const;
 
-    TetrominoType type() const {
+    [[nodiscard]] TetrominoType type() const {
         return m_type;
     }
 
-    Point position() const {
+    [[nodiscard]] Point position() const {
         return m_position;
     }
 
-    Point& position() {
+    [[nodiscard]] Point& position() {
         return m_position;
     }
 
@@ -34,6 +34,6 @@ public:
     }
 
     [[nodiscard]] bool operator!=(const Mino& other) const {
-        return not (*this == other);
+        return not(*this == other);
     }
 };
