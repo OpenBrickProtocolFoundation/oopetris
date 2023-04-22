@@ -45,7 +45,14 @@ Application::Application(
 
 void Application::run() {
     m_event_dispatcher.register_listener(this);
-    while (m_is_running) {
+    while (m_is_running
+#if defined(__SWITCH__)
+           // see https://switchbrew.github.io/libnx/applet_8h.html#a7ed640e5f4a81ed3960c763fdc1521c5
+           // this checks for some other reasons why this app should quit, its switch sepcific
+           && appletMainLoop()
+#endif
+
+    ) {
         m_event_dispatcher.dispatch_pending_events();
         update();
         render();
