@@ -11,13 +11,13 @@ public:
     static constexpr int width = 10;
     static constexpr int height = 22;
     static constexpr int invisible_rows = 2;
-    static constexpr Point preview_background_position{ width + 1, 1 + invisible_rows };
+    static constexpr Point preview_background_position{ width + 1, invisible_rows };
     static constexpr Point preview_tetromino_position = preview_background_position + Point{ 0, 1 };
     static constexpr Point preview_extends{ 4, 4 };
     static constexpr Color background_color{ 12, 12, 12 };
     static constexpr Color border_color{ 42, 42, 42 };
     static constexpr Color grid_color{ 31, 31, 31 };
-    static constexpr Point hold_background_position{ -preview_extends.x - 1, 1 + invisible_rows };
+    static constexpr Point hold_background_position{ -preview_extends.x - 1, invisible_rows };
     static constexpr Point hold_tetromino_position = hold_background_position + Point{ 0, 1 };
 
 private:
