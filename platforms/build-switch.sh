@@ -28,7 +28,7 @@ mkdir -p platforms/romfs
 cp -r assets platforms/romfs/
 
 
-make -f ./platforms/switch.mk
+make -f ./platforms/switch.mk -j $(nproc)
 
 # cat <<EOF >"./android/crossbuilt-switch.ini"
 # [host_machine]
