@@ -1,5 +1,10 @@
 #include "application.hpp"
 
+#if defined(__SWITCH__)
+#include "switch_buttons.hpp"
+#include <switch.h>
+#endif
+
 Application::Application(
         const std::string& title,
         WindowPosition position,
@@ -49,6 +54,15 @@ void Application::run() {
 }
 
 void Application::handle_event(const SDL_Event& event) {
+
+
+#if defined(__SWITCH__)
+    // exit with plus (M on most emulators)
+    if (event.type == SDL_JOYBUTTONDOWN and event.jbutton.button == JOYCON_PLUS) {
+        m_is_running = false;
+    }
+#endif
+
     if (event.type == SDL_QUIT or (event.type == SDL_KEYDOWN and event.key.keysym.sym == SDLK_ESCAPE)) {
         m_is_running = false;
     }
