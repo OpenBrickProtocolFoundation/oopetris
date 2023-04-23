@@ -10,7 +10,8 @@
 
 std::unordered_map<std::string, Mix_Chunk*> m_chunk_map;
 MusicManager::MusicManager(u8 channel_size)
-    : m_channel_size{ channel_size },
+    : m_music{ nullptr },
+      m_channel_size{ channel_size },
       m_chunk_map{ std::unordered_map<std::string, Mix_Chunk*>{} } {
     Mix_Init(MIX_INIT_FLAC | MIX_INIT_MP3);
     SDL_InitSubSystem(SDL_INIT_AUDIO);
@@ -55,10 +56,8 @@ tl::optional<std::string> MusicManager::load_and_play_music(const std::filesyste
         // this wan't block, so we have to wait for the callback to be called
         int result = Mix_FadeOutMusic(MusicManager::fade_ms);
         if (result == 0) {
-            return "UNREACHABLE: m_music was not null but no playing, this is an implementation error!";
+            return "UNREACHABLE: m_music was not null but not playing, this is an implementation error!";
         }
-
-
     } else {
 
         int result = Mix_PlayMusic(music, -1);
