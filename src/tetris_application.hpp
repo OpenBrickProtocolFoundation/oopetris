@@ -25,7 +25,6 @@ private:
     Settings m_settings;
     std::unique_ptr<RecordingWriter> m_recording_writer;
     std::unique_ptr<RecordingReader> m_recording_reader;
-    std::unique_ptr<MusicManager> m_music_manager;
 
 public:
     static constexpr int width = 1280;
