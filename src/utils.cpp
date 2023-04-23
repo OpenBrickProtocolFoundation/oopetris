@@ -7,6 +7,7 @@
 #include <spdlog/spdlog.h>
 #include <stdexcept>
 #include <string>
+#include <tl/optional.hpp>
 
 namespace utils {
     [[nodiscard]] std::string current_date_time_iso8601() {
@@ -58,5 +59,10 @@ namespace utils {
         return get_root_folder() / folder;
     }
 
+
+    tl::optional<bool> log_error(const std::string& error) {
+        spdlog::error(error);
+        return tl::nullopt;
+    }
 
 } // namespace utils

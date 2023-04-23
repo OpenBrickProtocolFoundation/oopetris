@@ -165,7 +165,10 @@ void Tetrion::spawn_next_tetromino(const TetrominoType type, const SimulationSte
     refresh_previews();
     if (not is_active_tetromino_position_valid()) {
         m_game_state = GameState::GameOver;
-        m_music_manager->load_and_play_music(utils::get_assets_folder() / "music" / "05. Results.mp3");
+
+        m_music_manager->load_and_play_music(utils::get_assets_folder() / "music" / "05. Results.mp3")
+                .and_then(utils::log_error);
+
         spdlog::info("game over");
         if (m_recording_writer.has_value()) {
             spdlog::info("writing snapshot");
@@ -296,9 +299,11 @@ void Tetrion::clear_fully_occupied_lines() {
                     spdlog::info("new level: {}", m_level);
                     //TODO don't hardcode and how do we get m_music_manager in here?
                     if (m_lines_cleared == 1 or level == 30) {
-                        m_music_manager->load_and_play_music(
-                                utils::get_assets_folder() / "music" / "03. Game Theme (50 Left).flac"
-                        );
+                        m_music_manager
+                                ->load_and_play_music(
+                                        utils::get_assets_folder() / "music" / "03. Game Theme (50 Left).flac"
+                                )
+                                .and_then(utils::log_error);
                     }
                 }
                 m_mino_stack.clear_row_and_let_sink(row);

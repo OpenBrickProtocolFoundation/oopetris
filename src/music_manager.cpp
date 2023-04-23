@@ -30,10 +30,11 @@ tl::optional<std::string> MusicManager::load_and_play_music(const std::filesyste
 
     if (m_music) {
 
-        std::function<void()> music_finished = [&]() {
+        std::function<void()> music_finished = [this, music]() {
+
             //after it stopped, use async
 
-            Mix_FreeMusic(m_music);
+            Mix_FreeMusic(this->m_music);
 
 
             int result = Mix_FadeInMusic(music, -1, MusicManager::fade_ms);
@@ -42,7 +43,7 @@ tl::optional<std::string> MusicManager::load_and_play_music(const std::filesyste
                         "an error occurred while trying to play the music (fading in): " + std::string{ Mix_GetError() }
                 );
             }
-            m_music = music;
+            this->m_music = music;
 
             // clear the callback
             Mix_HookMusicFinished(nullptr);
