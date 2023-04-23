@@ -16,60 +16,61 @@ find_package(tl-expected CONFIG REQUIRED)
 set(TARGET_LIST oopetris SDL2::SDL2-static)
 
 add_executable(oopetris
-        src/main.cpp
-        src/application.hpp
         src/application.cpp
+        src/application.hpp
+        src/bag.cpp
+        src/bag.hpp
+        src/clock_source.cpp
+        src/clock_source.hpp
+        src/color.hpp
+        src/command_line_arguments.hpp
+        src/constants.hpp
+        src/controls.hpp
+        src/event_dispatcher.cpp
+        src/event_dispatcher.hpp
+        src/event_listener.hpp
+        src/font.cpp
+        src/font.hpp
+        src/grid.cpp
+        src/grid.hpp
+        src/input_event.hpp
+        src/input.cpp
+        src/input.hpp
+        src/key_codes.hpp
+        src/magic_enum_wrapper.hpp
+        src/main.cpp
+        src/mino_stack.cpp
+        src/mino_stack.hpp
+        src/mino.cpp
+        src/mino.hpp
+        src/music_manager.cpp
+        src/point.hpp
+        src/random.cpp
+        src/random.hpp
+        src/recording.hpp
+        src/rect.hpp
         src/renderer.cpp
         src/renderer.hpp
         src/sdl_context.cpp
         src/sdl_context.hpp
-        src/window.cpp
-        src/window.hpp
-        src/color.hpp
-        src/rect.hpp
-        src/point.hpp
-        src/tetromino.hpp
-        src/mino.hpp
-        src/grid.hpp
-        src/tetromino_type.hpp
-        src/tetromino_type.cpp
-        src/mino.cpp
+        src/settings.hpp
+        src/static_string.hpp
+        src/tetrion_snapshot.cpp
+        src/tetrion_snapshot.hpp
         src/tetrion.cpp
         src/tetrion.hpp
-        src/tetris_application.hpp
         src/tetris_application.cpp
-        src/bag.cpp
-        src/bag.hpp
-        src/font.cpp
-        src/font.hpp
+        src/tetris_application.hpp
+        src/tetromino_type.cpp
+        src/tetromino_type.hpp
+        src/tetromino.hpp
         src/text.cpp
         src/text.hpp
-        src/grid.cpp
-        src/input.hpp
-        src/event_dispatcher.cpp
-        src/event_dispatcher.hpp
-        src/event_listener.hpp
-        src/input.cpp
-        src/settings.hpp
-        src/key_codes.hpp
-        src/magic_enum_wrapper.hpp
         src/types.hpp
-        src/random.cpp
-        src/random.hpp
-        src/recording.hpp
-        src/input_event.hpp
-        src/utils.hpp
         src/utils.cpp
-        src/command_line_arguments.hpp
-        src/controls.hpp
-        src/mino_stack.cpp
-        src/mino_stack.hpp
-        src/tetrion_snapshot.hpp
-        src/tetrion_snapshot.cpp
-        src/clock_source.cpp
-        src/clock_source.hpp
-        src/static_string.hpp
-        src/constants.hpp
+        src/utils.hpp
+        src/window.cpp
+        src/window.hpp
         )
 
 foreach (target ${TARGET_LIST})
