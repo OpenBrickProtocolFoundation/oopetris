@@ -2,22 +2,23 @@
 
 #pragma once
 
+#if not defined(__SWITCH__)
+#warning this header is witch only
+#else
+
 #include <switch.h>
 
-// some switch buttons, from libnx,  but since SDL doesn't hanlde inputs as flags, like libnx, the have to be reversed and reversing << x = log_2(), this is done constexpr
-//using C enum (not enum class) on purpose
+// some switch buttons, from libnx, but since SDL doesn't handle inputs as flags, like libnx, the have to be reversed and reversing 1 << x = log_2(x), this is done constexpr
 
 
 namespace {
     // this is rounding down since >> 1 throws away the least significant bit, but if its a power of two it is spot on
-    constexpr unsigned c_log2(unsigned x) {
-        return x == 1 ? 0 : 1 + c_log2(x >> 1);
+    constexpr unsigned BITL_REVERSE(unsigned x) {
+        return x == 1 ? 0 : 1 + BITL_REVERSE(x >> 1);
     }
 }; // namespace
 
-#define BITL_REVERSE(x) c_log2(x)
-
-
+//using C enum (not enum class) on purpose
 enum JOYCON {
 
     JOYCON_A = BITL_REVERSE(HidNpadButton_A),
@@ -45,3 +46,6 @@ enum JOYCON {
 // some static asserts to check if BITL_REVERSE works as expected
 static_assert(BITL(JOYCON_B) == HidNpadButton_B);
 static_assert(BITL(JOYCON_PLUS) == HidNpadButton_Plus);
+
+
+#endif
