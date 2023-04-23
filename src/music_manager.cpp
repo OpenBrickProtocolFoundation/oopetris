@@ -71,6 +71,46 @@ tl::optional<std::string> MusicManager::load_and_play_music(const std::filesyste
     return tl::nullopt;
 }
 
+//TODO add speed modifier via Mix_RegisterEffect for music!
+
+
+tl::optional<std::string> MusicManager::load_effect(const std::string& name, std::filesystem::path& location) {
+
+    if (m_chunk_map.contains(name)) {
+        return "name already used";
+    }
+
+    Mix_Chunk* chunk = Mix_LoadWAV(location.string().c_str());
+
+    if (!chunk) {
+        return ("an error occurred while trying to load the chunk: " + std::string{ Mix_GetError() });
+    }
+
+    m_chunk_map.insert({ name, chunk });
+
+
+    return tl::nullopt;
+}
+
+tl::optional<std::string> MusicManager::play_effect(const std::string& name, u8 channel_num, int loop) {
+    if (m_chunk_map.contains(name)) {
+        return "name not loaded";
+    }
+
+    if (channel_num <= 0 or channel_num >= m_channel_size) {
+        return "invalid channel: " + std::to_string(channel_num);
+    }
+
+    const auto chunk = m_chunk_map.at(name);
+
+    const auto actual_channel = Mix_PlayChannel(channel_num, chunk, loop);
+    if (actual_channel == -1) {
+        return "couldn't play on channel: " + std::to_string(channel_num);
+    }
+
+    return tl::nullopt;
+}
+
 
 MusicManager::~MusicManager() {
 
@@ -79,10 +119,9 @@ MusicManager::~MusicManager() {
     if (m_music) {
         Mix_FreeMusic(m_music);
     }
-    //TODO
-    /*  for (snd = 0; snd < 4; snd++)
-        if (sound[snd])
-            Mix_FreeChunk(sound[snd]); */
+    for (const auto& [_, value] : m_chunk_map) {
+        Mix_FreeChunk(value);
+    }
     Mix_CloseAudio();
     Mix_Quit();
 }

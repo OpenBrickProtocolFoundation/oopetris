@@ -25,4 +25,7 @@ public:
     ~MusicManager();
 
     tl::optional<std::string> load_and_play_music(const std::filesystem::path& location);
+
+    tl::optional<std::string> load_effect(const std::string& name, std::filesystem::path& location);
+    tl::optional<std::string> play_effect(const std::string& name, u8 channel_num = 1, int loop = 0);
 };
