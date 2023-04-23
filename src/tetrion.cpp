@@ -78,9 +78,13 @@ void Tetrion::render(const Application& app) const {
     for (std::underlying_type_t<MinoTransparency> i = 0; i < static_cast<decltype(i)>(m_preview_tetrominos.size());
          ++i) {
         if (m_preview_tetrominos.at(i)) {
-            const auto enum_index = *magic_enum::enum_index(MinoTransparency::Preview0) + i;
-            const auto transparency = magic_enum::enum_value<MinoTransparency>(enum_index);
-            m_preview_tetrominos.at(i)->render(app, m_grid, transparency);
+            const auto enum_index = magic_enum::enum_index(MinoTransparency::Preview0);
+            if (enum_index.has_value()) {
+                const auto transparency = magic_enum::enum_value<MinoTransparency>(enum_index.value() + 1);
+                m_preview_tetrominos.at(i)->render(app, m_grid, transparency);
+            } else {
+                throw std::exception{}; // unreachable
+            }
         }
     }
     if (m_tetromino_on_hold) {
