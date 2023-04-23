@@ -65,7 +65,13 @@ else
 endif
 
 deps += dependency('sdl2_ttf', 'SDL2_ttf', required: true, native: native)
-deps += dependency('sdl2_mixer', 'SDL2_mixer', required: true, native: native)
+deps += dependency(
+    'sdl2_mixer',
+    'SDL2_mixer',
+    required: true,
+    native: native,
+    default_options: ['flac=enabled'],
+)
 deps += dependency('spdlog', required: true, native: native)
 deps += dependency('nlohmann_json', required: true, native: native)
 deps += dependency(
