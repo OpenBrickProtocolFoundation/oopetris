@@ -5,6 +5,7 @@
 #include "grid.hpp"
 #include "input.hpp"
 #include "mino_stack.hpp"
+#include "music_manager.hpp"
 #include "random.hpp"
 #include "tetromino.hpp"
 #include "text.hpp"
@@ -58,7 +59,7 @@ private:
     tl::optional<Tetromino> m_ghost_tetromino;
     std::array<tl::optional<Tetromino>, num_preview_tetrominos> m_preview_tetrominos;
     tl::optional<Tetromino> m_tetromino_on_hold;
-    int m_level = 0;         // todo: change into u32
+    int m_level = 0; // todo: change into u32
     u64 m_next_gravity_simulation_step_index;
     int m_lines_cleared = 0; // todo: change into u32
     GameState m_game_state = GameState::Playing;
@@ -76,11 +77,13 @@ private:
     u64 m_lock_delay_step_index;
     bool m_is_in_lock_delay = false;
     int m_num_executed_lock_delays = 0;
+    MusicManager* m_music_manager;
 
 public:
     Tetrion(u8 tetrion_index,
             Random::Seed random_seed,
             int starting_level,
+            MusicManager* music_manager,
             tl::optional<RecordingWriter*> recording_writer = tl::nullopt);
     void update(SimulationStep simulation_step_index);
     void render(const Application& app) const;
