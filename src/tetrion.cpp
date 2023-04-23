@@ -80,7 +80,6 @@ void Tetrion::render(const Application& app) const {
         if (m_preview_tetrominos.at(i)) {
             const auto enum_index = *magic_enum::enum_index(MinoTransparency::Preview0) + i;
             const auto transparency = magic_enum::enum_value<MinoTransparency>(enum_index);
-            spdlog::debug("transparency: {}", magic_enum::enum_name(transparency));
             m_preview_tetrominos.at(i)->render(app, m_grid, transparency);
         }
     }
