@@ -1,5 +1,6 @@
 #include "tetris_application.hpp"
 #include "utils.hpp"
+#include <tl/optional.hpp>
 
 TetrisApplication::TetrisApplication(CommandLineArguments command_line_arguments)
 #if defined(__ANDROID__)
@@ -23,7 +24,9 @@ TetrisApplication::TetrisApplication(CommandLineArguments command_line_arguments
     }
 
     m_music_manager = std::make_unique<MusicManager>();
-    m_music_manager->load_and_play_music(utils::get_assets_folder() / "music" / "01. Main Menu.mp3");
+
+    m_music_manager->load_and_play_music(utils::get_assets_folder() / "music" / "01. Main Menu.mp3")
+            .and_then(utils::log_error);
 
     for (u8 tetrion_index = 0; tetrion_index < num_tetrions; ++tetrion_index) {
         m_clock_sources.push_back(
@@ -53,7 +56,8 @@ TetrisApplication::TetrisApplication(CommandLineArguments command_line_arguments
         tetrion->spawn_next_tetromino(0);
     }
 
-    m_music_manager->load_and_play_music(utils::get_assets_folder() / "music" / "02. Game Theme.flac");
+    m_music_manager->load_and_play_music(utils::get_assets_folder() / "music" / "02. Game Theme.flac")
+            .and_then(utils::log_error);
 }
 
 void TetrisApplication::update() {
