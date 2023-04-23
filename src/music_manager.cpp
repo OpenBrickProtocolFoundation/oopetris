@@ -24,10 +24,16 @@ MusicManager::MusicManager(u8 channel_size)
       m_channel_size{ channel_size },
       m_chunk_map{ std::unordered_map<std::string, Mix_Chunk*>{} } {
     Mix_Init(MIX_INIT_FLAC | MIX_INIT_MP3);
-    SDL_InitSubSystem(SDL_INIT_AUDIO);
+    const int result = SDL_InitSubSystem(SDL_INIT_AUDIO);
+    if (result != 0) {
+        throw std::runtime_error{ "error on initializing the audio system: " + std::string{ SDL_GetError() } };
+    }
     Mix_AllocateChannels(channel_size);
     // 2 here means STEREO, note that channels above means tracks, e.g simultaneous playing source that are mixed, hence the name SDL2_mixer)
     Mix_OpenAudio(48000, MIX_DEFAULT_FORMAT, 2, 2048);
+    if (result != 0) {
+        throw std::runtime_error{ "error on open the audio device: " + std::string{ Mix_GetError() } };
+    }
 }
 
 void MusicManager::hook_music_finished() {
