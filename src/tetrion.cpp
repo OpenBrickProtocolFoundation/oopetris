@@ -15,7 +15,7 @@ Tetrion::Tetrion(
 )
     : m_tetrion_index{ tetrion_index },
       m_random{ random_seed },
-      m_grid{ Point{ static_cast<int>(5.5 * tile_size), tile_size / 2 }, tile_size },
+      m_grid{ Point{ static_cast<int>(tile_size / 2 + (Grid::hold_background_extends.x + 1) * tile_size), tile_size / 2 }, tile_size },
       m_level{ starting_level },
       m_next_gravity_simulation_step_index{ get_gravity_delay_frames() },
       m_recording_writer{ recording_writer },
