@@ -59,6 +59,13 @@ include $(PREBUILT_SHARED_LIBRARY)
 
 
 include $(CLEAR_VARS)
+LOCAL_MODULE := libflac
+LIB_PATH := ../../../../build-$(TARGET_ARCH_ABI)/subprojects/flac-1.4.2/src
+LOCAL_SRC_FILES :=  $(LIB_PATH)/libFLAC/libFLAC.so
+include $(PREBUILT_SHARED_LIBRARY)
+
+
+include $(CLEAR_VARS)
 LOCAL_MODULE := liboopetris
 LOCAL_SRC_FILES := ../../../../build-$(TARGET_ARCH_ABI)/liboopetris.so
 include $(PREBUILT_SHARED_LIBRARY)
@@ -67,7 +74,7 @@ include $(PREBUILT_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := main
-LOCAL_SHARED_LIBRARIES := SDL2 SDL2_ttf freetype libpng SDL2_mixer libvorbis libvorbisfile libogg liboopetris
+LOCAL_SHARED_LIBRARIES := SDL2 SDL2_ttf freetype libpng SDL2_mixer libvorbis libvorbisfile libogg libflac liboopetris
 LOCAL_LDLIBS := -ldl -lGLESv1_CM -lGLESv2 -lOpenSLES -llog -landroid
 LOCAL_LDFLAGS := -Wl,--no-undefined
 TARGET_ARCH_ABI= arm64-v8a
