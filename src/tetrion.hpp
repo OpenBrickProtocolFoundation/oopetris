@@ -77,13 +77,11 @@ private:
     u64 m_lock_delay_step_index;
     bool m_is_in_lock_delay = false;
     int m_num_executed_lock_delays = 0;
-    MusicManager* m_music_manager;
 
 public:
     Tetrion(u8 tetrion_index,
             Random::Seed random_seed,
             int starting_level,
-            MusicManager* music_manager,
             tl::optional<RecordingWriter*> recording_writer = tl::nullopt);
     void update(SimulationStep simulation_step_index);
     void render(const Application& app) const;

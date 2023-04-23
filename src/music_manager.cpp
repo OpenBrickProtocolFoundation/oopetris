@@ -7,21 +7,55 @@
 #include <stdexcept>
 #include <string>
 #include <tl/optional.hpp>
+#include <type_traits>
 
-std::unordered_map<std::string, Mix_Chunk*> m_chunk_map;
+//from: https://stackoverflow.com/questions/1008019/c-singleton-design-pattern
+MusicManager& MusicManager::getInstance(u8 channel_size) {
+
+
+    static MusicManager instance{ channel_size }; // Guaranteed to be destroyed.
+                                                  // Instantiated on first use.
+    return instance;
+}
+
 MusicManager::MusicManager(u8 channel_size)
     : m_music{ nullptr },
+      m_queued_music{ nullptr },
       m_channel_size{ channel_size },
       m_chunk_map{ std::unordered_map<std::string, Mix_Chunk*>{} } {
     Mix_Init(MIX_INIT_FLAC | MIX_INIT_MP3);
     SDL_InitSubSystem(SDL_INIT_AUDIO);
     Mix_AllocateChannels(channel_size);
     // 2 here means STEREO, note that channels above means tracks, e.g simultaneous playing source that are mixed, hence the name SDL2_mixer)
-    Mix_OpenAudio(48000, MIX_DEFAULT_FORMAT, 2, 4096);
+    Mix_OpenAudio(48000, MIX_DEFAULT_FORMAT, 2, 2048);
+}
+
+void MusicManager::hook_music_finished() {
+
+    if (!m_queued_music) {
+        throw std::runtime_error{ "implementation error: m_queued_music is null but it shouldn't be" };
+    }
+
+
+    Mix_FreeMusic(this->m_music);
+
+
+    int result = Mix_FadeInMusic(m_queued_music, -1, m_delay);
+    if (result != 0) {
+        throw std::runtime_error(
+                "an error occurred while trying to play the music (fading in): " + std::string{ Mix_GetError() }
+        );
+    }
+    this->m_music = m_queued_music;
+
+    m_queued_music = nullptr;
+
+    // clear the callback
+    Mix_HookMusicFinished(nullptr);
 }
 
 
-tl::optional<std::string> MusicManager::load_and_play_music(const std::filesystem::path& location) {
+tl::optional<std::string> MusicManager::load_and_play_music(const std::filesystem::path& location, const usize delay) {
 
 
     Mix_Music* music = Mix_LoadMUS(location.string().c_str());
@@ -29,43 +63,40 @@ tl::optional<std::string> MusicManager::load_and_play_music(const std::filesyste
         return ("an error occurred while trying to load the music: " + std::string{ Mix_GetError() });
     }
 
+    if (m_queued_music) {
+        // if we already have queued a music just que the new one, this could be a potential race condition in a MT case (even if using atomic!)
+        m_queued_music = music;
+        return tl::nullopt;
+    }
+
     if (m_music) {
 
-        std::function<void()> music_finished = [this, music]() {
+        if (delay == 0) {
+            // the return value is always teh same
+            Mix_HaltMusic();
+            // it jumps out of these branches into the Mix_PlayMusic call
+        } else {
 
-            //after it stopped, use async
+            m_queued_music = music;
+            m_delay = delay;
 
-            Mix_FreeMusic(this->m_music);
+            Mix_HookMusicFinished([]() { MusicManager::getInstance().hook_music_finished(); });
 
-
-            int result = Mix_FadeInMusic(music, -1, MusicManager::fade_ms);
-            if (result != 0) {
-                throw std::runtime_error(
-                        "an error occurred while trying to play the music (fading in): " + std::string{ Mix_GetError() }
-                );
+            // this wan't block, so we have to wait for the callback to be called
+            int result = Mix_FadeOutMusic(delay);
+            if (result == 0) {
+                return "UNREACHABLE: m_music was not null but not playing, this is an implementation error!";
             }
-            this->m_music = music;
 
-            // clear the callback
-            Mix_HookMusicFinished(nullptr);
-        };
-
-        //TODO test if this works correctly
-        Mix_HookMusicFinished(music_finished.target<void()>());
-
-        // this wan't block, so we have to wait for the callback to be called
-        int result = Mix_FadeOutMusic(MusicManager::fade_ms);
-        if (result == 0) {
-            return "UNREACHABLE: m_music was not null but not playing, this is an implementation error!";
+            return tl::nullopt;
         }
-    } else {
-
-        int result = Mix_PlayMusic(music, -1);
-        if (result != 0) {
-            return ("an error occurred while trying to play the music: " + std::string{ Mix_GetError() });
-        }
-        m_music = music;
     }
+
+    int result = Mix_PlayMusic(music, -1);
+    if (result != 0) {
+        return ("an error occurred while trying to play the music: " + std::string{ Mix_GetError() });
+    }
+    m_music = music;
 
 
     return tl::nullopt;

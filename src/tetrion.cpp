@@ -11,7 +11,6 @@ Tetrion::Tetrion(
         const u8 tetrion_index,
         const Random::Seed random_seed,
         const int starting_level,
-        MusicManager* music_manager,
         tl::optional<RecordingWriter*> recording_writer
 )
     : m_tetrion_index{ tetrion_index },
@@ -20,8 +19,7 @@ Tetrion::Tetrion(
       m_level{ starting_level },
       m_next_gravity_simulation_step_index{ get_gravity_delay_frames() },
       m_recording_writer{ recording_writer },
-      m_lock_delay_step_index{ lock_delay },
-      m_music_manager{ music_manager } {
+      m_lock_delay_step_index{ lock_delay } {
 
     const auto font_path = utils::get_assets_folder() / "fonts" / "PressStart2P.ttf";
 #if defined(__ANDROID__)
@@ -166,7 +164,8 @@ void Tetrion::spawn_next_tetromino(const TetrominoType type, const SimulationSte
     if (not is_active_tetromino_position_valid()) {
         m_game_state = GameState::GameOver;
 
-        m_music_manager->load_and_play_music(utils::get_assets_folder() / "music" / "05. Results.mp3")
+        MusicManager::getInstance()
+                .load_and_play_music(utils::get_assets_folder() / "music" / "05. Results.mp3", 0)
                 .and_then(utils::log_error);
 
         spdlog::info("game over");
@@ -297,10 +296,9 @@ void Tetrion::clear_fully_occupied_lines() {
                 if (level > m_level) {
                     m_level = level;
                     spdlog::info("new level: {}", m_level);
-                    //TODO don't hardcode and how do we get m_music_manager in here?
-                    if (m_lines_cleared == 1 or level == 30) {
-                        m_music_manager
-                                ->load_and_play_music(
+                    if (level == 30) {
+                        MusicManager::getInstance()
+                                .load_and_play_music(
                                         utils::get_assets_folder() / "music" / "03. Game Theme (50 Left).flac"
                                 )
                                 .and_then(utils::log_error);

@@ -22,11 +22,12 @@ TetrisApplication::TetrisApplication(CommandLineArguments command_line_arguments
         const auto seeds_span = std::span{ seeds.data(), seeds.size() };
         m_recording_writer = create_recording_writer(create_tetrion_headers(seeds_span));
     }
+    // first instantiation of instance initializes value!
+    MusicManager::getInstance(2);
 
-    m_music_manager = std::make_unique<MusicManager>();
-
-    m_music_manager->load_and_play_music(utils::get_assets_folder() / "music" / "01. Main Menu.mp3")
-            .and_then(utils::log_error);
+    //TODO: add in the main menu after we have an UI
+    /*  MusicManager::getInstance().load_and_play_music(utils::get_assets_folder() / "music" / "01. Main Menu.mp3")
+            .and_then(utils::log_error); */
 
     for (u8 tetrion_index = 0; tetrion_index < num_tetrions; ++tetrion_index) {
         m_clock_sources.push_back(
@@ -37,8 +38,7 @@ TetrisApplication::TetrisApplication(CommandLineArguments command_line_arguments
         spdlog::info("starting level for tetrion {}: {}", tetrion_index, starting_level);
 
         m_tetrions.push_back(std::make_unique<Tetrion>(
-                tetrion_index, seeds.at(tetrion_index), starting_level, m_music_manager.get(),
-                recording_writer_optional()
+                tetrion_index, seeds.at(tetrion_index), starting_level, recording_writer_optional()
         ));
 
         auto on_event_callback = create_on_event_callback(tetrion_index);
@@ -56,7 +56,8 @@ TetrisApplication::TetrisApplication(CommandLineArguments command_line_arguments
         tetrion->spawn_next_tetromino(0);
     }
 
-    m_music_manager->load_and_play_music(utils::get_assets_folder() / "music" / "02. Game Theme.flac")
+    MusicManager::getInstance()
+            .load_and_play_music(utils::get_assets_folder() / "music" / "02. Game Theme.flac")
             .and_then(utils::log_error);
 }
 
