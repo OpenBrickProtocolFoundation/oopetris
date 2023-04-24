@@ -29,10 +29,12 @@ public:
     static MusicManager& getInstance(u8 channel_size = 2);
     MusicManager(const MusicManager&) = delete;
     MusicManager& operator=(const MusicManager&) = delete;
+    MusicManager(const MusicManager&&) = delete;
+    MusicManager& operator=(const MusicManager&&) = delete;
     ~MusicManager();
 
     tl::optional<std::string>
-    load_and_play_music(const std::filesystem::path& location, const usize delay = MusicManager::fade_ms);
+    load_and_play_music(const std::filesystem::path& location, usize delay = MusicManager::fade_ms);
 
     tl::optional<std::string> load_effect(const std::string& name, std::filesystem::path& location);
     tl::optional<std::string> play_effect(const std::string& name, u8 channel_num = 1, int loop = 0);
