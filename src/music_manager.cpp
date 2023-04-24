@@ -46,7 +46,7 @@ void MusicManager::hook_music_finished() {
     Mix_FreeMusic(this->m_music);
 
 
-    int result = Mix_FadeInMusic(m_queued_music, -1, m_delay);
+    int result = Mix_FadeInMusic(m_queued_music, -1, static_cast<int>(m_delay));
     if (result != 0) {
         throw std::runtime_error(
                 "an error occurred while trying to play the music (fading in): " + std::string{ Mix_GetError() }
@@ -89,7 +89,7 @@ tl::optional<std::string> MusicManager::load_and_play_music(const std::filesyste
             Mix_HookMusicFinished([]() { MusicManager::getInstance().hook_music_finished(); });
 
             // this wan't block, so we have to wait for the callback to be called
-            int result = Mix_FadeOutMusic(delay);
+            int result = Mix_FadeOutMusic(static_cast<int>(delay));
             if (result == 0) {
                 return "UNREACHABLE: m_music was not null but not playing, this is an implementation error!";
             }
