@@ -165,8 +165,7 @@ EOF
         "--includedir=$INC_PATH" \
         "--libdir=usr/lib/$ARM_NAME_TRIPLE/$SDK_VERSION" \
         --cross-file "./android/crossbuilt-$ARM_TARET_ARCH.ini" \
-        -Dsdl2:use_hidapi=disabled \
-        -Dsdl2:test=false
+        -Dsdl2:use_hidapi=disabled
 
     meson compile -C "$BUILD_DIR"
 

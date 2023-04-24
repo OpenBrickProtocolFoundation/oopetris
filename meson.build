@@ -55,6 +55,7 @@ else
         required: true,
         fallback: 'sdl2',
         native: native,
+        default_options: ['test=false'],
     )
     deps += dependency(
         'sdl2main',
@@ -72,7 +73,12 @@ deps += dependency(
     native: native,
     default_options: ['flac=enabled'],
 )
-deps += dependency('spdlog', required: true, native: native)
+deps += dependency(
+    'spdlog',
+    required: true,
+    native: native,
+    default_options: ['tests=false'],
+)
 deps += dependency('nlohmann_json', required: true, native: native)
 deps += dependency(
     'tl-optional',
