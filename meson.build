@@ -71,7 +71,7 @@ deps += dependency(
     'SDL2_mixer',
     required: true,
     native: native,
-    default_options: ['flac=enabled'],
+    default_options: ['flac=enabled', 'mpg123=enabled'],
 )
 deps += dependency(
     'spdlog',
