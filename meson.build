@@ -37,6 +37,12 @@ inc_dirs = []
 native = true
 if meson.is_cross_build() and host_machine.system() == 'android'
     native = false
+
+    # a dirty thing atm, until mpg123 is ported to meson (maybe never...)
+    cpp = meson.get_compiler('cpp')
+    mpg123_dep = cpp.find_library('mpg123')
+    meson.override_dependency('mpg123', mpg123_dep, static: true)
+
 endif
 
 
