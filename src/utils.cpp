@@ -48,7 +48,7 @@ namespace utils {
 
     [[nodiscard]] std::filesystem::path get_assets_folder() {
 #if defined(__ANDROID__)
-        return std::filesystem::path{ "." };
+        return std::filesystem::path{ "" };
 #else
         return std::filesystem::path{ "assets" };
 #endif
