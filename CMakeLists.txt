@@ -114,6 +114,8 @@ target_link_libraries(oopetris PRIVATE $<IF:$<TARGET_EXISTS:SDL2_mixer::SDL2_mix
 target_link_libraries(oopetris PRIVATE tl::optional)
 target_link_libraries(oopetris PRIVATE tl::expected)
 
+target_compile_definitions(oopetris PUBLIC _AUDIO_WITH_FLAC_SUPPORT _AUDIO_WITH_MP3_SUPPORT _AUDIO_PREFER_FLAC)
+
 # static runtime library
 set_property(TARGET ${target} PROPERTY
         MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
