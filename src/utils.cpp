@@ -54,9 +54,4 @@ namespace utils {
     }
 
 
-    [[nodiscard]] std::filesystem::path get_subfolder_to_root(const std::string_view folder) {
-        return get_root_folder() / folder;
-    }
-
-
 } // namespace utils
