@@ -169,6 +169,7 @@ void Tetrion::spawn_next_tetromino(const TetrominoType type, const SimulationSte
             (*m_recording_writer)->add_snapshot(m_tetrion_index, simulation_step_index, *this);
         }
         m_active_tetromino = {};
+        m_ghost_tetromino = {};
         return;
     }
     for (int i = 0; not is_active_tetromino_completely_visible() and i < Grid::invisible_rows; ++i) {
