@@ -165,7 +165,10 @@ void Tetrion::spawn_next_tetromino(const TetrominoType type, const SimulationSte
         m_game_state = GameState::GameOver;
 
         MusicManager::getInstance()
-                .load_and_play_music(utils::get_assets_folder() / "music" / "05. Results.mp3", 0)
+                .load_and_play_music(
+                        utils::get_assets_folder() / "music" / get_supported_music_extension("05. Results"),
+                        0
+                )
                 .and_then(utils::log_error);
 
         spdlog::info("game over");
@@ -299,7 +302,8 @@ void Tetrion::clear_fully_occupied_lines() {
                     if (level == 30) {
                         MusicManager::getInstance()
                                 .load_and_play_music(
-                                        utils::get_assets_folder() / "music" / "03. Game Theme (50 Left).flac"
+                                        utils::get_assets_folder() / "music"
+                                        / get_supported_music_extension("03. Game Theme (50 Left)")
                                 )
                                 .and_then(utils::log_error);
                     }

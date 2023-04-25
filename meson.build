@@ -37,12 +37,6 @@ inc_dirs = []
 native = true
 if meson.is_cross_build() and host_machine.system() == 'android'
     native = false
-
-    # a dirty thing atm, until mpg123 is ported to meson (maybe never...)
-    cpp = meson.get_compiler('cpp')
-    mpg123_dep = cpp.find_library('mpg123')
-    meson.override_dependency('mpg123', mpg123_dep, static: true)
-
 endif
 
 
@@ -72,12 +66,38 @@ else
 endif
 
 deps += dependency('sdl2_ttf', 'SDL2_ttf', required: true, native: native)
+
+
+# a dirty thing atm, until mpg123 is ported to meson (maybe never...)
+mpg123_dep = dependency('mgp123', required: false, native: native)
+sdl2_mixer_flags = ['flac=enabled']
+sdl2_mixer_defines = ['-D_AUDIO_WITH_FLAC_SUPPORT']
+if mpg123_dep.found()
+    sdl2_mixer_flags += 'mpg123=enabled'
+    sdl2_mixer_defines += '-D_AUDIO_WITH_MP3_SUPPORT'
+else
+    cpp = meson.get_compiler('cpp')
+    mpg123_dep = cpp.find_library('mpg123', required: false)
+    if mpg123_dep.found()
+        sdl2_mixer_flags += 'mpg123=enabled'
+        sdl2_mixer_defines += '-D_AUDIO_WITH_MP3_SUPPORT'
+
+        meson.override_dependency(
+            'mpg123',
+            mpg123_dep,
+            native: native,
+        )
+    endif
+endif
+
+
+
 deps += dependency(
     'sdl2_mixer',
     'SDL2_mixer',
     required: true,
     native: native,
-    default_options: ['flac=enabled', 'mpg123=enabled'],
+    default_options: sdl2_mixer_flags,
 )
 deps += dependency(
     'spdlog',
@@ -125,7 +145,8 @@ if meson.is_cross_build() and host_machine.system() == 'android'
         src_files,
         include_directories: inc_dirs,
         dependencies: deps,
-        cpp_args: compile_args,
+        c_args: sdl2_mixer_defines,
+        cpp_args: compile_args + sdl2_mixer_defines,
         override_options: ['warning_level=3', 'werror=true'],
         native: native,
     )
@@ -136,7 +157,8 @@ else
         src_files,
         include_directories: inc_dirs,
         dependencies: deps,
-        cpp_args: compile_args,
+        c_args: sdl2_mixer_defines,
+        cpp_args: compile_args + sdl2_mixer_defines,
         override_options: [
             'warning_level=3',
             'werror=true',

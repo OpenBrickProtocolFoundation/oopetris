@@ -26,7 +26,7 @@ TetrisApplication::TetrisApplication(CommandLineArguments command_line_arguments
     MusicManager::getInstance(2);
 
     //TODO: add in the main menu after we have an UI
-    /*  MusicManager::getInstance().load_and_play_music(utils::get_assets_folder() / "music" / "01. Main Menu.mp3")
+    /*  MusicManager::getInstance().load_and_play_music(utils::get_assets_folder() / "music" / get_supported_music_extension("01. Main Menu"))
             .and_then(utils::log_error); */
 
     for (u8 tetrion_index = 0; tetrion_index < num_tetrions; ++tetrion_index) {
@@ -57,7 +57,9 @@ TetrisApplication::TetrisApplication(CommandLineArguments command_line_arguments
     }
 
     MusicManager::getInstance()
-            .load_and_play_music(utils::get_assets_folder() / "music" / "02. Game Theme.flac")
+            .load_and_play_music(
+                    utils::get_assets_folder() / "music" / get_supported_music_extension("02. Game Theme")
+            )
             .and_then(utils::log_error);
 }
 
