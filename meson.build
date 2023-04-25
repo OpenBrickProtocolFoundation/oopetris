@@ -71,16 +71,16 @@ deps += dependency('sdl2_ttf', 'SDL2_ttf', required: true, native: native)
 # a dirty thing atm, until mpg123 is ported to meson (maybe never...)
 mpg123_dep = dependency('mgp123', required: false, native: native)
 sdl2_mixer_flags = ['flac=enabled']
-sdl2_mixer_defines = ['-D_AUDIO_WITH_FLAC_SUPPORT']
+sdl2_mixer_defines = ['-DAUDIO_WITH_FLAC_SUPPORT']
 if mpg123_dep.found()
     sdl2_mixer_flags += 'mpg123=enabled'
-    sdl2_mixer_defines += '-D_AUDIO_WITH_MP3_SUPPORT'
+    sdl2_mixer_defines += '-DAUDIO_WITH_MP3_SUPPORT'
 else
     cpp = meson.get_compiler('cpp')
     mpg123_dep = cpp.find_library('mpg123', required: false)
     if mpg123_dep.found()
         sdl2_mixer_flags += 'mpg123=enabled'
-        sdl2_mixer_defines += '-D_AUDIO_WITH_MP3_SUPPORT'
+        sdl2_mixer_defines += '-DAUDIO_WITH_MP3_SUPPORT'
 
         meson.override_dependency(
             'mpg123',

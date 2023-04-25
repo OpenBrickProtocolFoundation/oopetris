@@ -12,9 +12,9 @@
 #include <tl/optional.hpp>
 #include <type_traits>
 
-#if not defined(_AUDIO_PREFER_MP3) and not defined(_AUDIO_PREFER_FLAC)
-#define _AUDIO_PREFER_FLAC
-#elif defined(_AUDIO_PREFER_MP3) and defined(_AUDIO_PREFER_FLAC)
+#if not defined(AUDIO_PREFER_MP3) and not defined(AUDIO_PREFER_FLAC)
+#define AUDIO_PREFER_FLAC
+#elif defined(AUDIO_PREFER_MP3) and defined(AUDIO_PREFER_FLAC)
 #error "Can't prefer FLAC and MP3"
 #endif
 
@@ -65,9 +65,9 @@ namespace utils {
     tl::optional<bool> log_error(const std::string& error);
 
 
-#if defined(_AUDIO_WITH_FLAC_SUPPORT) and ((not defined(_AUDIO_WITH_MP3_SUPPORT)) or defined(_AUDIO_PREFER_FLAC))
+#if defined(AUDIO_WITH_FLAC_SUPPORT) and ((not defined(AUDIO_WITH_MP3_SUPPORT)) or defined(AUDIO_PREFER_FLAC))
 #define get_supported_music_extension(X) X ".flac"
-#elif defined(_AUDIO_WITH_MP3_SUPPORT) and ((not defined(_AUDIO_WITH_FLAC_SUPPORT)) or defined(_AUDIO_PREFER_MP3))
+#elif defined(AUDIO_WITH_MP3_SUPPORT) and ((not defined(AUDIO_WITH_FLAC_SUPPORT)) or defined(AUDIO_PREFER_MP3))
 #define get_supported_music_extension(X) X ".mp3"
 #else
 #error "Either FLAC or MP3 support has to be available at built time"
