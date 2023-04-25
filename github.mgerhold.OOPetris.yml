@@ -21,6 +21,9 @@ modules:
           - build/
     post-install:
       - install -D oopetris /app/bin/oopetris
+      #TODO get real logo and use more sizes!
+      - find ../assets/icon/ -name "test_*.png" -exec echo {} \; | awk -F_ '{ print $2 }' | awk -F. '{ print $1 }' |awk  '{ print $1 }'| awk '{ print "../assets/icon/test_" $1  ".png" "\n" "/app/share/icons/hicolor/" $ 1"x" $1 "/apps/github.mgerhold.OOPetris.png" }' | xargs cp $1
+      ## TODO svg /app/share/icons/hicolor/scalable/apps/github.mgerhold.OOPetris.svg
     run-tests: true
 
 finish-args:
