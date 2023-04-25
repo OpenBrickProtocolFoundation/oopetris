@@ -38,7 +38,7 @@ MusicManager::MusicManager(u8 channel_size)
 
 void MusicManager::hook_music_finished() {
 
-    if (!m_queued_music) {
+    if (m_queued_music == nullptr) {
         throw std::runtime_error{ "implementation error: m_queued_music is null but it shouldn't be" };
     }
 
@@ -46,7 +46,7 @@ void MusicManager::hook_music_finished() {
     Mix_FreeMusic(this->m_music);
 
 
-    int result = Mix_FadeInMusic(m_queued_music, -1, static_cast<int>(m_delay));
+    const int result = Mix_FadeInMusic(m_queued_music, -1, static_cast<int>(m_delay));
     if (result != 0) {
         throw std::runtime_error(
                 "an error occurred while trying to play the music (fading in): " + std::string{ Mix_GetError() }
@@ -65,17 +65,17 @@ tl::optional<std::string> MusicManager::load_and_play_music(const std::filesyste
 
 
     Mix_Music* music = Mix_LoadMUS(location.string().c_str());
-    if (!music) {
+    if (music == nullptr) {
         return ("an error occurred while trying to load the music: " + std::string{ Mix_GetError() });
     }
 
-    if (m_queued_music) {
+    if (m_queued_music != nullptr) {
         // if we already have queued a music just que the new one, this could be a potential race condition in a MT case (even if using atomic!)
         m_queued_music = music;
         return tl::nullopt;
     }
 
-    if (m_music) {
+    if (m_music != nullptr) {
 
         if (delay == 0) {
             // the return value is always teh same
@@ -89,7 +89,7 @@ tl::optional<std::string> MusicManager::load_and_play_music(const std::filesyste
             Mix_HookMusicFinished([]() { MusicManager::getInstance().hook_music_finished(); });
 
             // this wan't block, so we have to wait for the callback to be called
-            int result = Mix_FadeOutMusic(static_cast<int>(delay));
+            const int result = Mix_FadeOutMusic(static_cast<int>(delay));
             if (result == 0) {
                 return "UNREACHABLE: m_music was not null but not playing, this is an implementation error!";
             }
@@ -98,7 +98,7 @@ tl::optional<std::string> MusicManager::load_and_play_music(const std::filesyste
         }
     }
 
-    int result = Mix_PlayMusic(music, -1);
+    const int result = Mix_PlayMusic(music, -1);
     if (result != 0) {
         return ("an error occurred while trying to play the music: " + std::string{ Mix_GetError() });
     }
@@ -119,7 +119,7 @@ tl::optional<std::string> MusicManager::load_effect(const std::string& name, std
 
     Mix_Chunk* chunk = Mix_LoadWAV(location.string().c_str());
 
-    if (!chunk) {
+    if (chunk == nullptr) {
         return ("an error occurred while trying to load the chunk: " + std::string{ Mix_GetError() });
     }
 
@@ -138,7 +138,7 @@ tl::optional<std::string> MusicManager::play_effect(const std::string& name, u8 
         return "invalid channel: " + std::to_string(channel_num);
     }
 
-    const auto chunk = m_chunk_map.at(name);
+    auto* const chunk = m_chunk_map.at(name);
 
     const auto actual_channel = Mix_PlayChannel(channel_num, chunk, loop);
     if (actual_channel == -1) {
@@ -153,7 +153,7 @@ MusicManager::~MusicManager() {
 
     // stop sounds and free loaded data
     Mix_HaltChannel(-1);
-    if (m_music) {
+    if (m_music != nullptr) {
         Mix_FreeMusic(m_music);
     }
     for (const auto& [_, value] : m_chunk_map) {
