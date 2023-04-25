@@ -219,7 +219,7 @@ EOF
         "--libdir=usr/lib/$ARM_NAME_TRIPLE/$SDK_VERSION" \
         --cross-file "./android/crossbuilt-$ARM_TARET_ARCH.ini" \
         -Dsdl2:use_hidapi=disabled \
-        -D_AUDIO_PREFER_MP3
+        -Dcpp_args=-D_AUDIO_PREFER_MP3
 
     meson compile -C "$BUILD_DIR"
 

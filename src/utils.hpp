@@ -68,7 +68,7 @@ namespace utils {
 #if defined(_AUDIO_WITH_FLAC_SUPPORT) and ((not defined(_AUDIO_WITH_MP3_SUPPORT)) or defined(_AUDIO_PREFER_FLAC))
 #define get_supported_music_extension(X) X ".flac"
 #elif defined(_AUDIO_WITH_MP3_SUPPORT) and ((not defined(_AUDIO_WITH_FLAC_SUPPORT)) or defined(_AUDIO_PREFER_MP3))
-#define get_supported_music_extension(X) X ".mp3";
+#define get_supported_music_extension(X) X ".mp3"
 #else
 #error "Either FLAC or MP3 support has to be available at built time"
 #endif
