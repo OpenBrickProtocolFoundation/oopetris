@@ -17,7 +17,7 @@
       "name": "sdl2-mixer",
       "version>=": "2.6.1",
       "platform": "(x64 & static)",
-      "features":["libflac", "mpg123", "libvorbis"]
+      "features":["libflac", "mpg123"]
     },
     {
       "name": "tl-optional",
