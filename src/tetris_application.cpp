@@ -57,7 +57,9 @@ TetrisApplication::TetrisApplication(CommandLineArguments command_line_arguments
     }
 
     MusicManager::getInstance()
-            .load_and_play_music(utils::get_assets_folder() / "music" / utils::get_supported_music_extension("02. Game Theme"))
+            .load_and_play_music(
+                    utils::get_assets_folder() / "music" / utils::get_supported_music_extension("02. Game Theme")
+            )
             .and_then(utils::log_error);
 }
 

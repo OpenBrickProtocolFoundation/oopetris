@@ -23,8 +23,8 @@ namespace constants {
 #elif AUDIO_QUALITY == 2 // 0 = LOW
     inline constexpr auto audio_frequency = 44100;
     inline constexpr auto audio_chunk_size = 1024 * 2;
-    #else
-    #error "Unrecognized 'AUDIO_QUALITY' value"
+#else
+#error "Unrecognized 'AUDIO_QUALITY' value"
 #endif
 
 
