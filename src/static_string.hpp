@@ -3,6 +3,7 @@
 #include "types.hpp"
 #include <algorithm>
 #include <array>
+#include <filesystem>
 #include <string>
 #include <string_view>
 
@@ -119,6 +120,10 @@ public:
     }
 
     [[nodiscard]] operator std::string() const {
+        return string();
+    }
+
+    [[nodiscard]] operator std::filesystem::path() const {
         return string();
     }
 
