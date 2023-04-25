@@ -11,7 +11,7 @@ modules:
       - "-Dcpp_args=-DFLATPAK_BUILD -DBUILD_INSTALLER"
     builddir: true
     build-options:
-      build-args:
+      build-args: []
     sources:
       - type: dir
         path: "."
@@ -19,10 +19,17 @@ modules:
           - .github/
           - .vscode/
           - build/
-    post-install:
-      - install -D oopetris /app/bin/oopetris
+    post-install: |
+      install -D oopetris /app/bin/oopetris
       #TODO get real logo and use more sizes!
-      - find ../assets/icon/ -name "test_*.png" -exec echo {} \; | awk -F_ '{ print $2 }' | awk -F. '{ print $1 }' |awk  '{ print $1 }'| awk '{ print "../assets/icon/test_" $1  ".png" "\n" "/app/share/icons/hicolor/" $ 1"x" $1 "/apps/github.mgerhold.OOPetris.png" }' | xargs cp $1
+      find ../assets/icon/ -name "test_*.png" -exec $SHELL -c '
+        SRC=$(echo $0)
+        RES=$(echo "$SRC"| awk -F_ '{ print $2 }' | awk -F. '{ print $1 }' |awk  '{ print $1 }')
+
+        DEST_DIR= "/app/share/icons/hicolor/$RESx$RES/apps"
+        mdkir -p "$DEST_DIR"
+        cp "$SRC" "$DEST_DIR/github.mgerhold.OOPetris.png"
+      ' {} \; 
       ## TODO svg /app/share/icons/hicolor/scalable/apps/github.mgerhold.OOPetris.svg
     run-tests: true
 
