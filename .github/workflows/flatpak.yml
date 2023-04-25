@@ -17,7 +17,7 @@ jobs:
       options: --privileged
     steps:
       - uses: actions/checkout@v3
-      - uses: bilelmoussaoui/flatpak-github-actions/flatpak-builder@v4
+      - uses: bilelmoussaoui/flatpak-github-actions/flatpak-builder@v6.1
         with:
           bundle: oopetris.flatpak
           manifest-path: github.mgerhold.OOPetris.yml
