@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=OOPetris
+Exec=flatpak run github.mgerhold.OOPetris
+Type=Application
+Icon=github.mgerhold.OOPetris
+Categories=Game;

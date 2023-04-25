@@ -19,18 +19,11 @@ modules:
           - .github/
           - .vscode/
           - build/
-    post-install: |
-      install -D oopetris /app/bin/oopetris
-      #TODO get real logo and use more sizes!
-      find ../assets/icon/ -name "test_*.png" -exec $SHELL -c '
-        SRC=$(echo $0)
-        RES=$(echo "$SRC"| awk -F_ '{ print $2 }' | awk -F. '{ print $1 }' |awk  '{ print $1 }')
-
-        DEST_DIR= "/app/share/icons/hicolor/$RESx$RES/apps"
-        mdkir -p "$DEST_DIR"
-        cp "$SRC" "$DEST_DIR/github.mgerhold.OOPetris.png"
-      ' {} \; 
-      ## TODO svg /app/share/icons/hicolor/scalable/apps/github.mgerhold.OOPetris.svg
+    post-install:
+      - install -D oopetris /app/bin/oopetris
+      - bash ../android/flatpak-icon-helper.sh
+      - mkdir -p /app/share/applications/
+      - cp ../assets/OOPetris.desktop /app/share/applications/github.mgerhold.OOPetris.desktop
     run-tests: true
 
 finish-args:
