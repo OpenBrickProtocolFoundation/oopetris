@@ -1,4 +1,5 @@
 #include "music_manager.hpp"
+#include "constants.hpp"
 #include "types.hpp"
 #include <SDL.h>
 #include <SDL_mixer.h>
@@ -30,7 +31,7 @@ MusicManager::MusicManager(u8 channel_size)
     }
     Mix_AllocateChannels(channel_size);
     // 2 here means STEREO, note that channels above means tracks, e.g simultaneous playing source that are mixed, hence the name SDL2_mixer)
-    Mix_OpenAudio(48000, MIX_DEFAULT_FORMAT, 2, 2048);
+    Mix_OpenAudio(constants::audio_frequency, MIX_DEFAULT_FORMAT, 2, constants::audio_chunk_size);
     if (result != 0) {
         throw std::runtime_error{ "error on open the audio device: " + std::string{ Mix_GetError() } };
     }

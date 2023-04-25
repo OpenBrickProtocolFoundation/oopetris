@@ -298,7 +298,7 @@ void Tetrion::clear_fully_occupied_lines() {
                 if (level > m_level) {
                     m_level = level;
                     spdlog::info("new level: {}", m_level);
-                    if (level == 30) {
+                    if (level == constants::music_change_level) {
                         MusicManager::getInstance()
                                 .load_and_play_music(
                                         utils::get_assets_folder() / "music"
