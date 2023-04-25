@@ -12,6 +12,13 @@
 #include <tl/optional.hpp>
 #include <type_traits>
 
+#if not defined(_AUDIO_PREFER_MP3) and not defined(_AUDIO_PREFER_FLAC)
+#define _AUDIO_PREFER_FLAC
+#elif defined(_AUDIO_PREFER_MP3) and defined(_AUDIO_PREFER_FLAC)
+#error "Can't prefer FLAC and MP3"
+#endif
+
+
 namespace utils {
     // taken from llvm: https://github.com/llvm/llvm-project/blob/main/libcxx/include/__concepts/arithmetic.h#L27-L30
     // [concepts.arithmetic], arithmetic concepts
@@ -56,4 +63,15 @@ namespace utils {
     [[nodiscard]] std::filesystem::path get_subfolder_to_root(std::string_view folder);
 
     tl::optional<bool> log_error(const std::string& error);
+
+
+#if defined(_AUDIO_WITH_FLAC_SUPPORT) and ((not defined(_AUDIO_WITH_MP3_SUPPORT)) or defined(_AUDIO_PREFER_FLAC))
+#define get_supported_music_extension(X) X ".flac"
+#elif defined(_AUDIO_WITH_MP3_SUPPORT) and ((not defined(_AUDIO_WITH_FLAC_SUPPORT)) or defined(_AUDIO_PREFER_MP3))
+#define get_supported_music_extension(X) X ".mp3";
+#else
+#error "Either FLAC or MP3 support has to be available at built time"
+#endif
+
+
 } // namespace utils

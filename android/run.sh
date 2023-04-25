@@ -131,17 +131,19 @@ for INDEX in "${!ARCH_KEYS[@]}"; do
 
         cd build
 
-        if [ $ARM_VERSION = "i686" ]; then
+        if [ "$ARM_VERSION" = "i686" ]; then
+            #cmake .. -DCMAKE_TOOLCHAIN_FILE=linux_i686.toolchain.cmake --install-prefix "$SYS_ROOT/usr" "-DCMAKE_SYSROOT=$SYS_ROOT" -DOUTPUT_MODULES=dummy -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+            # cmake --build .
 
-            cmake .. -DCMAKE_TOOLCHAIN_FILE=linux_i686.toolchain.cmake --install-prefix "$SYS_ROOT/usr" "-DCMAKE_SYSROOT=$SYS_ROOT" -DOUTPUT_MODULES=dummy -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+            # cmake --install .
+            : # nop, for bash syntax
+
         else
             cmake .. --install-prefix "$SYS_ROOT/usr" "-DCMAKE_SYSROOT=$SYS_ROOT" -DOUTPUT_MODULES=dummy -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+            cmake --build .
 
+            cmake --install .
         fi
-
-        cmake --build .
-
-        cmake --install .
 
     fi
 
@@ -216,8 +218,13 @@ EOF
         "--includedir=$INC_PATH" \
         "--libdir=usr/lib/$ARM_NAME_TRIPLE/$SDK_VERSION" \
         --cross-file "./android/crossbuilt-$ARM_TARET_ARCH.ini" \
-        -Dsdl2:use_hidapi=disabled
+        -Dsdl2:use_hidapi=disabled \
+        -D_AUDIO_PREFER_MP3
 
     meson compile -C "$BUILD_DIR"
 
 done
+
+# TODO only copy the supported music ones (atm we need both for i686 flac is needed!)
+
+cp -r ./assets/ android/project/app/src/main
