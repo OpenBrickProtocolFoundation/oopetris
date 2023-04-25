@@ -99,6 +99,9 @@ src_files = []
 
 subdir('src')
 
+## install assets
+install_subdir('assets', install_dir: 'share/oopetris')
+
 if meson.is_cross_build() and host_machine.system() == 'android'
 
     library(

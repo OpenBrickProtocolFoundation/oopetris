@@ -51,12 +51,17 @@ namespace utils {
 #if defined(__ANDROID__)
         return std::filesystem::path{ "." };
 #elif defined(BUILD_INSTALLER)
-        char* pref_path = SDL_GetPrefPath(constants::author, constants::program_name);
-        if (!pref_path) {
+
+#if defined(FLATPAK_BUILD)
+        const char* resource_path = "/app/share/oopetris/";
+#else
+        char* resource_path = SDL_GetPrefPath(constants::author, constants::program_name);
+        if (!resource_path) {
             throw std::runtime_error{ "Failed in getting the Pref Path: " + std::string{ SDL_GetError() } };
         }
-        // if you build in BUILD_INSTALLER mode, you have to assure that the data is there eg. music  + fonts!
-        return std::filesystem::path{ std::string{ pref_path } } / "assets";
+// if you build in BUILD_INSTALLER mode, you have to assure that the data is there eg. music  + fonts!
+#endif
+        return std::filesystem::path{ std::string{ resource_path } } / "assets";
 #else
         return std::filesystem::path{ "assets" };
 #endif

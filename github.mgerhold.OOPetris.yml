@@ -8,13 +8,14 @@ modules:
     buildsystem: meson
     config-opts:
       - -Dbuildtype=release
+      - "-Dcpp_args=-DFLATPAK_BUILD -DBUILD_INSTALLER"
     builddir: true
     build-options:
       build-args:
     sources:
       - type: dir
         path: "."
-        skip: 
+        skip:
           - .github/
           - .vscode/
           - build/
