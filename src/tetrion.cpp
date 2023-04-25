@@ -169,35 +169,16 @@ void Tetrion::spawn_next_tetromino(const TetrominoType type, const SimulationSte
             (*m_recording_writer)->add_snapshot(m_tetrion_index, simulation_step_index, *this);
         }
         m_active_tetromino = {};
-        m_ghost_tetromino = {};
         return;
     }
-
- /*    if (m_game_state == GameState::GameOver) {
-        return;
-    } */
-
-
     for (int i = 0; not is_active_tetromino_completely_visible() and i < Grid::invisible_rows; ++i) {
         m_active_tetromino->move_down();
         if (not is_active_tetromino_position_valid()) {
             m_active_tetromino->move_up();
-            spdlog::error("test type is {}", magic_enum::enum_name(m_active_tetromino->type()));
             break;
         }
     }
     m_next_gravity_simulation_step_index = simulation_step_index + get_gravity_delay_frames();
-
-    if (not is_active_tetromino_position_valid()) {
-        m_game_state = GameState::GameOver;
-        spdlog::info("game over 2 ");
-        if (m_recording_writer.has_value()) {
-            spdlog::info("writing snapshot 2");
-            (*m_recording_writer)->add_snapshot(m_tetrion_index, simulation_step_index, *this);
-        }
-        m_active_tetromino = {};
-        return;
-    }
     refresh_ghost_tetromino();
 }
 
