@@ -3,11 +3,10 @@ name: Flatpak build
 on:
   release:
     types: [published]
-    push:
-        branches: ["main"]
-    pull_request:
-        branches: ["main"]
-    workflow_dispatch:
+  push:
+    branches: ["main"]
+  pull_request:
+  workflow_dispatch:
 
 jobs:
   flatpak:

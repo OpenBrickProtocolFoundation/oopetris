@@ -1,42 +1,44 @@
 name: Android CI
 
 on:
-    push:
-        branches: ["main"]
-    pull_request:
-    workflow_dispatch:
+  release:
+    types: [published]
+  push:
+    branches: ["main"]
+  pull_request:
+  workflow_dispatch:
 
 jobs:
-    android-build:
-        runs-on: ubuntu-22.04
-        steps:
-            - uses: actions/checkout@v3
-              with:
-                  fetch-depth: "0"
+  android-build:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: "0"
 
-            - name: Setup Meson
-              run: |
-                  python -m pip install --upgrade pip
-                  pip install meson
+      - name: Setup Meson
+        run: |
+          python -m pip install --upgrade pip
+          pip install meson
 
-            - name: Setup ninja
-              uses: seanmiddleditch/gha-setup-ninja@master
+      - name: Setup ninja
+        uses: seanmiddleditch/gha-setup-ninja@master
 
-            - name: Run all
-              run: |
-                  bash ./android/run.sh
-                  cp -r ./assets/ android/project/app/src/main
+      - name: Run all
+        run: |
+          bash ./android/run.sh
+          cp -r ./assets/ android/project/app/src/main
 
-            - name: Build APK
-              uses: sparkfabrik/android-build-action@v1.3.4
-              with:
-                  build-type: assemble
-                  gradle-task: assembleDebug
-                  project-path: android/project
-                  output-path: oopetris.apk
+      - name: Build APK
+        uses: sparkfabrik/android-build-action@v1.3.4
+        with:
+          build-type: assemble
+          gradle-task: assembleDebug
+          project-path: android/project
+          output-path: oopetris.apk
 
-            - name: Upload artifacts
-              uses: actions/upload-artifact@v3
-              with:
-                  name: oopetris.apk
-                  path: oopetris.apk
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: oopetris.apk
+          path: oopetris.apk
