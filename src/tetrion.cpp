@@ -166,7 +166,7 @@ void Tetrion::spawn_next_tetromino(const TetrominoType type, const SimulationSte
 
         MusicManager::getInstance()
                 .load_and_play_music(
-                        utils::get_assets_folder() / "music" / get_supported_music_extension("05. Results"), 0
+                        utils::get_assets_folder() / "music" / utils::get_supported_music_extension("05. Results"), 0
                 )
                 .and_then(utils::log_error);
 
@@ -302,7 +302,7 @@ void Tetrion::clear_fully_occupied_lines() {
                         MusicManager::getInstance()
                                 .load_and_play_music(
                                         utils::get_assets_folder() / "music"
-                                        / get_supported_music_extension("03. Game Theme (50 Left)")
+                                        / utils::get_supported_music_extension("03. Game Theme (50 Left)")
                                 )
                                 .and_then(utils::log_error);
                     }
