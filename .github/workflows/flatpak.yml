@@ -11,14 +11,17 @@ on:
 jobs:
   flatpak:
     name: "Flatpak build github.mgerhold.OOPetris"
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     container:
       image: bilelmoussaoui/flatpak-github-actions:freedesktop-22.08
       options: --privileged
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: "0"
       - uses: bilelmoussaoui/flatpak-github-actions/flatpak-builder@v6.1
         with:
           bundle: oopetris.flatpak
           manifest-path: github.mgerhold.OOPetris.yml
           run-tests: false
+          verbose: true
