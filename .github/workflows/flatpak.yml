@@ -19,9 +19,9 @@ jobs:
       - name: install flatpak
         run: | 
           sudo apt-get install flatpak flatpak-builder -y
-          flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-          flatpak remote-add --if-not-exists flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo
-          flatpak remote-add --if-not-exists gnome-nightly https://nightly.gnome.org/gnome-nightly.flatpakrepo
+          sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+          sudo flatpak remote-add --if-not-exists flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo
+          sudo flatpak remote-add --if-not-exists gnome-nightly https://nightly.gnome.org/gnome-nightly.flatpakrepo
           flatpak install -y --noninteractive flathub org.freedesktop.Platform//22.08 org.freedesktop.Sdk//22.08
       - uses: bilelmoussaoui/flatpak-github-actions/flatpak-builder@v6.1
         with:
