@@ -13,8 +13,7 @@ TetrisApplication::TetrisApplication(CommandLineArguments command_line_arguments
 
     try_load_settings();
     load_resources();
-    push_scene(std::make_unique<IngameScene>(this));
-    push_scene(std::make_unique<MainMenuScene>(this));
+    push_scene(create_scene(*this, SceneId::Ingame));
 }
 
 void TetrisApplication::try_load_settings() try {
