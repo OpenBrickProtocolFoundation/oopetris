@@ -37,7 +37,7 @@ public:
 
             if (auto path = parser.present("--recording")) {
                 spdlog::info("recording is present");
-                recording_path = utils::get_subfolder_to_root(*path);
+                recording_path = utils::get_root_folder() / *path;
             }
 
             const auto fps = parser.get<int>("--target-fps");
