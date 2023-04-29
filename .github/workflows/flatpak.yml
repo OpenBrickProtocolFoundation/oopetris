@@ -27,3 +27,4 @@ jobs:
         with:
           bundle: oopetris.flatpak
           manifest-path: github.mgerhold.OOPetris.yml
+          run-tests: true
