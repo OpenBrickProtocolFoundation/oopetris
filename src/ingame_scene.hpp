@@ -14,11 +14,15 @@ private:
     std::vector<std::unique_ptr<Input>> m_inputs;
     std::unique_ptr<RecordingWriter> m_recording_writer;
     std::unique_ptr<RecordingReader> m_recording_reader;
+    bool m_should_pause{ false };
+    bool m_is_paused{ false };
 
 public:
     explicit IngameScene(TetrisApplication* app);
+
     [[nodiscard]] UpdateResult update() override;
     void render(const Application& app) override;
+    [[nodiscard]] bool handle_event(const SDL_Event& event) override;
 
 private:
     [[nodiscard]] std::unique_ptr<Input>
