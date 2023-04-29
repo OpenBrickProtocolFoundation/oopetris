@@ -65,7 +65,6 @@ private:
     GameState m_game_state = GameState::Playing;
     std::array<Bag, 2> m_sequence_bags{ Bag{ m_random }, Bag{ m_random } };
     int m_sequence_index = 0;
-    std::vector<std::shared_ptr<Font>> m_fonts;
     Text m_score_text;
     int m_score = 0;
     Text m_level_text;
@@ -82,6 +81,7 @@ public:
     Tetrion(u8 tetrion_index,
             Random::Seed random_seed,
             int starting_level,
+            const TetrisApplication& app,
             tl::optional<RecordingWriter*> recording_writer = tl::nullopt);
     void update(SimulationStep simulation_step_index);
     void render(const Application& app) const;

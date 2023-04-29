@@ -54,6 +54,17 @@ src_files += files(
     'utils.hpp',
     'window.cpp',
     'window.hpp',
+    'ui/widget.hpp',
+    'ui/layout.hpp',
+    'ui/label.hpp',
+    'scene.hpp',
+    'ingame_scene.cpp',
+    'ingame_scene.hpp',
+    'scene.cpp',
+    'main_menu_scene.cpp',
+    'main_menu_scene.hpp',
+    'resource_manager.hpp',
+    'scene_id.hpp',
 )
 
 inc_dirs += include_directories('.')
