@@ -6,7 +6,7 @@ function process_icon() {
 
   DEST_DIR="/app/share/icons/hicolor/${RES}x${RES}/apps"
   mkdir -p "$DEST_DIR"
-  cp "$SRC" "$DEST_DIR/github.mgerhold.OOPetris.png"
+  cp "$SRC" "$DEST_DIR/com.github.mgerhold.OOPetris.png"
 }
 
 export -f process_icon
@@ -14,4 +14,4 @@ export -f process_icon
 #TODO get real logo and use more sizes!
 find ../assets/icon/ -name "test_*.png" -exec bash -c 'process_icon "$@";' -- {} \;
 
-## TODO svg /app/share/icons/hicolor/scalable/apps/github.mgerhold.OOPetris.svg
+## TODO svg /app/share/icons/hicolor/scalable/apps/com.github.mgerhold.OOPetris.svg

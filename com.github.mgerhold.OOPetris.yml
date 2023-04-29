@@ -1,4 +1,4 @@
-app-id: github.mgerhold.OOPetris
+app-id: com.github.mgerhold.OOPetris
 runtime: org.freedesktop.Platform
 runtime-version: "22.08"
 sdk: org.freedesktop.Sdk
@@ -24,7 +24,7 @@ modules:
       - install -D oopetris /app/bin/oopetris
       - bash ../android/flatpak-icon-helper.sh
       - mkdir -p /app/share/applications/
-      - cp ../assets/OOPetris.desktop /app/share/applications/github.mgerhold.OOPetris.desktop
+      - cp ../assets/OOPetris.desktop /app/share/applications/com.github.mgerhold.OOPetris.desktop
     run-tests: true
 
 finish-args:

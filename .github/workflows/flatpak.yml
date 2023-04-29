@@ -10,7 +10,7 @@ on:
 
 jobs:
   flatpak:
-    name: "Flatpak build github.mgerhold.OOPetris"
+    name: "Flatpak build"
     runs-on: ubuntu-22.04
     container:
       image: bilelmoussaoui/flatpak-github-actions:freedesktop-22.08
@@ -20,10 +20,4 @@ jobs:
       - uses: bilelmoussaoui/flatpak-github-actions/flatpak-builder@v6.1
         with:
           bundle: oopetris.flatpak
-          manifest-path: github.mgerhold.OOPetris.yml
-          run-tests: false
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: OOPetris flatpak bundle
-          path: oopetris.flatpak
+          manifest-path: com.github.mgerhold.OOPetris.yml
