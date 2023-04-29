@@ -25,8 +25,8 @@ unset PKG_CONFIG
 cat <<EOF >"./android/crossbuilt-web.ini"
 [host_machine]
 system = 'emscripten'
-cpu_family = 'wasm'
-cpu = 'wasm'
+cpu_family = 'wasm32'
+cpu = 'wasm32'
 endian = 'little'
 
 [binaries]
@@ -60,5 +60,3 @@ meson setup "$BUILD_DIR" \
     -Dfreetype2:zlib=disabled
 
 meson compile -C "$BUILD_DIR"
-
-## wasm-ld: warning: function signature mismatch: lseek
