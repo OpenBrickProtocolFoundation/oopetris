@@ -46,3 +46,5 @@ public:
     [[nodiscard]] virtual UpdateResult update() = 0;
     virtual void render(const Application& app) = 0;
 };
+
+[[nodiscard]] std::unique_ptr<Scene> create_scene(TetrisApplication& app, SceneId id);
