@@ -168,6 +168,21 @@ tl::optional<InputEvent> KeyboardInput::sdl_event_to_input_event(const SDL_Event
     }
     return tl::nullopt;
 }
+KeyboardInput::KeyboardInput(
+        Tetrion* target_tetrion,
+        KeyboardControls controls,
+        EventDispatcher* event_dispatcher,
+        Input::OnEventCallback on_event_callback
+)
+    : Input{ target_tetrion, std::move(on_event_callback) },
+      m_controls{ controls },
+      m_event_dispatcher{ event_dispatcher } {
+    m_event_dispatcher->register_listener(this);
+}
+
+KeyboardInput::~KeyboardInput() {
+    m_event_dispatcher->unregister_listener(this);
+}
 
 ReplayInput::ReplayInput(
         Tetrion* const target_tetrion,

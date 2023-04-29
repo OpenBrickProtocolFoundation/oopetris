@@ -2,7 +2,9 @@
 
 #include <SDL_ttf.h>
 #include <filesystem>
+#include <memory>
 #include <string>
+
 struct FontLoadingError final : public std::exception {
 private:
     std::string message;
@@ -15,16 +17,14 @@ public:
     }
 };
 
+
 struct Font final {
 private:
-    TTF_Font* m_font;
+    std::shared_ptr<TTF_Font> m_font;
 
 public:
-    Font(const std::string& path, int size);
+    Font() = default;
     Font(const std::filesystem::path& path, int size);
-    Font(const Font&) = delete;
-    Font& operator=(const Font&) = delete;
-    ~Font();
 
     friend struct Text;
 };

@@ -4,9 +4,12 @@
 #include "event_dispatcher.hpp"
 #include "event_listener.hpp"
 #include "renderer.hpp"
+#include "scene.hpp"
 #include "sdl_context.hpp"
 #include "types.hpp"
 #include "window.hpp"
+#include <memory>
+#include <vector>
 
 struct Application : public EventListener {
 private:
@@ -18,6 +21,9 @@ private:
 
 protected:
     EventDispatcher m_event_dispatcher;
+
+private:
+    std::vector<std::unique_ptr<Scene>> m_scene_stack;
 
 public:
     Application(
@@ -54,17 +60,29 @@ public:
         return m_window;
     }
 
-    static double elapsed_time() {
+    [[nodiscard]] static double elapsed_time() {
         return static_cast<double>(SDL_GetTicks()) / 1000.0;
     }
 
     void handle_event(const SDL_Event& event) override;
 
-protected:
-    virtual void update() = 0;
-    virtual void render() const;
-
     [[nodiscard]] const CommandLineArguments& command_line_arguments() const {
         return m_command_line_arguments;
+    }
+
+    [[nodiscard]] EventDispatcher& event_dispatcher() {
+        return m_event_dispatcher;
+    }
+
+    [[nodiscard]] const EventDispatcher& event_dispatcher() const {
+        return m_event_dispatcher;
+    }
+
+protected:
+    virtual void update();
+    virtual void render() const;
+
+    void push_scene(std::unique_ptr<Scene> scene) {
+        m_scene_stack.push_back(std::move(scene));
     }
 };

@@ -61,6 +61,38 @@ void Application::handle_event(const SDL_Event& event) {
 #endif
 }
 
+void Application::update() {
+    for (usize i = 0; i < m_scene_stack.size(); ++i) {
+        const auto index = m_scene_stack.size() - i - 1;
+        const auto [scene_update, scene_change] = m_scene_stack.at(index)->update();
+        if (scene_change) {
+            std::visit(
+                    overloaded{
+                            [this, index](const Scene::Pop&) {
+                                m_scene_stack.erase(
+                                        m_scene_stack.begin()
+                                        + static_cast<decltype(m_scene_stack.begin())::difference_type>(index)
+                                );
+                            },
+                            [this, index]([[maybe_unused]] const Scene::Push& push) {
+                                // todo
+                            },
+                            [this, index]([[maybe_unused]] const Scene::Switch& switch_) {
+                                // todo
+                            },
+                    },
+                    *scene_change
+            );
+        }
+        if (scene_update == SceneUpdate::StopUpdating) {
+            break;
+        }
+    }
+}
+
 void Application::render() const {
     renderer().clear();
+    for (const auto& scene : m_scene_stack) {
+        scene->render(*this);
+    }
 }

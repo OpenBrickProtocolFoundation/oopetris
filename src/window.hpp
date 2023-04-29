@@ -1,6 +1,7 @@
 #pragma once
 
 #include "point.hpp"
+#include "rect.hpp"
 #include <SDL.h>
 #include <string>
 
@@ -22,7 +23,9 @@ public:
     ~Window();
     Window& operator=(const Window&) = delete;
 
-    Point size() const;
+    [[nodiscard]] Point size() const;
 
-    SDL_Window* get_sdl_window() const;
+    [[nodiscard]] SDL_Window* get_sdl_window() const;
+
+    [[nodiscard]] Rect screen_rect() const;
 };

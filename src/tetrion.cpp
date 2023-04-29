@@ -1,6 +1,7 @@
 #include "tetrion.hpp"
 #include "application.hpp"
 #include "recording.hpp"
+#include "tetris_application.hpp"
 #include "utils.hpp"
 #include <cassert>
 #include <fstream>
@@ -11,6 +12,7 @@ Tetrion::Tetrion(
         const u8 tetrion_index,
         const Random::Seed random_seed,
         const int starting_level,
+        const TetrisApplication& app,
         tl::optional<RecordingWriter*> recording_writer
 )
     : m_tetrion_index{ tetrion_index },
@@ -21,19 +23,12 @@ Tetrion::Tetrion(
       m_recording_writer{ recording_writer },
       m_lock_delay_step_index{ lock_delay } {
 
-    const auto font_path = utils::get_assets_folder() / "fonts" / "PressStart2P.ttf";
-#if defined(__ANDROID__)
-    constexpr auto font_size = 35;
-#else
-    constexpr auto font_size = 18;
-#endif
-    m_fonts.push_back(std::make_shared<Font>(font_path, font_size));
     m_score_text = Text{ Point{ m_grid.to_screen_coords(Point{ 0, Grid::height + 1 }) }, Color::white(), "score: 0",
-                         m_fonts.front() };
+                         app.fonts().get("default") };
     m_level_text = Text{ Point{ m_grid.to_screen_coords(Point{ 0, Grid::height + 2 }) }, Color::white(), "level: 0",
-                         m_fonts.front() };
+                         app.fonts().get("default") };
     m_cleared_lines_text = Text{ Point{ m_grid.to_screen_coords(Point{ 0, Grid::height + 3 }) }, Color::white(),
-                                 "lines: 0", m_fonts.front() };
+                                 "lines: 0", app.fonts().get("default") };
     refresh_texts();
 }
 
