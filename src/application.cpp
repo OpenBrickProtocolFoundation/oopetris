@@ -49,7 +49,7 @@ void Application::run() {
 }
 
 void Application::handle_event(const SDL_Event& event) {
-    if (event.type == SDL_QUIT or (event.type == SDL_KEYDOWN and event.key.keysym.sym == SDLK_ESCAPE)) {
+    if (event.type == SDL_QUIT) {
         m_is_running = false;
     }
 
