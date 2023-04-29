@@ -3,7 +3,7 @@
 
 MainMenuScene::MainMenuScene(TetrisApplication* app)
     : Scene{app},
-      m_heading{ "Test", Color::white(), app->fonts().get("default"), ui::AbsoluteLayout{50, 50 } } {
+      m_heading{ "Test", Color::white(), app->fonts().get(FontId::Default), ui::AbsoluteLayout{50, 50 } } {
     app->event_dispatcher().register_listener(this);
 }
 

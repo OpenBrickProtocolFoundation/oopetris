@@ -8,19 +8,32 @@
 #include <string_view>
 #include <unordered_map>
 
-template<typename Resource, typename Derived>
+enum class FontId {
+    Default,
+};
+
+template<typename Key, typename Resource, typename Derived>
 struct ResourceManager {
+private:
+    std::unordered_map<Key, Resource> m_resources;
+
 protected:
-    std::unordered_map<std::string, Resource> m_resources;
+    [[nodiscard]] const std::unordered_map<Key, Resource>& resources() const {
+        return m_resources;
+    }
+
+    [[nodiscard]] std::unordered_map<Key, Resource>& resources() {
+        return m_resources;
+    }
 
 public:
-    const Resource& get(const std::string& key) const {
+    [[nodiscard]] const Resource& get(Key key) const {
         return m_resources.at(key);
     }
 };
 
-struct FontManager : public ResourceManager<Font, FontManager> {
-    void load(const std::string& key, const std::filesystem::path& path, int font_size) {
-        m_resources[key] = Font{ path, font_size };
+struct FontManager : public ResourceManager<FontId, Font, FontManager> {
+    void load(FontId key, const std::filesystem::path& path, int font_size) {
+        resources()[key] = Font{ path, font_size };
     }
 };
