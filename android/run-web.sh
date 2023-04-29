@@ -20,9 +20,14 @@ export RANLIB=emranlib
 export STRIP=emstrip
 unset PKG_CONFIG
 
-export BUILD_SYSTEM="cmake"
+export BUILD_SYSTEM="meson"
 
 if [ $BUILD_SYSTEM = "meson" ]; then
+
+    export COMMON_EMSCRIPTEN_OPTIONS="'-fexceptions', '-sEXCEPTION_CATCHING_ALLOWED=[..]'"
+
+    export LINK_EMSCRIPTEN_OPTIONS="$COMMON_EMSCRIPTEN_OPTIONS, '-sEXPORT_ALL=1', '-sUSE_GLFW=3', '-sUSE_WEBGPU=1', '-sWASM=1', '-sALLOW_MEMORY_GROWTH=1', '-sNO_EXIT_RUNTIME=0', '-sASSERTIONS=1'"
+    export COMPILE_EMSCRIPTEN_OPTIONS="$COMMON_EMSCRIPTEN_OPTIONS"
 
     cat <<EOF >"./android/crossbuilt-web.ini"
 [host_machine]
@@ -38,10 +43,6 @@ strip = 'emstrip'
 ar      = 'emar'
 ranlib  = 'emranlib'
 
-pkgconfig = ['emcmake']
-cmake = ['emcmake']
-sdl2-config = ['emconfigure', 'em-config']
-
 exe_wrapper = 'node'
 
 [properties]
@@ -51,6 +52,10 @@ sys_root = './emsdk/upstream/emscripten/cache/sysroot'
 [built-in options]
 c_std = 'c11'
 cpp_std = 'c++20'
+c_args = [$COMPILE_EMSCRIPTEN_OPTIONS]
+c_link_args = [$LINK_EMSCRIPTEN_OPTIONS]
+cpp_args = [$COMPILE_EMSCRIPTEN_OPTIONS]
+cpp_link_args = [$LINK_EMSCRIPTEN_OPTIONS]
 
 
 EOF

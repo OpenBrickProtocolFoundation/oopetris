@@ -30,36 +30,6 @@ elif cpp.get_id() == 'clang'
     add_project_arguments('-std=c++2b', language: 'cpp')
 elif cpp.get_id() == 'emscripten'
     add_project_arguments('-std=c++2b', language: 'cpp')
-
-    emscripten_args = [
-        'USE_PTHREADS',
-        'USE_SDL=2',
-        'USE_SDL_MIXER=2',
-        'USE_VORBIS=1',
-        'USE_LIBPNG',
-        'USE_MPG123=1',
-        'USE_ZLIB=1',
-        'SDL2_MIXER_FORMATS=\'["wav", "flac", "mp3"]\'',
-        'USE_SDL_TTF=2'
-    ]
-
-
-    foreach emscripten_arg : emscripten_args
-
-        #setup esmscripten specific beahviour!
-        add_global_arguments(
-            '-s',
-            emscripten_arg,
-            language: ['c', 'cpp'],
-        )
-
-        add_global_arguments(
-            '-pthread',
-            language: ['c', 'cpp'],
-        )
-
-
-    endforeach
 else
     add_project_arguments('-std=c++20', language: 'cpp')
 endif
@@ -72,70 +42,64 @@ if meson.is_cross_build()
     native = false
 endif
 
-sdl2_mixer_flags = []
-sdl2_mixer_defines = []
 
-if host_machine.system() != 'emscripten'
+sdl2_dep = dependency(
+    'sdl2',
+    allow_fallback: false,
+    required: false,
+    native: native,
+)
 
-    sdl2_dep = dependency(
+if sdl2_dep.found()
+    deps += sdl2_dep
+else
+    deps += dependency(
         'sdl2',
-        allow_fallback: false,
-        required: false,
+        required: true,
+        fallback: 'sdl2',
+        native: native,
+        default_options: ['test=false'],
+    )
+    deps += dependency(
+        'sdl2main',
+        required: true,
+        fallback: 'sdl2',
         native: native,
     )
+endif
 
-    if sdl2_dep.found()
-        deps += sdl2_dep
-    else
-        deps += dependency(
-            'sdl2',
-            required: true,
-            fallback: 'sdl2',
-            native: native,
-            default_options: ['test=false'],
-        )
-        deps += dependency(
-            'sdl2main',
-            required: true,
-            fallback: 'sdl2',
-            native: native,
-        )
-    endif
-
-    deps += dependency('sdl2_ttf', 'SDL2_ttf', required: true, native: native)
+deps += dependency('sdl2_ttf', 'SDL2_ttf', required: true, native: native)
 
 
-    # a dirty thing atm, until mpg123 is ported to meson (maybe never...)
-    mpg123_dep = dependency('mgp123', required: false, native: native)
-    sdl2_mixer_flags += ['flac=enabled']
-    sdl2_mixer_defines += ['-DAUDIO_WITH_FLAC_SUPPORT']
+# a dirty thing atm, until mpg123 is ported to meson (maybe never...)
+mpg123_dep = dependency('mgp123', required: false, native: native)
+sdl2_mixer_flags = ['flac=enabled']
+sdl2_mixer_defines = ['-DAUDIO_WITH_FLAC_SUPPORT']
+if mpg123_dep.found()
+    sdl2_mixer_flags += 'mpg123=enabled'
+    sdl2_mixer_defines += '-DAUDIO_WITH_MP3_SUPPORT'
+else
+    cpp = meson.get_compiler('cpp')
+    mpg123_dep = cpp.find_library('mpg123', required: false)
     if mpg123_dep.found()
         sdl2_mixer_flags += 'mpg123=enabled'
         sdl2_mixer_defines += '-DAUDIO_WITH_MP3_SUPPORT'
-    else
-        cpp = meson.get_compiler('cpp')
-        mpg123_dep = cpp.find_library('mpg123', required: false)
-        if mpg123_dep.found()
-            sdl2_mixer_flags += 'mpg123=enabled'
-            sdl2_mixer_defines += '-DAUDIO_WITH_MP3_SUPPORT'
 
-            meson.override_dependency(
-                'mpg123',
-                mpg123_dep,
-                native: native,
-            )
-        endif
+        meson.override_dependency(
+            'mpg123',
+            mpg123_dep,
+            native: native,
+        )
     endif
-
-    deps += dependency(
-        'sdl2_mixer',
-        'SDL2_mixer',
-        required: true,
-        native: native,
-        default_options: sdl2_mixer_flags,
-    )
-
 endif
+
+deps += dependency(
+    'sdl2_mixer',
+    'SDL2_mixer',
+    required: true,
+    native: native,
+    default_options: sdl2_mixer_flags,
+)
 
 
 ## HEADER ONLY LIBS
@@ -192,15 +156,6 @@ if meson.is_cross_build() and host_machine.system() == 'android'
     )
 elif meson.is_cross_build() and host_machine.system() == 'emscripten'
 
-
-
-    sdl2_mixer_defines += [
-        '-DAUDIO_WITH_FLAC_SUPPORT',
-        '-DAUDIO_WITH_MP3_SUPPORT',
-    ]
-
-
-    ## TODO
     executable(
         'oopetris',
         src_files,
