@@ -88,13 +88,66 @@ for INDEX in "${!ARCH_KEYS[@]}"; do
 
     export BUILD_DIR="build-$ARM_TARET_ARCH"
 
-    export CC=$ARM_TRIPLE-clang
-    export CPP=$ARM_TRIPLE-clang++
-    export CXX=$CPP
+    export CC=$ARM_TOOL_TRIPLE-clang
+    export CXX=$ARM_TOOL_TRIPLE-clang++
     export LD=llvm-ld
     export AS=llvm-as
     export AR=llvm-ar
     export RANLIB=llvm-ranlib
+    export STRIP=llvm-strip
+    unset PKG_CONFIG
+
+    ## build mpg123 with autotools (meson port is to much work atm, for this feature)
+
+    LAST_DIR=$PWD
+
+    cd "$SYS_ROOT"
+
+    mkdir -p "build"
+
+    cd build
+
+    wget -q "https://www.mpg123.de/download/mpg123-1.31.3.tar.bz2"
+
+    tar -xf "mpg123-1.31.3.tar.bz2"
+
+    cd "mpg123-1.31.3"
+
+    BUILDYSTEM="cmake"
+
+    if [ $BUILDYSTEM = "autotools" ]; then
+
+        ./configure --prefix="$SYS_ROOT/usr" --oldincludedir="$SYS_ROOT/usr/include" --host="$ARM_NAME_TRIPLE" --with-sysroot="$SYS_ROOT" --with-audio="dummy"
+
+        make
+
+        make install
+
+    else
+
+        cd ports/cmake/
+
+        mkdir -p build
+
+        cd build
+
+        if [ "$ARM_VERSION" = "i686" ]; then
+            #cmake .. -DCMAKE_TOOLCHAIN_FILE=linux_i686.toolchain.cmake --install-prefix "$SYS_ROOT/usr" "-DCMAKE_SYSROOT=$SYS_ROOT" -DOUTPUT_MODULES=dummy -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+            # cmake --build .
+
+            # cmake --install .
+            : # nop, for bash syntax
+
+        else
+            cmake .. --install-prefix "$SYS_ROOT/usr" "-DCMAKE_SYSROOT=$SYS_ROOT" -DOUTPUT_MODULES=dummy -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+            cmake --build .
+
+            cmake --install .
+        fi
+
+    fi
+
+    cd "$LAST_DIR"
 
     cat <<EOF >"./android/crossbuilt-$ARM_TARET_ARCH.ini"
 [host_machine]
@@ -124,8 +177,8 @@ c_std = 'c11'
 cpp_std = 'c++20'
 c_args = ['--sysroot=${SYS_ROOT:?}','-fPIE','-fPIC','--target=$ARM_COMPILER_TRIPLE','-DHAVE_USR_INCLUDE_MALLOC_H','-D_MALLOC_H','-D__BITNESS=$BITNESS']
 cpp_args = ['--sysroot=${SYS_ROOT:?}','-fPIE','-fPIC','--target=$ARM_COMPILER_TRIPLE','-D__BITNESS=$BITNESS']
-c_link_args = ['-fPIE']
-cpp_link_args = ['-fPIE']
+c_link_args = ['-fPIE', '-L$SYS_ROOT/usr/lib']
+cpp_link_args = ['-fPIE', '-L$SYS_ROOT/usr/lib']
 prefix = '$SYS_ROOT'
 libdir = '$LIB_PATH'
 
@@ -166,8 +219,12 @@ EOF
         "--libdir=usr/lib/$ARM_NAME_TRIPLE/$SDK_VERSION" \
         --cross-file "./android/crossbuilt-$ARM_TARET_ARCH.ini" \
         -Dsdl2:use_hidapi=disabled \
-        -Dsdl2:test=false
+        -Dcpp_args=-DAUDIO_PREFER_MP3
 
     meson compile -C "$BUILD_DIR"
 
 done
+
+# TODO only copy the supported music ones (atm we need both for i686 flac is needed!)
+
+cp -r ./assets/ android/project/app/src/main

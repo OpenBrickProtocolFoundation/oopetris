@@ -5,6 +5,7 @@
 #include "grid.hpp"
 #include "input.hpp"
 #include "mino_stack.hpp"
+#include "music_manager.hpp"
 #include "random.hpp"
 #include "tetromino.hpp"
 #include "text.hpp"
@@ -58,7 +59,7 @@ private:
     tl::optional<Tetromino> m_ghost_tetromino;
     std::array<tl::optional<Tetromino>, num_preview_tetrominos> m_preview_tetrominos;
     tl::optional<Tetromino> m_tetromino_on_hold;
-    int m_level = 0;         // todo: change into u32
+    int m_level = 0; // todo: change into u32
     u64 m_next_gravity_simulation_step_index;
     int m_lines_cleared = 0; // todo: change into u32
     GameState m_game_state = GameState::Playing;
