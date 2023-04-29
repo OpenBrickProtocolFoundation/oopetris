@@ -18,7 +18,7 @@ jobs:
           fetch-depth: "0"
       - name: install flatpak
         run: | 
-          sudo apt-get install dbus-daemon flatpak flatpak-builder git-lfs python3-aiohttp python3-tenacity python3-gobject xorg-x11-server-Xvfb ccache zstd libappstream-glib -y
+          sudo apt-get install dbus-daemon flatpak flatpak-builder git-lfs python3-aiohttp python3-tenacity xvfb ccache zstd libappstream-glib* -y
           sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
           sudo flatpak remote-add --if-not-exists flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo
           sudo flatpak remote-add --if-not-exists gnome-nightly https://nightly.gnome.org/gnome-nightly.flatpakrepo
