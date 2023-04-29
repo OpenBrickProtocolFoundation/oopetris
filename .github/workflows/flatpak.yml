@@ -11,20 +11,19 @@ on:
 jobs:
   flatpak:
     name: "Flatpak build github.mgerhold.OOPetris"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
+    container:
+      image: bilelmoussaoui/flatpak-github-actions:freedesktop-22.08
+      options: --privileged
     steps:
       - uses: actions/checkout@v3
+      - uses: bilelmoussaoui/flatpak-github-actions/flatpak-builder@v6.1
         with:
-          fetch-depth: "0"
-      - name: install flatpak
-        run: | 
-          sudo apt-get install dbus-daemon flatpak flatpak-builder git-lfs python3-aiohttp python3-tenacity xvfb ccache zstd libappstream-glib* -y
-          sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-          sudo flatpak remote-add --if-not-exists flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo
-          sudo flatpak remote-add --if-not-exists gnome-nightly https://nightly.gnome.org/gnome-nightly.flatpakrepo
-          sudo flatpak install -y --noninteractive flathub org.freedesktop.Platform//22.08 org.freedesktop.Sdk//22.08
-      - name: manual run
-        run: | 
-          mkdir -p repo
-          flatpak-builder --user --disable-rofiles-fuse --force-clean --repo=./repo flatpak-build github.mgerhold.OOPetris.yml
-          flatpak build-bundle ./repo oopetris.flatpak github.mgerhold.OOPetris
+          bundle: oopetris.flatpak
+          manifest-path: github.mgerhold.OOPetris.yml
+          run-tests: false
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: OOPetris flatpak bundle
+          path: oopetris.flatpak

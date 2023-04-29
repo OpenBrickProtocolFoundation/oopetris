@@ -11,7 +11,8 @@ modules:
       - "-Dcpp_args=-DFLATPAK_BUILD -DBUILD_INSTALLER"
     builddir: true
     build-options:
-      build-args: []
+      build-args:
+        - --share=network
     sources:
       - type: dir
         path: "."
@@ -31,3 +32,4 @@ finish-args:
   - --socket=wayland
   - --device=all
   - --device=dri
+  - --socket=pulseaudio
