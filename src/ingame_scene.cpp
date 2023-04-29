@@ -172,6 +172,17 @@ IngameScene::create_input(Controls controls, Tetrion* associated_tetrion, Input:
     assert(m_inputs.size() == m_tetrions.size());
     assert(m_inputs.size() == m_simulation_step_indices.size());
 
+    if (m_is_paused) {
+        // if we would still be in pause mode, update() wouldn't have been called in the first place => we
+        // must resume from pause
+        m_is_paused = false;
+        m_should_pause = false;
+        for (auto& clock : m_clock_sources) {
+            assert(clock->can_be_paused());
+            clock->resume();
+        }
+    }
+
     for (usize i = 0; i < m_tetrions.size(); ++i) {
         auto& tetrion = *m_tetrions.at(i);
         auto& input = *m_inputs.at(i);
@@ -185,6 +196,15 @@ IngameScene::create_input(Controls controls, Tetrion* associated_tetrion, Input:
         }
     }
 
+    if (m_should_pause) {
+        m_should_pause = false;
+        m_is_paused = true;
+        for (auto& clock : m_clock_sources) {
+            assert(clock->can_be_paused());
+            clock->pause();
+        }
+        return std::pair{ SceneUpdate::ContinueUpdating, Scene::Push{ SceneId::MainMenu } };
+    }
     return std::pair{ SceneUpdate::ContinueUpdating, tl::nullopt };
 }
 
@@ -192,4 +212,12 @@ void IngameScene::render(const Application& app) {
     for (const auto& tetrion : m_tetrions) {
         tetrion->render(app);
     }
+}
+
+[[nodiscard]] bool IngameScene::handle_event(const SDL_Event& event) {
+    if (event.type == SDL_KEYDOWN and event.key.keysym.sym == SDLK_ESCAPE) {
+        m_should_pause = true;
+        return true;
+    }
+    return false;
 }

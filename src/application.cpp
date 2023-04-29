@@ -1,4 +1,5 @@
 #include "application.hpp"
+#include "tetris_application.hpp"
 
 Application::Application(
         const std::string& title,
@@ -59,11 +60,22 @@ void Application::handle_event(const SDL_Event& event) {
         // pause()
     }
 #endif
+
+    for (usize i = 0; i < m_scene_stack.size(); ++i) {
+        const auto index = m_scene_stack.size() - i - 1;
+        if (m_scene_stack.at(index)->handle_event(event)) {
+            break;
+        }
+    }
 }
 
 void Application::update() {
-    for (usize i = 0; i < m_scene_stack.size(); ++i) {
-        const auto index = m_scene_stack.size() - i - 1;
+    // we have to cache the initial number of scenes before starting the loop since the number of scenes can
+    // change during the loop which may otherwise lead to iterating over the same scene multiple times
+    const auto num_scenes = m_scene_stack.size();
+
+    for (usize i = 0; i < num_scenes; ++i) {
+        const auto index = num_scenes - i - 1;
         const auto [scene_update, scene_change] = m_scene_stack.at(index)->update();
         if (scene_change) {
             std::visit(
@@ -74,12 +86,20 @@ void Application::update() {
                                         + static_cast<decltype(m_scene_stack.begin())::difference_type>(index)
                                 );
                             },
-                            [this, index]([[maybe_unused]] const Scene::Push& push) {
+                            [this](const Scene::Push& push) {
+                                // todo: get rid of this ugly dynamic cast! the scene stack should work with an
+                                //       application directly or with an interface type that specifies everything
+                                //       that's needed
+                                assert(dynamic_cast<TetrisApplication*>(this) != nullptr);
+                                spdlog::info("pushing back scene {}", magic_enum::enum_name(push.target_scene));
+                                m_scene_stack.push_back(
+                                        create_scene(*dynamic_cast<TetrisApplication*>(this), push.target_scene)
+                                );
+                            },
+                            [this]([[maybe_unused]] const Scene::Switch& switch_) {
                                 // todo
                             },
-                            [this, index]([[maybe_unused]] const Scene::Switch& switch_) {
-                                // todo
-                            },
+                            [this](const Scene::Exit&) { m_is_running = false; },
                     },
                     *scene_change
             );

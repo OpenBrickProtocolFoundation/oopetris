@@ -26,12 +26,14 @@ public:
     struct Push {
         SceneId target_scene;
 
-        Push(SceneId target_scene) : target_scene{ target_scene } { }
+        explicit Push(SceneId target_scene) : target_scene{ target_scene } { }
     };
 
     struct Pop { };
 
-    using Change = std::variant<Push, Pop, Switch>;
+    struct Exit { };
+
+    using Change = std::variant<Push, Pop, Switch, Exit>;
     using UpdateResult = std::pair<SceneUpdate, tl::optional<Change>>;
 
 protected:
@@ -45,6 +47,7 @@ public:
 
     [[nodiscard]] virtual UpdateResult update() = 0;
     virtual void render(const Application& app) = 0;
+    virtual bool handle_event(const SDL_Event& event) = 0;
 };
 
 [[nodiscard]] std::unique_ptr<Scene> create_scene(TetrisApplication& app, SceneId id);
