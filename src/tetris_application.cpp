@@ -35,5 +35,5 @@ void TetrisApplication::load_resources() {
 #endif
 
     // todo: catch exception
-    m_font_manager.load("default", font_path, font_size);
+    m_font_manager.load(FontId::Default, font_path, font_size);
 }

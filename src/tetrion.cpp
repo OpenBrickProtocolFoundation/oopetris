@@ -24,11 +24,11 @@ Tetrion::Tetrion(
       m_lock_delay_step_index{ lock_delay } {
 
     m_score_text = Text{ Point{ m_grid.to_screen_coords(Point{ 0, Grid::height + 1 }) }, Color::white(), "score: 0",
-                         app.fonts().get("default") };
+                         app.fonts().get(FontId::Default) };
     m_level_text = Text{ Point{ m_grid.to_screen_coords(Point{ 0, Grid::height + 2 }) }, Color::white(), "level: 0",
-                         app.fonts().get("default") };
+                         app.fonts().get(FontId::Default) };
     m_cleared_lines_text = Text{ Point{ m_grid.to_screen_coords(Point{ 0, Grid::height + 3 }) }, Color::white(),
-                                 "lines: 0", app.fonts().get("default") };
+                                 "lines: 0", app.fonts().get(FontId::Default) };
     refresh_texts();
 }
 
