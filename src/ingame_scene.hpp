@@ -17,7 +17,7 @@ private:
 
 public:
     explicit IngameScene(TetrisApplication* app);
-    [[nodiscard]] virtual UpdateResult update() override;
+    [[nodiscard]] UpdateResult update() override;
     void render(const Application& app) override;
 
 private:
