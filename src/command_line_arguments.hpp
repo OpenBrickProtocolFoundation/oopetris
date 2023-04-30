@@ -29,11 +29,11 @@ public:
         parser.add_argument("-r", "--recording").help("the path of a recorded game used for replay");
         parser.add_argument("-f", "--target-fps")
                 .help("the number of simulation steps per second")
-                .scan<'i', int>()
+                .scan<'i', decltype(target_fps)>()
                 .default_value(default_target_fps);
         parser.add_argument("-l", "--level")
                 .help("the starting level of the game")
-                .scan<'i', int>()
+                .scan<'i', decltype(starting_level)>()
                 .default_value(default_starting_level);
         parser.add_argument("-s", "--silent").help("disable audio output").default_value(false).implicit_value(true);
         try {
@@ -44,14 +44,14 @@ public:
                 recording_path = utils::get_root_folder() / *path;
             }
 
-            const auto fps = parser.get<int>("--target-fps");
+            const auto fps = parser.get<decltype(target_fps)>("--target-fps");
             if (fps >= 1) {
-                target_fps = static_cast<u64>(fps);
+                target_fps = fps;
             } else {
                 spdlog::error("invalid value for target fps ({}), using default value instead ({})", fps, target_fps);
             }
 
-            const auto level = parser.get<int>("--level");
+            const auto level = parser.get<decltype(starting_level)>("--level");
             if (level >= 0 and level <= 30) {
                 starting_level = level;
             } else {
