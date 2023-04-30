@@ -148,7 +148,7 @@ void TetrisApplication::try_load_settings() {
         }
         m_settings = nlohmann::json::parse(settings_string.value());
 #else
-        m_settings = nlohmann::json::parse(settings_file);
+        m_settings = nlohmann::json::parse(settings_filename);
 #endif
         spdlog::info("settings loaded");
     } catch (...) {
