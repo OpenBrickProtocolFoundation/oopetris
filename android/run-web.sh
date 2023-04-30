@@ -3,10 +3,9 @@
 set -e
 
 if [ ! -d "emsdk" ]; then
-
     git clone https://github.com/emscripten-core/emsdk.git
-    ./emsdk install latest
-    ./emsdk activate latest
+    ./emsdk/emsdk install latest
+    ./emsdk/emsdk activate latest
 
 fi
 source "./emsdk/emsdk_env.sh" >/dev/null
