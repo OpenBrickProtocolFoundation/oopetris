@@ -57,7 +57,6 @@ namespace utils {
 #elif defined(__SWITCH__)
         // this is in the internal storage of the nintendo switch, it ios mounted by libnx (runtime switch support library) and filled at compile time with assets (its called ROMFS there)
         return std::filesystem::path{ "romfs:/assets" };
-=======
 #elif defined(BUILD_INSTALLER)
 
 #if defined(FLATPAK_BUILD)

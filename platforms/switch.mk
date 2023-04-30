@@ -10,9 +10,11 @@ include $(DEVKITPRO)/libnx/switch_rules
 TARGET		:=	oopetris
 BUILD		:=	build-switch
 SOURCES		:=	./src/
-INCLUDES	:=	./subprojects/argparse-2.9 ./subprojects/spdlog-1.11.0 ./subprojects/optional-1.0.0 ./subprojects/magic_enum-0.8.1 ./subprojects/nlohmann_json-3.11.2 ./subprojects/expected-1.0.0
+INCLUDES	:=	./subprojects/argparse-2.9 ./subprojects/spdlog-1.11.0 ./subprojects/optional-1.0.0 ./subprojects/magic_enum-0.8.2 ./subprojects/nlohmann_json-3.11.2 ./subprojects/expected-1.0.0
 EXEFS_SRC	:=	exefs_src
 ROMFS		:=	platforms/romfs
+DEFINES     := -DAUDIO_WITH_MP3_SUPPORT -DAUDIO_WITH_FLAC_SUPPORT
+
 
 APP_TITLE	:= oopetris
 APP_AUTHOR 	:= coder2k
@@ -35,7 +37,7 @@ CXXFLAGS	:= $(CFLAGS) -fno-rtti -std=gnu++20
 ASFLAGS	:=	-g $(ARCH)
 LDFLAGS	=	-specs=$(DEVKITPRO)/libnx/switch.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
 
-LIBS	:= -lSDL2 -lEGL -lGLESv2 -lglapi -ldrm_nouveau -lnx -lSDL2_ttf -lfreetype -lz -lbz2 -lpng
+LIBS	:= -lSDL2_mixer -lSDL2 -lEGL -lGLESv2 -lglapi -ldrm_nouveau -lnx -lSDL2_ttf -lfreetype -lz -lbz2 -lpng  -lopusfile -lopus -lvorbisfile -lvorbis -logg -lmodplug -lmpg123 -lopenal -lFLAC
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
