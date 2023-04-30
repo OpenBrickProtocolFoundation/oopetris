@@ -142,8 +142,11 @@ void TetrisApplication::render() const {
 void TetrisApplication::try_load_settings() {
     try {
 #if defined(__EMSCRIPTEN__)
-        const std::string settings_string = utils::LocalStorage::get_item(settings_filename);
-        m_settings = nlohmann::json::parse(settings_string);
+        const auto settings_string = utils::LocalStorage::get_item(settings_filename);
+        if (not settings_string.has_value()) {
+            return;
+        }
+        m_settings = nlohmann::json::parse(settings_string.value());
 #else
         m_settings = nlohmann::json::parse(settings_file);
 #endif

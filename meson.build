@@ -101,12 +101,20 @@ deps += dependency(
     default_options: sdl2_mixer_flags,
 )
 
+if meson.is_cross_build() and host_machine.system() == 'emscripten'
+
+    # this is done here, since it's only needed for one file!
+    cpp = meson.get_compiler('cpp')
+    deps += cpp.find_library('embind', required: true)
+    deps += cpp.find_library('openal', required: true)
+endif
 
 ## HEADER ONLY LIBS
 deps += dependency(
     'spdlog',
     required: true,
     native: native,
+    version: '>=1.1.11',
     default_options: ['tests=false'],
 )
 deps += dependency('nlohmann_json', required: true, native: native)
@@ -137,6 +145,9 @@ deps += dependency(
 
 
 src_files = []
+link_args = []
+link_whole = []
+
 
 subdir('src')
 
@@ -162,6 +173,8 @@ elif meson.is_cross_build() and host_machine.system() == 'emscripten'
         include_directories: inc_dirs,
         dependencies: deps,
         c_args: sdl2_mixer_defines,
+        link_whole: link_whole,
+        link_args: ['--preload-file', '../assets@/assets/'],
         cpp_args: compile_args + sdl2_mixer_defines,
         override_options: ['warning_level=3', 'werror=true'],
         native: native,
