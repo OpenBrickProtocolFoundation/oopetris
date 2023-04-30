@@ -3,7 +3,7 @@
 #pragma once
 
 #if not defined(__SWITCH__)
-#warning this header is switch only
+#error this header is switch only
 #else
 
 #include <switch.h>
