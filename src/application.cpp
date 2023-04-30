@@ -10,18 +10,18 @@ Application::Application(
         int width,
         int height
 )
-    : m_window{ title, position, width, height },
+    : m_command_line_arguments{ argc, argv },
+      m_window{ title, position, width, height },
       m_renderer{ m_window, Renderer::VSync::Enabled },
-      m_music_manager{ this, num_audio_channels },
-      m_command_line_arguments{ argc, argv } {
+      m_music_manager{ this, num_audio_channels } {
     initialize();
 }
 
 Application::Application(int argc, char** argv, const std::string& title, WindowPosition position)
-    : m_window{ title, position },
+    : m_command_line_arguments{ argc, argv },
+      m_window{ title, position },
       m_renderer{ m_window, Renderer::VSync::Enabled },
-      m_music_manager{ this, num_audio_channels },
-      m_command_line_arguments{ argc, argv } {
+      m_music_manager{ this, num_audio_channels } {
     initialize();
 }
 
@@ -76,7 +76,7 @@ void Application::update() {
                                 spdlog::info("pushing back scene {}", magic_enum::enum_name(push.target_scene));
                                 m_scene_stack.push_back(create_scene(*this, push.target_scene));
                             },
-                            [this]([[maybe_unused]] const Scene::Switch& switch_) {
+                            []([[maybe_unused]] const Scene::Switch& switch_) {
                                 // todo
                             },
                             [this](const Scene::Exit&) { m_is_running = false; },

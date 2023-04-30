@@ -1,8 +1,8 @@
 #pragma once
 
-#include "application.hpp"
 #include "mino.hpp"
 #include "point.hpp"
+#include "rect.hpp"
 #include "service_provider.hpp"
 #include <algorithm>
 #include <vector>

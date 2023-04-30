@@ -1,11 +1,8 @@
 #include "utils.hpp"
-#include "constants.hpp"
-#include <SDL.h>
 #include <chrono>
 #include <ctime>
 #include <filesystem>
 #include <spdlog/spdlog.h>
-#include <stdexcept>
 #include <string>
 #include <tl/optional.hpp>
 

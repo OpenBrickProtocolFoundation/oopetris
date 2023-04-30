@@ -6,6 +6,7 @@ struct MusicManager;
 struct Renderer;
 struct FontManager;
 struct EventDispatcher;
+struct Window;
 
 struct ServiceProvider {
     virtual ~ServiceProvider() = default;
@@ -21,4 +22,5 @@ struct ServiceProvider {
     [[nodiscard]] virtual const FontManager& fonts() const = 0;
     [[nodiscard]] virtual EventDispatcher& event_dispatcher() = 0;
     [[nodiscard]] virtual const EventDispatcher& event_dispatcher() const = 0;
+    [[nodiscard]] virtual const Window& window() const = 0;
 };

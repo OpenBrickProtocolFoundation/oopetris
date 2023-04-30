@@ -9,16 +9,17 @@
 #include <stdexcept>
 #include <string>
 #include <tl/optional.hpp>
+#include <type_traits>
 
 struct CommandLineArguments final {
 private:
-    static inline constexpr int default_target_fps = 60;
-    static inline constexpr int default_starting_level = 0;
+    static inline constexpr auto default_target_fps = u64{ 60 };
+    static inline constexpr auto default_starting_level = i32{ 0 };
 
 public:
     tl::optional<std::filesystem::path> recording_path{};
-    u64 target_fps{ default_target_fps };
-    i32 starting_level{ default_starting_level };
+    std::remove_cvref_t<decltype(default_target_fps)> target_fps{ default_target_fps };
+    std::remove_cvref_t<decltype(default_starting_level)> starting_level{ default_starting_level };
     bool silent{ false };
 
 public:

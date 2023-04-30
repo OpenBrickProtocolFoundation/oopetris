@@ -48,7 +48,6 @@ inline Rotation operator-(const Rotation rotation, const int offset) {
     return rotation + (-offset);
 }
 
-struct Application;
 struct Grid;
 
 struct Tetromino final {

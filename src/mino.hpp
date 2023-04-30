@@ -6,7 +6,6 @@
 #include "types.hpp"
 #include <array>
 
-struct Application;
 struct Grid;
 
 enum class MinoTransparency : u8 {

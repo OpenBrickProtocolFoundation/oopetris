@@ -1,5 +1,5 @@
 #include "input.hpp"
-#include "application.hpp"
+#include "event_dispatcher.hpp"
 #include "key_codes.hpp"
 #include "recording.hpp"
 #include "tetrion.hpp"

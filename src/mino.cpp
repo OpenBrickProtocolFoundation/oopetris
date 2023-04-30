@@ -1,6 +1,8 @@
 #include "mino.hpp"
-#include "application.hpp"
 #include "grid.hpp"
+#include "renderer.hpp"
+#include "utils.hpp"
+#include <cassert>
 
 static constexpr std::array<u8, 6> transparency_values = { 255, 173, 118, 80, 55, 37 };
 

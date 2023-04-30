@@ -1,6 +1,7 @@
 #include "tetrion.hpp"
-#include "application.hpp"
+#include "constants.hpp"
 #include "recording.hpp"
+#include "resource_manager.hpp"
 #include "utils.hpp"
 #include <cassert>
 #include <fstream>
@@ -19,9 +20,9 @@ Tetrion::Tetrion(
       m_grid{ Point{ static_cast<int>(tile_size / 2 + (Grid::hold_background_extends.x + 1) * tile_size), tile_size / 2 }, tile_size },
       m_level{ starting_level },
       m_next_gravity_simulation_step_index{ get_gravity_delay_frames() },
-      m_service_provider{ service_provider },
       m_recording_writer{ recording_writer },
-      m_lock_delay_step_index{ lock_delay } {
+      m_lock_delay_step_index{ lock_delay },
+      m_service_provider{ service_provider } {
     m_score_text = Text{ Point{ m_grid.to_screen_coords(Point{ 0, Grid::height + 1 }) }, Color::white(), "score: 0",
                          m_service_provider->fonts().get(FontId::Default) };
     m_level_text = Text{ Point{ m_grid.to_screen_coords(Point{ 0, Grid::height + 2 }) }, Color::white(), "level: 0",
@@ -309,7 +310,7 @@ void Tetrion::clear_fully_occupied_lines() {
     } while (cleared);
     const int num_lines_cleared = m_lines_cleared - lines_cleared_before;
     static constexpr std::array<int, 5> score_per_line_multiplier{ 0, 40, 100, 300, 1200 };
-    m_score += score_per_line_multiplier.at(num_lines_cleared) * (m_level + 1);
+    m_score += score_per_line_multiplier.at(static_cast<usize>(num_lines_cleared)) * (m_level + 1);
 }
 
 void Tetrion::lock_active_tetromino(const SimulationStep simulation_step_index) {
@@ -374,7 +375,7 @@ void Tetrion::refresh_previews() {
     auto sequence_index = m_sequence_index;
     auto bag_index = usize{ 0 };
     for (std::remove_cvref_t<decltype(num_preview_tetrominos)> i = 0; i < num_preview_tetrominos; ++i) {
-        m_preview_tetrominos.at(i) = Tetromino{
+        m_preview_tetrominos.at(static_cast<usize>(i)) = Tetromino{
             Grid::preview_tetromino_position + Point{0, Grid::preview_padding * i},
             m_sequence_bags.at(bag_index)[sequence_index]
         };
