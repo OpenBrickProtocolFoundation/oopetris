@@ -11,7 +11,7 @@ private:
     bool m_should_exit{ false };
 
 public:
-    explicit MainMenuScene(TetrisApplication* application);
+    explicit MainMenuScene(ServiceProvider* service_provider);
 
     [[nodiscard]] UpdateResult update() override;
     void render(const Application& app) override;

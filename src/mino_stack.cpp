@@ -34,10 +34,10 @@ void MinoStack::set(Point coordinates, TetrominoType type) {
     m_minos.push_back(to_insert);
 }
 
-void MinoStack::draw_minos(const Application& app, const Grid& grid) const {
+void MinoStack::draw_minos(const ServiceProvider& service_provider, const Grid& grid) const {
     for (const Mino& mino : m_minos) {
         if (mino.position().y >= Grid::invisible_rows) {
-            mino.render(app, grid, MinoTransparency::Solid);
+            mino.render(service_provider, grid, MinoTransparency::Solid);
         }
     }
 }

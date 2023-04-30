@@ -1,43 +1,29 @@
 #include "application.hpp"
-#include "tetris_application.hpp"
+#include "scene.hpp"
+#include <fstream>
 
 Application::Application(
+        int argc,
+        char** argv,
         const std::string& title,
         WindowPosition position,
         int width,
-        int height,
-        CommandLineArguments command_line_arguments
+        int height
 )
     : m_window{ title, position, width, height },
-      m_renderer{ m_window },
-      m_command_line_arguments{ std::move(command_line_arguments) } { }
+      m_renderer{ m_window, Renderer::VSync::Enabled },
+      m_music_manager{ this, num_audio_channels },
+      m_command_line_arguments{ argc, argv } {
+    initialize();
+}
 
-Application::Application(
-        const std::string& title,
-        int x,
-        int y,
-        int width,
-        int height,
-        CommandLineArguments command_line_arguments
-)
-    : m_window{ title, x, y, width, height },
-      m_renderer{ m_window },
-      m_command_line_arguments{ std::move(command_line_arguments) } { }
-
-Application::Application(const std::string& title, WindowPosition position, CommandLineArguments command_line_arguments)
+Application::Application(int argc, char** argv, const std::string& title, WindowPosition position)
     : m_window{ title, position },
-      m_renderer{ m_window },
-      m_command_line_arguments{ std::move(command_line_arguments) } { }
-
-Application::Application(
-        const std::string& title,
-        int x,
-        int y,
-        CommandLineArguments command_line_arguments
-)
-    : m_window{ title, x, y, },
-      m_renderer{ m_window },
-      m_command_line_arguments{ std::move(command_line_arguments) } { }
+      m_renderer{ m_window, Renderer::VSync::Enabled },
+      m_music_manager{ this, num_audio_channels },
+      m_command_line_arguments{ argc, argv } {
+    initialize();
+}
 
 void Application::run() {
     m_event_dispatcher.register_listener(this);
@@ -87,14 +73,8 @@ void Application::update() {
                                 );
                             },
                             [this](const Scene::Push& push) {
-                                // todo: get rid of this ugly dynamic cast! the scene stack should work with an
-                                //       application directly or with an interface type that specifies everything
-                                //       that's needed
-                                assert(dynamic_cast<TetrisApplication*>(this) != nullptr);
                                 spdlog::info("pushing back scene {}", magic_enum::enum_name(push.target_scene));
-                                m_scene_stack.push_back(
-                                        create_scene(*dynamic_cast<TetrisApplication*>(this), push.target_scene)
-                                );
+                                m_scene_stack.push_back(create_scene(*this, push.target_scene));
                             },
                             [this]([[maybe_unused]] const Scene::Switch& switch_) {
                                 // todo
@@ -115,4 +95,31 @@ void Application::render() const {
     for (const auto& scene : m_scene_stack) {
         scene->render(*this);
     }
+}
+
+void Application::initialize() {
+    try_load_settings();
+    load_resources();
+    push_scene(create_scene(*this, SceneId::Ingame));
+}
+
+void Application::try_load_settings() try {
+    std::ifstream settings_file{ settings_filename };
+    m_settings = nlohmann::json::parse(settings_file);
+    spdlog::info("settings loaded");
+} catch (...) {
+    spdlog::error("unable to load settings from \"{}\"", settings_filename);
+    spdlog::warn("applying default settings");
+}
+
+void Application::load_resources() {
+    const auto font_path = utils::get_assets_folder() / "fonts" / "PressStart2P.ttf";
+#if defined(__ANDROID__)
+    constexpr auto font_size = 35;
+#else
+    constexpr auto font_size = 18;
+#endif
+
+    // todo: catch exception
+    m_font_manager.load(FontId::Default, font_path, font_size);
 }

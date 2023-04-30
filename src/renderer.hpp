@@ -6,11 +6,17 @@
 #include <SDL.h>
 
 struct Renderer final {
+public:
+    enum class VSync {
+        Enabled,
+        Disabled,
+    };
+
 private:
     SDL_Renderer* m_renderer;
 
 public:
-    explicit Renderer(Window& window);
+    explicit Renderer(Window& window, VSync v_sync);
     Renderer(const Renderer&) = delete;
     Renderer& operator=(const Renderer&) = delete;
     ~Renderer();

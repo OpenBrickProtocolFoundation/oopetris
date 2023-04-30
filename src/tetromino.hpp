@@ -74,9 +74,9 @@ public:
         return m_rotation;
     }
 
-    void render(const Application& app, const Grid& grid, const MinoTransparency transparency) const {
+    void render(const ServiceProvider& service_provider, const Grid& grid, const MinoTransparency transparency) const {
         for (const auto& mino : m_minos) {
-            mino.render(app, grid, transparency);
+            mino.render(service_provider, grid, transparency);
         }
     }
 

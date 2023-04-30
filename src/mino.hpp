@@ -1,6 +1,7 @@
 #pragma once
 
 #include "point.hpp"
+#include "service_provider.hpp"
 #include "tetromino_type.hpp"
 #include "types.hpp"
 #include <array>
@@ -30,7 +31,7 @@ private:
 public:
     explicit constexpr Mino(Point coords, TetrominoType type) : m_position{ coords }, m_type{ type } { }
 
-    void render(const Application& app, const Grid& grid, MinoTransparency transparency) const;
+    void render(const ServiceProvider& service_provider, const Grid& grid, MinoTransparency transparency) const;
 
     [[nodiscard]] TetrominoType type() const {
         return m_type;

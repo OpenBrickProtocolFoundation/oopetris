@@ -59,8 +59,6 @@ add_executable(oopetris
         src/tetrion_snapshot.hpp
         src/tetrion.cpp
         src/tetrion.hpp
-        src/tetris_application.cpp
-        src/tetris_application.hpp
         src/tetromino_type.cpp
         src/tetromino_type.hpp
         src/tetromino.hpp
@@ -82,6 +80,7 @@ add_executable(oopetris
         src/main_menu_scene.hpp
         src/resource_manager.hpp
         src/scene_id.hpp
+        src/service_provider.hpp
         )
 
 foreach (target ${TARGET_LIST})

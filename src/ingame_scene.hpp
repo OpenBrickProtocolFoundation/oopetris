@@ -18,7 +18,7 @@ private:
     bool m_is_paused{ false };
 
 public:
-    explicit IngameScene(TetrisApplication* app);
+    explicit IngameScene(ServiceProvider* service_provider);
 
     [[nodiscard]] UpdateResult update() override;
     void render(const Application& app) override;

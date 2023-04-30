@@ -7,6 +7,7 @@
 #include "mino_stack.hpp"
 #include "music_manager.hpp"
 #include "random.hpp"
+#include "service_provider.hpp"
 #include "tetromino.hpp"
 #include "text.hpp"
 #include "types.hpp"
@@ -59,7 +60,7 @@ private:
     tl::optional<Tetromino> m_ghost_tetromino;
     std::array<tl::optional<Tetromino>, num_preview_tetrominos> m_preview_tetrominos;
     tl::optional<Tetromino> m_tetromino_on_hold;
-    int m_level = 0; // todo: change into u32
+    int m_level = 0;         // todo: change into u32
     u64 m_next_gravity_simulation_step_index;
     int m_lines_cleared = 0; // todo: change into u32
     GameState m_game_state = GameState::Playing;
@@ -76,15 +77,16 @@ private:
     u64 m_lock_delay_step_index;
     bool m_is_in_lock_delay = false;
     int m_num_executed_lock_delays = 0;
+    ServiceProvider* m_service_provider;
 
 public:
     Tetrion(u8 tetrion_index,
             Random::Seed random_seed,
             int starting_level,
-            const TetrisApplication& app,
+            ServiceProvider* service_provider,
             tl::optional<RecordingWriter*> recording_writer = tl::nullopt);
     void update(SimulationStep simulation_step_index);
-    void render(const Application& app) const;
+    void render(const ServiceProvider& service_provider) const;
 
     // returns if the input event lead to a movement
     bool handle_input_command(InputCommand command, SimulationStep simulation_step_index);

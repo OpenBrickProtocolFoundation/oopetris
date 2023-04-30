@@ -1,12 +1,11 @@
 #include "main_menu_scene.hpp"
-#include "tetris_application.hpp"
 
-MainMenuScene::MainMenuScene(TetrisApplication* app)
-    : Scene{ app },
+MainMenuScene::MainMenuScene(ServiceProvider* service_provider)
+    : Scene{ service_provider },
       m_heading{
           "Pause (ESC: continue, Return: quit)",
           Color::white(),
-          app->fonts().get(FontId::Default),
+          service_provider->fonts().get(FontId::Default),
           ui::AbsoluteLayout{ 50, 50 }
       } { }
 

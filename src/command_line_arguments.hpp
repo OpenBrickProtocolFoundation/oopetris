@@ -10,7 +10,7 @@
 #include <string>
 #include <tl/optional.hpp>
 
-struct CommandLineArguments {
+struct CommandLineArguments final {
 private:
     static inline constexpr int default_target_fps = 60;
     static inline constexpr int default_starting_level = 0;
@@ -19,7 +19,9 @@ public:
     tl::optional<std::filesystem::path> recording_path{};
     u64 target_fps{ default_target_fps };
     i32 starting_level{ default_starting_level };
+    bool silent{ false };
 
+public:
     CommandLineArguments(int argc, char** argv) {
         argparse::ArgumentParser parser{ constants::program_name, constants::version,
                                          argparse::default_arguments::all };
@@ -32,6 +34,7 @@ public:
                 .help("the starting level of the game")
                 .scan<'i', int>()
                 .default_value(default_starting_level);
+        parser.add_argument("-s", "--silent").help("disable audio output").default_value(false).implicit_value(true);
         try {
             parser.parse_args(argc, argv);
 
@@ -55,6 +58,8 @@ public:
                         "invalid value for starting level ({}), using default value instead ({})", level, starting_level
                 );
             }
+
+            silent = parser.get<bool>("--silent");
         } catch (const std::exception& err) {
             spdlog::error("error parsing command line arguments: {}", err.what());
 #if defined(__ANDROID__)

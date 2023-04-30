@@ -4,6 +4,7 @@
 #include "font.hpp"
 #include "point.hpp"
 #include "rect.hpp"
+#include "service_provider.hpp"
 #include <memory>
 
 struct Application;
@@ -18,7 +19,7 @@ private:
 public:
     Text() = default;
     Text(Point position, Color color, std::string text, Font font);
-    void render(const Application& app) const;
+    void render(const ServiceProvider& service_provider) const;
     void set_text(std::string text);
     void set_position(Point position);
 };

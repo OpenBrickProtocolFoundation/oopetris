@@ -3,6 +3,7 @@
 #include "command_line_arguments.hpp"
 #include "event_listener.hpp"
 #include "scene_id.hpp"
+#include "service_provider.hpp"
 #include "settings.hpp"
 #include <functional>
 
@@ -37,10 +38,10 @@ public:
     using UpdateResult = std::pair<SceneUpdate, tl::optional<Change>>;
 
 protected:
-    TetrisApplication* m_application;
+    ServiceProvider* m_service_provider;
 
 public:
-    explicit Scene(TetrisApplication* app);
+    explicit Scene(ServiceProvider* service_provider);
     Scene(const Scene&) = delete;
     Scene& operator=(const Scene&) = delete;
     virtual ~Scene() = default;
@@ -50,4 +51,4 @@ public:
     virtual bool handle_event(const SDL_Event& event) = 0;
 };
 
-[[nodiscard]] std::unique_ptr<Scene> create_scene(TetrisApplication& app, SceneId id);
+[[nodiscard]] std::unique_ptr<Scene> create_scene(ServiceProvider& service_provider, SceneId id);
