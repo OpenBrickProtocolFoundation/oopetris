@@ -64,7 +64,7 @@ EOF
         --cross-file "./android/crossbuilt-web.ini" \
         -Dcpp_args=-DAUDIO_PREFER_MP3 \
         -Ddefault_library=static \
-        -Dfreetype2:zlib=disabled
+        -Dfreetype2:zlib=external
 
     meson compile -C "$BUILD_DIR"
 
