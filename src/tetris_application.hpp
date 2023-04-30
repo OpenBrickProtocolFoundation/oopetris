@@ -1,6 +1,7 @@
 #pragma once
 
 #include "application.hpp"
+#include "music_manager.hpp"
 #include "recording.hpp"
 #include "settings.hpp"
 #include "tetrion.hpp"

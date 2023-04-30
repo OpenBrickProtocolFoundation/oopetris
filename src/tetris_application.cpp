@@ -1,5 +1,6 @@
 #include "tetris_application.hpp"
 #include "utils.hpp"
+#include <tl/optional.hpp>
 
 TetrisApplication::TetrisApplication(CommandLineArguments command_line_arguments)
 #if defined(__ANDROID__)
@@ -7,6 +8,7 @@ TetrisApplication::TetrisApplication(CommandLineArguments command_line_arguments
 #else
     : Application{ "OOPetris", WindowPosition::Centered, width, height, std::move(command_line_arguments) } {
 #endif
+
     try_load_settings();
     static constexpr auto num_tetrions = u8{ 1 };
 
@@ -20,6 +22,12 @@ TetrisApplication::TetrisApplication(CommandLineArguments command_line_arguments
         const auto seeds_span = std::span{ seeds.data(), seeds.size() };
         m_recording_writer = create_recording_writer(create_tetrion_headers(seeds_span));
     }
+    // first instantiation of instance initializes value!
+    MusicManager::getInstance(2);
+
+    //TODO: add in the main menu after we have an UI
+    /*  MusicManager::getInstance().load_and_play_music(utils::get_assets_folder() / "music" / utils::get_supported_music_extension("01. Main Menu"))
+            .and_then(utils::log_error); */
 
     for (u8 tetrion_index = 0; tetrion_index < num_tetrions; ++tetrion_index) {
         m_clock_sources.push_back(
@@ -47,6 +55,12 @@ TetrisApplication::TetrisApplication(CommandLineArguments command_line_arguments
     for (const auto& tetrion : m_tetrions) {
         tetrion->spawn_next_tetromino(0);
     }
+
+    MusicManager::getInstance()
+            .load_and_play_music(
+                    utils::get_assets_folder() / "music" / utils::get_supported_music_extension("02. Game Theme")
+            )
+            .and_then(utils::log_error);
 }
 
 void TetrisApplication::update() {
@@ -170,7 +184,7 @@ void TetrisApplication::try_load_settings() try {
 ) {
 
     static constexpr auto recordings_directory = "recordings";
-    const auto recording_directory_path = utils::get_subfolder_to_root(recordings_directory);
+    const auto recording_directory_path = utils::get_root_folder() / recordings_directory;
 
     if (not std::filesystem::exists(recording_directory_path)) {
         std::filesystem::create_directory(recording_directory_path);

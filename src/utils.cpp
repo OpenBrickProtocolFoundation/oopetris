@@ -7,6 +7,7 @@
 #include <spdlog/spdlog.h>
 #include <stdexcept>
 #include <string>
+#include <tl/optional.hpp>
 
 namespace utils {
     [[nodiscard]] std::string current_date_time_iso8601() {
@@ -34,16 +35,18 @@ namespace utils {
     }
 
     [[nodiscard]] std::filesystem::path get_root_folder() {
-#if defined(__ANDROID__)
+#if defined(__ANDROID__) or defined(BUILD_INSTALLER)
+        // this call also creates the dir (at least tries to) it returns
         char* pref_path = SDL_GetPrefPath(constants::author, constants::program_name);
         if (!pref_path) {
-            throw std::runtime_error{ "Failed in getting the Pref Path on android!" };
+            throw std::runtime_error{ "Failed in getting the Pref Path: " + std::string{ SDL_GetError() } };
         }
         return std::filesystem::path{ std::string{ pref_path } };
 #elif defined(__SWITCH__)
         // this is in the sdcard of the switch, since internal storage is read-only for applications!
         return std::filesystem::path{ "." };
 #else
+        // this is only used in local build for debugging, when compiling in release mode the path is real path where the app can store many things without interfering with other things (eg. AppData\Roaming\... onw Windows or  .local/share/... on Linux )
         return std::filesystem::path{ "." };
 #endif
     }
@@ -54,15 +57,32 @@ namespace utils {
 #elif defined(__SWITCH__)
         // this is in the internal storage of the nintendo switch, it ios mounted by libnx (runtime switch support library) and filled at compile time with assets (its called ROMFS there)
         return std::filesystem::path{ "romfs:/assets" };
+=======
+#elif defined(BUILD_INSTALLER)
+
+#if defined(FLATPAK_BUILD)
+        const char* resource_path = "/app/share/oopetris/";
+#else
+        char* resource_path = SDL_GetPrefPath(constants::author, constants::program_name);
+        if (!resource_path) {
+            throw std::runtime_error{ "Failed in getting the Pref Path: " + std::string{ SDL_GetError() } };
+        }
+// if you build in BUILD_INSTALLER mode, you have to assure that the data is there eg. music  + fonts!
+#endif
+        return std::filesystem::path{ std::string{ resource_path } } / "assets";
 #else
         return std::filesystem::path{ "assets" };
 #endif
     }
 
-
     [[nodiscard]] std::filesystem::path get_subfolder_to_root(const std::string_view folder) {
         return get_root_folder() / folder;
     }
 
+
+    tl::optional<bool> log_error(const std::string& error) {
+        spdlog::error(error);
+        return tl::nullopt;
+    }
 
 } // namespace utils

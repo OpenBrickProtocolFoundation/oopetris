@@ -5,13 +5,19 @@
   "dependencies": [
     {
       "name": "sdl2",
-      "version>=": "2.26.4",
+      "version>=": "2.26.5",
       "platform": "(x64 & static)"
     },
     {
       "name": "sdl2-ttf",
       "version>=": "2.20.2",
       "platform": "(x64 & static)"
+    },
+    {
+      "name": "sdl2-mixer",
+      "version>=": "2.6.3#1",
+      "platform": "(x64 & static)",
+      "features":["libflac", "mpg123"]
     },
     {
       "name": "tl-optional",
@@ -40,6 +46,7 @@
     },
     {
       "name": "tl-expected",
+      "version>=": "2022-11-24",
       "platform": "(x64 & static)"
     }
   ]

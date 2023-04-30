@@ -1,0 +1,35 @@
+app-id: com.github.mgerhold.OOPetris
+runtime: org.freedesktop.Platform
+runtime-version: "22.08"
+sdk: org.freedesktop.Sdk
+command: oopetris
+modules:
+  - name: OOPetris
+    buildsystem: meson
+    config-opts:
+      - -Dbuildtype=release
+      - "-Dcpp_args=-DFLATPAK_BUILD -DBUILD_INSTALLER"
+    builddir: true
+    build-options:
+      build-args:
+        - --share=network
+    sources:
+      - type: dir
+        path: "."
+        skip:
+          - .github/
+          - .vscode/
+          - build/
+    post-install:
+      - install -D oopetris /app/bin/oopetris
+      - bash ../platforms/flatpak-icon-helper.sh
+      - mkdir -p /app/share/applications/
+      - cp ../assets/OOPetris.desktop /app/share/applications/com.github.mgerhold.OOPetris.desktop
+    run-tests: true
+
+finish-args:
+  - --socket=x11
+  - --socket=wayland
+  - --device=all
+  - --device=dri
+  - --socket=pulseaudio

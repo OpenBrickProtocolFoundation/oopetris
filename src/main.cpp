@@ -17,7 +17,7 @@
 #endif
 
 int main(int argc, char** argv) {
-    const auto logs_path = utils::get_subfolder_to_root("logs");
+    const auto logs_path = utils::get_root_folder() / "logs";
     if (not exists(logs_path)) {
         std::filesystem::create_directory(logs_path);
     }

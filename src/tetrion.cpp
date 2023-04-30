@@ -163,6 +163,13 @@ void Tetrion::spawn_next_tetromino(const TetrominoType type, const SimulationSte
     refresh_previews();
     if (not is_active_tetromino_position_valid()) {
         m_game_state = GameState::GameOver;
+
+        MusicManager::getInstance()
+                .load_and_play_music(
+                        utils::get_assets_folder() / "music" / utils::get_supported_music_extension("05. Results"), 0
+                )
+                .and_then(utils::log_error);
+
         spdlog::info("game over");
         if (m_recording_writer.has_value()) {
             spdlog::info("writing snapshot");
@@ -291,6 +298,14 @@ void Tetrion::clear_fully_occupied_lines() {
                 if (level > m_level) {
                     m_level = level;
                     spdlog::info("new level: {}", m_level);
+                    if (level == constants::music_change_level) {
+                        MusicManager::getInstance()
+                                .load_and_play_music(
+                                        utils::get_assets_folder() / "music"
+                                        / utils::get_supported_music_extension("03. Game Theme (50 Left)")
+                                )
+                                .and_then(utils::log_error);
+                    }
                 }
                 m_mino_stack.clear_row_and_let_sink(row);
                 cleared = true;
