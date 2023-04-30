@@ -1,5 +1,6 @@
 #pragma once
 
+#include "service_provider.hpp"
 #include "types.hpp"
 #include <SDL_mixer.h>
 #include <atomic>
@@ -11,26 +12,26 @@
 // a general note on music vs. chunk: a chunk is loaded into memory and there may be many of them (effects, not to large music)
 // a music is unique and is decoded on the fly, so there is only one of them at the time!
 
-
-// this has to be a singleton because of some static functions and members, that have to be unique (globally!) (an we are in OOP, and do not have a single Singelton yet?!?!?  xD)
-struct MusicManager {
+struct MusicManager final {
 private:
+    static inline MusicManager* s_instance{ nullptr };
+
     Mix_Music* m_music;
     std::atomic<Mix_Music*> m_queued_music;
     u8 m_channel_size;
     std::unordered_map<std::string, Mix_Chunk*> m_chunk_map;
     static constexpr unsigned fade_ms = 500;
     usize m_delay = MusicManager::fade_ms;
+    ServiceProvider* m_service_provider;
+
     void hook_music_finished();
 
-    MusicManager(u8 channel_size);
-
 public:
-    static MusicManager& getInstance(u8 channel_size = 2);
+    explicit MusicManager(ServiceProvider* service_provider, u8 channel_size = 2);
     MusicManager(const MusicManager&) = delete;
     MusicManager& operator=(const MusicManager&) = delete;
     MusicManager(const MusicManager&&) = delete;
-    MusicManager& operator=(const MusicManager&&) = delete;
+    MusicManager& operator=(MusicManager&&) = delete;
     ~MusicManager();
 
     tl::optional<std::string>

@@ -3,6 +3,7 @@
 #include "application.hpp"
 #include "mino.hpp"
 #include "point.hpp"
+#include "service_provider.hpp"
 #include <algorithm>
 #include <vector>
 
@@ -30,11 +31,11 @@ public:
     Grid(Point offset, int tile_size);
     [[nodiscard]] Point tile_size() const;
     [[nodiscard]] Point to_screen_coords(Point grid_coords) const;
-    void render(const Application& app) const;
+    void render(const ServiceProvider& service_provider) const;
 
 private:
-    void draw_preview_background(const Application& app) const;
-    void draw_hold_background(const Application& app) const;
-    void draw_playing_field_background(const Application& app) const;
-    void draw_background(const Application& app, Rect grid_rect) const;
+    void draw_preview_background(const ServiceProvider& service_provider) const;
+    void draw_hold_background(const ServiceProvider& service_provider) const;
+    void draw_playing_field_background(const ServiceProvider& service_provider) const;
+    void draw_background(const ServiceProvider& service_provider, Rect grid_rect) const;
 };

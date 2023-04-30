@@ -1,5 +1,5 @@
+#include "application.hpp"
 #include "command_line_arguments.hpp"
-#include "tetris_application.hpp"
 #include "utils.hpp"
 #include <filesystem>
 #if defined(__ANDROID__)
@@ -33,8 +33,16 @@ int main(int argc, char** argv) {
     spdlog::set_level(spdlog::level::err);
 #endif
 
-    TetrisApplication tetris_app(CommandLineArguments{ argc, argv });
-    tetris_app.run();
+    static constexpr int width = 1280;
+    static constexpr int height = 720;
+
+#if defined(__ANDROID__)
+    Application app{ argc, argv, "OOPetris", WindowPosition::Centered };
+#else
+    Application app{ argc, argv, "OOPetris", WindowPosition::Centered, width, height };
+#endif
+
+    app.run();
 
     return 0;
 }

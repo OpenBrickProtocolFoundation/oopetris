@@ -42,8 +42,6 @@ src_files += files(
     'tetrion.hpp',
     'tetrion_snapshot.cpp',
     'tetrion_snapshot.hpp',
-    'tetris_application.cpp',
-    'tetris_application.hpp',
     'tetromino.hpp',
     'tetromino_type.cpp',
     'tetromino_type.hpp',
@@ -65,6 +63,7 @@ src_files += files(
     'main_menu_scene.hpp',
     'resource_manager.hpp',
     'scene_id.hpp',
+    'service_provider.hpp',
 )
 
 inc_dirs += include_directories('.')

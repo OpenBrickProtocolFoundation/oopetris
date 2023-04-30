@@ -1,16 +1,15 @@
 #include "scene.hpp"
 #include "ingame_scene.hpp"
 #include "main_menu_scene.hpp"
-#include "tetris_application.hpp"
 
-Scene::Scene(TetrisApplication* app) : m_application{ app } { }
+Scene::Scene(ServiceProvider* service_provider) : m_service_provider{ service_provider } { }
 
-[[nodiscard]] std::unique_ptr<Scene> create_scene(TetrisApplication& app, SceneId id) {
+[[nodiscard]] std::unique_ptr<Scene> create_scene(ServiceProvider& service_provider, SceneId id) {
     switch (id) {
         case SceneId::MainMenu:
-            return std::make_unique<MainMenuScene>(&app);
+            return std::make_unique<MainMenuScene>(&service_provider);
         case SceneId::Ingame:
-            return std::make_unique<IngameScene>(&app);
+            return std::make_unique<IngameScene>(&service_provider);
         default:
             assert(false and "unreachable");
             return {};

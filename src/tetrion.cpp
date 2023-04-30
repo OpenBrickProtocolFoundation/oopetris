@@ -1,7 +1,6 @@
 #include "tetrion.hpp"
 #include "application.hpp"
 #include "recording.hpp"
-#include "tetris_application.hpp"
 #include "utils.hpp"
 #include <cassert>
 #include <fstream>
@@ -12,7 +11,7 @@ Tetrion::Tetrion(
         const u8 tetrion_index,
         const Random::Seed random_seed,
         const int starting_level,
-        const TetrisApplication& app,
+        ServiceProvider* service_provider,
         tl::optional<RecordingWriter*> recording_writer
 )
     : m_tetrion_index{ tetrion_index },
@@ -20,15 +19,15 @@ Tetrion::Tetrion(
       m_grid{ Point{ static_cast<int>(tile_size / 2 + (Grid::hold_background_extends.x + 1) * tile_size), tile_size / 2 }, tile_size },
       m_level{ starting_level },
       m_next_gravity_simulation_step_index{ get_gravity_delay_frames() },
+      m_service_provider{ service_provider },
       m_recording_writer{ recording_writer },
       m_lock_delay_step_index{ lock_delay } {
-
     m_score_text = Text{ Point{ m_grid.to_screen_coords(Point{ 0, Grid::height + 1 }) }, Color::white(), "score: 0",
-                         app.fonts().get(FontId::Default) };
+                         m_service_provider->fonts().get(FontId::Default) };
     m_level_text = Text{ Point{ m_grid.to_screen_coords(Point{ 0, Grid::height + 2 }) }, Color::white(), "level: 0",
-                         app.fonts().get(FontId::Default) };
+                         m_service_provider->fonts().get(FontId::Default) };
     m_cleared_lines_text = Text{ Point{ m_grid.to_screen_coords(Point{ 0, Grid::height + 3 }) }, Color::white(),
-                                 "lines: 0", app.fonts().get(FontId::Default) };
+                                 "lines: 0", m_service_provider->fonts().get(FontId::Default) };
     refresh_texts();
 }
 
@@ -61,14 +60,14 @@ void Tetrion::update(const SimulationStep simulation_step_index) {
     }
 }
 
-void Tetrion::render(const Application& app) const {
-    m_grid.render(app);
-    m_mino_stack.draw_minos(app, m_grid);
+void Tetrion::render(const ServiceProvider& service_provider) const {
+    m_grid.render(service_provider);
+    m_mino_stack.draw_minos(service_provider, m_grid);
     if (m_active_tetromino) {
-        m_active_tetromino->render(app, m_grid, MinoTransparency::Solid);
+        m_active_tetromino->render(service_provider, m_grid, MinoTransparency::Solid);
     }
     if (m_ghost_tetromino) {
-        m_ghost_tetromino->render(app, m_grid, MinoTransparency::Ghost);
+        m_ghost_tetromino->render(service_provider, m_grid, MinoTransparency::Ghost);
     }
     for (std::underlying_type_t<MinoTransparency> i = 0; i < static_cast<decltype(i)>(m_preview_tetrominos.size());
          ++i) {
@@ -83,11 +82,11 @@ void Tetrion::render(const Application& app) const {
         }
     }
     if (m_tetromino_on_hold) {
-        m_tetromino_on_hold->render(app, m_grid, MinoTransparency::Solid);
+        m_tetromino_on_hold->render(service_provider, m_grid, MinoTransparency::Solid);
     }
-    m_score_text.render(app);
-    m_level_text.render(app);
-    m_cleared_lines_text.render(app);
+    m_score_text.render(service_provider);
+    m_level_text.render(service_provider);
+    m_cleared_lines_text.render(service_provider);
 }
 
 bool Tetrion::handle_input_command(const InputCommand command, const SimulationStep simulation_step_index) {
@@ -159,7 +158,7 @@ void Tetrion::spawn_next_tetromino(const TetrominoType type, const SimulationSte
     if (not is_active_tetromino_position_valid()) {
         m_game_state = GameState::GameOver;
 
-        MusicManager::getInstance()
+        m_service_provider->music_manager()
                 .load_and_play_music(
                         utils::get_assets_folder() / "music" / utils::get_supported_music_extension("05. Results"), 0
                 )
@@ -294,7 +293,7 @@ void Tetrion::clear_fully_occupied_lines() {
                     m_level = level;
                     spdlog::info("new level: {}", m_level);
                     if (level == constants::music_change_level) {
-                        MusicManager::getInstance()
+                        m_service_provider->music_manager()
                                 .load_and_play_music(
                                         utils::get_assets_folder() / "music"
                                         / utils::get_supported_music_extension("03. Game Theme (50 Left)")

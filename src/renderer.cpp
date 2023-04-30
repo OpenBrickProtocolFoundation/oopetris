@@ -5,8 +5,10 @@ static constexpr SDL_Rect to_sdl_rect(Rect rect) {
                      rect.bottom_right.y - rect.top_left.y + 1 };
 }
 
-Renderer::Renderer(Window& window) {
-    m_renderer = SDL_CreateRenderer(window.get_sdl_window(), -1, 0);
+Renderer::Renderer(Window& window, const VSync v_sync)
+    : m_renderer{
+          SDL_CreateRenderer(window.get_sdl_window(), -1, v_sync == VSync::Enabled ? SDL_RENDERER_PRESENTVSYNC : 0)
+      } {
     SDL_SetRenderDrawBlendMode(m_renderer, SDL_BLENDMODE_BLEND);
 }
 

@@ -1,12 +1,12 @@
 #include "ingame_scene.hpp"
 #include "application.hpp"
-#include "tetris_application.hpp"
 
-IngameScene::IngameScene(TetrisApplication* app) : Scene{ app } {
+IngameScene::IngameScene(ServiceProvider* service_provider) : Scene{ service_provider } {
     static constexpr auto num_tetrions = u8{ 1 };
 
     if (is_replay_mode()) {
-        m_recording_reader = std::make_unique<RecordingReader>(*(app->command_line_arguments().recording_path));
+        m_recording_reader =
+                std::make_unique<RecordingReader>(*(m_service_provider->command_line_arguments().recording_path));
     }
 
     const auto seeds = create_seeds(num_tetrions);
@@ -15,22 +15,21 @@ IngameScene::IngameScene(TetrisApplication* app) : Scene{ app } {
         const auto seeds_span = std::span{ seeds.data(), seeds.size() };
         m_recording_writer = create_recording_writer(create_tetrion_headers(seeds_span));
     }
-    // first instantiation of instance initializes value!
-    MusicManager::getInstance(2);
 
     //TODO: add in the main menu after we have an UI
-    /*  MusicManager::getInstance().load_and_play_music(utils::get_assets_folder() / "music" / utils::get_supported_music_extension("01. Main Menu"))
+    /*  MusicManager::get_instance().load_and_play_music(utils::get_assets_folder() / "music" / utils::get_supported_music_extension("01. Main Menu"))
             .and_then(utils::log_error); */
 
     for (u8 tetrion_index = 0; tetrion_index < num_tetrions; ++tetrion_index) {
-        m_clock_sources.push_back(std::make_unique<LocalClock>(static_cast<u32>(app->command_line_arguments().target_fps
-        )));
+        m_clock_sources.push_back(
+                std::make_unique<LocalClock>(static_cast<u32>(m_service_provider->command_line_arguments().target_fps))
+        );
         m_simulation_step_indices.push_back(0);
         const auto starting_level = starting_level_for_tetrion(tetrion_index);
         spdlog::info("starting level for tetrion {}: {}", tetrion_index, starting_level);
 
         m_tetrions.push_back(std::make_unique<Tetrion>(
-                tetrion_index, seeds.at(tetrion_index), starting_level, *app, recording_writer_optional()
+                tetrion_index, seeds.at(tetrion_index), starting_level, m_service_provider, recording_writer_optional()
         ));
 
         auto on_event_callback = create_on_event_callback(tetrion_index);
@@ -40,7 +39,8 @@ IngameScene::IngameScene(TetrisApplication* app) : Scene{ app } {
             m_inputs.push_back(create_replay_input(m_recording_reader.get(), tetrion_pointer, [](InputEvent) {}));
         } else {
             m_inputs.push_back(create_input(
-                    app->settings().controls.at(tetrion_index), tetrion_pointer, std::move(on_event_callback)
+                    m_service_provider->settings().controls.at(tetrion_index), tetrion_pointer,
+                    std::move(on_event_callback)
             ));
         }
     }
@@ -48,11 +48,13 @@ IngameScene::IngameScene(TetrisApplication* app) : Scene{ app } {
         tetrion->spawn_next_tetromino(0);
     }
 
-    MusicManager::getInstance()
-            .load_and_play_music(
-                    utils::get_assets_folder() / "music" / utils::get_supported_music_extension("02. Game Theme")
-            )
-            .and_then(utils::log_error);
+    if (not m_service_provider->command_line_arguments().silent) {
+        m_service_provider->music_manager()
+                .load_and_play_music(
+                        utils::get_assets_folder() / "music" / utils::get_supported_music_extension("02. Game Theme")
+                )
+                .and_then(utils::log_error);
+    }
 }
 
 [[nodiscard]] std::unique_ptr<Input>
@@ -68,7 +70,7 @@ IngameScene::create_input(Controls controls, Tetrion* associated_tetrion, Input:
                         auto input = std::make_unique<TouchInput>(associated_tetrion, std::move(on_event_callback));
 #else
                         auto input = std::make_unique<KeyboardInput>(
-                                associated_tetrion, keyboard_controls, &(m_application->event_dispatcher()),
+                                associated_tetrion, keyboard_controls, &(m_service_provider->event_dispatcher()),
                                 std::move(on_event_callback)
                         );
 #endif
@@ -104,7 +106,7 @@ IngameScene::create_input(Controls controls, Tetrion* associated_tetrion, Input:
 }
 
 [[nodiscard]] bool IngameScene::is_replay_mode() const {
-    return m_application->command_line_arguments().recording_path.has_value();
+    return m_service_provider->command_line_arguments().recording_path.has_value();
 }
 
 [[nodiscard]] bool IngameScene::game_is_recorded() const {
@@ -118,7 +120,7 @@ IngameScene::create_input(Controls controls, Tetrion* associated_tetrion, Input:
 [[nodiscard]] auto IngameScene::starting_level_for_tetrion(const u8 tetrion_index) const
         -> decltype(CommandLineArguments::starting_level) {
     return is_replay_mode() ? m_recording_reader->tetrion_headers().at(tetrion_index).starting_level
-                            : m_application->command_line_arguments().starting_level;
+                            : m_service_provider->command_line_arguments().starting_level;
 }
 
 [[nodiscard]] IngameScene::TetrionHeaders IngameScene::create_tetrion_headers(const std::span<const Random::Seed> seeds
