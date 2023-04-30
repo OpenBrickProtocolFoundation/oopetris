@@ -1,4 +1,5 @@
 #include "main_menu_scene.hpp"
+#include "renderer.hpp"
 #include "resource_manager.hpp"
 #include "window.hpp"
 
@@ -22,6 +23,7 @@ MainMenuScene::MainMenuScene(ServiceProvider* service_provider)
 }
 
 void MainMenuScene::render(const ServiceProvider& service_provider) {
+    service_provider.renderer().draw_rect_filled(service_provider.window().screen_rect(), Color::black(180));
     m_heading.render(service_provider, service_provider.window().screen_rect());
 }
 
