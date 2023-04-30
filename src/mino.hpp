@@ -9,12 +9,14 @@ struct Application;
 struct Grid;
 
 enum class MinoTransparency : u8 {
+    // here the enum value is used as index into the preview alpha array
     Preview0,
     Preview1,
     Preview2,
     Preview3,
     Preview4,
     Preview5,
+    // here the enum value is used as alpha!
     Ghost = 50,
     Solid = 255,
 };
