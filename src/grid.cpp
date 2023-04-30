@@ -1,4 +1,5 @@
 #include "grid.hpp"
+#include "renderer.hpp"
 
 Grid::Grid(Point offset, int tile_size) : m_offset{ offset - Point{ 0, invisible_rows * tile_size }}, m_tile_size{ tile_size } {
 }

@@ -17,7 +17,6 @@
 #include <tl/optional.hpp>
 #include <vector>
 
-struct Application;
 struct RecordingWriter;
 
 enum class GameState {

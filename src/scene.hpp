@@ -7,9 +7,6 @@
 #include "settings.hpp"
 #include <functional>
 
-struct TetrisApplication;
-struct Application;
-
 enum class SceneUpdate {
     ContinueUpdating,
     StopUpdating,
@@ -47,7 +44,7 @@ public:
     virtual ~Scene() = default;
 
     [[nodiscard]] virtual UpdateResult update() = 0;
-    virtual void render(const Application& app) = 0;
+    virtual void render(const ServiceProvider& service_provider) = 0;
     virtual bool handle_event(const SDL_Event& event) = 0;
 };
 

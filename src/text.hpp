@@ -7,8 +7,6 @@
 #include "service_provider.hpp"
 #include <memory>
 
-struct Application;
-
 struct Text final {
 private:
     Point m_position;

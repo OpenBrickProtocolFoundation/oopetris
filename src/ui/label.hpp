@@ -18,19 +18,17 @@ namespace ui {
               m_color{ color },
               m_font{ std::move(font) } { }
 
-        void render(const Application& app, const Rect rect) const override {
+        void render(const ServiceProvider& service_provider, const Rect rect) const override {
             const auto absolute_layout = std::get<AbsoluteLayout>(layout);
             const auto position =
                     rect.top_left + Point{ static_cast<int>(absolute_layout.x), static_cast<int>(absolute_layout.y) };
 
             const auto text = Text{ position, m_color, m_text, m_font };
-            text.render(app);
+            text.render(service_provider);
         }
 
         bool handle_event([[maybe_unused]] const SDL_Event& event) override {
             return false;
         }
-
-        void on_resize_window([[maybe_unused]] const Application& app) override { }
     };
 } // namespace ui

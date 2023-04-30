@@ -1,5 +1,5 @@
 #include "text.hpp"
-#include "application.hpp"
+#include "renderer.hpp"
 
 Text::Text(Point position, Color color, std::string text, Font font)
     : m_position{ position },

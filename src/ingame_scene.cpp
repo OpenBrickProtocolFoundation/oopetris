@@ -1,5 +1,4 @@
 #include "ingame_scene.hpp"
-#include "application.hpp"
 
 IngameScene::IngameScene(ServiceProvider* service_provider) : Scene{ service_provider } {
     static constexpr auto num_tetrions = u8{ 1 };
@@ -210,9 +209,9 @@ IngameScene::create_input(Controls controls, Tetrion* associated_tetrion, Input:
     return std::pair{ SceneUpdate::ContinueUpdating, tl::nullopt };
 }
 
-void IngameScene::render(const Application& app) {
+void IngameScene::render(const ServiceProvider& service_provider) {
     for (const auto& tetrion : m_tetrions) {
-        tetrion->render(app);
+        tetrion->render(service_provider);
     }
 }
 

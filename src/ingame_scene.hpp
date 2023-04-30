@@ -21,7 +21,7 @@ public:
     explicit IngameScene(ServiceProvider* service_provider);
 
     [[nodiscard]] UpdateResult update() override;
-    void render(const Application& app) override;
+    void render(const ServiceProvider& service_provider) override;
     [[nodiscard]] bool handle_event(const SDL_Event& event) override;
 
 private:

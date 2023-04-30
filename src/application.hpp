@@ -19,12 +19,12 @@ private:
     static constexpr auto num_audio_channels = u8{ 2 };
 
 private:
+    CommandLineArguments m_command_line_arguments;
     SdlContext context;
     Window m_window;
     Renderer m_renderer;
     bool m_is_running{ true };
     MusicManager m_music_manager;
-    CommandLineArguments m_command_line_arguments;
     static constexpr auto settings_filename = "settings.json";
     Settings m_settings;
     FontManager m_font_manager;
@@ -42,10 +42,6 @@ public:
     Application& operator=(const Application&) = delete;
 
     void run();
-
-    [[nodiscard]] const Window& window() const {
-        return m_window;
-    }
 
     [[nodiscard]] static double elapsed_time() {
         return static_cast<double>(SDL_GetTicks()) / 1000.0;
@@ -97,6 +93,10 @@ public:
 
     [[nodiscard]] const Renderer& renderer() const override {
         return m_renderer;
+    }
+
+    [[nodiscard]] const Window& window() const override {
+        return m_window;
     }
 
 private:
