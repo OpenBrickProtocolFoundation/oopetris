@@ -73,8 +73,7 @@ void Input::handle_event(const InputEvent event, const SimulationStep simulation
         case InputEvent::HoldReleased:
             break;
         default:
-            assert(false and "unreachable");
-            break;
+            utils::unreachable();
     }
 }
 
