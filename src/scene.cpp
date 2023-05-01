@@ -11,7 +11,6 @@ Scene::Scene(ServiceProvider* service_provider) : m_service_provider{ service_pr
         case SceneId::Ingame:
             return std::make_unique<IngameScene>(&service_provider);
         default:
-            assert(false and "unreachable");
-            return {};
+            utils::unreachable();
     }
 }

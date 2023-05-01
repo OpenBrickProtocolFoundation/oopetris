@@ -78,7 +78,7 @@ void Tetrion::render(const ServiceProvider& service_provider) const {
                 const auto transparency = magic_enum::enum_value<MinoTransparency>(enum_index.value() + i);
                 m_preview_tetrominos.at(i)->render(service_provider, m_grid, transparency);
             } else {
-                throw std::exception{}; // unreachable
+                utils::unreachable();
             }
         }
     }
@@ -468,8 +468,7 @@ bool Tetrion::move(const Tetrion::MoveDirection move_direction) {
             return true;
     }
 
-    assert(false and "unreachable");
-    return false;
+    utils::unreachable();
 }
 
 tl::optional<const Tetrion::WallKickTable&> Tetrion::get_wall_kick_table() const {
@@ -487,6 +486,5 @@ tl::optional<const Tetrion::WallKickTable&> Tetrion::get_wall_kick_table() const
         case TetrominoType::O:
             return {};
     }
-    assert(false and "unreachable");
-    return {};
+    utils::unreachable();
 }

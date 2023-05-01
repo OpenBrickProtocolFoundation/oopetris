@@ -180,8 +180,7 @@ private:
         if (from == Rotation::North and to == Rotation::West) {
             return 7;
         }
-        assert(false and "unreachable");
-        return 0;
+        utils::unreachable();
     }
 
     static constexpr auto wall_kick_data_jltsz = WallKickTable{

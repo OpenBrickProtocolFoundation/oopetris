@@ -6,12 +6,14 @@
 #include <algorithm>
 #include <array>
 #include <bit>
+#include <cassert>
 #include <climits>
 #include <filesystem>
 #include <string>
 #include <string_view>
 #include <tl/optional.hpp>
 #include <type_traits>
+
 namespace utils {
     // taken from llvm: https://github.com/llvm/llvm-project/blob/main/libcxx/include/__concepts/arithmetic.h#L27-L30
     // [concepts.arithmetic], arithmetic concepts
@@ -75,6 +77,23 @@ namespace utils {
 #endif
 
         return StaticString{ name } + StaticString{ "." } + ext;
+    }
+
+    [[noreturn]] inline void unreachable() {
+        // based on: https://en.cppreference.com/w/cpp/utility/unreachable
+
+        // Uses compiler specific extensions if possible.
+        // Even if no extension is used, undefined behavior is still raised by
+        // an empty function body and the noreturn attribute.
+#ifdef DEBUG_BUILD
+        assert(false && "unreachable");
+#else
+#ifdef __GNUC__   // GCC, Clang, ICC
+        __builtin_unreachable();
+#elifdef _MSC_VER // MSVC
+        __assume(false);
+#endif
+#endif
     }
 
 } // namespace utils

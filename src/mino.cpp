@@ -20,8 +20,7 @@ namespace {
             case MinoTransparency::Solid:
                 return utils::to_underlying(transparency);
             default:
-                assert(false and "unreachable");
-                return 0;
+                utils::unreachable();
         }
     }
 } // namespace
