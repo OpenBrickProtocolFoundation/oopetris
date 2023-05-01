@@ -16,7 +16,10 @@ MusicManager::MusicManager(ServiceProvider* service_provider, u8 channel_size)
       m_channel_size{ channel_size },
       m_chunk_map{ std::unordered_map<std::string, Mix_Chunk*>{} },
       m_service_provider{ service_provider } {
-    assert(s_instance == nullptr and "there can only be one MusicManager instance");
+    if (s_instance != nullptr) {
+        spdlog::error("it's not allowed to create more than one MusicManager instance");
+        return;
+    }
 
     if (m_service_provider->command_line_arguments().silent) {
         return;
@@ -34,32 +37,32 @@ MusicManager::MusicManager(ServiceProvider* service_provider, u8 channel_size)
     s_instance = this;
 }
 
-void MusicManager::hook_music_finished() {
-
-    if (m_queued_music == nullptr) {
-        throw std::runtime_error{ "implementation error: m_queued_music is null but it shouldn't be" };
+MusicManager::~MusicManager() {
+    if (not validate_instance()) {
+        return;
     }
 
-
-    Mix_FreeMusic(this->m_music);
-
-
-    const int result = Mix_FadeInMusic(m_queued_music, -1, static_cast<int>(m_delay));
-    if (result != 0) {
-        throw std::runtime_error(
-                "an error occurred while trying to play the music (fading in): " + std::string{ Mix_GetError() }
-        );
+    if (m_service_provider->command_line_arguments().silent) {
+        return;
     }
-    this->m_music = m_queued_music;
 
-    m_queued_music = nullptr;
-
-    // clear the callback
-    Mix_HookMusicFinished(nullptr);
+    // stop sounds and free loaded data
+    Mix_HaltChannel(-1);
+    if (m_music != nullptr) {
+        Mix_FreeMusic(m_music);
+    }
+    for (const auto& [_, value] : m_chunk_map) {
+        Mix_FreeChunk(value);
+    }
+    Mix_CloseAudio();
+    Mix_Quit();
 }
 
-
 tl::optional<std::string> MusicManager::load_and_play_music(const std::filesystem::path& location, const usize delay) {
+    if (not validate_instance()) {
+        return tl::nullopt;
+    }
+
     if (m_service_provider->command_line_arguments().silent) {
         spdlog::debug("trying to load and play music \"{}\" in silent mode is ignored", location.string());
         return tl::nullopt;
@@ -114,26 +117,29 @@ tl::optional<std::string> MusicManager::load_and_play_music(const std::filesyste
 
 //TODO add speed modifier via Mix_RegisterEffect for music!
 
-
 tl::optional<std::string> MusicManager::load_effect(const std::string& name, std::filesystem::path& location) {
+    if (not validate_instance()) {
+        return tl::nullopt;
+    }
 
     if (m_chunk_map.contains(name)) {
         return "name already used";
     }
 
     Mix_Chunk* chunk = Mix_LoadWAV(location.string().c_str());
-
     if (chunk == nullptr) {
         return ("an error occurred while trying to load the chunk: " + std::string{ Mix_GetError() });
     }
 
     m_chunk_map.insert({ name, chunk });
-
-
     return tl::nullopt;
 }
 
 tl::optional<std::string> MusicManager::play_effect(const std::string& name, u8 channel_num, int loop) {
+    if (not validate_instance()) {
+        return tl::nullopt;
+    }
+
     if (m_chunk_map.contains(name)) {
         return "name not loaded";
     }
@@ -153,19 +159,35 @@ tl::optional<std::string> MusicManager::play_effect(const std::string& name, u8 
 }
 
 
-MusicManager::~MusicManager() {
-    if (m_service_provider->command_line_arguments().silent) {
+void MusicManager::hook_music_finished() {
+    if (not validate_instance()) {
         return;
     }
 
-    // stop sounds and free loaded data
-    Mix_HaltChannel(-1);
-    if (m_music != nullptr) {
-        Mix_FreeMusic(m_music);
+    if (m_queued_music == nullptr) {
+        throw std::runtime_error{ "implementation error: m_queued_music is null but it shouldn't be" };
     }
-    for (const auto& [_, value] : m_chunk_map) {
-        Mix_FreeChunk(value);
+
+    Mix_FreeMusic(this->m_music);
+
+    const int result = Mix_FadeInMusic(m_queued_music, -1, static_cast<int>(m_delay));
+    if (result != 0) {
+        throw std::runtime_error(
+                "an error occurred while trying to play the music (fading in): " + std::string{ Mix_GetError() }
+        );
     }
-    Mix_CloseAudio();
-    Mix_Quit();
+    this->m_music = m_queued_music;
+
+    m_queued_music = nullptr;
+
+    // clear the callback
+    Mix_HookMusicFinished(nullptr);
+}
+
+[[nodiscard]] bool MusicManager::validate_instance() {
+    if (s_instance != this) {
+        spdlog::error("this MusicManager instance is not the instance that is used globally");
+        return false;
+    }
+    return true;
 }
