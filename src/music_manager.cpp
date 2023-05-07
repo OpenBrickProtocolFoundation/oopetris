@@ -158,7 +158,6 @@ tl::optional<std::string> MusicManager::play_effect(const std::string& name, u8 
     return tl::nullopt;
 }
 
-
 void MusicManager::hook_music_finished() {
     if (not validate_instance()) {
         return;
@@ -186,7 +185,9 @@ void MusicManager::hook_music_finished() {
 
 [[nodiscard]] bool MusicManager::validate_instance() {
     if (s_instance != this) {
-        spdlog::error("this MusicManager instance is not the instance that is used globally");
+        if (not m_service_provider->command_line_arguments().silent) {
+            spdlog::error("this MusicManager instance is not the instance that is used globally");
+        }
         return false;
     }
     return true;
