@@ -1,9 +1,11 @@
 #include "renderer.hpp"
 
-static constexpr SDL_Rect to_sdl_rect(Rect rect) {
-    return SDL_Rect{ rect.top_left.x, rect.top_left.y, rect.bottom_right.x - rect.top_left.x + 1,
-                     rect.bottom_right.y - rect.top_left.y + 1 };
-}
+namespace {
+    constexpr SDL_Rect to_sdl_rect(Rect rect) {
+        return SDL_Rect{ rect.top_left.x, rect.top_left.y, rect.bottom_right.x - rect.top_left.x + 1,
+                         rect.bottom_right.y - rect.top_left.y + 1 };
+    }
+} // namespace
 
 Renderer::Renderer(Window& window, const VSync v_sync)
     : m_renderer{
