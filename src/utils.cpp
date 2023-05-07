@@ -1,4 +1,5 @@
 #include "utils.hpp"
+#include <array>
 #include <chrono>
 #include <ctime>
 #include <filesystem>
@@ -12,7 +13,8 @@ namespace utils {
 
         const std::time_t time = std::chrono::system_clock::to_time_t(now);
 
-        char buffer[16];
+        static constexpr auto buffer_size = usize{ 16 };
+        std::array<char, buffer_size> buffer{};
 
         std::tm tm{};
 #ifdef _MSC_VER
@@ -26,7 +28,7 @@ namespace utils {
             return "error";
         }
 #endif
-        std::strftime(buffer, sizeof(buffer), "%Y%m%dT%H%M%S", &tm);
+        std::strftime(buffer.data(), buffer.size(), "%Y%m%dT%H%M%S", &tm);
 
         return std::string{ buffer };
     }
