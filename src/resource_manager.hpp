@@ -12,12 +12,14 @@ enum class FontId {
     Default,
 };
 
-template<typename Key, typename Resource, typename Derived>
+template<typename Key, typename Resource>
 struct ResourceManager {
 private:
     std::unordered_map<Key, Resource> m_resources;
 
 protected:
+    ResourceManager() = default;
+
     [[nodiscard]] const std::unordered_map<Key, Resource>& resources() const {
         return m_resources;
     }
@@ -32,7 +34,7 @@ public:
     }
 };
 
-struct FontManager : public ResourceManager<FontId, Font, FontManager> {
+struct FontManager : public ResourceManager<FontId, Font> {
     void load(FontId key, const std::filesystem::path& path, int font_size) {
         resources()[key] = Font{ path, font_size };
     }
