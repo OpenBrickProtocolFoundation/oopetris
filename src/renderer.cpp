@@ -29,13 +29,13 @@ void Renderer::clear(Color clear_color) const {
 
 void Renderer::draw_rect_filled(Rect rect, Color color) const {
     set_draw_color(color);
-    SDL_Rect sdl_rect = to_sdl_rect(rect);
+    const SDL_Rect sdl_rect = to_sdl_rect(rect);
     SDL_RenderFillRect(m_renderer, &sdl_rect);
 }
 
 void Renderer::draw_rect_outline(Rect rect, Color color) const {
     set_draw_color(color);
-    SDL_Rect sdl_rect = to_sdl_rect(rect);
+    const SDL_Rect sdl_rect = to_sdl_rect(rect);
     SDL_RenderDrawRect(m_renderer, &sdl_rect);
 }
 
@@ -43,7 +43,7 @@ void Renderer::present() const {
     SDL_RenderPresent(m_renderer);
 }
 
-void Renderer::draw_line(Point from, Point to, Color color) const {
+void Renderer::draw_line(const Point start, const Point end, const Color color) const {
     set_draw_color(color);
-    SDL_RenderDrawLine(m_renderer, from.x, from.y, to.x, to.y);
+    SDL_RenderDrawLine(m_renderer, start.x, start.y, end.x, end.y);
 }
