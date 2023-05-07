@@ -14,7 +14,7 @@ Window::Window(const std::string& title, WindowPosition position)
 Window::Window(const std::string& title, int x, int y) {
 
     SDL_DisplayMode mode{};
-    int result = SDL_GetCurrentDisplayMode(0, &mode);
+    const int result = SDL_GetCurrentDisplayMode(0, &mode);
     if (result != 0) {
         throw std::runtime_error{ "failed in getting display mode: " + std::string{ SDL_GetError() } };
     }
