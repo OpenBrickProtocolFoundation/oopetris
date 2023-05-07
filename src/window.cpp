@@ -30,8 +30,8 @@ Window::~Window() {
 }
 
 [[nodiscard]] Point Window::size() const {
-    int width;
-    int height;
+    int width{};
+    int height{};
     SDL_GetWindowSize(m_window, &width, &height);
     return Point{ width, height };
 }
