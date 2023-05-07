@@ -274,7 +274,7 @@ void Tetrion::refresh_texts() {
 }
 
 void Tetrion::clear_fully_occupied_lines() {
-    bool cleared = false;
+    bool cleared;
     const int lines_cleared_before = m_lines_cleared;
     do {
         cleared = false;
