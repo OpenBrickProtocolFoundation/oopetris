@@ -10,9 +10,9 @@ Bag::Bag(Random& random) : m_tetromino_sequence{} {
     for (std::size_t i = 0; i < m_tetromino_sequence.size(); ++i) {
         while (true) {
             auto type_is_okay = true;
-            m_tetromino_sequence[i] = get_random_tetromino_type(random);
+            m_tetromino_sequence.at(i) = get_random_tetromino_type(random);
             for (std::size_t j = 0; j < i; ++j) {
-                if (m_tetromino_sequence[j] == m_tetromino_sequence[i]) {
+                if (m_tetromino_sequence.at(j) == m_tetromino_sequence.at(i)) {
                     type_is_okay = false;
                     break;
                 }
