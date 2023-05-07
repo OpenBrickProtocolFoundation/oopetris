@@ -73,13 +73,10 @@ void Tetrion::render(const ServiceProvider& service_provider) const {
     for (std::underlying_type_t<MinoTransparency> i = 0; i < static_cast<decltype(i)>(m_preview_tetrominos.size());
          ++i) {
         if (m_preview_tetrominos.at(i)) {
-            const auto enum_index = magic_enum::enum_index(MinoTransparency::Preview0);
-            if (enum_index.has_value()) {
-                const auto transparency = magic_enum::enum_value<MinoTransparency>(enum_index.value() + i);
-                m_preview_tetrominos.at(i)->render(service_provider, m_grid, transparency);
-            } else {
-                utils::unreachable();
-            }
+            static constexpr auto enum_index = magic_enum::enum_index(MinoTransparency::Preview0);
+            static_assert(enum_index.has_value());
+            const auto transparency = magic_enum::enum_value<MinoTransparency>(enum_index.value() + i);
+            m_preview_tetrominos.at(i)->render(service_provider, m_grid, transparency);
         }
     }
     if (m_tetromino_on_hold) {
