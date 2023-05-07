@@ -54,4 +54,4 @@ public:
     }
 };
 
-std::ostream& operator<<(std::ostream& os, const MinoStack& mino_stack);
+std::ostream& operator<<(std::ostream& ostream, const MinoStack& mino_stack);
