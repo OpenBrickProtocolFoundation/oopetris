@@ -71,17 +71,6 @@ namespace ui {
             return *focusable;
         }
 
-        [[nodiscard]] usize next_focusable_index(const usize min_index) {
-            usize index = min_index;
-            while (true) {
-                auto focusable = as_focusable(*m_widgets.at(index));
-                if (focusable.has_value()) {
-                    return index;
-                }
-                index = (index + 1) % m_widgets.size();
-            }
-        }
-
         [[nodiscard]] usize focusable_index_by_id(const usize id) {
             const auto find_iterator =
                     std::find_if(m_widgets.begin(), m_widgets.end(), [id](const std::unique_ptr<Widget>& widget) {
