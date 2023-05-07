@@ -120,7 +120,7 @@ private:
     }
 
     static Pattern get_pattern(TetrominoType type, Rotation rotation) {
-        return tetrominos[static_cast<std::size_t>(type)][static_cast<std::size_t>(rotation)];
+        return tetrominos.at(static_cast<std::size_t>(type)).at(static_cast<std::size_t>(rotation));
     }
 
     static std::array<Mino, 4> create_minos(Point position, Rotation rotation, TetrominoType type) {
