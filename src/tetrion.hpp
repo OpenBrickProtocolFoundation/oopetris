@@ -47,8 +47,6 @@ private:
         Right,
     };
 
-    // while holding down, this level is assumed for gravity calculation
-    static constexpr int accelerated_drop_movement_level = 10;
     static constexpr int num_preview_tetrominos = 6;
 
     u8 m_tetrion_index;
