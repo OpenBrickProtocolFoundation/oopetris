@@ -110,7 +110,7 @@ public:
         refresh_minos();
     }
 
-    const std::array<Mino, 4>& minos() const {
+    [[nodiscard]] const std::array<Mino, 4>& minos() const {
         return m_minos;
     }
 
