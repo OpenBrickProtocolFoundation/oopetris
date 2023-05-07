@@ -42,7 +42,7 @@ public:
         }
 
         const auto all_of_other_in_this =
-                std::all_of(other.m_minos.cbegin(), other.m_minos.cend(), [&](const auto& mino) {
+                std::all_of(other.m_minos.cbegin(), other.m_minos.cend(), [this](const auto& mino) {
                     return std::find(m_minos.cbegin(), m_minos.cend(), mino) != end(m_minos);
                 });
 
