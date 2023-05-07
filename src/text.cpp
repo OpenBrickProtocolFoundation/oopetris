@@ -4,8 +4,8 @@
 Text::Text(Point position, Color color, std::string text, Font font)
     : m_position{ position },
       m_color{ color },
-      m_text{ text },
-      m_font{ font } { }
+      m_text{ std::move(text) },
+      m_font{ std::move(font) } { }
 
 
 void Text::render(const ServiceProvider& service_provider) const {
@@ -27,7 +27,7 @@ void Text::render(const ServiceProvider& service_provider) const {
 }
 
 void Text::set_text(std::string text) {
-    m_text = text;
+    m_text = std::move(text);
 }
 
 void Text::set_position(Point position) {
