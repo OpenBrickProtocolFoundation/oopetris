@@ -9,6 +9,10 @@ namespace ui {
         Layout layout;
 
         explicit Widget(Layout layout) : layout{ layout } { }
+        Widget(const Widget&) = delete;
+        Widget(Widget&&) = delete;
+        Widget& operator=(const Widget&) = delete;
+        Widget& operator=(Widget&&) = delete;
         virtual ~Widget() = default;
 
         virtual void render(const ServiceProvider& service_provider, Rect rect) const = 0;
