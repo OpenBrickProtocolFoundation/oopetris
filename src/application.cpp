@@ -1,5 +1,5 @@
 #include "application.hpp"
-#include "scene.hpp"
+#include "scenes/scene.hpp"
 #include <fstream>
 
 Application::Application(
@@ -66,25 +66,25 @@ void Application::update() {
         if (scene_change) {
             std::visit(
                     overloaded{
-                            [this, index](const Scene::Pop&) {
+                            [this, index](const scenes::Scene::Pop&) {
                                 m_scene_stack.erase(
                                         m_scene_stack.begin()
                                         + static_cast<decltype(m_scene_stack.begin())::difference_type>(index)
                                 );
                             },
-                            [this](const Scene::Push& push) {
+                            [this](const scenes::Scene::Push& push) {
                                 spdlog::info("pushing back scene {}", magic_enum::enum_name(push.target_scene));
-                                m_scene_stack.push_back(create_scene(*this, push.target_scene));
+                                m_scene_stack.push_back(scenes::create_scene(*this, push.target_scene));
                             },
-                            []([[maybe_unused]] const Scene::Switch& switch_) {
+                            []([[maybe_unused]] const scenes::Scene::Switch& switch_) {
                                 // todo
                             },
-                            [this](const Scene::Exit&) { m_is_running = false; },
+                            [this](const scenes::Scene::Exit&) { m_is_running = false; },
                     },
                     *scene_change
             );
         }
-        if (scene_update == SceneUpdate::StopUpdating) {
+        if (scene_update == scenes::SceneUpdate::StopUpdating) {
             break;
         }
     }
@@ -100,7 +100,7 @@ void Application::render() const {
 void Application::initialize() {
     try_load_settings();
     load_resources();
-    push_scene(create_scene(*this, SceneId::Ingame));
+    push_scene(scenes::create_scene(*this, SceneId::Ingame));
 }
 
 void Application::try_load_settings() try {

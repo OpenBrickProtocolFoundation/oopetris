@@ -80,20 +80,8 @@ namespace utils {
     }
 
     [[noreturn]] inline void unreachable() {
-        // based on: https://en.cppreference.com/w/cpp/utility/unreachable
-
-        // Uses compiler specific extensions if possible.
-        // Even if no extension is used, undefined behavior is still raised by
-        // an empty function body and the noreturn attribute.
-#ifdef DEBUG_BUILD
         assert(false && "unreachable");
-#else
-#ifdef __GNUC__   // GCC, Clang, ICC
-        __builtin_unreachable();
-#elifdef _MSC_VER // MSVC
-        __assume(false);
-#endif
-#endif
+        std::terminate();
     }
 
 } // namespace utils

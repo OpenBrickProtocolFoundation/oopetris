@@ -6,7 +6,7 @@
 #include "music_manager.hpp"
 #include "renderer.hpp"
 #include "resource_manager.hpp"
-#include "scene.hpp"
+#include "scenes/scene.hpp"
 #include "sdl_context.hpp"
 #include "service_provider.hpp"
 #include "types.hpp"
@@ -33,7 +33,7 @@ protected:
     EventDispatcher m_event_dispatcher;
 
 private:
-    std::vector<std::unique_ptr<Scene>> m_scene_stack;
+    std::vector<std::unique_ptr<scenes::Scene>> m_scene_stack;
 
 public:
     Application(int argc, char** argv, const std::string& title, WindowPosition position, int width, int height);
@@ -52,7 +52,7 @@ public:
     virtual void update();
     virtual void render() const;
 
-    void push_scene(std::unique_ptr<Scene> scene) {
+    void push_scene(std::unique_ptr<scenes::Scene> scene) {
         m_scene_stack.push_back(std::move(scene));
     }
 
