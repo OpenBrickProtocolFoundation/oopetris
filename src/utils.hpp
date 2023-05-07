@@ -47,8 +47,8 @@ namespace utils {
     }
 
     template<class Enum>
-    [[nodiscard]] constexpr std::underlying_type_t<Enum> to_underlying(Enum e) noexcept {
-        return static_cast<std::underlying_type_t<Enum>>(e);
+    [[nodiscard]] constexpr std::underlying_type_t<Enum> to_underlying(Enum enum_) noexcept {
+        return static_cast<std::underlying_type_t<Enum>>(enum_);
     }
 
     [[nodiscard]] std::filesystem::path get_assets_folder();
