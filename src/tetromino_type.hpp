@@ -13,5 +13,5 @@ enum class TetrominoType {
     LastType = Z,
 };
 
-Color get_foreground_color(TetrominoType type, std::uint8_t alpha = 255);
-Color get_background_color(TetrominoType type, std::uint8_t alpha = 255);
+constexpr Color get_foreground_color(TetrominoType type, std::uint8_t alpha = 255);
+constexpr Color get_background_color(TetrominoType type, std::uint8_t alpha = 255);

@@ -1,6 +1,6 @@
 #include "tetromino_type.hpp"
 
-Color get_foreground_color(TetrominoType type, std::uint8_t alpha) {
+constexpr Color get_foreground_color(TetrominoType type, std::uint8_t alpha) {
     switch (type) {
         case TetrominoType::I:
             return Color{ 0, 240, 240, alpha };
@@ -21,7 +21,7 @@ Color get_foreground_color(TetrominoType type, std::uint8_t alpha) {
     }
 }
 
-Color get_background_color(TetrominoType type, std::uint8_t alpha) {
+constexpr Color get_background_color(TetrominoType type, std::uint8_t alpha) {
     switch (type) {
         case TetrominoType::I:
             return Color{ 1, 118, 118, alpha };
