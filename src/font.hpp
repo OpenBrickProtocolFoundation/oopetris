@@ -10,7 +10,7 @@ private:
     std::string message;
 
 public:
-    explicit FontLoadingError(std::string message) : message{ message } { }
+    explicit FontLoadingError(std::string message) : message{ std::move(message) } { }
 
     const char* what() const noexcept override {
         return message.c_str();
