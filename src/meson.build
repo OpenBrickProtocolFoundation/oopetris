@@ -42,7 +42,6 @@ src_files += files(
     'tetrion_snapshot.hpp',
     'tetrion.cpp',
     'tetrion.hpp',
-    'tetromino_type.cpp',
     'tetromino_type.hpp',
     'tetromino.hpp',
     'text.cpp',

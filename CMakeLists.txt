@@ -59,7 +59,6 @@ add_executable(oopetris
         src/tetrion_snapshot.hpp
         src/tetrion.cpp
         src/tetrion.hpp
-        src/tetromino_type.cpp
         src/tetromino_type.hpp
         src/tetromino.hpp
         src/text.cpp
