@@ -28,7 +28,7 @@ namespace utils {
         auto result = Integral{};
         for (usize i = 0; i < sizeof(Integral); ++i) {
             result <<= CHAR_BIT;
-            result |= value & 0xFF;
+            result |= value & static_cast<Integral>(std::numeric_limits<unsigned char>::max());
             value >>= CHAR_BIT;
         }
         return result;
