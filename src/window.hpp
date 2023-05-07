@@ -20,8 +20,10 @@ public:
     Window(const std::string& title, WindowPosition position);
     Window(const std::string& title, int x, int y);
     Window(const Window&) = delete;
-    ~Window();
+    Window(Window&&) = delete;
     Window& operator=(const Window&) = delete;
+    Window& operator=(Window&&) = delete;
+    ~Window();
 
     [[nodiscard]] Point size() const;
 
