@@ -2,5 +2,6 @@
 
 enum class SceneId {
     MainMenu,
+    Pause,
     Ingame,
 };

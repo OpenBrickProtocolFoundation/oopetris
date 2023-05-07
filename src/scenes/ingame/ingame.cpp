@@ -210,7 +210,7 @@ namespace scenes {
                 assert(clock->can_be_paused());
                 clock->pause();
             }
-            return std::pair{ SceneUpdate::ContinueUpdating, Scene::Push{ SceneId::MainMenu } };
+            return std::pair{ SceneUpdate::ContinueUpdating, Scene::Push{ SceneId::Pause } };
         }
         return std::pair{ SceneUpdate::ContinueUpdating, tl::nullopt };
     }
