@@ -10,7 +10,7 @@ namespace utils {
     [[nodiscard]] std::string current_date_time_iso8601() {
         auto now = std::chrono::system_clock::now();
 
-        std::time_t time = std::chrono::system_clock::to_time_t(now);
+        const std::time_t time = std::chrono::system_clock::to_time_t(now);
 
         char buffer[16];
 
