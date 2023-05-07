@@ -72,12 +72,12 @@ add_executable(oopetris
         src/ui/widget.hpp
         src/ui/layout.hpp
         src/ui/label.hpp
-        src/scene.hpp
-        src/ingame_scene.cpp
-        src/ingame_scene.hpp
-        src/scene.cpp
-        src/main_menu_scene.cpp
-        src/main_menu_scene.hpp
+        src/scenes/scene.hpp
+        src/scenes/ingame/ingame.cpp
+        src/scenes/ingame/ingame.hpp
+        src/scenes/scene.cpp
+        src/scenes/pause/pause.cpp
+        src/scenes/pause/pause.hpp
         src/resource_manager.hpp
         src/scene_id.hpp
         src/service_provider.hpp
