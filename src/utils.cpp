@@ -30,7 +30,7 @@ namespace utils {
 #endif
         std::strftime(buffer.data(), buffer.size(), "%Y%m%dT%H%M%S", &tm);
 
-        return std::string{ buffer };
+        return std::string{ buffer.data() };
     }
 
     [[nodiscard]] std::filesystem::path get_root_folder() {
