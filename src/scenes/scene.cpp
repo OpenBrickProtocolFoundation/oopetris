@@ -1,5 +1,6 @@
 #include "scene.hpp"
 #include "ingame/ingame.hpp"
+#include "main_menu/main_menu.hpp"
 #include "pause/pause.hpp"
 
 namespace scenes {
@@ -8,6 +9,8 @@ namespace scenes {
     [[nodiscard]] std::unique_ptr<Scene> create_scene(ServiceProvider& service_provider, SceneId id) {
         switch (id) {
             case SceneId::MainMenu:
+                return std::make_unique<MainMenu>(&service_provider);
+            case SceneId::Pause:
                 return std::make_unique<Pause>(&service_provider);
             case SceneId::Ingame:
                 return std::make_unique<Ingame>(&service_provider);

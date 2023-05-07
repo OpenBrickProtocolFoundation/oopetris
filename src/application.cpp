@@ -76,8 +76,11 @@ void Application::update() {
                                 spdlog::info("pushing back scene {}", magic_enum::enum_name(push.target_scene));
                                 m_scene_stack.push_back(scenes::create_scene(*this, push.target_scene));
                             },
-                            []([[maybe_unused]] const scenes::Scene::Switch& switch_) {
-                                // todo
+                            [this](const scenes::Scene::Switch& switch_) {
+                                if (not switch_.add) {
+                                    m_scene_stack.clear();
+                                }
+                                m_scene_stack.push_back(scenes::create_scene(*this, switch_.target_scene));
                             },
                             [this](const scenes::Scene::Exit&) { m_is_running = false; },
                     },
@@ -100,7 +103,7 @@ void Application::render() const {
 void Application::initialize() {
     try_load_settings();
     load_resources();
-    push_scene(scenes::create_scene(*this, SceneId::Ingame));
+    push_scene(scenes::create_scene(*this, SceneId::MainMenu));
 }
 
 void Application::try_load_settings() try {
