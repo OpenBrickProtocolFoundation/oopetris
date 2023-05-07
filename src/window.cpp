@@ -19,7 +19,7 @@ Window::Window(const std::string& title, int x, int y) {
         throw std::runtime_error{ "failed in getting display mode: " + std::string{ SDL_GetError() } };
     }
     m_window = SDL_CreateWindow(title.c_str(), x, y, mode.w, mode.h, 0);
-    if (!m_window) {
+    if (m_window == nullptr) {
         throw std::runtime_error{ "failed in creating window: " + std::string{ SDL_GetError() } };
     }
 }
