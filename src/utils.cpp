@@ -1,12 +1,16 @@
 #include "utils.hpp"
+#include <SDL.h>
 #include <array>
 #include <chrono>
 #include <ctime>
 #include <filesystem>
 #include <spdlog/spdlog.h>
 #include <string>
-#include <tl/optional.hpp>
 
+#if defined(__ANDROID__) or defined(BUILD_INSTALLER) or defined(FLATPAK_BUILD)
+#include <constants.hpp>
+#include <tl/optional.hpp>
+#endif
 namespace utils {
     [[nodiscard]] std::string current_date_time_iso8601() {
         auto now = std::chrono::system_clock::now();
