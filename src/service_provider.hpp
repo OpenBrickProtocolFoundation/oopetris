@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 struct CommandLineArguments;
 struct Settings;
 struct MusicManager;
@@ -8,7 +10,16 @@ struct FontManager;
 struct EventDispatcher;
 struct Window;
 
+namespace scenes {
+    struct Scene;
+}
+
 struct ServiceProvider {
+    ServiceProvider() = default;
+    ServiceProvider(const ServiceProvider&) = delete;
+    ServiceProvider(ServiceProvider&&) = delete;
+    ServiceProvider& operator=(const ServiceProvider&) = delete;
+    ServiceProvider& operator=(ServiceProvider&&) = delete;
     virtual ~ServiceProvider() = default;
 
     [[nodiscard]] virtual CommandLineArguments& command_line_arguments() = 0;
@@ -23,4 +34,5 @@ struct ServiceProvider {
     [[nodiscard]] virtual EventDispatcher& event_dispatcher() = 0;
     [[nodiscard]] virtual const EventDispatcher& event_dispatcher() const = 0;
     [[nodiscard]] virtual const Window& window() const = 0;
+    [[nodiscard]] virtual std::vector<scenes::Scene*> active_scenes() const = 0;
 };

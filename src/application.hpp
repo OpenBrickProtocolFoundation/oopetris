@@ -98,6 +98,7 @@ public:
     [[nodiscard]] const Window& window() const override {
         return m_window;
     }
+    [[nodiscard]] std::vector<scenes::Scene*> active_scenes() const override;
 
 private:
     void initialize();
