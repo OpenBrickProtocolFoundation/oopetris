@@ -11,6 +11,7 @@ namespace scenes {
     private:
         enum class Command {
             StartGame,
+            Exit,
         };
 
     private:

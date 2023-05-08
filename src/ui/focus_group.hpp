@@ -12,6 +12,12 @@ namespace ui {
 
     struct FocusGroup : public Widget {
     private:
+        enum class FocusChangeDirection {
+            Forward,
+            Backward,
+        };
+
+    private:
         std::vector<std::unique_ptr<Widget>> m_widgets;
         tl::optional<usize> m_focus_id;
 
@@ -29,10 +35,10 @@ namespace ui {
             if (event.type == SDL_KEYDOWN) {
                 switch (event.key.keysym.sym) {
                     case SDLK_DOWN:
-                        handled = try_set_next_focus();
+                        handled = try_set_next_focus(FocusChangeDirection::Forward);
                         break;
                     case SDLK_UP:
-                        // todo: handled = try_set_previous_focus();
+                        handled = try_set_next_focus(FocusChangeDirection::Backward);
                         break;
                 }
             }
@@ -98,7 +104,7 @@ namespace ui {
             return static_cast<usize>(std::distance(ids.cbegin(), std::find(ids.cbegin(), ids.cend(), needle)));
         }
 
-        [[nodiscard]] bool try_set_next_focus() {
+        [[nodiscard]] bool try_set_next_focus(const FocusChangeDirection direction) {
             if (not m_focus_id.has_value()) {
                 return false;
             }
@@ -106,7 +112,10 @@ namespace ui {
             const auto focusable_ids = focusable_ids_sorted();
             assert(not focusable_ids.empty());
             const auto current_index = index_of(focusable_ids, m_focus_id.value());
-            const auto next_index = (current_index + 1) % focusable_ids.size();
+            const auto next_index =
+                    (direction == FocusChangeDirection::Forward
+                             ? ((current_index + 1) % focusable_ids.size())
+                             : ((current_index + focusable_ids.size() - 1) % focusable_ids.size()));
 
             auto current_focusable =
                     as_focusable(*m_widgets.at(focusable_index_by_id(focusable_ids.at(current_index))));
