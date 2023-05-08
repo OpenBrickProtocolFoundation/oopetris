@@ -63,6 +63,13 @@ src_files += files(
     'resource_manager.hpp',
     'scene_id.hpp',
     'service_provider.hpp',
+    'scenes/main_menu/main_menu.cpp',
+    'scenes/main_menu/main_menu.hpp',
+    'ui/button.hpp',
+    'ui/focus_group.hpp',
+    'ui/focusable.hpp',
+    'scenes/game_over/game_over.cpp',
+    'scenes/game_over/game_over.hpp',
 )
 
 inc_dirs += include_directories('.')
