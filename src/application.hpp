@@ -18,7 +18,6 @@ struct Application final : public EventListener, public ServiceProvider {
 private:
     static constexpr auto num_audio_channels = u8{ 2 };
 
-private:
     CommandLineArguments m_command_line_arguments;
     SdlContext context;
     Window m_window;

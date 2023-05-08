@@ -9,7 +9,7 @@ namespace scenes {
         bool m_should_exit{ false };
 
     public:
-        explicit GameOver(ServiceProvider* serviceProvider);
+        explicit GameOver(ServiceProvider* service_provider);
         [[nodiscard]] UpdateResult update() override;
         void render(const ServiceProvider& service_provider) override;
         bool handle_event(const SDL_Event& event) override;

@@ -22,7 +22,6 @@ public:
     std::remove_cvref_t<decltype(default_starting_level)> starting_level{ default_starting_level };
     bool silent{ false };
 
-public:
     CommandLineArguments(int argc, char** argv) {
         argparse::ArgumentParser parser{ constants::program_name, constants::version,
                                          argparse::default_arguments::all };
