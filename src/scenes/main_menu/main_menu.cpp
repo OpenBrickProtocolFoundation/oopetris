@@ -12,11 +12,20 @@ namespace scenes {
               ui::AbsoluteLayout{100, 100}
     },
           m_focus_group{ ui::AbsoluteLayout{ 0, 0 } } {
-        auto button = std::make_unique<ui::Button>(ui::AbsoluteLayout{ 100, 200 }, 0, [this](const ui::Button&) {
-            spdlog::info("setting next command");
-            m_next_command = Command::StartGame;
-        });
-        m_focus_group.add(std::move(button));
+        m_focus_group.add(std::make_unique<ui::Button>(
+                "Start", ui::AbsoluteLayout{ 100, 200 }, 0,
+                [this](const ui::Button&) {
+                    spdlog::info("setting next command");
+                    m_next_command = Command::StartGame;
+                }
+        ));
+        m_focus_group.add(
+                std::make_unique<ui::Button>("Settings", ui::AbsoluteLayout{ 100, 250 }, 50, [](const ui::Button&) {})
+        );
+        m_focus_group.add(std::make_unique<ui::Button>(
+                "Exit", ui::AbsoluteLayout{ 100, 300 }, 100,
+                [this](const ui::Button&) { m_next_command = Command::Exit; }
+        ));
     }
 
     [[nodiscard]] Scene::UpdateResult MainMenu::update() {
@@ -26,6 +35,8 @@ namespace scenes {
                     return UpdateResult{
                         SceneUpdate::ContinueUpdating, Scene::Switch{SceneId::Ingame, false}
                     };
+                case Command::Exit:
+                    return UpdateResult{ SceneUpdate::ContinueUpdating, Scene::Exit{} };
                 default:
                     utils::unreachable();
             }
@@ -35,6 +46,7 @@ namespace scenes {
 
     void MainMenu::render(const ServiceProvider& service_provider) {
         m_heading.render(service_provider, service_provider.window().screen_rect());
+        m_focus_group.render(service_provider, service_provider.window().screen_rect());
     }
 
     bool MainMenu::handle_event(const SDL_Event& event) {
