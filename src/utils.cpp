@@ -53,7 +53,7 @@ namespace utils {
 
     [[nodiscard]] std::filesystem::path get_assets_folder() {
 #if defined(__ANDROID__)
-        return std::filesystem::path{ "." };
+        return std::filesystem::path{ "" };
 #elif defined(BUILD_INSTALLER)
 
 #if defined(FLATPAK_BUILD)
