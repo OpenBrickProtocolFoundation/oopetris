@@ -54,6 +54,8 @@ namespace scenes {
         [[nodiscard]] std::vector<Random::Seed> create_seeds(u8 num_tetrions) const;
 
         [[nodiscard]] tl::optional<RecordingWriter*> recording_writer_optional();
+
+        [[nodiscard]] bool is_game_over() const;
     };
 
 } // namespace scenes

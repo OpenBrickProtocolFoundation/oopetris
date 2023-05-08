@@ -80,7 +80,14 @@ add_executable(oopetris
         src/resource_manager.hpp
         src/scene_id.hpp
         src/service_provider.hpp
-        src/scenes/main_menu/main_menu.cpp src/scenes/main_menu/main_menu.hpp src/ui/button.hpp src/ui/focus_group.hpp src/ui/focusable.hpp)
+        src/scenes/main_menu/main_menu.cpp
+        src/scenes/main_menu/main_menu.hpp
+        src/ui/button.hpp
+        src/ui/focus_group.hpp
+        src/ui/focusable.hpp
+        src/scenes/game_over/game_over.cpp
+        src/scenes/game_over/game_over.hpp
+        )
 
 foreach (target ${TARGET_LIST})
     # set warning levels

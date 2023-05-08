@@ -18,22 +18,21 @@ namespace scenes {
     public:
         struct Switch {
             SceneId target_scene;
-            bool add;
 
-            Switch(const SceneId target_scene, const bool add) : target_scene{ target_scene }, add{ add } { }
+            Switch(const SceneId target_scene) : target_scene{ target_scene } { }
         };
 
         struct Push {
             SceneId target_scene;
 
-            explicit Push(SceneId target_scene) : target_scene{ target_scene } { }
+            Push(const SceneId target_scene) : target_scene{ target_scene } { }
         };
 
         struct Pop { };
 
         struct Exit { };
 
-        using Change = std::variant<Push, Pop, Switch, Exit>;
+        using Change = std::variant<Pop, Push, Switch, Exit>;
         using UpdateResult = std::pair<SceneUpdate, tl::optional<Change>>;
 
     protected:

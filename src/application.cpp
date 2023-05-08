@@ -77,9 +77,8 @@ void Application::update() {
                                 m_scene_stack.push_back(scenes::create_scene(*this, push.target_scene));
                             },
                             [this](const scenes::Scene::Switch& switch_) {
-                                if (not switch_.add) {
-                                    m_scene_stack.clear();
-                                }
+                                spdlog::info("switching to scene {}", magic_enum::enum_name(switch_.target_scene));
+                                m_scene_stack.clear();
                                 m_scene_stack.push_back(scenes::create_scene(*this, switch_.target_scene));
                             },
                             [this](const scenes::Scene::Exit&) { m_is_running = false; },
