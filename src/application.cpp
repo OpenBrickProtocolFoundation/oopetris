@@ -125,3 +125,11 @@ void Application::load_resources() {
     // todo: catch exception
     m_font_manager.load(FontId::Default, font_path, font_size);
 }
+
+[[nodiscard]] std::vector<scenes::Scene*> Application::active_scenes() const {
+    auto result = std::vector<scenes::Scene*>{};
+    for (const auto& scene : m_scene_stack) {
+        result.push_back(scene.get());
+    }
+    return result;
+}

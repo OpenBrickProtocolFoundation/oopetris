@@ -175,8 +175,9 @@ namespace scenes {
         assert(m_inputs.size() == m_tetrions.size());
         assert(m_inputs.size() == m_simulation_step_indices.size());
 
-        if (is_game_over()) {
-            return std::pair{ SceneUpdate::ContinueUpdating, Scene::Switch{ SceneId::GameOver } };
+        const auto ingame_scene_is_topmost_scene = (m_service_provider->active_scenes().back() == this);
+        if (is_game_over() and ingame_scene_is_topmost_scene) {
+            return std::pair{ SceneUpdate::ContinueUpdating, Scene::Push{ SceneId::GameOver } };
         }
 
         if (m_is_paused) {
