@@ -76,7 +76,7 @@ public:
             OnEventCallback on_event_callback = OnEventCallback{}
     );
 
-    ~KeyboardInput();
+    ~KeyboardInput() override;
 
     void handle_event(const SDL_Event& event) override;
 
