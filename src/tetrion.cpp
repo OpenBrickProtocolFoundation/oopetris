@@ -75,7 +75,7 @@ void Tetrion::render(const ServiceProvider& service_provider) const {
         if (m_preview_tetrominos.at(i)) {
             static constexpr auto enum_index = magic_enum::enum_index(MinoTransparency::Preview0);
             static_assert(enum_index.has_value());
-            const auto transparency = magic_enum::enum_value<MinoTransparency>(enum_index.value() + i);
+            +const auto transparency = magic_enum::enum_value<MinoTransparency>(enum_index.value() + i);
             m_preview_tetrominos.at(i)->render(service_provider, m_grid, transparency);
         }
     }
@@ -265,7 +265,7 @@ void Tetrion::refresh_texts() {
 }
 
 void Tetrion::clear_fully_occupied_lines() {
-    bool cleared;
+    bool cleared = false;
     const int lines_cleared_before = m_lines_cleared;
     do {
         cleared = false;

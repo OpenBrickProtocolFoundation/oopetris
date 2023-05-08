@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../rect.hpp"
 #include "../service_provider.hpp"
 #include "layout.hpp"
 #include <SDL.h>

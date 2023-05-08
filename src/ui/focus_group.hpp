@@ -17,7 +17,6 @@ namespace ui {
             Backward,
         };
 
-    private:
         std::vector<std::unique_ptr<Widget>> m_widgets;
         tl::optional<usize> m_focus_id;
 
