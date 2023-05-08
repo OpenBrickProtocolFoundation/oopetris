@@ -18,10 +18,6 @@ namespace scenes {
             m_recording_writer = create_recording_writer(create_tetrion_headers(seeds_span));
         }
 
-        //TODO: add in the main menu after we have an UI
-        /*  MusicManager::get_instance().load_and_play_music(utils::get_assets_folder() / "music" / utils::get_supported_music_extension("01. Main Menu"))
-            .and_then(utils::log_error); */
-
         for (u8 tetrion_index = 0; tetrion_index < num_tetrions; ++tetrion_index) {
             m_clock_sources.push_back(std::make_unique<LocalClock>(
                     static_cast<u32>(m_service_provider->command_line_arguments().target_fps)
@@ -179,6 +175,10 @@ namespace scenes {
         assert(m_inputs.size() == m_tetrions.size());
         assert(m_inputs.size() == m_simulation_step_indices.size());
 
+        if (is_game_over()) {
+            return std::pair{ SceneUpdate::ContinueUpdating, Scene::Switch{ SceneId::GameOver } };
+        }
+
         if (m_is_paused) {
             // if we would still be in pause mode, update() wouldn't have been called in the first place => we
             // must resume from pause
@@ -227,6 +227,15 @@ namespace scenes {
             return true;
         }
         return false;
+    }
+
+    [[nodiscard]] bool Ingame::is_game_over() const {
+        for (const auto& tetrion : m_tetrions) {
+            if (not tetrion->is_game_over()) {
+                return false;
+            }
+        }
+        return true;
     }
 
 } // namespace scenes

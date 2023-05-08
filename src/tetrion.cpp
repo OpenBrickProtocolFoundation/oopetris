@@ -156,12 +156,6 @@ void Tetrion::spawn_next_tetromino(const TetrominoType type, const SimulationSte
     if (not is_active_tetromino_position_valid()) {
         m_game_state = GameState::GameOver;
 
-        m_service_provider->music_manager()
-                .load_and_play_music(
-                        utils::get_assets_folder() / "music" / utils::get_supported_music_extension("05. Results"), 0
-                )
-                .and_then(utils::log_error);
-
         spdlog::info("game over");
         if (m_recording_writer.has_value()) {
             spdlog::info("writing snapshot");

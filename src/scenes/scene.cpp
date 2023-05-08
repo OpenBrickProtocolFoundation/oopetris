@@ -1,4 +1,5 @@
 #include "scene.hpp"
+#include "game_over/game_over.hpp"
 #include "ingame/ingame.hpp"
 #include "main_menu/main_menu.hpp"
 #include "pause/pause.hpp"
@@ -14,6 +15,8 @@ namespace scenes {
                 return std::make_unique<Pause>(&service_provider);
             case SceneId::Ingame:
                 return std::make_unique<Ingame>(&service_provider);
+            case SceneId::GameOver:
+                return std::make_unique<GameOver>(&service_provider);
             default:
                 utils::unreachable();
         }

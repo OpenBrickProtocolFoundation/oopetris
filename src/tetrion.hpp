@@ -117,6 +117,10 @@ public:
         return m_mino_stack;
     }
 
+    [[nodiscard]] bool is_game_over() const {
+        return m_game_state == GameState::GameOver;
+    }
+
 private:
     template<typename Callable>
     bool with_lock_delay(Callable movement) {

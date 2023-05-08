@@ -1,5 +1,6 @@
 #include "main_menu.hpp"
 #include "../../constants.hpp"
+#include "../../music_manager.hpp"
 #include "../../resource_manager.hpp"
 #include "../../window.hpp"
 
@@ -26,15 +27,19 @@ namespace scenes {
                 "Exit", ui::AbsoluteLayout{ 100, 300 }, 100,
                 [this](const ui::Button&) { m_next_command = Command::Exit; }
         ));
+
+        service_provider->music_manager()
+                .load_and_play_music(
+                        utils::get_assets_folder() / "music" / utils::get_supported_music_extension("01. Main Menu")
+                )
+                .and_then(utils::log_error);
     }
 
     [[nodiscard]] Scene::UpdateResult MainMenu::update() {
         if (m_next_command.has_value()) {
             switch (m_next_command.value()) {
                 case Command::StartGame:
-                    return UpdateResult{
-                        SceneUpdate::ContinueUpdating, Scene::Switch{SceneId::Ingame, false}
-                    };
+                    return UpdateResult{ SceneUpdate::ContinueUpdating, Scene::Switch{ SceneId::Ingame } };
                 case Command::Exit:
                     return UpdateResult{ SceneUpdate::ContinueUpdating, Scene::Exit{} };
                 default:
