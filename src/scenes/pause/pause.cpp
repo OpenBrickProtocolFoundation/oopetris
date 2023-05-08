@@ -14,7 +14,7 @@ namespace scenes {
       } { }
 
     [[nodiscard]] Scene::UpdateResult scenes::Pause::update() {
-        if (m_should_end) {
+        if (m_should_unpause) {
             return std::pair{ scenes::SceneUpdate::StopUpdating, Scene::Pop{} };
         }
         if (m_should_exit) {
@@ -32,7 +32,7 @@ namespace scenes {
         if (event.type == SDL_KEYDOWN) {
             switch (event.key.keysym.sym) {
                 case SDLK_ESCAPE:
-                    m_should_end = true;
+                    m_should_unpause = true;
                     return true;
                 case SDLK_RETURN:
                     m_should_exit = true;

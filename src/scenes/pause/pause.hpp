@@ -8,7 +8,7 @@ namespace scenes {
     struct Pause : public scenes::Scene {
     private:
         ui::Label m_heading;
-        bool m_should_end{ false };
+        bool m_should_unpause{ false };
         bool m_should_exit{ false };
 
     public:
