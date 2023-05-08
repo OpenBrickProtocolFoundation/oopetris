@@ -94,11 +94,11 @@ namespace scenes {
             return [tetrion_index, this](InputEvent event) {
                 spdlog::debug(
                         "event: {} (step {})", magic_enum::enum_name(event),
-                        m_clock_sources.at(tetrion_index)->simulation_step_index()
+                        m_clock_sources.at(static_cast<usize>(tetrion_index))->simulation_step_index()
                 );
                 m_recording_writer->add_event(
-                        static_cast<u8>(tetrion_index), m_clock_sources.at(tetrion_index)->simulation_step_index(),
-                        event
+                        static_cast<u8>(tetrion_index),
+                        m_clock_sources.at(static_cast<usize>(tetrion_index))->simulation_step_index(), event
                 );
             };
         } else {
