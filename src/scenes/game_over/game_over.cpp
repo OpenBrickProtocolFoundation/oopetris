@@ -29,6 +29,7 @@ namespace scenes {
     }
 
     bool GameOver::handle_event(const SDL_Event& event) {
+        // TODO: handle every possible method of pressing enter, e.g. pressing somewhere on the screen on android etc.
         if (event.type == SDL_KEYDOWN and event.key.keysym.sym == SDLK_RETURN) {
             m_should_exit = true;
             return true;
