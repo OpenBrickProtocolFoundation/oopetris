@@ -47,3 +47,21 @@ void Renderer::draw_line(const Point start, const Point end, const Color color) 
     set_draw_color(color);
     SDL_RenderDrawLine(m_renderer, start.x, start.y, end.x, end.y);
 }
+
+void Renderer::draw_text(const Point position, const std::string& text, const Font& font, const Color color) const {
+    const SDL_Color text_color{ color.r, color.g, color.b, color.a };
+    SDL_Surface* const surface = TTF_RenderText_Solid(font.m_font.get(), text.c_str(), text_color);
+    SDL_Texture* const texture = SDL_CreateTextureFromSurface(m_renderer, surface);
+    const auto text_width = surface->w;
+    const auto text_height = surface->h;
+    SDL_FreeSurface(surface);
+    const Rect target_rect{
+        position, position + Point{text_width - 1, text_height - 1}
+    };
+    const SDL_Rect rect{ target_rect.top_left.x, target_rect.top_left.y,
+                         target_rect.bottom_right.x - target_rect.top_left.x + 1,
+                         target_rect.bottom_right.y - target_rect.top_left.y + 1 };
+    SDL_RenderCopy(m_renderer, texture, nullptr, &rect);
+
+    SDL_DestroyTexture(texture);
+}

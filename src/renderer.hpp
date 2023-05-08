@@ -1,9 +1,11 @@
 #pragma once
 
 #include "color.hpp"
+#include "font.hpp"
 #include "rect.hpp"
 #include "window.hpp"
 #include <SDL.h>
+#include <string>
 
 struct Renderer final {
 public:
@@ -26,6 +28,7 @@ public:
     void draw_rect_filled(Rect rect, Color color) const;
     void draw_rect_outline(Rect rect, Color color) const;
     void draw_line(Point from, Point to, Color color) const;
+    void draw_text(Point position, const std::string& text, const Font& font, Color color) const;
 
     void present() const;
 
