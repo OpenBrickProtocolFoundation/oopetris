@@ -14,7 +14,6 @@ namespace scenes {
             Exit,
         };
 
-    private:
         ui::Label m_heading;
         ui::FocusGroup m_focus_group;
         tl::optional<Command> m_next_command;

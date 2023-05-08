@@ -90,20 +90,20 @@ namespace scenes {
     }
 
     [[nodiscard]] Input::OnEventCallback Ingame::create_on_event_callback(const int tetrion_index) {
-        if (m_recording_writer) {
-            return [tetrion_index, this](InputEvent event) {
-                spdlog::debug(
-                        "event: {} (step {})", magic_enum::enum_name(event),
-                        m_clock_sources.at(static_cast<usize>(tetrion_index))->simulation_step_index()
-                );
-                m_recording_writer->add_event(
-                        static_cast<u8>(tetrion_index),
-                        m_clock_sources.at(static_cast<usize>(tetrion_index))->simulation_step_index(), event
-                );
-            };
-        } else {
+        if (!m_recording_writer) {
             return Input::OnEventCallback{}; // empty std::function object
         }
+
+        return [tetrion_index, this](InputEvent event) {
+            spdlog::debug(
+                    "event: {} (step {})", magic_enum::enum_name(event),
+                    m_clock_sources.at(static_cast<usize>(tetrion_index))->simulation_step_index()
+            );
+            m_recording_writer->add_event(
+                    static_cast<u8>(tetrion_index),
+                    m_clock_sources.at(static_cast<usize>(tetrion_index))->simulation_step_index(), event
+            );
+        };
     }
 
     [[nodiscard]] bool Ingame::is_replay_mode() const {
