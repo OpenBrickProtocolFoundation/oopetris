@@ -27,4 +27,5 @@ public:
     Font(const std::filesystem::path& path, int size);
 
     friend struct Text;
+    friend struct Renderer;
 };
