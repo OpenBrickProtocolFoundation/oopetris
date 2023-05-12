@@ -9,7 +9,7 @@ include $(DEVKITPRO)/libnx/switch_rules
 
 TARGET		:=	oopetris
 BUILD		:=	build-switch
-SOURCES		:=	./src/
+SOURCES		:=	./src/ ./src/ui ./src/scenes ./src/scenes/game_over ./src/scenes/ingame ./src/scenes/main_menu ./src/scenes/pause
 INCLUDES	:=	./subprojects/argparse-2.9 ./subprojects/spdlog-1.11.0 ./subprojects/optional-1.0.0 ./subprojects/magic_enum-0.8.2 ./subprojects/nlohmann_json-3.11.2 ./subprojects/expected-1.0.0
 EXEFS_SRC	:=	exefs_src
 ROMFS		:=	platforms/romfs
@@ -32,7 +32,8 @@ CFLAGS	:=	-g -Wall -O2 \
 CFLAGS	+=	$(INCLUDE) -D__SWITCH__ -D__LIBNX__ -DNOSTYLUS -D_XOPEN_SOURCE
 
 
-CXXFLAGS	:= $(CFLAGS) -fno-rtti -std=gnu++20
+## TODO: debug if -fno-rtti is needed
+CXXFLAGS	:= $(CFLAGS) -std=gnu++20
 
 ASFLAGS	:=	-g $(ARCH)
 LDFLAGS	=	-specs=$(DEVKITPRO)/libnx/switch.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)

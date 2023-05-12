@@ -41,9 +41,6 @@ int main(int argc, char** argv) {
     spdlog::set_level(spdlog::level::err);
 #endif
 
-    static constexpr int width = 1280;
-    static constexpr int height = 720;
-
 #if defined(__SWITCH__)
     //The switch doesn't have a first argument, so we need to make one up xD
     argc = 1;
@@ -59,6 +56,9 @@ int main(int argc, char** argv) {
 #if defined(__ANDROID__) or defined(__SWITCH__)
     Application app{ argc, argv, "OOPetris", WindowPosition::Centered };
 #else
+    static constexpr int width = 1280;
+    static constexpr int height = 720;
+
     Application app{ argc, argv, "OOPetris", WindowPosition::Centered, width, height };
 #endif
 
