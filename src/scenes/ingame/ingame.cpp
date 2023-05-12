@@ -1,6 +1,10 @@
 #include "ingame.hpp"
 #include "../scene.hpp"
 
+#if defined(__SWITCH__)
+#include "../../switch_buttons.hpp"
+#endif
+
 namespace scenes {
 
     Ingame::Ingame(ServiceProvider* service_provider) : Scene{ service_provider } {
@@ -230,7 +234,16 @@ namespace scenes {
     }
 
     [[nodiscard]] bool Ingame::handle_event(const SDL_Event& event) {
-        if (event.type == SDL_KEYDOWN and event.key.keysym.sym == SDLK_ESCAPE) {
+
+        if (
+#if defined(__ANDROID__)
+                event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_AC_BACK
+#elif defined(__SWITCH__)
+                event.type == SDL_JOYBUTTONDOWN && event.jbutton.button == JOYCON_PLUS
+#else
+                event.type == SDL_KEYDOWN and event.key.keysym.sym == SDLK_ESCAPE
+#endif
+        ) {
             m_should_pause = true;
             return true;
         }

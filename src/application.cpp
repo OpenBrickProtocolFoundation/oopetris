@@ -3,7 +3,6 @@
 #include <fstream>
 
 #if defined(__SWITCH__)
-#include "switch_buttons.hpp"
 #include <switch.h>
 #endif
 
@@ -51,15 +50,6 @@ void Application::handle_event(const SDL_Event& event) {
     if (event.type == SDL_QUIT) {
         m_is_running = false;
     }
-
-    //TODO: add the resume button to the switch and android
-    //  if (event.type == SDL_JOYBUTTONDOWN and event.jbutton.button == JOYCON_PLUS) {
-#if defined(__ANDROID__)
-    if (event.type == SDL_KEYDOWN and event.key.keysym.sym == SDLK_AC_BACK) {
-        //TODO: also catch the resume event from the app (see SDLActivity.java)
-        // pause()
-    }
-#endif
 
     for (usize i = 0; i < m_scene_stack.size(); ++i) {
         const auto index = m_scene_stack.size() - i - 1;
