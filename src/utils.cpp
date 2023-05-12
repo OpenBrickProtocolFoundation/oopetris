@@ -1,21 +1,24 @@
 #include "utils.hpp"
-#include "constants.hpp"
 #include <SDL.h>
+#include <array>
 #include <chrono>
 #include <ctime>
 #include <filesystem>
 #include <spdlog/spdlog.h>
-#include <stdexcept>
 #include <string>
-#include <tl/optional.hpp>
 
+#if defined(__ANDROID__) or defined(BUILD_INSTALLER) or defined(FLATPAK_BUILD)
+#include <constants.hpp>
+#include <tl/optional.hpp>
+#endif
 namespace utils {
     [[nodiscard]] std::string current_date_time_iso8601() {
         auto now = std::chrono::system_clock::now();
 
-        std::time_t time = std::chrono::system_clock::to_time_t(now);
+        const std::time_t time = std::chrono::system_clock::to_time_t(now);
 
-        char buffer[16];
+        static constexpr auto buffer_size = usize{ 16 };
+        std::array<char, buffer_size> buffer{};
 
         std::tm tm{};
 #ifdef _MSC_VER
@@ -29,9 +32,9 @@ namespace utils {
             return "error";
         }
 #endif
-        std::strftime(buffer, sizeof(buffer), "%Y%m%dT%H%M%S", &tm);
+        std::strftime(buffer.data(), buffer.size(), "%Y%m%dT%H%M%S", &tm);
 
-        return std::string{ buffer };
+        return std::string{ buffer.data() };
     }
 
     [[nodiscard]] std::filesystem::path get_root_folder() {
@@ -53,7 +56,7 @@ namespace utils {
 
     [[nodiscard]] std::filesystem::path get_assets_folder() {
 #if defined(__ANDROID__)
-        return std::filesystem::path{ "." };
+        return std::filesystem::path{ "" };
 #elif defined(__SWITCH__)
         // this is in the internal storage of the nintendo switch, it ios mounted by libnx (runtime switch support library) and filled at compile time with assets (its called ROMFS there)
         return std::filesystem::path{ "romfs:/assets" };

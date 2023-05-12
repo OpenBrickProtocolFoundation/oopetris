@@ -16,8 +16,8 @@ public:
         return static_cast<int>(TetrominoType::LastType) + 1;
     }
 
-    TetrominoType operator[](int i) const {
-        return m_tetromino_sequence.at(i);
+    TetrominoType operator[](int index) const {
+        return m_tetromino_sequence.at(static_cast<usize>(index));
     }
 
 private:

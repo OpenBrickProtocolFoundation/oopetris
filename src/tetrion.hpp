@@ -7,6 +7,7 @@
 #include "mino_stack.hpp"
 #include "music_manager.hpp"
 #include "random.hpp"
+#include "service_provider.hpp"
 #include "tetromino.hpp"
 #include "text.hpp"
 #include "types.hpp"
@@ -16,7 +17,6 @@
 #include <tl/optional.hpp>
 #include <vector>
 
-struct Application;
 struct RecordingWriter;
 
 enum class GameState {
@@ -47,8 +47,6 @@ private:
         Right,
     };
 
-    // while holding down, this level is assumed for gravity calculation
-    static constexpr int accelerated_drop_movement_level = 10;
     static constexpr int num_preview_tetrominos = 6;
 
     u8 m_tetrion_index;
@@ -65,7 +63,6 @@ private:
     GameState m_game_state = GameState::Playing;
     std::array<Bag, 2> m_sequence_bags{ Bag{ m_random }, Bag{ m_random } };
     int m_sequence_index = 0;
-    std::vector<std::shared_ptr<Font>> m_fonts;
     Text m_score_text;
     int m_score = 0;
     Text m_level_text;
@@ -77,14 +74,16 @@ private:
     u64 m_lock_delay_step_index;
     bool m_is_in_lock_delay = false;
     int m_num_executed_lock_delays = 0;
+    ServiceProvider* m_service_provider;
 
 public:
     Tetrion(u8 tetrion_index,
             Random::Seed random_seed,
             int starting_level,
+            ServiceProvider* service_provider,
             tl::optional<RecordingWriter*> recording_writer = tl::nullopt);
     void update(SimulationStep simulation_step_index);
-    void render(const Application& app) const;
+    void render(const ServiceProvider& service_provider) const;
 
     // returns if the input event lead to a movement
     bool handle_input_command(InputCommand command, SimulationStep simulation_step_index);
@@ -116,6 +115,10 @@ public:
 
     [[nodiscard]] const MinoStack& mino_stack() const {
         return m_mino_stack;
+    }
+
+    [[nodiscard]] bool is_game_over() const {
+        return m_game_state == GameState::GameOver;
     }
 
 private:
@@ -179,8 +182,7 @@ private:
         if (from == Rotation::North and to == Rotation::West) {
             return 7;
         }
-        assert(false and "unreachable");
-        return 0;
+        utils::unreachable();
     }
 
     static constexpr auto wall_kick_data_jltsz = WallKickTable{

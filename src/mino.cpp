@@ -1,6 +1,8 @@
 #include "mino.hpp"
-#include "application.hpp"
 #include "grid.hpp"
+#include "renderer.hpp"
+#include "utils.hpp"
+#include <cassert>
 
 static constexpr std::array<u8, 6> transparency_values = { 255, 173, 118, 80, 55, 37 };
 
@@ -18,13 +20,13 @@ namespace {
             case MinoTransparency::Solid:
                 return utils::to_underlying(transparency);
             default:
-                assert(false and "unreachable");
-                return 0;
+                utils::unreachable();
         }
     }
 } // namespace
 
-void Mino::render(const Application& app, const Grid& grid, const MinoTransparency transparency) const {
+void Mino::render(const ServiceProvider& service_provider, const Grid& grid, const MinoTransparency transparency)
+        const {
     const auto alpha = get_transparency_value(transparency);
     const auto alpha_factor = static_cast<double>(alpha) / 255.0;
     const Color foreground = get_foreground_color(m_type, alpha);
@@ -35,7 +37,7 @@ void Mino::render(const Application& app, const Grid& grid, const MinoTransparen
     const Point bottom_left = top_left + Point{ 0, grid.tile_size().y - 1 };
     const Point bottom_right = top_left + grid.tile_size() - Point{ 1, 1 };
 
-    app.renderer().draw_rect_filled(Rect{ top_left, bottom_right }, background);
+    service_provider.renderer().draw_rect_filled(Rect{ top_left, bottom_right }, background);
 
     const Point inner_top_left = top_left + Point{ inset, inset };
     const Point inner_top_right = top_right + Point{ -inset, inset };
@@ -43,14 +45,16 @@ void Mino::render(const Application& app, const Grid& grid, const MinoTransparen
     const Point inner_bottom_right = bottom_right - Point{ inset, inset };
 
 
-    app.renderer().draw_line(top_left, inner_top_left, Color::white(static_cast<std::uint8_t>(140.0 * alpha_factor)));
-    app.renderer().draw_line(
+    service_provider.renderer().draw_line(
+            top_left, inner_top_left, Color::white(static_cast<std::uint8_t>(140.0 * alpha_factor))
+    );
+    service_provider.renderer().draw_line(
             bottom_left, inner_bottom_left, Color::white(static_cast<std::uint8_t>(100.0 * alpha_factor))
     );
-    app.renderer().draw_line(top_right, inner_top_right, Color{ 80, 80, 80, alpha });
-    app.renderer().draw_line(
+    service_provider.renderer().draw_line(top_right, inner_top_right, Color{ 80, 80, 80, alpha });
+    service_provider.renderer().draw_line(
             bottom_right, inner_bottom_right, Color{ 80, 80, 80, static_cast<std::uint8_t>(180.0 * alpha_factor) }
     );
 
-    app.renderer().draw_rect_filled(Rect{ inner_top_left, inner_bottom_right }, foreground);
+    service_provider.renderer().draw_rect_filled(Rect{ inner_top_left, inner_bottom_right }, foreground);
 }

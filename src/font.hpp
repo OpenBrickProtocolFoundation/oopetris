@@ -2,29 +2,30 @@
 
 #include <SDL_ttf.h>
 #include <filesystem>
+#include <memory>
 #include <string>
+
 struct FontLoadingError final : public std::exception {
 private:
     std::string message;
 
 public:
-    explicit FontLoadingError(std::string message) : message{ message } { }
+    explicit FontLoadingError(std::string message) : message{ std::move(message) } { }
 
-    const char* what() const noexcept override {
+    [[nodiscard]] const char* what() const noexcept override {
         return message.c_str();
     }
 };
 
+
 struct Font final {
 private:
-    TTF_Font* m_font;
+    std::shared_ptr<TTF_Font> m_font;
 
 public:
-    Font(const std::string& path, int size);
+    Font() = default;
     Font(const std::filesystem::path& path, int size);
-    Font(const Font&) = delete;
-    Font& operator=(const Font&) = delete;
-    ~Font();
 
     friend struct Text;
+    friend struct Renderer;
 };

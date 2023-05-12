@@ -59,9 +59,6 @@ add_executable(oopetris
         src/tetrion_snapshot.hpp
         src/tetrion.cpp
         src/tetrion.hpp
-        src/tetris_application.cpp
-        src/tetris_application.hpp
-        src/tetromino_type.cpp
         src/tetromino_type.hpp
         src/tetromino.hpp
         src/text.cpp
@@ -71,6 +68,25 @@ add_executable(oopetris
         src/utils.hpp
         src/window.cpp
         src/window.hpp
+        src/ui/widget.hpp
+        src/ui/layout.hpp
+        src/ui/label.hpp
+        src/scenes/scene.hpp
+        src/scenes/ingame/ingame.cpp
+        src/scenes/ingame/ingame.hpp
+        src/scenes/scene.cpp
+        src/scenes/pause/pause.cpp
+        src/scenes/pause/pause.hpp
+        src/resource_manager.hpp
+        src/scene_id.hpp
+        src/service_provider.hpp
+        src/scenes/main_menu/main_menu.cpp
+        src/scenes/main_menu/main_menu.hpp
+        src/ui/button.hpp
+        src/ui/focus_group.hpp
+        src/ui/focusable.hpp
+        src/scenes/game_over/game_over.cpp
+        src/scenes/game_over/game_over.hpp
         )
 
 foreach (target ${TARGET_LIST})

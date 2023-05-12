@@ -34,16 +34,16 @@ void MinoStack::set(Point coordinates, TetrominoType type) {
     m_minos.push_back(to_insert);
 }
 
-void MinoStack::draw_minos(const Application& app, const Grid& grid) const {
+void MinoStack::draw_minos(const ServiceProvider& service_provider, const Grid& grid) const {
     for (const Mino& mino : m_minos) {
         if (mino.position().y >= Grid::invisible_rows) {
-            mino.render(app, grid, MinoTransparency::Solid);
+            mino.render(service_provider, grid, MinoTransparency::Solid);
         }
     }
 }
 
-std::ostream& operator<<(std::ostream& os, const MinoStack& mino_stack) {
-    os << "MinoStack(\n";
+std::ostream& operator<<(std::ostream& ostream, const MinoStack& mino_stack) {
+    ostream << "MinoStack(\n";
     for (int y = 0; y < Grid::height; ++y) {
         for (int x = 0; x < Grid::width; ++x) {
             const auto find_iterator =
@@ -52,14 +52,14 @@ std::ostream& operator<<(std::ostream& os, const MinoStack& mino_stack) {
                     });
             const auto found = (find_iterator != mino_stack.minos().cend());
             if (found) {
-                os << magic_enum::enum_name(find_iterator->type());
+                ostream << magic_enum::enum_name(find_iterator->type());
             } else {
-                os << " ";
+                ostream << " ";
             }
         }
-        os << "\n";
+        ostream << "\n";
     }
 
-    os << ")";
-    return os;
+    ostream << ")";
+    return ostream;
 }

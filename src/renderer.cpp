@@ -1,12 +1,16 @@
 #include "renderer.hpp"
 
-static constexpr SDL_Rect to_sdl_rect(Rect rect) {
-    return SDL_Rect{ rect.top_left.x, rect.top_left.y, rect.bottom_right.x - rect.top_left.x + 1,
-                     rect.bottom_right.y - rect.top_left.y + 1 };
-}
+namespace {
+    constexpr SDL_Rect to_sdl_rect(Rect rect) {
+        return SDL_Rect{ rect.top_left.x, rect.top_left.y, rect.bottom_right.x - rect.top_left.x + 1,
+                         rect.bottom_right.y - rect.top_left.y + 1 };
+    }
+} // namespace
 
-Renderer::Renderer(Window& window) {
-    m_renderer = SDL_CreateRenderer(window.get_sdl_window(), -1, 0);
+Renderer::Renderer(Window& window, const VSync v_sync)
+    : m_renderer{
+          SDL_CreateRenderer(window.get_sdl_window(), -1, v_sync == VSync::Enabled ? SDL_RENDERER_PRESENTVSYNC : 0)
+      } {
     SDL_SetRenderDrawBlendMode(m_renderer, SDL_BLENDMODE_BLEND);
 }
 
@@ -25,13 +29,13 @@ void Renderer::clear(Color clear_color) const {
 
 void Renderer::draw_rect_filled(Rect rect, Color color) const {
     set_draw_color(color);
-    SDL_Rect sdl_rect = to_sdl_rect(rect);
+    const SDL_Rect sdl_rect = to_sdl_rect(rect);
     SDL_RenderFillRect(m_renderer, &sdl_rect);
 }
 
 void Renderer::draw_rect_outline(Rect rect, Color color) const {
     set_draw_color(color);
-    SDL_Rect sdl_rect = to_sdl_rect(rect);
+    const SDL_Rect sdl_rect = to_sdl_rect(rect);
     SDL_RenderDrawRect(m_renderer, &sdl_rect);
 }
 
@@ -39,7 +43,25 @@ void Renderer::present() const {
     SDL_RenderPresent(m_renderer);
 }
 
-void Renderer::draw_line(Point from, Point to, Color color) const {
+void Renderer::draw_line(const Point start, const Point end, const Color color) const {
     set_draw_color(color);
-    SDL_RenderDrawLine(m_renderer, from.x, from.y, to.x, to.y);
+    SDL_RenderDrawLine(m_renderer, start.x, start.y, end.x, end.y);
+}
+
+void Renderer::draw_text(const Point position, const std::string& text, const Font& font, const Color color) const {
+    const SDL_Color text_color{ color.r, color.g, color.b, color.a };
+    SDL_Surface* const surface = TTF_RenderText_Solid(font.m_font.get(), text.c_str(), text_color);
+    SDL_Texture* const texture = SDL_CreateTextureFromSurface(m_renderer, surface);
+    const auto text_width = surface->w;
+    const auto text_height = surface->h;
+    SDL_FreeSurface(surface);
+    const Rect target_rect{
+        position, position + Point{text_width - 1, text_height - 1}
+    };
+    const SDL_Rect rect{ target_rect.top_left.x, target_rect.top_left.y,
+                         target_rect.bottom_right.x - target_rect.top_left.x + 1,
+                         target_rect.bottom_right.y - target_rect.top_left.y + 1 };
+    SDL_RenderCopy(m_renderer, texture, nullptr, &rect);
+
+    SDL_DestroyTexture(texture);
 }

@@ -48,7 +48,6 @@ inline Rotation operator-(const Rotation rotation, const int offset) {
     return rotation + (-offset);
 }
 
-struct Application;
 struct Grid;
 
 struct Tetromino final {
@@ -74,9 +73,9 @@ public:
         return m_rotation;
     }
 
-    void render(const Application& app, const Grid& grid, const MinoTransparency transparency) const {
+    void render(const ServiceProvider& service_provider, const Grid& grid, const MinoTransparency transparency) const {
         for (const auto& mino : m_minos) {
-            mino.render(app, grid, transparency);
+            mino.render(service_provider, grid, transparency);
         }
     }
 
@@ -111,7 +110,7 @@ public:
         refresh_minos();
     }
 
-    const std::array<Mino, 4>& minos() const {
+    [[nodiscard]] const std::array<Mino, 4>& minos() const {
         return m_minos;
     }
 
@@ -121,7 +120,7 @@ private:
     }
 
     static Pattern get_pattern(TetrominoType type, Rotation rotation) {
-        return tetrominos[static_cast<std::size_t>(type)][static_cast<std::size_t>(rotation)];
+        return tetrominos.at(static_cast<std::size_t>(type)).at(static_cast<std::size_t>(rotation));
     }
 
     static std::array<Mino, 4> create_minos(Point position, Rotation rotation, TetrominoType type) {

@@ -1,4 +1,5 @@
 #include "music_manager.hpp"
+#include "command_line_arguments.hpp"
 #include "constants.hpp"
 #include "types.hpp"
 #include <SDL.h>
@@ -8,62 +9,64 @@
 #include <stdexcept>
 #include <string>
 #include <tl/optional.hpp>
-#include <type_traits>
 
-//from: https://stackoverflow.com/questions/1008019/c-singleton-design-pattern
-MusicManager& MusicManager::getInstance(u8 channel_size) {
-
-
-    static MusicManager instance{ channel_size }; // Guaranteed to be destroyed.
-                                                  // Instantiated on first use.
-    return instance;
-}
-
-MusicManager::MusicManager(u8 channel_size)
+MusicManager::MusicManager(ServiceProvider* service_provider, u8 channel_size)
     : m_music{ nullptr },
       m_queued_music{ nullptr },
       m_channel_size{ channel_size },
-      m_chunk_map{ std::unordered_map<std::string, Mix_Chunk*>{} } {
+      m_chunk_map{ std::unordered_map<std::string, Mix_Chunk*>{} },
+      m_service_provider{ service_provider } {
+    if (s_instance != nullptr) {
+        spdlog::error("it's not allowed to create more than one MusicManager instance");
+        return;
+    }
+
+    if (m_service_provider->command_line_arguments().silent) {
+        return;
+    }
     Mix_Init(MIX_INIT_FLAC | MIX_INIT_MP3);
     const int result = SDL_InitSubSystem(SDL_INIT_AUDIO);
     if (result != 0) {
         throw std::runtime_error{ "error on initializing the audio system: " + std::string{ SDL_GetError() } };
     }
     Mix_AllocateChannels(channel_size);
-    // 2 here means STEREO, note that channels above means tracks, e.g simultaneous playing source that are mixed, hence the name SDL2_mixer)
+    // 2 here means STEREO, note that channels above means tracks, e.g. simultaneous playing source that are mixed,
+    // hence the name SDL2_mixer
     Mix_OpenAudio(constants::audio_frequency, MIX_DEFAULT_FORMAT, 2, constants::audio_chunk_size);
-    if (result != 0) {
-        throw std::runtime_error{ "error on open the audio device: " + std::string{ Mix_GetError() } };
-    }
+
+    s_instance = this;
 }
 
-void MusicManager::hook_music_finished() {
-
-    if (m_queued_music == nullptr) {
-        throw std::runtime_error{ "implementation error: m_queued_music is null but it shouldn't be" };
+MusicManager::~MusicManager() {
+    if (not validate_instance()) {
+        return;
     }
 
-
-    Mix_FreeMusic(this->m_music);
-
-
-    const int result = Mix_FadeInMusic(m_queued_music, -1, static_cast<int>(m_delay));
-    if (result != 0) {
-        throw std::runtime_error(
-                "an error occurred while trying to play the music (fading in): " + std::string{ Mix_GetError() }
-        );
+    if (m_service_provider->command_line_arguments().silent) {
+        return;
     }
-    this->m_music = m_queued_music;
 
-    m_queued_music = nullptr;
-
-    // clear the callback
-    Mix_HookMusicFinished(nullptr);
+    // stop sounds and free loaded data
+    Mix_HaltChannel(-1);
+    if (m_music != nullptr) {
+        Mix_FreeMusic(m_music);
+    }
+    for (const auto& [_, value] : m_chunk_map) {
+        Mix_FreeChunk(value);
+    }
+    Mix_CloseAudio();
+    Mix_Quit();
 }
-
 
 tl::optional<std::string> MusicManager::load_and_play_music(const std::filesystem::path& location, const usize delay) {
+    if (not validate_instance()) {
+        return tl::nullopt;
+    }
 
+    if (m_service_provider->command_line_arguments().silent) {
+        spdlog::debug("trying to load and play music \"{}\" in silent mode is ignored", location.string());
+        return tl::nullopt;
+    }
 
     Mix_Music* music = Mix_LoadMUS(location.string().c_str());
     if (music == nullptr) {
@@ -88,9 +91,12 @@ tl::optional<std::string> MusicManager::load_and_play_music(const std::filesyste
             m_queued_music = music;
             m_delay = delay;
 
-            Mix_HookMusicFinished([]() { MusicManager::getInstance().hook_music_finished(); });
+            Mix_HookMusicFinished([]() {
+                assert(s_instance != nullptr and "there must be a MusicManager instance");
+                s_instance->hook_music_finished();
+            });
 
-            // this wan't block, so we have to wait for the callback to be called
+            // this wasn't block, so we have to wait for the callback to be called
             const int result = Mix_FadeOutMusic(static_cast<int>(delay));
             if (result == 0) {
                 return "UNREACHABLE: m_music was not null but not playing, this is an implementation error!";
@@ -112,26 +118,29 @@ tl::optional<std::string> MusicManager::load_and_play_music(const std::filesyste
 
 //TODO add speed modifier via Mix_RegisterEffect for music!
 
-
 tl::optional<std::string> MusicManager::load_effect(const std::string& name, std::filesystem::path& location) {
+    if (not validate_instance()) {
+        return tl::nullopt;
+    }
 
     if (m_chunk_map.contains(name)) {
         return "name already used";
     }
 
     Mix_Chunk* chunk = Mix_LoadWAV(location.string().c_str());
-
     if (chunk == nullptr) {
         return ("an error occurred while trying to load the chunk: " + std::string{ Mix_GetError() });
     }
 
     m_chunk_map.insert({ name, chunk });
-
-
     return tl::nullopt;
 }
 
 tl::optional<std::string> MusicManager::play_effect(const std::string& name, u8 channel_num, int loop) {
+    if (not validate_instance()) {
+        return tl::nullopt;
+    }
+
     if (m_chunk_map.contains(name)) {
         return "name not loaded";
     }
@@ -150,17 +159,37 @@ tl::optional<std::string> MusicManager::play_effect(const std::string& name, u8 
     return tl::nullopt;
 }
 
-
-MusicManager::~MusicManager() {
-
-    // stop sounds and free loaded data
-    Mix_HaltChannel(-1);
-    if (m_music != nullptr) {
-        Mix_FreeMusic(m_music);
+void MusicManager::hook_music_finished() {
+    if (not validate_instance()) {
+        return;
     }
-    for (const auto& [_, value] : m_chunk_map) {
-        Mix_FreeChunk(value);
+
+    if (m_queued_music == nullptr) {
+        throw std::runtime_error{ "implementation error: m_queued_music is null but it shouldn't be" };
     }
-    Mix_CloseAudio();
-    Mix_Quit();
+
+    Mix_FreeMusic(this->m_music);
+
+    const int result = Mix_FadeInMusic(m_queued_music, -1, static_cast<int>(m_delay));
+    if (result != 0) {
+        throw std::runtime_error(
+                "an error occurred while trying to play the music (fading in): " + std::string{ Mix_GetError() }
+        );
+    }
+    this->m_music = m_queued_music;
+
+    m_queued_music = nullptr;
+
+    // clear the callback
+    Mix_HookMusicFinished(nullptr);
+}
+
+[[nodiscard]] bool MusicManager::validate_instance() {
+    if (s_instance != this) {
+        if (not m_service_provider->command_line_arguments().silent) {
+            spdlog::error("this MusicManager instance is not the instance that is used globally");
+        }
+        return false;
+    }
+    return true;
 }

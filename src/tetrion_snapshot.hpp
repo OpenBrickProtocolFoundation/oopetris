@@ -1,6 +1,5 @@
 #pragma once
 
-#include "application.hpp"
 #include "tetrion.hpp"
 #include "utils.hpp"
 #include <array>

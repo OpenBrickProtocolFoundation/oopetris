@@ -1,6 +1,7 @@
 #pragma once
 
 #include "mino.hpp"
+#include "service_provider.hpp"
 #include "types.hpp"
 #include <algorithm>
 #include <iostream>
@@ -17,7 +18,7 @@ public:
     void clear_row_and_let_sink(int row);
     [[nodiscard]] bool is_empty(Point coordinates) const;
     void set(Point coordinates, TetrominoType type);
-    void draw_minos(const Application& app, const Grid& grid) const;
+    void draw_minos(const ServiceProvider& service_provider, const Grid& grid) const;
 
     [[nodiscard]] usize num_minos() const {
         return m_minos.size();
@@ -41,7 +42,7 @@ public:
         }
 
         const auto all_of_other_in_this =
-                std::all_of(other.m_minos.cbegin(), other.m_minos.cend(), [&](const auto& mino) {
+                std::all_of(other.m_minos.cbegin(), other.m_minos.cend(), [this](const auto& mino) {
                     return std::find(m_minos.cbegin(), m_minos.cend(), mino) != end(m_minos);
                 });
 
@@ -53,4 +54,4 @@ public:
     }
 };
 
-std::ostream& operator<<(std::ostream& os, const MinoStack& mino_stack);
+std::ostream& operator<<(std::ostream& ostream, const MinoStack& mino_stack);

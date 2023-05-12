@@ -53,22 +53,30 @@ protected:
 public:
     virtual void update(SimulationStep simulation_step_index);
     virtual void late_update(SimulationStep){};
+
+    Input(const Input&) = delete;
+    Input& operator=(const Input&) = delete;
+
     virtual ~Input() = default;
 };
+
+struct EventDispatcher;
 
 struct KeyboardInput : public Input, public EventListener {
 private:
     KeyboardControls m_controls;
     std::vector<SDL_Event> m_event_buffer;
+    EventDispatcher* m_event_dispatcher;
 
 public:
     KeyboardInput(
             Tetrion* target_tetrion,
             KeyboardControls controls,
+            EventDispatcher* event_dispatcher,
             OnEventCallback on_event_callback = OnEventCallback{}
-    )
-        : Input{ target_tetrion, std::move(on_event_callback) },
-          m_controls{ controls } { }
+    );
+
+    ~KeyboardInput() override;
 
     void handle_event(const SDL_Event& event) override;
 

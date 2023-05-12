@@ -6,12 +6,14 @@
 #include <algorithm>
 #include <array>
 #include <bit>
+#include <cassert>
 #include <climits>
 #include <filesystem>
 #include <string>
 #include <string_view>
 #include <tl/optional.hpp>
 #include <type_traits>
+
 namespace utils {
     // taken from llvm: https://github.com/llvm/llvm-project/blob/main/libcxx/include/__concepts/arithmetic.h#L27-L30
     // [concepts.arithmetic], arithmetic concepts
@@ -26,7 +28,7 @@ namespace utils {
         auto result = Integral{};
         for (usize i = 0; i < sizeof(Integral); ++i) {
             result <<= CHAR_BIT;
-            result |= value & 0xFF;
+            result |= value & static_cast<Integral>(std::numeric_limits<unsigned char>::max());
             value >>= CHAR_BIT;
         }
         return result;
@@ -45,8 +47,8 @@ namespace utils {
     }
 
     template<class Enum>
-    [[nodiscard]] constexpr std::underlying_type_t<Enum> to_underlying(Enum e) noexcept {
-        return static_cast<std::underlying_type_t<Enum>>(e);
+    [[nodiscard]] constexpr std::underlying_type_t<Enum> to_underlying(Enum enum_) noexcept {
+        return static_cast<std::underlying_type_t<Enum>>(enum_);
     }
 
     [[nodiscard]] std::filesystem::path get_assets_folder();
@@ -75,6 +77,12 @@ namespace utils {
 #endif
 
         return StaticString{ name } + StaticString{ "." } + ext;
+    }
+
+    [[noreturn]] inline void unreachable() {
+        assert(false && "unreachable");
+        // todo: throw exception in android build
+        std::terminate();
     }
 
 } // namespace utils

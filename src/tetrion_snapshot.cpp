@@ -1,5 +1,5 @@
 #include "tetrion_snapshot.hpp"
-
+#include <spdlog/spdlog.h>
 #include <sstream>
 #include <string_view>
 

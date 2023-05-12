@@ -1,20 +1,22 @@
 #pragma once
 
 #include "point.hpp"
+#include "service_provider.hpp"
 #include "tetromino_type.hpp"
 #include "types.hpp"
 #include <array>
 
-struct Application;
 struct Grid;
 
 enum class MinoTransparency : u8 {
+    // here the enum value is used as index into the preview alpha array
     Preview0,
     Preview1,
     Preview2,
     Preview3,
     Preview4,
     Preview5,
+    // here the enum value is used as alpha!
     Ghost = 50,
     Solid = 255,
 };
@@ -28,7 +30,7 @@ private:
 public:
     explicit constexpr Mino(Point coords, TetrominoType type) : m_position{ coords }, m_type{ type } { }
 
-    void render(const Application& app, const Grid& grid, MinoTransparency transparency) const;
+    void render(const ServiceProvider& service_provider, const Grid& grid, MinoTransparency transparency) const;
 
     [[nodiscard]] TetrominoType type() const {
         return m_type;

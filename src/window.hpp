@@ -1,6 +1,7 @@
 #pragma once
 
 #include "point.hpp"
+#include "rect.hpp"
 #include <SDL.h>
 #include <string>
 
@@ -19,10 +20,14 @@ public:
     Window(const std::string& title, WindowPosition position);
     Window(const std::string& title, int x, int y);
     Window(const Window&) = delete;
-    ~Window();
+    Window(Window&&) = delete;
     Window& operator=(const Window&) = delete;
+    Window& operator=(Window&&) = delete;
+    ~Window();
 
-    Point size() const;
+    [[nodiscard]] Point size() const;
 
-    SDL_Window* get_sdl_window() const;
+    [[nodiscard]] SDL_Window* get_sdl_window() const;
+
+    [[nodiscard]] Rect screen_rect() const;
 };

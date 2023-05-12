@@ -4,21 +4,20 @@
 #include "font.hpp"
 #include "point.hpp"
 #include "rect.hpp"
+#include "service_provider.hpp"
 #include <memory>
-
-struct Application;
 
 struct Text final {
 private:
     Point m_position;
     Color m_color;
     std::string m_text;
-    std::shared_ptr<Font> m_font;
+    Font m_font;
 
 public:
     Text() = default;
-    Text(Point position, Color color, std::string text, std::shared_ptr<Font> font);
-    void render(const Application& app) const;
+    Text(Point position, Color color, std::string text, Font font);
+    void render(const ServiceProvider& service_provider) const;
     void set_text(std::string text);
     void set_position(Point position);
 };
