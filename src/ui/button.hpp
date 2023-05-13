@@ -44,6 +44,8 @@ namespace ui {
         }
 
         bool handle_event(const SDL_Event& event) override {
+
+            //TODO also support mouse clicks
             if (utils::device_supports_touch()) {
                 //TODO how to handle focus on a touch device ???
 

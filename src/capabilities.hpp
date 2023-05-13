@@ -31,30 +31,37 @@ namespace utils {
     };
 
     // the PAUSE and UNPAUSE might be different (e.g on android, even if androids map is stub,
-    // it checks in teh usage of these for the CrossPlatformAction!), so don't remove the duplication here!
-    enum class CrossPlatformAction : u8 { OK, PAUSE, UNPAUSE, EXIT };
+    // it checks in the usage of these for the CrossPlatformAction!), so don't remove the duplication here!
+    enum class CrossPlatformAction : u8 { OK, PAUSE, UNPAUSE, EXIT, DOWN, UP };
 
+    //TODO: support multiple keys
     static std::unordered_map<u8, i64> key_map =
 #if defined(__ANDROID__)
             {
                 {     static_cast<u8>(CrossPlatformAction::OK), 0},
                 {  static_cast<u8>(CrossPlatformAction::PAUSE), 0},
                 {static_cast<u8>(CrossPlatformAction::UNPAUSE), 0},
-                {   static_cast<u8>(CrossPlatformAction::EXIT), 0}
+                {   static_cast<u8>(CrossPlatformAction::EXIT), 0},
+                {   static_cast<u8>(CrossPlatformAction::DOWN), 0},
+                {     static_cast<u8>(CrossPlatformAction::UP), 0}
     };
 #elif defined(__SWITCH__)
             {
                 { static_cast<u8>(CrossPlatformAction::OK), JOYCON_A },
                 { static_cast<u8>(CrossPlatformAction::PAUSE), JOYCON_PLUS },
                 { static_cast<u8>(CrossPlatformAction::UNPAUSE), JOYCON_PLUS },
-                { static_cast<u8>(CrossPlatformAction::EXIT), JOYCON_MINUS }
+                { static_cast<u8>(CrossPlatformAction::EXIT), JOYCON_MINUS },
+                { static_cast<u8>(CrossPlatformAction::DOWN), JOYCON_CROSS_DOWN },
+                { static_cast<u8>(CrossPlatformAction::UP), JOYCON_CROSS_UP }
             };
 #else
             {
                 { static_cast<u8>(CrossPlatformAction::OK), SDLK_RETURN },
                 { static_cast<u8>(CrossPlatformAction::PAUSE), SDLK_ESCAPE },
                 { static_cast<u8>(CrossPlatformAction::UNPAUSE), SDLK_ESCAPE },
-                { static_cast<u8>(CrossPlatformAction::EXIT), SDLK_RETURN }
+                { static_cast<u8>(CrossPlatformAction::EXIT), SDLK_RETURN },
+                { static_cast<u8>(CrossPlatformAction::DOWN), SDLK_DOWN },
+                { static_cast<u8>(CrossPlatformAction::UP), SDLK_UP }
             };
 #endif
 
