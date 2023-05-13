@@ -1,7 +1,10 @@
 
+#include <SDL.h>
+#include <vector>
+
 #include "capabilities.hpp"
 #include "utils.hpp"
-#include <SDL.h>
+
 
 #if defined(__SWITCH__)
 #include "switch_buttons.hpp"
@@ -28,12 +31,18 @@
     }
 #else
 
-    const i64 needed_event = utils::key_map.at(static_cast<u8>(action));
+    const std::vector<i64> needed_events = utils::key_map.at(static_cast<u8>(action));
+    for (const auto& needed_event : needed_events) {
 #if defined(__SWITCH__)
-    return (event.type == SDL_JOYBUTTONDOWN and event.jbutton.button == needed_event);
+        if (event.type == SDL_JOYBUTTONDOWN and event.jbutton.button == needed_event) {
+            return true;
+        }
 #else
-    return (event.type == SDL_KEYDOWN and event.key.keysym.sym == needed_event);
+        if (event.type == SDL_KEYDOWN and event.key.keysym.sym == needed_event) {
+            return true;
+        }
 #endif
-
+    }
+    return false;
 #endif
 }
