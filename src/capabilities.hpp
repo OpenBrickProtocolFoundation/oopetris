@@ -1,8 +1,10 @@
 
 #pragma once
 
-#include "types.hpp"
 #include <SDL.h>
+#include <vector>
+
+#include "types.hpp"
 #include <unordered_map>
 
 #if defined(__SWITCH__)
