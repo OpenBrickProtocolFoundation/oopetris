@@ -1,7 +1,7 @@
 #include "ingame.hpp"
 #include "../../capabilities.hpp"
-#include "../scene.hpp"
 #include "../../event_dispatcher.hpp"
+#include "../scene.hpp"
 
 #if defined(__SWITCH__)
 #include "../../switch_buttons.hpp"
