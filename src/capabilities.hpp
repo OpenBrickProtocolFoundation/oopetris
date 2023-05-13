@@ -5,6 +5,10 @@
 #include <SDL.h>
 #include <unordered_map>
 
+#if defined(__SWITCH__)
+#include "switch_buttons.hpp"
+#endif
+
 /* should we replace this by using defines in here, that would be real compile time but I think it' more ugly
  e.g
 #if defined(__ANDROID__)
