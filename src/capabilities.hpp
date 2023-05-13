@@ -2,6 +2,7 @@
 #pragma once
 
 #include <SDL.h>
+#include <string>
 #include <unordered_map>
 #include <vector>
 
@@ -92,55 +93,55 @@ namespace utils {
 
     [[nodiscard]] bool event_is_action(const SDL_Event& event, CrossPlatformAction action);
 
-    [[nodiscard]] inline constexpr auto action_description(CrossPlatformAction action) {
+    [[nodiscard]] inline std::string action_description(CrossPlatformAction action) {
 #if defined(__ANDROID__)
         switch (action) {
             case CrossPlatformAction::OK:
-                return StaticString{ "NOT POSSIBLE" };
+                return "NOT POSSIBLE";
             case CrossPlatformAction::PAUSE:
-                return StaticString{ "Back Button" };
+                return "Back Button";
             case CrossPlatformAction::UNPAUSE:
-                return StaticString{ "Tap anywhere" };
+                return "Tap anywhere";
             case CrossPlatformAction::EXIT:
-                return StaticString{ "Back Button" };
+                return "Back Button";
             case CrossPlatformAction::DOWN:
-                return StaticString{ "NOT POSSIBLE" };
+                return "NOT POSSIBLE";
             case CrossPlatformAction::UP:
-                return StaticString{ "NOT POSSIBLE" };
+                return "NOT POSSIBLE";
             default:
                 utils::unreachable();
         }
 #elif defined(__SWITCH__)
         switch (action) {
             case CrossPlatformAction::OK:
-                return StaticString{ "A" };
+                return "A";
             case CrossPlatformAction::PAUSE:
-                return StaticString{ "PLUS" };
+                return "PLUS";
             case CrossPlatformAction::UNPAUSE:
-                return StaticString{ "PLUS" };
+                return "PLUS";
             case CrossPlatformAction::EXIT:
-                return StaticString{ "MINUS" };
+                return "MINUS";
             case CrossPlatformAction::DOWN:
-                return StaticString{ "Down" };
+                return "Down";
             case CrossPlatformAction::UP:
-                return StaticString{ "Up" };
+                return "Up";
             default:
                 utils::unreachable();
         }
 #else
         switch (action) {
             case CrossPlatformAction::OK:
-                return StaticString{ "Return" };
+                return "Return";
             case CrossPlatformAction::PAUSE:
-                return StaticString{ "ESC" };
+                return "ESC";
             case CrossPlatformAction::UNPAUSE:
-                return StaticString{ "Return" };
+                return "Return";
             case CrossPlatformAction::EXIT:
-                return StaticString{ "Return" };
+                return "Return";
             case CrossPlatformAction::DOWN:
-                return StaticString{ "Down" };
+                return "Down";
             case CrossPlatformAction::UP:
-                return StaticString{ "Up" };
+                return "Up";
             default:
                 utils::unreachable();
         }

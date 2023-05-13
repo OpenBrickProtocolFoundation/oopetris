@@ -25,8 +25,7 @@ namespace scenes {
         service_provider.renderer().draw_rect_filled(service_provider.window().screen_rect(), Color::black(180));
         service_provider.renderer().draw_text(
                 Point{ 100, 100 },
-                StaticString{ "Game Over, Press " } + utils::action_description(utils::CrossPlatformAction::EXIT)
-                        + StaticString{ " to continue" },
+                "Game Over, Press " + utils::action_description(utils::CrossPlatformAction::EXIT) + " to continue",
                 service_provider.fonts().get(FontId::Default), Color::white()
         );
     }

@@ -11,9 +11,8 @@ namespace scenes {
 
 
     Pause::Pause(ServiceProvider* service_provider) : Scene{ service_provider }, m_heading {
-        (StaticString{"Pause ("} + 
-        utils::action_description(utils::CrossPlatformAction::UNPAUSE) + StaticString{": continue, "}+utils::action_description(utils::CrossPlatformAction::EXIT)+StaticString{": quit)"}).string()
-
+      "Pause (" + 
+        utils::action_description(utils::CrossPlatformAction::UNPAUSE) + ": continue, "+utils::action_description(utils::CrossPlatformAction::EXIT)+": quit)"
                 ,
                 Color::white(), service_provider->fonts().get(FontId::Default), ui::AbsoluteLayout {
             50, 50
