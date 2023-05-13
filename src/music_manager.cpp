@@ -116,8 +116,6 @@ tl::optional<std::string> MusicManager::load_and_play_music(const std::filesyste
     return tl::nullopt;
 }
 
-//TODO add speed modifier via Mix_RegisterEffect for music!
-
 tl::optional<std::string> MusicManager::load_effect(const std::string& name, std::filesystem::path& location) {
     if (not validate_instance()) {
         return tl::nullopt;

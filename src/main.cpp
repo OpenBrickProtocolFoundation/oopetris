@@ -22,7 +22,6 @@ int main(int argc, char** argv) {
         std::filesystem::create_directory(logs_path);
     }
 
-    //TODO: debug crash in spdlog
     std::vector<spdlog::sink_ptr> sinks;
 #if defined(__ANDROID__)
     sinks.push_back(std::make_shared<spdlog::sinks::android_sink_mt>());

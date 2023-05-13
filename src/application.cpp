@@ -126,7 +126,7 @@ void Application::load_resources() {
     constexpr auto font_size = 18;
 #endif
 
-    // todo: catch exception
+    // TODO: catch exception
     m_font_manager.load(FontId::Default, font_path, font_size);
 }
 

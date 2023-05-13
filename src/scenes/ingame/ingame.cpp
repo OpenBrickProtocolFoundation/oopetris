@@ -71,16 +71,16 @@ namespace scenes {
                                 [[maybe_unused]] KeyboardControls& keyboard_controls
                         ) mutable -> std::unique_ptr<Input> {
 #if defined(__ANDROID__)
-                            // todo: implement that the TouchInput also registers itself at the EventDispatcher
-                            //  (just like KeyboardInput)
                             auto input = std::make_unique<TouchInput>(associated_tetrion, std::move(on_event_callback));
-
-#elif defined(__SWITCH__)
-                            // todo: implement that the JoystickInput also registers itself at the EventDispatcher
+                            // TODO: implement that the TouchInput also registers itself at the EventDispatcher
                             //  (just like KeyboardInput)
+                            m_service_provider->event_dispatcher().register_listener(input.get());
+#elif defined(__SWITCH__)
                             auto input =
                                     std::make_unique<JoystickInput>(associated_tetrion, std::move(on_event_callback));
-
+                            // TODO: implement that the JoystickInput also registers itself at the EventDispatcher
+                            //  (just like KeyboardInput)
+                            m_service_provider->event_dispatcher().register_listener(input.get());
 #else
                             auto input = std::make_unique<KeyboardInput>(
                                     associated_tetrion, keyboard_controls, &(m_service_provider->event_dispatcher()),

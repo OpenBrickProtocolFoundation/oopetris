@@ -81,7 +81,7 @@ namespace utils {
 
     [[noreturn]] inline void unreachable() {
         assert(false && "unreachable");
-        // todo: throw exception in android build
+        // TODO: throw exception in android build
         std::terminate();
     }
 
