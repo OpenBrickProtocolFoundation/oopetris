@@ -25,6 +25,13 @@
 
         case CrossPlatformAction::EXIT:
             return (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_AC_BACK);
+        case CrossPlatformAction::DOWN:
+            // this can't be checked here, it has to be checked via collision on buttons etc. event_is_action(..., ...::DOWN) can only be used inside device_supports_keys() clauses!
+            utils::unreachable();
+
+        case CrossPlatformAction::UP:
+            // this can't be checked here, it has to be checked via collision on buttons etc. event_is_action(..., ...::UP) can only be used inside device_supports_keys() clauses!
+            utils::unreachable();
 
         default:
             utils::unreachable();
