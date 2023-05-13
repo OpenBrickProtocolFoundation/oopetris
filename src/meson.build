@@ -3,6 +3,7 @@ src_files += files(
     'application.hpp',
     'bag.cpp',
     'bag.hpp',
+    'capabilities.cpp',
     'clock_source.cpp',
     'clock_source.hpp',
     'color.hpp',

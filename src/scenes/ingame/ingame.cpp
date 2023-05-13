@@ -1,9 +1,11 @@
 #include "ingame.hpp"
+#include "../../capabilities.hpp"
 #include "../scene.hpp"
 
 #if defined(__SWITCH__)
 #include "../../switch_buttons.hpp"
 #endif
+
 
 namespace scenes {
 
@@ -235,15 +237,7 @@ namespace scenes {
 
     [[nodiscard]] bool Ingame::handle_event(const SDL_Event& event) {
 
-        if (
-#if defined(__ANDROID__)
-                event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_AC_BACK
-#elif defined(__SWITCH__)
-                event.type == SDL_JOYBUTTONDOWN && event.jbutton.button == JOYCON_PLUS
-#else
-                event.type == SDL_KEYDOWN and event.key.keysym.sym == SDLK_ESCAPE
-#endif
-        ) {
+        if (utils::event_is_action(event, utils::CrossPlatformAction::PAUSE)) {
             m_should_pause = true;
             return true;
         }

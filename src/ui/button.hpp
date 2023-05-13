@@ -1,13 +1,16 @@
 #pragma once
 
+#include <functional>
+#include <spdlog/spdlog.h>
+
+#include "../capabilities.hpp"
 #include "../rect.hpp"
 #include "../renderer.hpp"
 #include "../resource_manager.hpp"
 #include "../text.hpp"
 #include "focusable.hpp"
 #include "widget.hpp"
-#include <functional>
-#include <spdlog/spdlog.h>
+
 
 namespace ui {
 
@@ -41,11 +44,25 @@ namespace ui {
         }
 
         bool handle_event(const SDL_Event& event) override {
-            // todo: create utils function for keydown test to prevent #ifdefs for android
-            if (has_focus() and event.type == SDL_KEYDOWN and event.key.keysym.sym == SDLK_RETURN) {
-                spdlog::info("button pressed");
-                m_callback(*this);
-                return true;
+            if (utils::device_supports_touch()) {
+                //TODO how to handle focus on a touch device ???
+
+                bool button_tapped = false;
+                //TODO implement detection if the tap was inside the button!
+
+                if (button_tapped) {
+                    spdlog::info("button tapped");
+                    m_callback(*this);
+                    return true;
+                }
+            }
+
+            if (utils::device_supports_keys()) {
+                if (has_focus() and utils::event_is_action(event, utils::CrossPlatformAction::OK)) {
+                    spdlog::info("button pressed");
+                    m_callback(*this);
+                    return true;
+                }
             }
             return false;
         }

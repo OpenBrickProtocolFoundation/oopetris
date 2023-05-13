@@ -1,6 +1,8 @@
 #include "pause.hpp"
+#include "../../capabilities.hpp"
 #include "../../renderer.hpp"
 #include "../../resource_manager.hpp"
+
 
 #if defined(__SWITCH__)
 #include "../../switch_buttons.hpp"
@@ -40,38 +42,15 @@ namespace scenes {
 
     [[nodiscard]] bool Pause::handle_event(const SDL_Event& event) {
 
-#if defined(__ANDROID__)
-        if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_AC_BACK) {
-            m_should_exit = true;
-            return true;
-        } else if (event.type == SDL_FINGERDOWN) {
-            // if we tap anywhere outside of the apps focus (eg title bar, back key, etc. ) it in't registered, any other press resumes (unpauses) the game
+        if (utils::event_is_action(event, utils::CrossPlatformAction::UNPAUSE)) {
             m_should_unpause = true;
             return true;
         }
-#elif defined(__SWITCH__)
-        if (event.type == SDL_JOYBUTTONDOWN) {
-            switch (event.jbutton.button) {
-                case JOYCON_PLUS:
-                    m_should_unpause = true;
-                    return true;
-                case JOYCON_MINUS:
-                    m_should_exit = true;
-                    return true;
-            }
+
+        if (utils::event_is_action(event, utils::CrossPlatformAction::EXIT)) {
+            m_should_exit = true;
+            return true;
         }
-#else
-        if (event.type == SDL_KEYDOWN) {
-            switch (event.key.keysym.sym) {
-                case SDLK_ESCAPE:
-                    m_should_unpause = true;
-                    return true;
-                case SDLK_RETURN:
-                    m_should_exit = true;
-                    return true;
-            }
-        }
-#endif
 
         return false;
     }

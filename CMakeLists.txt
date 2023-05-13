@@ -87,6 +87,7 @@ add_executable(oopetris
         src/ui/focusable.hpp
         src/scenes/game_over/game_over.cpp
         src/scenes/game_over/game_over.hpp
+        src/capabilities.cpp
         )
 
 foreach (target ${TARGET_LIST})
