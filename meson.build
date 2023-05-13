@@ -106,6 +106,7 @@ deps += dependency(
     default_options: ['tests=false'],
 )
 deps += dependency('nlohmann_json', required: true, native: native)
+
 deps += dependency(
     'tl-optional',
     required: true,
@@ -124,15 +125,12 @@ deps += dependency(
     fallback: ['magic_enum'],
     native: native,
 )
-
-
 deps += dependency(
     'argparse',
     required: true,
     fallback: ['argparse'],
     native: native,
 )
-
 
 src_files = []
 
