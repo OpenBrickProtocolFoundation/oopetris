@@ -66,7 +66,7 @@ namespace ui {
                 // These are doubles, from 0-1 in percent, the have to be casted to absolut x coordinates!
                 const double x_percent = event.tfinger.x;
                 const double y_percent = event.tfinger.y;
-                const auto window_size = m_window.size();
+                const auto window_size = m_window->size();
                 const auto x = static_cast<int>(std::round(x_percent * window_size.x));
                 const auto y = static_cast<int>(std::round(y_percent * window_size.y));
 #else
