@@ -36,6 +36,8 @@ namespace ui {
             auto handled = false;
             //TODO: focus is not representable in touch devices, so what to do?
 
+            // TODO support hover over via checking if it's hovered over a subwidget (how to deal with overlaps??) each subwidgets needs to return either a spanning rectangle or a method to check if a point is within it
+
             if (utils::device_supports_keys()) {
                 if (utils::event_is_action(event, utils::CrossPlatformAction::DOWN)) {
                     handled = try_set_next_focus(FocusChangeDirection::Forward);

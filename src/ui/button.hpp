@@ -2,6 +2,7 @@
 
 #include <functional>
 #include <spdlog/spdlog.h>
+#include <utility>
 
 #include "../capabilities.hpp"
 #include "../rect.hpp"
@@ -21,22 +22,29 @@ namespace ui {
     private:
         std::string m_caption;
         Callback m_callback;
+        Window* m_window;
+
+        std::pair<Point, Rect> get_fill_rect(const Rect screen_rect) const {
+            const auto absolute_layout = std::get<AbsoluteLayout>(layout);
+            const auto origin = Point{ static_cast<int>(absolute_layout.x), static_cast<int>(absolute_layout.y) }
+                                + screen_rect.top_left;
+            return {
+                origin, Rect{origin, origin + Point{ 120, 40 }}
+            };
+        }
 
     public:
-        explicit Button(std::string caption, const Layout& layout, usize focus_id, Callback callback)
+        explicit Button(std::string caption, const Layout& layout, usize focus_id, Callback callback, Window* window)
             : Widget(layout),
               Focusable{ focus_id },
               m_caption{ std::move(caption) },
-              m_callback{ std::move(callback) } { }
+              m_callback{ std::move(callback) },
+              m_window{ window } { }
 
-        void render(const ServiceProvider& service_provider, const Rect rect) const override {
+
+        void render(const ServiceProvider& service_provider, const Rect screen_rect) const override {
             const auto color = (has_focus() ? Color::red() : Color::blue());
-            const auto absolute_layout = std::get<AbsoluteLayout>(layout);
-            const auto origin =
-                    Point{ static_cast<int>(absolute_layout.x), static_cast<int>(absolute_layout.y) } + rect.top_left;
-            const auto fill_area = Rect{
-                origin, origin + Point{120, 40}
-            };
+            const auto [origin, fill_area] = get_fill_rect(screen_rect);
             service_provider.renderer().draw_rect_filled(fill_area, color);
             service_provider.renderer().draw_text(
                     origin, m_caption, service_provider.fonts().get(FontId::Default), Color::white()
@@ -45,12 +53,36 @@ namespace ui {
 
         bool handle_event(const SDL_Event& event) override {
 
-            //TODO also support mouse clicks
-            if (utils::device_supports_touch()) {
-                //TODO how to handle focus on a touch device ???
+            // attention don't combine this without ifdefs, since a SDL_MOUSEBUTTONDOWN may contain event.which == SDL_TOUCH_MOUSEID wheach meands SDL made a mouse event up from a touch!
+            if (event.type ==
+#if defined(__ANDROID__)
+                SDL_FINGERDOWN
+#else
+                        SDL_MOUSEBUTTONDOWN
+                && event.button.button == SDL_BUTTON_LEFT
+#endif
+            ) {
+#if defined(__ANDROID__)
+                // These are doubles, from 0-1 in percent, the have to be casted to absolut x coordinates!
+                const double x_percent = event.tfinger.x;
+                const double y_percent = event.tfinger.y;
+                const auto window_size = m_window.size();
+                const auto x = static_cast<int>(std::round(x_percent * window_size.x));
+                const auto y = static_cast<int>(std::round(y_percent * window_size.y));
+#else
+                const auto x = event.button.x;
+                const auto y = event.button.y;
+#endif
 
-                bool button_tapped = false;
-                //TODO implement detection if the tap was inside the button!
+                const auto [_, fill_area] = get_fill_rect(m_window->screen_rect());
+
+                const auto rect_start_x = fill_area.top_left.x;
+                const auto rect_start_y = fill_area.top_left.y;
+                const auto rect_end_x = fill_area.bottom_right.x;
+                const auto rect_end_y = fill_area.bottom_right.y;
+
+
+                bool button_tapped = (x >= rect_start_x && x <= rect_end_x && y >= rect_start_y && y <= rect_end_y);
 
                 if (button_tapped) {
                     spdlog::info("button tapped");
@@ -58,6 +90,7 @@ namespace ui {
                     return true;
                 }
             }
+
 
             if (utils::device_supports_keys()) {
                 if (has_focus() and utils::event_is_action(event, utils::CrossPlatformAction::OK)) {

@@ -6,7 +6,7 @@
 
 namespace scenes {
 
-    MainMenu::MainMenu(ServiceProvider* service_provider)
+    MainMenu::MainMenu(ServiceProvider* service_provider, Window* window)
         : Scene(service_provider),
           m_heading{
               constants::program_name, Color::white(), service_provider->fonts().get(FontId::Default),
@@ -18,14 +18,15 @@ namespace scenes {
                 [this](const ui::Button&) {
                     spdlog::info("setting next command");
                     m_next_command = Command::StartGame;
-                }
+                },
+                window
         ));
-        m_focus_group.add(
-                std::make_unique<ui::Button>("Settings", ui::AbsoluteLayout{ 100, 250 }, 50, [](const ui::Button&) {})
-        );
+        m_focus_group.add(std::make_unique<ui::Button>(
+                "Settings", ui::AbsoluteLayout{ 100, 250 }, 50, [](const ui::Button&) {}, window
+        ));
         m_focus_group.add(std::make_unique<ui::Button>(
                 "Exit", ui::AbsoluteLayout{ 100, 300 }, 100,
-                [this](const ui::Button&) { m_next_command = Command::Exit; }
+                [this](const ui::Button&) { m_next_command = Command::Exit; }, window
         ));
 
         service_provider->music_manager()

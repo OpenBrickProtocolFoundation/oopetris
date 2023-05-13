@@ -49,5 +49,6 @@ namespace scenes {
         virtual bool handle_event(const SDL_Event& event) = 0;
     };
 
-    [[nodiscard]] std::unique_ptr<scenes::Scene> create_scene(ServiceProvider& service_provider, SceneId identifier);
+    [[nodiscard]] std::unique_ptr<scenes::Scene>
+    create_scene(ServiceProvider& service_provider, Window* window, SceneId identifier);
 } // namespace scenes
