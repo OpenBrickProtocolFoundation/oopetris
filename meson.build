@@ -110,9 +110,9 @@ if spdlog_dep.found()
     deps += spdlog_dep
     deps += dependency('fmt', required: true, native: native)
 else
-    spdlog_dep = dependency(
+    deps += dependency(
         'spdlog',
-        required: false,
+        required: true,
         native: native,
         default_options: ['tests=false'],
     )
