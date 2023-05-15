@@ -2,6 +2,7 @@
 #include "../../capabilities.hpp"
 #include "../../renderer.hpp"
 #include "../../resource_manager.hpp"
+#include <fmt/format.h>
 
 
 #if defined(__SWITCH__)
@@ -9,14 +10,15 @@
 #endif
 namespace scenes {
 
-
     Pause::Pause(ServiceProvider* service_provider) : Scene{ service_provider }, m_heading {
-      "Pause (" + 
-        utils::action_description(utils::CrossPlatformAction::UNPAUSE) + ": continue, "+utils::action_description(utils::CrossPlatformAction::EXIT)+": quit)"
-                ,
-                Color::white(), service_provider->fonts().get(FontId::Default), ui::AbsoluteLayout {
-            50, 50
-        }
+        fmt::format(
+            "Pause ({}: continue, {}: quit)",
+            utils::action_description(utils::CrossPlatformAction::UNPAUSE),
+            utils::action_description(utils::CrossPlatformAction::EXIT)
+        ),
+        Color::white(),
+        service_provider->fonts().get(FontId::Default),
+        ui::AbsoluteLayout { 50, 50 }
     }
     { }
 

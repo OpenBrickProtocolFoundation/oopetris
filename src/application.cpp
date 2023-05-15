@@ -34,7 +34,7 @@ void Application::run() {
     while (m_is_running
 #if defined(__SWITCH__)
            // see https://switchbrew.github.io/libnx/applet_8h.html#a7ed640e5f4a81ed3960c763fdc1521c5
-           // this checks for some other reasons why this app should quit, its switch sepcific
+           // this checks for some other reasons why this app should quit, its switch specific
            && appletMainLoop()
 #endif
 

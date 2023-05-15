@@ -3,6 +3,7 @@
 
 #include <SDL.h>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <vector>
 
@@ -21,7 +22,7 @@
 #undef DEVICE_SUPPORTS_KEYS
 
 
-and then in usage inst6ead of 
+and then in usage instead of
 if (utils::device_supports_touch())
 
 #if defined(DEVICE_SUPPORTS_TOUCH)
@@ -86,14 +87,13 @@ namespace utils {
         return get_capabilities().supports_touch;
     }
 
-
     [[nodiscard]] constexpr bool device_supports_keys() {
         return get_capabilities().supports_keys;
     }
 
     [[nodiscard]] bool event_is_action(const SDL_Event& event, CrossPlatformAction action);
 
-    [[nodiscard]] inline std::string action_description(CrossPlatformAction action) {
+    [[nodiscard]] constexpr std::string_view action_description(CrossPlatformAction action) {
 #if defined(__ANDROID__)
         switch (action) {
             case CrossPlatformAction::OK:
@@ -116,7 +116,6 @@ namespace utils {
             case CrossPlatformAction::OK:
                 return "A";
             case CrossPlatformAction::PAUSE:
-                return "PLUS";
             case CrossPlatformAction::UNPAUSE:
                 return "PLUS";
             case CrossPlatformAction::EXIT:
@@ -135,7 +134,6 @@ namespace utils {
             case CrossPlatformAction::PAUSE:
                 return "ESC";
             case CrossPlatformAction::UNPAUSE:
-                return "Return";
             case CrossPlatformAction::EXIT:
                 return "Return";
             case CrossPlatformAction::DOWN:

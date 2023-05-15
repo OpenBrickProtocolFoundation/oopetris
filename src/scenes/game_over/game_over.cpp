@@ -3,6 +3,7 @@
 #include "../../music_manager.hpp"
 #include "../../renderer.hpp"
 #include "../../resource_manager.hpp"
+#include <fmt/format.h>
 
 namespace scenes {
 
@@ -25,7 +26,9 @@ namespace scenes {
         service_provider.renderer().draw_rect_filled(service_provider.window().screen_rect(), Color::black(180));
         service_provider.renderer().draw_text(
                 Point{ 100, 100 },
-                "Game Over, Press " + utils::action_description(utils::CrossPlatformAction::EXIT) + " to continue",
+                fmt::format(
+                        "Game Over, Press {} to continue", utils::action_description(utils::CrossPlatformAction::EXIT)
+                ),
                 service_provider.fonts().get(FontId::Default), Color::white()
         );
     }

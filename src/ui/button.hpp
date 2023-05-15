@@ -53,13 +53,13 @@ namespace ui {
 
         bool handle_event(const SDL_Event& event) override {
 
-            // attention don't combine this without ifdefs, since a SDL_MOUSEBUTTONDOWN may contain event.which == SDL_TOUCH_MOUSEID wheach meands SDL made a mouse event up from a touch!
+            // attention don't combine this without ifdefs, since an SDL_MOUSEBUTTONDOWN may contain event.which == SDL_TOUCH_MOUSEID which means SDL made a mouse event up from a touch!
             if (event.type ==
 #if defined(__ANDROID__)
                 SDL_FINGERDOWN
 #else
                         SDL_MOUSEBUTTONDOWN
-                && event.button.button == SDL_BUTTON_LEFT
+                and event.button.button == SDL_BUTTON_LEFT
 #endif
             ) {
 #if defined(__ANDROID__)
@@ -82,7 +82,7 @@ namespace ui {
                 const auto rect_end_y = fill_area.bottom_right.y;
 
 
-                bool button_tapped = (x >= rect_start_x && x <= rect_end_x && y >= rect_start_y && y <= rect_end_y);
+                bool button_tapped = (x >= rect_start_x and x <= rect_end_x and y >= rect_start_y and y <= rect_end_y);
 
                 if (button_tapped) {
                     spdlog::info("button tapped");
