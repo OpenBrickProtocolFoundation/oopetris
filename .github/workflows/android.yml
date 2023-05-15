@@ -26,15 +26,15 @@ jobs:
 
       - name: Run all
         run: |
-          bash ./android/run.sh
-          cp -r ./assets/ android/project/app/src/main
+          bash ./platforms/build-android.sh
+          cp -r ./assets/ platforms/android/app/src/main
 
       - name: Build APK
         uses: sparkfabrik/android-build-action@v1.3.4
         with:
           build-type: assemble
           gradle-task: assembleDebug
-          project-path: android/project
+          project-path: platforms/android
           output-path: oopetris.apk
 
       - name: Upload artifacts

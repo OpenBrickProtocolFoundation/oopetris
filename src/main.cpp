@@ -2,12 +2,19 @@
 #include "command_line_arguments.hpp"
 #include "utils.hpp"
 #include <filesystem>
+
 #if defined(__ANDROID__)
 #include <spdlog/sinks/android_sink.h>
 #endif
+
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/rotating_file_sink.h>
 #include <spdlog/sinks/stdout_sinks.h>
+
+#if defined(__SWITCH__)
+#include <string.h>
+#include <switch.h>
+#endif
 
 int main(int argc, char** argv) {
     const auto logs_path = utils::get_root_folder() / "logs";
@@ -33,12 +40,24 @@ int main(int argc, char** argv) {
     spdlog::set_level(spdlog::level::err);
 #endif
 
+#if defined(__SWITCH__)
+    //The switch doesn't have a first argument, so we need to make one up xD
+    argc = 1;
+
+    const char* name = "oopetris";
+
+    argv = (char**) malloc(sizeof(void*));
+    argv[0] = (char*) malloc(strlen(name) + 1);
+    memcpy(argv[0], name, strlen(name) + 1);
+
+#endif
+
+#if defined(__ANDROID__) or defined(__SWITCH__)
+    Application app{ argc, argv, "OOPetris", WindowPosition::Centered };
+#else
     static constexpr int width = 1280;
     static constexpr int height = 720;
 
-#if defined(__ANDROID__)
-    Application app{ argc, argv, "OOPetris", WindowPosition::Centered };
-#else
     Application app{ argc, argv, "OOPetris", WindowPosition::Centered, width, height };
 #endif
 

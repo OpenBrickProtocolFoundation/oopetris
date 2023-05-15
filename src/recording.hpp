@@ -102,7 +102,7 @@ public:
                 }
                 m_records.push_back(*record);
             } else if (*magic_byte == utils::to_underlying(MagicByte::Snapshot)) {
-                auto snapshot = TetrionSnapshot{ file }; // todo: handle exception
+                auto snapshot = TetrionSnapshot{ file }; // TODO: handle exception
                 m_snapshots.push_back(std::move(snapshot));
             } else {
                 spdlog::error("invalid magic byte: {}", static_cast<int>(*magic_byte));
@@ -200,7 +200,7 @@ private:
         return Record{
             .tetrion_index = *tetrion_index,
             .simulation_step_index = *simulation_step_index,
-            .event = static_cast<InputEvent>(*event), // todo: validation
+            .event = static_cast<InputEvent>(*event), // TODO: validation
         };
     }
 };

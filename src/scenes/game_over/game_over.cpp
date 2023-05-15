@@ -1,7 +1,9 @@
 #include "game_over.hpp"
+#include "../../capabilities.hpp"
 #include "../../music_manager.hpp"
 #include "../../renderer.hpp"
 #include "../../resource_manager.hpp"
+#include <fmt/format.h>
 
 namespace scenes {
 
@@ -23,14 +25,16 @@ namespace scenes {
     void GameOver::render(const ServiceProvider& service_provider) {
         service_provider.renderer().draw_rect_filled(service_provider.window().screen_rect(), Color::black(180));
         service_provider.renderer().draw_text(
-                Point{ 100, 100 }, "Game Over, Press Return to continue", service_provider.fonts().get(FontId::Default),
-                Color::white()
+                Point{ 100, 100 },
+                fmt::format(
+                        "Game Over, Press {} to continue", utils::action_description(utils::CrossPlatformAction::EXIT)
+                ),
+                service_provider.fonts().get(FontId::Default), Color::white()
         );
     }
 
     bool GameOver::handle_event(const SDL_Event& event) {
-        // TODO: handle every possible method of pressing enter, e.g. pressing somewhere on the screen on android etc.
-        if (event.type == SDL_KEYDOWN and event.key.keysym.sym == SDLK_RETURN) {
+        if (utils::event_is_action(event, utils::CrossPlatformAction::EXIT)) {
             m_should_exit = true;
             return true;
         }

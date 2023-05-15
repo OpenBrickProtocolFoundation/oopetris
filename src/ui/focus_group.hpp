@@ -1,12 +1,15 @@
 #pragma once
-#include "../rect.hpp"
-#include "../types.hpp"
-#include "focusable.hpp"
-#include "widget.hpp"
+
 #include <algorithm>
 #include <memory>
 #include <tl/optional.hpp>
 #include <vector>
+
+#include "../capabilities.hpp"
+#include "../rect.hpp"
+#include "../types.hpp"
+#include "focusable.hpp"
+#include "widget.hpp"
 
 namespace ui {
 
@@ -31,14 +34,15 @@ namespace ui {
 
         bool handle_event(const SDL_Event& event) override {
             auto handled = false;
-            if (event.type == SDL_KEYDOWN) {
-                switch (event.key.keysym.sym) {
-                    case SDLK_DOWN:
-                        handled = try_set_next_focus(FocusChangeDirection::Forward);
-                        break;
-                    case SDLK_UP:
-                        handled = try_set_next_focus(FocusChangeDirection::Backward);
-                        break;
+            //TODO: focus is not representable in touch devices, so what to do?
+
+            // TODO support hover over via checking if it's hovered over a subwidget (how to deal with overlaps??) each subwidgets needs to return either a spanning rectangle or a method to check if a point is within it
+
+            if (utils::device_supports_keys()) {
+                if (utils::event_is_action(event, utils::CrossPlatformAction::DOWN)) {
+                    handled = try_set_next_focus(FocusChangeDirection::Forward);
+                } else if (utils::event_is_action(event, utils::CrossPlatformAction::UP)) {
+                    handled = try_set_next_focus(FocusChangeDirection::Backward);
                 }
             }
 

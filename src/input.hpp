@@ -129,3 +129,21 @@ private:
     [[nodiscard]] tl::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event);
 };
 #endif
+
+#if defined(__SWITCH__)
+struct JoystickInput : public Input, public EventListener {
+private:
+    std::vector<SDL_Event> m_event_buffer;
+
+public:
+    JoystickInput(Tetrion* target_tetrion, OnEventCallback on_event_callback = OnEventCallback{})
+        : Input{ target_tetrion, std::move(on_event_callback) } { }
+
+    void handle_event(const SDL_Event& event) override;
+
+    void update(SimulationStep simulation_step_index) override;
+
+private:
+    [[nodiscard]] tl::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event) const;
+};
+#endif

@@ -1,5 +1,12 @@
 #include "ingame.hpp"
+#include "../../capabilities.hpp"
+#include "../../event_dispatcher.hpp"
 #include "../scene.hpp"
+
+#if defined(__SWITCH__)
+#include "../../switch_buttons.hpp"
+#endif
+
 
 namespace scenes {
 
@@ -65,9 +72,16 @@ namespace scenes {
                                 [[maybe_unused]] KeyboardControls& keyboard_controls
                         ) mutable -> std::unique_ptr<Input> {
 #if defined(__ANDROID__)
-                            // todo: implement that the TouchInput also registers itself at the EventDispatcher
-                            //  (just like KeyboardInput)
                             auto input = std::make_unique<TouchInput>(associated_tetrion, std::move(on_event_callback));
+                            // TODO: implement that the TouchInput also registers itself at the EventDispatcher
+                            //  (just like KeyboardInput)
+                            m_service_provider->event_dispatcher().register_listener(input.get());
+#elif defined(__SWITCH__)
+                            auto input =
+                                    std::make_unique<JoystickInput>(associated_tetrion, std::move(on_event_callback));
+                            // TODO: implement that the JoystickInput also registers itself at the EventDispatcher
+                            //  (just like KeyboardInput)
+                            m_service_provider->event_dispatcher().register_listener(input.get());
 #else
                             auto input = std::make_unique<KeyboardInput>(
                                     associated_tetrion, keyboard_controls, &(m_service_provider->event_dispatcher()),
@@ -223,7 +237,8 @@ namespace scenes {
     }
 
     [[nodiscard]] bool Ingame::handle_event(const SDL_Event& event) {
-        if (event.type == SDL_KEYDOWN and event.key.keysym.sym == SDLK_ESCAPE) {
+
+        if (utils::event_is_action(event, utils::CrossPlatformAction::PAUSE)) {
             m_should_pause = true;
             return true;
         }

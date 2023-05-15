@@ -70,7 +70,8 @@ tl::optional<std::string> MusicManager::load_and_play_music(const std::filesyste
 
     Mix_Music* music = Mix_LoadMUS(location.string().c_str());
     if (music == nullptr) {
-        return ("an error occurred while trying to load the music: " + std::string{ Mix_GetError() });
+        return ("an error occurred while trying to load the music '" + location.string()
+                + "': " + std::string{ Mix_GetError() });
     }
 
     if (m_queued_music != nullptr) {
@@ -114,8 +115,6 @@ tl::optional<std::string> MusicManager::load_and_play_music(const std::filesyste
 
     return tl::nullopt;
 }
-
-//TODO add speed modifier via Mix_RegisterEffect for music!
 
 tl::optional<std::string> MusicManager::load_effect(const std::string& name, std::filesystem::path& location) {
     if (not validate_instance()) {

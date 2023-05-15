@@ -1,17 +1,26 @@
 #include "pause.hpp"
+#include "../../capabilities.hpp"
 #include "../../renderer.hpp"
 #include "../../resource_manager.hpp"
+#include <fmt/format.h>
 
+
+#if defined(__SWITCH__)
+#include "../../switch_buttons.hpp"
+#endif
 namespace scenes {
 
-    Pause::Pause(ServiceProvider* service_provider)
-    : Scene{ service_provider },
-      m_heading{
-          "Pause (ESC: continue, Return: quit)",
-          Color::white(),
-          service_provider->fonts().get(FontId::Default),
-          ui::AbsoluteLayout{ 50, 50 }
-      } { }
+    Pause::Pause(ServiceProvider* service_provider) : Scene{ service_provider }, m_heading {
+        fmt::format(
+            "Pause ({}: continue, {}: quit)",
+            utils::action_description(utils::CrossPlatformAction::UNPAUSE),
+            utils::action_description(utils::CrossPlatformAction::EXIT)
+        ),
+        Color::white(),
+        service_provider->fonts().get(FontId::Default),
+        ui::AbsoluteLayout { 50, 50 }
+    }
+    { }
 
     [[nodiscard]] Scene::UpdateResult scenes::Pause::update() {
         if (m_should_unpause) {
@@ -29,16 +38,17 @@ namespace scenes {
     }
 
     [[nodiscard]] bool Pause::handle_event(const SDL_Event& event) {
-        if (event.type == SDL_KEYDOWN) {
-            switch (event.key.keysym.sym) {
-                case SDLK_ESCAPE:
-                    m_should_unpause = true;
-                    return true;
-                case SDLK_RETURN:
-                    m_should_exit = true;
-                    return true;
-            }
+
+        if (utils::event_is_action(event, utils::CrossPlatformAction::UNPAUSE)) {
+            m_should_unpause = true;
+            return true;
         }
+
+        if (utils::event_is_action(event, utils::CrossPlatformAction::EXIT)) {
+            m_should_exit = true;
+            return true;
+        }
+
         return false;
     }
 

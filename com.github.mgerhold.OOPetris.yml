@@ -22,7 +22,7 @@ modules:
           - build/
     post-install:
       - install -D oopetris /app/bin/oopetris
-      - bash ../android/flatpak-icon-helper.sh
+      - bash ../platforms/flatpak-icon-helper.sh
       - mkdir -p /app/share/applications/
       - cp ../assets/OOPetris.desktop /app/share/applications/com.github.mgerhold.OOPetris.desktop
     run-tests: true

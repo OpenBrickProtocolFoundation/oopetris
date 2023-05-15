@@ -2,6 +2,10 @@
 #include "scenes/scene.hpp"
 #include <fstream>
 
+#if defined(__SWITCH__)
+#include <switch.h>
+#endif
+
 Application::Application(
         int argc,
         char** argv,
@@ -27,7 +31,14 @@ Application::Application(int argc, char** argv, const std::string& title, Window
 
 void Application::run() {
     m_event_dispatcher.register_listener(this);
-    while (m_is_running) {
+    while (m_is_running
+#if defined(__SWITCH__)
+           // see https://switchbrew.github.io/libnx/applet_8h.html#a7ed640e5f4a81ed3960c763fdc1521c5
+           // this checks for some other reasons why this app should quit, its switch specific
+           and appletMainLoop()
+#endif
+
+    ) {
         m_event_dispatcher.dispatch_pending_events();
         update();
         render();
@@ -39,13 +50,6 @@ void Application::handle_event(const SDL_Event& event) {
     if (event.type == SDL_QUIT) {
         m_is_running = false;
     }
-
-#if defined(__ANDROID__)
-    if (event.type == SDL_KEYDOWN and event.key.keysym.sym == SDLK_AC_BACK) {
-        //TODO: also catch the resume event from the app (see SDLActivity.java)
-        // pause()
-    }
-#endif
 
     for (usize i = 0; i < m_scene_stack.size(); ++i) {
         const auto index = m_scene_stack.size() - i - 1;
@@ -74,12 +78,12 @@ void Application::update() {
                             },
                             [this](const scenes::Scene::Push& push) {
                                 spdlog::info("pushing back scene {}", magic_enum::enum_name(push.target_scene));
-                                m_scene_stack.push_back(scenes::create_scene(*this, push.target_scene));
+                                m_scene_stack.push_back(scenes::create_scene(*this, &m_window, push.target_scene));
                             },
                             [this](const scenes::Scene::Switch& switch_) {
                                 spdlog::info("switching to scene {}", magic_enum::enum_name(switch_.target_scene));
                                 m_scene_stack.clear();
-                                m_scene_stack.push_back(scenes::create_scene(*this, switch_.target_scene));
+                                m_scene_stack.push_back(scenes::create_scene(*this, &m_window, switch_.target_scene));
                             },
                             [this](const scenes::Scene::Exit&) { m_is_running = false; },
                     },
@@ -102,7 +106,7 @@ void Application::render() const {
 void Application::initialize() {
     try_load_settings();
     load_resources();
-    push_scene(scenes::create_scene(*this, SceneId::MainMenu));
+    push_scene(scenes::create_scene(*this, &m_window, SceneId::MainMenu));
 }
 
 void Application::try_load_settings() try {
@@ -122,7 +126,7 @@ void Application::load_resources() {
     constexpr auto font_size = 18;
 #endif
 
-    // todo: catch exception
+    // TODO: catch exception
     m_font_manager.load(FontId::Default, font_path, font_size);
 }
 
