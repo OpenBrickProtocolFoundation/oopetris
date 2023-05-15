@@ -99,12 +99,25 @@ deps += dependency(
     native: native,
     default_options: sdl2_mixer_flags,
 )
-deps += dependency(
+#if we use the installed version of spdlog (just a library) we dont have the fmtlib headers available, if we build it from source, we have
+spdlog_dep = dependency(
     'spdlog',
-    required: true,
+    required: false,
+    allow_fallback: false,
     native: native,
-    default_options: ['tests=false'],
 )
+if spdlog_dep.found()
+    deps += spdlog_dep
+    deps += dependency('fmt', required: true, native: native)
+else
+    spdlog_dep = dependency(
+        'spdlog',
+        required: false,
+        native: native,
+        default_options: ['tests=false'],
+    )
+endif
+
 deps += dependency('nlohmann_json', required: true, native: native)
 
 deps += dependency(
