@@ -56,6 +56,7 @@ namespace ui {
             // attention don't combine this without ifdefs, since an SDL_MOUSEBUTTONDOWN may contain event.which == SDL_TOUCH_MOUSEID which means SDL made a mouse event up from a touch!
             if (event.type ==
 #if defined(__ANDROID__)
+                //TODO: catch the release even otherwise an assertion fails!
                 SDL_FINGERDOWN
 #else
                         SDL_MOUSEBUTTONDOWN
