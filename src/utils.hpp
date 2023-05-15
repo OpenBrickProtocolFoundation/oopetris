@@ -60,7 +60,7 @@ namespace utils {
     tl::optional<bool> log_error(const std::string& error);
 
     template<usize data_size>
-    inline constexpr auto get_supported_music_extension(const char (&name)[data_size]) {
+    constexpr auto get_supported_music_extension(const char (&name)[data_size]) {
 
 #if not defined(AUDIO_PREFER_MP3) and not defined(AUDIO_PREFER_FLAC)
 #define AUDIO_PREFER_FLAC
