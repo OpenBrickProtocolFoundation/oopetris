@@ -18,13 +18,13 @@
             utils::unreachable();
 
         case CrossPlatformAction::PAUSE:
-            return (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_AC_BACK);
+            return (event.type == SDL_KEYDOWN and event.key.keysym.sym == SDLK_AC_BACK);
 
         case CrossPlatformAction::UNPAUSE:
             return event.type == SDL_FINGERDOWN;
 
         case CrossPlatformAction::EXIT:
-            return (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_AC_BACK);
+            return (event.type == SDL_KEYDOWN and event.key.keysym.sym == SDLK_AC_BACK);
         case CrossPlatformAction::DOWN:
             // this can't be checked here, it has to be checked via collision on buttons etc. event_is_action(..., ...::DOWN) can only be used inside device_supports_keys() clauses!
             utils::unreachable();
