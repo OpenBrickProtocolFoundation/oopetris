@@ -3,7 +3,7 @@
 OOPetris backend
 
 
-ATM ONLY INTENDED TO RUN ON LINUX!
+ATM ONLY INTENDED TO RUN ON LINUX! (even if there's nothing that only would run on linux, but it's designed to run on a server, so linux is the best and only choice)
 
 backend using [oatpp](https://github.com/oatpp/oatpp)
 
