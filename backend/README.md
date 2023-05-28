@@ -21,6 +21,8 @@ meson compile -C build
 ```
 
 
+Note: this only listens to https and wss (secure websocket) so a proxy like e.g. nginx is required, to direct http and ws traffic to the secure sites!
+
 ### In Docker
 
 `WIP`

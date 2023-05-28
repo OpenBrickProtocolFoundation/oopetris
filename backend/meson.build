@@ -15,15 +15,35 @@ deps = []
 src_files = []
 inc_dirs = []
 
-deps += dependency('oatpp', version: '1.3.0')
+deps += dependency(
+    'oatpp',
+    version: '1.3.0',
+    default_options: ['tests=disabled'],
+)
+deps += dependency(
+    'oatpp-openssl',
+    version: '1.3.0',
+    default_options: ['tests=false'],
+)
+
+# TODO: add real keys, this has to be done using nginx and certbot or similar things
+flags = [
+    '-DCERT_PEM_PATH="' + (
+        meson.project_source_root() / 'cert' / 'test_key.pem'
+    ) + '"',
+    '-DCERT_CRT_PATH="' + (
+        meson.project_source_root() / 'cert' / 'test_cert.crt'
+    ) + '"',
+]
 
 subdir('src')
 
 
 executable(
-    'oopetris-backend',
+    'oopetris_backend',
     src_files,
     include_directories: inc_dirs,
+    cpp_args: flags,
     dependencies: deps,
     override_options: ['warning_level=3', 'werror=false'],
 )

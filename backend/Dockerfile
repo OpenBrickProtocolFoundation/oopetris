@@ -1,16 +1,15 @@
-FROM lganzzzo/alpine-cmake:latest
+FROM  python:3.11
 
 ADD . /service
 
-WORKDIR /service/utility
+WORKDIR /service
 
-RUN ./install-oatpp-modules.sh
+RUN pip install -U meson ninja
 
-WORKDIR /service/build
+RUN meson setup build
 
-RUN cmake ..
-RUN make
+RUN meson compile -C build
 
 EXPOSE 8000 8000
 
-ENTRYPOINT ["./my-project-exe"]
+ENTRYPOINT ["./build/oopetris_backend"]
