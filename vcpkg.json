@@ -48,6 +48,11 @@
       "name": "tl-expected",
       "version>=": "2022-11-24",
       "platform": "(x64 & static)"
+    },
+    {
+      "name": "websocketpp",
+      "version>=": "0.8.2#2",
+      "platform": "(x64 & static)"
     }
   ]
 }
