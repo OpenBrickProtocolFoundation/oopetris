@@ -55,9 +55,10 @@ private:
     MinoStack m_mino_stack;
     tl::optional<Tetromino> m_active_tetromino;
     tl::optional<Tetromino> m_ghost_tetromino;
-    std::array<tl::optional<Tetromino>, num_preview_tetrominos> m_preview_tetrominos;
+    std::array<tl::optional<Tetromino>, num_preview_tetrominos> m_preview_tetrominos{};
     tl::optional<Tetromino> m_tetromino_on_hold;
     int m_level = 0; // TODO: change into u32
+    bool m_is_accelerated_down_movement;
     u64 m_next_gravity_simulation_step_index;
     int m_lines_cleared = 0; // TODO: change into u32
     GameState m_game_state = GameState::Playing;
@@ -68,7 +69,6 @@ private:
     Text m_level_text;
     Text m_cleared_lines_text;
     bool m_down_key_pressed = false;
-    bool m_is_accelerated_down_movement = false;
     tl::optional<RecordingWriter*> m_recording_writer;
     bool m_allowed_to_hold = true;
     u64 m_lock_delay_step_index;
