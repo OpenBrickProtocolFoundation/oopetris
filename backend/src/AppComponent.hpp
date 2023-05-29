@@ -3,11 +3,13 @@
 #include <oatpp-openssl/Config.hpp>
 #include <oatpp-openssl/client/ConnectionProvider.hpp>
 #include <oatpp-openssl/server/ConnectionProvider.hpp>
+#include <oatpp-zlib/EncoderProvider.hpp>
 #include <oatpp/core/macro/component.hpp>
 #include <oatpp/network/tcp/client/ConnectionProvider.hpp>
 #include <oatpp/network/tcp/server/ConnectionProvider.hpp>
 #include <oatpp/parser/json/mapping/ObjectMapper.hpp>
 #include <oatpp/web/client/HttpRequestExecutor.hpp>
+#include <oatpp/web/protocol/http/incoming/SimpleBodyDecoder.hpp>
 #include <oatpp/web/server/AsyncHttpConnectionHandler.hpp>
 #include <oatpp/web/server/HttpRouter.hpp>
 
@@ -52,8 +54,31 @@ public:
     OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::ConnectionHandler>, serverConnectionHandler)
     ([] {
         OATPP_COMPONENT(std::shared_ptr<oatpp::web::server::HttpRouter>, router); // get Router component
+
+        /* Create HttpProcessor::Components */
+        auto components = std::make_shared<oatpp::web::server::HttpProcessor::Components>(router);
+
+        /* Add content decoders */
+        auto decoders = std::make_shared<oatpp::web::protocol::http::encoding::ProviderCollection>();
+
+        decoders->add(std::make_shared<oatpp::zlib::DeflateDecoderProvider>());
+        decoders->add(std::make_shared<oatpp::zlib::GzipDecoderProvider>());
+
+        /* Set Body Decoder */
+        components->bodyDecoder = std::make_shared<oatpp::web::protocol::http::incoming::SimpleBodyDecoder>(decoders);
+
+        /* Add content encoders */
+        auto encoders = std::make_shared<oatpp::web::protocol::http::encoding::ProviderCollection>();
+
+        encoders->add(std::make_shared<oatpp::zlib::DeflateEncoderProvider>());
+        encoders->add(std::make_shared<oatpp::zlib::GzipEncoderProvider>());
+
+        /* Set content encoders */
+        components->contentEncodingProviders = encoders;
+
+
         /* Async ConnectionHandler for Async IO and Coroutine based endpoints */
-        return oatpp::web::server::AsyncHttpConnectionHandler::createShared(router);
+        return std::make_shared<oatpp::web::server::AsyncHttpConnectionHandler>(components);
     }());
 
     /**
