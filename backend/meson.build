@@ -25,6 +25,21 @@ deps += dependency(
     version: '1.3.0',
     default_options: ['tests=false'],
 )
+deps += dependency(
+    'oatpp-websocket',
+    version: '1.3.0',
+    default_options: ['tests=false'],
+)
+deps += dependency(
+    'oatpp-zlib',
+    version: '1.3.0',
+    default_options: ['tests=false'],
+)
+# deps += dependency(
+#     'oatpp-postgresql',
+#     version: '1.3.0',
+#     default_options: ['tests=false'],
+# )
 
 # TODO: add real keys, this has to be done using nginx and certbot or similar things
 flags = [
