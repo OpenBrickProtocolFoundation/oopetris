@@ -1,25 +1,17 @@
+#pragma once
 
-#ifndef AppComponent_hpp
-#define AppComponent_hpp
+#include <oatpp-openssl/Config.hpp>
+#include <oatpp-openssl/client/ConnectionProvider.hpp>
+#include <oatpp-openssl/server/ConnectionProvider.hpp>
+#include <oatpp/core/macro/component.hpp>
+#include <oatpp/network/tcp/client/ConnectionProvider.hpp>
+#include <oatpp/network/tcp/server/ConnectionProvider.hpp>
+#include <oatpp/parser/json/mapping/ObjectMapper.hpp>
+#include <oatpp/web/client/HttpRequestExecutor.hpp>
+#include <oatpp/web/server/AsyncHttpConnectionHandler.hpp>
+#include <oatpp/web/server/HttpRouter.hpp>
 
-#include "client/MyApiClient.hpp"
-
-#include "oatpp-openssl/Config.hpp"
-#include "oatpp-openssl/client/ConnectionProvider.hpp"
-#include "oatpp-openssl/server/ConnectionProvider.hpp"
-
-#include "oatpp/web/client/HttpRequestExecutor.hpp"
-
-#include "oatpp/web/server/AsyncHttpConnectionHandler.hpp"
-#include "oatpp/web/server/HttpRouter.hpp"
-
-#include "oatpp/network/tcp/client/ConnectionProvider.hpp"
-#include "oatpp/network/tcp/server/ConnectionProvider.hpp"
-
-#include "oatpp/parser/json/mapping/ObjectMapper.hpp"
-
-#include "oatpp/core/macro/component.hpp"
-
+#include "client/ApiClient.hpp"
 /**
  *  Class which creates and holds Application components and registers components in oatpp::base::Environment
  *  Order of components initialization is from top to bottom
@@ -96,5 +88,3 @@ public:
         return MyApiClient::createShared(requestExecutor, objectMapper);
     }());
 };
-
-#endif /* AppComponent_hpp */

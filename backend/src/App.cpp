@@ -1,11 +1,12 @@
 
-#include "./AppComponent.hpp"
-#include "./controller/MyController.hpp"
-
-#include "oatpp/network/Server.hpp"
-
 #include <csignal>
 #include <iostream>
+#include <oatpp/network/Server.hpp>
+
+
+#include "AppComponent.hpp"
+#include "controller/Controller.hpp"
+
 
 /**
  *  run() method.

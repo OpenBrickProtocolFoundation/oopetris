@@ -1,15 +1,13 @@
+#pragma once
 
-#ifndef MyController_hpp
-#define MyController_hpp
 
-#include "../client/MyApiClient.hpp"
+#include <oatpp/core/macro/codegen.hpp>
+#include <oatpp/core/macro/component.hpp>
+#include <oatpp/web/client/RequestExecutor.hpp>
+#include <oatpp/web/server/api/ApiController.hpp>
+
+#include "../client/ApiClient.hpp"
 #include "../dto/DTOs.hpp"
-
-#include "oatpp/core/macro/codegen.hpp"
-#include "oatpp/core/macro/component.hpp"
-#include "oatpp/web/client/RequestExecutor.hpp"
-#include "oatpp/web/server/api/ApiController.hpp"
-
 
 #include OATPP_CODEGEN_BEGIN(ApiController) //<--- Begin codegen
 
@@ -117,5 +115,3 @@ Action returnResult(const oatpp::String& body) {
 ;
 
 #include OATPP_CODEGEN_END(ApiController) //<--- End codegen
-
-#endif /* MyController_hpp */

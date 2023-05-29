@@ -1,1 +1,1 @@
-src_files += files('MyApiClient.hpp')
+src_files += files('ApiClient.hpp')
