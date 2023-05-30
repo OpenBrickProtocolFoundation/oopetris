@@ -3,12 +3,11 @@ directory = oatpp-1.3.0
 source_url = https://github.com/oatpp/oatpp/archive/refs/tags/1.3.0.tar.gz
 source_filename = oatpp-1.3.0.tar.gz
 source_hash = e1f80fa8fd7a74da6737e7fee1a4db68b4d7085a3f40e7d550752d6ff5714583
-patch_filename = oatpp_1.3.0-1_patch.zip
-patch_url = https://wrapdb.mesonbuild.com/v2/oatpp_1.3.0-1/get_patch
-patch_hash = 1e4d0af87ee00176688352cd24091d533470dd0676a52c2de960d12e0efc9e5b
-source_fallback_url = https://github.com/mesonbuild/wrapdb/releases/download/oatpp_1.3.0-1/oatpp-1.3.0.tar.gz
-wrapdb_version = 1.3.0-1
-# TODO update
+patch_filename = oatpp_1.3.0-2_patch.zip
+patch_url = https://wrapdb.mesonbuild.com/v2/oatpp_1.3.0-2/get_patch
+patch_hash = 466c73af4a8b6f6a0dffa0a451be394a6adf416177eb5fbb2900ca3d96586c13
+source_fallback_url = https://github.com/mesonbuild/wrapdb/releases/download/oatpp_1.3.0-2/oatpp-1.3.0.tar.gz
+wrapdb_version = 1.3.0-2
 
 [provide]
 oatpp = oatpp_dep

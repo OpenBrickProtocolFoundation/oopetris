@@ -4,7 +4,7 @@ source_url = https://github.com/mariusbancila/stduuid/archive/refs/tags/v1.2.3.t
 source_filename = stduuid-1.2.3.tar.gz
 source_hash = b1176597e789531c38481acbbed2a6894ad419aab0979c10410d59eb0ebf40d3
 patch_directory = stduuid
-# TODO: when the PR https://github.com/mesonbuild/wrapdb/pull/ ? is merged, replace it with that wrap file
+# TODO: when the PR https://github.com/mesonbuild/wrapdb/pull/1043 is merged, replace it with that wrap file
 
 [provide]
 stduuid = stduuid_dep
