@@ -5,7 +5,6 @@
 #include <oatpp/parser/json/mapping/ObjectMapper.hpp>
 #include <oatpp/web/server/api/ApiController.hpp>
 
-#include "../client/ApiClient.hpp"
 #include "../dto/DTOs.hpp"
 
 #include OATPP_CODEGEN_BEGIN(ApiController) //<- Begin Codegen
@@ -13,9 +12,6 @@
 class StaticController : public oatpp::web::server::api::ApiController {
 protected:
     typedef StaticController __ControllerType;
-
-public:
-    OATPP_COMPONENT(std::shared_ptr<ApiClient>, apiClient);
 
 protected:
     StaticController(const std::shared_ptr<ObjectMapper>& objectMapper)
@@ -102,23 +98,6 @@ ENDPOINT_ASYNC("GET", "/body/dto", EchoDtoBody){
 
 Action returnResponse(const oatpp::Object<MessageDto>& body) {
     return _return(controller->createDtoResponse(Status::CODE_200, body));
-}
-}
-;
-
-ENDPOINT_ASYNC("GET", "/api/get", TestApiGet){
-
-    ENDPOINT_ASYNC_INIT(TestApiGet)
-
-            Action act() override{ return controller->apiClient->apiGetAsync().callbackTo(&TestApiGet::onResponse);
-}
-
-Action onResponse(const std::shared_ptr<IncomingResponse>& response) {
-    return response->readBodyToStringAsync().callbackTo(&TestApiGet::returnResult);
-}
-
-Action returnResult(const oatpp::String& body) {
-    return _return(controller->createResponse(Status::CODE_200, body));
 }
 }
 ;

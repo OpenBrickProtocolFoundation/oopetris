@@ -9,7 +9,6 @@ src_files += files(
 
 inc_dirs += include_directories('.')
 
-subdir('client')
 subdir('controller')
 subdir('db')
 subdir('dto')

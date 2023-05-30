@@ -16,7 +16,6 @@
 #include "DatabaseComponent.hpp"
 #include "ErrorHandler.hpp"
 #include "SwaggerComponent.hpp"
-#include "client/ApiClient.hpp"
 
 
 /**
@@ -119,22 +118,4 @@ public:
         return connectionHandler;
     }());
 
-    OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::ClientConnectionProvider>, sslClientConnectionProvider)
-    ("clientConnectionProvider", [] {
-        auto config = oatpp::openssl::Config::createShared();
-        // tls_config_insecure_noverifycert(config->getTLSConfig());
-        // tls_config_insecure_noverifyname(config->getTLSConfig());
-        return oatpp::openssl::client::ConnectionProvider::createShared(config, { "httpbin.org", 443 });
-    }());
-
-    OATPP_CREATE_COMPONENT(std::shared_ptr<ApiClient>, apiClient)
-    ([] {
-        OATPP_COMPONENT(
-                std::shared_ptr<oatpp::network::ClientConnectionProvider>, connectionProvider,
-                "clientConnectionProvider"
-        );
-        OATPP_COMPONENT(std::shared_ptr<oatpp::data::mapping::ObjectMapper>, objectMapper);
-        auto requestExecutor = oatpp::web::client::HttpRequestExecutor::createShared(connectionProvider);
-        return ApiClient::createShared(requestExecutor, objectMapper);
-    }());
 };
