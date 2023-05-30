@@ -1,11 +1,12 @@
 
 #include <csignal>
 #include <iostream>
+#include <oatpp-swagger/Controller.hpp>
 #include <oatpp/network/Server.hpp>
 
-
 #include "AppComponent.hpp"
-#include "controller/Controller.hpp"
+#include "controller/StaticController.hpp"
+#include "controller/UserController.hpp"
 
 
 /**
@@ -18,15 +19,29 @@ void run() {
 
     AppComponent components; // Create scope Environment components
 
-    /* create ApiControllers and add endpoints to router */
-    auto router = components.httpRouter.getObject();
 
-    router->addController(MyController::createShared());
+    /* Get router component */
+    OATPP_COMPONENT(std::shared_ptr<oatpp::web::server::HttpRouter>, router);
+
+    oatpp::web::server::api::Endpoints docEndpoints;
+
+    docEndpoints.append(router->addController(UserController::createShared())->getEndpoints());
+
+    docEndpoints.append(router->addController(UserController::createShared())->getEndpoints());
+
+    router->addController(oatpp::swagger::Controller::createShared(docEndpoints));
+    router->addController(StaticController::createShared());
+
+
+    /* Get connection handler component */
+    OATPP_COMPONENT(std::shared_ptr<oatpp::network::ConnectionHandler>, connectionHandler);
+
+    /* Get connection provider component */
+    OATPP_COMPONENT(std::shared_ptr<oatpp::network::ServerConnectionProvider>, connectionProvider);
 
     /* create server */
-    oatpp::network::Server server(
-            components.serverConnectionProvider.getObject(), components.serverConnectionHandler.getObject()
-    );
+    oatpp::network::Server server(connectionProvider, connectionHandler);
+
 
     OATPP_LOGD(
             "Server", "Running on port %s...",
@@ -34,6 +49,10 @@ void run() {
     );
 
     server.run();
+
+    /* stop db connection pool */
+    OATPP_COMPONENT(std::shared_ptr<oatpp::provider::Provider<oatpp::sqlite::Connection>>, dbConnectionProvider);
+    dbConnectionProvider->stop();
 }
 
 /**

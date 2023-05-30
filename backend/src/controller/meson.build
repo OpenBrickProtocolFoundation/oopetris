@@ -1,4 +1,4 @@
 src_files += files(
-    'Controller.cpp',
-    'Controller.hpp',
+    'StaticController.hpp',
+    'UserController.hpp',
 )

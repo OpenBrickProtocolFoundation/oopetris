@@ -10,16 +10,32 @@
 #include <oatpp/parser/json/mapping/ObjectMapper.hpp>
 #include <oatpp/web/client/HttpRequestExecutor.hpp>
 #include <oatpp/web/protocol/http/incoming/SimpleBodyDecoder.hpp>
-#include <oatpp/web/server/AsyncHttpConnectionHandler.hpp>
+#include <oatpp/web/server/HttpConnectionHandler.hpp>
 #include <oatpp/web/server/HttpRouter.hpp>
 
+#include "DatabaseComponent.hpp"
+#include "ErrorHandler.hpp"
+#include "SwaggerComponent.hpp"
 #include "client/ApiClient.hpp"
+
+
 /**
  *  Class which creates and holds Application components and registers components in oatpp::base::Environment
  *  Order of components initialization is from top to bottom
  */
 class AppComponent {
 public:
+    /**
+   *  Swagger component
+   */
+    SwaggerComponent swaggerComponent;
+
+    /**
+   * Database component
+   */
+    DatabaseComponent databaseComponent;
+
+
     /**
    *  Create ConnectionProvider component which listens on the port
    */
@@ -49,11 +65,32 @@ public:
     ([] { return oatpp::web::server::HttpRouter::createShared(); }());
 
     /**
+   *  Create ObjectMapper component to serialize/deserialize DTOs in Contoller's API and to serialize/deserialize DTOs in Controller's API
+   */
+    OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::data::mapping::ObjectMapper>, apiObjectMapper)
+    ([] {
+        auto serializerConfig = oatpp::parser::json::mapping::Serializer::Config::createShared();
+        auto deserializerConfig = oatpp::parser::json::mapping::Deserializer::Config::createShared();
+        deserializerConfig->allowUnknownFields = false;
+        auto objectMapper =
+                oatpp::parser::json::mapping::ObjectMapper::createShared(serializerConfig, deserializerConfig);
+
+
+        return objectMapper;
+    }());
+
+
+    /**
    *  Create ConnectionHandler component which uses Router component to route requests
    */
     OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::ConnectionHandler>, serverConnectionHandler)
     ([] {
         OATPP_COMPONENT(std::shared_ptr<oatpp::web::server::HttpRouter>, router); // get Router component
+
+        OATPP_COMPONENT(
+                std::shared_ptr<oatpp::data::mapping::ObjectMapper>, objectMapper
+        ); // get ObjectMapper component
+
 
         /* Create HttpProcessor::Components */
         auto components = std::make_shared<oatpp::web::server::HttpProcessor::Components>(router);
@@ -77,21 +114,9 @@ public:
         components->contentEncodingProviders = encoders;
 
 
-        /* Async ConnectionHandler for Async IO and Coroutine based endpoints */
-        return std::make_shared<oatpp::web::server::AsyncHttpConnectionHandler>(components);
-    }());
-
-    /**
-   *  Create ObjectMapper component to serialize/deserialize DTOs in Contoller's API
-   */
-    OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::data::mapping::ObjectMapper>, apiObjectMapper)
-    ([] {
-        auto serializerConfig = oatpp::parser::json::mapping::Serializer::Config::createShared();
-        auto deserializerConfig = oatpp::parser::json::mapping::Deserializer::Config::createShared();
-        deserializerConfig->allowUnknownFields = false;
-        auto objectMapper =
-                oatpp::parser::json::mapping::ObjectMapper::createShared(serializerConfig, deserializerConfig);
-        return objectMapper;
+        auto connectionHandler = std::make_shared<oatpp::web::server::HttpConnectionHandler>(components);
+        connectionHandler->setErrorHandler(std::make_shared<ErrorHandler>(objectMapper));
+        return connectionHandler;
     }());
 
     OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::ClientConnectionProvider>, sslClientConnectionProvider)
@@ -102,7 +127,7 @@ public:
         return oatpp::openssl::client::ConnectionProvider::createShared(config, { "httpbin.org", 443 });
     }());
 
-    OATPP_CREATE_COMPONENT(std::shared_ptr<MyApiClient>, myApiClient)
+    OATPP_CREATE_COMPONENT(std::shared_ptr<ApiClient>, apiClient)
     ([] {
         OATPP_COMPONENT(
                 std::shared_ptr<oatpp::network::ClientConnectionProvider>, connectionProvider,
@@ -110,6 +135,6 @@ public:
         );
         OATPP_COMPONENT(std::shared_ptr<oatpp::data::mapping::ObjectMapper>, objectMapper);
         auto requestExecutor = oatpp::web::client::HttpRequestExecutor::createShared(connectionProvider);
-        return MyApiClient::createShared(requestExecutor, objectMapper);
+        return ApiClient::createShared(requestExecutor, objectMapper);
     }());
 };

@@ -1,45 +1,56 @@
 #pragma once
 
-
 #include <oatpp/core/macro/codegen.hpp>
 #include <oatpp/core/macro/component.hpp>
-#include <oatpp/web/client/RequestExecutor.hpp>
+#include <oatpp/parser/json/mapping/ObjectMapper.hpp>
 #include <oatpp/web/server/api/ApiController.hpp>
 
 #include "../client/ApiClient.hpp"
 #include "../dto/DTOs.hpp"
 
-#include OATPP_CODEGEN_BEGIN(ApiController) //<--- Begin codegen
+#include OATPP_CODEGEN_BEGIN(ApiController) //<- Begin Codegen
 
-/**
- *  EXAMPLE ApiController
- *  Basic examples of howto create ENDPOINTs
- *  More details on oatpp.io
- */
-class MyController : public oatpp::web::server::api::ApiController {
+class StaticController : public oatpp::web::server::api::ApiController {
 protected:
-    typedef MyController __ControllerType;
+    typedef StaticController __ControllerType;
 
 public:
-    OATPP_COMPONENT(std::shared_ptr<MyApiClient>, myApiClient);
+    OATPP_COMPONENT(std::shared_ptr<ApiClient>, apiClient);
 
 protected:
-    MyController(const std::shared_ptr<ObjectMapper>& objectMapper)
+    StaticController(const std::shared_ptr<ObjectMapper>& objectMapper)
         : oatpp::web::server::api::ApiController(objectMapper) { }
 
 public:
-    /**
-   *  Inject @objectMapper component here as default parameter
-   *  Do not return bare Controllable* object! use shared_ptr!
-   */
-    static std::shared_ptr<MyController> createShared(OATPP_COMPONENT(std::shared_ptr<ObjectMapper>, objectMapper)) {
-        return std::shared_ptr<MyController>(new MyController(objectMapper));
+    static std::shared_ptr<StaticController> createShared(OATPP_COMPONENT(
+            std::shared_ptr<ObjectMapper>,
+            objectMapper
+    ) // Inject objectMapper component here as default parameter
+    ) {
+        return std::shared_ptr<StaticController>(new StaticController(objectMapper));
     }
+
+    ENDPOINT("GET", "/", root) {
+        const char* html =
+                "<html lang='en'>"
+                "  <head>"
+                "    <meta charset=utf-8/>"
+                "  </head>"
+                "  <body>"
+                "    <p>Hello CRUD example project!</p>"
+                "    <a href='swagger/ui'>Checkout Swagger-UI page</a>"
+                "  </body>"
+                "</html>";
+        auto response = createResponse(Status::CODE_200, html);
+        response->putHeader(Header::CONTENT_TYPE, "text/html");
+        return response;
+    }
+
 
     /**
    *  Hello World endpoint Coroutine mapped to the "/" (root)
    */
-    ENDPOINT_ASYNC("GET", "/", Root){
+    ENDPOINT_ASYNC("GET", "/async", Root){
 
         ENDPOINT_ASYNC_INIT(Root)
 
@@ -99,7 +110,7 @@ ENDPOINT_ASYNC("GET", "/api/get", TestApiGet){
 
     ENDPOINT_ASYNC_INIT(TestApiGet)
 
-            Action act() override{ return controller->myApiClient->apiGetAsync().callbackTo(&TestApiGet::onResponse);
+            Action act() override{ return controller->apiClient->apiGetAsync().callbackTo(&TestApiGet::onResponse);
 }
 
 Action onResponse(const std::shared_ptr<IncomingResponse>& response) {
@@ -114,4 +125,4 @@ Action returnResult(const oatpp::String& body) {
 }
 ;
 
-#include OATPP_CODEGEN_END(ApiController) //<--- End codegen
+#include OATPP_CODEGEN_END(ApiController) //<- End Codegen

@@ -35,11 +35,16 @@ deps += dependency(
     version: '1.3.0',
     default_options: ['tests=false'],
 )
-# deps += dependency(
-#     'oatpp-postgresql',
-#     version: '1.3.0',
-#     default_options: ['tests=false'],
-# )
+deps += dependency(
+    'oatpp-sqlite',
+    version: '1.3.0',
+    default_options: ['tests=false'],
+)
+deps += dependency(
+    'oatpp-swagger',
+    version: '1.3.0',
+    default_options: ['tests=false'],
+)
 
 # TODO: add real keys, this has to be done using nginx and certbot or similar things
 flags = [
@@ -49,7 +54,11 @@ flags = [
     '-DCERT_CRT_PATH="' + (
         meson.project_source_root() / 'cert' / 'test_cert.crt'
     ) + '"',
+    '-DDATABASE_FILE="' + (meson.project_source_root() / 'db.sqlite') + '"',
+    '-DDATABASE_MIGRATIONS="' + (meson.project_source_root() / 'sql') + '"',
 ]
+
+
 
 subdir('src')
 
