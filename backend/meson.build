@@ -46,6 +46,12 @@ deps += dependency(
     default_options: ['tests=false'],
 )
 
+deps += dependency(
+    'stduuid',
+    version: '1.2.3',
+    default_options: ['tests=false'],
+)
+
 # TODO: add real keys, this has to be done using nginx and certbot or similar things
 flags = [
     '-DCERT_PEM_PATH="' + (
