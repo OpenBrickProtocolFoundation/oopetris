@@ -17,28 +17,24 @@ oatpp_module_so_version = (
 
 flags = []
 
-
-cpp = meson.get_compiler('cpp')
-is_msvc_or_similar = cpp.get_id() == 'msvc' or cpp.get_id() == 'clang-cl'
-
-if is_msvc_or_similar
-    if get_option('msvc_link_static_runtime')
-        message('MSVC: using statically-linked runtime (/MT and /MTd).')
-        flags += '/MT'
-    else
-        message('MSVC: using dynamically-linked runtime (/MD and /MDd).')
-        flags += '/MD'
-    endif
-endif
-
-
 deps = []
 src_files = []
 inc_dirs = []
 
+install = get_option('install')
 
-deps += dependency('oatpp', version: '1.3.0', default_options: ['tests=false'])
-get_option('sqlite_amalgamation')
+override_options = []
+if get_option('shared_libs')
+    override_options += 'default_library=shared'
+else
+    override_options += 'default_library=static'
+endif
+
+deps += dependency(
+    'oatpp',
+    version: '1.3.0',
+    default_options: ['tests=disabled'],
+)
 
 # three possible states are represented here, if sqlite_amalgamation is auto, it's used as fallback, if' its enabled, it is enforced, if it's disabled it is forbidden
 if get_option('sqlite_amalgamation').enabled()
@@ -57,19 +53,16 @@ else
 endif
 
 
-
-
 subdir('src')
 
-
-# TODO: install isn't well tought out atm
 lib_oatpp_sqlite = library(
     'oatpp-sqlite',
     src_files,
     dependencies: deps,
     include_directories: inc_dirs,
     cpp_args: flags,
-    install: get_option('install'),
+    install: install,
+    override_options: override_options,
     soversion: oatpp_module_so_version,
     version: oatpp_module_version,
 )
