@@ -17,6 +17,10 @@
 #include "ErrorHandler.hpp"
 #include "SwaggerComponent.hpp"
 
+#ifndef LISTEN_PORT
+#define LISTEN_PORT 8443
+#endif
+
 
 /**
  *  Class which creates and holds Application components and registers components in oatpp::base::Environment
@@ -53,7 +57,7 @@ public:
      */
 
         return oatpp::openssl::server::ConnectionProvider::createShared(
-                config, { "0.0.0.0", 8443, oatpp::network::Address::IP_4 }
+                config, { "0.0.0.0", LISTEN_PORT, oatpp::network::Address::IP_4 }
         );
     }());
 
