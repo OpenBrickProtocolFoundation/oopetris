@@ -21,13 +21,8 @@ public:
         builder.setTitle("User entity service")
                 .setDescription("CRUD API Example project with swagger docs")
                 .setVersion("1.0")
-                .setContactName("Ivan Ovsyanochka")
-                .setContactUrl("https://oatpp.io/")
 
-                .setLicenseName("Apache License, Version 2.0")
-                .setLicenseUrl("http://www.apache.org/licenses/LICENSE-2.0")
-
-                .addServer("http://localhost:8000", "server on localhost");
+                .addServer(SWAGGER_SERVER_URL, "main Server");
 
         return builder.build();
     }());

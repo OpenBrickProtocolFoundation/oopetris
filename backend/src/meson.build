@@ -4,6 +4,8 @@ src_files += files(
     'DatabaseComponent.hpp',
     'ErrorHandler.cpp',
     'ErrorHandler.hpp',
+    'Helper.cpp',
+    'Helper.hpp',
     'SwaggerComponent.hpp',
 )
 

@@ -52,6 +52,10 @@ deps += dependency(
     default_options: ['tests=false'],
 )
 
+
+HOSTNAME = 'oopetris.totto.tk'
+PROTOCOL = 'https'
+
 # TODO: add real keys, this has to be done using nginx and certbot or similar things
 flags = [
     '-DCERT_PEM_PATH="' + (
@@ -64,7 +68,8 @@ flags = [
     '-DDATABASE_MIGRATIONS="' + (meson.project_source_root() / 'sql') + '"',
     '-DLISTEN_PORT=6767',
     '-DROOT_PATH="' + (meson.project_source_root() / 'frontend') + '"',
-    '-DHOSTNAME="oopetris.totto.tk"'
+    '-DHOSTNAME="'+HOSTNAME+'"',
+    '-DSWAGGER_SERVER_URL="'+PROTOCOL + '://'+HOSTNAME+'"'
 ]
 
 
