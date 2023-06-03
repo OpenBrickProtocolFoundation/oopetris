@@ -1,0 +1,3 @@
+[submodule "backend/frontend/error"]
+	path = backend/frontend/error
+	url = https://github.com/denysvitali/nginx-error-pages.git

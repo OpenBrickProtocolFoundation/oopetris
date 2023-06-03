@@ -1,11 +1,12 @@
 #pragma once
 
+#include "../dto/DTOs.hpp"
+#include <filesystem>
+#include <oatpp/core/data/mapping/type/Primitive.hpp>
 #include <oatpp/core/macro/codegen.hpp>
 #include <oatpp/core/macro/component.hpp>
 #include <oatpp/parser/json/mapping/ObjectMapper.hpp>
 #include <oatpp/web/server/api/ApiController.hpp>
-
-#include "../dto/DTOs.hpp"
 
 #include OATPP_CODEGEN_BEGIN(ApiController) //<- Begin Codegen
 
@@ -26,82 +27,50 @@ public:
         return std::shared_ptr<StaticController>(new StaticController(objectMapper));
     }
 
-    ENDPOINT("GET", "/", root) {
-        const char* html =
-                "<html lang='en'>"
-                "  <head>"
-                "    <meta charset=utf-8/>"
-                "  </head>"
-                "  <body>"
-                "    <p>Hello CRUD example project!</p>"
-                "    <a href='swagger/ui'>Checkout Swagger-UI page</a>"
-                "  </body>"
-                "</html>";
-        auto response = createResponse(Status::CODE_200, html);
-        response->putHeader(Header::CONTENT_TYPE, "text/html");
-        return response;
+    //TODO use tl::optonal
+    oatpp::String loadFileFromRoot(const oatpp::String& inputPath) {
+        std::string normalizedInputPath = inputPath.getValue("index.html");
+        if (normalizedInputPath.at(0) == '/') {
+            normalizedInputPath.erase(0, 1);
+        }
+        const auto filePath = std::filesystem::path(ROOT_PATH) / normalizedInputPath;
+        if (!std::filesystem::exists(filePath)) {
+            return oatpp::String{ "" };
+        }
+        return oatpp::String::loadFromFile(filePath.c_str());
+    };
+
+    //from: https://stackoverflow.com/questions/3418231/replace-part-of-a-string-with-another-string
+    void replaceStringInPlace(std::string& subject, const std::string& search, const std::string& replace) {
+        size_t pos = 0;
+        while ((pos = subject.find(search, pos)) != std::string::npos) {
+            subject.replace(pos, search.length(), replace);
+            pos += replace.length();
+        }
     }
 
 
-    /**
-   *  Hello World endpoint Coroutine mapped to the "/" (root)
-   */
-    ENDPOINT_ASYNC("GET", "/async", Root){
+    oatpp::String errorTemplate(Status status) {
+        const std::string errorPagePath = oatpp::String("/error/" + std::to_string(status.code) + ".html");
+        std::string rawTemplate = loadFileFromRoot(errorPagePath);
 
-        ENDPOINT_ASYNC_INIT(Root)
+        replaceStringInPlace(rawTemplate, "%{HOSTNAME}", HOSTNAME);
+        return rawTemplate;
+    }
 
-        /**
-     *  Coroutine entrypoint act()
-     *  returns Action (what to do next)
-     */
-        Action act() override{ auto dto = HelloDto::createShared();
-    dto->message = "Hello Async!";
-    dto->server = Header::Value::SERVER;
-    dto->userAgent = request->getHeader(Header::USER_AGENT);
-    return _return(controller->createDtoResponse(Status::CODE_200, dto));
-}
-}
-;
 
-/**
-   *  Echo body endpoint Coroutine. Mapped to "/body/string".
-   *  Returns body received in the request
-   */
-ENDPOINT_ASYNC("GET", "/body/string", EchoStringBody){
-
-    ENDPOINT_ASYNC_INIT(EchoStringBody)
-
-            Action act() override{ /* return Action to start child coroutine to read body */
-                                   return request->readBodyToStringAsync().callbackTo(&EchoStringBody::returnResponse);
-}
-
-Action returnResponse(const oatpp::String& body) {
-    /* return Action to return created OutgoingResponse */
-    return _return(controller->createResponse(Status::CODE_200, body));
-}
-}
-;
-
-/**
-   *  Echo body endpoint Coroutine. Mapped to "/body/dto".
-   *  Deserialize DTO reveived, and return same DTO
-   *  Returns body as MessageDto received in the request
-   */
-ENDPOINT_ASYNC("GET", "/body/dto", EchoDtoBody){
-
-    ENDPOINT_ASYNC_INIT(EchoDtoBody)
-
-            Action act() override{
-                    return request->readBodyToDtoAsync<oatpp::Object<MessageDto>>(controller->getDefaultObjectMapper())
-                            .callbackTo(&EchoDtoBody::returnResponse);
-}
-
-Action returnResponse(const oatpp::Object<MessageDto>& body) {
-    return _return(controller->createDtoResponse(Status::CODE_200, body));
-}
-}
-;
-}
-;
+    ENDPOINT("GET", "*", files, REQUEST(std::shared_ptr<IncomingRequest>, request)) {
+        auto filePath = request->getPathTail();
+        OATPP_ASSERT_HTTP(filePath, Status::CODE_400, "Empty filename");
+        if (filePath.getValue("") == "/" or filePath.getValue("") == "") {
+            filePath = oatpp::String{ "/index.html" };
+        }
+        oatpp::String buffer = loadFileFromRoot(filePath);
+        if (buffer.getValue("").empty()) {
+            return createResponse(Status::CODE_404, errorTemplate(Status::CODE_404));
+        }
+        return createResponse(Status::CODE_200, buffer);
+    }
+};
 
 #include OATPP_CODEGEN_END(ApiController) //<- End Codegen

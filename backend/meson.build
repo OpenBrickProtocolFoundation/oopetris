@@ -62,7 +62,9 @@ flags = [
     ) + '"',
     '-DDATABASE_FILE="' + (meson.project_source_root() / 'db.sqlite') + '"',
     '-DDATABASE_MIGRATIONS="' + (meson.project_source_root() / 'sql') + '"',
-    # '-DLISTEN_PORT=8443'
+    '-DLISTEN_PORT=6767',
+    '-DROOT_PATH="' + (meson.project_source_root() / 'frontend') + '"',
+    '-DHOSTNAME="oopetris.totto.tk"'
 ]
 
 
