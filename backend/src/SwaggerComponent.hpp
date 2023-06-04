@@ -22,7 +22,7 @@ public:
                 .setDescription("CRUD API Example project with swagger docs")
                 .setVersion("1.0")
 
-                .addServer(SWAGGER_SERVER_URL, "main Server");
+                .addServer(SERVER_URL, "main Server");
 
         return builder.build();
     }());

@@ -1,0 +1,8 @@
+[wrap-git]
+url = https://github.com/elnormous/HTTPRequest.git
+revision = master
+depth = 1
+# TODO
+
+[provide]
+HTTPRequest = HTTPRequest_dep

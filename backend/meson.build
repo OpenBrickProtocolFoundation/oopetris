@@ -48,9 +48,15 @@ deps += dependency(
 )
 deps += dependency('tl-optional')
 
+# TODO: use this
+#deps += dependency('HTTPRequest')
 
 HOSTNAME = 'oopetris.totto.tk'
 PROTOCOL = 'https'
+
+if get_option('CLIENT_ID') == '' or get_option('CLIENT_SECRET') == ''
+    error('CLIENT_ID and CLIENT_SECRET are required')
+endif
 
 # TODO: add real keys, this has to be done using nginx and certbot or similar things
 flags = [
@@ -59,13 +65,16 @@ flags = [
     '-DLISTEN_PORT=6767',
     '-DROOT_PATH="' + (meson.project_source_root() / 'frontend') + '"',
     '-DHOSTNAME="' + HOSTNAME + '"',
-    '-DSWAGGER_SERVER_URL="' + PROTOCOL + '://' + HOSTNAME + '"',
+    '-DSERVER_URL="' + PROTOCOL + '://' + HOSTNAME + '"',
+    '-DTWITCH_CLIENT_ID="' + get_option('CLIENT_ID') + '"',
+    '-DTWITCH_CLIENT_SECRET="' + get_option('CLIENT_SECRET') + '"',
 ]
 
 
 
 subdir('src')
-
+src_files += files('external/HTTPRequest.hpp')
+inc_dirs += include_directories('external')
 
 executable(
     'oopetris_backend',

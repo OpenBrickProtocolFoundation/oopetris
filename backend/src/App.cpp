@@ -6,8 +6,8 @@
 
 #include "AppComponent.hpp"
 #include "controller/StaticController.hpp"
+#include "controller/TwitchController.hpp"
 #include "controller/UserController.hpp"
-
 
 /**
  *  run() method.
@@ -26,6 +26,7 @@ void run() {
     oatpp::web::server::api::Endpoints docEndpoints;
 
     docEndpoints.append(router->addController(UserController::createShared())->getEndpoints());
+    docEndpoints.append(router->addController(TwitchController::createShared())->getEndpoints());
 
     router->addController(oatpp::swagger::Controller::createShared(docEndpoints));
 

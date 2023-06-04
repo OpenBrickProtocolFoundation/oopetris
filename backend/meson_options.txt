@@ -1,0 +1,12 @@
+option(
+    'CLIENT_ID',
+    type: 'string',
+    value: '',
+    description: 'Twitch application client id',
+)
+option(
+    'CLIENT_SECRET',
+    type: 'string',
+    value: '',
+    description: 'Twitch application client secret',
+)
