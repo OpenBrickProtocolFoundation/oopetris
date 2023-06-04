@@ -3,8 +3,11 @@ directory = stduuid-1.2.3
 source_url = https://github.com/mariusbancila/stduuid/archive/refs/tags/v1.2.3.tar.gz
 source_filename = stduuid-1.2.3.tar.gz
 source_hash = b1176597e789531c38481acbbed2a6894ad419aab0979c10410d59eb0ebf40d3
-patch_directory = stduuid
-# TODO: when the PR https://github.com/mesonbuild/wrapdb/pull/1043 is merged, replace it with that wrap file
+patch_filename = stduuid_1.2.3-1_patch.zip
+patch_url = https://wrapdb.mesonbuild.com/v2/stduuid_1.2.3-1/get_patch
+patch_hash = 65f14d352b9dea9283585802ca622d393fd628f827d23fc7bfd489ce0b0a2581
+source_fallback_url = https://github.com/mesonbuild/wrapdb/releases/download/stduuid_1.2.3-1/stduuid-1.2.3.tar.gz
+wrapdb_version = 1.2.3-1
 
 [provide]
 stduuid = stduuid_dep
