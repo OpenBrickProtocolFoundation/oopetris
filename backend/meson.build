@@ -46,6 +46,7 @@ deps += dependency(
     version: '1.2.3',
     default_options: ['tests=false'],
 )
+deps += dependency('tl-optional')
 
 
 HOSTNAME = 'oopetris.totto.tk'

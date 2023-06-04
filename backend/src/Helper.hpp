@@ -5,6 +5,7 @@
 #include <oatpp/core/data/mapping/type/Primitive.hpp>
 #include <oatpp/web/protocol/http/Http.hpp>
 #include <string>
+#include <tl/optional.hpp>
 #include <utility>
 #include <vector>
 
@@ -13,14 +14,13 @@ namespace utils {
     using ReplaceFields = std::vector<std::pair<std::string, std::string>>;
 
 
-    //TODO use tl::optonal
-    oatpp::String loadFileFromRoot(const oatpp::String& inputPath);
+    tl::optional<std::string> loadFileFromRoot(const std::string& inputPath);
 
     //from: https://stackoverflow.com/questions/3418231/replace-part-of-a-string-with-another-string
     void replaceStringInPlace(std::string& subject, const std::string& search, const std::string& replace);
 
-    oatpp::String errorTemplate(oatpp::web::protocol::http::Status status);
-    oatpp::String errorTemplate(oatpp::web::protocol::http::Status status, ReplaceFields& additionalFields);
+    std::string errorTemplate(oatpp::web::protocol::http::Status status);
+    std::string errorTemplate(oatpp::web::protocol::http::Status status, ReplaceFields& additionalFields);
 
 
 }; // namespace utils

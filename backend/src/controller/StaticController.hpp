@@ -31,14 +31,14 @@ public:
     ENDPOINT("GET", "*", files, REQUEST(std::shared_ptr<IncomingRequest>, request)) {
         auto filePath = request->getPathTail();
         OATPP_ASSERT_HTTP(filePath, Status::CODE_400, "Empty filename");
-        if (filePath.getValue("") == "/" or filePath.getValue("") == "") {
-            filePath = oatpp::String{ "/index.html" };
+        if (filePath.getValue("") == "/" || filePath.getValue("") == "") {
+            filePath = oatpp::String("/index.html");
         }
-        oatpp::String buffer = utils::loadFileFromRoot(filePath);
-        if (buffer.getValue("").empty()) {
+        auto buffer = utils::loadFileFromRoot(filePath);
+        if (!buffer.has_value() || buffer.value().empty()) {
             return createResponse(Status::CODE_404, utils::errorTemplate(Status::CODE_404));
         }
-        return createResponse(Status::CODE_200, buffer);
+        return createResponse(Status::CODE_200, buffer.value());
     }
 };
 
