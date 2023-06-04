@@ -21,11 +21,6 @@ deps += dependency(
     default_options: ['tests=disabled'],
 )
 deps += dependency(
-    'oatpp-openssl',
-    version: '1.3.0',
-    default_options: ['tests=false'],
-)
-deps += dependency(
     'oatpp-websocket',
     version: '1.3.0',
     default_options: ['tests=false'],
@@ -58,18 +53,12 @@ PROTOCOL = 'https'
 
 # TODO: add real keys, this has to be done using nginx and certbot or similar things
 flags = [
-    '-DCERT_PEM_PATH="' + (
-        meson.project_source_root() / 'cert' / 'test_key.pem'
-    ) + '"',
-    '-DCERT_CRT_PATH="' + (
-        meson.project_source_root() / 'cert' / 'test_cert.crt'
-    ) + '"',
     '-DDATABASE_FILE="' + (meson.project_source_root() / 'db.sqlite') + '"',
     '-DDATABASE_MIGRATIONS="' + (meson.project_source_root() / 'sql') + '"',
     '-DLISTEN_PORT=6767',
     '-DROOT_PATH="' + (meson.project_source_root() / 'frontend') + '"',
-    '-DHOSTNAME="'+HOSTNAME+'"',
-    '-DSWAGGER_SERVER_URL="'+PROTOCOL + '://'+HOSTNAME+'"'
+    '-DHOSTNAME="' + HOSTNAME + '"',
+    '-DSWAGGER_SERVER_URL="' + PROTOCOL + '://' + HOSTNAME + '"',
 ]
 
 

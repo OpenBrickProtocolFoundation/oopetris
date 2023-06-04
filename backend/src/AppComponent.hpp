@@ -1,8 +1,5 @@
 #pragma once
 
-#include <oatpp-openssl/Config.hpp>
-#include <oatpp-openssl/client/ConnectionProvider.hpp>
-#include <oatpp-openssl/server/ConnectionProvider.hpp>
 #include <oatpp-zlib/EncoderProvider.hpp>
 #include <oatpp/core/macro/component.hpp>
 #include <oatpp/network/tcp/client/ConnectionProvider.hpp>
@@ -44,21 +41,8 @@ public:
    */
     OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::ServerConnectionProvider>, serverConnectionProvider)
     ([] {
-        OATPP_LOGD("oatpp::openssl::Config", "pem='%s'", CERT_PEM_PATH);
-        OATPP_LOGD("oatpp::openssl::Config", "crt='%s'", CERT_CRT_PATH);
-        auto config =
-                oatpp::openssl::Config::createDefaultServerConfigShared(CERT_CRT_PATH, CERT_PEM_PATH /* private key */);
-
-        /**
-     * if you see such error:
-     * oatpp::openssl::server::ConnectionProvider:Error on call to 'tls_configure'. ssl context failure
-     * It might be because you have several ssl libraries installed on your machine.
-     * Try to make sure you are using libtls, libssl, and libcrypto from the same package
-     */
-
-        return oatpp::openssl::server::ConnectionProvider::createShared(
-                config, { "0.0.0.0", LISTEN_PORT, oatpp::network::Address::IP_4 }
-        );
+        return oatpp::network::tcp::server::ConnectionProvider::createShared({ "0.0.0.0", LISTEN_PORT,
+                                                                               oatpp::network::Address::IP_4 });
     }());
 
     /**
@@ -121,5 +105,4 @@ public:
         connectionHandler->setErrorHandler(std::make_shared<ErrorHandler>(objectMapper));
         return connectionHandler;
     }());
-
 };
