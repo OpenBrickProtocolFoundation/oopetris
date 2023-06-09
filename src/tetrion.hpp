@@ -49,6 +49,11 @@ private:
 
     static constexpr int num_preview_tetrominos = 6;
 
+    bool m_is_accelerated_down_movement = false;
+    bool m_down_key_pressed = false;
+    bool m_allowed_to_hold = true;
+    bool m_is_in_lock_delay = false;
+    u32 m_num_executed_lock_delays = 0;
     u64 m_next_gravity_simulation_step_index;
     u64 m_lock_delay_step_index;
     ServiceProvider* m_service_provider;
@@ -62,8 +67,7 @@ private:
     u32 m_lines_cleared = 0;
     GameState m_game_state = GameState::Playing;
     int m_sequence_index = 0;
-    int m_score = 0;
-    int m_num_executed_lock_delays = 0;
+    u32 m_score = 0;
     Grid m_grid;
     std::array<Bag, 2> m_sequence_bags{ Bag{ m_random }, Bag{ m_random } };
     tl::optional<Tetromino> m_active_tetromino;
@@ -71,10 +75,6 @@ private:
     tl::optional<Tetromino> m_tetromino_on_hold;
     std::array<tl::optional<Tetromino>, num_preview_tetrominos> m_preview_tetrominos{};
     u8 m_tetrion_index;
-    bool m_is_accelerated_down_movement;
-    bool m_down_key_pressed = false;
-    bool m_allowed_to_hold = true;
-    bool m_is_in_lock_delay = false;
 
 
 public:
