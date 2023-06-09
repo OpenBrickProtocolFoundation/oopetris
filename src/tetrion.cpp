@@ -295,7 +295,7 @@ void Tetrion::clear_fully_occupied_lines() {
                                 .and_then(utils::log_error);
                     }
                 }
-                m_mino_stack.clear_row_and_let_sink(row);
+                m_mino_stack.clear_row_and_let_sink(static_cast<int>(row));
                 cleared = true;
                 break;
             }
