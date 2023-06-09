@@ -49,36 +49,37 @@ private:
 
     static constexpr int num_preview_tetrominos = 6;
 
-    u8 m_tetrion_index;
-    Random m_random;
-    Grid m_grid;
-    MinoStack m_mino_stack;
-    tl::optional<Tetromino> m_active_tetromino;
-    tl::optional<Tetromino> m_ghost_tetromino;
-    std::array<tl::optional<Tetromino>, num_preview_tetrominos> m_preview_tetrominos{};
-    tl::optional<Tetromino> m_tetromino_on_hold;
-    int m_level = 0; // TODO: change into u32
-    bool m_is_accelerated_down_movement;
     u64 m_next_gravity_simulation_step_index;
-    int m_lines_cleared = 0; // TODO: change into u32
-    GameState m_game_state = GameState::Playing;
-    std::array<Bag, 2> m_sequence_bags{ Bag{ m_random }, Bag{ m_random } };
-    int m_sequence_index = 0;
+    u64 m_lock_delay_step_index;
+    ServiceProvider* m_service_provider;
+    tl::optional<RecordingWriter*> m_recording_writer;
+    MinoStack m_mino_stack;
     Text m_score_text;
-    int m_score = 0;
     Text m_level_text;
     Text m_cleared_lines_text;
-    bool m_down_key_pressed = false;
-    tl::optional<RecordingWriter*> m_recording_writer;
-    bool m_allowed_to_hold = true;
-    u64 m_lock_delay_step_index;
-    bool m_is_in_lock_delay = false;
+    Random m_random;
+    u32 m_level = 0;
+    u32 m_lines_cleared = 0;
+    GameState m_game_state = GameState::Playing;
+    int m_sequence_index = 0;
+    int m_score = 0;
     int m_num_executed_lock_delays = 0;
-    ServiceProvider* m_service_provider;
+    Grid m_grid;
+    std::array<Bag, 2> m_sequence_bags{ Bag{ m_random }, Bag{ m_random } };
+    tl::optional<Tetromino> m_active_tetromino;
+    tl::optional<Tetromino> m_ghost_tetromino;
+    tl::optional<Tetromino> m_tetromino_on_hold;
+    std::array<tl::optional<Tetromino>, num_preview_tetrominos> m_preview_tetrominos{};
+    u8 m_tetrion_index;
+    bool m_is_accelerated_down_movement;
+    bool m_down_key_pressed = false;
+    bool m_allowed_to_hold = true;
+    bool m_is_in_lock_delay = false;
+
 
 public:
-    Tetrion(u8 tetrion_index,
-            Random::Seed random_seed,
+    Tetrion(const u8 tetrion_index,
+            const Random::Seed random_seed,
             int starting_level,
             ServiceProvider* service_provider,
             tl::optional<RecordingWriter*> recording_writer = tl::nullopt);

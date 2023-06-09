@@ -15,15 +15,17 @@ Tetrion::Tetrion(
         ServiceProvider* service_provider,
         tl::optional<RecordingWriter*> recording_writer
 )
-    : m_tetrion_index{ tetrion_index },
-      m_random{ random_seed },
-      m_grid{ Point{ static_cast<int>(tile_size / 2 + (Grid::hold_background_extends.x + 1) * tile_size), tile_size / 2 }, tile_size },
-      m_level{ starting_level },
-      m_is_accelerated_down_movement {false},
+    : 
       m_next_gravity_simulation_step_index{ get_gravity_delay_frames() },
-      m_recording_writer{ recording_writer },
       m_lock_delay_step_index{ lock_delay },
-      m_service_provider{ service_provider } {
+      m_service_provider{ service_provider },
+      m_recording_writer{ recording_writer },
+      m_random{ random_seed },
+      m_level{ starting_level },
+      m_grid{ Point{ static_cast<int>(tile_size / 2 + (Grid::hold_background_extends.x + 1) * tile_size), tile_size / 2 }, tile_size },
+    m_tetrion_index{ tetrion_index },
+      m_is_accelerated_down_movement {false}
+       {
     m_score_text = Text{ Point{ m_grid.to_screen_coords(Point{ 0, Grid::height + 1 }) }, Color::white(), "score: 0",
                          m_service_provider->fonts().get(FontId::Default) };
     m_level_text = Text{ Point{ m_grid.to_screen_coords(Point{ 0, Grid::height + 2 }) }, Color::white(), "level: 0",
