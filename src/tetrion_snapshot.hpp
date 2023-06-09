@@ -48,7 +48,7 @@ public:
 
     [[nodiscard]] std::vector<char> to_bytes() const;
 
-    bool compare_to(const TetrionSnapshot& other, bool log_result) const;
+    [[nodiscard]] bool compare_to(const TetrionSnapshot& other, bool log_result) const;
 
 private:
     template<utils::integral Integral>
