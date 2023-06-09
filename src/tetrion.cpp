@@ -11,18 +11,20 @@
 Tetrion::Tetrion(
         const u8 tetrion_index,
         const Random::Seed random_seed,
-        const int starting_level,
+        const u32 starting_level,
         ServiceProvider* service_provider,
         tl::optional<RecordingWriter*> recording_writer
 )
-    : m_tetrion_index{ tetrion_index },
-      m_random{ random_seed },
-      m_grid{ Point{ static_cast<int>(tile_size / 2 + (Grid::hold_background_extends.x + 1) * tile_size), tile_size / 2 }, tile_size },
-      m_level{ starting_level },
+    : 
       m_next_gravity_simulation_step_index{ get_gravity_delay_frames() },
-      m_recording_writer{ recording_writer },
       m_lock_delay_step_index{ lock_delay },
-      m_service_provider{ service_provider } {
+      m_service_provider{ service_provider },
+      m_recording_writer{ recording_writer },
+      m_random{ random_seed },
+      m_level{ starting_level },
+      m_grid{ Point{ static_cast<int>(tile_size / 2 + (Grid::hold_background_extends.x + 1) * tile_size), tile_size / 2 }, tile_size },
+    m_tetrion_index{ tetrion_index }
+       {
     m_score_text = Text{ Point{ m_grid.to_screen_coords(Point{ 0, Grid::height + 1 }) }, Color::white(), "score: 0",
                          m_service_provider->fonts().get(FontId::Default) };
     m_level_text = Text{ Point{ m_grid.to_screen_coords(Point{ 0, Grid::height + 2 }) }, Color::white(), "level: 0",
@@ -165,7 +167,7 @@ void Tetrion::spawn_next_tetromino(const TetrominoType type, const SimulationSte
         m_ghost_tetromino = {};
         return;
     }
-    for (int i = 0; not is_active_tetromino_completely_visible() and i < Grid::invisible_rows; ++i) {
+    for (usize i = 0; not is_active_tetromino_completely_visible() and i < Grid::invisible_rows; ++i) {
         m_active_tetromino->move_down();
         if (not is_active_tetromino_position_valid()) {
             m_active_tetromino->move_up();
@@ -266,13 +268,13 @@ void Tetrion::refresh_texts() {
 
 void Tetrion::clear_fully_occupied_lines() {
     bool cleared = false;
-    const int lines_cleared_before = m_lines_cleared;
+    const u32 lines_cleared_before = m_lines_cleared;
     do {
         cleared = false;
-        for (int row = 0; row < Grid::height; ++row) {
+        for (usize row = 0; row < Grid::height; ++row) {
             bool fully_occupied = true;
-            for (int column = 0; column < Grid::width; ++column) {
-                if (m_mino_stack.is_empty(Point{ column, row })) {
+            for (usize column = 0; column < Grid::width; ++column) {
+                if (m_mino_stack.is_empty(Point{ static_cast<int>(column), static_cast<int>(row) })) {
                     fully_occupied = false;
                     break;
                 }
@@ -293,15 +295,15 @@ void Tetrion::clear_fully_occupied_lines() {
                                 .and_then(utils::log_error);
                     }
                 }
-                m_mino_stack.clear_row_and_let_sink(row);
+                m_mino_stack.clear_row_and_let_sink(static_cast<int>(row));
                 cleared = true;
                 break;
             }
         }
     } while (cleared);
-    const int num_lines_cleared = m_lines_cleared - lines_cleared_before;
+    const u32 num_lines_cleared = m_lines_cleared - lines_cleared_before;
     static constexpr std::array<int, 5> score_per_line_multiplier{ 0, 40, 100, 300, 1200 };
-    m_score += score_per_line_multiplier.at(static_cast<usize>(num_lines_cleared)) * (m_level + 1);
+    m_score += score_per_line_multiplier.at(num_lines_cleared) * (m_level + 1);
 }
 
 void Tetrion::lock_active_tetromino(const SimulationStep simulation_step_index) {
@@ -334,8 +336,8 @@ bool Tetrion::is_active_tetromino_position_valid() const {
 }
 
 bool Tetrion::is_valid_mino_position(Point position) const {
-    return position.x >= 0 and position.x < Grid::width and position.y >= 0 and position.y < Grid::height
-           and m_mino_stack.is_empty(position);
+    return position.x >= 0 and position.x < static_cast<int>(Grid::width) and position.y >= 0
+           and position.y < static_cast<int>(Grid::height) and m_mino_stack.is_empty(position);
 }
 
 bool Tetrion::is_active_tetromino_completely_visible() const {
@@ -343,7 +345,7 @@ bool Tetrion::is_active_tetromino_completely_visible() const {
         return false;
     }
     for (const Mino& mino : m_active_tetromino->minos()) {
-        if (mino.position().y < Grid::invisible_rows) {
+        if (mino.position().y < static_cast<int>(Grid::invisible_rows)) {
             return false;
         }
     }
@@ -367,7 +369,7 @@ void Tetrion::refresh_previews() {
     auto bag_index = usize{ 0 };
     for (std::remove_cvref_t<decltype(num_preview_tetrominos)> i = 0; i < num_preview_tetrominos; ++i) {
         m_preview_tetrominos.at(static_cast<usize>(i)) = Tetromino{
-            Grid::preview_tetromino_position + Point{0, Grid::preview_padding * i},
+            Grid::preview_tetromino_position + Point{0, static_cast<int>(Grid::preview_padding * i)},
             m_sequence_bags.at(bag_index)[sequence_index]
         };
         ++sequence_index;

@@ -9,9 +9,9 @@
 
 struct Grid final {
 public:
-    static constexpr int width = 10;
-    static constexpr int height = 22;
-    static constexpr int invisible_rows = 2;
+    static constexpr usize width = 10;
+    static constexpr usize height = 22;
+    static constexpr usize invisible_rows = 2;
     static constexpr Point preview_background_position{ width + 1, 0 };
     static constexpr Point preview_tetromino_position = preview_background_position + Point{ 0, 3 };
     static constexpr Point preview_extends{ 4, 6 * 3 + 1 };
@@ -21,14 +21,14 @@ public:
     static constexpr Point hold_background_position{ -preview_extends.x - 1, 0 };
     static constexpr Point hold_tetromino_position = hold_background_position + Point{ 0, 3 };
     static constexpr Point hold_background_extends = Point{ 4, 4 };
-    static constexpr int preview_padding = 3;
+    static constexpr usize preview_padding = 3;
 
 private:
     Point m_offset;
-    int m_tile_size;
+    usize m_tile_size;
 
 public:
-    Grid(Point offset, int tile_size);
+    Grid(Point offset, usize tile_size);
     [[nodiscard]] Point tile_size() const;
     [[nodiscard]] Point to_screen_coords(Point grid_coords) const;
     void render(const ServiceProvider& service_provider) const;

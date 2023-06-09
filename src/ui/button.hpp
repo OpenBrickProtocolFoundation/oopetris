@@ -24,7 +24,7 @@ namespace ui {
         Callback m_callback;
         Window* m_window;
 
-        std::pair<Point, Rect> get_fill_rect(const Rect screen_rect) const {
+        [[nodiscard]] std::pair<Point, Rect> get_fill_rect(const Rect screen_rect) const {
             const auto absolute_layout = std::get<AbsoluteLayout>(layout);
             const auto origin = Point{ static_cast<int>(absolute_layout.x), static_cast<int>(absolute_layout.y) }
                                 + screen_rect.top_left;
@@ -83,7 +83,8 @@ namespace ui {
                 const auto rect_end_y = fill_area.bottom_right.y;
 
 
-                bool button_tapped = (x >= rect_start_x and x <= rect_end_x and y >= rect_start_y and y <= rect_end_y);
+                const bool button_tapped =
+                        (x >= rect_start_x and x <= rect_end_x and y >= rect_start_y and y <= rect_end_y);
 
                 if (button_tapped) {
                     spdlog::info("button tapped");

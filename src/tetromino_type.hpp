@@ -14,7 +14,7 @@ enum class TetrominoType {
     LastType = Z,
 };
 
-constexpr Color get_foreground_color(TetrominoType type, std::uint8_t alpha) {
+constexpr Color get_foreground_color(TetrominoType type, u8 alpha) {
     switch (type) {
         case TetrominoType::I:
             return Color{ 0, 240, 240, alpha };
@@ -35,7 +35,7 @@ constexpr Color get_foreground_color(TetrominoType type, std::uint8_t alpha) {
     }
 }
 
-constexpr Color get_background_color(TetrominoType type, std::uint8_t alpha) {
+constexpr Color get_background_color(TetrominoType type, u8 alpha) {
     switch (type) {
         case TetrominoType::I:
             return Color{ 1, 118, 118, alpha };

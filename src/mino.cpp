@@ -46,14 +46,14 @@ void Mino::render(const ServiceProvider& service_provider, const Grid& grid, con
 
 
     service_provider.renderer().draw_line(
-            top_left, inner_top_left, Color::white(static_cast<std::uint8_t>(140.0 * alpha_factor))
+            top_left, inner_top_left, Color::white(static_cast<u8>(140.0 * alpha_factor))
     );
     service_provider.renderer().draw_line(
-            bottom_left, inner_bottom_left, Color::white(static_cast<std::uint8_t>(100.0 * alpha_factor))
+            bottom_left, inner_bottom_left, Color::white(static_cast<u8>(100.0 * alpha_factor))
     );
     service_provider.renderer().draw_line(top_right, inner_top_right, Color{ 80, 80, 80, alpha });
     service_provider.renderer().draw_line(
-            bottom_right, inner_bottom_right, Color{ 80, 80, 80, static_cast<std::uint8_t>(180.0 * alpha_factor) }
+            bottom_right, inner_bottom_right, Color{ 80, 80, 80, static_cast<u8>(180.0 * alpha_factor) }
     );
 
     service_provider.renderer().draw_rect_filled(Rect{ inner_top_left, inner_bottom_right }, foreground);

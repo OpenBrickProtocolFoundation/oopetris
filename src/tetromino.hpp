@@ -32,13 +32,13 @@ inline Rotation operator+(Rotation rotation, const int offset) {
     }
 
     if (offset > 0) {
-        for (int i = 0; i < offset; ++i) {
+        for (usize i = 0; i < static_cast<usize>(offset); ++i) {
             ++rotation;
         }
         return rotation;
     }
 
-    for (int i = 0; i < -offset; ++i) {
+    for (usize i = 0; i < static_cast<usize>(-offset); ++i) {
         --rotation;
     }
     return rotation;
@@ -120,7 +120,7 @@ private:
     }
 
     static Pattern get_pattern(TetrominoType type, Rotation rotation) {
-        return tetrominos.at(static_cast<std::size_t>(type)).at(static_cast<std::size_t>(rotation));
+        return tetrominos.at(static_cast<usize>(type)).at(static_cast<usize>(rotation));
     }
 
     static std::array<Mino, 4> create_minos(Point position, Rotation rotation, TetrominoType type) {

@@ -1,36 +1,36 @@
 #pragma once
 
-#include <cstdint>
+#include "types.hpp"
 
 struct Color {
-    std::uint8_t r;
-    std::uint8_t g;
-    std::uint8_t b;
-    std::uint8_t a;
+    u8 r;
+    u8 g;
+    u8 b;
+    u8 a;
 
     constexpr Color() : Color{ 0, 0, 0, 0 } { }
 
-    constexpr Color(std::uint8_t r, std::uint8_t g, std::uint8_t b, std::uint8_t a) : r{ r }, g{ g }, b{ b }, a{ a } { }
+    constexpr Color(u8 r, u8 g, u8 b, u8 a) : r{ r }, g{ g }, b{ b }, a{ a } { }
 
-    constexpr Color(std::uint8_t r, std::uint8_t g, std::uint8_t b) : Color{ r, g, b, 255 } { }
+    constexpr Color(u8 r, u8 g, u8 b) : Color{ r, g, b, 0xFF } { }
 
-    static constexpr Color red(std::uint8_t alpha = 255) {
-        return Color{ 255, 0, 0, alpha };
+    static constexpr Color red(u8 alpha = 0xFF) {
+        return Color{ 0xFF, 0, 0, alpha };
     };
 
-    static constexpr Color green(std::uint8_t alpha = 255) {
-        return Color{ 0, 255, 0, alpha };
+    static constexpr Color green(u8 alpha = 0xFF) {
+        return Color{ 0, 0xFF, 0, alpha };
     };
 
-    static constexpr Color blue(std::uint8_t alpha = 255) {
-        return Color{ 0, 0, 255, alpha };
+    static constexpr Color blue(u8 alpha = 0xFF) {
+        return Color{ 0, 0, 0xFF, alpha };
     };
 
-    static constexpr Color black(std::uint8_t alpha = 255) {
+    static constexpr Color black(u8 alpha = 0xFF) {
         return Color{ 0, 0, 0, alpha };
     };
 
-    static constexpr Color white(std::uint8_t alpha = 255) {
-        return Color{ 255, 255, 255, alpha };
+    static constexpr Color white(u8 alpha = 0xFF) {
+        return Color{ 0xFF, 0xFF, 0xFF, alpha };
     };
 };
