@@ -9,7 +9,7 @@ Grid::Grid(Point offset, usize tile_size) : m_offset{ offset - Point{ 0, static_
 }
 
 [[nodiscard]] Point Grid::to_screen_coords(Point grid_coords) const {
-    return m_offset + grid_coords * m_tile_size;
+    return m_offset + grid_coords * static_cast<int>(m_tile_size);
 }
 
 void Grid::render(const ServiceProvider& service_provider) const {
@@ -49,9 +49,9 @@ void Grid::draw_playing_field_background(const ServiceProvider& service_provider
 }
 
 void Grid::draw_background(const ServiceProvider& service_provider, Rect grid_rect) const {
-    const auto top_left =
-            m_offset + Point{ 0, static_cast<int>(m_tile_size * invisible_rows) } + grid_rect.top_left * m_tile_size;
-    const auto bottom_right = top_left + Point{ grid_rect.width(), grid_rect.height() } * m_tile_size;
+    const auto top_left = m_offset + Point{ 0, static_cast<int>(m_tile_size * invisible_rows) }
+                          + grid_rect.top_left * static_cast<int>(m_tile_size);
+    const auto bottom_right = top_left + Point{ grid_rect.width(), grid_rect.height() } * static_cast<int>(m_tile_size);
     service_provider.renderer().draw_rect_filled(Rect{ top_left, bottom_right }, background_color);
 
     for (usize column = 0; column <= static_cast<usize>(grid_rect.width()); ++column) {
