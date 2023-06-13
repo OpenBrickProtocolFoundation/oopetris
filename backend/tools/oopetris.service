@@ -1,0 +1,13 @@
+[Unit]
+Description=OOPetris Backend
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/srv/oopetris/backend
+ExecStart=/srv/oopetris/backend/build/oopetris_backend
+
+[Install]
+WantedBy=default.target
