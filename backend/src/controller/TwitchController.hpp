@@ -30,7 +30,7 @@ public:
     // https://dev.twitch.tv/docs/authentication/getting-tokens-oauth/#authorization-code-grant-flow
     ENDPOINT("GET", "twitch/callback", files, REQUEST(std::shared_ptr<IncomingRequest>, request)) {
 
-        const http::QueryParams& params = request->getQueryParameters();
+        const oatpp::web::protocol::http::QueryParams& params = request->getQueryParameters();
 
         //TODO
 
