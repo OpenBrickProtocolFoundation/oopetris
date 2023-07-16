@@ -3,7 +3,8 @@
 set -e
 
 export DEVKITPRO=/opt/devkitpro
-export PATH="$DEVKITPRO/tools/bin:$DEVKITPRO/devkitA64/bin:$PATH"
+export COMPILER_BIN="$DEVKITPRO/devkitA64/bin"
+export PATH="$DEVKITPRO/tools/bin:$COMPILER_BIN:$PATH"
 
 export PORTLIBS_PATH="$DEVKITPRO/portlibs"
 export LIBNX=$DEVKITPRO/libnx
@@ -23,24 +24,23 @@ export BIN_DIR=/opt/devkitpro/portlibs/switch/bin
 export PKG_CONFIG_EXEC=$BIN_DIR/$TOOL_PREFIX-pkg-config
 export CMAKE="$BIN_DIR/$TOOL_PREFIX-cmake"
 
-export PATH="BIN_DIR:$PATH"
+export PATH="$BIN_DIR:$PATH"
 
-export CC=$TOOL_PREFIX-gcc
-export CXX=$TOOL_PREFIX-g++
-# export LD=$TOOL_PREFIX-ld
-export AS=$TOOL_PREFIX-as
-export AR=$TOOL_PREFIX-gcc-ar
-export RANLIB=$TOOL_PREFIX-gcc-ranlib
-export NM=$TOOL_PREFIX-gcc-nm
-export OBJCOPY=$TOOL_PREFIX-objcopy
-export STRIP=$TOOL_PREFIX-strip
+export CC="$COMPILER_BIN/$TOOL_PREFIX-gcc"
+export CXX="$COMPILER_BIN/$TOOL_PREFIX-g"++
+# export LD="$COMPILER_BIN/$TOOL_PREFIX-ld"
+export AS="$COMPILER_BIN/$TOOL_PREFIX-as"
+export AR="$COMPILER_BIN/$TOOL_PREFIX-gcc-ar"
+export RANLIB="$COMPILER_BIN/$TOOL_PREFIX-gcc-ranlib"
+export NM="$COMPILER_BIN/$TOOL_PREFIX-gcc-nm"
+export OBJCOPY="$COMPILER_BIN/$TOOL_PREFIX-objcopy"
+export STRIP="$COMPILER_BIN/$TOOL_PREFIX-strip"
 
 export ARCH=aarch64
 export ARM_VERSION=armv8-a
 export COMMON_FLAGS="'-D__SWITCH__','-D__LIBNX__','-DNOSTYLUS','-D_XOPEN_SOURCE'"
 
 export ARCH_ARGS="'-march=armv8-a','-mtp=soft','-fPIE'"
-
 
 export LD_LIBS_FLAGS="'-L$PORTLIBS_LIB','-L$LIBNX_LIB'"
 export ASFLAGS="-g $ARCH_ARGS"
@@ -84,6 +84,12 @@ cpp_link_args = ['-specs=$DEVKITPRO/libnx/switch.specs','-g', $ARCH_ARGS, $LD_LI
 pkg_config_libdir = '$PKG_CONFIG_PATH'
 needs_exe_wrapper = true
 libray_dirs= ['$LIBNX_LIB', '$PORTLIBS_LIB']
+romfs_dir='$ROMFS'
+libnx='$LIBNX'
+
+APP_TITLE	= 'oopetris'
+APP_AUTHOR 	= 'coder2k'
+APP_VERSION = '1.0'
 
 EOF
 

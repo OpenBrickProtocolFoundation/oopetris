@@ -138,6 +138,7 @@ if (meson.is_cross_build() and host_machine.system() == 'switch')
             required: true,
             native: native,
             allow_fallback: true,
+            default_options: ['default_library=static'],
         )
         deps += fmt_header_only_dep
 
@@ -158,7 +159,7 @@ deps += dependency(
     'spdlog',
     required: true,
     native: native,
-    default_options: ['tests=false','external_fmt=enabled'],
+    default_options: ['tests=false'],
 )
 
 deps += dependency('nlohmann_json', required: true, native: native)
@@ -246,8 +247,8 @@ elif meson.is_cross_build() and host_machine.system() == 'switch'
 
     #TODO build elf and then nro
 
-    executable(
-        'oopetris',
+    elf_file = executable(
+        'oopetris.elf',
         src_files,
         include_directories: inc_dirs,
         dependencies: deps,
@@ -259,6 +260,68 @@ elif meson.is_cross_build() and host_machine.system() == 'switch'
         ],
         native: native,
     )
+
+
+
+    elf2nro = find_program('elf2nro')
+
+
+    # elf
+    # nacp
+
+    # nso
+    # pfs0
+
+    # nro
+
+
+    fs = import('fs')
+
+    NROFLAGS = []
+
+
+
+    default_icon = meson.get_external_property('libnx') / 'default_icon.jpg'
+
+    APP_ICON = meson.get_external_property('APP_ICON', default_icon)
+
+    if not fs.exists(APP_ICON)
+        error('APP_ICON should exist, but doesn\'t: \'' + APP_ICON + '\'')
+    endif
+
+    NROFLAGS += '--icon=' + APP_ICON
+    NROFLAGS += '--nacp=oopetris.nacp'
+
+
+    NACPFLAGS = []
+
+    APP_TITLEID = meson.get_external_property('APP_TITLEID', '')
+
+    if APP_TITLEID != ''
+        NACPFLAGS += '--titleid=' + APP_TITLEID
+    endif
+
+
+    romfs_dir = meson.get_external_property('romfs_dir')
+
+    if not fs.exists(romfs_dir)
+        error('romfs_dir should exist, but doesn\'t: \'' + romfs_dir + '\'')
+    endif
+
+    NROFLAGS += '--romfsdir=' + romfs_dir
+
+
+
+    # nacptool --create "$(APP_TITLE)" "$(APP_AUTHOR)" "$(APP_VERSION)" oopetris.nacp $(NACPFLAGS)
+
+
+    # elf2nso oopetris.elf oopetris.nso
+
+
+    # elf2nro oopetris.elf oopetris.nro NROFLAGS
+
+    run_command(elf2nro)
+
 
 else
     executable(
