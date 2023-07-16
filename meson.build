@@ -23,7 +23,7 @@ compile_args = []
 cpp = meson.get_compiler('cpp')
 if cpp.get_id() == 'msvc'
     add_project_arguments('/std:c++latest', language: 'cpp')
-elif cpp.get_id() == 'gcc'
+elif cpp.get_id() == 'gcc' and not meson.is_cross_build()
     add_project_arguments('-std=c++23', '-Wold-style-cast', language: 'cpp')
 elif cpp.get_id() == 'clang'
     add_project_arguments('-std=c++2b', language: 'cpp')
@@ -34,16 +34,23 @@ endif
 deps = []
 inc_dirs = []
 
+
+
 native = true
-if meson.is_cross_build() and host_machine.system() == 'android'
+if (
+    meson.is_cross_build()
+    and (host_machine.system() == 'android'
+    or host_machine.system() == 'switch')
+)
     native = false
 endif
 
 
 sdl2_dep = dependency(
     'sdl2',
+    'SDL2',
     allow_fallback: false,
-    required: false,
+    required: true,
     native: native,
 )
 
@@ -65,11 +72,22 @@ else
     )
 endif
 
-deps += dependency('sdl2_ttf', 'SDL2_ttf', required: true, native: native)
+deps += dependency(
+    'sdl2_ttf',
+    'SDL2_ttf',
+    allow_fallback: false,
+    required: true,
+    native: native,
+)
 
 
 # a dirty thing atm, until mpg123 is ported to meson (maybe never...)
-mpg123_dep = dependency('mgp123', required: false, native: native)
+mpg123_dep = dependency(
+    'mgp123',
+    allow_fallback: false,
+    required: false,
+    native: native,
+)
 sdl2_mixer_flags = ['flac=enabled']
 sdl2_mixer_defines = ['-DAUDIO_WITH_FLAC_SUPPORT']
 if mpg123_dep.found()
@@ -95,21 +113,54 @@ endif
 deps += dependency(
     'sdl2_mixer',
     'SDL2_mixer',
+    allow_fallback: false,
     required: true,
     native: native,
     default_options: sdl2_mixer_flags,
 )
+
+
+if (meson.is_cross_build() and host_machine.system() == 'switch')
+
+    fmt_lib = dependency(
+        'fmt',
+        required: false,
+        native: native,
+        allow_fallback: false,
+    )
+
+    if fmt_lib.found()
+        deps += fmt_lib
+    else
+
+        fmt_header_only_dep = dependency(
+            'fmt_header_only',
+            required: true,
+            native: native,
+            allow_fallback: true,
+        )
+        deps += fmt_header_only_dep
+
+        #meson.override_dependency('fmt', fmt_header_only_dep)
+    endif
+
+
+else
+
+    deps += dependency(
+        'fmt',
+        required: true,
+        native: native,
+    )
+endif
+
 deps += dependency(
     'spdlog',
     required: true,
     native: native,
-    default_options: ['tests=false'],
+    default_options: ['tests=false','external_fmt=enabled'],
 )
-deps += dependency(
-    'fmt',
-    required: true,
-    native: native,
-)
+
 deps += dependency('nlohmann_json', required: true, native: native)
 
 deps += dependency(
@@ -137,6 +188,41 @@ deps += dependency(
     native: native,
 )
 
+if (meson.is_cross_build() and host_machine.system() == 'switch')
+
+    switch_dependencies = [
+        'EGL',
+        'GLESv2',
+        'glapi',
+        'drm_nouveau',
+        'nx',
+        'freetype',
+        'z',
+        'bz2',
+        'png',
+        'opusfile',
+        'opus',
+        'vorbisfile',
+        'vorbis',
+        'ogg',
+        'modplug',
+        'FLAC',
+    ]
+
+    ## /opt/devkitpro/portlibs/switch/lib/
+
+    libray_dirs = meson.get_external_property('libray_dirs')
+
+    foreach dep : switch_dependencies
+        deps += cpp.find_library(dep, required: true, dirs: libray_dirs)
+    endforeach
+
+
+
+endif
+
+
+
 src_files = []
 
 subdir('src')
@@ -154,6 +240,23 @@ if meson.is_cross_build() and host_machine.system() == 'android'
         c_args: sdl2_mixer_defines,
         cpp_args: compile_args + sdl2_mixer_defines,
         override_options: ['warning_level=3', 'werror=true'],
+        native: native,
+    )
+elif meson.is_cross_build() and host_machine.system() == 'switch'
+
+    #TODO build elf and then nro
+
+    executable(
+        'oopetris',
+        src_files,
+        include_directories: inc_dirs,
+        dependencies: deps,
+        c_args: sdl2_mixer_defines,
+        cpp_args: compile_args + sdl2_mixer_defines,
+        override_options: [
+            'warning_level=3',
+            'werror=true',
+        ],
         native: native,
     )
 

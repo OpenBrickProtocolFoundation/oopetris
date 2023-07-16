@@ -38,6 +38,8 @@ CXXFLAGS	:= $(CFLAGS) -std=gnu++20
 ASFLAGS	:=	-g $(ARCH)
 LDFLAGS	=	-specs=$(DEVKITPRO)/libnx/switch.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
 
+# $(info    LDFLAGS is $(LDFLAGS))
+
 LIBS	:= -lSDL2_mixer -lSDL2 -lEGL -lGLESv2 -lglapi -ldrm_nouveau -lnx -lSDL2_ttf -lfreetype -lz -lbz2 -lpng  -lopusfile -lopus -lvorbisfile -lvorbis -logg -lmodplug -lFLAC -lmpg123
 
 #---------------------------------------------------------------------------------

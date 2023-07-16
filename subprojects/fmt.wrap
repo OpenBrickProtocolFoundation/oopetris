@@ -10,3 +10,4 @@ wrapdb_version = 9.1.0-1
 
 [provide]
 fmt = fmt_dep
+fmt_header_only = fmt_header_only_dep
