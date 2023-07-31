@@ -46,8 +46,14 @@
     },
     {
       "name": "tl-expected",
-      "version": "1.1.0",
+      "version>=": "1.1.0",
       "platform": "(x64 & static)"
+    }
+  ],
+  "overrides": [
+    {
+      "name": "tl-expected",
+      "version": "1.1.0"
     }
   ]
 }
