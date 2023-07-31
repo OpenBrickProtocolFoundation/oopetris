@@ -64,7 +64,7 @@ jobs:
           git clone https://github.com/Microsoft/vcpkg.git
           "${{github.workspace}}/vcpkg/bootstrap-vcpkg.sh"
 
-      - uses: seanmiddleditch/gha-setup-ninja@master
+      - uses: abdes/gha-setup-ninja@master
 
       - name: Configure CMake (Windows only)
         if: matrix.config.os == 'windows-latest'

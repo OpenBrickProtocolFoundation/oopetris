@@ -10,7 +10,7 @@ jobs:
     switch-build:
         runs-on: ubuntu-22.04
         container:
-          image: devkitpro/devkita64 ## base on debian:buster-slim
+            image: devkitpro/devkita64 ## base on debian:buster-slim
         steps:
             - uses: actions/checkout@v3
               with:
@@ -24,7 +24,7 @@ jobs:
                   pip install meson
 
             - name: Setup ninja
-              uses: seanmiddleditch/gha-setup-ninja@master
+              uses: abdes/gha-setup-ninja@master
 
             - name: Build executable
               run: |
