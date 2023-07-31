@@ -11,3 +11,4 @@ wrapdb_version = 1.4.3-1
 
 [provide]
 flac = flac_dep
+libflac = flac_dep
