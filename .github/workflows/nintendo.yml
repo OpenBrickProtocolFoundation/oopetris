@@ -26,11 +26,6 @@ jobs:
             - name: Setup ninja
               uses: abdes/gha-setup-ninja@master
 
-            - name: Install Switch Ports for needed dependecies
-              run: |
-                  dkp-pacman -Syyu --noconfirm
-                  dkp-pacman -S --needed --noconfirm  libnx switch-bzip2 switch-cmake switch-flac switch-freetype switch-libdrm_nouveau switch-libmodplug switch-libogg switch-libopus switch-libpng switch-libvorbis switch-libvorbisidec switch-mesa switch-mpg123 switch-opusfile switch-pkg-config switch-sdl2 switch-sdl2_mixer switch-sdl2_ttf switch-zlib
-
             - name: Build executable
               run: |
                   meson setup build

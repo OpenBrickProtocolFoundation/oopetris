@@ -88,7 +88,7 @@ deps += dependency(
 
 # a dirty thing atm, until mpg123 is ported to meson (maybe never...)
 mpg123_dep = dependency(
-    'mgp123',
+    'mpg123',
     allow_fallback: not only_allow_native_libs,
     required: only_allow_native_libs,
     native: native,
