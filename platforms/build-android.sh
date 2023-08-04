@@ -149,7 +149,7 @@ for INDEX in "${!ARCH_KEYS[@]}"; do
 
     cd "$LAST_DIR"
 
-    cat <<EOF >"./platforms/crossbuilt-android-$ARM_TARGET_ARCH.ini"
+    cat <<EOF >"./platforms/crossbuild-android-$ARM_TARGET_ARCH.ini"
 [host_machine]
 system = 'android'
 cpu_family = '$ARCH'
@@ -217,7 +217,7 @@ EOF
         "--prefix=$SYS_ROOT" \
         "--includedir=$INC_PATH" \
         "--libdir=usr/lib/$ARM_NAME_TRIPLE/$SDK_VERSION" \
-        --cross-file "./platforms/crossbuilt-android-$ARM_TARGET_ARCH.ini" \
+        --cross-file "./platforms/crossbuild-android-$ARM_TARGET_ARCH.ini" \
         -Dsdl2:use_hidapi=disabled \
         -Dcpp_args=-DAUDIO_PREFER_MP3
 

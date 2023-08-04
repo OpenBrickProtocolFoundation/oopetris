@@ -45,7 +45,7 @@ export ARCH_ARGS="'-march=armv8-a','-mtp=soft','-fPIE'"
 export LD_LIBS_FLAGS="'-L$PORTLIBS_LIB','-L$LIBNX_LIB'"
 export ASFLAGS="-g $ARCH_ARGS"
 
-cat <<EOF >"./platforms/crossbuilt-switch.ini"
+cat <<EOF >"./platforms/crossbuild-switch.ini"
 [host_machine]
 system = 'switch'
 cpu_family = '$ARCH'
@@ -100,6 +100,6 @@ mkdir -p $ROMFS
 cp -r assets $ROMFS
 
 meson setup "$BUILD_DIR" \
-    --cross-file "./platforms/crossbuilt-switch.ini"
+    --cross-file "./platforms/crossbuild-switch.ini"
 
 meson compile -C "$BUILD_DIR"
