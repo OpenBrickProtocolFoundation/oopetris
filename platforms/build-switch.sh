@@ -99,7 +99,7 @@ mkdir -p $ROMFS
 
 cp -r assets $ROMFS
 
-meson setup --wipe "$BUILD_DIR" \
+meson setup "$BUILD_DIR" \
     --cross-file "./platforms/crossbuilt-switch.ini"
 
 meson compile -C "$BUILD_DIR"
