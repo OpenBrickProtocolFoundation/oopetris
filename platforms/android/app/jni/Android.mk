@@ -3,7 +3,7 @@ LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := SDL2
-LIB_PATH := ../../../../build-$(TARGET_ARCH_ABI)/subprojects/SDL2-2.26.5
+LIB_PATH := ../../../../build-$(TARGET_ARCH_ABI)/subprojects/SDL2-2.28.1
 LOCAL_C_INCLUDES := $(LIB_PATH)/include
 LOCAL_SRC_FILES := $(LIB_PATH)/libsdl2.so
 include $(PREBUILT_SHARED_LIBRARY)
@@ -11,14 +11,14 @@ include $(PREBUILT_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := freetype
-SO_PATH := ../../../../build-$(TARGET_ARCH_ABI)/subprojects/freetype-2.12.1
+SO_PATH := ../../../../build-$(TARGET_ARCH_ABI)/subprojects/freetype-2.13.1
 LOCAL_SRC_FILES :=  $(SO_PATH)/libfreetype.so
 include $(PREBUILT_SHARED_LIBRARY)
 
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := libpng
-SO_PATH := ../../../../build-$(TARGET_ARCH_ABI)/subprojects/libpng-1.6.39
+SO_PATH := ../../../../build-$(TARGET_ARCH_ABI)/subprojects/libpng-1.6.40
 LOCAL_SRC_FILES :=  $(SO_PATH)/libpng16.so
 include $(PREBUILT_SHARED_LIBRARY)
 
@@ -60,7 +60,7 @@ include $(PREBUILT_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := libflac
-LIB_PATH := ../../../../build-$(TARGET_ARCH_ABI)/subprojects/flac-1.4.2/src
+LIB_PATH := ../../../../build-$(TARGET_ARCH_ABI)/subprojects/flac-1.4.3/src
 LOCAL_SRC_FILES :=  $(LIB_PATH)/libFLAC/libFLAC.so
 include $(PREBUILT_SHARED_LIBRARY)
 

@@ -22,7 +22,7 @@ jobs:
           pip install meson
 
       - name: Setup ninja
-        uses: seanmiddleditch/gha-setup-ninja@master
+        uses: abdes/gha-setup-ninja@master
 
       - name: Run all
         run: |
@@ -30,7 +30,7 @@ jobs:
           cp -r ./assets/ platforms/android/app/src/main
 
       - name: Build APK
-        uses: sparkfabrik/android-build-action@v1.3.4
+        uses: sparkfabrik/android-build-action@v1.5.0
         with:
           build-type: assemble
           gradle-task: assembleDebug

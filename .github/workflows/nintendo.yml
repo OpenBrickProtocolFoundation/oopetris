@@ -24,7 +24,7 @@ jobs:
                   pip install meson
 
             - name: Setup ninja
-              uses: seanmiddleditch/gha-setup-ninja@master
+              uses: abdes/gha-setup-ninja@master
 
             - name: Build executable
               run: |
