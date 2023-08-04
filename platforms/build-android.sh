@@ -42,7 +42,7 @@ for INDEX in "${!ARCH_KEYS[@]}"; do
     ARCH=$(echo "$RAW_JSON" | jq -M -r -c '."arch"')
     ARM_VERSION=$(echo "$RAW_JSON" | jq -M -r -c '."proc"' | tr -d "-")
     ARM_NAME_TRIPLE=$(echo "$RAW_JSON" | jq -M -r -c '."triple"')
-    ARM_TARET_ARCH=$KEY
+    ARM_TARGET_ARCH=$KEY
     ARM_TRIPLE=$ARM_NAME_TRIPLE$SDK_VERSION
     ARM_COMPILER_TRIPLE=$(echo "$RAW_JSON" | jq -M -r -c '."llvm_triple"')
     ARM_TOOL_TRIPLE=$(echo "$ARM_NAME_TRIPLE$SDK_VERSION" | sed s/$ARCH/$ARM_VERSION/)
@@ -86,7 +86,7 @@ for INDEX in "${!ARCH_KEYS[@]}"; do
 
     cd "$LAST_DIR"
 
-    export BUILD_DIR="build-$ARM_TARET_ARCH"
+    export BUILD_DIR="build-$ARM_TARGET_ARCH"
 
     export CC=$ARM_TOOL_TRIPLE-clang
     export CXX=$ARM_TOOL_TRIPLE-clang++
@@ -149,7 +149,7 @@ for INDEX in "${!ARCH_KEYS[@]}"; do
 
     cd "$LAST_DIR"
 
-    cat <<EOF >"./platforms/crossbuilt-android-$ARM_TARET_ARCH.ini"
+    cat <<EOF >"./platforms/crossbuilt-android-$ARM_TARGET_ARCH.ini"
 [host_machine]
 system = 'android'
 cpu_family = '$ARCH'
@@ -217,7 +217,7 @@ EOF
         "--prefix=$SYS_ROOT" \
         "--includedir=$INC_PATH" \
         "--libdir=usr/lib/$ARM_NAME_TRIPLE/$SDK_VERSION" \
-        --cross-file "./platforms/crossbuilt-android-$ARM_TARET_ARCH.ini" \
+        --cross-file "./platforms/crossbuilt-android-$ARM_TARGET_ARCH.ini" \
         -Dsdl2:use_hidapi=disabled \
         -Dcpp_args=-DAUDIO_PREFER_MP3
 

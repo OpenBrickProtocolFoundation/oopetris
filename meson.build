@@ -50,7 +50,7 @@ sdl2_dep = dependency(
     'sdl2',
     'SDL2',
     allow_fallback: false,
-    required: true,
+    required: false,
     native: native,
 )
 
