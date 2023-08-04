@@ -8,7 +8,7 @@ patch_url = https://wrapdb.mesonbuild.com/v2/spdlog_1.11.0-2/get_patch
 patch_hash = db1364fe89502ac67f245a6c8c51290a52afd74a51eed26fa9ecb5b3443df57a
 wrapdb_version = 1.11.0-2
 
-diff_files = spdlog_android.diff
+diff_files = spdlog_android.diff, spdlog_switch.diff
 
 [provide]
 spdlog = spdlog_dep

@@ -1,5 +1,5 @@
-crossbuilt.ini
-crossbuilt-*.ini
+crossbuild.ini
+crossbuild-*.ini
 
 *.elf
 *.nacp
