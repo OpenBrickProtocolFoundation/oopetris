@@ -37,12 +37,17 @@ inc_dirs = []
 
 
 native = true
-if (
-    meson.is_cross_build()
-    and (host_machine.system() == 'android'
-    or host_machine.system() == 'switch')
-)
-    native = false
+only_allow_native_libs = false
+if (meson.is_cross_build())
+    if (host_machine.system() == 'android')
+
+        native = false
+
+    elif host_machine.system() == 'switch'
+
+        native = false
+        only_allow_native_libs = true
+    endif
 endif
 
 
@@ -50,7 +55,7 @@ sdl2_dep = dependency(
     'sdl2',
     'SDL2',
     allow_fallback: false,
-    required: false,
+    required: only_allow_native_libs,
     native: native,
 )
 
@@ -75,7 +80,7 @@ endif
 deps += dependency(
     'sdl2_ttf',
     'SDL2_ttf',
-    allow_fallback: false,
+    allow_fallback: not only_allow_native_libs,
     required: true,
     native: native,
 )
@@ -84,8 +89,8 @@ deps += dependency(
 # a dirty thing atm, until mpg123 is ported to meson (maybe never...)
 mpg123_dep = dependency(
     'mgp123',
-    allow_fallback: false,
-    required: false,
+    allow_fallback: not only_allow_native_libs,
+    required: only_allow_native_libs,
     native: native,
 )
 sdl2_mixer_flags = ['flac=enabled']
@@ -113,7 +118,7 @@ endif
 deps += dependency(
     'sdl2_mixer',
     'SDL2_mixer',
-    allow_fallback: false,
+    allow_fallback: not only_allow_native_libs,
     required: true,
     native: native,
     default_options: sdl2_mixer_flags,
