@@ -87,9 +87,11 @@ libray_dirs= ['$LIBNX_LIB', '$PORTLIBS_LIB']
 romfs_dir='$ROMFS'
 libnx='$LIBNX'
 
+USE_NACP    = true
 APP_TITLE	= 'oopetris'
 APP_AUTHOR 	= 'coder2k'
 APP_VERSION = '1.0'
+
 
 EOF
 

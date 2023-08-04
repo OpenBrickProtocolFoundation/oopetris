@@ -245,9 +245,7 @@ if meson.is_cross_build() and host_machine.system() == 'android'
     )
 elif meson.is_cross_build() and host_machine.system() == 'switch'
 
-    #TODO build elf and then nro
-
-    elf_file = executable(
+    elf_file = build_target(
         'oopetris.elf',
         src_files,
         include_directories: inc_dirs,
@@ -259,26 +257,66 @@ elif meson.is_cross_build() and host_machine.system() == 'switch'
             'werror=true',
         ],
         native: native,
+        target_type: 'executable',
     )
 
 
+    use_nacp = ['true', 'True', '1', true].contains(
+        meson.get_external_property('USE_NACP'),
+    )
 
     elf2nro = find_program('elf2nro')
-
-
-    # elf
-    # nacp
-
-    # nso
-    # pfs0
-
-    # nro
-
+    # executable input elf file, output nro file
+    NROFLAGS = [elf2nro, 'oopetris.elf', 'oopetris.nro']
+    NRO_DEPS = [elf_file]
+    NACP_DEPS = NRO_DEPS
 
     fs = import('fs')
 
-    NROFLAGS = []
+    if use_nacp
+        nacptool = find_program('nacptool')
+        NACPFLAGS = [nacptool, '--create']
 
+        APP_NAME = meson.get_external_property('APP_NAME', 'oopetris')
+        NACPFLAGS += APP_NAME
+
+
+        APP_AUTHOR = meson.get_external_property('APP_AUTHOR', '')
+        if APP_AUTHOR == ''
+            error('If USE_NACP is set, you have to provie an APP_AUTHOR')
+        endif
+        NACPFLAGS += APP_AUTHOR
+
+        APP_VERSION = meson.get_external_property('APP_VERSION', '')
+        if APP_VERSION == ''
+            error('If USE_NACP is set, you have to provie an APP_VERSION')
+        endif
+        NACPFLAGS += APP_VERSION
+
+        NACPFLAGS += 'oopetris.nacp' # outfile
+
+
+        APP_TITLEID = meson.get_external_property('APP_TITLEID', '')
+
+        # optional
+        if APP_TITLEID != ''
+            NACPFLAGS += '--titleid=' + APP_TITLEID
+        endif
+
+
+        # nacptool --create name author version oopetris.nacp 
+        # optional: --titleid=<titleID>
+        nacp_file = custom_target(
+            'oopetris.nacp',
+            command: NACPFLAGS,
+            output: ['oopetirs.nacp'],
+            depends: NACP_DEPS,
+        )
+        NROFLAGS += '--nacp=oopetris.nacp'
+        NRO_DEPS += nacp_file
+
+
+    endif
 
 
     default_icon = meson.get_external_property('libnx') / 'default_icon.jpg'
@@ -290,16 +328,6 @@ elif meson.is_cross_build() and host_machine.system() == 'switch'
     endif
 
     NROFLAGS += '--icon=' + APP_ICON
-    NROFLAGS += '--nacp=oopetris.nacp'
-
-
-    NACPFLAGS = []
-
-    APP_TITLEID = meson.get_external_property('APP_TITLEID', '')
-
-    if APP_TITLEID != ''
-        NACPFLAGS += '--titleid=' + APP_TITLEID
-    endif
 
 
     romfs_dir = meson.get_external_property('romfs_dir')
@@ -308,19 +336,21 @@ elif meson.is_cross_build() and host_machine.system() == 'switch'
         error('romfs_dir should exist, but doesn\'t: \'' + romfs_dir + '\'')
     endif
 
+    if not fs.is_absolute(romfs_dir)
+        romfs_dir = meson.project_source_root() / romfs_dir
+    endif
+
+
     NROFLAGS += '--romfsdir=' + romfs_dir
 
-
-
-    # nacptool --create "$(APP_TITLE)" "$(APP_AUTHOR)" "$(APP_VERSION)" oopetris.nacp $(NACPFLAGS)
-
-
-    # elf2nso oopetris.elf oopetris.nso
-
-
     # elf2nro oopetris.elf oopetris.nro NROFLAGS
-
-    run_command(elf2nro)
+    nro_file = custom_target(
+        'oopetris.nro',
+        command: NROFLAGS,
+        depends: NRO_DEPS,
+        output: ['oopetris.nro'],
+        build_by_default: true,
+    )
 
 
 else
