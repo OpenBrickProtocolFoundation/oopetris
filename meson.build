@@ -142,7 +142,6 @@ if (meson.is_cross_build() and host_machine.system() == 'switch')
         )
         deps += fmt_header_only_dep
 
-        #meson.override_dependency('fmt', fmt_header_only_dep)
     endif
 
 
@@ -210,12 +209,11 @@ if (meson.is_cross_build() and host_machine.system() == 'switch')
         'FLAC',
     ]
 
-    ## /opt/devkitpro/portlibs/switch/lib/
 
-    libray_dirs = meson.get_external_property('libray_dirs')
+    library_dirs = meson.get_external_property('library_dirs')
 
     foreach dep : switch_dependencies
-        deps += cpp.find_library(dep, required: true, dirs: libray_dirs)
+        deps += cpp.find_library(dep, required: true, dirs: library_dirs)
     endforeach
 
 

@@ -83,7 +83,7 @@ cpp_link_args = ['-specs=$DEVKITPRO/libnx/switch.specs','-g', $ARCH_ARGS, $LD_LI
 [properties]
 pkg_config_libdir = '$PKG_CONFIG_PATH'
 needs_exe_wrapper = true
-libray_dirs= ['$LIBNX_LIB', '$PORTLIBS_LIB']
+library_dirs= ['$LIBNX_LIB', '$PORTLIBS_LIB']
 romfs_dir='$ROMFS'
 libnx='$LIBNX'
 
