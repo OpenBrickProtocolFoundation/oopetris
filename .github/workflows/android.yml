@@ -24,6 +24,12 @@ jobs:
       - name: Setup ninja
         uses: abdes/gha-setup-ninja@master
 
+      - name: Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
       - name: Run all
         run: |
           bash ./platforms/build-android.sh
