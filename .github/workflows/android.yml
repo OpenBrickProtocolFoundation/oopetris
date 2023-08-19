@@ -39,16 +39,12 @@ jobs:
           cp -r ./assets/ platforms/android/app/src/main
 
       - name: Build APK
-        uses: sparkfabrik/android-build-action@v1.5.0
-        with:
-          build-type: bundle
-          gradle-task: bundleDebug
-          project-path: platforms/android
-          output-path: oopetris.aab
-          bundler-version: "2.4"
+        run: | 
+          cd platforms/android/
+          ./gradlew bundelDebug
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
           name: oopetris.aab
-          path: oopetris.aab
+          path: platforms/android/app/build/outputs/bundle/debug/app-debug.aab
