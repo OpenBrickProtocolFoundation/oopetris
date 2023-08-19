@@ -185,6 +185,7 @@ deps += dependency(
     required: true,
     fallback: ['magic_enum'],
     native: native,
+    default_options:['test=false']
 )
 deps += dependency(
     'argparse',
