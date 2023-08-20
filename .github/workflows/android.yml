@@ -8,9 +8,6 @@ on:
   pull_request:
   workflow_dispatch:
 
-env:
-  ANDROID_NDK_HOME: $GITHUB_WORKSPACE/toolchains/android-ndk-r26-beta2
-
 jobs:
   android-build:
     runs-on: ubuntu-22.04
@@ -32,6 +29,13 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
+        
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
+        
+      - name: Setup NDK
+        run: | 
+          sdkmanager --install "ndk;26.0.10636728" --channel=1
 
       - name: Run all
         run: |
@@ -41,7 +45,7 @@ jobs:
       - name: Build APK
         run: | 
           cd platforms/android/
-          ./gradlew bundelDebug
+          ./gradlew bundleDebug --no-daemon
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
