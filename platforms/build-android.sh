@@ -4,10 +4,10 @@ set -e
 
 mkdir -p toolchains
 
-export NDK_VER="25c"
-export SDK_VERSION="33"
+export NDK_VER_DOWNLOAD="r26-rc1"
+export NDK_VER_DESC="r26-beta2"
 
-export BASE_PATH="$PWD/toolchains/android-ndk-r$NDK_VER"
+export BASE_PATH="$PWD/toolchains/android-ndk-$NDK_VER_DESC"
 export ANDROID_NDK_HOME="$BASE_PATH"
 export ANDROID_NDK="$BASE_PATH"
 
@@ -15,9 +15,9 @@ if [ ! -d "$BASE_PATH" ]; then
 
     cd toolchains
 
-    wget -q "https://dl.google.com/android/repository/android-ndk-r$NDK_VER-linux.zip"
+    wget -q "https://dl.google.com/android/repository/android-ndk-$NDK_VER_DOWNLOAD-linux.zip"
 
-    unzip -q "android-ndk-r$NDK_VER-linux.zip"
+    unzip -q "android-ndk-$NDK_VER_DOWNLOAD-linux.zip"
 
     cd ..
 fi
@@ -29,7 +29,14 @@ if [ ! -e "$BASE_PATH/meta/abis.json" ]; then
 
 fi
 
-echo
+if [ ! -e "$BASE_PATH/meta/platforms.json" ]; then
+
+    echo "no platforms.json file found, to determine supported platforms and SDKs"
+    exit 2
+
+fi
+
+export SDK_VERSION=$(jq '.max' -M -r -c "$BASE_PATH/meta/platforms.json")
 
 mapfile -t ARCH_KEYS < <(jq 'keys' -M -r -c "$BASE_PATH/meta/abis.json" | tr -d '[]"' | sed 's/,/\n/g')
 

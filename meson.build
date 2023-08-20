@@ -185,6 +185,7 @@ deps += dependency(
     required: true,
     fallback: ['magic_enum'],
     native: native,
+    default_options:['test=false']
 )
 deps += dependency(
     'argparse',
@@ -347,7 +348,7 @@ elif meson.is_cross_build() and host_machine.system() == 'switch'
     NROFLAGS += '--romfsdir=' + romfs_dir
 
     # elf2nro oopetris.elf oopetris.nro NROFLAGS
-    nro_file = custom_target(
+    custom_target(
         'oopetris.nro',
         command: NROFLAGS,
         depends: NRO_DEPS,
