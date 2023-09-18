@@ -8,7 +8,7 @@ if (buildAsApplication) {
 
 android {
     compileSdkVersion 34
-    ndkVersion "26.0.10636728-rc1"
+    ndkVersion "26.0.10792818"
     defaultConfig {
         if (buildAsApplication) {
             applicationId "com.github.oopetris"
@@ -16,7 +16,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 34
         versionCode 2
-        versionName "1.0.1"
+        versionName "1.0.2"
         externalNativeBuild {
             ndkBuild {
                 arguments "APP_PLATFORM=android-34"
