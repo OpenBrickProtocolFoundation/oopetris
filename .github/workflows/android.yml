@@ -35,7 +35,7 @@ jobs:
         
       - name: Setup NDK
         run: | 
-          sdkmanager --install "ndk;26.0.10792818"
+          sdkmanager --install "ndk;26.1.10909125"
 
       - name: Run all
         run: |
