@@ -26,9 +26,8 @@ jobs:
             - name: Setup ninja
               uses: abdes/gha-setup-ninja@master
 
-            - name: Build executable
+            - name: Configure and Build
               run: |
-                  meson setup build
                   bash ./platforms/build-switch.sh
 
             - name: Upload artifacts
