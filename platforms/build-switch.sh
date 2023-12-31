@@ -102,5 +102,4 @@ cp -r assets $ROMFS
 meson setup "$BUILD_DIR" \
     --cross-file "./platforms/crossbuild-switch.ini"
 
-exit 1
 meson compile -C "$BUILD_DIR"
