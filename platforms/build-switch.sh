@@ -86,6 +86,7 @@ needs_exe_wrapper = true
 library_dirs= ['$LIBNX_LIB', '$PORTLIBS_LIB']
 romfs_dir='$ROMFS'
 libnx='$LIBNX'
+APP_ICON='$ROMFS/icon/icon_512.png'
 
 USE_NACP    = true
 APP_TITLE	= 'oopetris'
