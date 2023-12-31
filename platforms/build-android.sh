@@ -235,3 +235,20 @@ done
 # TODO only copy the supported music ones (atm we need both for i686 flac is needed!)
 
 cp -r ./assets/ platforms/android/app/src/main
+
+# copy icons to correct dir
+
+DESC_ARRAY=(m h x xx xxx)
+RES_ARRAY=(48 72 96 144 192)
+
+for IDX in "${!DESC_ARRAY[@]}"; do
+
+    DESC="${DESC_ARRAY[$IDX]}"
+    RES="${RES_ARRAY[$IDX]}"
+
+    export DESC_DIR="platforms/android/app/src/main/res/mipmap-${DESC}dpi"
+
+    mkdir -p "$DESC_DIR"
+    cp -r "./assets/icon/icon_$RES.png" "${DESC_DIR}/ic_launcher.png"
+
+done

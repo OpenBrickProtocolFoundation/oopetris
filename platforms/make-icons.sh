@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-for RES in 24 64 96 128 160 192 256 512; do
+for RES in 24 48 64 72 96 128 144 160 192 256 512; do
 
     inkscape "--export-width=$RES" "--export-height=$RES" --export-type=png "--export-filename=../assets/icon/icon_$RES.png" "../assets/OOPetris.svg"
 
