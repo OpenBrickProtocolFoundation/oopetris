@@ -337,15 +337,15 @@ elif meson.is_cross_build() and host_machine.system() == 'switch'
 
     if not fs.exists(app_icon)
         error('APP_ICON should exist, but doesn\'t: \'' + app_icon + '\'')
-    else
+    endif
 
     if not fs.is_absolute(app_icon)
-            app_icon = meson.project_source_root() / app_icon
+        app_icon = meson.project_source_root() / app_icon
     endif
 
 
     NROFLAGS += '--icon=' + app_icon
-    
+
 
     romfs_dir = meson.get_external_property('romfs_dir')
 
