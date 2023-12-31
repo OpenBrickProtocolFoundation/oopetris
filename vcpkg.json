@@ -5,17 +5,17 @@
   "dependencies": [
     {
       "name": "sdl2",
-      "version>=": "2.28.2",
+      "version>=": "2.28.5#1",
       "platform": "(x64 & static)"
     },
     {
       "name": "sdl2-ttf",
-      "version>=": "2.20.2",
+      "version>=": "2.20.2#1",
       "platform": "(x64 & static)"
     },
     {
       "name": "sdl2-mixer",
-      "version>=": "2.6.3#1",
+      "version>=": "2.6.3#2",
       "platform": "(x64 & static)",
       "features":["libflac", "mpg123"]
     },
@@ -26,12 +26,12 @@
     },
     {
       "name": "nlohmann-json",
-      "version>=": "3.11.2",
+      "version>=": "3.11.3",
       "platform": "(x64 & static)"
     },
     {
       "name": "magic-enum",
-      "version>=": "0.9.3",
+      "version>=": "0.9.5",
       "platform": "(x64 & static)"
     },
     {
@@ -41,7 +41,7 @@
     },
     {
       "name": "argparse",
-      "version>=": "2.9",
+      "version>=": "3.0",
       "platform": "(x64 & static)"
     },
     {
