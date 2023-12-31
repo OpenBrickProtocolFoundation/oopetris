@@ -238,7 +238,7 @@ cp -r ./assets/ platforms/android/app/src/main
 
 # copy icons to correct dir
 
-DESC_ARRAY=(m h x xx xxx)
+DESC_ARRAY=(m h xh xxh xxxh)
 RES_ARRAY=(48 72 96 144 192)
 
 for IDX in "${!DESC_ARRAY[@]}"; do
