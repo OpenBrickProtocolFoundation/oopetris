@@ -7,6 +7,8 @@
 #include "../../switch_buttons.hpp"
 #endif
 
+#include <fmt/format.h>
+
 
 namespace scenes {
 
