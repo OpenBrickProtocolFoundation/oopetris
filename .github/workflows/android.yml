@@ -25,7 +25,7 @@ jobs:
       - name: Temporary fix
         run: |
           sed -i 's/# diff_files/diff_files/g' subprojects/sdl2.wrap 
-  
+          sed -i 's/# diff_files/diff_files/g' subprojects/magic_enum.wrap 
 
       - name: Setup ninja
         uses: abdes/gha-setup-ninja@master
