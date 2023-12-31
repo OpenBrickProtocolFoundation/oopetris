@@ -69,6 +69,13 @@ include $(PREBUILT_SHARED_LIBRARY)
 
 
 include $(CLEAR_VARS)
+LOCAL_MODULE := libfmt
+LIB_PATH := $(SUBPROJECTS_PATH)/fmt-9.1.0
+LOCAL_SRC_FILES :=  $(LIB_PATH)/libfmt.so
+include $(PREBUILT_SHARED_LIBRARY)
+
+
+include $(CLEAR_VARS)
 LOCAL_MODULE := liboopetris
 LOCAL_SRC_FILES := $(BUILD_PATH)/liboopetris.so
 include $(PREBUILT_SHARED_LIBRARY)
@@ -77,7 +84,7 @@ include $(PREBUILT_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := main
-LOCAL_SHARED_LIBRARIES := SDL2 SDL2_ttf freetype libpng SDL2_mixer libvorbis libvorbisfile libogg libflac liboopetris
+LOCAL_SHARED_LIBRARIES := SDL2 SDL2_ttf freetype libpng SDL2_mixer libvorbis libvorbisfile libogg libflac libfmt liboopetris
 LOCAL_LDLIBS := -ldl -lGLESv1_CM -lGLESv2 -lOpenSLES -llog -landroid
 LOCAL_LDFLAGS := -Wl,--no-undefined
 include $(BUILD_SHARED_LIBRARY)
