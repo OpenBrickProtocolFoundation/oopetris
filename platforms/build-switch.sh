@@ -64,7 +64,7 @@ ranlib  = '$RANLIB'
 strip   = '$STRIP'
 objcopy = '$OBJCOPY'
 nm = '$NM'
-pkgconfig = '$PKG_CONFIG_EXEC'
+pkg-config = '$PKG_CONFIG_EXEC'
 cmake='$CMAKE'
 freetype-config='$BIN_DIR/freetype-config'
 libpng16-config='$BIN_DIR/libpng16-config'
@@ -102,4 +102,5 @@ cp -r assets $ROMFS
 meson setup "$BUILD_DIR" \
     --cross-file "./platforms/crossbuild-switch.ini"
 
+exit 1
 meson compile -C "$BUILD_DIR"

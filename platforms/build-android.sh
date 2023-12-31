@@ -176,7 +176,7 @@ ranlib  = 'llvm-ranlib'
 ld      = 'llvm-link'
 strip   = 'llvm-strip'
 objcopy = 'llvm-objcop'
-pkgconfig = 'false'
+pkg-config = 'false'
 llvm-config = 'llvm-config'
 
 [built-in options]
