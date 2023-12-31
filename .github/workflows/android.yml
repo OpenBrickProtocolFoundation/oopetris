@@ -21,6 +21,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install meson
 
+      # see sdl2.wrap and the issue link in there, it is a problem on windows, and therefore it has to be enabled only in android, where it suceeds
+      - name: Temporary fix
+        run: |
+          sed -i 's/# diff_files/diff_files/g' subprojects/sdl2.wrap 
+          sed -i 's/# diff_files/diff_files/g' subprojects/magic_enum.wrap 
+
       - name: Setup ninja
         uses: abdes/gha-setup-ninja@master
 
@@ -35,7 +41,7 @@ jobs:
         
       - name: Setup NDK
         run: | 
-          sdkmanager --install "ndk;26.0.10792818"
+          sdkmanager --install "ndk;26.1.10909125"
 
       - name: Run all
         run: |
