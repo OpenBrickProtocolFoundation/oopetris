@@ -166,7 +166,11 @@ deps += dependency(
     default_options: ['tests=false'],
 )
 
-deps += dependency('nlohmann_json', required: true, native: native)
+deps += dependency(
+    'nlohmann_json',
+    required: true,
+    native: native,
+)
 
 deps += dependency(
     'tl-optional',
@@ -185,7 +189,7 @@ deps += dependency(
     required: true,
     fallback: ['magic_enum'],
     native: native,
-    default_options:['test=false']
+    default_options: ['test=false'],
 )
 deps += dependency(
     'argparse',
@@ -219,7 +223,11 @@ if (meson.is_cross_build() and host_machine.system() == 'switch')
     library_dirs = meson.get_external_property('library_dirs')
 
     foreach dep : switch_dependencies
-        deps += cpp.find_library(dep, required: true, dirs: library_dirs)
+        deps += cpp.find_library(
+            dep,
+            required: true,
+            dirs: library_dirs,
+        )
     endforeach
 
 
@@ -325,13 +333,18 @@ elif meson.is_cross_build() and host_machine.system() == 'switch'
 
     default_icon = meson.get_external_property('libnx') / 'default_icon.jpg'
 
-    APP_ICON = meson.get_external_property('APP_ICON', default_icon)
+    app_icon = meson.get_external_property('APP_ICON', default_icon)
 
-    if not fs.exists(APP_ICON)
-        error('APP_ICON should exist, but doesn\'t: \'' + APP_ICON + '\'')
+    if not fs.exists(app_icon)
+        error('APP_ICON should exist, but doesn\'t: \'' + app_icon + '\'')
     endif
 
-    NROFLAGS += '--icon=' + APP_ICON
+    if not fs.is_absolute(app_icon)
+        app_icon = meson.project_source_root() / app_icon
+    endif
+
+
+    NROFLAGS += '--icon=' + app_icon
 
 
     romfs_dir = meson.get_external_property('romfs_dir')
