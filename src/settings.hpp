@@ -3,7 +3,15 @@
 #include "controls.hpp"
 #include "magic_enum_wrapper.hpp"
 #include <array>
+
+#include <fmt/format.h>
+
+#ifdef DEBUG_BUILD
+// better json error messages, see https://json.nlohmann.me/api/macros/json_diagnostics/
+#define JSON_DIAGNOSTICS 1
+#endif
 #include <nlohmann/json.hpp>
+
 #include <string>
 #include <variant>
 
@@ -21,22 +29,32 @@ inline void to_json(nlohmann::json& j, const KeyboardControls& controls) {
     };
 }
 
+
+inline KeyCode get_key_code_safe(const nlohmann::json& j, const std::string& name) {
+
+    auto context = j.at(name);
+
+    std::string input;
+    context.get_to(input);
+
+    const auto& value = magic_enum::enum_cast<KeyCode>(input);
+    if (not value.has_value()) {
+        throw nlohmann::json::type_error::create(
+                302, fmt::format("Expected a valid KeyCode in key '{}', but got '{}'", name, input), &context
+        );
+    }
+    return value.value();
+}
+
 inline void from_json(const nlohmann::json& j, KeyboardControls& controls) {
-    std::string str;
-    j.at("rotate_left").get_to(str);
-    controls.rotate_left = magic_enum::enum_cast<KeyCode>(str).value();
-    j.at("rotate_right").get_to(str);
-    controls.rotate_right = magic_enum::enum_cast<KeyCode>(str).value();
-    j.at("move_left").get_to(str);
-    controls.move_left = magic_enum::enum_cast<KeyCode>(str).value();
-    j.at("move_right").get_to(str);
-    controls.move_right = magic_enum::enum_cast<KeyCode>(str).value();
-    j.at("move_down").get_to(str);
-    controls.move_down = magic_enum::enum_cast<KeyCode>(str).value();
-    j.at("drop").get_to(str);
-    controls.drop = magic_enum::enum_cast<KeyCode>(str).value();
-    j.at("hold").get_to(str);
-    controls.hold = magic_enum::enum_cast<KeyCode>(str).value();
+
+    controls.rotate_left = get_key_code_safe(j, "rotate_left");
+    controls.rotate_right = get_key_code_safe(j, "rotate_right");
+    controls.move_left = get_key_code_safe(j, "move_left");
+    controls.move_right = get_key_code_safe(j, "move_right");
+    controls.move_down = get_key_code_safe(j, "move_down");
+    controls.drop = get_key_code_safe(j, "drop");
+    controls.hold = get_key_code_safe(j, "hold");
 }
 
 using Controls = std::variant<KeyboardControls>;

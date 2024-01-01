@@ -1,6 +1,8 @@
 #include "application.hpp"
 #include "scenes/scene.hpp"
+#include <fmt/format.h>
 #include <fstream>
+#include <stdexcept>
 
 #if defined(__SWITCH__)
 #include <switch.h>
@@ -109,14 +111,31 @@ void Application::initialize() {
     push_scene(scenes::create_scene(*this, &m_window, SceneId::MainMenu));
 }
 
-void Application::try_load_settings() try {
+void Application::try_load_settings() {
     const std::filesystem::path settings_file = utils::get_root_folder() / settings_filename;
-    std::ifstream settings_file_stream{};
+    std::string reason{};
+    if (not std::filesystem::exists(settings_file)) {
+        reason = "file doesn't exist";
+    } else {
+        try {
+            std::ifstream settings_file_stream{ settings_file };
 
-    m_settings = nlohmann::json::parse(settings_file_stream);
-    spdlog::info("settings loaded");
-} catch (...) {
-    spdlog::error("unable to load settings from \"{}\"", settings_filename);
+            m_settings = nlohmann::json::parse(settings_file_stream);
+            spdlog::info("settings loaded");
+            return;
+
+        } catch (nlohmann::json::parse_error& parse_error) {
+            reason = fmt::format("parse error: {}", parse_error.what());
+        } catch (nlohmann::json::type_error& type_error) {
+            reason = fmt::format("type error: {}", type_error.what());
+        } catch (nlohmann::json::exception& exception) {
+            reason = fmt::format("unknown json exception: {}", exception.what());
+        } catch (std::exception& exception) {
+            reason = fmt::format("unknown exception: {}", exception.what());
+        }
+    }
+
+    spdlog::error("unable to load settings from \"{}\": {}", settings_filename, reason);
     spdlog::warn("applying default settings");
 }
 
