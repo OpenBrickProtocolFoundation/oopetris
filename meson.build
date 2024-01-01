@@ -31,6 +31,11 @@ else
     add_project_arguments('-std=c++20', language: 'cpp')
 endif
 
+if get_option('buildtype') == 'debug' or get_option('buildtype') == 'debugoptimized'
+    add_project_arguments('-DDEBUG_BUILD', language: 'cpp')
+endif
+
+
 deps = []
 inc_dirs = []
 
