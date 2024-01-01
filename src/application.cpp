@@ -110,8 +110,10 @@ void Application::initialize() {
 }
 
 void Application::try_load_settings() try {
-    std::ifstream settings_file{ settings_filename };
-    m_settings = nlohmann::json::parse(settings_file);
+    const std::filesystem::path settings_file = utils::get_root_folder() / settings_filename;
+    std::ifstream settings_file_stream{};
+
+    m_settings = nlohmann::json::parse(settings_file_stream);
     spdlog::info("settings loaded");
 } catch (...) {
     spdlog::error("unable to load settings from \"{}\"", settings_filename);

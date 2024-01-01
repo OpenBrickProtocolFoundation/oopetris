@@ -2,6 +2,7 @@
 #include <SDL.h>
 #include <array>
 #include <chrono>
+#include <cstdlib>
 #include <ctime>
 #include <filesystem>
 #include <spdlog/spdlog.h>
@@ -48,8 +49,17 @@ namespace utils {
 #elif defined(__SWITCH__)
         // this is in the sdcard of the switch, since internal storage is read-only for applications!
         return std::filesystem::path{ "." };
+
+#elif defined(FLATPAK_BUILD)
+        // this is a read write location in the flatpak build, see https://docs.flatpak.org/en/latest/conventions.html
+        const char* data_home = std::getenv("XDG_DATA_HOME");
+        if (data_home == = nullptr) {
+            throw std::runtime_error{ "Failed to get flatpak data directory (XDG_DATA_HOME)" };
+        }
+
+        return std::filesystem::path{ data_home };
 #else
-        // this is only used in local build for debugging, when compiling in release mode the path is real path where the app can store many things without interfering with other things (eg. AppData\Roaming\... onw Windows or  .local/share/... on Linux )
+        // this is only used in local build for debugging, when compiling in release mode the path is real path where the app can store many things without interfering with other things (eg. AppData\Roaming\... on Windows or  .local/share/... on Linux )
         return std::filesystem::path{ "." };
 #endif
     }
@@ -76,11 +86,6 @@ namespace utils {
         return std::filesystem::path{ "assets" };
 #endif
     }
-
-    [[nodiscard]] std::filesystem::path get_subfolder_to_root(const std::string_view folder) {
-        return get_root_folder() / folder;
-    }
-
 
     tl::optional<bool> log_error(const std::string& error) {
         spdlog::error(error);
