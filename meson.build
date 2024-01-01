@@ -240,6 +240,7 @@ src_files = []
 
 subdir('src')
 
+## TODO: only istall needed ones, since sometimes we only need e.g. flacs or mp3 and no icons etc.
 ## install assets
 install_subdir('assets', install_dir: 'share/oopetris')
 
