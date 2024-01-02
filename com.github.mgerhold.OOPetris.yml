@@ -25,6 +25,8 @@ modules:
       - bash ../platforms/flatpak-icon-helper.sh
       - mkdir -p /app/share/applications/
       - cp ../assets/OOPetris.desktop /app/share/applications/com.github.mgerhold.OOPetris.desktop
+      - rm -rf /app/include
+      - rm -rf /app/lib/pkgconfig
     run-tests: true
 
 finish-args:

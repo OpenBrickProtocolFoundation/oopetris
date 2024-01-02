@@ -30,15 +30,15 @@
      inkscape:deskcolor="#9b9b9b"
      inkscape:document-units="cm"
      showgrid="false"
-     inkscape:zoom="0.21559408"
-     inkscape:cx="2516.3029"
-     inkscape:cy="3058.9894"
+     inkscape:zoom="3.4495053"
+     inkscape:cx="2729.6668"
+     inkscape:cy="1819.2464"
      inkscape:window-width="1850"
      inkscape:window-height="1011"
      inkscape:window-x="70"
      inkscape:window-y="32"
      inkscape:window-maximized="1"
-     inkscape:current-layer="layer3"
+     inkscape:current-layer="g717"
      showguides="true">
     <inkscape:grid
        type="xygrid"
@@ -8212,7 +8212,7 @@
            inkscape:label="Z-Tetromino Würfel"
            id="g687"
            inkscape:highlight-color="#f00000"
-           transform="translate(427.12797,-527.25529)"
+           transform="translate(1335,215.00002)"
            style="display:inline">
           <rect
              style="fill:#760000;fill-opacity:1;stroke-width:0.265;stroke-dasharray:none"

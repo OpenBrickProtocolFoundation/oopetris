@@ -157,7 +157,7 @@ namespace scenes {
     [[nodiscard]] std::unique_ptr<RecordingWriter> Ingame::create_recording_writer(TetrionHeaders tetrion_headers) {
 
         static constexpr auto recordings_directory = "recordings";
-        const auto recording_directory_path = utils::get_subfolder_to_root(recordings_directory);
+        const auto recording_directory_path = utils::get_root_folder() / recordings_directory;
 
         if (not std::filesystem::exists(recording_directory_path)) {
             std::filesystem::create_directory(recording_directory_path);

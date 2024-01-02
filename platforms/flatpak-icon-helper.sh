@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-APP_NAME="com.github.mgerhold.OOPetris"
+export APP_NAME="com.github.mgerhold.OOPetris"
 
 function process_icon() {
   SRC=$1
