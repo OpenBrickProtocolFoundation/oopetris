@@ -51,10 +51,10 @@ jobs:
       - name: Build APK
         run: | 
           cd platforms/android/
-          ./gradlew bundleDebug --no-daemon
+          ./gradlew assembleDebug --no-daemon
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
           name: oopetris.aab
-          path: platforms/android/app/build/outputs/bundle/debug/app-debug.aab
+          path: platforms/android/app/build/outputs/apk/debug/app-debug.apk
