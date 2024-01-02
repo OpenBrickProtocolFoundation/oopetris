@@ -259,6 +259,3 @@ for IDX in "${!DESC_ARRAY[@]}"; do
     cp -r "./assets/icon/icon_$RES.png" "${DESC_DIR}/ic_launcher.png"
 
 done
-
-
-# TODO: build seperate apks for all 4 architectures!

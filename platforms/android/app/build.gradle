@@ -15,16 +15,13 @@ android {
         }
         minSdkVersion 21
         targetSdkVersion 34
-        versionCode 2
-        versionName "1.0.2"
+        versionCode 3
+        versionName "1.0.3"
         externalNativeBuild {
             ndkBuild {
                 arguments "APP_PLATFORM=android-34"
                 abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
             }
-        }
-        ndk {
-            abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
         }
     }
     buildTypes {
@@ -63,6 +60,22 @@ android {
             }
         }
     }
+    splits {
+        // Configures multiple APKs based on ABI.
+        abi {
+            // Enables building multiple APKs per ABI.
+            enable true
+            // By default all ABIs are included, so use reset() and include to specify that you only
+            // want APKs for the ones with a ndk variant (4, android did in the past support more: https://developer.android.com/ndk/guides/abis.html#sa)
+            // Resets the list of ABIs for Gradle to create APKs for to none.
+            reset()
+            // Specifies a list of ABIs for Gradle to create APKs for.
+            include 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+            // Specifies that you don't want to also generate a universal APK that includes all ABIs.
+            universalApk false
+        }
+    }
+
 }
 
 dependencies {

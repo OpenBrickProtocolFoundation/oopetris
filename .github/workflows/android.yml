@@ -56,5 +56,5 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: oopetris.aab
-          path: platforms/android/app/build/outputs/apk/debug/app-debug.apk
+          name: oopetris.all-apks
+          path: platforms/android/app/build/outputs/apk/debug/app-*-debug.apk
