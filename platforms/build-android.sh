@@ -156,10 +156,17 @@ for INDEX in "${!ARCH_KEYS[@]}"; do
 
     cd "$LAST_DIR"
 
+    MESON_CPU_FAMILY=$ARCH
+
+    ## this is a flaw in the abis.json, everything is labelled with aarch64 and not arm64, but the "arch" json value is wrong, and meson (https://mesonbuild.com/Reference-tables.html#cpu-families) only knows aarch64!
+    if [[ $MESON_CPU_FAMILY = "arm64" ]]; then
+        MESON_CPU_FAMILY="aarch64"
+    fi
+
     cat <<EOF >"./platforms/crossbuild-android-$ARM_TARGET_ARCH.ini"
 [host_machine]
 system = 'android'
-cpu_family = '$ARCH'
+cpu_family = '$MESON_CPU_FAMILY'
 cpu = '$ARM_VERSION'
 endian = 'little'
 
