@@ -36,7 +36,7 @@ endforeach
 ## compilation
 
 elf_file = build_target(
-    'oopetris.elf',
+    'oopetris_switch.elf',
     src_files,
     include_directories: inc_dirs,
     dependencies: deps,
@@ -57,7 +57,7 @@ use_nacp = ['true', 'True', '1', true].contains(
 
 elf2nro = find_program('elf2nro')
 # executable input elf file, output nro file
-NROFLAGS = [elf2nro, elf_file.full_path(), 'oopetris.nro']
+NRO_FLAGS = [elf2nro, elf_file.full_path(), 'oopetris.nro']
 NRO_DEPS = [elf_file]
 NACP_DEPS = NRO_DEPS
 
@@ -65,44 +65,44 @@ fs = import('fs')
 
 if use_nacp
     nacptool = find_program('nacptool')
-    NACPFLAGS = [nacptool, '--create']
+    NACP_FLAGS = [nacptool, '--create']
 
     APP_NAME = meson.get_external_property('APP_NAME', 'oopetris')
-    NACPFLAGS += APP_NAME
+    NACP_FLAGS += APP_NAME
 
 
     APP_AUTHOR = meson.get_external_property('APP_AUTHOR', '')
     if APP_AUTHOR == ''
-        error('If USE_NACP is set, you have to provie an APP_AUTHOR')
+        error('If USE_NACP is set, you have to provide an APP_AUTHOR')
     endif
-    NACPFLAGS += APP_AUTHOR
+    NACP_FLAGS += APP_AUTHOR
 
     APP_VERSION = meson.get_external_property('APP_VERSION', '')
     if APP_VERSION == ''
-        error('If USE_NACP is set, you have to provie an APP_VERSION')
+        error('If USE_NACP is set, you have to provide an APP_VERSION')
     endif
-    NACPFLAGS += APP_VERSION
+    NACP_FLAGS += APP_VERSION
 
-    NACPFLAGS += 'oopetris.nacp' # outfile
+    NACP_FLAGS += 'oopetris.nacp' # outfile
 
 
     APP_TITLEID = meson.get_external_property('APP_TITLEID', '')
 
     # optional
     if APP_TITLEID != ''
-        NACPFLAGS += '--titleid=' + APP_TITLEID
+        NACP_FLAGS += '--titleid=' + APP_TITLEID
     endif
 
 
-    # nacptool --create name author version oopetris.nacp 
+    # nacptool --create <name> <author> <version> oopetris.nacp 
     # optional: --titleid=<titleID>
     nacp_file = custom_target(
         'oopetris.nacp',
-        command: NACPFLAGS,
+        command: NACP_FLAGS,
         output: ['oopetirs.nacp'],
         depends: NACP_DEPS,
     )
-    NROFLAGS += '--nacp=oopetris.nacp'
+    NRO_FLAGS += '--nacp=oopetris.nacp'
     NRO_DEPS += nacp_file
 
 
@@ -124,7 +124,7 @@ endif
 
 
 
-NROFLAGS += '--icon=' + app_icon
+NRO_FLAGS += '--icon=' + app_icon
 
 
 romfs_dir = meson.get_external_property('romfs_dir')
@@ -140,12 +140,12 @@ endif
 
 
 
-NROFLAGS += '--romfsdir=' + romfs_dir
+NRO_FLAGS += '--romfsdir=' + romfs_dir
 
-# elf2nro oopetris.elf oopetris.nro NROFLAGS
+# elf2nro oopetris.elf oopetris.nro <NRO_FLAGS>
 custom_target(
     'oopetris.nro',
-    command: NROFLAGS,
+    command: NRO_FLAGS,
     depends: NRO_DEPS,
     output: ['oopetris.nro'],
     build_by_default: true,
