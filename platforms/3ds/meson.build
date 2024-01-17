@@ -54,76 +54,72 @@ SMDH_DEPS = _3DSX_DEPS
 fs = import('fs')
 
 
-    smdhtool = find_program('smdhtool')
-    SMDH_FLAGS = [smdhtool, '--create']
+smdhtool = find_program('smdhtool')
+SMDH_FLAGS = [smdhtool, '--create']
 
-    APP_NAME = meson.get_external_property('APP_NAME', 'oopetris')
-    SMDH_FLAGS += APP_NAME
+APP_NAME = meson.get_external_property('APP_NAME', 'oopetris')
+SMDH_FLAGS += APP_NAME
 
-    APP_DESC = meson.get_external_property('APP_DESC', '')
-    if APP_DESC == ''
-        error('You have to provide an APP_DESC')
-    endif
-    SMDH_FLAGS += APP_DESC
-
-    default_icon = meson.get_external_property('libctru') / 'default_icon.png'
-
-    app_icon = meson.get_external_property('APP_ICON', default_icon)
-
-    if not fs.is_absolute(app_icon)
-        app_icon = meson.project_source_root() / app_icon
-    endif
+APP_DESC = meson.get_external_property('APP_DESC', '')
+if APP_DESC == ''
+    error('You have to provide an APP_DESC')
+endif
+SMDH_FLAGS += APP_DESC
 
 
-    if not fs.exists(app_icon)
-        error('APP_ICON should exist, but doesn\'t: \'' + app_icon + '\'')
-    endif
-
-    SMDH_FLAGS +=  app_icon
-
-    APP_AUTHOR = meson.get_external_property('APP_AUTHOR', '')
-    if APP_AUTHOR == ''
-        error('You have to provide an APP_AUTHOR')
-    endif
-    SMDH_FLAGS += APP_AUTHOR
-
-    APP_VERSION = meson.get_external_property('APP_VERSION', '')
-    if APP_VERSION == ''
-        error('You have to provide an APP_VERSION')
-    endif
-    SMDH_FLAGS += APP_VERSION
+APP_AUTHOR = meson.get_external_property('APP_AUTHOR', '')
+if APP_AUTHOR == ''
+    error('You have to provide an APP_AUTHOR')
+endif
+SMDH_FLAGS += APP_AUTHOR
 
 
-    SMDH_FLAGS += 'oopetris.smdh' # outfile
+default_icon = meson.get_external_property('libctru') / 'default_icon.png'
+
+app_icon = meson.get_external_property('APP_ICON', default_icon)
+
+if not fs.is_absolute(app_icon)
+    app_icon = meson.project_source_root() / app_icon
+endif
+
+
+if not fs.exists(app_icon)
+    error('APP_ICON should exist, but doesn\'t: \'' + app_icon + '\'')
+endif
+
+SMDH_FLAGS += app_icon
+
+
+SMDH_FLAGS += 'oopetris.smdh' # outfile
 
 
 
-    small_app_icon = meson.get_external_property('APP_SMALL_ICON', default_icon)
+small_app_icon = meson.get_external_property('APP_SMALL_ICON', default_icon)
 
-    if small_app_icon != ''
-        if not fs.is_absolute(small_app_icon)
-            small_app_icon = meson.project_source_root() / small_app_icon
-        endif
-
-
-        if not fs.exists(small_app_icon)
-            error('APP_SMALL_ICON should exist, but doesn\'t: \'' + small_app_icon + '\'')
-        endif
-        
-        SMDH_FLAGS +=  small_app_icon
+if small_app_icon != ''
+    if not fs.is_absolute(small_app_icon)
+        small_app_icon = meson.project_source_root() / small_app_icon
     endif
 
 
+    if not fs.exists(small_app_icon)
+        error('APP_SMALL_ICON should exist, but doesn\'t: \'' + small_app_icon + '\'')
+    endif
 
-    # smdhtool --create <name> <long description> <author> <icon.png> oopetris.smdh [<smallicon.png>]
-    smdh_file = custom_target(
-        'oopetris.smdh',
-        command: SMDH_FLAGS,
-        output: ['oopetirs.smdh'],
-        depends: SMDH_DEPS,
-    )
-    _3DSX_FLAGS += '--smdh=oopetris.smdh'
-    _3DSX_DEPS += smdh_file
+    SMDH_FLAGS += small_app_icon
+endif
+
+
+
+# smdhtool --create <name> <long description> <author> <icon.png> oopetris.smdh [<smallicon.png>]
+smdh_file = custom_target(
+    'oopetris.smdh',
+    command: SMDH_FLAGS,
+    output: ['oopetirs.smdh'],
+    depends: SMDH_DEPS,
+)
+_3DSX_FLAGS += '--smdh=oopetris.smdh'
+_3DSX_DEPS += smdh_file
 
 
 

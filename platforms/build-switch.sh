@@ -36,7 +36,7 @@ export NM="$COMPILER_BIN/$TOOL_PREFIX-gcc-nm"
 export OBJCOPY="$COMPILER_BIN/$TOOL_PREFIX-objcopy"
 export STRIP="$COMPILER_BIN/$TOOL_PREFIX-strip"
 
-# cpompat flags for some POSIX functions
+# compat flags for some POSIX functions
 export COMPAT_FLAGS="'-D_XOPEN_SOURCE'"
 
 export ARCH=aarch64

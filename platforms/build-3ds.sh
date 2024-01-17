@@ -37,8 +37,8 @@ export NM="$COMPILER_BIN/$TOOL_PREFIX-gcc-nm"
 export OBJCOPY="$COMPILER_BIN/$TOOL_PREFIX-objcopy"
 export STRIP="$COMPILER_BIN/$TOOL_PREFIX-strip"
 
-# cpompat flags for some POSIX functions
-export COMPAT_FLAGS="'-D_XOPEN_SOURCE','-Wno-psabi'"
+# compat flags for some POSIX functions, for some ABI errors, and spdlog thread local errors
+export COMPAT_FLAGS="'-D_XOPEN_SOURCE','-Wno-psabi','-DSPDLOG_NO_TLS'"
 
 export ARCH=arm
 export ARM_VERSION=armv6k
@@ -92,11 +92,10 @@ library_dirs= ['$LIBCTRU_LIB', '$PORTLIBS_LIB']
 romfs_dir='$ROMFS'
 libctru='$LIBCTRU'
 
-APP_ICON='$ROMFS/assets/icon/icon_512.png'
-APP_SMALL_ICON = '$ROMFS/assets/icon/icon_128.png'
+APP_ICON='$ROMFS/assets/icon/icon_48.png'
+APP_SMALL_ICON = '$ROMFS/assets/icon/icon_24.png'
 APP_TITLE	= 'oopetris'
 APP_AUTHOR 	= 'coder2k'
-APP_VERSION = '1.0'
 APP_DESC = 'OOP Tetris'
 
 EOF
