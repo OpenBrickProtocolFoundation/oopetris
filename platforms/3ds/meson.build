@@ -2,10 +2,6 @@
 # libraries
 
 _3ds_dependencies = [
-    'EGL',
-    'GLESv2',
-    'glapi',
-    'drm_nouveau',
     'ctru',
     'freetype',
     'z',
@@ -13,8 +9,6 @@ _3ds_dependencies = [
     'png',
     'opusfile',
     'opus',
-    'vorbisfile',
-    'vorbis',
     'ogg',
     'modplug',
     'FLAC',

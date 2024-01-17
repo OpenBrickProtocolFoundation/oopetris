@@ -74,7 +74,7 @@ cmake='$CMAKE'
 freetype-config='$BIN_DIR/freetype-config'
 libpng16-config='$BIN_DIR/libpng16-config'
 libpng-config='$BIN_DIR/libpng-config'
-sdl2-config='$BIN_DIR/sdl2-config'
+sdl-config='$BIN_DIR/sdl-config'
 
 [built-in options]
 c_std = 'c11'
