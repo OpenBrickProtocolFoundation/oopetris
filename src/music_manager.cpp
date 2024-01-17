@@ -5,6 +5,7 @@
 #include <SDL.h>
 #include <SDL_mixer.h>
 #include <filesystem>
+#include <fmt/format.h>
 #include <functional>
 #include <stdexcept>
 #include <string>
@@ -24,7 +25,30 @@ MusicManager::MusicManager(ServiceProvider* service_provider, u8 channel_size)
     if (m_service_provider->command_line_arguments().silent) {
         return;
     }
-    Mix_Init(MIX_INIT_FLAC | MIX_INIT_MP3);
+
+    int flags = 0;
+
+
+#if defined(AUDIO_WITH_FLAC_SUPPORT)
+
+#ifdef MIX_INIT_OPUS
+    flags |= MIX_INIT_OPUS;
+#endif
+    flags |= MIX_INIT_FLAC;
+#endif
+
+#if defined(AUDIO_WITH_MP3_SUPPORT)
+
+    flags |= MIX_INIT_MP3;
+#endif
+
+    int result_flags = Mix_Init(flags);
+    if (result_flags != flags) {
+        throw std::runtime_error{ fmt::format(
+                "error on initializing a certain audio system: expected flags {:08x} but got {:08x}", flags,
+                result_flags
+        ) };
+    }
     const int result = SDL_InitSubSystem(SDL_INIT_AUDIO);
     if (result != 0) {
         throw std::runtime_error{ "error on initializing the audio system: " + std::string{ SDL_GetError() } };

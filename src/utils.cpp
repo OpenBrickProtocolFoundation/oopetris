@@ -46,8 +46,8 @@ namespace utils {
             throw std::runtime_error{ "Failed in getting the Pref Path: " + std::string{ SDL_GetError() } };
         }
         return std::filesystem::path{ std::string{ pref_path } };
-#elif defined(__SWITCH__)
-        // this is in the sdcard of the switch, since internal storage is read-only for applications!
+#elif defined(__SWITCH__) or defined(__3DS__)
+        // this is in the sdcard of the switch / 3ds, since internal storage is read-only for applications!
         return std::filesystem::path{ "." };
 
 #elif defined(FLATPAK_BUILD)
@@ -67,8 +67,8 @@ namespace utils {
     [[nodiscard]] std::filesystem::path get_assets_folder() {
 #if defined(__ANDROID__)
         return std::filesystem::path{ "" };
-#elif defined(__SWITCH__)
-        // this is in the internal storage of the nintendo switch, it ios mounted by libnx (runtime switch support library) and filled at compile time with assets (its called ROMFS there)
+#elif defined(__SWITCH__) or defined(__3DS__)
+        // this is in the internal storage of the nintendo switch  /3ds, it is mounted by libnx (runtime switch support library) or libctru (runtime 3ds support library) and filled at compile time with assets (its called ROMFS there)
         return std::filesystem::path{ "romfs:/assets" };
 #elif defined(BUILD_INSTALLER)
 

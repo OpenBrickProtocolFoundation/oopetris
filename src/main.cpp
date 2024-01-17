@@ -42,8 +42,9 @@ int main(int argc, char** argv) {
     spdlog::set_level(spdlog::level::err);
 #endif
 
-#if defined(__SWITCH__)
-    //The switch doesn't have a first argument, so we need to make one up xD
+
+#if defined(__SWITCH__) or defined(__3DS__)
+    //The switch and the 3ds don't have a first argument, so we need to make one up (for argparse) xD
     argc = 1;
 
     const char* name = "oopetris";
@@ -54,8 +55,13 @@ int main(int argc, char** argv) {
 
 #endif
 
-#if defined(__ANDROID__) or defined(__SWITCH__)
-    Application app{ argc, argv, "OOPetris", WindowPosition::Centered };
+#if defined(__SWITCH__) or defined(__3DS__)
+    try {
+#endif
+
+
+#if defined(__ANDROID__) or defined(__SWITCH__) or defined(__3DS__)
+        Application app{ argc, argv, "OOPetris", WindowPosition::Centered };
 #else
     static constexpr int width = 1280;
     static constexpr int height = 720;
@@ -63,7 +69,16 @@ int main(int argc, char** argv) {
     Application app{ argc, argv, "OOPetris", WindowPosition::Centered, width, height };
 #endif
 
-    app.run();
 
+        app.run();
+        return 0;
+
+
+#if defined(__SWITCH__) or defined(__3DS__)
+    } catch (const std::exception& e) {
+        spdlog::error("Caught exception: {}", e.what());
+        return 1;
+    }
     return 0;
+#endif
 }

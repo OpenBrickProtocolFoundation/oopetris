@@ -44,7 +44,7 @@ export ARCH=arm
 export ARM_VERSION=armv6k
 export COMMON_FLAGS="'-D__3DS__','-mword-relocations', '-ffunction-sections','-mword-relocations', $COMPAT_FLAGS"
 
-export COMPILE_FLAGS="'-march=armv6k','-mtune=mpcore','-mfloat-abi=hard', '-mtp=soft','-fPIC', '-I$LIBCTRU/include'"
+export COMPILE_FLAGS="'-march=armv6k','-mtune=mpcore','-mfloat-abi=hard', '-mtp=soft','-fPIC', '-isystem', '$LIBCTRU/include'"
 
 export LINK_FLAGS="'-L$PORTLIBS_LIB','-L$LIBCTRU_LIB','-fPIE','-specs=$ARCH_DEVKIT_FOLDER/$TOOL_PREFIX/lib/3dsx.specs'"
 
@@ -109,3 +109,10 @@ meson setup "$BUILD_DIR" \
     -Ddefault_library=static
 
 meson compile -C "$BUILD_DIR"
+
+## docs list:
+# sdl 1.2: https://www.libsdl.org/release/SDL-1.2.15/docs/html/index.html
+# sdl ttf tutorial: https://gist.github.com/stavrossk/5004111
+# sdl gfx old version docs: https://www.cs.cmu.edu/afs/cs/user/meogata/Scramble/W%20i%20i/SDL_gfx/Docs/
+# sdl 1.2 tutroial: http://gamedevgeek.com/tutorials/getting-started-with-sdl/
+# sdl source code for 1.2, that is used: https://github.com/nop90/SDL-3DS

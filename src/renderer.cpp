@@ -1,5 +1,7 @@
 #include "renderer.hpp"
 
+#include <spdlog/spdlog.h>
+
 namespace {
     constexpr SDL_Rect to_sdl_rect(Rect rect) {
         return SDL_Rect{ rect.top_left.x, rect.top_left.y,
@@ -113,7 +115,6 @@ void Renderer::draw_line(const Point start, const Point end, const Color color) 
 }
 
 void Renderer::draw_text(const Point position, const std::string& text, const Font& font, const Color color) const {
-
 #ifdef _USE_SDL_LEGACY_VERSION
 
     const SDL_Color text_color{ color.r, color.g, color.b, color.a };

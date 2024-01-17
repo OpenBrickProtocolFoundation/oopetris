@@ -43,7 +43,7 @@ export ARCH=aarch64
 export ARM_VERSION=armv8-a
 export COMMON_FLAGS="'-D__SWITCH__','-ffunction-sections','-fdata-sections', $COMPAT_FLAGS"
 
-export COMPILE_FLAGS="'-march=armv8-a+crc+crypto','-mtune=cortex-a57','-mtp=soft','-ftls-model=local-exec','-fPIC', '-I$LIBNX/include'"
+export COMPILE_FLAGS="'-march=armv8-a+crc+crypto','-mtune=cortex-a57','-mtp=soft','-ftls-model=local-exec','-fPIC', '-isystem', '$LIBNX/include'"
 
 export LINK_FLAGS="'-L$PORTLIBS_LIB','-L$LIBNX_LIB','-fPIE','-specs=$DEVKITPRO/libnx/switch.specs'"
 
