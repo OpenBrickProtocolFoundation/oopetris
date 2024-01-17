@@ -48,7 +48,7 @@ std::ostream& operator<<(std::ostream& ostream, const MinoStack& mino_stack) {
         for (usize x = 0; x < Grid::width; ++x) {
             const auto find_iterator =
                     std::find_if(mino_stack.minos().cbegin(), mino_stack.minos().cend(), [&](const auto& mino) {
-                        return mino.position() == Point{ static_cast<int>(x), static_cast<int>(y) };
+                        return mino.position() == Point{ static_cast<SDL_int>(x), static_cast<SDL_int>(y) };
                     });
             const auto found = (find_iterator != mino_stack.minos().cend());
             if (found) {

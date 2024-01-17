@@ -33,8 +33,8 @@ void Mino::render(const ServiceProvider& service_provider, const Grid& grid, con
     const Color background = get_background_color(m_type, alpha);
 
     const Point top_left = grid.to_screen_coords(m_position);
-    const Point top_right = top_left + Point{ grid.tile_size().x - 1, 0 };
-    const Point bottom_left = top_left + Point{ 0, grid.tile_size().y - 1 };
+    const Point top_right = top_left + Point{ static_cast<SDL_int>(grid.tile_size().x - 1), 0 };
+    const Point bottom_left = top_left + Point{ 0, static_cast<SDL_int>(grid.tile_size().y - 1) };
     const Point bottom_right = top_left + grid.tile_size() - Point{ 1, 1 };
 
     service_provider.renderer().draw_rect_filled(Rect{ top_left, bottom_right }, background);

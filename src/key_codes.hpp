@@ -1,6 +1,8 @@
 #pragma once
 
 #include <SDL.h>
+#include <sdl_compatibility.h>
+#include <stdexcept>
 
 enum class KeyCode {
     Unknown,
@@ -139,7 +141,11 @@ inline SDL_KeyCode to_sdl_keycode(KeyCode code) {
         case KeyCode::Hash:
             return SDLK_HASH;
         case KeyCode::Percent:
+#ifdef _USE_SDL_LEGACY_VERSION
+            throw std::runtime_error("presesed '%, legacy SDl doesn't know that key!");
+#else
             return SDLK_PERCENT;
+#endif
         case KeyCode::Dollar:
             return SDLK_DOLLAR;
         case KeyCode::Ampersand:
@@ -371,8 +377,10 @@ inline KeyCode from_sdl_keycode(SDL_KeyCode code) {
             return KeyCode::QuoteDouble;
         case SDLK_HASH:
             return KeyCode::Hash;
+#ifndef _USE_SDL_LEGACY_VERSION
         case SDLK_PERCENT:
             return KeyCode::Percent;
+#endif
         case SDLK_DOLLAR:
             return KeyCode::Dollar;
         case SDLK_AMPERSAND:

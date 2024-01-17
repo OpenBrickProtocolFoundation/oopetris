@@ -18,7 +18,11 @@ Application::Application(
 )
     : m_command_line_arguments{ argc, argv },
       m_window{ title, position, width, height },
+#ifdef _USE_SDL_LEGACY_VERSION
+      m_renderer{ &m_window },
+#else
       m_renderer{ m_window, Renderer::VSync::Enabled },
+#endif
       m_music_manager{ this, num_audio_channels } {
     initialize();
 }
@@ -26,7 +30,11 @@ Application::Application(
 Application::Application(int argc, char** argv, const std::string& title, WindowPosition position)
     : m_command_line_arguments{ argc, argv },
       m_window{ title, position },
+#ifdef _USE_SDL_LEGACY_VERSION
+      m_renderer{ &m_window },
+#else
       m_renderer{ m_window, Renderer::VSync::Enabled },
+#endif
       m_music_manager{ this, num_audio_channels } {
     initialize();
 }

@@ -274,7 +274,7 @@ void Tetrion::clear_fully_occupied_lines() {
         for (usize row = 0; row < Grid::height; ++row) {
             bool fully_occupied = true;
             for (usize column = 0; column < Grid::width; ++column) {
-                if (m_mino_stack.is_empty(Point{ static_cast<int>(column), static_cast<int>(row) })) {
+                if (m_mino_stack.is_empty(Point{ static_cast<SDL_int>(column), static_cast<SDL_int>(row) })) {
                     fully_occupied = false;
                     break;
                 }
@@ -369,7 +369,7 @@ void Tetrion::refresh_previews() {
     auto bag_index = usize{ 0 };
     for (std::remove_cvref_t<decltype(num_preview_tetrominos)> i = 0; i < num_preview_tetrominos; ++i) {
         m_preview_tetrominos.at(static_cast<usize>(i)) = Tetromino{
-            Grid::preview_tetromino_position + Point{0, static_cast<int>(Grid::preview_padding * i)},
+            Grid::preview_tetromino_position + Point{0, static_cast<SDL_int>(Grid::preview_padding * i)},
             m_sequence_bags.at(bag_index)[sequence_index]
         };
         ++sequence_index;

@@ -38,7 +38,7 @@ export OBJCOPY="$COMPILER_BIN/$TOOL_PREFIX-objcopy"
 export STRIP="$COMPILER_BIN/$TOOL_PREFIX-strip"
 
 # cpompat flags for some POSIX functions
-export COMPAT_FLAGS="'-D_XOPEN_SOURCE'"
+export COMPAT_FLAGS="'-D_XOPEN_SOURCE','-Wno-psabi'"
 
 export ARCH=arm
 export ARM_VERSION=armv6k
@@ -46,7 +46,8 @@ export COMMON_FLAGS="'-D__3DS__','-mword-relocations', '-ffunction-sections','-m
 
 export COMPILE_FLAGS="'-march=armv6k','-mtune=mpcore','-mfloat-abi=hard', '-mtp=soft','-fPIC', '-I$LIBCTRU/include'"
 
-export LIBS_FLAGS="'-L$PORTLIBS_LIB','-L$LIBCTRU_LIB','-fPIE','-specs=$ARCH_DEVKIT_FOLDER/$TOOL_PREFIX/lib/3dsx.specs'"
+# TODO fix thsi crt thing!
+export LIBS_FLAGS="'-L$PORTLIBS_LIB','-L$LIBCTRU_LIB','-fPIE','-specs=$ARCH_DEVKIT_FOLDER/$TOOL_PREFIX/lib/3dsx.specs','-L$ARCH_DEVKIT_FOLDER/$TOOL_PREFIX/lib/armv6k/fpu/'"
 
 export CROSS_FILE="./platforms/crossbuild-3ds.ini"
 

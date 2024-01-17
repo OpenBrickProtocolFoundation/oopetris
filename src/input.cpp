@@ -122,7 +122,13 @@ void KeyboardInput::update(SimulationStep simulation_step_index) {
 }
 
 tl::optional<InputEvent> KeyboardInput::sdl_event_to_input_event(const SDL_Event& event) const {
-    if (event.type == SDL_KEYDOWN and event.key.repeat == 0) {
+    if (event.type == SDL_KEYDOWN
+#ifndef _USE_SDL_LEGACY_VERSION
+        //TODO: handle this correctly
+        and event.key.repeat == 0
+#endif
+
+    ) {
         const auto key = event.key.keysym.sym;
         if (key == to_sdl_keycode(m_controls.rotate_left)) {
             return InputEvent::RotateLeftPressed;

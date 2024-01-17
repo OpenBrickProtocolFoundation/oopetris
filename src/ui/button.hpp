@@ -26,7 +26,7 @@ namespace ui {
 
         [[nodiscard]] std::pair<Point, Rect> get_fill_rect(const Rect screen_rect) const {
             const auto absolute_layout = std::get<AbsoluteLayout>(layout);
-            const auto origin = Point{ static_cast<int>(absolute_layout.x), static_cast<int>(absolute_layout.y) }
+            const auto origin = Point{ static_cast<SDL_int>(absolute_layout.x), static_cast<SDL_int>(absolute_layout.y) }
                                 + screen_rect.top_left;
             return {
                 origin, Rect{origin, origin + Point{ 120, 40 }}

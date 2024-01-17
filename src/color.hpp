@@ -2,6 +2,8 @@
 
 #include "types.hpp"
 
+#include <SDL.h>
+
 struct Color {
     u8 r;
     u8 g;
@@ -13,6 +15,8 @@ struct Color {
     constexpr Color(u8 r, u8 g, u8 b, u8 a) : r{ r }, g{ g }, b{ b }, a{ a } { }
 
     constexpr Color(u8 r, u8 g, u8 b) : Color{ r, g, b, 0xFF } { }
+
+    Uint32 to_sdl(const SDL_Surface* surface) const;
 
     static constexpr Color red(u8 alpha = 0xFF) {
         return Color{ 0xFF, 0, 0, alpha };

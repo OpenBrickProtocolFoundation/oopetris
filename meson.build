@@ -55,7 +55,6 @@ if (meson.is_cross_build())
         only_allow_native_libs = true
         sdl_name = 'sdl'
         compile_args += ['-D_USE_SDL_LEGACY_VERSION']
-
     endif
 endif
 
@@ -90,6 +89,7 @@ endif
 
 
 
+
 deps += dependency(
     sdl_name + '_ttf',
     sdl_name.to_upper() + '_ttf',
@@ -97,6 +97,19 @@ deps += dependency(
     required: true,
     native: native,
 )
+
+
+if sdl_name == 'sdl'
+    deps += dependency(
+        sdl_name + '_gfx',
+        sdl_name.to_upper() + '_gfx',
+        allow_fallback: not only_allow_native_libs,
+        required: true,
+        native: native,
+    )
+
+    compile_args += ['-D_HAVE_SDL_GFX']
+endif
 
 
 # a dirty thing atm, until mpg123 is ported to meson (maybe never...)
