@@ -152,7 +152,11 @@ deps += dependency(
 )
 
 
-if (meson.is_cross_build() and host_machine.system() == 'switch')
+if (
+    meson.is_cross_build()
+    and (host_machine.system() == 'switch'
+    or host_machine.system() == '3ds')
+)
 
     fmt_lib = dependency(
         'fmt',

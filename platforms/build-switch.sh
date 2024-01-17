@@ -45,7 +45,7 @@ export COMMON_FLAGS="'-D__SWITCH__','-ffunction-sections','-fdata-sections', $CO
 
 export COMPILE_FLAGS="'-march=armv8-a+crc+crypto','-mtune=cortex-a57','-mtp=soft','-ftls-model=local-exec','-fPIC', '-I$LIBNX/include'"
 
-export LIBS_FLAGS="'-L$PORTLIBS_LIB','-L$LIBNX_LIB','-fPIE','-specs=$DEVKITPRO/libnx/switch.specs'"
+export LINK_FLAGS="'-L$PORTLIBS_LIB','-L$LIBNX_LIB','-fPIE','-specs=$DEVKITPRO/libnx/switch.specs'"
 
 export CROSS_FILE="./platforms/crossbuild-switch.ini"
 
@@ -80,8 +80,8 @@ c_std = 'c11'
 cpp_std = 'c++20'
 c_args = [$COMMON_FLAGS, $COMPILE_FLAGS]
 cpp_args = [$COMMON_FLAGS, $COMPILE_FLAGS]
-c_link_args = [$COMMON_FLAGS, $LIBS_FLAGS]
-cpp_link_args = [$COMMON_FLAGS, $LIBS_FLAGS]
+c_link_args = [$COMMON_FLAGS, $LINK_FLAGS]
+cpp_link_args = [$COMMON_FLAGS, $LINK_FLAGS]
 
 
 [properties]
@@ -108,6 +108,7 @@ mkdir -p $ROMFS
 cp -r assets $ROMFS
 
 meson setup "$BUILD_DIR" \
-    --cross-file "$CROSS_FILE"
+    --cross-file "$CROSS_FILE" \
+    -Ddefault_library=static
 
 meson compile -C "$BUILD_DIR"
