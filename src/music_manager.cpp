@@ -37,7 +37,6 @@ MusicManager::MusicManager(ServiceProvider* service_provider, u8 channel_size)
 
     flags |= MIX_INIT_MP3;
 #endif
-    flags = MIX_INIT_MOD | MIX_INIT_OGG;
 
 
     const int result = SDL_InitSubSystem(SDL_INIT_AUDIO);
