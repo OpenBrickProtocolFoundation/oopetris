@@ -2,22 +2,38 @@
 # libraries
 
 _3ds_dependencies = [
-    'ctru',
-    'freetype',
-    'z',
-    'bz2',
-    'png',
+    'freetype2',
+    'libpng16',
     'opusfile',
     'opus',
     'ogg',
-    'modplug',
-    'FLAC',
+    'libmodplug',
+    'flac',
+    'zlib',
+    'vorbisidec',
+    'ogg',
+    'libmikmod',
 ]
 
+_3ds_dependencies_native = ['ctru', 'bz2', 'libmad']
 
-library_dirs = meson.get_external_property('library_dirs')
+
+library_dirs = meson.get_external_property('library_dirs', [''])
+if library_dirs.length() == 0
+    error('property \'library_dirs\' has to be set!')
+endif
 
 foreach dep : _3ds_dependencies
+    deps += dependency(
+        dep,
+        required: true,
+        allow_fallback: false,
+        native: false,
+    )
+endforeach
+
+cpp = meson.get_compiler('cpp')
+foreach dep : _3ds_dependencies_native
     deps += cpp.find_library(
         dep,
         required: true,
@@ -27,124 +43,137 @@ endforeach
 
 
 
+
 ## compilation
 
 elf_file = build_target(
-    'oopetris_3ds.elf',
+    exe_name + '.elf',
     src_files,
     include_directories: inc_dirs,
     dependencies: deps,
-    c_args: sdl2_mixer_defines,
+    c_args: compile_args + sdl2_mixer_defines,
     cpp_args: compile_args + sdl2_mixer_defines,
     override_options: [
         'warning_level=3',
         'werror=true',
     ],
-    native: native,
+    native: false,
     target_type: 'executable',
+)
+
+use_smdh = ['true', 'True', '1', true].contains(
+    meson.get_external_property('USE_SMDH', ''),
 )
 
 
 _3dsxtool = find_program('3dsxtool')
 
-_3DSX_FLAGS = [_3dsxtool, elf_file.full_path(), 'oopetris.3dsx']
+_3DSX_FLAGS = [_3dsxtool, elf_file.full_path(), exe_name + '.3dsx']
 _3DSX_DEPS = [elf_file]
 SMDH_DEPS = _3DSX_DEPS
 
 fs = import('fs')
 
+if use_smdh
 
-smdhtool = find_program('smdhtool')
-SMDH_FLAGS = [smdhtool, '--create']
+    smdhtool = find_program('smdhtool')
+    SMDH_FLAGS = [smdhtool, '--create']
 
-APP_NAME = meson.get_external_property('APP_NAME', 'oopetris')
-SMDH_FLAGS += APP_NAME
+    APP_NAME = meson.get_external_property('APP_NAME', exe_name)
+    SMDH_FLAGS += APP_NAME
 
-APP_DESC = meson.get_external_property('APP_DESC', '')
-if APP_DESC == ''
-    error('You have to provide an APP_DESC')
-endif
-SMDH_FLAGS += APP_DESC
-
-
-APP_AUTHOR = meson.get_external_property('APP_AUTHOR', '')
-if APP_AUTHOR == ''
-    error('You have to provide an APP_AUTHOR')
-endif
-SMDH_FLAGS += APP_AUTHOR
+    APP_DESC = meson.get_external_property('APP_DESC', '')
+    if APP_DESC == ''
+        error('If USE_SMDH is set, you have to provide an APP_DESC')
+    endif
+    SMDH_FLAGS += APP_DESC
 
 
-default_icon = meson.get_external_property('libctru') / 'default_icon.png'
+    APP_AUTHOR = meson.get_external_property('APP_AUTHOR', '')
+    if APP_AUTHOR == ''
+        error('If USE_SMDH is set, you have to provide an APP_AUTHOR')
+    endif
+    SMDH_FLAGS += APP_AUTHOR
 
-app_icon = meson.get_external_property('APP_ICON', default_icon)
+    LIBCTRU = meson.get_external_property('libctru', '')
+    if LIBCTRU == ''
+        error('property \'libctru\' has to be set!')
+    endif
 
-if not fs.is_absolute(app_icon)
-    app_icon = meson.project_source_root() / app_icon
-endif
+    default_icon = LIBCTRU / 'default_icon.png'
 
+    app_icon = meson.get_external_property('APP_ICON', default_icon)
 
-if not fs.exists(app_icon)
-    error('APP_ICON should exist, but doesn\'t: \'' + app_icon + '\'')
-endif
-
-SMDH_FLAGS += app_icon
-
-
-SMDH_FLAGS += 'oopetris.smdh' # outfile
-
-
-
-small_app_icon = meson.get_external_property('APP_SMALL_ICON', default_icon)
-
-if small_app_icon != ''
-    if not fs.is_absolute(small_app_icon)
-        small_app_icon = meson.project_source_root() / small_app_icon
+    if not fs.is_absolute(app_icon)
+        app_icon = meson.project_source_root() / app_icon
     endif
 
 
-    if not fs.exists(small_app_icon)
-        error('APP_SMALL_ICON should exist, but doesn\'t: \'' + small_app_icon + '\'')
+    if not fs.exists(app_icon)
+        error('APP_ICON should exist, but doesn\'t: \'' + app_icon + '\'')
     endif
 
-    SMDH_FLAGS += small_app_icon
+    SMDH_FLAGS += app_icon
+
+
+    SMDH_FLAGS += (
+        exe_name + '.smdh' # outfile
+    )
+
+
+
+    small_app_icon = meson.get_external_property('APP_SMALL_ICON', '')
+
+    if small_app_icon != ''
+        if not fs.is_absolute(small_app_icon)
+            small_app_icon = meson.project_source_root() / small_app_icon
+        endif
+
+
+        if not fs.exists(small_app_icon)
+            error('APP_SMALL_ICON should exist, but doesn\'t: \'' + small_app_icon + '\'')
+        endif
+
+        SMDH_FLAGS += small_app_icon
+    endif
+
+
+
+    # smdhtool --create <name> <long description> <author> <icon.png> <exe_name>.smdh [<smallicon.png>]
+    smdh_file = custom_target(
+        exe_name + '.smdh',
+        command: SMDH_FLAGS,
+        output: [exe_name + '.smdh'],
+        depends: SMDH_DEPS,
+    )
+    _3DSX_FLAGS += '--smdh=' + exe_name + '.smdh'
+    _3DSX_DEPS += smdh_file
+
 endif
 
 
 
-# smdhtool --create <name> <long description> <author> <icon.png> oopetris.smdh [<smallicon.png>]
-smdh_file = custom_target(
-    'oopetris.smdh',
-    command: SMDH_FLAGS,
-    output: ['oopetirs.smdh'],
-    depends: SMDH_DEPS,
-)
-_3DSX_FLAGS += '--smdh=oopetris.smdh'
-_3DSX_DEPS += smdh_file
+APP_ROMFS = meson.get_external_property('romfs_dir', '')
 
+if APP_ROMFS != ''
 
+    if not fs.is_absolute(APP_ROMFS)
+        APP_ROMFS = meson.project_source_root() / APP_ROMFS
+    endif
 
+    if not fs.exists(APP_ROMFS)
+        error('APP_ROMFS should exist, but doesn\'t: \'' + APP_ROMFS + '\'')
+    endif
 
+    _3DSX_FLAGS += '--romfs=' + APP_ROMFS
 
-romfs_dir = meson.get_external_property('romfs_dir')
-
-if not fs.is_absolute(romfs_dir)
-    romfs_dir = meson.project_source_root() / romfs_dir
 endif
 
-if not fs.exists(romfs_dir)
-    error('romfs_dir should exist, but doesn\'t: \'' + romfs_dir + '\'')
-endif
-
-
-
-
-_3DSX_FLAGS += '--romfs=' + romfs_dir
-
-# 3dsxtool oopetris.elf oopetris.3dsx <_3DSX_FLAGS>
+# 3dsxtool <exe_name>.elf <exe_name>.3dsx <_3DSX_FLAGS>
 custom_target(
-    'oopetris.3dsx',
+    exe_name + '.3dsx',
     command: _3DSX_FLAGS,
     depends: _3DSX_DEPS,
-    output: ['oopetris.3dsx'],
+    output: [exe_name + '.3dsx'],
     build_by_default: true,
 )

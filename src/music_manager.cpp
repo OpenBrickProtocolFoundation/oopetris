@@ -30,10 +30,6 @@ MusicManager::MusicManager(ServiceProvider* service_provider, u8 channel_size)
 
 
 #if defined(AUDIO_WITH_FLAC_SUPPORT)
-
-#ifdef MIX_INIT_OPUS
-    flags |= MIX_INIT_OPUS;
-#endif
     flags |= MIX_INIT_FLAC;
 #endif
 
@@ -41,23 +37,25 @@ MusicManager::MusicManager(ServiceProvider* service_provider, u8 channel_size)
 
     flags |= MIX_INIT_MP3;
 #endif
+    flags = MIX_INIT_MOD | MIX_INIT_OGG;
+
+
+    const int result = SDL_InitSubSystem(SDL_INIT_AUDIO);
+    if (result != 0) {
+        throw std::runtime_error{ "error on initializing the audio system: " + std::string{ SDL_GetError() } };
+    }
 
     int result_flags = Mix_Init(flags);
     if (result_flags != flags) {
         throw std::runtime_error{ fmt::format(
-                "error on initializing a certain audio system: expected flags {:08x} but got {:08x}", flags,
-                result_flags
+                "error on initializing a certain audio system: expected flags {:#02b} but got {:#02b} - {}", flags,
+                result_flags, std::string{ SDL_GetError() }
         ) };
-    }
-    const int result = SDL_InitSubSystem(SDL_INIT_AUDIO);
-    if (result != 0) {
-        throw std::runtime_error{ "error on initializing the audio system: " + std::string{ SDL_GetError() } };
     }
     Mix_AllocateChannels(channel_size);
     // 2 here means STEREO, note that channels above means tracks, e.g. simultaneous playing source that are mixed,
     // hence the name SDL2_mixer
     Mix_OpenAudio(constants::audio_frequency, MIX_DEFAULT_FORMAT, 2, constants::audio_chunk_size);
-
     s_instance = this;
 }
 

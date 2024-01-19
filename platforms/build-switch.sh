@@ -15,7 +15,7 @@ export LIBNX_LIB=$LIBNX/lib
 
 export PKG_CONFIG_PATH="$PORTLIBS_LIB/pkgconfig/"
 
-export ROMFS=platforms/romfs
+export ROMFS="platforms/romfs"
 
 export BUILD_DIR="build-switch"
 
@@ -35,13 +35,12 @@ export RANLIB="$COMPILER_BIN/$TOOL_PREFIX-gcc-ranlib"
 export NM="$COMPILER_BIN/$TOOL_PREFIX-gcc-nm"
 export OBJCOPY="$COMPILER_BIN/$TOOL_PREFIX-objcopy"
 export STRIP="$COMPILER_BIN/$TOOL_PREFIX-strip"
-
 # compat flags for some POSIX functions
 export COMPAT_FLAGS="'-D_XOPEN_SOURCE'"
 
 export ARCH=aarch64
-export ARM_VERSION=armv8-a
-export COMMON_FLAGS="'-D__SWITCH__','-ffunction-sections','-fdata-sections', $COMPAT_FLAGS"
+export CPU_ARCH=cortex-a57
+export COMMON_FLAGS="'-D__SWITCH__','-ffunction-sections','-fdata-sections','-ftls-model=local-exec', $COMPAT_FLAGS"
 
 export COMPILE_FLAGS="'-march=armv8-a+crc+crypto','-mtune=cortex-a57','-mtp=soft','-ftls-model=local-exec','-fPIC', '-isystem', '$LIBNX/include'"
 
@@ -53,7 +52,7 @@ cat <<EOF >"$CROSS_FILE"
 [host_machine]
 system = 'switch'
 cpu_family = '$ARCH'
-cpu = '$ARM_VERSION'
+cpu = '$CPU_ARCH'
 endian = 'little'
 
 [constants]
@@ -88,13 +87,13 @@ cpp_link_args = [$COMMON_FLAGS, $LINK_FLAGS]
 pkg_config_libdir = '$PKG_CONFIG_PATH'
 needs_exe_wrapper = true
 library_dirs= ['$LIBNX_LIB', '$PORTLIBS_LIB']
-romfs_dir='$ROMFS'
 libnx='$LIBNX'
 
 APP_ICON='$ROMFS/assets/icon/icon_512.png'
 APP_TITLE	= 'oopetris'
 APP_AUTHOR 	= 'coder2k'
 APP_VERSION = '1.0'
+APP_ROMFS='$ROMFS'
 
 # optional
 APP_TITLEID = ''

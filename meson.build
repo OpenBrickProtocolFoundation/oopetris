@@ -125,6 +125,7 @@ sdl2_mixer_defines = ['-DAUDIO_WITH_FLAC_SUPPORT']
 if mpg123_dep.found()
     sdl2_mixer_flags += 'mpg123=enabled'
     sdl2_mixer_defines += '-DAUDIO_WITH_MP3_SUPPORT'
+    deps += mpg123_dep
 else
     cpp = meson.get_compiler('cpp')
     mpg123_dep = cpp.find_library('mpg123', required: only_allow_native_libs)
@@ -236,6 +237,8 @@ subdir('src')
 ## TODO: only istall needed ones, since sometimes we only need e.g. flacs or mp3 and no icons etc.
 ## install assets
 install_subdir('assets', install_dir: 'share/oopetris')
+
+exe_name = 'oopetris'
 
 if meson.is_cross_build() and host_machine.system() == 'android'
 

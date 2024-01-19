@@ -86,11 +86,8 @@ void Renderer::draw_rect_outline(Rect rect, Color color) const {
 
 void Renderer::present() const {
 #ifdef _USE_SDL_LEGACY_VERSION
-    const Rect rect = m_window->screen_rect();
-    //TODO: is this correct, or is there an off by one error?
-    SDL_UpdateRect(
-            m_window->get_sdl_screen(), rect.top_left.x, rect.top_left.y, rect.bottom_right.x, rect.bottom_right.y
-    );
+    SDL_UpdateRect(m_window->get_sdl_screen(), 0, 0, 0, 0);
+    SDL_Flip(m_window->get_sdl_screen());
 #else
     SDL_RenderPresent(m_renderer);
 #endif
@@ -116,9 +113,11 @@ void Renderer::draw_line(const Point start, const Point end, const Color color) 
 
 void Renderer::draw_text(const Point position, const std::string& text, const Font& font, const Color color) const {
 #ifdef _USE_SDL_LEGACY_VERSION
-
     const SDL_Color text_color{ color.r, color.g, color.b, color.a };
     SDL_Surface* const textSurface = TTF_RenderText_Solid(font.m_font.get(), text.c_str(), text_color);
+    if (textSurface == nullptr) {
+        throw std::runtime_error{ "TTF_RenderText_Solid error: " + std::string{ SDL_GetError() } };
+    }
     const auto text_width = textSurface->w;
     const auto text_height = textSurface->h;
 
@@ -127,11 +126,12 @@ void Renderer::draw_text(const Point position, const std::string& text, const Fo
     };
 
 
-    SDL_Rect rect{ target_rect.top_left.x, target_rect.top_left.y,
-                   static_cast<Uint16>(target_rect.bottom_right.x - target_rect.top_left.x + 1),
-                   static_cast<Uint16>(target_rect.bottom_right.y - target_rect.top_left.y + 1) };
+    SDL_Rect rect{ target_rect.top_left.x, target_rect.top_left.y, 0, 0 };
 
-    SDL_BlitSurface(textSurface, nullptr, m_window->get_sdl_screen(), &rect);
+    int result = SDL_BlitSurface(textSurface, nullptr, m_window->get_sdl_screen(), &rect);
+    if (result != 0) {
+        throw std::runtime_error{ "SDL_BlitSurface error: " + std::string{ SDL_GetError() } };
+    }
 
     SDL_FreeSurface(textSurface);
 

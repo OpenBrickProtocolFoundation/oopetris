@@ -13,8 +13,12 @@
 
 
 SdlContext::SdlContext() {
-    SDL_Init(SDL_INIT_VIDEO);
-    TTF_Init();
+    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+        throw std::runtime_error{ "SDL_Init error: " + std::string{ SDL_GetError() } };
+    }
+    if (TTF_Init() != 0) {
+        throw std::runtime_error{ "SDL_ttf_Init error: " + std::string{ SDL_GetError() } };
+    }
 
 #if defined(__SWITCH__)
     // based on: https://github.com/carstene1ns/switch-sdl2-demo
@@ -36,7 +40,7 @@ SdlContext::SdlContext() {
     // mount the romfs in the executable as "romfs:/" (this is fine since only one app can run at the time on the 3ds)
     Result ret = romfsInit();
     if (R_FAILED(ret)) {
-        spdlog::error("romfsInit() failed: 0x{:08x}", (unsigned int) ret);
+        spdlog::error("romfsInit() failed: 0x{:#08x}", (unsigned int) ret);
         std::exit(1);
     }
 
