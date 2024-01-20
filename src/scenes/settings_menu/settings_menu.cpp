@@ -21,7 +21,7 @@ namespace scenes {
 
     [[nodiscard]] Scene::UpdateResult SettingsMenu::update() {
         if (m_should_exit) {
-            return std::pair{ SceneUpdate::StopUpdating, Scene::Pop{} };
+            return UpdateResult{ SceneUpdate::StopUpdating, Scene::Pop{} };
         }
         return UpdateResult{ SceneUpdate::ContinueUpdating, tl::nullopt };
     }

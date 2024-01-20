@@ -17,9 +17,9 @@ namespace scenes {
 
     [[nodiscard]] Scene::UpdateResult GameOver::update() {
         if (m_should_exit) {
-            return std::pair{ SceneUpdate::ContinueUpdating, Scene::Switch{ SceneId::MainMenu } };
+            return UpdateResult{ SceneUpdate::ContinueUpdating, Scene::Switch{ SceneId::MainMenu } };
         }
-        return std::pair{ SceneUpdate::ContinueUpdating, tl::nullopt };
+        return UpdateResult{ SceneUpdate::ContinueUpdating, tl::nullopt };
     }
 
     void GameOver::render(const ServiceProvider& service_provider) {

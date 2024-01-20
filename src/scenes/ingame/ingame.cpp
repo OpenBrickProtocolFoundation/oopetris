@@ -193,7 +193,7 @@ namespace scenes {
 
         const auto ingame_scene_is_topmost_scene = (m_service_provider->active_scenes().back() == this);
         if (is_game_over() and ingame_scene_is_topmost_scene) {
-            return std::pair{ SceneUpdate::ContinueUpdating, Scene::Push{ SceneId::GameOver } };
+            return UpdateResult{ SceneUpdate::ContinueUpdating, Scene::Push{ SceneId::GameOver } };
         }
 
         if (m_is_paused) {
@@ -227,9 +227,9 @@ namespace scenes {
                 assert(clock->can_be_paused());
                 clock->pause();
             }
-            return std::pair{ SceneUpdate::ContinueUpdating, Scene::Push{ SceneId::Pause } };
+            return UpdateResult{ SceneUpdate::ContinueUpdating, Scene::Push{ SceneId::Pause } };
         }
-        return std::pair{ SceneUpdate::ContinueUpdating, tl::nullopt };
+        return UpdateResult{ SceneUpdate::ContinueUpdating, tl::nullopt };
     }
 
     void Ingame::render(const ServiceProvider& service_provider) {

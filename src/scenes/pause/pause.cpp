@@ -24,12 +24,12 @@ namespace scenes {
 
     [[nodiscard]] Scene::UpdateResult scenes::Pause::update() {
         if (m_should_unpause) {
-            return std::pair{ SceneUpdate::StopUpdating, Scene::Pop{} };
+            return UpdateResult{ SceneUpdate::StopUpdating, Scene::Pop{} };
         }
         if (m_should_exit) {
-            return std::pair{ SceneUpdate::StopUpdating, Scene::Switch{ SceneId::MainMenu } };
+            return UpdateResult{ SceneUpdate::StopUpdating, Scene::Switch{ SceneId::MainMenu } };
         }
-        return std::pair{ SceneUpdate::StopUpdating, tl::nullopt };
+        return UpdateResult{ SceneUpdate::StopUpdating, tl::nullopt };
     }
 
     void Pause::render(const ServiceProvider& service_provider) {
