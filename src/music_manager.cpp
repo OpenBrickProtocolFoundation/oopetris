@@ -111,11 +111,10 @@ tl::optional<std::string> MusicManager::load_and_play_music(const std::filesyste
         Mix_FreeMusic(m_queued_music);
     }
 
-    m_queued_music = music;
-    m_delay = delay;
-
 
     if (m_music != nullptr) {
+        m_queued_music = music;
+        m_delay = delay;
         Mix_HookMusicFinished([]() {
             assert(s_instance != nullptr and "there must be a MusicManager instance");
             s_instance->hook_music_finished();
@@ -217,9 +216,9 @@ void MusicManager::hook_music_finished() {
 
 [[nodiscard]] tl::optional<float> MusicManager::get_volume() const {
 #ifdef DEBUG_BUILD
-    int result = Mix_Volume(-1, -1);
+    int result = Mix_Volume(-1);
     if (result == 0) {
-        return tl::nullopt
+        return tl::nullopt;
     }
 
     return static_cast<float>(result) / MIX_MAX_VOLUME;
@@ -244,8 +243,9 @@ void MusicManager::set_volume(const tl::optional<float> new_volume) {
     }
 
 
-    const int new_volume_mapped = static_cast<int>(MIX_MAX_VOLUME * new_volume.value());
-    Mix_Volume(-1, new_volume_mapped);
+    const int new_volume_mapped =
+            not new_volume.has_value() ? 0.0f : static_cast<int>(MIX_MAX_VOLUME * new_volume.value());
+    Mix_VolumeMusic(new_volume_mapped);
 
     if (not volume.has_value()) {
 
@@ -261,4 +261,58 @@ void MusicManager::set_volume(const tl::optional<float> new_volume) {
 
 
     volume = new_volume;
+}
+
+tl::optional<float> MusicManager::change_volume(const std::int8_t steps) {
+    const auto current_volume = get_volume();
+
+    if (steps == 0) {
+        return current_volume;
+    }
+
+    tl::optional<float> new_volume = current_volume;
+
+    if (steps > 0) {
+
+        if (not current_volume.has_value()) {
+            new_volume = MusicManager::step_width * steps;
+
+        } else {
+            if (current_volume >= 1.0f) {
+                return 1.0f;
+            }
+
+            new_volume = current_volume.value() + MusicManager::step_width * steps;
+        }
+
+        if (new_volume >= 1.0f) {
+            new_volume = 1.0f;
+        }
+
+
+    } else {
+        // steps < 0
+
+
+        if (not current_volume.has_value()) {
+            return tl::nullopt;
+        }
+
+        if (current_volume <= 0.0f) {
+            new_volume = tl::nullopt;
+        } else {
+
+            new_volume = current_volume.value() + MusicManager::step_width * steps;
+
+
+            if (new_volume <= 0.0f) {
+                new_volume = tl::nullopt;
+            }
+        }
+    }
+
+
+    set_volume(new_volume);
+
+    return new_volume;
 }

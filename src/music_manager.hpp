@@ -15,6 +15,7 @@
 struct MusicManager final {
 private:
     static inline MusicManager* s_instance{ nullptr };
+    static inline float step_width = 0.05;
 
     Mix_Music* m_music;
     std::atomic<Mix_Music*> m_queued_music;
@@ -41,6 +42,8 @@ public:
 
     [[nodiscard]] tl::optional<float> get_volume() const;
     void set_volume(const tl::optional<float> new_volume);
+    // no nodiscard, since the return value is only a side effect, that is maybe useful
+    tl::optional<float> change_volume(const std::int8_t steps);
 
 private:
     void hook_music_finished();
