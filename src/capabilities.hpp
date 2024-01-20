@@ -45,42 +45,42 @@ namespace utils {
         EXIT,
         DOWN,
         UP,
-        CLOSE_SETTINGS,
+        CLOSE,
     };
 
     //TODO: support multiple keys
     static std::unordered_map<u8, std::vector<i64>> key_map =
 #if defined(__ANDROID__)
             {
-                {            static_cast<u8>(CrossPlatformAction::OK), { 0 }},
-                {         static_cast<u8>(CrossPlatformAction::PAUSE), { 0 }},
-                {       static_cast<u8>(CrossPlatformAction::UNPAUSE), { 0 }},
-                {          static_cast<u8>(CrossPlatformAction::EXIT), { 0 }},
-                {          static_cast<u8>(CrossPlatformAction::DOWN), { 0 }},
-                {            static_cast<u8>(CrossPlatformAction::UP), { 0 }},
-                {static_cast<u8>(CrossPlatformAction::CLOSE_SETTINGS), { 0 }},
+                {     static_cast<u8>(CrossPlatformAction::OK), { 0 }},
+                {  static_cast<u8>(CrossPlatformAction::PAUSE), { 0 }},
+                {static_cast<u8>(CrossPlatformAction::UNPAUSE), { 0 }},
+                {   static_cast<u8>(CrossPlatformAction::EXIT), { 0 }},
+                {   static_cast<u8>(CrossPlatformAction::DOWN), { 0 }},
+                {     static_cast<u8>(CrossPlatformAction::UP), { 0 }},
+                {  static_cast<u8>(CrossPlatformAction::CLOSE), { 0 }},
     };
 };
 #elif defined(__SWITCH__)
             {
-                {            static_cast<u8>(CrossPlatformAction::OK),{ JOYCON_A }                                                                      },
-                {         static_cast<u8>(CrossPlatformAction::PAUSE),                                       { JOYCON_PLUS }},
-                {       static_cast<u8>(CrossPlatformAction::UNPAUSE),                                       { JOYCON_PLUS }},
-                {          static_cast<u8>(CrossPlatformAction::EXIT),                                      { JOYCON_MINUS }},
-                {          static_cast<u8>(CrossPlatformAction::DOWN),
-                 { JOYCON_CROSS_DOWN, JOYCON_LDPAD_DOWN, JOYCON_RDPAD_DOWN }                                                },
-                {            static_cast<u8>(CrossPlatformAction::UP), { JOYCON_CROSS_UP, JOYCON_LDPAD_UP, JOYCON_RDPAD_UP }},
-                {static_cast<u8>(CrossPlatformAction::CLOSE_SETTINGS),                                      { JOYCON_MINUS }},
+                {     static_cast<u8>(CrossPlatformAction::OK),{ JOYCON_A }                                                               },
+                {  static_cast<u8>(CrossPlatformAction::PAUSE),                                       { JOYCON_PLUS }},
+                {static_cast<u8>(CrossPlatformAction::UNPAUSE),                                       { JOYCON_PLUS }},
+                {   static_cast<u8>(CrossPlatformAction::EXIT),                                      { JOYCON_MINUS }},
+                {   static_cast<u8>(CrossPlatformAction::DOWN),
+                 { JOYCON_CROSS_DOWN, JOYCON_LDPAD_DOWN, JOYCON_RDPAD_DOWN }                                         },
+                {     static_cast<u8>(CrossPlatformAction::UP), { JOYCON_CROSS_UP, JOYCON_LDPAD_UP, JOYCON_RDPAD_UP }},
+                {  static_cast<u8>(CrossPlatformAction::CLOSE),                                      { JOYCON_MINUS }},
 };
 #else
             {
-                {            static_cast<u8>(CrossPlatformAction::OK), { SDLK_RETURN, SDLK_SPACE }},
-                {         static_cast<u8>(CrossPlatformAction::PAUSE),             { SDLK_ESCAPE }},
-                {       static_cast<u8>(CrossPlatformAction::UNPAUSE),             { SDLK_ESCAPE }},
-                {          static_cast<u8>(CrossPlatformAction::EXIT),             { SDLK_RETURN }},
-                {          static_cast<u8>(CrossPlatformAction::DOWN),       { SDLK_DOWN, SDLK_s }},
-                {            static_cast<u8>(CrossPlatformAction::UP),         { SDLK_UP, SDLK_w }},
-                {static_cast<u8>(CrossPlatformAction::CLOSE_SETTINGS),             { SDLK_ESCAPE }},
+                {     static_cast<u8>(CrossPlatformAction::OK), { SDLK_RETURN, SDLK_SPACE }},
+                {  static_cast<u8>(CrossPlatformAction::PAUSE),             { SDLK_ESCAPE }},
+                {static_cast<u8>(CrossPlatformAction::UNPAUSE),             { SDLK_ESCAPE }},
+                {   static_cast<u8>(CrossPlatformAction::EXIT),             { SDLK_RETURN }},
+                {   static_cast<u8>(CrossPlatformAction::DOWN),       { SDLK_DOWN, SDLK_s }},
+                {     static_cast<u8>(CrossPlatformAction::UP),         { SDLK_UP, SDLK_w }},
+                {  static_cast<u8>(CrossPlatformAction::CLOSE),             { SDLK_ESCAPE }},
 };
 #endif
 
@@ -115,7 +115,7 @@ namespace utils {
             case CrossPlatformAction::PAUSE:
             case CrossPlatformAction::UNPAUSE:
                 return "PLUS";
-            case CrossPlatformAction::CLOSE_SETTINGS:
+            case CrossPlatformAction::CLOSE:
             case CrossPlatformAction::EXIT:
                 return "MINUS";
             case CrossPlatformAction::DOWN:
@@ -132,6 +132,7 @@ namespace utils {
                 return "Enter";
             case CrossPlatformAction::PAUSE:
             case CrossPlatformAction::UNPAUSE:
+            case CrossPlatformAction::CLOSE:
                 return "Esc";
             case CrossPlatformAction::EXIT:
                 return "Enter";

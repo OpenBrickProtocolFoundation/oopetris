@@ -69,7 +69,7 @@ namespace scenes {
             return true;
         }
 
-        if (utils::event_is_action(event, utils::CrossPlatformAction::EXIT)) {
+        if (utils::event_is_action(event, utils::CrossPlatformAction::CLOSE)) {
             m_next_command = Command::Exit;
             return true;
         }

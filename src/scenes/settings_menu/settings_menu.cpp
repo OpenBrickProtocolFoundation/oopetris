@@ -37,7 +37,7 @@ namespace scenes {
             return true;
         }
 
-        if (utils::event_is_action(event, utils::CrossPlatformAction::CLOSE_SETTINGS)) {
+        if (utils::event_is_action(event, utils::CrossPlatformAction::CLOSE)) {
             m_should_exit = true;
             return true;
         }
