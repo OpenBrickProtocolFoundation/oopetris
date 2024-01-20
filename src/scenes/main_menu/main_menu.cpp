@@ -65,7 +65,15 @@ namespace scenes {
     }
 
     bool MainMenu::handle_event(const SDL_Event& event) {
-        return m_focus_group.handle_event(event);
+        if (m_focus_group.handle_event(event)) {
+            return true;
+        }
+
+        if (utils::event_is_action(event, utils::CrossPlatformAction::EXIT)) {
+            m_next_command = Command::Exit;
+            return true;
+        }
+        return false;
     }
 
 } // namespace scenes

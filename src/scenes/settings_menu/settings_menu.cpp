@@ -33,7 +33,17 @@ namespace scenes {
     }
 
     bool SettingsMenu::handle_event(const SDL_Event& event) {
-        return m_focus_group.handle_event(event);
+        if (m_focus_group.handle_event(event)) {
+            return true;
+        }
+
+        if (utils::event_is_action(event, utils::CrossPlatformAction::CLOSE_SETTINGS)) {
+            m_should_exit = true;
+            return true;
+        }
+
+        // return true all the time, since no scene then the settings should receive inputs (since we draw black over them anyway!)
+        return true;
     }
 
 } // namespace scenes
