@@ -130,12 +130,13 @@ namespace utils {
 #else
         switch (action) {
             case CrossPlatformAction::OK:
-                return "Return";
+                return "Enter";
             case CrossPlatformAction::PAUSE:
-                return "ESC";
+                return "Esc";
             case CrossPlatformAction::UNPAUSE:
+                return "Esc";
             case CrossPlatformAction::EXIT:
-                return "Return";
+                return "Enter";
             case CrossPlatformAction::DOWN:
                 return "Down";
             case CrossPlatformAction::UP:
