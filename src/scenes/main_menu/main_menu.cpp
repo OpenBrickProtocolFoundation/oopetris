@@ -22,7 +22,12 @@ namespace scenes {
                 window
         ));
         m_focus_group.add(std::make_unique<ui::Button>(
-                "Settings", ui::AbsoluteLayout{ 100, 250 }, 50, [](const ui::Button&) {}, window
+                "Settings", ui::AbsoluteLayout{ 100, 250 }, 50,
+                [this](const ui::Button&) {
+                    spdlog::info("setting next command");
+                    m_next_command = Command::OpenSettingsMenu;
+                },
+                window
         ));
         m_focus_group.add(std::make_unique<ui::Button>(
                 "Exit", ui::AbsoluteLayout{ 100, 300 }, 100,
@@ -41,6 +46,8 @@ namespace scenes {
             switch (m_next_command.value()) {
                 case Command::StartGame:
                     return UpdateResult{ SceneUpdate::ContinueUpdating, Scene::Switch{ SceneId::Ingame } };
+                case Command::OpenSettingsMenu:
+                    return UpdateResult{ SceneUpdate::ContinueUpdating, Scene::Switch{ SceneId::SettingsMenu } };
                 case Command::Exit:
                     return UpdateResult{ SceneUpdate::ContinueUpdating, Scene::Exit{} };
                 default:

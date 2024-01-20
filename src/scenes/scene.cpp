@@ -3,7 +3,7 @@
 #include "ingame/ingame.hpp"
 #include "main_menu/main_menu.hpp"
 #include "pause/pause.hpp"
-
+#include "settings_menu/settings_menu.hpp"
 namespace scenes {
     Scene::Scene(ServiceProvider* service_provider) : m_service_provider{ service_provider } { }
 
@@ -18,6 +18,8 @@ namespace scenes {
                 return std::make_unique<Ingame>(&service_provider);
             case SceneId::GameOver:
                 return std::make_unique<GameOver>(&service_provider);
+            case SceneId::SettingsMenu:
+                return std::make_unique<SettingsMenu>(&service_provider, window);
             default:
                 utils::unreachable();
         }
