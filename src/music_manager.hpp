@@ -23,6 +23,7 @@ private:
     static constexpr unsigned fade_ms = 500;
     usize m_delay = MusicManager::fade_ms;
     ServiceProvider* m_service_provider;
+    tl::optional<float> volume;
 
 public:
     explicit MusicManager(ServiceProvider* service_provider, u8 channel_size = 2);
@@ -37,6 +38,9 @@ public:
 
     tl::optional<std::string> load_effect(const std::string& name, std::filesystem::path& location);
     tl::optional<std::string> play_effect(const std::string& name, u8 channel_num = 1, int loop = 0);
+
+    [[nodiscard]] tl::optional<float> get_volume() const;
+    void set_volume(const tl::optional<float> new_volume);
 
 private:
     void hook_music_finished();
