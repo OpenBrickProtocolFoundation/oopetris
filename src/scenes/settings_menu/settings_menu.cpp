@@ -21,12 +21,13 @@ namespace scenes {
 
     [[nodiscard]] Scene::UpdateResult SettingsMenu::update() {
         if (m_should_exit) {
-            return UpdateResult{ SceneUpdate::ContinueUpdating, Scene::Switch{ SceneId::MainMenu } };
+            return std::pair{ SceneUpdate::StopUpdating, Scene::Pop{} };
         }
         return UpdateResult{ SceneUpdate::ContinueUpdating, tl::nullopt };
     }
 
     void SettingsMenu::render(const ServiceProvider& service_provider) {
+        service_provider.renderer().draw_rect_filled(service_provider.window().screen_rect(), Color::black());
         m_heading.render(service_provider, service_provider.window().screen_rect());
         m_focus_group.render(service_provider, service_provider.window().screen_rect());
     }

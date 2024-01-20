@@ -47,7 +47,9 @@ namespace scenes {
                 case Command::StartGame:
                     return UpdateResult{ SceneUpdate::ContinueUpdating, Scene::Switch{ SceneId::Ingame } };
                 case Command::OpenSettingsMenu:
-                    return UpdateResult{ SceneUpdate::ContinueUpdating, Scene::Switch{ SceneId::SettingsMenu } };
+                    // perform a push and reset the command, so that the music keeps playing the entire time
+                    m_next_command = tl::nullopt;
+                    return UpdateResult{ SceneUpdate::ContinueUpdating, Scene::Push{ SceneId::SettingsMenu } };
                 case Command::Exit:
                     return UpdateResult{ SceneUpdate::ContinueUpdating, Scene::Exit{} };
                 default:
