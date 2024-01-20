@@ -240,7 +240,7 @@ namespace scenes {
 
     [[nodiscard]] bool Ingame::handle_event(const SDL_Event& event) {
 
-        if (utils::event_is_action(event, utils::CrossPlatformAction::PAUSE)) {
+        if (utils::event_is_action(event, utils::CrossPlatformAction::PAUSE) and not is_game_over()) {
             m_should_pause = true;
             return true;
         }
