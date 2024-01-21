@@ -12,7 +12,7 @@
 
 namespace scenes {
 
-    Ingame::Ingame(ServiceProvider* service_provider) : Scene{ service_provider } {
+    Ingame::Ingame(ServiceProvider* service_provider) : Scene{ SceneId::Ingame, service_provider } {
         static constexpr auto num_tetrions = u8{ 1 };
 
         if (is_replay_mode()) {

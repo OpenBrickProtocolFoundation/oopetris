@@ -5,7 +5,7 @@
 #include "pause/pause.hpp"
 #include "settings_menu/settings_menu.hpp"
 namespace scenes {
-    Scene::Scene(ServiceProvider* service_provider) : m_service_provider{ service_provider } { }
+    Scene::Scene(SceneId id, ServiceProvider* service_provider) : m_id{ id }, m_service_provider{ service_provider } { }
 
     [[nodiscard]] std::unique_ptr<Scene>
     create_scene(ServiceProvider& service_provider, Window* window, SceneId identifier) {
@@ -23,6 +23,11 @@ namespace scenes {
             default:
                 utils::unreachable();
         }
+    }
+
+
+    [[nodiscard]] SceneId Scene::get_id() const {
+        return m_id;
     }
 
 } // namespace scenes

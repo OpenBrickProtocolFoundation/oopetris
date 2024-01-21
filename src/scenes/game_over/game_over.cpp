@@ -7,7 +7,7 @@
 
 namespace scenes {
 
-    GameOver::GameOver(ServiceProvider* service_provider) : Scene{ service_provider } {
+    GameOver::GameOver(ServiceProvider* service_provider) : Scene{ SceneId::GameOver, service_provider } {
         service_provider->music_manager()
                 .load_and_play_music(
                         utils::get_assets_folder() / "music" / utils::get_supported_music_extension("05. Results")

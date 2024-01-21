@@ -7,7 +7,7 @@
 namespace scenes {
 
     MainMenu::MainMenu(ServiceProvider* service_provider, Window* window)
-        : Scene(service_provider),
+        : Scene{SceneId::MainMenu, service_provider},
           m_heading{
               constants::program_name, Color::white(), service_provider->fonts().get(FontId::Default),
               ui::AbsoluteLayout{100, 100}

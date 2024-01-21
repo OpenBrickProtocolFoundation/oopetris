@@ -10,7 +10,7 @@
 #endif
 namespace scenes {
 
-    Pause::Pause(ServiceProvider* service_provider) : Scene{ service_provider }, m_heading {
+    Pause::Pause(ServiceProvider* service_provider) : Scene{ SceneId::Pause, service_provider }, m_heading {
         fmt::format(
             "Pause ({}: continue, {}: quit)",
             utils::action_description(utils::CrossPlatformAction::UNPAUSE),

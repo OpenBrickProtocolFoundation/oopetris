@@ -7,7 +7,7 @@
 namespace scenes {
 
     SettingsMenu::SettingsMenu(ServiceProvider* service_provider, Window* window)
-        : Scene(service_provider),
+        : Scene{SceneId::SettingsMenu, service_provider},
           m_heading{
               "Settings", Color::white(), service_provider->fonts().get(FontId::Default), ui::AbsoluteLayout{100, 100}
     },
@@ -38,7 +38,23 @@ namespace scenes {
     }
 
     void SettingsMenu::render(const ServiceProvider& service_provider) {
-        service_provider.renderer().draw_rect_filled(service_provider.window().screen_rect(), Color::black());
+
+        const auto is_above_ingame =
+                m_service_provider->active_scenes().size() >= 2
+                && m_service_provider->active_scenes().at(m_service_provider->active_scenes().size() - 2)->get_id()
+                           == SceneId::Ingame;
+
+        if (is_above_ingame) {
+            const auto whole_settings_rect = Rect{
+                Point{ 90,  90},
+                Point{510, 350}
+            };
+            service_provider.renderer().draw_rect_filled(whole_settings_rect, Color::black());
+            service_provider.renderer().draw_rect_outline(whole_settings_rect, Color::white());
+        } else {
+            service_provider.renderer().draw_rect_filled(service_provider.window().screen_rect(), Color::black());
+        }
+
         m_heading.render(service_provider, service_provider.window().screen_rect());
         m_focus_group.render(service_provider, service_provider.window().screen_rect());
     }
