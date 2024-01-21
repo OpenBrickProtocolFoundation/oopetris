@@ -118,6 +118,8 @@ namespace utils {
 
     [[nodiscard]] bool event_is_action(const SDL_Event& event, CrossPlatformAction action);
 
+    [[nodiscard]] std::vector<i64> get_bound_keys();
+
     [[nodiscard]] constexpr std::string_view action_description(CrossPlatformAction action) {
 #if defined(__ANDROID__)
         UNUSED(action);

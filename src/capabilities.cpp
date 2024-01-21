@@ -53,3 +53,14 @@
     return false;
 #endif
 }
+
+
+[[nodiscard]] std::vector<i64> utils::get_bound_keys() {
+    std::vector<i64> bound_keys{};
+    for (const auto& [_, keys] : utils::key_map) {
+        for (const auto key : keys) {
+            bound_keys.push_back(key);
+        }
+    }
+    return bound_keys;
+}

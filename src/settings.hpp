@@ -55,6 +55,7 @@ inline void from_json(const nlohmann::json& j, KeyboardControls& controls) {
     controls.move_down = get_key_code_safe(j, "move_down");
     controls.drop = get_key_code_safe(j, "drop");
     controls.hold = get_key_code_safe(j, "hold");
+    controls.validate();
 }
 
 using Controls = std::variant<KeyboardControls>;
