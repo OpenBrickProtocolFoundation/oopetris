@@ -53,17 +53,12 @@ void Application::handle_event(const SDL_Event& event) {
     if (event.type == SDL_QUIT) {
         m_is_running = false;
     }
-    bool handled_event = false;
+
     for (usize i = 0; i < m_scene_stack.size(); ++i) {
         const auto index = m_scene_stack.size() - i - 1;
         if (m_scene_stack.at(index)->handle_event(event)) {
-            handled_event = true;
-            break;
+            return;
         }
-    }
-
-    if (handled_event) {
-        return;
     }
 
     if (utils::device_supports_keys() && event.type == SDL_KEYDOWN) {
