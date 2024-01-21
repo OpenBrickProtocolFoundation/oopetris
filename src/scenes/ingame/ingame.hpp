@@ -10,13 +10,15 @@ namespace scenes {
     private:
         using TetrionHeaders = std::vector<Recording::TetrionHeader>;
 
+        enum class NextScene { Pause, Settings };
+
         std::vector<std::unique_ptr<ClockSource>> m_clock_sources;
         std::vector<SimulationStep> m_simulation_step_indices;
         std::vector<std::unique_ptr<Tetrion>> m_tetrions;
         std::vector<std::unique_ptr<Input>> m_inputs;
         std::unique_ptr<RecordingWriter> m_recording_writer;
         std::unique_ptr<RecordingReader> m_recording_reader;
-        bool m_should_pause{ false };
+        tl::optional<NextScene> m_next_scene{};
         bool m_is_paused{ false };
 
     public:

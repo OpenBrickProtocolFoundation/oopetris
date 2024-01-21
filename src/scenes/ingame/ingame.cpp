@@ -200,7 +200,7 @@ namespace scenes {
             // if we would still be in pause mode, update() wouldn't have been called in the first place => we
             // must resume from pause
             m_is_paused = false;
-            m_should_pause = false;
+            m_next_scene = tl::nullopt;
             for (auto& clock : m_clock_sources) {
                 assert(clock->can_be_paused());
                 clock->resume();
@@ -220,14 +220,23 @@ namespace scenes {
             }
         }
 
-        if (m_should_pause) {
-            m_should_pause = false;
+        if (m_next_scene.has_value()) {
+            const auto next_scene = m_next_scene.value();
+            m_next_scene = tl::nullopt;
             m_is_paused = true;
             for (auto& clock : m_clock_sources) {
                 assert(clock->can_be_paused());
                 clock->pause();
             }
-            return UpdateResult{ SceneUpdate::ContinueUpdating, Scene::Push{ SceneId::Pause } };
+
+            switch (next_scene) {
+                case NextScene::Pause:
+                    return UpdateResult{ SceneUpdate::ContinueUpdating, Scene::Push{ SceneId::Pause } };
+                case NextScene::Settings:
+                    return UpdateResult{ SceneUpdate::ContinueUpdating, Scene::Push{ SceneId::SettingsMenu } };
+                default:
+                    utils::unreachable();
+            }
         }
         return UpdateResult{ SceneUpdate::ContinueUpdating, tl::nullopt };
     }
@@ -241,7 +250,11 @@ namespace scenes {
     [[nodiscard]] bool Ingame::handle_event(const SDL_Event& event) {
 
         if (utils::event_is_action(event, utils::CrossPlatformAction::PAUSE) and not is_game_over()) {
-            m_should_pause = true;
+            m_next_scene = NextScene::Pause;
+            return true;
+        }
+        if (utils::event_is_action(event, utils::CrossPlatformAction::OPEN_SETTINGS)) {
+            m_next_scene = NextScene::Settings;
             return true;
         }
         return false;
