@@ -69,6 +69,11 @@ namespace scenes {
             return true;
         }
 
+        if (utils::event_is_action(event, utils::CrossPlatformAction::OPEN_SETTINGS)) {
+            m_should_exit = true;
+            return true;
+        }
+
         // return true all the time, since no scene then the settings should receive inputs (since we draw black over them anyway!)
         return true;
     }
