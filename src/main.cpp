@@ -35,7 +35,7 @@ int main(int argc, char** argv) {
     ));
     auto combined_logger = std::make_shared<spdlog::logger>("combined_logger", begin(sinks), end(sinks));
     spdlog::set_default_logger(combined_logger);
-
+#define DEBUG_BUILD
 #ifdef DEBUG_BUILD
     spdlog::set_level(spdlog::level::debug);
 #else

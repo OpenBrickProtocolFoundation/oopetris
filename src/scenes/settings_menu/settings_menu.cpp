@@ -12,9 +12,20 @@ namespace scenes {
               "Settings", Color::white(), service_provider->fonts().get(FontId::Default), ui::AbsoluteLayout{100, 100}
     },
           m_focus_group{ ui::AbsoluteLayout{ 0, 0 } } {
-
+        m_focus_group.add(std::make_unique<ui::Slider>(
+                "Volume", ui::AbsoluteLayout{ 100, 200 }, 150, ui::Slider::Range{ 0.0f, 1.0f },
+                [service_provider]() {
+                    const auto value = service_provider->music_manager().get_volume();
+                    return value.has_value() ? value.value() : 0.0f;
+                },
+                [service_provider](const float& amount) {
+                    const auto mapped_amount = amount <= 0.0f ? tl::nullopt : tl::make_optional(amount);
+                    return service_provider->music_manager().set_volume(amount);
+                },
+                0.05, window
+        ));
         m_focus_group.add(std::make_unique<ui::Button>(
-                "Return", ui::AbsoluteLayout{ 100, 300 }, 100, [this](const ui::Button&) { m_should_exit = true; },
+                "Return", ui::AbsoluteLayout{ 100, 300 }, 200, [this](const ui::Button&) { m_should_exit = true; },
                 window
         ));
     }

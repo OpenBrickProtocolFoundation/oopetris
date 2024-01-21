@@ -53,7 +53,18 @@ void Application::handle_event(const SDL_Event& event) {
     if (event.type == SDL_QUIT) {
         m_is_running = false;
     }
+    bool handled_event = false;
+    for (usize i = 0; i < m_scene_stack.size(); ++i) {
+        const auto index = m_scene_stack.size() - i - 1;
+        if (m_scene_stack.at(index)->handle_event(event)) {
+            handled_event = true;
+            break;
+        }
+    }
 
+    if (handled_event) {
+        return;
+    }
 
     if (utils::device_supports_keys() && event.type == SDL_KEYDOWN) {
 
@@ -63,13 +74,6 @@ void Application::handle_event(const SDL_Event& event) {
         } else if (event.key.keysym.sym == SDLK_MINUS or event.key.keysym.sym == SDLK_KP_MINUS) {
             m_music_manager.change_volume(-1);
             return;
-        }
-    }
-
-    for (usize i = 0; i < m_scene_stack.size(); ++i) {
-        const auto index = m_scene_stack.size() - i - 1;
-        if (m_scene_stack.at(index)->handle_event(event)) {
-            break;
         }
     }
 }

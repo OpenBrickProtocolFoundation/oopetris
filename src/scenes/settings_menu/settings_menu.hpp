@@ -3,6 +3,7 @@
 #include "../../ui/button.hpp"
 #include "../../ui/focus_group.hpp"
 #include "../../ui/label.hpp"
+#include "../../ui/slider.hpp"
 #include "../scene.hpp"
 
 namespace scenes {

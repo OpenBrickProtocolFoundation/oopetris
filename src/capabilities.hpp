@@ -45,6 +45,8 @@ namespace utils {
         EXIT,
         DOWN,
         UP,
+        LEFT,
+        RIGHT,
         CLOSE,
     };
 
@@ -58,6 +60,8 @@ namespace utils {
                 {   static_cast<u8>(CrossPlatformAction::EXIT), { 0 }},
                 {   static_cast<u8>(CrossPlatformAction::DOWN), { 0 }},
                 {     static_cast<u8>(CrossPlatformAction::UP), { 0 }},
+                {   static_cast<u8>(CrossPlatformAction::LEFT), { 0 }},
+                {  static_cast<u8>(CrossPlatformAction::RIGHT), { 0 }},
                 {  static_cast<u8>(CrossPlatformAction::CLOSE), { 0 }},
     };
 };
@@ -70,6 +74,10 @@ namespace utils {
                 {   static_cast<u8>(CrossPlatformAction::DOWN),
                  { JOYCON_CROSS_DOWN, JOYCON_LDPAD_DOWN, JOYCON_RDPAD_DOWN }                                         },
                 {     static_cast<u8>(CrossPlatformAction::UP), { JOYCON_CROSS_UP, JOYCON_LDPAD_UP, JOYCON_RDPAD_UP }},
+                {   static_cast<u8>(CrossPlatformAction::LEFT),
+                 { JOYCON_CROSS_LEFT, JOYCON_LDPAD_LEFT, JOYCON_RDPAD_LEFT }                                         },
+                {  static_cast<u8>(CrossPlatformAction::RIGHT),
+                 { JOYCON_CROSS_RIGHT, JOYCON_LDPAD_RIGHT, JOYCON_RDPAD_RIGHT }                                      },
                 {  static_cast<u8>(CrossPlatformAction::CLOSE),                                      { JOYCON_MINUS }},
 };
 #else
@@ -80,6 +88,8 @@ namespace utils {
                 {   static_cast<u8>(CrossPlatformAction::EXIT),             { SDLK_RETURN }},
                 {   static_cast<u8>(CrossPlatformAction::DOWN),       { SDLK_DOWN, SDLK_s }},
                 {     static_cast<u8>(CrossPlatformAction::UP),         { SDLK_UP, SDLK_w }},
+                {   static_cast<u8>(CrossPlatformAction::LEFT),       { SDLK_LEFT, SDLK_a }},
+                {  static_cast<u8>(CrossPlatformAction::RIGHT),      { SDLK_RIGHT, SDLK_d }},
                 {  static_cast<u8>(CrossPlatformAction::CLOSE),             { SDLK_ESCAPE }},
 };
 #endif
@@ -122,6 +132,10 @@ namespace utils {
                 return "Down";
             case CrossPlatformAction::UP:
                 return "Up";
+            case CrossPlatformAction::LEFT:
+                return "Left";
+            case CrossPlatformAction::RIGHT:
+                return "Right";
             default:
                 utils::unreachable();
         }
@@ -140,6 +154,10 @@ namespace utils {
                 return "Down";
             case CrossPlatformAction::UP:
                 return "Up";
+            case CrossPlatformAction::LEFT:
+                return "Left";
+            case CrossPlatformAction::RIGHT:
+                return "Right";
             default:
                 utils::unreachable();
         }
