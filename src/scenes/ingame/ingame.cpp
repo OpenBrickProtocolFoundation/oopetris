@@ -56,14 +56,11 @@ namespace scenes {
             tetrion->spawn_next_tetromino(0);
         }
 
-        if (not m_service_provider->command_line_arguments().silent) {
-            m_service_provider->music_manager()
-                    .load_and_play_music(
-                            utils::get_assets_folder() / "music"
-                            / utils::get_supported_music_extension("02. Game Theme")
-                    )
-                    .and_then(utils::log_error);
-        }
+        m_service_provider->music_manager()
+                .load_and_play_music(
+                        utils::get_assets_folder() / "music" / utils::get_supported_music_extension("02. Game Theme")
+                )
+                .and_then(utils::log_error);
     }
 
     [[nodiscard]] std::unique_ptr<Input>

@@ -33,6 +33,8 @@ MusicManager::MusicManager(ServiceProvider* service_provider, u8 channel_size)
     Mix_OpenAudio(constants::audio_frequency, MIX_DEFAULT_FORMAT, 2, constants::audio_chunk_size);
 
     s_instance = this;
+
+    set_volume(volume, true);
 }
 
 MusicManager::~MusicManager() {
@@ -227,9 +229,9 @@ void MusicManager::hook_music_finished() {
 #endif
 }
 
-void MusicManager::set_volume(const tl::optional<float> new_volume) {
+void MusicManager::set_volume(const tl::optional<float> new_volume, const bool force_update) {
 
-    if (volume == new_volume) {
+    if (volume == new_volume and not force_update) {
         return;
     }
 

@@ -41,7 +41,7 @@ public:
     tl::optional<std::string> play_effect(const std::string& name, u8 channel_num = 1, int loop = 0);
 
     [[nodiscard]] tl::optional<float> get_volume() const;
-    void set_volume(const tl::optional<float> new_volume);
+    void set_volume(const tl::optional<float> new_volume, const bool force_update = false);
     // no nodiscard, since the return value is only a side effect, that is maybe useful
     tl::optional<float> change_volume(const std::int8_t steps);
 
