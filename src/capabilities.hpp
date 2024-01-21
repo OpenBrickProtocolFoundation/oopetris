@@ -93,7 +93,7 @@ namespace utils {
                 {         static_cast<u8>(CrossPlatformAction::LEFT),       { SDLK_LEFT, SDLK_a }},
                 {        static_cast<u8>(CrossPlatformAction::RIGHT),      { SDLK_RIGHT, SDLK_d }},
                 {        static_cast<u8>(CrossPlatformAction::CLOSE),             { SDLK_ESCAPE }},
-                {static_cast<u8>(CrossPlatformAction::OPEN_SETTINGS),                  { SDLK_e }},
+                {static_cast<u8>(CrossPlatformAction::OPEN_SETTINGS),                  { SDLK_p }},
 };
 #endif
 
@@ -119,6 +119,7 @@ namespace utils {
     [[nodiscard]] bool event_is_action(const SDL_Event& event, CrossPlatformAction action);
 
     [[nodiscard]] std::vector<i64> get_bound_keys();
+    [[nodiscard]] std::vector<i64> get_bound_keys(const std::vector<CrossPlatformAction>& actions);
 
     [[nodiscard]] constexpr std::string_view action_description(CrossPlatformAction action) {
 #if defined(__ANDROID__)

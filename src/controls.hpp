@@ -16,7 +16,8 @@ struct KeyboardControls final {
     void validate() const {
         std::vector<KeyCode> already_bound_keycodes{};
         if (utils::device_supports_keys()) {
-            for (const auto& key : utils::get_bound_keys()) {
+            for (const auto& key : utils::get_bound_keys({ utils::CrossPlatformAction::PAUSE,
+                                                           utils::CrossPlatformAction::OPEN_SETTINGS })) {
                 const auto key_code = from_sdl_keycode(static_cast<SDL_KeyCode>(key));
                 if (key_code == KeyCode::Unknown) {
                     throw std::runtime_error("Couldn't map bound key '" + std::to_string(key) + "'");
