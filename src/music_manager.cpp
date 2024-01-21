@@ -16,7 +16,7 @@ MusicManager::MusicManager(ServiceProvider* service_provider, u8 channel_size)
       m_channel_size{ channel_size },
       m_chunk_map{ std::unordered_map<std::string, Mix_Chunk*>{} },
       m_service_provider{ service_provider },
-      volume{ m_service_provider->command_line_arguments().silent ? tl::nullopt : tl::make_optional(1.0f) } {
+      volume{ m_service_provider->command_line_arguments().silent ? tl::nullopt : tl::make_optional(1.0F) } {
     if (s_instance != nullptr) {
         spdlog::error("it's not allowed to create more than one MusicManager instance");
         return;
@@ -244,7 +244,7 @@ void MusicManager::set_volume(const tl::optional<float> new_volume) {
 
 
     const int new_volume_mapped =
-            not new_volume.has_value() ? 0.0f : static_cast<int>(MIX_MAX_VOLUME * new_volume.value());
+            not new_volume.has_value() ? 0 : static_cast<int>(MIX_MAX_VOLUME * new_volume.value());
     Mix_VolumeMusic(new_volume_mapped);
 
     if (not volume.has_value()) {
@@ -278,15 +278,15 @@ tl::optional<float> MusicManager::change_volume(const std::int8_t steps) {
             new_volume = MusicManager::step_width * steps;
 
         } else {
-            if (current_volume >= 1.0f) {
-                return 1.0f;
+            if (current_volume >= 1.0F) {
+                return 1.0F;
             }
 
             new_volume = current_volume.value() + MusicManager::step_width * steps;
         }
 
-        if (new_volume >= 1.0f) {
-            new_volume = 1.0f;
+        if (new_volume >= 1.0F) {
+            new_volume = 1.0F;
         }
 
 
@@ -298,14 +298,14 @@ tl::optional<float> MusicManager::change_volume(const std::int8_t steps) {
             return tl::nullopt;
         }
 
-        if (current_volume <= 0.0f) {
+        if (current_volume <= 0.0F) {
             new_volume = tl::nullopt;
         } else {
 
             new_volume = current_volume.value() + MusicManager::step_width * steps;
 
 
-            if (new_volume <= 0.0f) {
+            if (new_volume <= 0.0F) {
                 new_volume = tl::nullopt;
             }
         }

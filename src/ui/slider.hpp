@@ -28,7 +28,6 @@ namespace ui {
         Getter m_getter;
         Setter m_setter;
         float m_step;
-        Window* m_window;
         float current_value;
 
         [[nodiscard]] std::pair<Point, Rect> get_fill_rect(const Rect screen_rect) const {
@@ -48,8 +47,7 @@ namespace ui {
                 const Range& range,
                 const Getter& getter,
                 const Setter& setter,
-                float step,
-                Window* window
+                float step
         )
             : Widget(layout),
               Focusable{ focus_id },
@@ -57,8 +55,7 @@ namespace ui {
               m_range{ range },
               m_getter{ getter },
               m_setter{ setter },
-              m_step{ step },
-              m_window{ window } {
+              m_step{ step } {
             assert(m_range.first <= m_range.second && "Range has to be in correct order!");
             current_value = m_getter();
         }
@@ -72,9 +69,10 @@ namespace ui {
                     origin, m_caption, service_provider.fonts().get(FontId::Default), Color::white()
             );
 
-            float percentage = (current_value - m_range.first) / (m_range.second - m_range.first);
+            const float percentage = (current_value - m_range.first) / (m_range.second - m_range.first);
 
-            int position_x_middle = origin.x + static_cast<int>(percentage * (fill_area.bottom_right.x - origin.x));
+            const int position_x_middle =
+                    origin.x + static_cast<int>(percentage * static_cast<float>(fill_area.bottom_right.x - origin.x));
 
             const auto slider_rect = Rect{
                 Point{position_x_middle - 5,     fill_area.top_left.y - 20},

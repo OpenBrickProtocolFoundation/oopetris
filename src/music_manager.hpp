@@ -15,7 +15,7 @@
 struct MusicManager final {
 private:
     static inline MusicManager* s_instance{ nullptr };
-    static inline float step_width = 0.05;
+    static inline float step_width = 0.05F;
 
     Mix_Music* m_music;
     std::atomic<Mix_Music*> m_queued_music;

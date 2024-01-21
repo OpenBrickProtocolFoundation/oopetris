@@ -16,7 +16,7 @@
 #endif
 
 /* should we replace this by using defines in here, that would be real compile time but I think it' more ugly
- e.g
+e.g
 #if defined(__ANDROID__)
 #define DEVICE_SUPPORTS_TOUCH
 #undef DEVICE_SUPPORTS_KEYS
@@ -64,9 +64,8 @@ namespace utils {
                 {         static_cast<u8>(CrossPlatformAction::LEFT), { 0 }},
                 {        static_cast<u8>(CrossPlatformAction::RIGHT), { 0 }},
                 {        static_cast<u8>(CrossPlatformAction::CLOSE), { 0 }},
-                {static_cast<u8>(CrossPlatformAction::OPEN_SETTINGS), { 0 }},
+                {static_cast<u8>(CrossPlatformAction::OPEN_SETTINGS), { 0 }}
     };
-};
 #elif defined(__SWITCH__)
             {
                 {           static_cast<u8>(CrossPlatformAction::OK),{ JOYCON_A }                                                                     },
@@ -99,29 +98,30 @@ namespace utils {
 #endif
 
 
-[[nodiscard]] constexpr Capabilities get_capabilities() {
+    [[nodiscard]] constexpr Capabilities get_capabilities() {
 #if defined(__ANDROID__)
-    return Capabilities{ true, false };
+        return Capabilities{ true, false };
 #elif defined(__SWITCH__)
         return Capabilities{ true, true };
 #else
         return Capabilities{ false, true };
 #endif
-}
+    }
 
-[[nodiscard]] constexpr bool device_supports_touch() {
-    return get_capabilities().supports_touch;
-}
+    [[nodiscard]] constexpr bool device_supports_touch() {
+        return get_capabilities().supports_touch;
+    }
 
-[[nodiscard]] constexpr bool device_supports_keys() {
-    return get_capabilities().supports_keys;
-}
+    [[nodiscard]] constexpr bool device_supports_keys() {
+        return get_capabilities().supports_keys;
+    }
 
-[[nodiscard]] bool event_is_action(const SDL_Event& event, CrossPlatformAction action);
+    [[nodiscard]] bool event_is_action(const SDL_Event& event, CrossPlatformAction action);
 
-[[nodiscard]] constexpr std::string_view action_description(CrossPlatformAction action) {
+    [[nodiscard]] constexpr std::string_view action_description(CrossPlatformAction action) {
 #if defined(__ANDROID__)
-    return "NOT POSSIBLE";
+        UNUSED(action);
+        return "NOT POSSIBLE";
 #elif defined(__SWITCH__)
         switch (action) {
             case CrossPlatformAction::OK:
@@ -170,7 +170,7 @@ namespace utils {
                 utils::unreachable();
         }
 #endif
-}
+    }
 
 
 } // namespace utils

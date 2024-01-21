@@ -13,16 +13,16 @@ namespace scenes {
     },
           m_focus_group{ ui::AbsoluteLayout{ 0, 0 } } {
         m_focus_group.add(std::make_unique<ui::Slider>(
-                "Volume", ui::AbsoluteLayout{ 100, 200 }, 150, ui::Slider::Range{ 0.0f, 1.0f },
+                "Volume", ui::AbsoluteLayout{ 100, 200 }, 150, ui::Slider::Range{ 0.0F, 1.0F },
                 [service_provider]() {
                     const auto value = service_provider->music_manager().get_volume();
-                    return value.has_value() ? value.value() : 0.0f;
+                    return value.has_value() ? value.value() : 0.0F;
                 },
                 [service_provider](const float& amount) {
-                    const auto mapped_amount = amount <= 0.0f ? tl::nullopt : tl::make_optional(amount);
-                    return service_provider->music_manager().set_volume(amount);
+                    const auto mapped_amount = amount <= 0.0F ? tl::nullopt : tl::make_optional(amount);
+                    return service_provider->music_manager().set_volume(mapped_amount);
                 },
-                0.05, window
+                0.05F
         ));
         m_focus_group.add(std::make_unique<ui::Button>(
                 "Return", ui::AbsoluteLayout{ 100, 300 }, 200, [this](const ui::Button&) { m_should_exit = true; },
