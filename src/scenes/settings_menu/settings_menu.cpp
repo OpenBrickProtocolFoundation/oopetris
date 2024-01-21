@@ -34,7 +34,7 @@ namespace scenes {
         if (m_should_exit) {
             return UpdateResult{ SceneUpdate::StopUpdating, Scene::Pop{} };
         }
-        return UpdateResult{ SceneUpdate::ContinueUpdating, tl::nullopt };
+        return UpdateResult{ SceneUpdate::StopUpdating, tl::nullopt };
     }
 
     void SettingsMenu::render(const ServiceProvider& service_provider) {
