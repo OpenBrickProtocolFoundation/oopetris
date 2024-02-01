@@ -84,3 +84,6 @@ namespace utils {
     }
 
 } // namespace utils
+
+
+#define UNUSED(x) (void(x))

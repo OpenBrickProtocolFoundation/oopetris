@@ -82,6 +82,8 @@ add_executable(oopetris
         src/service_provider.hpp
         src/scenes/main_menu/main_menu.cpp
         src/scenes/main_menu/main_menu.hpp
+        src/scenes/settings_menu/settings_menu.cpp
+        src/scenes/settings_menu/settings_menu.hpp
         src/ui/button.hpp
         src/ui/focus_group.hpp
         src/ui/focusable.hpp

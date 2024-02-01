@@ -5,4 +5,5 @@ enum class SceneId {
     Pause,
     Ingame,
     GameOver,
+    SettingsMenu,
 };

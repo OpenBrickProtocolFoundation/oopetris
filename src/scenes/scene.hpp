@@ -15,6 +15,9 @@ namespace scenes {
     };
 
     struct Scene {
+    private:
+        SceneId m_id;
+
     public:
         struct Switch {
             SceneId target_scene;
@@ -39,7 +42,7 @@ namespace scenes {
         ServiceProvider* m_service_provider;
 
     public:
-        explicit Scene(ServiceProvider* service_provider);
+        explicit Scene(SceneId id, ServiceProvider* service_provider);
         Scene(const Scene&) = delete;
         Scene& operator=(const Scene&) = delete;
         virtual ~Scene() = default;
@@ -47,6 +50,7 @@ namespace scenes {
         [[nodiscard]] virtual UpdateResult update() = 0;
         virtual void render(const ServiceProvider& service_provider) = 0;
         virtual bool handle_event(const SDL_Event& event) = 0;
+        [[nodiscard]] SceneId get_id() const;
     };
 
     [[nodiscard]] std::unique_ptr<scenes::Scene>

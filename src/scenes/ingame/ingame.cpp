@@ -12,7 +12,7 @@
 
 namespace scenes {
 
-    Ingame::Ingame(ServiceProvider* service_provider) : Scene{ service_provider } {
+    Ingame::Ingame(ServiceProvider* service_provider) : Scene{ SceneId::Ingame, service_provider } {
         static constexpr auto num_tetrions = u8{ 1 };
 
         if (is_replay_mode()) {
@@ -56,14 +56,11 @@ namespace scenes {
             tetrion->spawn_next_tetromino(0);
         }
 
-        if (not m_service_provider->command_line_arguments().silent) {
-            m_service_provider->music_manager()
-                    .load_and_play_music(
-                            utils::get_assets_folder() / "music"
-                            / utils::get_supported_music_extension("02. Game Theme")
-                    )
-                    .and_then(utils::log_error);
-        }
+        m_service_provider->music_manager()
+                .load_and_play_music(
+                        utils::get_assets_folder() / "music" / utils::get_supported_music_extension("02. Game Theme")
+                )
+                .and_then(utils::log_error);
     }
 
     [[nodiscard]] std::unique_ptr<Input>
@@ -193,14 +190,14 @@ namespace scenes {
 
         const auto ingame_scene_is_topmost_scene = (m_service_provider->active_scenes().back() == this);
         if (is_game_over() and ingame_scene_is_topmost_scene) {
-            return std::pair{ SceneUpdate::ContinueUpdating, Scene::Push{ SceneId::GameOver } };
+            return UpdateResult{ SceneUpdate::ContinueUpdating, Scene::Push{ SceneId::GameOver } };
         }
 
         if (m_is_paused) {
             // if we would still be in pause mode, update() wouldn't have been called in the first place => we
             // must resume from pause
             m_is_paused = false;
-            m_should_pause = false;
+            m_next_scene = tl::nullopt;
             for (auto& clock : m_clock_sources) {
                 assert(clock->can_be_paused());
                 clock->resume();
@@ -220,16 +217,25 @@ namespace scenes {
             }
         }
 
-        if (m_should_pause) {
-            m_should_pause = false;
+        if (m_next_scene.has_value()) {
+            const auto next_scene = m_next_scene.value();
+            m_next_scene = tl::nullopt;
             m_is_paused = true;
             for (auto& clock : m_clock_sources) {
                 assert(clock->can_be_paused());
                 clock->pause();
             }
-            return std::pair{ SceneUpdate::ContinueUpdating, Scene::Push{ SceneId::Pause } };
+
+            switch (next_scene) {
+                case NextScene::Pause:
+                    return UpdateResult{ SceneUpdate::ContinueUpdating, Scene::Push{ SceneId::Pause } };
+                case NextScene::Settings:
+                    return UpdateResult{ SceneUpdate::ContinueUpdating, Scene::Push{ SceneId::SettingsMenu } };
+                default:
+                    utils::unreachable();
+            }
         }
-        return std::pair{ SceneUpdate::ContinueUpdating, tl::nullopt };
+        return UpdateResult{ SceneUpdate::ContinueUpdating, tl::nullopt };
     }
 
     void Ingame::render(const ServiceProvider& service_provider) {
@@ -241,7 +247,11 @@ namespace scenes {
     [[nodiscard]] bool Ingame::handle_event(const SDL_Event& event) {
 
         if (utils::event_is_action(event, utils::CrossPlatformAction::PAUSE) and not is_game_over()) {
-            m_should_pause = true;
+            m_next_scene = NextScene::Pause;
+            return true;
+        }
+        if (utils::event_is_action(event, utils::CrossPlatformAction::OPEN_SETTINGS)) {
+            m_next_scene = NextScene::Settings;
             return true;
         }
         return false;

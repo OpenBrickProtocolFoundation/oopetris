@@ -1,4 +1,5 @@
 #include "application.hpp"
+#include "capabilities.hpp"
 #include "scenes/scene.hpp"
 #include <fmt/format.h>
 #include <fstream>
@@ -56,7 +57,18 @@ void Application::handle_event(const SDL_Event& event) {
     for (usize i = 0; i < m_scene_stack.size(); ++i) {
         const auto index = m_scene_stack.size() - i - 1;
         if (m_scene_stack.at(index)->handle_event(event)) {
-            break;
+            return;
+        }
+    }
+
+    if (utils::device_supports_keys() && event.type == SDL_KEYDOWN) {
+
+        if (event.key.keysym.sym == SDLK_PLUS or event.key.keysym.sym == SDLK_KP_PLUS) {
+            m_music_manager.change_volume(1);
+            return;
+        } else if (event.key.keysym.sym == SDLK_MINUS or event.key.keysym.sym == SDLK_KP_MINUS) {
+            m_music_manager.change_volume(-1);
+            return;
         }
     }
 }

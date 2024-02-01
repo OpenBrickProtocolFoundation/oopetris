@@ -3,24 +3,19 @@
 #include "../../ui/button.hpp"
 #include "../../ui/focus_group.hpp"
 #include "../../ui/label.hpp"
+#include "../../ui/slider.hpp"
 #include "../scene.hpp"
 
 namespace scenes {
 
-    struct MainMenu : public Scene {
+    struct SettingsMenu : public Scene {
     private:
-        enum class Command {
-            StartGame,
-            OpenSettingsMenu,
-            Exit,
-        };
-
+        bool m_should_exit = false;
         ui::Label m_heading;
         ui::FocusGroup m_focus_group;
-        tl::optional<Command> m_next_command;
 
     public:
-        explicit MainMenu(ServiceProvider* service_provider, Window* window);
+        explicit SettingsMenu(ServiceProvider* service_provider, Window* window);
 
         [[nodiscard]] UpdateResult update() override;
         void render(const ServiceProvider& service_provider) override;

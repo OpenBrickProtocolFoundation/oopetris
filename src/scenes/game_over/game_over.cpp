@@ -7,7 +7,7 @@
 
 namespace scenes {
 
-    GameOver::GameOver(ServiceProvider* service_provider) : Scene{ service_provider } {
+    GameOver::GameOver(ServiceProvider* service_provider) : Scene{ SceneId::GameOver, service_provider } {
         service_provider->music_manager()
                 .load_and_play_music(
                         utils::get_assets_folder() / "music" / utils::get_supported_music_extension("05. Results")
@@ -17,9 +17,9 @@ namespace scenes {
 
     [[nodiscard]] Scene::UpdateResult GameOver::update() {
         if (m_should_exit) {
-            return std::pair{ SceneUpdate::ContinueUpdating, Scene::Switch{ SceneId::MainMenu } };
+            return UpdateResult{ SceneUpdate::ContinueUpdating, Scene::Switch{ SceneId::MainMenu } };
         }
-        return std::pair{ SceneUpdate::ContinueUpdating, tl::nullopt };
+        return UpdateResult{ SceneUpdate::ContinueUpdating, tl::nullopt };
     }
 
     void GameOver::render(const ServiceProvider& service_provider) {

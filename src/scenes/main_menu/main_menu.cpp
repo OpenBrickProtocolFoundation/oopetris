@@ -7,7 +7,7 @@
 namespace scenes {
 
     MainMenu::MainMenu(ServiceProvider* service_provider, Window* window)
-        : Scene(service_provider),
+        : Scene{SceneId::MainMenu, service_provider},
           m_heading{
               constants::program_name, Color::white(), service_provider->fonts().get(FontId::Default),
               ui::AbsoluteLayout{100, 100}
@@ -22,7 +22,12 @@ namespace scenes {
                 window
         ));
         m_focus_group.add(std::make_unique<ui::Button>(
-                "Settings", ui::AbsoluteLayout{ 100, 250 }, 50, [](const ui::Button&) {}, window
+                "Settings", ui::AbsoluteLayout{ 100, 250 }, 50,
+                [this](const ui::Button&) {
+                    spdlog::info("setting next command");
+                    m_next_command = Command::OpenSettingsMenu;
+                },
+                window
         ));
         m_focus_group.add(std::make_unique<ui::Button>(
                 "Exit", ui::AbsoluteLayout{ 100, 300 }, 100,
@@ -41,6 +46,10 @@ namespace scenes {
             switch (m_next_command.value()) {
                 case Command::StartGame:
                     return UpdateResult{ SceneUpdate::ContinueUpdating, Scene::Switch{ SceneId::Ingame } };
+                case Command::OpenSettingsMenu:
+                    // perform a push and reset the command, so that the music keeps playing the entire time
+                    m_next_command = tl::nullopt;
+                    return UpdateResult{ SceneUpdate::ContinueUpdating, Scene::Push{ SceneId::SettingsMenu } };
                 case Command::Exit:
                     return UpdateResult{ SceneUpdate::ContinueUpdating, Scene::Exit{} };
                 default:
@@ -56,7 +65,15 @@ namespace scenes {
     }
 
     bool MainMenu::handle_event(const SDL_Event& event) {
-        return m_focus_group.handle_event(event);
+        if (m_focus_group.handle_event(event)) {
+            return true;
+        }
+
+        if (utils::event_is_action(event, utils::CrossPlatformAction::CLOSE)) {
+            m_next_command = Command::Exit;
+            return true;
+        }
+        return false;
     }
 
 } // namespace scenes
