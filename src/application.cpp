@@ -54,7 +54,8 @@ void Application::handle_event(const SDL_Event& event) {
         m_is_running = false;
     }
 
-    for (usize index = m_scene_stack.size() - 1; index != 0; --index) {
+    for (usize i = 0; i < m_scene_stack.size(); ++i) {
+        const auto index = m_scene_stack.size() - i - 1;
         if (m_scene_stack.at(index)->handle_event(event)) {
             return;
         }
