@@ -9,18 +9,19 @@ namespace scenes {
 
     MainMenu::MainMenu(ServiceProvider* service_provider)
         : Scene{ SceneId::MainMenu, service_provider },
-          m_main_grid{ ui::FullScreenLayout{ service_provider->window() },ui::Direction::Vertical, ui::RelativeMargin{service_provider->window(),ui::Direction::Vertical, 0.05}, std::pair<double, double>{ 0.05, 0.05 } } {
+          m_main_grid{ ui::RelativeLayout{ service_provider->window(), 0.0, 0.2, 1.0, 0.5 },ui::Direction::Vertical, ui::RelativeMargin{service_provider->window(),ui::Direction::Vertical, 0.05}, std::pair<double, double>{ 0.05, 0.05 
+            } } {
 
         m_main_grid.add<ui::Label>(
                 0, constants::program_name, Color::white(), service_provider->fonts().get(FontId::Default),
-                std::pair<double, double>{ 0.4, 1.0 },
+                std::pair<double, double>{ 0.3, 1.0 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
         );
 
-        constexpr auto button_size = std::pair<double, double>{ 1.0, 1.0 };
+        constexpr auto button_size = std::pair<double, double>{ 0.15, 0.85 };
         constexpr auto button_alignment =
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center };
-        constexpr auto button_margins = std::pair<double, double>{ 0.05, 0.05 };
+        constexpr auto button_margins = std::pair<double, double>{ 0.1, 0.1 };
 
         m_main_grid.add<ui::Button>(
                 1, "Start", 0,

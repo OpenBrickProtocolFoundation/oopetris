@@ -39,13 +39,13 @@ namespace ui {
 
 
     struct RelativeLayout : public Layout {
-        RelativeLayout(const Window* window, const double x, const double y, const double width, const double height)
+        RelativeLayout(const Window& window, const double x, const double y, const double width, const double height)
             : Layout{
                   Rect{
-                       static_cast<int>(x * window->screen_rect().width()),
-                       static_cast<int>(y * window->screen_rect().height()),
-                       static_cast<int>(width * window->screen_rect().width()),
-                       static_cast<int>(height * window->screen_rect().height()),
+                       static_cast<int>(x * window.screen_rect().width()),
+                       static_cast<int>(y * window.screen_rect().height()),
+                       static_cast<int>(width * window.screen_rect().width()),
+                       static_cast<int>(height * window.screen_rect().height()),
                        }
         } {
             assert(x >= 0.0 && x <= 1.0 && "x has to be in correct percentage range!");
@@ -54,6 +54,8 @@ namespace ui {
             assert(width >= 0.0 && width <= 1.0 && "width has to be in correct percentage range!");
             assert(height >= 0.0 && height <= 1.0 && "height has to be in correct percentage range!");
         }
+        RelativeLayout(const Window* window, const double x, const double y, const double width, const double height)
+            : RelativeLayout{ *window, x, y, width, height } { }
     };
 
 
