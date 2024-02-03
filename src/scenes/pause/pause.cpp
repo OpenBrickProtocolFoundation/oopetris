@@ -18,7 +18,9 @@ namespace scenes {
         ),
         Color::white(),
         service_provider->fonts().get(FontId::Default),
-        ui::AbsoluteLayout { 50, 50 }
+        std::pair<double, double>{ 0.8, 0.4 },
+                ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
+                ui::FullScreenLayout{service_provider->window()}
     }
     { }
 
@@ -34,7 +36,7 @@ namespace scenes {
 
     void Pause::render(const ServiceProvider& service_provider) {
         service_provider.renderer().draw_rect_filled(service_provider.window().screen_rect(), Color::black(180));
-        m_heading.render(service_provider, service_provider.window().screen_rect());
+        m_heading.render(service_provider);
     }
 
     [[nodiscard]] bool Pause::handle_event(const SDL_Event& event) {

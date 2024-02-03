@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../ui/button.hpp"
-#include "../../ui/focus_group.hpp"
+#include "../../ui/grid.hpp"
 #include "../../ui/label.hpp"
 #include "../../ui/slider.hpp"
 #include "../scene.hpp"
@@ -11,11 +11,10 @@ namespace scenes {
     struct SettingsMenu : public Scene {
     private:
         bool m_should_exit = false;
-        ui::Label m_heading;
-        ui::FocusGroup m_focus_group;
+        ui::Grid<3> m_main_grid;
 
     public:
-        explicit SettingsMenu(ServiceProvider* service_provider, Window* window);
+        explicit SettingsMenu(ServiceProvider* service_provider);
 
         [[nodiscard]] UpdateResult update() override;
         void render(const ServiceProvider& service_provider) override;

@@ -2,7 +2,6 @@
 
 #include "static_string.hpp"
 #include "types.hpp"
-#include "utils.hpp"
 #include <algorithm>
 #include <array>
 #include <bit>

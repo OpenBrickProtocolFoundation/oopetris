@@ -70,6 +70,7 @@ add_executable(oopetris
         src/window.hpp
         src/ui/widget.hpp
         src/ui/layout.hpp
+        src/ui/layout.cpp
         src/ui/label.hpp
         src/scenes/scene.hpp
         src/scenes/ingame/ingame.cpp
@@ -85,7 +86,7 @@ add_executable(oopetris
         src/scenes/settings_menu/settings_menu.cpp
         src/scenes/settings_menu/settings_menu.hpp
         src/ui/button.hpp
-        src/ui/focus_group.hpp
+        src/ui/grid.hpp
         src/ui/focusable.hpp
         src/scenes/game_over/game_over.cpp
         src/scenes/game_over/game_over.hpp

@@ -2,37 +2,45 @@
 #include "../../constants.hpp"
 #include "../../music_manager.hpp"
 #include "../../resource_manager.hpp"
+#include "../../ui/layout.hpp"
 #include "../../window.hpp"
 
 namespace scenes {
 
-    MainMenu::MainMenu(ServiceProvider* service_provider, Window* window)
-        : Scene{SceneId::MainMenu, service_provider},
-          m_heading{
-              constants::program_name, Color::white(), service_provider->fonts().get(FontId::Default),
-              ui::AbsoluteLayout{100, 100}
-    },
-          m_focus_group{ ui::AbsoluteLayout{ 0, 0 } } {
-        m_focus_group.add(std::make_unique<ui::Button>(
-                "Start", ui::AbsoluteLayout{ 100, 200 }, 0,
+    MainMenu::MainMenu(ServiceProvider* service_provider)
+        : Scene{ SceneId::MainMenu, service_provider },
+          m_main_grid{ ui::FullScreenLayout{ service_provider->window() },ui::Direction::Vertical, ui::RelativeMargin{service_provider->window(),ui::Direction::Vertical, 0.05}, std::pair<double, double>{ 0.05, 0.05 } } {
+
+        m_main_grid.add<ui::Label>(
+                0, constants::program_name, Color::white(), service_provider->fonts().get(FontId::Default),
+                std::pair<double, double>{ 0.4, 1.0 },
+                ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
+        );
+
+        constexpr auto button_size = std::pair<double, double>{ 1.0, 1.0 };
+
+        m_main_grid.add<ui::Button>(
+                1, "Start", 0,
                 [this](const ui::Button&) {
                     spdlog::info("setting next command");
                     m_next_command = Command::StartGame;
                 },
-                window
-        ));
-        m_focus_group.add(std::make_unique<ui::Button>(
-                "Settings", ui::AbsoluteLayout{ 100, 250 }, 50,
+                button_size, ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
+        );
+
+        m_main_grid.add<ui::Button>(
+                2, "Settings", 50,
                 [this](const ui::Button&) {
                     spdlog::info("setting next command");
                     m_next_command = Command::OpenSettingsMenu;
                 },
-                window
-        ));
-        m_focus_group.add(std::make_unique<ui::Button>(
-                "Exit", ui::AbsoluteLayout{ 100, 300 }, 100,
-                [this](const ui::Button&) { m_next_command = Command::Exit; }, window
-        ));
+                button_size, ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
+        );
+
+        m_main_grid.add<ui::Button>(
+                3, "Exit", 100, [this](const ui::Button&) { m_next_command = Command::Exit; }, button_size,
+                ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
+        );
 
         service_provider->music_manager()
                 .load_and_play_music(
@@ -60,12 +68,11 @@ namespace scenes {
     }
 
     void MainMenu::render(const ServiceProvider& service_provider) {
-        m_heading.render(service_provider, service_provider.window().screen_rect());
-        m_focus_group.render(service_provider, service_provider.window().screen_rect());
+        m_main_grid.render(service_provider);
     }
 
     bool MainMenu::handle_event(const SDL_Event& event) {
-        if (m_focus_group.handle_event(event)) {
+        if (m_main_grid.handle_event(event)) {
             return true;
         }
 

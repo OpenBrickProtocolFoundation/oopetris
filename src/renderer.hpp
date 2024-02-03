@@ -29,6 +29,7 @@ public:
     void draw_rect_outline(Rect rect, Color color) const;
     void draw_line(Point from, Point to, Color color) const;
     void draw_text(Point position, const std::string& text, const Font& font, Color color) const;
+    void draw_text(Rect dest, const std::string& text, const Font& font, Color color) const;
 
     void present() const;
 

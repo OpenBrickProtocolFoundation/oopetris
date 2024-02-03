@@ -58,9 +58,20 @@ void Renderer::draw_text(const Point position, const std::string& text, const Fo
     const Rect target_rect{
         position, position + Point{text_width - 1, text_height - 1}
     };
-    const SDL_Rect rect{ target_rect.top_left.x, target_rect.top_left.y,
-                         target_rect.bottom_right.x - target_rect.top_left.x + 1,
-                         target_rect.bottom_right.y - target_rect.top_left.y + 1 };
+    const SDL_Rect rect = target_rect.to_sdl_rect();
+    SDL_RenderCopy(m_renderer, texture, nullptr, &rect);
+
+    SDL_DestroyTexture(texture);
+}
+
+
+void Renderer::draw_text(const Rect dest, const std::string& text, const Font& font, const Color color) const {
+    const SDL_Color text_color{ color.r, color.g, color.b, color.a };
+    SDL_Surface* const surface = TTF_RenderText_Solid(font.m_font.get(), text.c_str(), text_color);
+    SDL_Texture* const texture = SDL_CreateTextureFromSurface(m_renderer, surface);
+    SDL_FreeSurface(surface);
+
+    const SDL_Rect rect = dest.to_sdl_rect();
     SDL_RenderCopy(m_renderer, texture, nullptr, &rect);
 
     SDL_DestroyTexture(texture);

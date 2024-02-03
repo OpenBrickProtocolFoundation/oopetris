@@ -29,25 +29,24 @@ namespace ui {
         Setter m_setter;
         float m_step;
         float current_value;
+        std::pair<u32, u32> m_size;
+        Alignment m_alignment;
 
-        [[nodiscard]] std::pair<Point, Rect> get_fill_rect(const Rect screen_rect) const {
-            const auto absolute_layout = std::get<AbsoluteLayout>(layout);
-            const auto origin = Point{ static_cast<int>(absolute_layout.x), static_cast<int>(absolute_layout.y) }
-                                + screen_rect.top_left;
-            return {
-                origin, Rect{origin + Point{ 0, 40 }, origin + Point{ 400, 45 }}
-            };
+        [[nodiscard]] inline Rect get_fill_rect() const {
+            return ui::get_rectangle_aligned(layout, m_size.first, m_size.second, m_alignment);
         }
 
     public:
         explicit Slider(
                 std::string caption,
-                const Layout& layout,
                 usize focus_id,
                 const Range& range,
                 const Getter& getter,
                 const Setter& setter,
-                float step
+                float step,
+                std::pair<double, double> size,
+                Alignment alignment,
+                const Layout& layout
         )
             : Widget(layout),
               Focusable{ focus_id },
@@ -55,18 +54,22 @@ namespace ui {
               m_range{ range },
               m_getter{ getter },
               m_setter{ setter },
-              m_step{ step } {
+              m_step{ step },
+              m_size{ static_cast<u32>(size.first * layout.get_rect().width()),
+                      static_cast<u32>(size.second * layout.get_rect().height()) },
+              m_alignment{ alignment } {
             assert(m_range.first <= m_range.second && "Range has to be in correct order!");
             current_value = m_getter();
         }
 
 
-        void render(const ServiceProvider& service_provider, const Rect screen_rect) const override {
+        void render(const ServiceProvider& service_provider) const override {
             const auto color = (has_focus() ? Color::red() : Color::blue());
-            const auto [origin, fill_area] = get_fill_rect(screen_rect);
+            const auto fill_area = get_fill_rect();
+            const auto origin = fill_area.top_left;
             service_provider.renderer().draw_rect_filled(fill_area, color);
             service_provider.renderer().draw_text(
-                    origin, m_caption, service_provider.fonts().get(FontId::Default), Color::white()
+                    fill_area, m_caption, service_provider.fonts().get(FontId::Default), Color::white()
             );
 
             const float percentage = (current_value - m_range.first) / (m_range.second - m_range.first);
@@ -109,6 +112,10 @@ namespace ui {
             }
 
             return false;
+        }
+
+        [[nodiscard]] std::vector<Capabilites> get_capabilities() const override {
+            return { Capabilites::Focusable, Capabilites::Hoverable };
         }
 
     private:

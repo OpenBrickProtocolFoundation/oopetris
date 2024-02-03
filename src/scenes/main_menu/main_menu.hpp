@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../ui/button.hpp"
-#include "../../ui/focus_group.hpp"
+#include "../../ui/grid.hpp"
 #include "../../ui/label.hpp"
 #include "../scene.hpp"
 
@@ -15,12 +15,11 @@ namespace scenes {
             Exit,
         };
 
-        ui::Label m_heading;
-        ui::FocusGroup m_focus_group;
+        ui::Grid<4> m_main_grid;
         tl::optional<Command> m_next_command;
 
     public:
-        explicit MainMenu(ServiceProvider* service_provider, Window* window);
+        explicit MainMenu(ServiceProvider* service_provider);
 
         [[nodiscard]] UpdateResult update() override;
         void render(const ServiceProvider& service_provider) override;

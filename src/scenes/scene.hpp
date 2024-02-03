@@ -53,6 +53,5 @@ namespace scenes {
         [[nodiscard]] SceneId get_id() const;
     };
 
-    [[nodiscard]] std::unique_ptr<scenes::Scene>
-    create_scene(ServiceProvider& service_provider, Window* window, SceneId identifier);
+    [[nodiscard]] std::unique_ptr<scenes::Scene> create_scene(ServiceProvider& service_provider, SceneId identifier);
 } // namespace scenes

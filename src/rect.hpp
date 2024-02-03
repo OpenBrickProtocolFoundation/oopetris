@@ -1,6 +1,9 @@
 #pragma once
 
 #include "point.hpp"
+#include <SDL.h>
+
+//TODO: also add rect structures for unsigned Points, and remove many static_cast<int>()
 
 struct Rect final {
     Point top_left;
@@ -18,5 +21,9 @@ struct Rect final {
 
     [[nodiscard]] constexpr auto height() const {
         return bottom_right.y - top_left.y + 1;
+    }
+
+    [[nodiscard]] const SDL_Rect to_sdl_rect() const {
+        return { top_left.x, top_left.y, width(), height() };
     }
 };

@@ -6,14 +6,23 @@
 
 namespace scenes {
 
-    SettingsMenu::SettingsMenu(ServiceProvider* service_provider, Window* window)
-        : Scene{SceneId::SettingsMenu, service_provider},
-          m_heading{
-              "Settings", Color::white(), service_provider->fonts().get(FontId::Default), ui::AbsoluteLayout{100, 100}
-    },
-          m_focus_group{ ui::AbsoluteLayout{ 0, 0 } } {
-        m_focus_group.add(std::make_unique<ui::Slider>(
-                "Volume", ui::AbsoluteLayout{ 100, 200 }, 150, ui::Slider::Range{ 0.0F, 1.0F },
+    SettingsMenu::SettingsMenu(ServiceProvider* service_provider) : Scene{ SceneId::SettingsMenu, service_provider }
+, m_main_grid{
+    ui::FullScreenLayout{ service_provider->window() },
+    ui::Direction::Vertical,
+    ui::RelativeMargin{ service_provider->window(), ui::Direction::Vertical, 0.05 },
+    std::pair<double, double>{ 0.05, 0.05 } 
+} {
+
+        m_main_grid.add<ui::Label>(
+                0, "Settings", Color::white(), service_provider->fonts().get(FontId::Default),
+                std::pair<double, double>{ 0.8, 0.4 },
+                ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
+        );
+
+
+        m_main_grid.add<ui::Slider>(
+                1, "Volume", 100, ui::Slider::Range{ 0.0F, 1.0F },
                 [service_provider]() {
                     const auto value = service_provider->music_manager().get_volume();
                     return value.has_value() ? value.value() : 0.0F;
@@ -22,12 +31,15 @@ namespace scenes {
                     const auto mapped_amount = amount <= 0.0F ? tl::nullopt : tl::make_optional(amount);
                     return service_provider->music_manager().set_volume(mapped_amount);
                 },
-                0.05F
-        ));
-        m_focus_group.add(std::make_unique<ui::Button>(
-                "Return", ui::AbsoluteLayout{ 100, 300 }, 200, [this](const ui::Button&) { m_should_exit = true; },
-                window
-        ));
+                0.05F, std::pair<double, double>{ 0.8, 0.4 },
+                ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
+        );
+
+        m_main_grid.add<ui::Button>(
+                2, "Return", 100, [this](const ui::Button&) { m_should_exit = true; },
+                std::pair<double, double>{ 0.8, 0.4 },
+                ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
+        );
     }
 
     [[nodiscard]] Scene::UpdateResult SettingsMenu::update() {
@@ -45,6 +57,7 @@ namespace scenes {
                            == SceneId::Ingame;
 
         if (is_above_ingame) {
+            //TODO: make relative and as layout !!
             const auto whole_settings_rect = Rect{
                 Point{ 90,  90},
                 Point{510, 350}
@@ -55,12 +68,11 @@ namespace scenes {
             service_provider.renderer().draw_rect_filled(service_provider.window().screen_rect(), Color::black());
         }
 
-        m_heading.render(service_provider, service_provider.window().screen_rect());
-        m_focus_group.render(service_provider, service_provider.window().screen_rect());
+        m_main_grid.render(service_provider);
     }
 
     bool SettingsMenu::handle_event(const SDL_Event& event) {
-        if (m_focus_group.handle_event(event)) {
+        if (m_main_grid.handle_event(event)) {
             return true;
         }
 

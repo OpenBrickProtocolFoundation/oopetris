@@ -19,5 +19,19 @@ public:
     Text(Point position, Color color, std::string text, Font font);
     void render(const ServiceProvider& service_provider) const;
     void set_text(std::string text);
-    void set_position(Point position);
+};
+
+
+struct ScaledText final {
+private:
+    Rect m_dest;
+    Color m_color;
+    std::string m_text;
+    Font m_font;
+
+public:
+    ScaledText() = default;
+    ScaledText(Rect dest, Color color, std::string text, Font font);
+    void render(const ServiceProvider& service_provider) const;
+    void set_text(std::string text);
 };

@@ -54,8 +54,7 @@ void Application::handle_event(const SDL_Event& event) {
         m_is_running = false;
     }
 
-    for (usize i = 0; i < m_scene_stack.size(); ++i) {
-        const auto index = m_scene_stack.size() - i - 1;
+    for (usize index = m_scene_stack.size() - 1; index != 0; --index) {
         if (m_scene_stack.at(index)->handle_event(event)) {
             return;
         }
@@ -92,12 +91,12 @@ void Application::update() {
                             },
                             [this](const scenes::Scene::Push& push) {
                                 spdlog::info("pushing back scene {}", magic_enum::enum_name(push.target_scene));
-                                m_scene_stack.push_back(scenes::create_scene(*this, &m_window, push.target_scene));
+                                m_scene_stack.push_back(scenes::create_scene(*this, push.target_scene));
                             },
                             [this](const scenes::Scene::Switch& switch_) {
                                 spdlog::info("switching to scene {}", magic_enum::enum_name(switch_.target_scene));
                                 m_scene_stack.clear();
-                                m_scene_stack.push_back(scenes::create_scene(*this, &m_window, switch_.target_scene));
+                                m_scene_stack.push_back(scenes::create_scene(*this, switch_.target_scene));
                             },
                             [this](const scenes::Scene::Exit&) { m_is_running = false; },
                     },
@@ -120,7 +119,7 @@ void Application::render() const {
 void Application::initialize() {
     try_load_settings();
     load_resources();
-    push_scene(scenes::create_scene(*this, &m_window, SceneId::MainMenu));
+    push_scene(scenes::create_scene(*this, SceneId::MainMenu));
 }
 
 void Application::try_load_settings() {
@@ -153,13 +152,7 @@ void Application::try_load_settings() {
 
 void Application::load_resources() {
     const auto font_path = utils::get_assets_folder() / "fonts" / "PressStart2P.ttf";
-#if defined(__ANDROID__)
-    constexpr auto font_size = 35;
-#else
-    constexpr auto font_size = 18;
-#endif
-
-    // TODO: catch exception
+    constexpr auto font_size = 128;
     m_font_manager.load(FontId::Default, font_path, font_size);
 }
 

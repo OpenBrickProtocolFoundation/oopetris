@@ -10,46 +10,22 @@
 #include "static_string.hpp"
 #include "types.hpp"
 #include "utils.hpp"
+#include "window.hpp"
 
 #if defined(__SWITCH__)
 #include "switch_buttons.hpp"
 #endif
 
-/* should we replace this by using defines in here, that would be real compile time but I think it' more ugly
-e.g
-#if defined(__ANDROID__)
-#define DEVICE_SUPPORTS_TOUCH
-#undef DEVICE_SUPPORTS_KEYS
-
-
-and then in usage instead of
-if (utils::device_supports_touch())
-
-#if defined(DEVICE_SUPPORTS_TOUCH)
- */
-
-
 namespace utils {
 
     struct Capabilities {
-        bool supports_touch;
         bool supports_keys;
+        bool supports_clicks;
     };
 
     // the PAUSE and UNPAUSE might be different (e.g on android, even if androids map is stub,
     // it checks in the usage of these for the CrossPlatformAction!), so don't remove the duplication here!
-    enum class CrossPlatformAction : u8 {
-        OK,
-        PAUSE,
-        UNPAUSE,
-        EXIT,
-        DOWN,
-        UP,
-        LEFT,
-        RIGHT,
-        CLOSE,
-        OPEN_SETTINGS,
-    };
+    enum class CrossPlatformAction : u8 { OK, PAUSE, UNPAUSE, EXIT, DOWN, UP, LEFT, RIGHT, CLOSE, OPEN_SETTINGS, TAB };
 
     //TODO: support multiple keys
     static std::unordered_map<u8, std::vector<i64>> key_map =
@@ -64,7 +40,8 @@ namespace utils {
                 {         static_cast<u8>(CrossPlatformAction::LEFT), { 0 }},
                 {        static_cast<u8>(CrossPlatformAction::RIGHT), { 0 }},
                 {        static_cast<u8>(CrossPlatformAction::CLOSE), { 0 }},
-                {static_cast<u8>(CrossPlatformAction::OPEN_SETTINGS), { 0 }}
+                {static_cast<u8>(CrossPlatformAction::OPEN_SETTINGS), { 0 }},
+                {          static_cast<u8>(CrossPlatformAction::TAB), { 0 }}
     };
 #elif defined(__SWITCH__)
             {
@@ -81,6 +58,7 @@ namespace utils {
                  { JOYCON_CROSS_RIGHT, JOYCON_LDPAD_RIGHT, JOYCON_RDPAD_RIGHT }                                            },
                 {        static_cast<u8>(CrossPlatformAction::CLOSE),                                      { JOYCON_MINUS }},
                 {static_cast<u8>(CrossPlatformAction::OPEN_SETTINGS),                                          { JOYCON_Y }},
+                {          static_cast<u8>(CrossPlatformAction::TAB),                                                    {}}, // no tab support
 };
 #else
             {
@@ -94,26 +72,27 @@ namespace utils {
                 {        static_cast<u8>(CrossPlatformAction::RIGHT),      { SDLK_RIGHT, SDLK_d }},
                 {        static_cast<u8>(CrossPlatformAction::CLOSE),             { SDLK_ESCAPE }},
                 {static_cast<u8>(CrossPlatformAction::OPEN_SETTINGS),                  { SDLK_p }},
+                {          static_cast<u8>(CrossPlatformAction::TAB),                { SDLK_TAB }},
 };
 #endif
 
 
     [[nodiscard]] constexpr Capabilities get_capabilities() {
 #if defined(__ANDROID__)
-        return Capabilities{ true, false };
-#elif defined(__SWITCH__)
-        return Capabilities{ true, true };
-#else
         return Capabilities{ false, true };
+#elif defined(__SWITCH__)
+        return Capabilities{ true, false };
+#else
+        return Capabilities{ true, true };
 #endif
-    }
-
-    [[nodiscard]] constexpr bool device_supports_touch() {
-        return get_capabilities().supports_touch;
     }
 
     [[nodiscard]] constexpr bool device_supports_keys() {
         return get_capabilities().supports_keys;
+    }
+
+    [[nodiscard]] constexpr bool device_supports_clicks() {
+        return get_capabilities().supports_clicks;
     }
 
     [[nodiscard]] bool event_is_action(const SDL_Event& event, CrossPlatformAction action);
@@ -124,7 +103,7 @@ namespace utils {
     [[nodiscard]] constexpr std::string_view action_description(CrossPlatformAction action) {
 #if defined(__ANDROID__)
         UNUSED(action);
-        return "NOT POSSIBLE";
+        throw std::runtime_error("Not supported on android");
 #elif defined(__SWITCH__)
         switch (action) {
             case CrossPlatformAction::OK:
@@ -149,7 +128,6 @@ namespace utils {
                 utils::unreachable();
         }
 #else
-        UNUSED(action);
         switch (action) {
             case CrossPlatformAction::OK:
                 return "Enter";
@@ -174,6 +152,14 @@ namespace utils {
         }
 #endif
     }
+
+
+    enum class CrossPlatformClickEvent { Motion, ButtonDown, ButtonUp };
+
+    [[nodiscard]] bool event_is_click_event(const SDL_Event& event, CrossPlatformClickEvent click_type);
+
+
+    [[nodiscard]] bool is_event_in(const Window* window, const SDL_Event& event, const Rect& rect);
 
 
 } // namespace utils

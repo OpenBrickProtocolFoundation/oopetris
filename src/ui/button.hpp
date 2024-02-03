@@ -15,83 +15,58 @@
 
 namespace ui {
 
-    struct Button : public Widget, public Focusable {
+    struct Button : public Widget, public Focusable /* , public Hoverable */ {
     public:
         using Callback = std::function<void(const Button&)>;
 
     private:
         std::string m_caption;
         Callback m_callback;
-        Window* m_window;
+        std::pair<u32, u32> m_size;
+        Alignment m_alignment;
 
-        [[nodiscard]] std::pair<Point, Rect> get_fill_rect(const Rect screen_rect) const {
-            const auto absolute_layout = std::get<AbsoluteLayout>(layout);
-            const auto origin = Point{ static_cast<int>(absolute_layout.x), static_cast<int>(absolute_layout.y) }
-                                + screen_rect.top_left;
-            return {
-                origin, Rect{origin, origin + Point{ 120, 40 }}
-            };
+        [[nodiscard]] inline Rect get_fill_rect() const {
+            return ui::get_rectangle_aligned(layout, m_size.first, m_size.second, m_alignment);
         }
 
     public:
-        explicit Button(std::string caption, const Layout& layout, usize focus_id, Callback callback, Window* window)
+        explicit Button(
+                std::string caption,
+                usize focus_id,
+                Callback callback,
+                std::pair<double, double> size,
+                Alignment alignment,
+                const Layout& layout
+        )
             : Widget(layout),
               Focusable{ focus_id },
               m_caption{ std::move(caption) },
               m_callback{ std::move(callback) },
-              m_window{ window } { }
+              m_size{ static_cast<u32>(size.first * layout.get_rect().width()),
+                      static_cast<u32>(size.second * layout.get_rect().height()) },
+              m_alignment{ alignment } { }
 
 
-        void render(const ServiceProvider& service_provider, const Rect screen_rect) const override {
-            const auto color = (has_focus() ? Color::red() : Color::blue());
-            const auto [origin, fill_area] = get_fill_rect(screen_rect);
+        void render(const ServiceProvider& service_provider) const override {
+            //TODO
+            const auto is_hovered = true;
+            const auto color = (has_focus() ? Color::red() : is_hovered ? Color(0, 0xBB, 0xFF) : Color::blue());
+            const auto fill_area = get_fill_rect();
             service_provider.renderer().draw_rect_filled(fill_area, color);
             service_provider.renderer().draw_text(
-                    origin, m_caption, service_provider.fonts().get(FontId::Default), Color::white()
+                    fill_area, m_caption, service_provider.fonts().get(FontId::Default), Color::white()
             );
         }
 
         bool handle_event(const SDL_Event& event) override {
-
             // attention don't combine this without ifdefs, since an SDL_MOUSEBUTTONDOWN may contain event.which == SDL_TOUCH_MOUSEID which means SDL made a mouse event up from a touch!
-            if (event.type ==
-#if defined(__ANDROID__)
-                //TODO: catch the release even otherwise an assertion fails!
-                SDL_FINGERDOWN
-#else
-                        SDL_MOUSEBUTTONDOWN
-                and event.button.button == SDL_BUTTON_LEFT
-#endif
-            ) {
-#if defined(__ANDROID__)
-                // These are doubles, from 0-1 in percent, the have to be casted to absolut x coordinates!
-                const double x_percent = event.tfinger.x;
-                const double y_percent = event.tfinger.y;
-                const auto window_size = m_window->size();
-                const auto x = static_cast<int>(std::round(x_percent * window_size.x));
-                const auto y = static_cast<int>(std::round(y_percent * window_size.y));
-#else
-                const auto x = event.button.x;
-                const auto y = event.button.y;
-#endif
-
-                const auto [_, fill_area] = get_fill_rect(m_window->screen_rect());
-
-                const auto rect_start_x = fill_area.top_left.x;
-                const auto rect_start_y = fill_area.top_left.y;
-                const auto rect_end_x = fill_area.bottom_right.x;
-                const auto rect_end_y = fill_area.bottom_right.y;
 
 
-                const bool button_tapped =
-                        (x >= rect_start_x and x <= rect_end_x and y >= rect_start_y and y <= rect_end_y);
-
-                if (button_tapped) {
-                    spdlog::info("button tapped");
-                    m_callback(*this);
-                    return true;
-                }
-            }
+            /*  if (is_hovered() && utils::is_clicked(event, ClickType::OnButtonDown)) {
+                spdlog::info("button clicked");
+                m_callback(*this);
+                return true;
+            } */
 
 
             if (utils::device_supports_keys()) {
@@ -104,6 +79,10 @@ namespace ui {
             return false;
         }
 
+        [[nodiscard]] std::vector<Capabilites> get_capabilities() const override {
+            return { Capabilites::Focusable, Capabilites::Hoverable };
+        }
+
     private:
         void on_focus() override {
             spdlog::info("button focused");
@@ -112,6 +91,14 @@ namespace ui {
         void on_unfocus() override {
             spdlog::info("button unfocused");
         }
+
+        /* void on_hover() override {
+            spdlog::info("button hovered");
+        }
+
+        void on_unhover() override {
+            spdlog::info("button un-hovered");
+        } */
     };
 
 } // namespace ui

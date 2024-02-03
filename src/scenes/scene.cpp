@@ -7,11 +7,10 @@
 namespace scenes {
     Scene::Scene(SceneId id, ServiceProvider* service_provider) : m_id{ id }, m_service_provider{ service_provider } { }
 
-    [[nodiscard]] std::unique_ptr<Scene>
-    create_scene(ServiceProvider& service_provider, Window* window, SceneId identifier) {
+    [[nodiscard]] std::unique_ptr<Scene> create_scene(ServiceProvider& service_provider, SceneId identifier) {
         switch (identifier) {
             case SceneId::MainMenu:
-                return std::make_unique<MainMenu>(&service_provider, window);
+                return std::make_unique<MainMenu>(&service_provider);
             case SceneId::Pause:
                 return std::make_unique<Pause>(&service_provider);
             case SceneId::Ingame:
@@ -19,7 +18,7 @@ namespace scenes {
             case SceneId::GameOver:
                 return std::make_unique<GameOver>(&service_provider);
             case SceneId::SettingsMenu:
-                return std::make_unique<SettingsMenu>(&service_provider, window);
+                return std::make_unique<SettingsMenu>(&service_provider);
             default:
                 utils::unreachable();
         }
