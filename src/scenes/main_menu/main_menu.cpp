@@ -75,8 +75,8 @@ namespace scenes {
         m_main_grid.render(service_provider);
     }
 
-    bool MainMenu::handle_event(const SDL_Event& event) {
-        if (m_main_grid.handle_event(event)) {
+    bool MainMenu::handle_event(const SDL_Event& event, const Window* window) {
+        if (m_main_grid.handle_event(event, window)) {
             return true;
         }
 

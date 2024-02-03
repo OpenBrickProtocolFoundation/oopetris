@@ -154,12 +154,10 @@ namespace utils {
     }
 
 
-    enum class CrossPlatformClickEvent { Motion, ButtonDown, ButtonUp };
+    enum class CrossPlatformClickEvent { Motion, ButtonDown, ButtonUp, Any };
 
     [[nodiscard]] bool event_is_click_event(const SDL_Event& event, CrossPlatformClickEvent click_type);
 
 
     [[nodiscard]] bool is_event_in(const Window* window, const SDL_Event& event, const Rect& rect);
-
-
 } // namespace utils

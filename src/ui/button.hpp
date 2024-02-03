@@ -10,12 +10,13 @@
 #include "../resource_manager.hpp"
 #include "../text.hpp"
 #include "focusable.hpp"
+#include "hoverable.hpp"
 #include "widget.hpp"
 
 
 namespace ui {
 
-    struct Button : public Widget, public Focusable /* , public Hoverable */ {
+    struct Button : public Widget, public Focusable, public Hoverable {
     public:
         using Callback = std::function<void(const Button&)>;
 
@@ -52,9 +53,7 @@ namespace ui {
 
 
         void render(const ServiceProvider& service_provider) const override {
-            //TODO
-            const auto is_hovered = true;
-            const auto color = (has_focus() ? Color::red() : is_hovered ? Color(0, 0xBB, 0xFF) : Color::blue());
+            const auto color = (has_focus() ? Color::red() : is_hovered() ? Color(0, 0xBB, 0xFF) : Color::blue());
             const auto fill_area = get_fill_rect();
             service_provider.renderer().draw_rect_filled(fill_area, color);
 
@@ -67,16 +66,7 @@ namespace ui {
             );
         }
 
-        bool handle_event(const SDL_Event& event) override {
-            // attention don't combine this without ifdefs, since an SDL_MOUSEBUTTONDOWN may contain event.which == SDL_TOUCH_MOUSEID which means SDL made a mouse event up from a touch!
-
-
-            /*  if (is_hovered() && utils::is_clicked(event, ClickType::OnButtonDown)) {
-                spdlog::info("button clicked");
-                m_callback(*this);
-                return true;
-            } */
-
+        bool handle_event(const SDL_Event& event, const Window* window) override {
 
             if (utils::device_supports_keys()) {
                 if (has_focus() and utils::event_is_action(event, utils::CrossPlatformAction::OK)) {
@@ -85,11 +75,31 @@ namespace ui {
                     return true;
                 }
             }
-            return false;
-        }
 
-        [[nodiscard]] std::vector<Capabilites> get_capabilities() const override {
-            return { Capabilites::Focusable, Capabilites::Hoverable };
+
+            if (utils::device_supports_clicks()) {
+
+                if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::Any)) {
+
+                    if (utils::is_event_in(window, event, get_fill_rect())) {
+
+                        on_hover();
+
+                        if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::ButtonDown)) {
+                            spdlog::info("button clicked");
+                            m_callback(*this);
+                        }
+
+                        return true;
+
+                    } else {
+                        on_unhover();
+                    }
+                }
+            }
+
+
+            return false;
         }
 
     private:
@@ -100,14 +110,6 @@ namespace ui {
         void on_unfocus() override {
             spdlog::info("button unfocused");
         }
-
-        /* void on_hover() override {
-            spdlog::info("button hovered");
-        }
-
-        void on_unhover() override {
-            spdlog::info("button un-hovered");
-        } */
     };
 
 } // namespace ui

@@ -12,7 +12,7 @@ namespace scenes {
         explicit GameOver(ServiceProvider* service_provider);
         [[nodiscard]] UpdateResult update() override;
         void render(const ServiceProvider& service_provider) override;
-        bool handle_event(const SDL_Event& event) override;
+        bool handle_event(const SDL_Event& event, const Window* window) override;
     };
 
 } // namespace scenes

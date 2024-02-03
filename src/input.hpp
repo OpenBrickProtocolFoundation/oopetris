@@ -78,7 +78,7 @@ public:
 
     ~KeyboardInput() override;
 
-    void handle_event(const SDL_Event& event) override;
+    void handle_event(const SDL_Event& event, const Window* window) override;
 
     void update(SimulationStep simulation_step_index) override;
 

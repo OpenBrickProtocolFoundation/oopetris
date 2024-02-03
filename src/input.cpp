@@ -105,7 +105,7 @@ void Input::update(const SimulationStep simulation_step_index) {
     }
 }
 
-void KeyboardInput::handle_event(const SDL_Event& event) {
+void KeyboardInput::handle_event(const SDL_Event& event, const Window*) {
     m_event_buffer.push_back(event);
 }
 

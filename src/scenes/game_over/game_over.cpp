@@ -33,7 +33,7 @@ namespace scenes {
         );
     }
 
-    bool GameOver::handle_event(const SDL_Event& event) {
+    bool GameOver::handle_event(const SDL_Event& event, const Window*) {
         if (utils::event_is_action(event, utils::CrossPlatformAction::EXIT)) {
             m_should_exit = true;
             return true;

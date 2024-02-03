@@ -48,7 +48,7 @@ namespace ui {
 
 
     template<size_t S>
-    struct Grid : public Widget /* , public Hoverable */ {
+    struct Grid : public Widget {
     private:
         enum class FocusChangeDirection {
             Forward,
@@ -81,7 +81,7 @@ namespace ui {
             }
         }
 
-        bool handle_event(const SDL_Event& event) override {
+        bool handle_event(const SDL_Event& event, const Window* window) override {
             auto handled = false;
             if (utils::device_supports_keys()) {
                 if (utils::event_is_action(event, utils::CrossPlatformAction::DOWN)) {
@@ -93,27 +93,28 @@ namespace ui {
                 }
             }
 
-            //TODO
-
-            if (utils::device_supports_clicks()) {
-
-
-                if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::Motion)) {
-
-                    //TODO:
-                    /*    if (utils::is_event_in(event, layout.get_parent_rect())) {
-                        // try_focus_widget()
-                    } */
-                }
-            }
-
-
             if (handled) {
                 return true;
             }
 
+            if (utils::device_supports_clicks()) {
+
+                if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::Any)) {
+
+                    for (usize i = 0; i < m_widgets.size(); ++i) {
+                        const auto layout = get_layout_for_index(i);
+                        if (utils::is_event_in(window, event, layout.get_rect())) {
+                            if (m_widgets.at(i)->handle_event(event, window)) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+
+
             for (auto& widget : m_widgets) {
-                if (widget->handle_event(event)) {
+                if (widget->handle_event(event, window)) {
                     return true;
                 }
             }
@@ -172,14 +173,12 @@ namespace ui {
         }
 
         [[nodiscard]] static tl::optional<Focusable&> as_focusable(Widget& widget) {
-
-            if (widget.has_capability(Capabilites::Focusable)) {
-                const auto focusable = dynamic_cast<Focusable*>(&widget);
-                assert(focusable != nullptr && "Not focusable, invalid capabilities");
-                return *focusable;
+            const auto focusable = dynamic_cast<Focusable*>(&widget);
+            if (focusable == nullptr) {
+                return tl::nullopt;
             }
 
-            return tl::nullopt;
+            return *focusable;
         }
 
         [[nodiscard]] usize focusable_index_by_id(const usize id) {
@@ -231,10 +230,6 @@ namespace ui {
             next_focusable->focus();
             m_focus_id = next_focusable->focus_id();
             return true;
-        }
-
-        [[nodiscard]] std::vector<Capabilites> get_capabilities() const override {
-            return { Capabilites::Hoverable };
         }
     };
 

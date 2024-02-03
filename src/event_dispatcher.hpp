@@ -10,8 +10,11 @@
 struct EventDispatcher final {
 private:
     std::vector<EventListener*> m_listeners;
+    Window* m_window;
 
 public:
+    EventDispatcher(Window* window) : m_listeners{}, m_window{ window } {};
+
     void register_listener(EventListener* listener) {
         m_listeners.push_back(listener);
     }
@@ -26,7 +29,7 @@ public:
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
             for (const auto& listener : m_listeners) {
-                listener->handle_event(event);
+                listener->handle_event(event, m_window);
             }
         }
     }

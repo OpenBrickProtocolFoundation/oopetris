@@ -22,12 +22,6 @@ namespace ui {
         virtual ~Widget() = default;
 
         virtual void render(const ServiceProvider& service_provider) const = 0;
-        [[nodiscard]] virtual bool handle_event(const SDL_Event& event) = 0;
-        [[nodiscard]] virtual std::vector<Capabilites> get_capabilities() const = 0;
-
-        [[nodiscard]] bool has_capability(Capabilites capability) const {
-            const auto capabilities = get_capabilities();
-            return std::find(capabilities.cbegin(), capabilities.cend(), capability) != capabilities.cend();
-        }
+        [[nodiscard]] virtual bool handle_event(const SDL_Event& event, const Window* window) = 0;
     };
 } // namespace ui

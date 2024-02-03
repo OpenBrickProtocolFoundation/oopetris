@@ -244,7 +244,7 @@ namespace scenes {
         }
     }
 
-    [[nodiscard]] bool Ingame::handle_event(const SDL_Event& event) {
+    [[nodiscard]] bool Ingame::handle_event(const SDL_Event& event, const Window*) {
 
         if (utils::event_is_action(event, utils::CrossPlatformAction::PAUSE) and not is_game_over()) {
             m_next_scene = NextScene::Pause;

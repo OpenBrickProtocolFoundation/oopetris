@@ -86,8 +86,9 @@ namespace ui {
             service_provider.renderer().draw_rect_filled(slider_rect, slider_color);
         }
 
-        bool handle_event(const SDL_Event& event) override {
+        bool handle_event(const SDL_Event& event, const Window*) override {
             //TODO: handle mouse events (dragging and clicking)
+            // and SDL_MOUSEWHEEL
             bool changed = false;
             if (utils::event_is_action(event, utils::CrossPlatformAction::RIGHT)) {
                 current_value = current_value + m_step;
@@ -112,10 +113,6 @@ namespace ui {
             }
 
             return false;
-        }
-
-        [[nodiscard]] std::vector<Capabilites> get_capabilities() const override {
-            return { Capabilites::Focusable, Capabilites::Hoverable };
         }
 
     private:

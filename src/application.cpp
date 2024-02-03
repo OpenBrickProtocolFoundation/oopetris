@@ -20,7 +20,8 @@ Application::Application(
     : m_command_line_arguments{ argc, argv },
       m_window{ title, position, width, height },
       m_renderer{ m_window, Renderer::VSync::Enabled },
-      m_music_manager{ this, num_audio_channels } {
+      m_music_manager{ this, num_audio_channels },
+      m_event_dispatcher{ &m_window } {
     initialize();
 }
 
@@ -28,7 +29,8 @@ Application::Application(int argc, char** argv, const std::string& title, Window
     : m_command_line_arguments{ argc, argv },
       m_window{ title, position },
       m_renderer{ m_window, Renderer::VSync::Enabled },
-      m_music_manager{ this, num_audio_channels } {
+      m_music_manager{ this, num_audio_channels },
+      m_event_dispatcher{ &m_window } {
     initialize();
 }
 
@@ -49,14 +51,14 @@ void Application::run() {
     }
 }
 
-void Application::handle_event(const SDL_Event& event) {
+void Application::handle_event(const SDL_Event& event, const Window* window) {
     if (event.type == SDL_QUIT) {
         m_is_running = false;
     }
 
     for (usize i = 0; i < m_scene_stack.size(); ++i) {
         const auto index = m_scene_stack.size() - i - 1;
-        if (m_scene_stack.at(index)->handle_event(event)) {
+        if (m_scene_stack.at(index)->handle_event(event, window)) {
             return;
         }
     }

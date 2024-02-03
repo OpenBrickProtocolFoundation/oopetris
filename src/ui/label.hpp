@@ -39,12 +39,8 @@ namespace ui {
             text.render(service_provider);
         }
 
-        bool handle_event([[maybe_unused]] const SDL_Event& event) override {
+        bool handle_event(const SDL_Event&, const Window*) override {
             return false;
-        }
-
-        [[nodiscard]] std::vector<Capabilites> get_capabilities() const override {
-            return {};
         }
     };
 } // namespace ui

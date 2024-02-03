@@ -83,6 +83,8 @@
 }
 
 
+//TODO: not correctly supported ButtonUp, since it only can be triggered, when a ButtonDown event is fired first and the target is not left (unhovered)
+
 [[nodiscard]] bool utils::event_is_click_event(const SDL_Event& event, CrossPlatformClickEvent click_type) {
     SDL_EventType desired_type;
 #if defined(__ANDROID__)
@@ -96,6 +98,8 @@
         case CrossPlatformClickEvent::ButtonUp:
             desired_type = SDL_FINGERUP;
             break;
+        case CrossPlatformClickEvent::Any:
+            return event.type == SDL_FINGERMOTION || event.type == SDL_FINGERDOWN || event.type == SDL_FINGERUP;
         default:
             utils::unreachable();
     }
@@ -115,6 +119,9 @@
         case CrossPlatformClickEvent::ButtonUp:
             desired_type = SDL_MOUSEBUTTONUP;
             break;
+        case CrossPlatformClickEvent::Any:
+            return event.type == SDL_MOUSEMOTION || event.type == SDL_MOUSEBUTTONDOWN
+                   || event.type == SDL_MOUSEBUTTONUP;
         default:
             utils::unreachable();
     }

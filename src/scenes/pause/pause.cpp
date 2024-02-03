@@ -39,7 +39,7 @@ namespace scenes {
         m_heading.render(service_provider);
     }
 
-    [[nodiscard]] bool Pause::handle_event(const SDL_Event& event) {
+    [[nodiscard]] bool Pause::handle_event(const SDL_Event& event, const Window*) {
 
         if (utils::event_is_action(event, utils::CrossPlatformAction::UNPAUSE)) {
             m_should_unpause = true;
