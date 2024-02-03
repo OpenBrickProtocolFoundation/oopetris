@@ -24,6 +24,7 @@ namespace ui {
         Callback m_callback;
         std::pair<u32, u32> m_size;
         Alignment m_alignment;
+        std::pair<u32, u32> margin;
 
         [[nodiscard]] inline Rect get_fill_rect() const {
             return ui::get_rectangle_aligned(layout, m_size.first, m_size.second, m_alignment);
@@ -36,6 +37,7 @@ namespace ui {
                 Callback callback,
                 std::pair<double, double> size,
                 Alignment alignment,
+                std::pair<double, double> margin,
                 const Layout& layout
         )
             : Widget(layout),
@@ -44,7 +46,9 @@ namespace ui {
               m_callback{ std::move(callback) },
               m_size{ static_cast<u32>(size.first * layout.get_rect().width()),
                       static_cast<u32>(size.second * layout.get_rect().height()) },
-              m_alignment{ alignment } { }
+              m_alignment{ alignment },
+              margin{ static_cast<u32>(margin.first * m_size.first), static_cast<u32>(margin.second * m_size.second) } {
+        }
 
 
         void render(const ServiceProvider& service_provider) const override {
@@ -53,8 +57,13 @@ namespace ui {
             const auto color = (has_focus() ? Color::red() : is_hovered ? Color(0, 0xBB, 0xFF) : Color::blue());
             const auto fill_area = get_fill_rect();
             service_provider.renderer().draw_rect_filled(fill_area, color);
+
+            const Rect text_area{ fill_area.top_left.x + static_cast<int>(margin.first),
+                                  fill_area.top_left.y + static_cast<int>(margin.second),
+                                  fill_area.width() - 2 * static_cast<int>(margin.first),
+                                  fill_area.height() - 2 * static_cast<int>(margin.second) };
             service_provider.renderer().draw_text(
-                    fill_area, m_caption, service_provider.fonts().get(FontId::Default), Color::white()
+                    text_area, m_caption, service_provider.fonts().get(FontId::Default), Color::white()
             );
         }
 

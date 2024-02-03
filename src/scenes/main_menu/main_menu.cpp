@@ -18,6 +18,9 @@ namespace scenes {
         );
 
         constexpr auto button_size = std::pair<double, double>{ 1.0, 1.0 };
+        constexpr auto button_alignment =
+                ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center };
+        constexpr auto button_margins = std::pair<double, double>{ 0.05, 0.05 };
 
         m_main_grid.add<ui::Button>(
                 1, "Start", 0,
@@ -25,7 +28,7 @@ namespace scenes {
                     spdlog::info("setting next command");
                     m_next_command = Command::StartGame;
                 },
-                button_size, ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
+                button_size, button_alignment, button_margins
         );
 
         m_main_grid.add<ui::Button>(
@@ -34,12 +37,12 @@ namespace scenes {
                     spdlog::info("setting next command");
                     m_next_command = Command::OpenSettingsMenu;
                 },
-                button_size, ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
+                button_size, button_alignment, button_margins
         );
 
         m_main_grid.add<ui::Button>(
                 3, "Exit", 100, [this](const ui::Button&) { m_next_command = Command::Exit; }, button_size,
-                ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
+                button_alignment, button_margins
         );
 
         service_provider->music_manager()

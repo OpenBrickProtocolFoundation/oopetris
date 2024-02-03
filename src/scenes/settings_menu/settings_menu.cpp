@@ -38,7 +38,8 @@ namespace scenes {
         m_main_grid.add<ui::Button>(
                 2, "Return", 100, [this](const ui::Button&) { m_should_exit = true; },
                 std::pair<double, double>{ 0.8, 0.4 },
-                ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
+                ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
+                std::pair<double, double>{ 0, 0 }
         );
     }
 
