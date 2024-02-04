@@ -2,7 +2,7 @@
 
 #include <SDL.h>
 
-#include <window.hpp>
+#include "window.hpp"
 
 struct EventListener {
     virtual ~EventListener() = default;

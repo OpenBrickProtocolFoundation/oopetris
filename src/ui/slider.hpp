@@ -145,7 +145,8 @@ namespace ui {
                             current_value = m_range.second;
                         } else {
 
-                            const float percentage = (x - bar_rect.top_left.x) / static_cast<float>(bar_rect.width());
+                            const float percentage =
+                                    static_cast<float>(x - bar_rect.top_left.x) / static_cast<float>(bar_rect.width());
                             current_value = percentage * (m_range.second - m_range.first) + m_range.first;
                         }
 

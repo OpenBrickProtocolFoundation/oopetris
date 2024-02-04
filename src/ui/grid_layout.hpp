@@ -10,7 +10,7 @@
 #include <tl/optional.hpp>
 
 namespace ui {
-    template<size_t S>
+    template<u32 S>
     struct GridLayout : public Widget {
     private:
         enum class FocusChangeDirection {
@@ -59,7 +59,7 @@ namespace ui {
 
                 if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::Any)) {
 
-                    for (usize i = 0; i < m_widgets.size(); ++i) {
+                    for (u32 i = 0; i < m_widgets.size(); ++i) {
                         const auto layout = get_layout_for_index(i);
                         if (utils::is_event_in(window, event, layout.get_rect())) {
                             if (m_widgets.at(i)->handle_event(event, window)) {
@@ -80,7 +80,7 @@ namespace ui {
         }
 
         template<typename T, typename... Args>
-        void add(const size_t index, Args... args) {
+        void add(const u32 index, Args... args) {
 
             const Layout layout = get_layout_for_index(index);
 
@@ -93,7 +93,7 @@ namespace ui {
 
 
         template<typename T>
-        T* get(const size_t index) {
+        T* get(const u32 index) {
             auto item = dynamic_cast<T*>(m_widgets.at(index).get());
             if (item == nullptr) {
                 throw std::runtime_error("Invalid get of GridLayout item!");
@@ -103,7 +103,7 @@ namespace ui {
         }
 
         template<typename T>
-        const T* get(const size_t index) const {
+        const T* get(const u32 index) const {
             const auto item = dynamic_cast<T*>(m_widgets.at(index).get());
             if (item == nullptr) {
                 throw std::runtime_error("Invalid get of GridLayout item!");
@@ -113,7 +113,7 @@ namespace ui {
         }
 
     private:
-        [[nodiscard]] Layout get_layout_for_index(size_t index) {
+        [[nodiscard]] Layout get_layout_for_index(u32 index) {
             const auto start_point = layout().get_rect().top_left;
 
             u32 x = start_point.x + margin.first;

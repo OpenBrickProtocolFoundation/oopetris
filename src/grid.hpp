@@ -23,7 +23,7 @@ public:
     static constexpr Point preview_tetromino_position = preview_background_position + Point{ 0, 3 };
     static constexpr Point hold_tetromino_position = hold_background_position + Point{ 0, 3 };
     static constexpr Point hold_background_extends = Point{ 4, 4 };
-    static constexpr usize preview_padding = 3;
+    static constexpr u32 preview_padding = 3;
 
     static constexpr Color background_color{ 12, 12, 12 };
     static constexpr Color border_color{ 42, 42, 42 };
@@ -31,7 +31,7 @@ public:
 
 private:
     Rect m_fill_rect;
-    usize m_tile_size;
+    u32 m_tile_size;
 
 public:
     Grid(const ui::Layout layout);

@@ -5,11 +5,11 @@
 
 Grid::Grid(const ui::Layout layout) : ui::Widget{ layout } {
 
-    const auto total_x_tiles = preview_extends.x * 2 + 2 + width_in_tiles;
-    const auto total_y_tiles = height_in_tiles - invisible_rows;
+    const u32 total_x_tiles = preview_extends.x * 2 + 2 + width_in_tiles;
+    const u32 total_y_tiles = height_in_tiles - invisible_rows;
 
-    const auto tile_size_x = layout.get_rect().width() / total_x_tiles;
-    const auto tile_size_y = layout.get_rect().height() / total_y_tiles;
+    const u32 tile_size_x = layout.get_rect().width() / total_x_tiles;
+    const u32 tile_size_y = layout.get_rect().height() / total_y_tiles;
 
     m_tile_size = std::min(tile_size_y, tile_size_x);
     spdlog::info(

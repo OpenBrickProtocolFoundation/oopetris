@@ -114,7 +114,6 @@ foreach (target ${TARGET_LIST})
     # define DEBUG_BUILD
     target_compile_definitions(${target} INTERFACE "$<$<CONFIG:DEBUG>:DEBUG_BUILD>")
 
-    target_include_directories(${target} PRIVATE "src/ui/")
 
     # static runtime library
     set_property(TARGET ${target} PROPERTY
@@ -137,6 +136,9 @@ target_link_libraries(oopetris PRIVATE tl::optional)
 target_link_libraries(oopetris PRIVATE tl::expected)
 
 target_compile_definitions(oopetris PUBLIC AUDIO_WITH_FLAC_SUPPORT AUDIO_WITH_MP3_SUPPORT AUDIO_PREFER_FLAC)
+
+target_include_directories(oopetris PRIVATE "src/ui/")
+target_include_directories(oopetris PRIVATE "src/")
 
 # static runtime library
 set_property(TARGET ${target} PROPERTY
