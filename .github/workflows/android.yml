@@ -10,7 +10,16 @@ on:
 
 jobs:
   android-build:
+    name: Build android apk for - ${{ matrix.config.arch }}
     runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - arch: armeabi-v7a
+          - arch: arm64-v8a
+          - arch: x86
+          - arch: x86_64
     steps:
       - uses: actions/checkout@v4
         with:
@@ -45,13 +54,13 @@ jobs:
 
       - name: Run all
         run: |
-          bash ./platforms/build-android.sh
+          bash ./platforms/build-android.sh ${{ matrix.config.arch }}
           cp -r ./assets/ platforms/android/app/src/main
 
       - name: Build APK
         run: | 
           cd platforms/android/
-          ./gradlew assembleDebug --no-daemon
+          ./gradlew assembleDebug --no-daemon -PANDROID_ABI=${{ matrix.config.arch }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
