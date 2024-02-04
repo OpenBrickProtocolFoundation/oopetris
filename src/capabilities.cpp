@@ -145,8 +145,9 @@
 #elif defined(__SWITCH__)
     UNUSED(window);
     UNUSED(event);
-    UNUSED(rect);
     throw std::runtime_error("Not supported on the Nintendo switch");
+    int x{};
+    int y{};
 #else
     UNUSED(window);
 

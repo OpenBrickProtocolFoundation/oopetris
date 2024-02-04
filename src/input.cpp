@@ -391,7 +391,7 @@ tl::optional<InputEvent> TouchInput::sdl_event_to_input_event(const SDL_Event& e
 #if defined(__SWITCH__)
 
 
-void JoystickInput::handle_event(const SDL_Event& event) {
+void JoystickInput::handle_event(const SDL_Event& event, const Window*) {
     m_event_buffer.push_back(event);
 }
 
