@@ -133,6 +133,27 @@ namespace ui {
             }
         }
 
+
+        template<typename T>
+        T* get(const size_t index) {
+            auto item = dynamic_cast<T*>(m_widgets.at(index).get());
+            if (item == nullptr) {
+                throw std::runtime_error("Invalid get of Grid item!");
+            }
+
+            return item;
+        }
+
+        template<typename T>
+        const T* get(const size_t index) const {
+            const auto item = dynamic_cast<T*>(m_widgets.at(index).get());
+            if (item == nullptr) {
+                throw std::runtime_error("Invalid get of Grid item!");
+            }
+
+            return item;
+        }
+
     private:
         [[nodiscard]] Layout get_layout_for_index(size_t index) {
             const auto start_point = layout.get_rect().top_left;
@@ -200,6 +221,13 @@ namespace ui {
                     result.push_back(focusable->focus_id());
                 }
             }
+
+#ifdef DEBUG_BUILD
+            const auto duplicates = std::adjacent_find(result.cbegin(), result.cend());
+            if (duplicates != result.cend()) {
+                throw std::runtime_error("Focusables have duplicates: " + std::to_string(*duplicates));
+            }
+#endif
             std::sort(result.begin(), result.end());
             return result;
         }
@@ -209,11 +237,13 @@ namespace ui {
         }
 
         [[nodiscard]] bool try_set_next_focus(const FocusChangeDirection direction) {
+
             if (not m_focus_id.has_value()) {
                 return false;
             }
 
             const auto focusable_ids = focusable_ids_sorted();
+
             assert(not focusable_ids.empty());
             const auto current_index = index_of(focusable_ids, m_focus_id.value());
             const auto next_index =
@@ -229,6 +259,7 @@ namespace ui {
             current_focusable->unfocus();
             next_focusable->focus();
             m_focus_id = next_focusable->focus_id();
+
             return true;
         }
     };

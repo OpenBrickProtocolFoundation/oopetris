@@ -33,19 +33,20 @@ namespace ui {
 
 
     struct FullScreenLayout : public Layout {
-        FullScreenLayout(const Window& window) : Layout{ window.screen_rect() } { }
-        FullScreenLayout(const Window* window) : FullScreenLayout{ *window } { }
+        FullScreenLayout(const Rect& rect) : Layout{ rect } { }
+        FullScreenLayout(const Window& window) : FullScreenLayout{ window.screen_rect() } { }
+        FullScreenLayout(const Window* window) : FullScreenLayout{ window->screen_rect() } { }
     };
 
 
     struct RelativeLayout : public Layout {
-        RelativeLayout(const Window& window, const double x, const double y, const double width, const double height)
+        RelativeLayout(const Rect& rect, const double x, const double y, const double width, const double height)
             : Layout{
                   Rect{
-                       static_cast<int>(x * window.screen_rect().width()),
-                       static_cast<int>(y * window.screen_rect().height()),
-                       static_cast<int>(width * window.screen_rect().width()),
-                       static_cast<int>(height * window.screen_rect().height()),
+                       static_cast<int>(x * rect.width()),
+                       static_cast<int>(y * rect.height()),
+                       static_cast<int>(width * rect.width()),
+                       static_cast<int>(height * rect.height()),
                        }
         } {
             assert(x >= 0.0 && x <= 1.0 && "x has to be in correct percentage range!");
@@ -55,7 +56,9 @@ namespace ui {
             assert(height >= 0.0 && height <= 1.0 && "height has to be in correct percentage range!");
         }
         RelativeLayout(const Window* window, const double x, const double y, const double width, const double height)
-            : RelativeLayout{ *window, x, y, width, height } { }
+            : RelativeLayout{ window->screen_rect(), x, y, width, height } { }
+        RelativeLayout(const Window& window, const double x, const double y, const double width, const double height)
+            : RelativeLayout{ window.screen_rect(), x, y, width, height } { }
     };
 
 

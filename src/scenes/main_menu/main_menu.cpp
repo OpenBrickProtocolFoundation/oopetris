@@ -12,9 +12,11 @@ namespace scenes {
           m_main_grid{ ui::RelativeLayout{ service_provider->window(), 0.0, 0.2, 1.0, 0.5 },ui::Direction::Vertical, ui::RelativeMargin{service_provider->window(),ui::Direction::Vertical, 0.05}, std::pair<double, double>{ 0.05, 0.05 
             } } {
 
+        auto id_helper = ui::IDHelper{};
+
         m_main_grid.add<ui::Label>(
-                0, constants::program_name, Color::white(), service_provider->fonts().get(FontId::Default),
-                std::pair<double, double>{ 0.3, 1.0 },
+                id_helper.index(), constants::program_name, Color::white(),
+                service_provider->fonts().get(FontId::Default), std::pair<double, double>{ 0.3, 1.0 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
         );
 
@@ -24,7 +26,7 @@ namespace scenes {
         constexpr auto button_margins = std::pair<double, double>{ 0.1, 0.1 };
 
         m_main_grid.add<ui::Button>(
-                1, "Start", 0,
+                id_helper.index(), "Start", id_helper.focus_id(),
                 [this](const ui::Button&) {
                     spdlog::info("setting next command");
                     m_next_command = Command::StartGame;
@@ -33,7 +35,7 @@ namespace scenes {
         );
 
         m_main_grid.add<ui::Button>(
-                2, "Settings", 50,
+                id_helper.index(), "Settings", id_helper.focus_id(),
                 [this](const ui::Button&) {
                     spdlog::info("setting next command");
                     m_next_command = Command::OpenSettingsMenu;
@@ -42,8 +44,9 @@ namespace scenes {
         );
 
         m_main_grid.add<ui::Button>(
-                3, "Exit", 100, [this](const ui::Button&) { m_next_command = Command::Exit; }, button_size,
-                button_alignment, button_margins
+                id_helper.index(), "Exit", id_helper.focus_id(),
+                [this](const ui::Button&) { m_next_command = Command::Exit; }, button_size, button_alignment,
+                button_margins
         );
 
         service_provider->music_manager()

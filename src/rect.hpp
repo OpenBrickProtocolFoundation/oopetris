@@ -26,4 +26,8 @@ struct Rect final {
     [[nodiscard]] const SDL_Rect to_sdl_rect() const {
         return { top_left.x, top_left.y, width(), height() };
     }
+
+    [[nodiscard]] constexpr Rect move(Point distance) const {
+        return { this->top_left + distance, this->bottom_right + distance };
+    }
 };

@@ -23,7 +23,6 @@ namespace ui {
 
 
     private:
-        std::string m_caption;
         Range m_range;
         Getter m_getter;
         Setter m_setter;
@@ -38,7 +37,6 @@ namespace ui {
 
     public:
         explicit Slider(
-                std::string caption,
                 usize focus_id,
                 const Range& range,
                 const Getter& getter,
@@ -50,7 +48,6 @@ namespace ui {
         )
             : Widget(layout),
               Focusable{ focus_id },
-              m_caption{ std::move(caption) },
               m_range{ range },
               m_getter{ getter },
               m_setter{ setter },
@@ -67,10 +64,11 @@ namespace ui {
             const auto color = (has_focus() ? Color::red() : Color::blue());
             const auto fill_area = get_fill_rect();
             const auto origin = fill_area.top_left;
-            service_provider.renderer().draw_rect_filled(fill_area, color);
-            service_provider.renderer().draw_text(
-                    fill_area, m_caption, service_provider.fonts().get(FontId::Default), Color::white()
-            );
+
+            const auto rectangle_rect = RelativeLayout{ fill_area, 0, 0.4, 1.0, 0.2 };
+
+
+            service_provider.renderer().draw_rect_filled(rectangle_rect.get_rect().move(fill_area.top_left), color);
 
             const float percentage = (current_value - m_range.first) / (m_range.second - m_range.first);
 
@@ -78,9 +76,10 @@ namespace ui {
                     origin.x + static_cast<int>(percentage * static_cast<float>(fill_area.bottom_right.x - origin.x));
 
             const auto slider_rect = Rect{
-                Point{position_x_middle - 5,     fill_area.top_left.y - 20},
-                Point{position_x_middle + 5, fill_area.bottom_right.y + 20}
+                Point{position_x_middle - 5,     fill_area.top_left.y},
+                Point{position_x_middle + 5, fill_area.bottom_right.y}
             };
+
             //orange or cyan
             const auto slider_color = (has_focus() ? Color(255, 111, 0) : Color(0, 204, 255));
             service_provider.renderer().draw_rect_filled(slider_rect, slider_color);
@@ -113,6 +112,11 @@ namespace ui {
             }
 
             return false;
+        }
+
+        void on_change() {
+            current_value = m_getter();
+            m_setter(current_value);
         }
 
     private:

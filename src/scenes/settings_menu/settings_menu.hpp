@@ -11,7 +11,10 @@ namespace scenes {
     struct SettingsMenu : public Scene {
     private:
         bool m_should_exit = false;
-        ui::Grid<3> m_main_grid;
+        ui::Grid<4> m_main_grid;
+        ServiceProvider* m_service_provider;
+
+        const std::string listener_name = "settings_menu";
 
     public:
         explicit SettingsMenu(ServiceProvider* service_provider);

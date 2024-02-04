@@ -53,7 +53,10 @@ namespace ui {
 
 
         void render(const ServiceProvider& service_provider) const override {
-            const auto color = (has_focus() ? Color::red() : is_hovered() ? Color(0, 0xBB, 0xFF) : Color::blue());
+            const auto color =
+                    (has_focus()    ? is_hovered() ? Color(0xFF, 0x6A, 0x00) : Color::red()
+                        : is_hovered() ? Color(0x00, 0xBB, 0xFF)
+                                    : Color::blue());
             const auto fill_area = get_fill_rect();
             service_provider.renderer().draw_rect_filled(fill_area, color);
 
