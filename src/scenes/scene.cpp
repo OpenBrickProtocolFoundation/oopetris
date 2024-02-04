@@ -8,7 +8,7 @@
 namespace scenes {
     Scene::Scene(ServiceProvider* service_provider, const ui::Layout& layout)
         : m_service_provider{ service_provider },
-          layout{ layout } { }
+          m_layout{ layout } { }
 
     [[nodiscard]] std::unique_ptr<Scene>
     create_scene(ServiceProvider& service_provider, SceneId identifier, const ui::Layout& layout) {
@@ -29,7 +29,7 @@ namespace scenes {
     }
 
     [[nodiscard]] ui::Layout Scene::get_layout() const {
-        return layout;
+        return m_layout;
     }
 
 } // namespace scenes

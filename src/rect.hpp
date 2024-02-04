@@ -23,7 +23,7 @@ struct Rect final {
         return bottom_right.y - top_left.y + 1;
     }
 
-    [[nodiscard]] const SDL_Rect to_sdl_rect() const {
+    [[nodiscard]] SDL_Rect to_sdl_rect() const {
         return { top_left.x, top_left.y, width(), height() };
     }
 

@@ -3,7 +3,7 @@
 
 #include <spdlog/spdlog.h>
 
-Grid::Grid(const ui::Layout layout) : ui::Widget{ layout } {
+Grid::Grid(const ui::Layout& layout) : ui::Widget{ layout } {
 
     const u32 total_x_tiles = preview_extends.x * 2 + 2 + width_in_tiles;
     const u32 total_y_tiles = height_in_tiles - invisible_rows;

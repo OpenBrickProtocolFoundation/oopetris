@@ -45,17 +45,13 @@ public:
     tl::optional<std::string> play_effect(const std::string& name, u8 channel_num = 1, int loop = 0);
 
     [[nodiscard]] tl::optional<float> get_volume() const;
-    void set_volume(
-            const tl::optional<float> new_volume,
-            const bool force_update = false,
-            const bool notify_listeners = true
-    );
+    void set_volume(tl::optional<float> new_volume, bool force_update = false, bool notify_listeners = true);
     // no nodiscard, since the return value is only a side effect, that is maybe useful
     tl::optional<float> change_volume(const std::int8_t steps);
 
     bool handle_event(const SDL_Event& event);
 
-    bool add_volume_listener(const std::string& name, const VolumeChangeFunction change_function) {
+    bool add_volume_listener(const std::string& name, const VolumeChangeFunction& change_function) {
 
         if (volume_listeners.contains(name)) {
             return false;

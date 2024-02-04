@@ -44,7 +44,9 @@ namespace scenes {
 
     protected:
         ServiceProvider* m_service_provider;
-        ui::Layout layout;
+
+    private:
+        ui::Layout m_layout;
 
     public:
         explicit Scene(ServiceProvider* service_provider, const ui::Layout& layout);

@@ -39,7 +39,7 @@ namespace scenes {
     }
 
     void Pause::render(const ServiceProvider& service_provider) {
-        service_provider.renderer().draw_rect_filled(layout.get_rect(), Color::black(180));
+        service_provider.renderer().draw_rect_filled(get_layout().get_rect(), Color::black(180));
         m_heading.render(service_provider);
     }
 

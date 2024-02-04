@@ -13,7 +13,7 @@ private:
     Window* m_window;
 
 public:
-    EventDispatcher(Window* window) : m_listeners{}, m_window{ window } {};
+    EventDispatcher(Window* window) : m_window{ window } {};
 
     void register_listener(EventListener* listener) {
         m_listeners.push_back(listener);

@@ -34,7 +34,7 @@ private:
     u32 m_tile_size;
 
 public:
-    Grid(const ui::Layout layout);
+    Grid(const ui::Layout& layout);
     [[nodiscard]] Point tile_size() const;
     [[nodiscard]] Point to_screen_coords(Point grid_coords) const;
     void render(const ServiceProvider& service_provider) const override;

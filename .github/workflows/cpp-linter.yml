@@ -38,12 +38,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           style: file
-          version: 16
+          version: 17
           database: build
           files-changed-only: ${{ github.event_name != 'workflow_dispatch' }}
           lines-changed-only: ${{ github.event_name != 'workflow_dispatch' }}
           thread-comments: true
-          tidy-checks: "clang-diagnostic-*,clang-analyzer-*,bugprone-*,misc-*,performance-*,readability-*,portability-*,modernize-*,cppcoreguidelines-*,-modernize-use-trailing-return-type"
+          tidy-checks: ""
           file-annotations: true
           ignore: subprojects|build|android|assets|recordings|docs|toolchains|platforms
 
