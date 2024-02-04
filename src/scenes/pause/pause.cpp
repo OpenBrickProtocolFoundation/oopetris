@@ -18,7 +18,7 @@ namespace scenes {
         ),
         Color::white(),
         service_provider->fonts().get(FontId::Default),
-        std::pair<double, double>{ 0.8, 0.4 },
+        std::pair<double, double>{ 0.7, 0.1 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
                layout
     }
@@ -38,7 +38,7 @@ namespace scenes {
     }
 
     void Pause::render(const ServiceProvider& service_provider) {
-        service_provider.renderer().draw_rect_filled(service_provider.window().screen_rect(), Color::black(180));
+        service_provider.renderer().draw_rect_filled(layout.get_rect(), Color::black(180));
         m_heading.render(service_provider);
     }
 

@@ -1,12 +1,14 @@
 #pragma once
 
 #include "../scene.hpp"
+#include <label.hpp>
 
 namespace scenes {
 
     struct GameOver : public Scene {
     private:
         bool m_should_exit{ false };
+        ui::Label text;
 
     public:
         explicit GameOver(ServiceProvider* service_provider, const ui::Layout& layout);
