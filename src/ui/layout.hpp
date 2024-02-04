@@ -23,7 +23,7 @@ namespace ui {
             return m_rect;
         }
 
-        [[nodiscard]] bool is_full_screen() const{
+        [[nodiscard]] bool is_full_screen() const {
             return type == LayoutType::FullScreen;
         }
     };
@@ -68,6 +68,8 @@ namespace ui {
             : RelativeLayout{ window->screen_rect(), x, y, width, height } { }
         RelativeLayout(const Window& window, const double x, const double y, const double width, const double height)
             : RelativeLayout{ window.screen_rect(), x, y, width, height } { }
+        RelativeLayout(const Layout& layout, const double x, const double y, const double width, const double height)
+            : RelativeLayout{ layout.get_rect(), x, y, width, height } { }
     };
 
 

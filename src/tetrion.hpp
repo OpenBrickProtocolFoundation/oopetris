@@ -12,6 +12,10 @@
 #include "text.hpp"
 #include "types.hpp"
 #include "utils.hpp"
+#include <grid_layout.hpp>
+#include <label.hpp>
+#include <layout.hpp>
+
 #include <array>
 #include <cmath>
 #include <tl/optional.hpp>
@@ -59,9 +63,6 @@ private:
     ServiceProvider* m_service_provider;
     tl::optional<RecordingWriter*> m_recording_writer;
     MinoStack m_mino_stack;
-    Text m_score_text;
-    Text m_level_text;
-    Text m_cleared_lines_text;
     Random m_random;
     u32 m_level = 0;
     u32 m_lines_cleared = 0;
@@ -75,6 +76,9 @@ private:
     tl::optional<Tetromino> m_tetromino_on_hold;
     std::array<tl::optional<Tetromino>, num_preview_tetrominos> m_preview_tetrominos{};
     u8 m_tetrion_index;
+    ui::Layout layout;
+    ui::Layout actual_grid_layout;
+    ui::GridLayout<3> texts;
 
 
 public:
@@ -82,6 +86,7 @@ public:
             const Random::Seed random_seed,
             const u32 starting_level,
             ServiceProvider* service_provider,
+            const ui::Layout& layout,
             tl::optional<RecordingWriter*> recording_writer = tl::nullopt);
     void update(SimulationStep simulation_step_index);
     void render(const ServiceProvider& service_provider) const;

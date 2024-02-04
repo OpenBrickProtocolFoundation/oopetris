@@ -42,5 +42,9 @@ namespace ui {
         bool handle_event(const SDL_Event&, const Window*) override {
             return false;
         }
+
+        void set_text(const std::string& text) {
+            m_text = text;
+        }
     };
 } // namespace ui

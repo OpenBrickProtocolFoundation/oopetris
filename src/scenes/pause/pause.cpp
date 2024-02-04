@@ -18,7 +18,7 @@ namespace scenes {
         ),
         Color::white(),
         service_provider->fonts().get(FontId::Default),
-        std::pair<double, double>{ 0.7, 0.1 },
+        std::pair<double, double>{  0.7, 0.07},
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
                layout
     }

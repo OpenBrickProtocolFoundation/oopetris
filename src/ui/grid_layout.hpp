@@ -42,6 +42,8 @@ namespace ui {
             : RelativeMargin{ window.screen_rect(), direction, margin } { }
         RelativeMargin(const Window* window, Direction direction, const double margin)
             : RelativeMargin{ window->screen_rect(), direction, margin } { }
+        RelativeMargin(const Layout& layout, Direction direction, const double margin)
+            : RelativeMargin{ layout.get_rect(), direction, margin } { }
     };
 
 

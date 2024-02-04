@@ -13,6 +13,7 @@ Tetrion::Tetrion(
         const Random::Seed random_seed,
         const u32 starting_level,
         ServiceProvider* service_provider,
+        const ui::Layout& layout,
         tl::optional<RecordingWriter*> recording_writer
 )
     : 
@@ -23,14 +24,39 @@ Tetrion::Tetrion(
       m_random{ random_seed },
       m_level{ starting_level },
       m_grid{ Point{ static_cast<int>(tile_size / 2 + (Grid::hold_background_extends.x + 1) * tile_size), tile_size / 2 }, tile_size },
-    m_tetrion_index{ tetrion_index }
+    m_tetrion_index{ tetrion_index },
+    layout{layout},
+    actual_grid_layout{ui::RelativeLayout{layout, 0.0,0.0,1.0,0.8}},
+    texts{
+        ui::RelativeLayout{layout, 0.0, 0.8, 1.0, 0.2  },
+    ui::Direction::Vertical,
+    ui::AbsolutMargin{0},
+    std::pair<double, double>{ 0.0,0.1 } 
+    }
+
        {
-    m_score_text = Text{ Point{ m_grid.to_screen_coords(Point{ 0, Grid::height + 1 }) }, Color::white(), "score: 0",
-                         m_service_provider->fonts().get(FontId::Default) };
-    m_level_text = Text{ Point{ m_grid.to_screen_coords(Point{ 0, Grid::height + 2 }) }, Color::white(), "level: 0",
-                         m_service_provider->fonts().get(FontId::Default) };
-    m_cleared_lines_text = Text{ Point{ m_grid.to_screen_coords(Point{ 0, Grid::height + 3 }) }, Color::white(),
-                                 "lines: 0", m_service_provider->fonts().get(FontId::Default) };
+
+    auto id_helper = ui::IDHelper{};
+
+    texts.add<ui::Label>(
+            id_helper.index(), "score: 0", Color::white(), service_provider->fonts().get(FontId::Default),
+            std::pair<double, double>{ 0.2, 0.8 },
+            ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
+    );
+
+
+    texts.add<ui::Label>(
+            id_helper.index(), "lines: 0", Color::white(), service_provider->fonts().get(FontId::Default),
+            std::pair<double, double>{ 0.2, 0.8 },
+            ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
+    );
+
+    texts.add<ui::Label>(
+            id_helper.index(), "lines: 0", Color::white(), service_provider->fonts().get(FontId::Default),
+            std::pair<double, double>{ 0.2, 0.8 },
+            ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
+    );
+
     refresh_texts();
 }
 
@@ -64,6 +90,8 @@ void Tetrion::update(const SimulationStep simulation_step_index) {
 }
 
 void Tetrion::render(const ServiceProvider& service_provider) const {
+    //TODO: use actual_grid_layout and relative rendering here too (make m_grid aware of it!)
+
     m_grid.render(service_provider);
     m_mino_stack.draw_minos(service_provider, m_grid);
     if (m_active_tetromino) {
@@ -84,9 +112,7 @@ void Tetrion::render(const ServiceProvider& service_provider) const {
     if (m_tetromino_on_hold) {
         m_tetromino_on_hold->render(service_provider, m_grid, MinoTransparency::Solid);
     }
-    m_score_text.render(service_provider);
-    m_level_text.render(service_provider);
-    m_cleared_lines_text.render(service_provider);
+    texts.render(service_provider);
 }
 
 bool Tetrion::handle_input_command(const InputCommand command, const SimulationStep simulation_step_index) {
@@ -253,17 +279,19 @@ void Tetrion::reset_lock_delay(const SimulationStep simulation_step_index) {
 }
 
 void Tetrion::refresh_texts() {
+    auto id_helper = ui::IDHelper{};
+
     std::stringstream stream;
     stream << "score: " << m_score;
-    m_score_text.set_text(stream.str());
+    texts.get<ui::Label>(id_helper.index())->set_text(stream.str());
 
     stream = std::stringstream{};
     stream << "level: " << m_level;
-    m_level_text.set_text(stream.str());
+    texts.get<ui::Label>(id_helper.index())->set_text(stream.str());
 
     stream = std::stringstream{};
     stream << "lines: " << m_lines_cleared;
-    m_cleared_lines_text.set_text(stream.str());
+    texts.get<ui::Label>(id_helper.index())->set_text(stream.str());
 }
 
 void Tetrion::clear_fully_occupied_lines() {
