@@ -37,16 +37,18 @@ jobs:
           sed -i 's/# diff_files/diff_files/g' subprojects/magic_enum.wrap 
 
       - name: Setup ninja
-        uses: abdes/gha-setup-ninja@master
+        run: |
+            sudo apt-get update
+            sudo apt-get install ninja-build
 
       - name: Setup JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
         
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v2
+        uses: android-actions/setup-android@v3
         
       - name: Setup NDK
         run: | 
@@ -63,7 +65,7 @@ jobs:
           ./gradlew assembleDebug --no-daemon -PANDROID_ABI=${{ matrix.config.arch }}
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: oopetris.all-apks
           path: platforms/android/app/build/outputs/apk/debug/app-*-debug.apk
