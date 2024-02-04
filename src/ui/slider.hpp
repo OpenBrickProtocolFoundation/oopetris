@@ -86,6 +86,10 @@ namespace ui {
         }
 
         bool handle_event(const SDL_Event& event, const Window*) override {
+            if (not has_focus()) {
+                return false;
+            }
+
             //TODO: handle mouse events (dragging and clicking)
             // and SDL_MOUSEWHEEL
             bool changed = false;
