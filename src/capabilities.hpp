@@ -158,6 +158,7 @@ namespace utils {
 
     [[nodiscard]] bool event_is_click_event(const SDL_Event& event, CrossPlatformClickEvent click_type);
 
+    [[nodiscard]] std::pair<int, int> get_raw_coordinates(const Window* window, const SDL_Event& event);
 
     [[nodiscard]] bool is_event_in(const Window* window, const SDL_Event& event, const Rect& rect);
 } // namespace utils

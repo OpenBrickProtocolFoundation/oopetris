@@ -131,8 +131,8 @@
     return event.type == desired_type;
 }
 
+[[nodiscard]] std::pair<int, int> utils::get_raw_coordinates(const Window* window, const SDL_Event& event) {
 
-[[nodiscard]] bool utils::is_event_in(const Window* window, const SDL_Event& event, const Rect& rect) {
 #if defined(__ANDROID__)
     // These are doubles, from 0-1 in percent, the have to be casted to absolut x coordinates!
     const double x_percent = event.tfinger.x;
@@ -167,6 +167,14 @@
     }
 #endif
 
+
+    return { x, y };
+}
+
+
+[[nodiscard]] bool utils::is_event_in(const Window* window, const SDL_Event& event, const Rect& rect) {
+
+    const auto& [x, y] = get_raw_coordinates(window, event);
 
     const auto rect_start_x = rect.top_left.x;
     const auto rect_start_y = rect.top_left.y;

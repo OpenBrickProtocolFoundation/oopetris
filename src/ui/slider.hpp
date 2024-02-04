@@ -30,10 +30,36 @@ namespace ui {
         float current_value;
         std::pair<u32, u32> m_size;
         Alignment m_alignment;
+        bool is_dragging;
 
         [[nodiscard]] inline Rect get_fill_rect() const {
             return ui::get_rectangle_aligned(layout, m_size.first, m_size.second, m_alignment);
         }
+
+        [[nodiscard]] std::pair<Rect, Rect> get_rectangles() const {
+
+
+            const auto fill_area = get_fill_rect();
+            const auto origin = fill_area.top_left;
+
+            const auto rectangle_rect = RelativeLayout{ fill_area, 0, 0.4, 1.0, 0.2 };
+
+            const auto bar_rect = rectangle_rect.get_rect().move(fill_area.top_left);
+
+
+            const float percentage = (current_value - m_range.first) / (m_range.second - m_range.first);
+
+            const int position_x_middle =
+                    origin.x + static_cast<int>(percentage * static_cast<float>(fill_area.bottom_right.x - origin.x));
+
+            const auto slider_rect = Rect{
+                Point{position_x_middle - 5,     fill_area.top_left.y},
+                Point{position_x_middle + 5, fill_area.bottom_right.y}
+            };
+
+            return { bar_rect, slider_rect };
+        }
+
 
     public:
         explicit Slider(
@@ -62,36 +88,25 @@ namespace ui {
 
         void render(const ServiceProvider& service_provider) const override {
             const auto color = (has_focus() ? Color::red() : Color::blue());
-            const auto fill_area = get_fill_rect();
-            const auto origin = fill_area.top_left;
 
-            const auto rectangle_rect = RelativeLayout{ fill_area, 0, 0.4, 1.0, 0.2 };
+            const auto& [bar_rect, slider_rect] = get_rectangles();
 
-
-            service_provider.renderer().draw_rect_filled(rectangle_rect.get_rect().move(fill_area.top_left), color);
-
-            const float percentage = (current_value - m_range.first) / (m_range.second - m_range.first);
-
-            const int position_x_middle =
-                    origin.x + static_cast<int>(percentage * static_cast<float>(fill_area.bottom_right.x - origin.x));
-
-            const auto slider_rect = Rect{
-                Point{position_x_middle - 5,     fill_area.top_left.y},
-                Point{position_x_middle + 5, fill_area.bottom_right.y}
-            };
+            service_provider.renderer().draw_rect_filled(bar_rect, color);
 
             //orange or cyan
-            const auto slider_color = (has_focus() ? Color(255, 111, 0) : Color(0, 204, 255));
+            const auto slider_color =
+                    (is_dragging   ? Color(0xFF, 0xCC, 0x00)
+                     : has_focus() ? Color(255, 111, 0)
+                                   : Color(0, 204, 255));
             service_provider.renderer().draw_rect_filled(slider_rect, slider_color);
         }
 
-        bool handle_event(const SDL_Event& event, const Window*) override {
+        bool handle_event(const SDL_Event& event, const Window* window) override {
             if (not has_focus()) {
                 return false;
             }
 
-            //TODO: handle mouse events (dragging and clicking)
-            // and SDL_MOUSEWHEEL
+            //TODO: handle SDL_MOUSEWHEEL
             bool changed = false;
             if (utils::event_is_action(event, utils::CrossPlatformAction::RIGHT)) {
                 current_value = current_value + m_step;
@@ -107,6 +122,44 @@ namespace ui {
                 }
 
                 changed = true;
+            }
+
+            if (not changed and utils::device_supports_clicks()) {
+
+                if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::ButtonDown)) {
+                    const auto& [_, slider_rect] = get_rectangles();
+                    if (utils::is_event_in(window, event, slider_rect)) {
+                        is_dragging = true;
+                        changed = true;
+                    }
+
+                } else if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::ButtonUp)) {
+                    is_dragging = false;
+                    changed = true;
+
+                } else if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::Motion)) {
+
+                    if (is_dragging) {
+                        const auto& [bar_rect, _] = get_rectangles();
+
+                        const auto& [x, _1] = utils::get_raw_coordinates(window, event);
+
+                        if (x <= bar_rect.top_left.x) {
+                            current_value = m_range.first;
+                        } else if (x >= bar_rect.bottom_right.x) {
+                            current_value = m_range.second;
+                        } else {
+
+                            const float percentage = (x - bar_rect.top_left.x) / static_cast<float>(bar_rect.width());
+
+                            current_value = percentage * (m_range.second - m_range.first) + m_range.first;
+                        }
+
+
+                        //current_value = 1;
+                        changed = true;
+                    }
+                }
             }
 
 
