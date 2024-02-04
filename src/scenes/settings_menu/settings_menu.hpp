@@ -1,23 +1,22 @@
 #pragma once
 
-#include "../../ui/button.hpp"
-#include "../../ui/grid.hpp"
-#include "../../ui/label.hpp"
-#include "../../ui/slider.hpp"
 #include "../scene.hpp"
+#include <button.hpp>
+#include <grid_layout.hpp>
+#include <label.hpp>
+#include <slider.hpp>
 
 namespace scenes {
 
     struct SettingsMenu : public Scene {
     private:
         bool m_should_exit = false;
-        ui::Grid<4> m_main_grid;
-        ServiceProvider* m_service_provider;
+        ui::GridLayout<4> m_main_grid;
 
         const std::string listener_name = "settings_menu";
 
     public:
-        explicit SettingsMenu(ServiceProvider* service_provider);
+        explicit SettingsMenu(ServiceProvider* service_provider, const ui::Layout& layout);
 
         [[nodiscard]] UpdateResult update() override;
         void render(const ServiceProvider& service_provider) override;

@@ -33,22 +33,20 @@ namespace ui {
     };
 
     struct RelativeMargin : public Margin {
-        RelativeMargin(const Window& window, Direction direction, const double margin)
-            : Margin{ static_cast<u32>(
-                    margin
-                    * (direction == Direction::Horizontal ? window.screen_rect().width() : window.screen_rect().height()
-                    )
-            ) } {
+        RelativeMargin(const Rect& rect, Direction direction, const double margin)
+            : Margin{ static_cast<u32>(margin * (direction == Direction::Horizontal ? rect.width() : rect.height())) } {
 
             assert(margin >= 0.0 && margin <= 1.0 && "margin has to be in correct percentage range!");
         }
+        RelativeMargin(const Window& window, Direction direction, const double margin)
+            : RelativeMargin{ window.screen_rect(), direction, margin } { }
         RelativeMargin(const Window* window, Direction direction, const double margin)
-            : RelativeMargin{ *window, direction, margin } { }
+            : RelativeMargin{ window->screen_rect(), direction, margin } { }
     };
 
 
     template<size_t S>
-    struct Grid : public Widget {
+    struct GridLayout : public Widget {
     private:
         enum class FocusChangeDirection {
             Forward,
@@ -62,7 +60,7 @@ namespace ui {
         std::pair<u32, u32> margin;
 
     public:
-        explicit Grid(
+        explicit GridLayout(
                 const Layout& layout,
                 Direction direction = Direction::Vertical,
                 Margin gap = AbsolutMargin{ 0 },
@@ -138,7 +136,7 @@ namespace ui {
         T* get(const size_t index) {
             auto item = dynamic_cast<T*>(m_widgets.at(index).get());
             if (item == nullptr) {
-                throw std::runtime_error("Invalid get of Grid item!");
+                throw std::runtime_error("Invalid get of GridLayout item!");
             }
 
             return item;
@@ -148,7 +146,7 @@ namespace ui {
         const T* get(const size_t index) const {
             const auto item = dynamic_cast<T*>(m_widgets.at(index).get());
             if (item == nullptr) {
-                throw std::runtime_error("Invalid get of Grid item!");
+                throw std::runtime_error("Invalid get of GridLayout item!");
             }
 
             return item;

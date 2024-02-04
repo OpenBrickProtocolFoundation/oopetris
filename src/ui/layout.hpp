@@ -8,16 +8,23 @@
 
 namespace ui {
 
+    enum class LayoutType { FullScreen, Relative, Absolut };
+
     struct Layout {
     private:
         Rect m_rect;
+        LayoutType type;
 
     public:
-        Layout(const Rect& rect) : m_rect{ rect } { }
+        Layout(const Rect& rect, LayoutType type) : m_rect{ rect }, type{ type } { }
 
 
         [[nodiscard]] const Rect& get_rect() const {
             return m_rect;
+        }
+
+        [[nodiscard]] bool is_full_screen() const{
+            return type == LayoutType::FullScreen;
         }
     };
 
@@ -25,7 +32,8 @@ namespace ui {
     struct AbsolutLayout : public Layout {
         AbsolutLayout(const u32 x, const u32 y, const u32 width, const u32 height)
             : Layout{
-                  Rect{static_cast<int>(x), static_cast<int>(y), static_cast<int>(width), static_cast<int>(height)}
+                  Rect{static_cast<int>(x), static_cast<int>(y), static_cast<int>(width), static_cast<int>(height)},
+                  LayoutType::Absolut
         } {
             //TODO: assert dimensions
         }
@@ -33,7 +41,7 @@ namespace ui {
 
 
     struct FullScreenLayout : public Layout {
-        FullScreenLayout(const Rect& rect) : Layout{ rect } { }
+        FullScreenLayout(const Rect& rect) : Layout{ rect, LayoutType::FullScreen } { }
         FullScreenLayout(const Window& window) : FullScreenLayout{ window.screen_rect() } { }
         FullScreenLayout(const Window* window) : FullScreenLayout{ window->screen_rect() } { }
     };
@@ -47,7 +55,8 @@ namespace ui {
                        static_cast<int>(y * rect.height()),
                        static_cast<int>(width * rect.width()),
                        static_cast<int>(height * rect.height()),
-                       }
+                       },
+                  LayoutType::Relative
         } {
             assert(x >= 0.0 && x <= 1.0 && "x has to be in correct percentage range!");
             assert(y >= 0.0 && y <= 1.0 && "y has to be in correct percentage range!");

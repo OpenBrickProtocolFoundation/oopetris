@@ -87,12 +87,14 @@ void Application::update() {
                             },
                             [this](const scenes::Scene::Push& push) {
                                 spdlog::info("pushing back scene {}", magic_enum::enum_name(push.target_scene));
-                                m_scene_stack.push_back(scenes::create_scene(*this, push.target_scene));
+                                m_scene_stack.push_back(scenes::create_scene(*this, push.target_scene, push.layout));
                             },
                             [this](const scenes::Scene::Switch& switch_) {
                                 spdlog::info("switching to scene {}", magic_enum::enum_name(switch_.target_scene));
                                 m_scene_stack.clear();
-                                m_scene_stack.push_back(scenes::create_scene(*this, switch_.target_scene));
+                                m_scene_stack.push_back(
+                                        scenes::create_scene(*this, switch_.target_scene, switch_.layout)
+                                );
                             },
                             [this](const scenes::Scene::Exit&) { m_is_running = false; },
                     },
@@ -115,7 +117,7 @@ void Application::render() const {
 void Application::initialize() {
     try_load_settings();
     load_resources();
-    push_scene(scenes::create_scene(*this, SceneId::MainMenu));
+    push_scene(scenes::create_scene(*this, SceneId::MainMenu, ui::FullScreenLayout{ m_window }));
 }
 
 void Application::try_load_settings() {

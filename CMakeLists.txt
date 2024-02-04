@@ -86,7 +86,7 @@ add_executable(oopetris
         src/scenes/settings_menu/settings_menu.cpp
         src/scenes/settings_menu/settings_menu.hpp
         src/ui/button.hpp
-        src/ui/grid.hpp
+        src/ui/grid_layout.hpp
         src/ui/focusable.hpp
         src/scenes/game_over/game_over.cpp
         src/scenes/game_over/game_over.hpp
@@ -113,6 +113,8 @@ foreach (target ${TARGET_LIST})
 
     # define DEBUG_BUILD
     target_compile_definitions(${target} INTERFACE "$<$<CONFIG:DEBUG>:DEBUG_BUILD>")
+
+    target_include_directories(${target} PRIVATE "src/ui/")
 
     # static runtime library
     set_property(TARGET ${target} PROPERTY

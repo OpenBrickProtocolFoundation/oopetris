@@ -22,7 +22,7 @@ namespace scenes {
         bool m_is_paused{ false };
 
     public:
-        explicit Ingame(ServiceProvider* service_provider);
+        explicit Ingame(ServiceProvider* service_provider, const ui::Layout& layout);
 
         [[nodiscard]] UpdateResult update() override;
         void render(const ServiceProvider& service_provider) override;

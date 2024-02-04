@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../../ui/button.hpp"
-#include "../../ui/grid.hpp"
-#include "../../ui/label.hpp"
 #include "../scene.hpp"
+#include <button.hpp>
+#include <grid_layout.hpp>
+#include <label.hpp>
 
 namespace scenes {
 
@@ -15,11 +15,11 @@ namespace scenes {
             Exit,
         };
 
-        ui::Grid<4> m_main_grid;
+        ui::GridLayout<4> m_main_grid;
         tl::optional<Command> m_next_command;
 
     public:
-        explicit MainMenu(ServiceProvider* service_provider);
+        explicit MainMenu(ServiceProvider* service_provider, const ui::Layout& layout);
 
         [[nodiscard]] UpdateResult update() override;
         void render(const ServiceProvider& service_provider) override;

@@ -12,7 +12,7 @@
 
 namespace scenes {
 
-    Ingame::Ingame(ServiceProvider* service_provider) : Scene{ SceneId::Ingame, service_provider } {
+    Ingame::Ingame(ServiceProvider* service_provider, const ui::Layout& layout) : Scene{ service_provider, layout } {
         static constexpr auto num_tetrions = u8{ 1 };
 
         if (is_replay_mode()) {
@@ -190,7 +190,10 @@ namespace scenes {
 
         const auto ingame_scene_is_topmost_scene = (m_service_provider->active_scenes().back() == this);
         if (is_game_over() and ingame_scene_is_topmost_scene) {
-            return UpdateResult{ SceneUpdate::ContinueUpdating, Scene::Push{ SceneId::GameOver } };
+            return UpdateResult{
+                SceneUpdate::ContinueUpdating,
+                Scene::Push{SceneId::GameOver, ui::FullScreenLayout{ m_service_provider->window() }}
+            };
         }
 
         if (m_is_paused) {
@@ -228,9 +231,16 @@ namespace scenes {
 
             switch (next_scene) {
                 case NextScene::Pause:
-                    return UpdateResult{ SceneUpdate::ContinueUpdating, Scene::Push{ SceneId::Pause } };
+                    return UpdateResult{
+                        SceneUpdate::ContinueUpdating,
+                        Scene::Push{SceneId::Pause, ui::FullScreenLayout{ m_service_provider->window() }}
+                    };
                 case NextScene::Settings:
-                    return UpdateResult{ SceneUpdate::ContinueUpdating, Scene::Push{ SceneId::SettingsMenu } };
+                    return UpdateResult{
+                        SceneUpdate::ContinueUpdating,
+                        Scene::Push{SceneId::SettingsMenu,
+                                    ui::RelativeLayout{ m_service_provider->window(), 0.15, 0.15, 0.7, 0.7 }}
+                    };
                 default:
                     utils::unreachable();
             }

@@ -2,14 +2,14 @@
 #include "../../constants.hpp"
 #include "../../music_manager.hpp"
 #include "../../resource_manager.hpp"
-#include "../../ui/layout.hpp"
 #include "../../window.hpp"
+#include <layout.hpp>
 
 namespace scenes {
 
-    MainMenu::MainMenu(ServiceProvider* service_provider)
-        : Scene{ SceneId::MainMenu, service_provider },
-          m_main_grid{ ui::RelativeLayout{ service_provider->window(), 0.0, 0.2, 1.0, 0.5 },ui::Direction::Vertical, ui::RelativeMargin{service_provider->window(),ui::Direction::Vertical, 0.05}, std::pair<double, double>{ 0.05, 0.05 
+    MainMenu::MainMenu(ServiceProvider* service_provider, const  ui::Layout& layout)
+        : Scene{service_provider, layout},
+          m_main_grid{ ui::RelativeLayout{ layout.get_rect(), 0.0, 0.2, 1.0, 0.5 },ui::Direction::Vertical, ui::RelativeMargin{layout.get_rect(),ui::Direction::Vertical, 0.05}, std::pair<double, double>{ 0.05, 0.05 
             } } {
 
         auto id_helper = ui::IDHelper{};
@@ -60,11 +60,17 @@ namespace scenes {
         if (m_next_command.has_value()) {
             switch (m_next_command.value()) {
                 case Command::StartGame:
-                    return UpdateResult{ SceneUpdate::ContinueUpdating, Scene::Switch{ SceneId::Ingame } };
+                    return UpdateResult{
+                        SceneUpdate::ContinueUpdating,
+                        Scene::Switch{SceneId::Ingame, ui::FullScreenLayout{ m_service_provider->window() }}
+                    };
                 case Command::OpenSettingsMenu:
                     // perform a push and reset the command, so that the music keeps playing the entire time
                     m_next_command = tl::nullopt;
-                    return UpdateResult{ SceneUpdate::ContinueUpdating, Scene::Push{ SceneId::SettingsMenu } };
+                    return UpdateResult{
+                        SceneUpdate::ContinueUpdating,
+                        Scene::Push{SceneId::SettingsMenu, ui::FullScreenLayout{ m_service_provider->window() }}
+                    };
                 case Command::Exit:
                     return UpdateResult{ SceneUpdate::ContinueUpdating, Scene::Exit{} };
                 default:

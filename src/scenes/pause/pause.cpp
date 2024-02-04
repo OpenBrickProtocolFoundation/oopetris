@@ -10,7 +10,7 @@
 #endif
 namespace scenes {
 
-    Pause::Pause(ServiceProvider* service_provider) : Scene{ SceneId::Pause, service_provider }, m_heading {
+    Pause::Pause(ServiceProvider* service_provider, const ui::Layout& layout) : Scene{ service_provider, layout }, m_heading {
         fmt::format(
             "Pause ({}: continue, {}: quit)",
             utils::action_description(utils::CrossPlatformAction::UNPAUSE),
@@ -20,7 +20,7 @@ namespace scenes {
         service_provider->fonts().get(FontId::Default),
         std::pair<double, double>{ 0.8, 0.4 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
-                ui::FullScreenLayout{service_provider->window()}
+               layout
     }
     { }
 
@@ -29,7 +29,10 @@ namespace scenes {
             return UpdateResult{ SceneUpdate::StopUpdating, Scene::Pop{} };
         }
         if (m_should_exit) {
-            return UpdateResult{ SceneUpdate::StopUpdating, Scene::Switch{ SceneId::MainMenu } };
+            return UpdateResult{
+                SceneUpdate::StopUpdating,
+                Scene::Switch{SceneId::MainMenu, ui::FullScreenLayout{ m_service_provider->window() }}
+            };
         }
         return UpdateResult{ SceneUpdate::StopUpdating, tl::nullopt };
     }

@@ -6,13 +6,13 @@
 
 namespace scenes {
 
-    SettingsMenu::SettingsMenu(ServiceProvider* service_provider) : Scene{ SceneId::SettingsMenu, service_provider }
+    SettingsMenu::SettingsMenu(ServiceProvider* service_provider, const  ui::Layout& layout) : Scene{service_provider, layout}
 , m_main_grid{
-    ui::RelativeLayout{ service_provider->window(), 0.0, 0.2, 1.0, 0.5  },
+    ui::RelativeLayout{layout.get_rect(), 0.0, 0.2, 1.0, 0.5  },
     ui::Direction::Vertical,
-    ui::RelativeMargin{ service_provider->window(), ui::Direction::Vertical, 0.05 },
+    ui::RelativeMargin{ layout.get_rect(), ui::Direction::Vertical, 0.05 },
     std::pair<double, double>{ 0.05, 0.05 } 
-} ,m_service_provider{service_provider}{
+} {
 
         auto id_helper = ui::IDHelper{};
 
@@ -66,21 +66,11 @@ namespace scenes {
 
     void SettingsMenu::render(const ServiceProvider& service_provider) {
 
-        const auto is_above_ingame =
-                m_service_provider->active_scenes().size() >= 2
-                && m_service_provider->active_scenes().at(m_service_provider->active_scenes().size() - 2)->get_id()
-                           == SceneId::Ingame;
+        const auto layout = get_layout();
+        service_provider.renderer().draw_rect_filled(layout.get_rect(), Color::black());
 
-        if (is_above_ingame) {
-            //TODO: make relative and as layout !!
-            const auto whole_settings_rect = Rect{
-                Point{ 90,  90},
-                Point{510, 350}
-            };
-            service_provider.renderer().draw_rect_filled(whole_settings_rect, Color::black());
-            service_provider.renderer().draw_rect_outline(whole_settings_rect, Color::white());
-        } else {
-            service_provider.renderer().draw_rect_filled(service_provider.window().screen_rect(), Color::black());
+        if (not layout.is_full_screen()) {
+            service_provider.renderer().draw_rect_outline(layout.get_rect(), Color::white());
         }
 
         m_main_grid.render(service_provider);
