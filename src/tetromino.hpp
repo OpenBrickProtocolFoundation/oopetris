@@ -73,9 +73,14 @@ public:
         return m_rotation;
     }
 
-    void render(const ServiceProvider& service_provider, const Grid& grid, const MinoTransparency transparency) const {
+    void render(
+            const ServiceProvider& service_provider,
+            const Grid* grid,
+            const MinoTransparency transparency,
+            const Point& offset = Point::zero()
+    ) const {
         for (const auto& mino : m_minos) {
-            mino.render(service_provider, grid, transparency);
+            mino.render(service_provider, grid, transparency, offset);
         }
     }
 

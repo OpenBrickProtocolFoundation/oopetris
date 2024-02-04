@@ -1,17 +1,18 @@
 #pragma once
 
 
-#include "../capabilities.hpp"
-#include "../rect.hpp"
 #include "../types.hpp"
 #include "focusable.hpp"
+#include "grid_layout.hpp"
+#include "renderer.hpp"
 #include "widget.hpp"
 
-#include <tl/optional.hpp>
+#include <array>
 
 namespace ui {
+
     template<size_t S>
-    struct GridLayout : public Widget {
+    struct TileLayout : public Widget {
     private:
         enum class FocusChangeDirection {
             Forward,
@@ -21,14 +22,22 @@ namespace ui {
         std::array<std::unique_ptr<Widget>, S> m_widgets;
         tl::optional<usize> m_focus_id;
         Direction direction;
+        std::array<double, S - 1> steps;
         Margin gap;
         std::pair<u32, u32> margin;
 
     public:
-        explicit GridLayout(Direction direction, Margin gap, std::pair<double, double> margin, const Layout& layout)
+        explicit TileLayout(
+                Direction direction,
+                std::array<double, S - 1> steps,
+                Margin gap,
+                std::pair<double, double> margin,
+                const Layout& layout
+        )
             : Widget(layout),
               m_widgets{},
               direction{ direction },
+              steps{ steps },
               gap{ gap },
               margin{ static_cast<u32>(margin.first * layout.get_rect().width()),
                       static_cast<u32>(margin.second * layout.get_rect().height()) } { }
@@ -96,7 +105,7 @@ namespace ui {
         T* get(const size_t index) {
             auto item = dynamic_cast<T*>(m_widgets.at(index).get());
             if (item == nullptr) {
-                throw std::runtime_error("Invalid get of GridLayout item!");
+                throw std::runtime_error("Invalid get of TileLayout item!");
             }
 
             return item;
@@ -106,7 +115,7 @@ namespace ui {
         const T* get(const size_t index) const {
             const auto item = dynamic_cast<T*>(m_widgets.at(index).get());
             if (item == nullptr) {
-                throw std::runtime_error("Invalid get of GridLayout item!");
+                throw std::runtime_error("Invalid get of TileLayout item!");
             }
 
             return item;
@@ -122,19 +131,29 @@ namespace ui {
             u32 height = layout().get_rect().height() - (margin.second * 2);
 
             if (direction == Direction::Horizontal) {
-                u32 total_margin = S <= 1 ? 0 : (S - 1) * gap.get_margin();
-                width = (layout().get_rect().width() - total_margin - (margin.first * 2)) / S;
+                const auto previous_start =
+                        index == 0 ? 0 : static_cast<u32>(width * steps.at(index - 1)) + gap.get_margin() / 2;
 
-                u32 margin_x = index * gap.get_margin();
-                u32 total_width = width * index;
-                x += margin_x + total_width;
+                const auto current_end =
+                        index == S - 1 ? width
+                                       : (steps.size() <= index
+                                                  ? width
+                                                  : static_cast<u32>(width * steps.at(index)) - gap.get_margin() / 2);
+
+                width = current_end - previous_start;
+                x += previous_start;
             } else {
-                u32 total_margin = S <= 1 ? 0 : (S - 1) * gap.get_margin();
-                height = (layout().get_rect().height() - total_margin - (margin.second * 2)) / S;
+                const auto previous_start =
+                        index == 0 ? 0 : static_cast<u32>(height * steps.at(index - 1)) + gap.get_margin() / 2;
 
-                u32 margin_y = index * gap.get_margin();
-                u32 total_height = height * index;
-                y += margin_y + total_height;
+                const auto current_end =
+                        index == S - 1 ? height
+                                       : (steps.size() <= index
+                                                  ? height
+                                                  : static_cast<u32>(height * steps.at(index)) - gap.get_margin() / 2);
+
+                height = current_end - previous_start;
+                y += previous_start;
             }
 
 

@@ -9,8 +9,8 @@ namespace scenes {
 
     MainMenu::MainMenu(ServiceProvider* service_provider, const  ui::Layout& layout)
         : Scene{service_provider, layout},
-          m_main_grid{ ui::RelativeLayout{ layout, 0.0, 0.2, 1.0, 0.5 },ui::Direction::Vertical, ui::RelativeMargin{layout,ui::Direction::Vertical, 0.05}, std::pair<double, double>{ 0.05, 0.05 
-            } } {
+          m_main_grid{ ui::Direction::Vertical, ui::RelativeMargin{layout,ui::Direction::Vertical, 0.05}, std::pair<double, double>{ 0.05, 0.05 
+            } ,ui::RelativeLayout{ layout, 0.0, 0.2, 1.0, 0.5 }} {
 
         auto id_helper = ui::IDHelper{};
 

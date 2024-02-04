@@ -28,30 +28,23 @@ namespace ui {
         Setter m_setter;
         float m_step;
         float current_value;
-        std::pair<u32, u32> m_size;
-        Alignment m_alignment;
         bool is_dragging;
-
-        [[nodiscard]] inline Rect get_fill_rect() const {
-            return ui::get_rectangle_aligned(layout, m_size.first, m_size.second, m_alignment);
-        }
+        Rect fill_rect;
 
         [[nodiscard]] std::pair<Rect, Rect> get_rectangles() const {
 
+            const auto origin = fill_rect.top_left;
 
-            const auto fill_area = get_fill_rect();
-            const auto origin = fill_area.top_left;
-
-            const auto bar = RelativeLayout{ fill_area, 0, 0.4, 1.0, 0.2 };
+            const auto bar = RelativeLayout{ fill_rect, 0, 0.4, 1.0, 0.2 };
 
             const float percentage = (current_value - m_range.first) / (m_range.second - m_range.first);
 
             const int position_x_middle =
-                    origin.x + static_cast<int>(percentage * static_cast<float>(fill_area.bottom_right.x - origin.x));
+                    origin.x + static_cast<int>(percentage * static_cast<float>(fill_rect.bottom_right.x - origin.x));
 
             const auto slider_rect = Rect{
-                Point{position_x_middle - 5,     fill_area.top_left.y},
-                Point{position_x_middle + 5, fill_area.bottom_right.y}
+                Point{position_x_middle - 5,     fill_rect.top_left.y},
+                Point{position_x_middle + 5, fill_rect.bottom_right.y}
             };
 
             return { bar.get_rect(), slider_rect };
@@ -75,9 +68,12 @@ namespace ui {
               m_getter{ getter },
               m_setter{ setter },
               m_step{ step },
-              m_size{ static_cast<u32>(size.first * layout.get_rect().width()),
-                      static_cast<u32>(size.second * layout.get_rect().height()) },
-              m_alignment{ alignment } {
+              fill_rect{ ui::get_rectangle_aligned(
+                      layout,
+                      static_cast<u32>(size.first * layout.get_rect().width()),
+                      static_cast<u32>(size.second * layout.get_rect().height()),
+                      alignment
+              ) } {
             assert(m_range.first <= m_range.second && "Range has to be in correct order!");
             current_value = m_getter();
         }

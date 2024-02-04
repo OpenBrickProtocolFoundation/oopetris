@@ -15,6 +15,8 @@
 #include <grid_layout.hpp>
 #include <label.hpp>
 #include <layout.hpp>
+#include <tile_layout.hpp>
+#include <widget.hpp>
 
 #include <array>
 #include <cmath>
@@ -33,7 +35,7 @@ enum class MovementType {
     Forced,
 };
 
-struct Tetrion final {
+struct Tetrion final : public ui::Widget {
 private:
     using WallKickTable = std::array<std::array<Point, 5>, 8>;
 
@@ -69,16 +71,13 @@ private:
     GameState m_game_state = GameState::Playing;
     int m_sequence_index = 0;
     u32 m_score = 0;
-    Grid m_grid;
     std::array<Bag, 2> m_sequence_bags{ Bag{ m_random }, Bag{ m_random } };
     tl::optional<Tetromino> m_active_tetromino;
     tl::optional<Tetromino> m_ghost_tetromino;
     tl::optional<Tetromino> m_tetromino_on_hold;
     std::array<tl::optional<Tetromino>, num_preview_tetrominos> m_preview_tetrominos{};
     u8 m_tetrion_index;
-    ui::Layout layout;
-    ui::Layout actual_grid_layout;
-    ui::GridLayout<3> texts;
+    ui::TileLayout<2> main_layout;
 
 
 public:
@@ -86,10 +85,11 @@ public:
             const Random::Seed random_seed,
             const u32 starting_level,
             ServiceProvider* service_provider,
-            const ui::Layout& layout,
-            tl::optional<RecordingWriter*> recording_writer = tl::nullopt);
+            tl::optional<RecordingWriter*> recording_writer,
+            const ui::Layout& layout);
     void update(SimulationStep simulation_step_index);
-    void render(const ServiceProvider& service_provider) const;
+    void render(const ServiceProvider& service_provider) const override;
+    [[nodiscard]] bool handle_event(const SDL_Event& event, const Window* window) override;
 
     // returns if the input event lead to a movement
     bool handle_input_command(InputCommand command, SimulationStep simulation_step_index);
@@ -102,6 +102,23 @@ public:
     bool move_tetromino_right();
     bool drop_tetromino(SimulationStep simulation_step_index);
     void hold_tetromino(SimulationStep simulation_step_index);
+
+    [[nodiscard]] Grid* get_grid() {
+        return main_layout.get<Grid>(0);
+    }
+
+    [[nodiscard]] const Grid* get_grid() const {
+        return main_layout.get<Grid>(0);
+    }
+
+
+    [[nodiscard]] ui::GridLayout<3>* get_texts() {
+        return main_layout.get<ui::GridLayout<3>>(1);
+    }
+
+    [[nodiscard]] const ui::GridLayout<3>* get_texts() const {
+        return main_layout.get<ui::GridLayout<3>>(1);
+    }
 
     [[nodiscard]] auto tetrion_index() const {
         return m_tetrion_index;

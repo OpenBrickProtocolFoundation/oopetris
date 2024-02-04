@@ -36,8 +36,8 @@ namespace scenes {
             spdlog::info("starting level for tetrion {}: {}", tetrion_index, starting_level);
 
             m_tetrions.push_back(std::make_unique<Tetrion>(
-                    tetrion_index, seeds.at(tetrion_index), starting_level, m_service_provider, layout,
-                    recording_writer_optional()
+                    tetrion_index, seeds.at(tetrion_index), starting_level, m_service_provider,
+                    recording_writer_optional(), layout
             ));
 
             auto on_event_callback = create_on_event_callback(tetrion_index);

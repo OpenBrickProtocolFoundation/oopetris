@@ -13,46 +13,53 @@ Tetrion::Tetrion(
         const Random::Seed random_seed,
         const u32 starting_level,
         ServiceProvider* service_provider,
-        const ui::Layout& layout,
-        tl::optional<RecordingWriter*> recording_writer
+        tl::optional<RecordingWriter*> recording_writer,
+        const ui::Layout& layout
 )
-    : 
+    : ui::Widget{layout},
       m_next_gravity_simulation_step_index{ get_gravity_delay_frames() },
       m_lock_delay_step_index{ lock_delay },
       m_service_provider{ service_provider },
       m_recording_writer{ recording_writer },
       m_random{ random_seed },
       m_level{ starting_level },
-      m_grid{ Point{ static_cast<int>(tile_size / 2 + (Grid::hold_background_extends.x + 1) * tile_size), tile_size / 2 }, tile_size },
     m_tetrion_index{ tetrion_index },
-    layout{layout},
-    actual_grid_layout{ui::RelativeLayout{layout, 0.0,0.0,1.0,0.8}},
-    texts{
-        ui::RelativeLayout{layout, 0.0, 0.8, 1.0, 0.2  },
-    ui::Direction::Vertical,
-    ui::AbsolutMargin{0},
-    std::pair<double, double>{ 0.0,0.1 } 
-    }
-
+    main_layout{
+        ui::Direction::Vertical,
+       std::array<double,1>{ 0.85},
+       ui::AbsolutMargin{0},
+        std::pair<double, double>{0.05,0.03},
+               layout
+        }
        {
 
     auto id_helper = ui::IDHelper{};
 
-    texts.add<ui::Label>(
-            id_helper.index(), "score: 0", Color::white(), service_provider->fonts().get(FontId::Default),
+    main_layout.add<Grid>(id_helper.index());
+
+    main_layout.add<ui::GridLayout<3>>(
+            id_helper.index(), ui::Direction::Vertical, ui::AbsolutMargin{ 0 }, std::pair<double, double>{ 0.0, 0.1 }
+    );
+
+
+    auto texts = get_texts();
+    auto id_helper2 = ui::IDHelper{};
+
+    texts->add<ui::Label>(
+            id_helper2.index(), "score: 0", Color::white(), service_provider->fonts().get(FontId::Default),
             std::pair<double, double>{ 0.2, 0.8 },
             ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
     );
 
 
-    texts.add<ui::Label>(
-            id_helper.index(), "lines: 0", Color::white(), service_provider->fonts().get(FontId::Default),
+    texts->add<ui::Label>(
+            id_helper2.index(), "lines: 0", Color::white(), service_provider->fonts().get(FontId::Default),
             std::pair<double, double>{ 0.2, 0.8 },
             ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
     );
 
-    texts.add<ui::Label>(
-            id_helper.index(), "lines: 0", Color::white(), service_provider->fonts().get(FontId::Default),
+    texts->add<ui::Label>(
+            id_helper2.index(), "lines: 0", Color::white(), service_provider->fonts().get(FontId::Default),
             std::pair<double, double>{ 0.2, 0.8 },
             ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
     );
@@ -90,15 +97,18 @@ void Tetrion::update(const SimulationStep simulation_step_index) {
 }
 
 void Tetrion::render(const ServiceProvider& service_provider) const {
-    //TODO: use actual_grid_layout and relative rendering here too (make m_grid aware of it!)
 
-    m_grid.render(service_provider);
-    m_mino_stack.draw_minos(service_provider, m_grid);
+    main_layout.render(service_provider);
+
+    //TODO: move the rendering into the grid, this here is ugly
+    auto grid = get_grid();
+
+    m_mino_stack.draw_minos(service_provider, grid);
     if (m_active_tetromino) {
-        m_active_tetromino->render(service_provider, m_grid, MinoTransparency::Solid);
+        m_active_tetromino->render(service_provider, grid, MinoTransparency::Solid, Grid::grid_position);
     }
     if (m_ghost_tetromino) {
-        m_ghost_tetromino->render(service_provider, m_grid, MinoTransparency::Ghost);
+        m_ghost_tetromino->render(service_provider, grid, MinoTransparency::Ghost, Grid::grid_position);
     }
     for (std::underlying_type_t<MinoTransparency> i = 0; i < static_cast<decltype(i)>(m_preview_tetrominos.size());
          ++i) {
@@ -106,13 +116,16 @@ void Tetrion::render(const ServiceProvider& service_provider) const {
             static constexpr auto enum_index = magic_enum::enum_index(MinoTransparency::Preview0);
             static_assert(enum_index.has_value());
             const auto transparency = magic_enum::enum_value<MinoTransparency>(enum_index.value() + i);
-            m_preview_tetrominos.at(i)->render(service_provider, m_grid, transparency);
+            m_preview_tetrominos.at(i)->render(service_provider, grid, transparency);
         }
     }
     if (m_tetromino_on_hold) {
-        m_tetromino_on_hold->render(service_provider, m_grid, MinoTransparency::Solid);
+        m_tetromino_on_hold->render(service_provider, grid, MinoTransparency::Solid);
     }
-    texts.render(service_provider);
+}
+
+[[nodiscard]] bool Tetrion::handle_event(const SDL_Event&, const Window*) {
+    return false;
 }
 
 bool Tetrion::handle_input_command(const InputCommand command, const SimulationStep simulation_step_index) {
@@ -280,18 +293,19 @@ void Tetrion::reset_lock_delay(const SimulationStep simulation_step_index) {
 
 void Tetrion::refresh_texts() {
     auto id_helper = ui::IDHelper{};
+    auto texts = get_texts();
 
     std::stringstream stream;
     stream << "score: " << m_score;
-    texts.get<ui::Label>(id_helper.index())->set_text(stream.str());
+    texts->get<ui::Label>(id_helper.index())->set_text(stream.str());
 
     stream = std::stringstream{};
     stream << "level: " << m_level;
-    texts.get<ui::Label>(id_helper.index())->set_text(stream.str());
+    texts->get<ui::Label>(id_helper.index())->set_text(stream.str());
 
     stream = std::stringstream{};
     stream << "lines: " << m_lines_cleared;
-    texts.get<ui::Label>(id_helper.index())->set_text(stream.str());
+    texts->get<ui::Label>(id_helper.index())->set_text(stream.str());
 }
 
 void Tetrion::clear_fully_occupied_lines() {
@@ -299,9 +313,9 @@ void Tetrion::clear_fully_occupied_lines() {
     const u32 lines_cleared_before = m_lines_cleared;
     do {
         cleared = false;
-        for (usize row = 0; row < Grid::height; ++row) {
+        for (usize row = 0; row < Grid::height_in_tiles; ++row) {
             bool fully_occupied = true;
-            for (usize column = 0; column < Grid::width; ++column) {
+            for (usize column = 0; column < Grid::width_in_tiles; ++column) {
                 if (m_mino_stack.is_empty(Point{ static_cast<int>(column), static_cast<int>(row) })) {
                     fully_occupied = false;
                     break;
@@ -364,8 +378,8 @@ bool Tetrion::is_active_tetromino_position_valid() const {
 }
 
 bool Tetrion::is_valid_mino_position(Point position) const {
-    return position.x >= 0 and position.x < static_cast<int>(Grid::width) and position.y >= 0
-           and position.y < static_cast<int>(Grid::height) and m_mino_stack.is_empty(position);
+    return position.x >= 0 and position.x < static_cast<int>(Grid::width_in_tiles) and position.y >= 0
+           and position.y < static_cast<int>(Grid::height_in_tiles) and m_mino_stack.is_empty(position);
 }
 
 bool Tetrion::is_active_tetromino_completely_visible() const {

@@ -82,4 +82,39 @@ namespace ui {
     [[nodiscard]] u32 get_vertical_alignment_offset(const Layout& layout, AlignmentVertical alignment, u32 height);
 
     [[nodiscard]] Rect get_rectangle_aligned(const Layout& layout, u32 width, u32 height, const Alignment& alignment);
+
+
+    enum class Direction { Horizontal, Vertical };
+
+    struct Margin {
+    private:
+        u32 m_margin;
+
+    public:
+        Margin(u32 margin) : m_margin{ margin } { }
+
+
+        [[nodiscard]] u32 get_margin() const {
+            return m_margin;
+        }
+    };
+
+    struct AbsolutMargin : public Margin {
+        AbsolutMargin(const u32 margin) : Margin{ margin } { }
+    };
+
+    struct RelativeMargin : public Margin {
+        RelativeMargin(const Rect& rect, Direction direction, const double margin)
+            : Margin{ static_cast<u32>(margin * (direction == Direction::Horizontal ? rect.width() : rect.height())) } {
+
+            assert(margin >= 0.0 && margin <= 1.0 && "margin has to be in correct percentage range!");
+        }
+        RelativeMargin(const Window& window, Direction direction, const double margin)
+            : RelativeMargin{ window.screen_rect(), direction, margin } { }
+        RelativeMargin(const Window* window, Direction direction, const double margin)
+            : RelativeMargin{ window->screen_rect(), direction, margin } { }
+        RelativeMargin(const Layout& layout, Direction direction, const double margin)
+            : RelativeMargin{ layout.get_rect(), direction, margin } { }
+    };
+
 } // namespace ui

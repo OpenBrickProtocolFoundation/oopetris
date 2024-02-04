@@ -35,18 +35,18 @@ void MinoStack::set(Point coordinates, TetrominoType type) {
     m_minos.push_back(to_insert);
 }
 
-void MinoStack::draw_minos(const ServiceProvider& service_provider, const Grid& grid) const {
+void MinoStack::draw_minos(const ServiceProvider& service_provider, const Grid* grid) const {
     for (const Mino& mino : m_minos) {
         if (static_cast<usize>(mino.position().y) >= Grid::invisible_rows) {
-            mino.render(service_provider, grid, MinoTransparency::Solid);
+            mino.render(service_provider, grid, MinoTransparency::Solid, Grid::grid_position);
         }
     }
 }
 
 std::ostream& operator<<(std::ostream& ostream, const MinoStack& mino_stack) {
     ostream << "MinoStack(\n";
-    for (usize y = 0; y < Grid::height; ++y) {
-        for (usize x = 0; x < Grid::width; ++x) {
+    for (usize y = 0; y < Grid::height_in_tiles; ++y) {
+        for (usize x = 0; x < Grid::width_in_tiles; ++x) {
             const auto find_iterator =
                     std::find_if(mino_stack.minos().cbegin(), mino_stack.minos().cend(), [&](const auto& mino) {
                         return mino.position() == Point{ static_cast<int>(x), static_cast<int>(y) };

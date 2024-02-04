@@ -23,13 +23,8 @@ namespace ui {
     private:
         std::string m_caption;
         Callback m_callback;
-        std::pair<u32, u32> m_size;
-        Alignment m_alignment;
         std::pair<u32, u32> margin;
-
-        [[nodiscard]] inline Rect get_fill_rect() const {
-            return ui::get_rectangle_aligned(layout, m_size.first, m_size.second, m_alignment);
-        }
+        Rect fill_rect;
 
     public:
         explicit Button(
@@ -45,11 +40,13 @@ namespace ui {
               Focusable{ focus_id },
               m_caption{ std::move(caption) },
               m_callback{ std::move(callback) },
-              m_size{ static_cast<u32>(size.first * layout.get_rect().width()),
-                      static_cast<u32>(size.second * layout.get_rect().height()) },
-              m_alignment{ alignment },
-              margin{ static_cast<u32>(margin.first * m_size.first), static_cast<u32>(margin.second * m_size.second) } {
-        }
+              margin{ static_cast<u32>(margin.first * size.first), static_cast<u32>(margin.second * size.second) },
+              fill_rect{ ui::get_rectangle_aligned(
+                      layout,
+                      static_cast<u32>(size.first * layout.get_rect().width()),
+                      static_cast<u32>(size.second * layout.get_rect().height()),
+                      alignment
+              ) } { }
 
 
         void render(const ServiceProvider& service_provider) const override {
@@ -57,13 +54,12 @@ namespace ui {
                     (has_focus()    ? is_hovered() ? Color(0xFF, 0x6A, 0x00) : Color::red()
                         : is_hovered() ? Color(0x00, 0xBB, 0xFF)
                                     : Color::blue());
-            const auto fill_area = get_fill_rect();
-            service_provider.renderer().draw_rect_filled(fill_area, color);
+            service_provider.renderer().draw_rect_filled(fill_rect, color);
 
-            const Rect text_area{ fill_area.top_left.x + static_cast<int>(margin.first),
-                                  fill_area.top_left.y + static_cast<int>(margin.second),
-                                  fill_area.width() - 2 * static_cast<int>(margin.first),
-                                  fill_area.height() - 2 * static_cast<int>(margin.second) };
+            const Rect text_area{ fill_rect.top_left.x + static_cast<int>(margin.first),
+                                  fill_rect.top_left.y + static_cast<int>(margin.second),
+                                  fill_rect.width() - 2 * static_cast<int>(margin.first),
+                                  fill_rect.height() - 2 * static_cast<int>(margin.second) };
             service_provider.renderer().draw_text(
                     text_area, m_caption, service_provider.fonts().get(FontId::Default), Color::white()
             );
@@ -84,7 +80,7 @@ namespace ui {
 
                 if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::Any)) {
 
-                    if (utils::is_event_in(window, event, get_fill_rect())) {
+                    if (utils::is_event_in(window, event, fill_rect)) {
 
                         on_hover();
 

@@ -10,9 +10,11 @@ namespace ui {
     enum class Capabilites { Focusable, Hoverable };
 
     struct Widget {
-        Layout layout;
+    private:
+        Layout m_layout;
 
-        explicit Widget(Layout layout) : layout{ layout } { }
+    public:
+        explicit Widget(Layout layout) : m_layout{ layout } { }
 
         Widget(const Widget&) = delete;
         Widget(Widget&&) = delete;
@@ -20,6 +22,10 @@ namespace ui {
         Widget& operator=(Widget&&) = delete;
 
         virtual ~Widget() = default;
+
+        [[nodiscard]] Layout layout() const {
+            return m_layout;
+        }
 
         virtual void render(const ServiceProvider& service_provider) const = 0;
         [[nodiscard]] virtual bool handle_event(const SDL_Event& event, const Window* window) = 0;

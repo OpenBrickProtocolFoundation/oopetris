@@ -17,7 +17,7 @@ public:
     void clear_row_and_let_sink(int row);
     [[nodiscard]] bool is_empty(Point coordinates) const;
     void set(Point coordinates, TetrominoType type);
-    void draw_minos(const ServiceProvider& service_provider, const Grid& grid) const;
+    void draw_minos(const ServiceProvider& service_provider, const Grid* grid) const;
 
     [[nodiscard]] usize num_minos() const {
         return m_minos.size();
