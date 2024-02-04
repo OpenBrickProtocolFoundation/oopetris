@@ -40,7 +40,7 @@ export SDK_VERSION=$(jq '.max' -M -r -c "$BASE_PATH/meta/platforms.json")
 
 mapfile -t ARCH_KEYS < <(jq 'keys' -M -r -c "$BASE_PATH/meta/abis.json" | tr -d '[]"' | sed 's/,/\n/g')
 
-export EFFECTIVE_ARCH_KEYS=ARCH_KEYS
+export ARCH_KEYS_INDEX=("${!ARCH_KEYS[@]}")
 
 if [ "$#" -eq 0 ]; then
     # nothing
@@ -48,26 +48,26 @@ if [ "$#" -eq 0 ]; then
 elif [ "$#" -eq 1 ]; then
     ARCH=$1
 
-    FOUND="0"
+    FOUND=""
 
-    for KEY in "${ARCH_KEYS[@]}"; do
-        if [[ "$KEY" == "$ARCH" ]]; then
-            FOUND="1"
+    for INDEX in "${!ARCH_KEYS[@]}"; do
+        if [[ "$ARCH" == "${ARCH_KEYS[$INDEX]}" ]]; then
+            FOUND="$INDEX"
         fi
     done
 
-    if [ "$FOUND" -eq 0 ]; then
+    if [ -z "$FOUND" ]; then
         echo "Invalid arch: '${ARCH}', supported archs are:" "${ARCH_KEYS[@]}"
         exit 2
     fi
 
-    EFFECTIVE_ARCH_KEYS=("$ARCH")
+    ARCH_KEYS_INDEX=("$FOUND")
 else
     echo "Too many arguemtns given, expected at most 1"
     exit 1
 fi
 
-for INDEX in "${!EFFECTIVE_ARCH_KEYS[@]}"; do
+for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
     export KEY=${ARCH_KEYS[$INDEX]}
 
     RAW_JSON=$(jq '.[$KEY]' -M -r -c --arg KEY "$KEY" "$BASE_PATH/meta/abis.json")

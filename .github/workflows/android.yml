@@ -52,7 +52,7 @@ jobs:
         run: | 
           sdkmanager --install "ndk;26.1.10909125"
 
-      - name: Run all
+      - name: Build natibe libraries
         run: |
           bash ./platforms/build-android.sh ${{ matrix.config.arch }}
           cp -r ./assets/ platforms/android/app/src/main
