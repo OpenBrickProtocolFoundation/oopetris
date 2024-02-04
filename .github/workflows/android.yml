@@ -67,5 +67,5 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: oopetris.all-apks
+          name: oopetris.${{ matrix.config.arch }}.apk
           path: platforms/android/app/build/outputs/apk/debug/app-*-debug.apk
