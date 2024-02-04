@@ -98,22 +98,25 @@ namespace ui {
             if (not has_focus()) {
                 return false;
             }
-
             bool changed = false;
-            if (utils::event_is_action(event, utils::CrossPlatformAction::RIGHT)) {
-                current_value = current_value + m_step;
-                if (current_value >= m_range.second) {
-                    current_value = m_range.second;
-                }
 
-                changed = true;
-            } else if (utils::event_is_action(event, utils::CrossPlatformAction::LEFT)) {
-                current_value = current_value - m_step;
-                if (current_value <= m_range.first) {
-                    current_value = m_range.first;
-                }
 
-                changed = true;
+            if (utils::device_supports_keys()) {
+                if (utils::event_is_action(event, utils::CrossPlatformAction::RIGHT)) {
+                    current_value = current_value + m_step;
+                    if (current_value >= m_range.second) {
+                        current_value = m_range.second;
+                    }
+
+                    changed = true;
+                } else if (utils::event_is_action(event, utils::CrossPlatformAction::LEFT)) {
+                    current_value = current_value - m_step;
+                    if (current_value <= m_range.first) {
+                        current_value = m_range.first;
+                    }
+
+                    changed = true;
+                }
             }
 
             if (not changed and utils::device_supports_clicks()) {

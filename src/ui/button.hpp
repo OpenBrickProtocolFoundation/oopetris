@@ -79,7 +79,7 @@ namespace ui {
             if (utils::device_supports_clicks()) {
 
                 if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::Any)) {
-
+                    //TODO: this hover logic is bad at detecting unhovers, especially on anrdoid, fix that
                     if (utils::is_event_in(window, event, fill_rect)) {
 
                         on_hover();

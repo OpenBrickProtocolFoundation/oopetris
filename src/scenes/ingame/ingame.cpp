@@ -260,9 +260,12 @@ namespace scenes {
             m_next_scene = NextScene::Pause;
             return true;
         }
-        if (utils::event_is_action(event, utils::CrossPlatformAction::OPEN_SETTINGS)) {
-            m_next_scene = NextScene::Settings;
-            return true;
+
+        if (utils::device_supports_keys()) {
+            if (utils::event_is_action(event, utils::CrossPlatformAction::OPEN_SETTINGS)) {
+                m_next_scene = NextScene::Settings;
+                return true;
+            }
         }
         return false;
     }

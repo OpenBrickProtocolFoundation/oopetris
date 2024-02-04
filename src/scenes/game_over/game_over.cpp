@@ -15,7 +15,9 @@ namespace scenes {
                       utils::action_description(utils::CrossPlatformAction::EXIT)
               ),
               Color::white(), service_provider->fonts().get(FontId::Default),
-                std::pair<double, double>{ 0.7, 0.07 },
+              utils::device_orientation() == utils::Orientation::Landscape
+                                       ? std::pair<double, double>{ 0.7, 0.07 }
+                                       : std::pair<double, double>{ 0.95, 0.07 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
                 layout
           } {

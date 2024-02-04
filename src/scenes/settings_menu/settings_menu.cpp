@@ -86,9 +86,12 @@ namespace scenes {
             return true;
         }
 
-        if (utils::event_is_action(event, utils::CrossPlatformAction::OPEN_SETTINGS)) {
-            m_should_exit = true;
-            return true;
+        if (utils::device_supports_keys()) {
+
+            if (utils::event_is_action(event, utils::CrossPlatformAction::OPEN_SETTINGS)) {
+                m_should_exit = true;
+                return true;
+            }
         }
 
         return false;

@@ -18,9 +18,15 @@
 
 namespace utils {
 
+    enum class Orientation {
+        Portrait, // 9x16, e.g. smartphone
+        Landscape //  16x9
+    };
+
     struct Capabilities {
         bool supports_keys;
         bool supports_clicks;
+        Orientation orientation;
     };
 
     // the PAUSE and UNPAUSE might be different (e.g on android, even if androids map is stub,
@@ -79,11 +85,11 @@ namespace utils {
 
     [[nodiscard]] constexpr Capabilities get_capabilities() {
 #if defined(__ANDROID__)
-        return Capabilities{ false, true };
+        return Capabilities{ false, true, Orientation::Portrait };
 #elif defined(__SWITCH__)
-        return Capabilities{ true, false };
+        return Capabilities{ true, false, Orientation::Landscape };
 #else
-        return Capabilities{ true, true };
+        return Capabilities{ true, true, Orientation::Landscape };
 #endif
     }
 
@@ -94,6 +100,11 @@ namespace utils {
     [[nodiscard]] constexpr bool device_supports_clicks() {
         return get_capabilities().supports_clicks;
     }
+
+    [[nodiscard]] constexpr Orientation device_orientation() {
+        return get_capabilities().orientation;
+    }
+
 
     [[nodiscard]] bool event_is_action(const SDL_Event& event, CrossPlatformAction action);
 

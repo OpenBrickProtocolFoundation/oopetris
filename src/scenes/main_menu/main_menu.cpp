@@ -20,10 +20,15 @@ namespace scenes {
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
         );
 
-        constexpr auto button_size = std::pair<double, double>{ 0.15, 0.85 };
+
+        constexpr auto button_size = utils::device_orientation() == utils::Orientation::Landscape
+                                             ? std::pair<double, double>{ 0.15, 0.85 }
+                                             : std::pair<double, double>{ 0.5, 0.85 };
         constexpr auto button_alignment =
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center };
-        constexpr auto button_margins = std::pair<double, double>{ 0.1, 0.1 };
+        constexpr auto button_margins = utils::device_orientation() == utils::Orientation::Landscape
+                                                ? std::pair<double, double>{ 0.1, 0.1 }
+                                                : std::pair<double, double>{ 0.2, 0.2 };
 
         m_main_grid.add<ui::Button>(
                 id_helper.index(), "Start", id_helper.focus_id(),

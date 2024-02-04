@@ -14,9 +14,14 @@
 #if defined(__ANDROID__)
     switch (action) {
         case CrossPlatformAction::OK:
-            // this can't be checked here, it has to be checked via collision on buttons etc. event_is_action(..., ...::OK) can only be used inside device_supports_keys() clauses!
-            throw std::runtime_error("Not supported on android");
-
+        case CrossPlatformAction::DOWN:
+        case CrossPlatformAction::UP:
+        case CrossPlatformAction::LEFT:
+        case CrossPlatformAction::RIGHT:
+        case CrossPlatformAction::OPEN_SETTINGS:
+        case CrossPlatformAction::TAB:
+            // this can't be checked here, it has to be checked via collision on buttons etc. event_is_action(..., ...::DOWN, UP ...) can only be used inside device_supports_keys() clauses!
+            throw std::runtime_error("Not supported on android 'event_is_action'");
         case CrossPlatformAction::PAUSE:
             return (event.type == SDL_KEYDOWN and event.key.keysym.sym == SDLK_AC_BACK);
 
@@ -26,14 +31,6 @@
         case CrossPlatformAction::EXIT:
         case CrossPlatformAction::CLOSE:
             return (event.type == SDL_KEYDOWN and event.key.keysym.sym == SDLK_AC_BACK);
-        case CrossPlatformAction::DOWN:
-        case CrossPlatformAction::UP:
-        case CrossPlatformAction::LEFT:
-        case CrossPlatformAction::RIGHT:
-        case CrossPlatformAction::OPEN_SETTINGS:
-        case CrossPlatformAction::TAB:
-            // this can't be checked here, it has to be checked via collision on buttons etc. event_is_action(..., ...::DOWN, UP ...) can only be used inside device_supports_keys() clauses!
-            throw std::runtime_error("Not supported on android");
 
         default:
             utils::unreachable();
@@ -84,9 +81,27 @@
 
 [[nodiscard]] std::string utils::action_description(CrossPlatformAction action) {
 #if defined(__ANDROID__)
-    UNUSED(action);
-    throw std::runtime_error("Not supported on android");
-    return "NOT POSSIBLE";
+
+    switch (action) {
+        case CrossPlatformAction::OK:
+        case CrossPlatformAction::DOWN:
+        case CrossPlatformAction::UP:
+        case CrossPlatformAction::LEFT:
+        case CrossPlatformAction::RIGHT:
+        case CrossPlatformAction::OPEN_SETTINGS:
+        case CrossPlatformAction::TAB:
+            // this can't be checked here, it has to be checked via collision on buttons etc. event_is_action(..., ...::DOWN, UP ...) can only be used inside device_supports_keys() clauses!
+            throw std::runtime_error("Not supported on android 'action_description'");
+        case CrossPlatformAction::UNPAUSE:
+            return "Tap anywhere";
+        case CrossPlatformAction::PAUSE:
+        case CrossPlatformAction::EXIT:
+        case CrossPlatformAction::CLOSE:
+            return "Back";
+
+        default:
+            utils::unreachable();
+    }
 #elif defined(__SWITCH__)
     switch (action) {
         case CrossPlatformAction::OK:

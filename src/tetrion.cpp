@@ -45,22 +45,23 @@ Tetrion::Tetrion(
     auto texts = get_texts();
     auto id_helper2 = ui::IDHelper{};
 
+    constexpr auto text_size = utils::device_orientation() == utils::Orientation::Landscape
+                                       ? std::pair<double, double>{ 0.2, 0.8 }
+                                       : std::pair<double, double>{ 0.6, 0.8 };
+
     texts->add<ui::Label>(
-            id_helper2.index(), "score: 0", Color::white(), service_provider->fonts().get(FontId::Default),
-            std::pair<double, double>{ 0.2, 0.8 },
+            id_helper2.index(), "score: 0", Color::white(), service_provider->fonts().get(FontId::Default), text_size,
             ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
     );
 
 
     texts->add<ui::Label>(
-            id_helper2.index(), "lines: 0", Color::white(), service_provider->fonts().get(FontId::Default),
-            std::pair<double, double>{ 0.2, 0.8 },
+            id_helper2.index(), "lines: 0", Color::white(), service_provider->fonts().get(FontId::Default), text_size,
             ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
     );
 
     texts->add<ui::Label>(
-            id_helper2.index(), "lines: 0", Color::white(), service_provider->fonts().get(FontId::Default),
-            std::pair<double, double>{ 0.2, 0.8 },
+            id_helper2.index(), "lines: 0", Color::white(), service_provider->fonts().get(FontId::Default), text_size,
             ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
     );
 
