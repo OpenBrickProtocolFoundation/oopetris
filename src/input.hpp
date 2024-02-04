@@ -122,7 +122,7 @@ public:
     explicit TouchInput(Tetrion* target_tetrion, OnEventCallback on_event_callback = OnEventCallback{})
         : Input{ target_tetrion, std::move(on_event_callback) } { }
 
-    void handle_event(const SDL_Event& event) override;
+    void handle_event(const SDL_Event& event, const Window* window) override;
     void update(SimulationStep simulation_step_index) override;
 
 private:

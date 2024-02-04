@@ -236,7 +236,7 @@ namespace ui {
             return static_cast<usize>(std::distance(ids.cbegin(), std::find(ids.cbegin(), ids.cend(), needle)));
         }
 
-        [[nodiscard]] bool try_set_next_focus(const FocusChangeDirection direction) {
+        [[nodiscard]] bool try_set_next_focus(const FocusChangeDirection focus_direction) {
 
             if (not m_focus_id.has_value()) {
                 return false;
@@ -247,7 +247,7 @@ namespace ui {
             assert(not focusable_ids.empty());
             const auto current_index = index_of(focusable_ids, m_focus_id.value());
             const auto next_index =
-                    (direction == FocusChangeDirection::Forward
+                    (focus_direction == FocusChangeDirection::Forward
                              ? ((current_index + 1) % focusable_ids.size())
                              : ((current_index + focusable_ids.size() - 1) % focusable_ids.size()));
 

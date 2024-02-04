@@ -276,7 +276,7 @@ void ReplayInput::late_update(const SimulationStep simulation_step_index) {
 
 #if defined(__ANDROID__)
 
-void TouchInput::handle_event(const SDL_Event& event) {
+void TouchInput::handle_event(const SDL_Event& event, const Window*) {
     m_event_buffer.push_back(event);
 }
 

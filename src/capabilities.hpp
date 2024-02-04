@@ -100,59 +100,7 @@ namespace utils {
     [[nodiscard]] std::vector<i64> get_bound_keys();
     [[nodiscard]] std::vector<i64> get_bound_keys(const std::vector<CrossPlatformAction>& actions);
 
-    [[nodiscard]] constexpr std::string_view action_description(CrossPlatformAction action) {
-#if defined(__ANDROID__)
-        UNUSED(action);
-        throw std::runtime_error("Not supported on android");
-#elif defined(__SWITCH__)
-        switch (action) {
-            case CrossPlatformAction::OK:
-                return "A";
-            case CrossPlatformAction::PAUSE:
-            case CrossPlatformAction::UNPAUSE:
-                return "PLUS";
-            case CrossPlatformAction::CLOSE:
-            case CrossPlatformAction::EXIT:
-                return "MINUS";
-            case CrossPlatformAction::DOWN:
-                return "Down";
-            case CrossPlatformAction::UP:
-                return "Up";
-            case CrossPlatformAction::LEFT:
-                return "Left";
-            case CrossPlatformAction::RIGHT:
-                return "Right";
-            case CrossPlatformAction::OPEN_SETTINGS:
-                return "Y";
-            default:
-                utils::unreachable();
-        }
-#else
-        switch (action) {
-            case CrossPlatformAction::OK:
-                return "Enter";
-            case CrossPlatformAction::PAUSE:
-            case CrossPlatformAction::UNPAUSE:
-            case CrossPlatformAction::CLOSE:
-                return "Esc";
-            case CrossPlatformAction::EXIT:
-                return "Enter";
-            case CrossPlatformAction::DOWN:
-                return "Down";
-            case CrossPlatformAction::UP:
-                return "Up";
-            case CrossPlatformAction::LEFT:
-                return "Left";
-            case CrossPlatformAction::RIGHT:
-                return "Right";
-            case CrossPlatformAction::OPEN_SETTINGS:
-                return "E";
-            default:
-                utils::unreachable();
-        }
-#endif
-    }
-
+    [[nodiscard]] std::string action_description(CrossPlatformAction action);
 
     enum class CrossPlatformClickEvent { Motion, ButtonDown, ButtonUp, Any };
 
