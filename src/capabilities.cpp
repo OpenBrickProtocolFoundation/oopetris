@@ -155,7 +155,7 @@
 //TODO: not correctly supported ButtonUp, since it only can be triggered, when a ButtonDown event is fired first and the target is not left (unhovered)
 
 [[nodiscard]] bool utils::event_is_click_event(const SDL_Event& event, CrossPlatformClickEvent click_type) {
-    SDL_EventType desired_type;
+    decltype(event.type) desired_type;
 #if defined(__ANDROID__)
     switch (click_type) {
         case CrossPlatformClickEvent::Motion:
