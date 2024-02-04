@@ -47,15 +47,14 @@ namespace ui {
 
     struct RelativeLayout : public Layout {
         RelativeLayout(const Rect& rect, const double x, const double y, const double width, const double height)
-            : Layout{
-                  Rect{
-                       static_cast<int>(x * rect.width()),
-                       static_cast<int>(y * rect.height()),
-                       static_cast<int>(width * rect.width()),
-                       static_cast<int>(height * rect.height()),
-                       },
-                  LayoutType::Relative
-        } {
+            : Layout{ (Rect{
+                               static_cast<int>(x * rect.width()),
+                               static_cast<int>(y * rect.height()),
+                               static_cast<int>(width * rect.width()),
+                               static_cast<int>(height * rect.height()),
+                       })
+                              .move(rect.top_left),
+                      LayoutType::Relative } {
             assert(x >= 0.0 && x <= 1.0 && "x has to be in correct percentage range!");
             assert(y >= 0.0 && y <= 1.0 && "y has to be in correct percentage range!");
 

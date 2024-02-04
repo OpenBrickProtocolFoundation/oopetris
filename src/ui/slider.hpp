@@ -42,10 +42,7 @@ namespace ui {
             const auto fill_area = get_fill_rect();
             const auto origin = fill_area.top_left;
 
-            const auto rectangle_rect = RelativeLayout{ fill_area, 0, 0.4, 1.0, 0.2 };
-
-            const auto bar_rect = rectangle_rect.get_rect().move(fill_area.top_left);
-
+            const auto bar = RelativeLayout{ fill_area, 0, 0.4, 1.0, 0.2 };
 
             const float percentage = (current_value - m_range.first) / (m_range.second - m_range.first);
 
@@ -57,7 +54,7 @@ namespace ui {
                 Point{position_x_middle + 5, fill_area.bottom_right.y}
             };
 
-            return { bar_rect, slider_rect };
+            return { bar.get_rect(), slider_rect };
         }
 
 
