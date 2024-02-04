@@ -122,9 +122,28 @@ namespace ui {
             if (not changed and utils::device_supports_clicks()) {
 
                 if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::ButtonDown)) {
-                    const auto& [_, slider_rect] = get_rectangles();
+                    const auto& [bar_rect, slider_rect] = get_rectangles();
                     if (utils::is_event_in(window, event, slider_rect)) {
                         is_dragging = true;
+                        changed = true;
+                    }
+
+                    if (utils::is_event_in(window, event, bar_rect)) {
+
+                        const auto& [x, _1] = utils::get_raw_coordinates(window, event);
+
+                        if (x <= bar_rect.top_left.x) {
+                            current_value = m_range.first;
+                        } else if (x >= bar_rect.bottom_right.x) {
+                            current_value = m_range.second;
+                        } else {
+
+                            const float percentage =
+                                    static_cast<float>(x - bar_rect.top_left.x) / static_cast<float>(bar_rect.width());
+                            current_value = percentage * (m_range.second - m_range.first) + m_range.first;
+                            is_dragging = true;
+                        }
+
                         changed = true;
                     }
 
