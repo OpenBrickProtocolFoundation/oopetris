@@ -106,7 +106,6 @@ namespace ui {
                 return false;
             }
 
-            //TODO: handle SDL_MOUSEWHEEL
             bool changed = false;
             if (utils::event_is_action(event, utils::CrossPlatformAction::RIGHT)) {
                 current_value = current_value + m_step;
@@ -151,12 +150,29 @@ namespace ui {
                         } else {
 
                             const float percentage = (x - bar_rect.top_left.x) / static_cast<float>(bar_rect.width());
-
                             current_value = percentage * (m_range.second - m_range.first) + m_range.first;
                         }
 
+                        changed = true;
+                    }
+                } else if (event.type == SDL_MOUSEWHEEL) {
 
-                        //current_value = 1;
+                    const bool direction_is_up =
+                            event.wheel.direction == SDL_MOUSEWHEEL_NORMAL ? event.wheel.y > 0 : event.wheel.y < 0;
+
+                    if (direction_is_up) {
+                        current_value = current_value + m_step;
+                        if (current_value >= m_range.second) {
+                            current_value = m_range.second;
+                        }
+
+                        changed = true;
+                    } else {
+                        current_value = current_value - m_step;
+                        if (current_value <= m_range.first) {
+                            current_value = m_range.first;
+                        }
+
                         changed = true;
                     }
                 }
