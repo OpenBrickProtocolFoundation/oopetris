@@ -22,17 +22,17 @@ compile_args = []
 
 cpp = meson.get_compiler('cpp')
 if cpp.get_id() == 'msvc'
-    add_project_arguments('/std:c++latest', language: 'cpp')
+    compile_args += ['/std:c++latest']
 elif cpp.get_id() == 'gcc' and not meson.is_cross_build()
-    add_project_arguments('-std=c++23', '-Wold-style-cast', language: 'cpp')
+    compile_args += ['-std=c++23', '-Wold-style-cast']
 elif cpp.get_id() == 'clang'
-    add_project_arguments('-std=c++2b', language: 'cpp')
+    compile_args += ['-std=c++2b']
 else
-    add_project_arguments('-std=c++20', language: 'cpp')
+    compile_args += ['-std=c++20']
 endif
 
 if get_option('buildtype') == 'debug' or get_option('buildtype') == 'debugoptimized'
-    add_project_arguments('-DDEBUG_BUILD', language: 'cpp')
+    compile_args += ['-DDEBUG_BUILD']
 endif
 
 
