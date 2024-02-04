@@ -221,6 +221,7 @@ if (meson.is_cross_build() and host_machine.system() == 'switch')
         'vorbis',
         'ogg',
         'modplug',
+        'harfbuzz',
         'FLAC',
     ]
 
