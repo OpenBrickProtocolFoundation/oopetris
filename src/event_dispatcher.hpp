@@ -27,7 +27,7 @@ public:
 
     void dispatch_pending_events() const {
         SDL_Event event;
-        while (SDL_PollEvent(&event)) {
+        while (SDL_PollEvent(&event) != 0) {
             for (const auto& listener : m_listeners) {
                 listener->handle_event(event, m_window);
             }

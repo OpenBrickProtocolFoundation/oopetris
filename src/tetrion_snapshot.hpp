@@ -36,7 +36,7 @@ public:
 
     explicit TetrionSnapshot(std::istream& istream);
 
-    TetrionSnapshot(const Tetrion& tetrion, const SimulationStep simulation_step_index);
+    TetrionSnapshot(const Tetrion& tetrion, SimulationStep simulation_step_index);
 
     [[nodiscard]] auto tetrion_index() const {
         return m_tetrion_index;
@@ -54,9 +54,13 @@ private:
     template<utils::integral Integral>
     static void append(std::vector<char>& vector, const Integral value) {
         const auto little_endian_value = utils::to_little_endian(value);
-        const char* const start = reinterpret_cast<const char*>(&little_endian_value);
-        const char* const end = start + sizeof(little_endian_value);
-        for (const char* pointer = start; pointer < end; ++pointer) {
+        const char* const start = reinterpret_cast<const char*>( // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+                &little_endian_value
+        );
+        const char* const end =
+                start + sizeof(little_endian_value); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        for (const char* pointer = start; pointer < end;
+             ++pointer) { // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
             vector.push_back(*pointer);
         }
     }
@@ -67,7 +71,9 @@ private:
             return tl::nullopt;
         }
         auto value = Integral{};
-        istream.read(reinterpret_cast<char*>(&value), sizeof(Integral));
+        istream.read(
+                reinterpret_cast<char*>(&value), sizeof(Integral) // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+        );
         if (not istream) {
             return tl::nullopt;
         }

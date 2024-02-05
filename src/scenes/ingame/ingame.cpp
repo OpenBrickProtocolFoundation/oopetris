@@ -42,7 +42,7 @@ namespace scenes {
 
             auto on_event_callback = create_on_event_callback(tetrion_index);
 
-            const auto tetrion_pointer = m_tetrions.back().get();
+            auto* const tetrion_pointer = m_tetrions.back().get();
             if (is_replay_mode()) {
                 m_inputs.push_back(create_replay_input(m_recording_reader.get(), tetrion_pointer, [](InputEvent) {}));
             } else {

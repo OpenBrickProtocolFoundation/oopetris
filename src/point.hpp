@@ -5,7 +5,7 @@ struct Point final {
     int y;
 
     constexpr Point() : Point{ 0, 0 } { }
-    constexpr Point(int x, int y) : x{ x }, y{ y } { }
+    constexpr Point(int x, int y) : x{ x }, y{ y } { } // NOLINT(bugprone-easily-swappable-parameters)
 
     static constexpr Point zero() {
         return Point{};

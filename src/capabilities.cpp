@@ -38,7 +38,7 @@
 #else
 
     const std::vector<i64> needed_events = utils::key_map.at(static_cast<u8>(action));
-    for (const auto& needed_event : needed_events) {
+    for (const auto& needed_event : needed_events) { // NOLINT(readability-use-anyofallof)
 #if defined(__SWITCH__)
         if (event.type == SDL_JOYBUTTONDOWN and event.jbutton.button == needed_event) {
             return true;

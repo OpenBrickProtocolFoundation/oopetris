@@ -5,8 +5,9 @@
 #include "../scene_id.hpp"
 #include "../service_provider.hpp"
 #include "../settings.hpp"
-#include <functional>
 #include <layout.hpp>
+
+#include <functional>
 
 
 namespace scenes {

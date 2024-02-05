@@ -90,10 +90,9 @@ namespace ui {
                         }
 
                         return true;
-
-                    } else {
-                        on_unhover();
                     }
+
+                    on_unhover();
                 }
             }
 

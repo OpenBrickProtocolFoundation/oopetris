@@ -16,7 +16,7 @@ void MinoStack::clear_row_and_let_sink(int row) {
 }
 
 [[nodiscard]] bool MinoStack::is_empty(Point coordinates) const {
-    for (const Mino& mino : m_minos) {
+    for (const Mino& mino : m_minos) { // NOLINT(readability-use-anyofallof)
         if (mino.position() == coordinates) {
             return false;
         }

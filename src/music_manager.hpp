@@ -15,8 +15,8 @@
 
 struct MusicManager final {
 private:
-    static inline MusicManager* s_instance{ nullptr };
-    static inline float step_width = 0.05F;
+    static inline MusicManager* s_instance{ nullptr }; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+    static const inline float step_width = 0.05F;
 
     using VolumeChangeFunction = std::function<void(tl::optional<float> volume)>;
 
@@ -47,11 +47,11 @@ public:
     [[nodiscard]] tl::optional<float> get_volume() const;
     void set_volume(tl::optional<float> new_volume, bool force_update = false, bool notify_listeners = true);
     // no nodiscard, since the return value is only a side effect, that is maybe useful
-    tl::optional<float> change_volume(const std::int8_t steps);
+    tl::optional<float> change_volume(std::int8_t steps);
 
     bool handle_event(const SDL_Event& event);
 
-    bool add_volume_listener(const std::string& name, const VolumeChangeFunction& change_function) {
+    bool add_volume_listener(const std::string& name, VolumeChangeFunction change_function) {
 
         if (volume_listeners.contains(name)) {
             return false;

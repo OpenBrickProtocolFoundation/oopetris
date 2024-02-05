@@ -81,9 +81,9 @@ private:
 
 
 public:
-    Tetrion(const u8 tetrion_index,
-            const Random::Seed random_seed,
-            const u32 starting_level,
+    Tetrion(u8 tetrion_index,
+            Random::Seed random_seed,
+            u32 starting_level,
             ServiceProvider* service_provider,
             tl::optional<RecordingWriter*> recording_writer,
             const ui::Layout& layout);
@@ -171,7 +171,7 @@ private:
     [[nodiscard]] bool is_tetromino_position_valid(const Tetromino& tetromino) const;
 
     [[nodiscard]] u64 get_gravity_delay_frames() const {
-        const auto frames = (m_level >= frames_per_tile.size() ? frames_per_tile.back() : frames_per_tile[m_level]);
+        const auto frames = (m_level >= frames_per_tile.size() ? frames_per_tile.back() : frames_per_tile.at(m_level));
         if (m_is_accelerated_down_movement) {
             return std::max(u64{ 1 }, static_cast<u64>(std::round(static_cast<double>(frames) / 20.0)));
         }

@@ -19,7 +19,7 @@ namespace ui {
             Backward,
         };
 
-        std::array<std::unique_ptr<Widget>, S> m_widgets;
+        std::array<std::unique_ptr<Widget>, S> m_widgets{};
         tl::optional<usize> m_focus_id;
         Direction direction;
         std::array<double, S - 1> steps;
@@ -34,8 +34,7 @@ namespace ui {
                 std::pair<double, double> margin,
                 const Layout& layout
         )
-            : Widget(layout),
-              m_widgets{},
+            : Widget{ layout },
               direction{ direction },
               steps{ steps },
               gap{ gap },
@@ -51,12 +50,11 @@ namespace ui {
         bool handle_event(const SDL_Event& event, const Window* window) override {
             auto handled = false;
             if (utils::device_supports_keys()) {
-                if (utils::event_is_action(event, utils::CrossPlatformAction::DOWN)) {
+                if (utils::event_is_action(event, utils::CrossPlatformAction::DOWN)
+                    || utils::event_is_action(event, utils::CrossPlatformAction::TAB)) {
                     handled = try_set_next_focus(FocusChangeDirection::Forward);
                 } else if (utils::event_is_action(event, utils::CrossPlatformAction::UP)) {
                     handled = try_set_next_focus(FocusChangeDirection::Backward);
-                } else if (utils::event_is_action(event, utils::CrossPlatformAction::TAB)) {
-                    handled = try_set_next_focus(FocusChangeDirection::Forward);
                 }
             }
 
@@ -171,7 +169,7 @@ namespace ui {
         }
 
         [[nodiscard]] static tl::optional<Focusable&> as_focusable(Widget& widget) {
-            const auto focusable = dynamic_cast<Focusable*>(&widget);
+            auto* const focusable = dynamic_cast<Focusable*>(&widget);
             if (focusable == nullptr) {
                 return tl::nullopt;
             }

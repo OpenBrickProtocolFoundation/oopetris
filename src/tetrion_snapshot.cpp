@@ -4,7 +4,7 @@
 #include <string_view>
 
 TetrionSnapshot::TetrionSnapshot(
-        const u8 tetrion_index,
+        const u8 tetrion_index, // NOLINT(bugprone-easily-swappable-parameters)
         const Level level,
         const Score score,
         const LineCount lines_cleared,
@@ -109,21 +109,25 @@ TetrionSnapshot::TetrionSnapshot(const Tetrion& tetrion, const SimulationStep si
     return bytes;
 }
 
-template<typename Value>
-static void compare_values(
-        const std::string_view name,
-        const Value& this_value,
-        const Value& other_value,
-        const bool log_result,
-        bool& result
-) {
-    if (this_value != other_value) {
-        if (log_result) {
-            spdlog::error("{} do not match ({} vs. {})", name, this_value, other_value);
+
+namespace {
+
+    template<typename Value>
+    void compare_values(
+            const std::string_view name,
+            const Value& this_value,
+            const Value& other_value,
+            const bool log_result,
+            bool& result
+    ) {
+        if (this_value != other_value) {
+            if (log_result) {
+                spdlog::error("{} do not match ({} vs. {})", name, this_value, other_value);
+            }
+            result = false;
         }
-        result = false;
     }
-}
+} // namespace
 
 bool TetrionSnapshot::compare_to(const TetrionSnapshot& other, const bool log_result) const {
     bool snapshots_are_equal = true;

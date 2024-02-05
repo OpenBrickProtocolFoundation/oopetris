@@ -18,7 +18,7 @@ namespace ui {
             Backward,
         };
 
-        std::array<std::unique_ptr<Widget>, S> m_widgets;
+        std::array<std::unique_ptr<Widget>, S> m_widgets{};
         tl::optional<usize> m_focus_id;
         Direction direction;
         Margin gap;
@@ -26,8 +26,7 @@ namespace ui {
 
     public:
         explicit GridLayout(Direction direction, Margin gap, std::pair<double, double> margin, const Layout& layout)
-            : Widget(layout),
-              m_widgets{},
+            : Widget{ layout },
               direction{ direction },
               gap{ gap },
               margin{ static_cast<u32>(margin.first * layout.get_rect().width()),
@@ -42,12 +41,11 @@ namespace ui {
         bool handle_event(const SDL_Event& event, const Window* window) override {
             auto handled = false;
             if (utils::device_supports_keys()) {
-                if (utils::event_is_action(event, utils::CrossPlatformAction::DOWN)) {
+                if (utils::event_is_action(event, utils::CrossPlatformAction::DOWN)
+                    || utils::event_is_action(event, utils::CrossPlatformAction::TAB)) {
                     handled = try_set_next_focus(FocusChangeDirection::Forward);
                 } else if (utils::event_is_action(event, utils::CrossPlatformAction::UP)) {
                     handled = try_set_next_focus(FocusChangeDirection::Backward);
-                } else if (utils::event_is_action(event, utils::CrossPlatformAction::TAB)) {
-                    handled = try_set_next_focus(FocusChangeDirection::Forward);
                 }
             }
 
@@ -122,18 +120,18 @@ namespace ui {
             u32 height = layout().get_rect().height() - (margin.second * 2);
 
             if (direction == Direction::Horizontal) {
-                u32 total_margin = S <= 1 ? 0 : (S - 1) * gap.get_margin();
+                const u32 total_margin = S <= 1 ? 0 : (S - 1) * gap.get_margin();
                 width = (layout().get_rect().width() - total_margin - (margin.first * 2)) / S;
 
-                u32 margin_x = index * gap.get_margin();
-                u32 total_width = width * index;
+                const u32 margin_x = index * gap.get_margin();
+                const u32 total_width = width * index;
                 x += margin_x + total_width;
             } else {
-                u32 total_margin = S <= 1 ? 0 : (S - 1) * gap.get_margin();
+                const u32 total_margin = S <= 1 ? 0 : (S - 1) * gap.get_margin();
                 height = (layout().get_rect().height() - total_margin - (margin.second * 2)) / S;
 
-                u32 margin_y = index * gap.get_margin();
-                u32 total_height = height * index;
+                const u32 margin_y = index * gap.get_margin();
+                const u32 total_height = height * index;
                 y += margin_y + total_height;
             }
 
@@ -152,7 +150,7 @@ namespace ui {
         }
 
         [[nodiscard]] static tl::optional<Focusable&> as_focusable(Widget& widget) {
-            const auto focusable = dynamic_cast<Focusable*>(&widget);
+            auto* const focusable = dynamic_cast<Focusable*>(&widget);
             if (focusable == nullptr) {
                 return tl::nullopt;
             }

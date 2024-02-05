@@ -9,7 +9,7 @@ namespace ui {
         bool m_is_hovered{ false };
 
     public:
-        explicit Hoverable() { }
+        explicit Hoverable() = default;
         Hoverable(const Hoverable&) = delete;
         Hoverable(Hoverable&&) = delete;
         Hoverable& operator=(const Hoverable&) = delete;

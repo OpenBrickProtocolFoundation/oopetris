@@ -10,7 +10,9 @@ namespace ui {
         u32 m_focus_id;
 
     public:
-        IDHelper(u32 start_index = 0, u32 start_focus_id = 0) : m_index{ start_index }, m_focus_id{ start_focus_id } {};
+        IDHelper(u32 start_index = 0, u32 start_focus_id = 0) // NOLINT(bugprone-easily-swappable-parameters)
+            : m_index{ start_index },
+              m_focus_id{ start_focus_id } {};
 
         u32 index() {
             return m_index++;

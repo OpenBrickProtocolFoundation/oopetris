@@ -43,7 +43,6 @@ protected:
     Tetrion* m_target_tetrion;
     OnEventCallback m_on_event_callback;
 
-protected:
     Input(Tetrion* target_tetrion, OnEventCallback on_event_callback = OnEventCallback{})
         : m_target_tetrion{ target_tetrion },
           m_on_event_callback{ std::move(on_event_callback) } { }

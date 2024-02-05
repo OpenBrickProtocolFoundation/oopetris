@@ -9,7 +9,7 @@ public:
 
 private:
     std::mt19937_64 m_generator;
-    Seed m_seed;
+    Seed m_seed{};
     std::uniform_real_distribution<double> m_uniform_real_distribution;
 
 public:

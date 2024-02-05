@@ -28,7 +28,7 @@ namespace ui {
         Setter m_setter;
         float m_step;
         float current_value;
-        bool is_dragging;
+        bool is_dragging{ false };
         Rect fill_rect;
 
         [[nodiscard]] std::pair<Rect, Rect> get_rectangles() const {
@@ -54,9 +54,9 @@ namespace ui {
     public:
         explicit Slider(
                 usize focus_id,
-                const Range& range,
-                const Getter& getter,
-                const Setter& setter,
+                Range range,
+                Getter getter,
+                Setter setter,
                 float step,
                 std::pair<double, double> size,
                 Alignment alignment,
@@ -64,9 +64,9 @@ namespace ui {
         )
             : Widget(layout),
               Focusable{ focus_id },
-              m_range{ range },
-              m_getter{ getter },
-              m_setter{ setter },
+              m_range{ std::move(range) },
+              m_getter{ std::move(getter) },
+              m_setter{ std::move(setter) },
               m_step{ step },
               fill_rect{ ui::get_rectangle_aligned(
                       layout,
@@ -94,7 +94,9 @@ namespace ui {
             service_provider.renderer().draw_rect_filled(slider_rect, slider_color);
         }
 
-        bool handle_event(const SDL_Event& event, const Window* window) override {
+        bool
+        handle_event(const SDL_Event& event, const Window* window) // NOLINT(readability-function-cognitive-complexity)
+                override {
             if (not has_focus()) {
                 return false;
             }

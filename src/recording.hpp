@@ -38,7 +38,6 @@ protected:
 
     std::vector<TetrionHeader> m_tetrion_headers;
 
-protected:
     Recording() = default;
     explicit Recording(std::vector<TetrionHeader> tetrion_headers) : m_tetrion_headers{ std::move(tetrion_headers) } { }
 
@@ -149,7 +148,10 @@ private:
         }
 
         Integral little_endian_data;
-        file.read(reinterpret_cast<char*>(&little_endian_data), sizeof(little_endian_data));
+        file.read(
+                reinterpret_cast<char*>(&little_endian_data), // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+                sizeof(little_endian_data)
+        );
         if (not file) {
             return tl::unexpected{ ReadError::Incomplete };
         }
@@ -224,7 +226,11 @@ public:
         }
     }
 
-    void add_event(const u8 tetrion_index, const u64 simulation_step_index, const InputEvent event) {
+    void add_event(
+            const u8 tetrion_index, // NOLINT(bugprone-easily-swappable-parameters)
+            const u64 simulation_step_index,
+            const InputEvent event
+    ) {
         assert(tetrion_index < m_tetrion_headers.size());
         write(utils::to_underlying(MagicByte::Record));
         write(tetrion_index);
@@ -248,7 +254,11 @@ private:
         }
 
         const auto little_endian_data = utils::to_little_endian(data);
-        file.write(reinterpret_cast<const char*>(&little_endian_data), sizeof(little_endian_data));
+        file.write(
+                reinterpret_cast<const char*>(&little_endian_data // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+                ),
+                sizeof(little_endian_data)
+        );
     }
 
     static void write_tetrion_header_to_file(std::ofstream& file, const TetrionHeader& header) {

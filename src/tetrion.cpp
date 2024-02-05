@@ -42,7 +42,7 @@ Tetrion::Tetrion(
     );
 
 
-    auto texts = get_texts();
+    auto* texts = get_texts();
     auto id_helper2 = ui::IDHelper{};
 
     constexpr auto text_size = utils::device_orientation() == utils::Orientation::Landscape
@@ -102,7 +102,7 @@ void Tetrion::render(const ServiceProvider& service_provider) const {
     main_layout.render(service_provider);
 
     //TODO: move the rendering into the grid, this here is ugly
-    auto grid = get_grid();
+    const auto* grid = get_grid();
 
     m_mino_stack.draw_minos(service_provider, grid);
     if (m_active_tetromino) {
@@ -116,7 +116,9 @@ void Tetrion::render(const ServiceProvider& service_provider) const {
         if (m_preview_tetrominos.at(i)) {
             static constexpr auto enum_index = magic_enum::enum_index(MinoTransparency::Preview0);
             static_assert(enum_index.has_value());
-            const auto transparency = magic_enum::enum_value<MinoTransparency>(enum_index.value() + i);
+            const auto transparency = magic_enum::enum_value<MinoTransparency>(
+                    enum_index.value() + i // NOLINT(bugprone-unchecked-optional-access)
+            );
             m_preview_tetrominos.at(i)->render(service_provider, grid, transparency);
         }
     }
@@ -294,7 +296,7 @@ void Tetrion::reset_lock_delay(const SimulationStep simulation_step_index) {
 
 void Tetrion::refresh_texts() {
     auto id_helper = ui::IDHelper{};
-    auto texts = get_texts();
+    auto* texts = get_texts();
 
     std::stringstream stream;
     stream << "score: " << m_score;
@@ -312,7 +314,7 @@ void Tetrion::refresh_texts() {
 void Tetrion::clear_fully_occupied_lines() {
     bool cleared = false;
     const u32 lines_cleared_before = m_lines_cleared;
-    do {
+    do { // NOLINT(cppcoreguidelines-avoid-do-while)
         cleared = false;
         for (usize row = 0; row < Grid::height_in_tiles; ++row) {
             bool fully_occupied = true;
@@ -387,7 +389,7 @@ bool Tetrion::is_active_tetromino_completely_visible() const {
     if (not m_active_tetromino) {
         return false;
     }
-    for (const Mino& mino : m_active_tetromino->minos()) {
+    for (const Mino& mino : m_active_tetromino->minos()) { // NOLINT(readability-use-anyofallof)
         if (mino.position().y < static_cast<int>(Grid::invisible_rows)) {
             return false;
         }
@@ -438,7 +440,7 @@ TetrominoType Tetrion::get_next_tetromino_type() {
 }
 
 bool Tetrion::is_tetromino_position_valid(const Tetromino& tetromino) const {
-    for (const Mino& mino : tetromino.minos()) {
+    for (const Mino& mino : tetromino.minos()) { // NOLINT(readability-use-anyofallof)
         if (not is_valid_mino_position(mino.position())) {
             return false;
         }

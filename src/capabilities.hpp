@@ -33,8 +33,8 @@ namespace utils {
     // it checks in the usage of these for the CrossPlatformAction!), so don't remove the duplication here!
     enum class CrossPlatformAction : u8 { OK, PAUSE, UNPAUSE, EXIT, DOWN, UP, LEFT, RIGHT, CLOSE, OPEN_SETTINGS, TAB };
 
-    //TODO: support multiple keys
-    static std::unordered_map<u8, std::vector<i64>> key_map =
+    static std::unordered_map<u8, std::vector<i64>>
+            key_map = // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 #if defined(__ANDROID__)
             {
                 {           static_cast<u8>(CrossPlatformAction::OK), { 0 }},
