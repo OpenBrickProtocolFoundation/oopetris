@@ -48,8 +48,8 @@ int main(int argc, char** argv) {
 
     const char* name = "oopetris";
 
-    argv = (char**) malloc(sizeof(void*));
-    argv[0] = (char*) malloc(strlen(name) + 1);
+    argv = reinterpret_cast<char**>(malloc(sizeof(void*)));
+    argv[0] = reinterpret_cast<char*>(malloc(strlen(name) + 1));
     memcpy(argv[0], name, strlen(name) + 1);
 
 #endif
