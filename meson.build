@@ -22,6 +22,8 @@ if cpp.get_id() == 'msvc'
     compile_args += ['/std:c++latest']
 elif cpp.get_id() == 'gcc'
     compile_args += ['-Wold-style-cast', '-std=c++23']
+elif meson.is_cross_build() and host_machine.system() == 'android'
+    compile_args += ['-std=c++2b']
 else
     compile_args += ['-std=c++23']
 endif
