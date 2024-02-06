@@ -6,7 +6,7 @@ project(
         'buildtype': 'release',
         'optimization': '3',
         'strip': 'true',
-        'cpp_std': 'c++23',
+        'cpp_std': 'c++20',
         'b_ndebug': 'if-release',
 
     },
@@ -18,10 +18,14 @@ compile_args = []
 
 cpp = meson.get_compiler('cpp')
 
-
-if cpp.has_argument('-Wold-style-cast')
-    compile_args += ['-Wold-style-cast']
+if cpp.get_id() == 'msvc'
+    compile_args += ['/std:c++latest']
+elif cpp.get_id() == 'gcc'
+    compile_args += ['-Wold-style-cast', '-std=c++23']
+else
+    compile_args += ['-std=c++23']
 endif
+
 
 if get_option('buildtype') == 'debug' or get_option('buildtype') == 'debugoptimized'
     compile_args += ['-DDEBUG_BUILD']
