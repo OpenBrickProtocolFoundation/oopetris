@@ -2,33 +2,25 @@ project(
     'oopetris',
     'c',
     'cpp',
-    default_options: [
-        'buildtype=release',
-        'optimization=3',
-        'strip=true',
-        'cpp_std=c++20',
-        'b_ndebug=if-release',
-    ],
-    version: '1.0.0-alpha',
-)
+    default_options: {
+        'buildtype': 'release',
+        'optimization': '3',
+        'strip': 'true',
+        'cpp_std': 'c++23',
+        'b_ndebug': 'if-release',
 
-if meson.version().version_compare('<0.60.0')
-    error(
-        'meson version must be higher than 0.60.0 to support some used features',
-    )
-endif
+    },
+    version: '1.0.0-alpha',
+    meson_version: '>=1.2.0',
+)
 
 compile_args = []
 
 cpp = meson.get_compiler('cpp')
-if cpp.get_id() == 'msvc'
-    compile_args += ['/std:c++latest']
-elif cpp.get_id() == 'gcc' and not meson.is_cross_build()
-    compile_args += ['-std=c++23', '-Wold-style-cast']
-elif cpp.get_id() == 'clang'
-    compile_args += ['-std=c++2b']
-else
-    compile_args += ['-std=c++20']
+
+
+if cpp.has_argument('-Wold-style-cast')
+    compile_args += ['-Wold-style-cast']
 endif
 
 if get_option('buildtype') == 'debug' or get_option('buildtype') == 'debugoptimized'
@@ -38,7 +30,6 @@ endif
 
 deps = []
 inc_dirs = []
-
 
 
 native = true
@@ -98,16 +89,16 @@ mpg123_dep = dependency(
     required: false,
     native: native,
 )
-sdl2_mixer_flags = ['flac=enabled']
+sdl2_mixer_flags = {'flac': 'enabled'}
 sdl2_mixer_defines = ['-DAUDIO_WITH_FLAC_SUPPORT']
 if mpg123_dep.found()
-    sdl2_mixer_flags += 'mpg123=enabled'
+    sdl2_mixer_flags += {'mpg123': 'enabled'}
     sdl2_mixer_defines += '-DAUDIO_WITH_MP3_SUPPORT'
 else
     cpp = meson.get_compiler('cpp')
     mpg123_dep = cpp.find_library('mpg123', required: only_allow_native_libs)
     if mpg123_dep.found()
-        sdl2_mixer_flags += 'mpg123=enabled'
+        sdl2_mixer_flags += {'mpg123': 'enabled'}
         sdl2_mixer_defines += '-DAUDIO_WITH_MP3_SUPPORT'
 
         meson.override_dependency(
@@ -148,7 +139,7 @@ if (meson.is_cross_build() and host_machine.system() == 'switch')
             required: true,
             native: native,
             allow_fallback: true,
-            default_options: ['default_library=static'],
+            default_options: {'default_library': 'static'},
         )
         deps += fmt_header_only_dep
 
@@ -168,7 +159,7 @@ deps += dependency(
     'spdlog',
     required: true,
     native: native,
-    default_options: ['tests=false'],
+    default_options: {'tests': 'false'},
 )
 
 deps += dependency(
@@ -194,7 +185,7 @@ deps += dependency(
     required: true,
     fallback: ['magic_enum'],
     native: native,
-    default_options: ['test=false'],
+    default_options: {'test': 'false'},
 )
 deps += dependency(
     'argparse',
@@ -259,7 +250,10 @@ if meson.is_cross_build() and host_machine.system() == 'android'
         dependencies: deps,
         c_args: sdl2_mixer_defines,
         cpp_args: compile_args + sdl2_mixer_defines,
-        override_options: ['warning_level=3', 'werror=true'],
+        override_options: {
+            'warning_level': '3',
+            'werror': true,
+        },
         native: native,
     )
 elif meson.is_cross_build() and host_machine.system() == 'switch'
@@ -271,10 +265,10 @@ elif meson.is_cross_build() and host_machine.system() == 'switch'
         dependencies: deps,
         c_args: sdl2_mixer_defines,
         cpp_args: compile_args + sdl2_mixer_defines,
-        override_options: [
-            'warning_level=3',
-            'werror=true',
-        ],
+        override_options: {
+            'warning_level': '3',
+            'werror': true,
+        },
         native: native,
         target_type: 'executable',
     )
@@ -385,10 +379,10 @@ else
         dependencies: deps,
         c_args: sdl2_mixer_defines,
         cpp_args: compile_args + sdl2_mixer_defines,
-        override_options: [
-            'warning_level=3',
-            'werror=true',
-        ],
+        override_options: {
+            'warning_level': '3',
+            'werror': true,
+        },
         native: native,
     )
 endif

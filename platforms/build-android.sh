@@ -215,7 +215,7 @@ llvm-config = 'llvm-config'
 
 [built-in options]
 c_std = 'c11'
-cpp_std = 'c++20'
+cpp_std = 'c++23'
 c_args = ['--sysroot=${SYS_ROOT:?}','-fPIE','-fPIC','--target=$ARM_COMPILER_TRIPLE','-DHAVE_USR_INCLUDE_MALLOC_H','-D_MALLOC_H','-D__BITNESS=$BITNESS']
 cpp_args = ['--sysroot=${SYS_ROOT:?}','-fPIE','-fPIC','--target=$ARM_COMPILER_TRIPLE','-D__BITNESS=$BITNESS']
 c_link_args = ['-fPIE', '-L$SYS_ROOT/usr/lib']

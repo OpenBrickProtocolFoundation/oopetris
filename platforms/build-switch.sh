@@ -73,7 +73,7 @@ sdl2-config='$BIN_DIR/sdl2-config'
 
 [built-in options]
 c_std = 'c11'
-cpp_std = 'c++20'
+cpp_std = 'c++23'
 c_args = [$ARCH_ARGS,$COMMON_FLAGS]
 cpp_args = [$ARCH_ARGS,$COMMON_FLAGS]
 c_link_args = ['-specs=$DEVKITPRO/libnx/switch.specs','-g', $ARCH_ARGS, $LD_LIBS_FLAGS]
