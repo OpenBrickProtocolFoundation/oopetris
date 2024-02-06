@@ -44,6 +44,8 @@ if (meson.is_cross_build())
         native = false
 
     elif host_machine.system() == 'switch'
+        # we do not link to code that was compiled with gcc 10.1, the code we link with is all compiled with gcc 13.2
+        compile_args += ['-Wno-psabi']
 
         native = false
         only_allow_native_libs = true
