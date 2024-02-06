@@ -30,7 +30,12 @@ private:
 public:
     explicit constexpr Mino(Point coords, TetrominoType type) : m_position{ coords }, m_type{ type } { }
 
-    void render(const ServiceProvider& service_provider, const Grid& grid, MinoTransparency transparency) const;
+    void render(
+            const ServiceProvider& service_provider,
+            const Grid* grid,
+            MinoTransparency transparency,
+            const Point& offset = Point::zero()
+    ) const;
 
     [[nodiscard]] TetrominoType type() const {
         return m_type;

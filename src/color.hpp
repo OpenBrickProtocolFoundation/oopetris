@@ -10,7 +10,11 @@ struct Color {
 
     constexpr Color() : Color{ 0, 0, 0, 0 } { }
 
-    constexpr Color(u8 r, u8 g, u8 b, u8 a) : r{ r }, g{ g }, b{ b }, a{ a } { }
+    constexpr Color(u8 r, u8 g, u8 b, u8 a) // NOLINT(bugprone-easily-swappable-parameters)
+        : r{ r },
+          g{ g },
+          b{ b },
+          a{ a } { }
 
     constexpr Color(u8 r, u8 g, u8 b) : Color{ r, g, b, 0xFF } { }
 

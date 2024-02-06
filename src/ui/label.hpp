@@ -10,25 +10,40 @@ namespace ui {
         std::string m_text;
         Color m_color;
         Font m_font;
+        Rect fill_rect;
 
     public:
-        Label(std::string text, Color color, Font font, Layout layout)
+        Label(std::string text,
+              Color color,
+              Font font,
+              std::pair<double, double> size,
+              Alignment alignment,
+              Layout layout)
             : Widget{ layout },
               m_text{ std::move(text) },
               m_color{ color },
-              m_font{ std::move(font) } { }
+              m_font{ std::move(font) },
+              fill_rect{ ui::get_rectangle_aligned(
+                      layout,
+                      static_cast<u32>(size.first * layout.get_rect().width()),
+                      static_cast<u32>(size.second * layout.get_rect().height()),
+                      alignment
+              ) }
 
-        void render(const ServiceProvider& service_provider, const Rect rect) const override {
-            const auto absolute_layout = std::get<AbsoluteLayout>(layout);
-            const auto position =
-                    rect.top_left + Point{ static_cast<int>(absolute_layout.x), static_cast<int>(absolute_layout.y) };
+        { }
 
-            const auto text = Text{ position, m_color, m_text, m_font };
+        void render(const ServiceProvider& service_provider) const override {
+
+            const auto text = ScaledText{ fill_rect, m_color, m_text, m_font };
             text.render(service_provider);
         }
 
-        bool handle_event([[maybe_unused]] const SDL_Event& event) override {
+        bool handle_event(const SDL_Event&, const Window*) override {
             return false;
+        }
+
+        void set_text(const std::string& text) {
+            m_text = text;
         }
     };
 } // namespace ui

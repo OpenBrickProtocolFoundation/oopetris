@@ -25,7 +25,7 @@ jobs:
             buildtype: Release
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: "0"
 
@@ -83,14 +83,14 @@ jobs:
         run: cmake --build ${{github.workspace}}/build -j --config ${{ matrix.config.buildtype }}
 
       - name: Upload artifacts - Linux
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: matrix.config.os == 'ubuntu-22.04'
         with:
           name: ${{ matrix.config.name }} Executable
           path: build/oopetris
 
       - name: Upload artifacts - Windows
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: matrix.config.os == 'windows-latest'
         with:
           name: ${{ matrix.config.name }} Executable

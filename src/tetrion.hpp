@@ -12,6 +12,12 @@
 #include "text.hpp"
 #include "types.hpp"
 #include "utils.hpp"
+#include <grid_layout.hpp>
+#include <label.hpp>
+#include <layout.hpp>
+#include <tile_layout.hpp>
+#include <widget.hpp>
+
 #include <array>
 #include <cmath>
 #include <tl/optional.hpp>
@@ -29,7 +35,7 @@ enum class MovementType {
     Forced,
 };
 
-struct Tetrion final {
+struct Tetrion final : public ui::Widget {
 private:
     using WallKickTable = std::array<std::array<Point, 5>, 8>;
 
@@ -59,32 +65,31 @@ private:
     ServiceProvider* m_service_provider;
     tl::optional<RecordingWriter*> m_recording_writer;
     MinoStack m_mino_stack;
-    Text m_score_text;
-    Text m_level_text;
-    Text m_cleared_lines_text;
     Random m_random;
     u32 m_level = 0;
     u32 m_lines_cleared = 0;
     GameState m_game_state = GameState::Playing;
     int m_sequence_index = 0;
     u32 m_score = 0;
-    Grid m_grid;
     std::array<Bag, 2> m_sequence_bags{ Bag{ m_random }, Bag{ m_random } };
     tl::optional<Tetromino> m_active_tetromino;
     tl::optional<Tetromino> m_ghost_tetromino;
     tl::optional<Tetromino> m_tetromino_on_hold;
     std::array<tl::optional<Tetromino>, num_preview_tetrominos> m_preview_tetrominos{};
     u8 m_tetrion_index;
+    ui::TileLayout<2> main_layout;
 
 
 public:
-    Tetrion(const u8 tetrion_index,
-            const Random::Seed random_seed,
-            const u32 starting_level,
+    Tetrion(u8 tetrion_index,
+            Random::Seed random_seed,
+            u32 starting_level,
             ServiceProvider* service_provider,
-            tl::optional<RecordingWriter*> recording_writer = tl::nullopt);
+            tl::optional<RecordingWriter*> recording_writer,
+            const ui::Layout& layout);
     void update(SimulationStep simulation_step_index);
-    void render(const ServiceProvider& service_provider) const;
+    void render(const ServiceProvider& service_provider) const override;
+    [[nodiscard]] bool handle_event(const SDL_Event& event, const Window* window) override;
 
     // returns if the input event lead to a movement
     bool handle_input_command(InputCommand command, SimulationStep simulation_step_index);
@@ -97,6 +102,23 @@ public:
     bool move_tetromino_right();
     bool drop_tetromino(SimulationStep simulation_step_index);
     void hold_tetromino(SimulationStep simulation_step_index);
+
+    [[nodiscard]] Grid* get_grid() {
+        return main_layout.get<Grid>(0);
+    }
+
+    [[nodiscard]] const Grid* get_grid() const {
+        return main_layout.get<Grid>(0);
+    }
+
+
+    [[nodiscard]] ui::GridLayout<3>* get_texts() {
+        return main_layout.get<ui::GridLayout<3>>(1);
+    }
+
+    [[nodiscard]] const ui::GridLayout<3>* get_texts() const {
+        return main_layout.get<ui::GridLayout<3>>(1);
+    }
 
     [[nodiscard]] auto tetrion_index() const {
         return m_tetrion_index;
@@ -149,7 +171,7 @@ private:
     [[nodiscard]] bool is_tetromino_position_valid(const Tetromino& tetromino) const;
 
     [[nodiscard]] u64 get_gravity_delay_frames() const {
-        const auto frames = (m_level >= frames_per_tile.size() ? frames_per_tile.back() : frames_per_tile[m_level]);
+        const auto frames = (m_level >= frames_per_tile.size() ? frames_per_tile.back() : frames_per_tile.at(m_level));
         if (m_is_accelerated_down_movement) {
             return std::max(u64{ 1 }, static_cast<u64>(std::round(static_cast<double>(frames) / 20.0)));
         }

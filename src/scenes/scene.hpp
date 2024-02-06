@@ -5,6 +5,8 @@
 #include "../scene_id.hpp"
 #include "../service_provider.hpp"
 #include "../settings.hpp"
+#include <layout.hpp>
+
 #include <functional>
 
 
@@ -15,20 +17,23 @@ namespace scenes {
     };
 
     struct Scene {
-    private:
-        SceneId m_id;
-
     public:
         struct Switch {
             SceneId target_scene;
+            ui::Layout layout;
 
-            Switch(const SceneId target_scene) : target_scene{ target_scene } { }
+            Switch(const SceneId target_scene, const ui::Layout& layout)
+                : target_scene{ target_scene },
+                  layout{ layout } { }
         };
 
         struct Push {
             SceneId target_scene;
+            ui::Layout layout;
 
-            Push(const SceneId target_scene) : target_scene{ target_scene } { }
+            Push(const SceneId target_scene, const ui::Layout& layout)
+                : target_scene{ target_scene },
+                  layout{ layout } { }
         };
 
         struct Pop { };
@@ -41,18 +46,21 @@ namespace scenes {
     protected:
         ServiceProvider* m_service_provider;
 
+    private:
+        ui::Layout m_layout;
+
     public:
-        explicit Scene(SceneId id, ServiceProvider* service_provider);
+        explicit Scene(ServiceProvider* service_provider, const ui::Layout& layout);
         Scene(const Scene&) = delete;
         Scene& operator=(const Scene&) = delete;
         virtual ~Scene() = default;
 
         [[nodiscard]] virtual UpdateResult update() = 0;
         virtual void render(const ServiceProvider& service_provider) = 0;
-        virtual bool handle_event(const SDL_Event& event) = 0;
-        [[nodiscard]] SceneId get_id() const;
+        virtual bool handle_event(const SDL_Event& event, const Window* window) = 0;
+        [[nodiscard]] ui::Layout get_layout() const;
     };
 
     [[nodiscard]] std::unique_ptr<scenes::Scene>
-    create_scene(ServiceProvider& service_provider, Window* window, SceneId identifier);
+    create_scene(ServiceProvider& service_provider, SceneId identifier, const ui::Layout& layout);
 } // namespace scenes

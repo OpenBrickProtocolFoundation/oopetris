@@ -7,7 +7,20 @@
 
 namespace scenes {
 
-    GameOver::GameOver(ServiceProvider* service_provider) : Scene{ SceneId::GameOver, service_provider } {
+    GameOver::GameOver(ServiceProvider* service_provider, const ui::Layout& layout)
+        : Scene{ service_provider, layout },
+          text{
+              fmt::format(
+                      "Game Over, Press {} to continue",
+                      utils::action_description(utils::CrossPlatformAction::EXIT)
+              ),
+              Color::white(), service_provider->fonts().get(FontId::Default),
+              utils::device_orientation() == utils::Orientation::Landscape
+                                       ? std::pair<double, double>{ 0.7, 0.07 }
+                                       : std::pair<double, double>{ 0.95, 0.07 },
+                ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
+                layout
+          } {
         service_provider->music_manager()
                 .load_and_play_music(
                         utils::get_assets_folder() / "music" / utils::get_supported_music_extension("05. Results")
@@ -17,23 +30,20 @@ namespace scenes {
 
     [[nodiscard]] Scene::UpdateResult GameOver::update() {
         if (m_should_exit) {
-            return UpdateResult{ SceneUpdate::ContinueUpdating, Scene::Switch{ SceneId::MainMenu } };
+            return UpdateResult{
+                SceneUpdate::ContinueUpdating,
+                Scene::Switch{SceneId::MainMenu, ui::FullScreenLayout{ m_service_provider->window() }}
+            };
         }
         return UpdateResult{ SceneUpdate::ContinueUpdating, tl::nullopt };
     }
 
     void GameOver::render(const ServiceProvider& service_provider) {
-        service_provider.renderer().draw_rect_filled(service_provider.window().screen_rect(), Color::black(180));
-        service_provider.renderer().draw_text(
-                Point{ 100, 100 },
-                fmt::format(
-                        "Game Over, Press {} to continue", utils::action_description(utils::CrossPlatformAction::EXIT)
-                ),
-                service_provider.fonts().get(FontId::Default), Color::white()
-        );
+        service_provider.renderer().draw_rect_filled(get_layout().get_rect(), Color::black(180));
+        text.render(service_provider);
     }
 
-    bool GameOver::handle_event(const SDL_Event& event) {
+    bool GameOver::handle_event(const SDL_Event& event, const Window*) {
         if (utils::event_is_action(event, utils::CrossPlatformAction::EXIT)) {
             m_should_exit = true;
             return true;

@@ -24,7 +24,6 @@ Window::Window(const std::string& title, int x, int y) {
     }
 }
 
-
 Window::~Window() {
     SDL_DestroyWindow(m_window);
 }

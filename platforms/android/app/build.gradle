@@ -6,6 +6,49 @@ if (buildAsApplication) {
     apply plugin: 'com.android.library'
 }
 
+
+/**
+ * Read the Android ABI from user input.
+ * supported ANDROID_ABIs are 'arm64-v8a', 'armeabi-v7a', 'x86', 'x86_64'
+ * @return return
+ */
+def List getAndroidABI() {
+    String property = project.findProperty('ANDROID_ABI')
+
+    List<String> AbiFilters = new ArrayList<String>()
+
+    if (property == null) {
+        AbiFilters.add("armeabi-v7a");
+        AbiFilters.add("arm64-v8a");
+        AbiFilters.add("x86");
+        AbiFilters.add("x86_64");
+    } else if (property.equalsIgnoreCase('armeabi-v7a')) {
+        AbiFilters.add(property);
+    } else if (property.equalsIgnoreCase('arm64-v8a')) {
+        AbiFilters.add(property);
+    } else if (property.equalsIgnoreCase('x86')) {
+        AbiFilters.add(property);
+    } else if (property.equalsIgnoreCase('x86_64')) {
+        AbiFilters.add(property);
+    } else {
+        throw new Exception('ERROR: Invalid ANDROID_ABI entered: ' + property)
+    }
+    return AbiFilters
+}
+
+def checkIfBuildDirsExists(List<String> abis) {
+
+    for (abi in abis) {
+        String path = "../../../../build-" + abi;
+        File file = project.file(project.getLayout().getBuildDirectory().file(path));
+        if (!file.exists()) {
+            throw new Exception('ERROR: build folder for abi \'' + abi + '\' doesn\'t  exist: ' + file);
+        }
+
+    }
+}
+
+
 android {
     compileSdk 34
     ndkVersion "26.1.10909125"
@@ -20,13 +63,13 @@ android {
         externalNativeBuild {
             ndkBuild {
                 arguments "APP_PLATFORM=android-34"
-                abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+                abiFilters(*getAndroidABI())
             }
         }
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -42,11 +85,15 @@ android {
         sourceSets.main {
             jniLibs.srcDir 'libs'
         }
+
+        checkIfBuildDirsExists(getAndroidABI())
+
         externalNativeBuild {
             ndkBuild {
                 path 'jni/Android.mk'
             }
         }
+
     }
 
     if (buildAsLibrary) {
@@ -70,7 +117,7 @@ android {
             // Resets the list of ABIs for Gradle to create APKs for to none.
             reset()
             // Specifies a list of ABIs for Gradle to create APKs for.
-            include 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+            include(*getAndroidABI())
             // Specifies that you don't want to also generate a universal APK that includes all ABIs.
             universalApk false
         }

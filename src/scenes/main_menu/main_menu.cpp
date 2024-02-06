@@ -3,36 +3,56 @@
 #include "../../music_manager.hpp"
 #include "../../resource_manager.hpp"
 #include "../../window.hpp"
+#include <layout.hpp>
 
 namespace scenes {
 
-    MainMenu::MainMenu(ServiceProvider* service_provider, Window* window)
-        : Scene{SceneId::MainMenu, service_provider},
-          m_heading{
-              constants::program_name, Color::white(), service_provider->fonts().get(FontId::Default),
-              ui::AbsoluteLayout{100, 100}
-    },
-          m_focus_group{ ui::AbsoluteLayout{ 0, 0 } } {
-        m_focus_group.add(std::make_unique<ui::Button>(
-                "Start", ui::AbsoluteLayout{ 100, 200 }, 0,
+    MainMenu::MainMenu(ServiceProvider* service_provider, const  ui::Layout& layout)
+        : Scene{service_provider, layout},
+          m_main_grid{ ui::Direction::Vertical, ui::RelativeMargin{layout,ui::Direction::Vertical, 0.05}, std::pair<double, double>{ 0.05, 0.05 
+            } ,ui::RelativeLayout{ layout, 0.0, 0.2, 1.0, 0.5 }} {
+
+        auto id_helper = ui::IDHelper{};
+
+        m_main_grid.add<ui::Label>(
+                id_helper.index(), constants::program_name, Color::white(),
+                service_provider->fonts().get(FontId::Default), std::pair<double, double>{ 0.3, 1.0 },
+                ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
+        );
+
+
+        constexpr auto button_size = utils::device_orientation() == utils::Orientation::Landscape
+                                             ? std::pair<double, double>{ 0.15, 0.85 }
+                                             : std::pair<double, double>{ 0.5, 0.85 };
+        constexpr auto button_alignment =
+                ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center };
+        constexpr auto button_margins = utils::device_orientation() == utils::Orientation::Landscape
+                                                ? std::pair<double, double>{ 0.1, 0.1 }
+                                                : std::pair<double, double>{ 0.2, 0.2 };
+
+        m_main_grid.add<ui::Button>(
+                id_helper.index(), "Start", id_helper.focus_id(),
                 [this](const ui::Button&) {
                     spdlog::info("setting next command");
                     m_next_command = Command::StartGame;
                 },
-                window
-        ));
-        m_focus_group.add(std::make_unique<ui::Button>(
-                "Settings", ui::AbsoluteLayout{ 100, 250 }, 50,
+                button_size, button_alignment, button_margins
+        );
+
+        m_main_grid.add<ui::Button>(
+                id_helper.index(), "Settings", id_helper.focus_id(),
                 [this](const ui::Button&) {
                     spdlog::info("setting next command");
                     m_next_command = Command::OpenSettingsMenu;
                 },
-                window
-        ));
-        m_focus_group.add(std::make_unique<ui::Button>(
-                "Exit", ui::AbsoluteLayout{ 100, 300 }, 100,
-                [this](const ui::Button&) { m_next_command = Command::Exit; }, window
-        ));
+                button_size, button_alignment, button_margins
+        );
+
+        m_main_grid.add<ui::Button>(
+                id_helper.index(), "Exit", id_helper.focus_id(),
+                [this](const ui::Button&) { m_next_command = Command::Exit; }, button_size, button_alignment,
+                button_margins
+        );
 
         service_provider->music_manager()
                 .load_and_play_music(
@@ -45,11 +65,17 @@ namespace scenes {
         if (m_next_command.has_value()) {
             switch (m_next_command.value()) {
                 case Command::StartGame:
-                    return UpdateResult{ SceneUpdate::ContinueUpdating, Scene::Switch{ SceneId::Ingame } };
+                    return UpdateResult{
+                        SceneUpdate::ContinueUpdating,
+                        Scene::Switch{SceneId::Ingame, ui::FullScreenLayout{ m_service_provider->window() }}
+                    };
                 case Command::OpenSettingsMenu:
                     // perform a push and reset the command, so that the music keeps playing the entire time
                     m_next_command = tl::nullopt;
-                    return UpdateResult{ SceneUpdate::ContinueUpdating, Scene::Push{ SceneId::SettingsMenu } };
+                    return UpdateResult{
+                        SceneUpdate::ContinueUpdating,
+                        Scene::Push{SceneId::SettingsMenu, ui::FullScreenLayout{ m_service_provider->window() }}
+                    };
                 case Command::Exit:
                     return UpdateResult{ SceneUpdate::ContinueUpdating, Scene::Exit{} };
                 default:
@@ -60,12 +86,11 @@ namespace scenes {
     }
 
     void MainMenu::render(const ServiceProvider& service_provider) {
-        m_heading.render(service_provider, service_provider.window().screen_rect());
-        m_focus_group.render(service_provider, service_provider.window().screen_rect());
+        m_main_grid.render(service_provider);
     }
 
-    bool MainMenu::handle_event(const SDL_Event& event) {
-        if (m_focus_group.handle_event(event)) {
+    bool MainMenu::handle_event(const SDL_Event& event, const Window* window) {
+        if (m_main_grid.handle_event(event, window)) {
             return true;
         }
 

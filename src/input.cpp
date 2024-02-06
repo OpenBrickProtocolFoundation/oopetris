@@ -92,7 +92,7 @@ void Input::update(const SimulationStep simulation_step_index) {
 
     for (auto& [key, target_simulation_step_index] : m_keys_hold) {
         if (current_simulation_step_index >= target_simulation_step_index) {
-            while (target_simulation_step_index <= current_simulation_step_index) {
+            while (target_simulation_step_index <= current_simulation_step_index) { // NOLINT(bugprone-infinite-loop)
                 target_simulation_step_index += auto_repeat_rate_frames;
             }
             if ((key == HoldableKey::Left
@@ -105,7 +105,7 @@ void Input::update(const SimulationStep simulation_step_index) {
     }
 }
 
-void KeyboardInput::handle_event(const SDL_Event& event) {
+void KeyboardInput::handle_event(const SDL_Event& event, const Window*) {
     m_event_buffer.push_back(event);
 }
 
@@ -121,7 +121,9 @@ void KeyboardInput::update(SimulationStep simulation_step_index) {
     Input::update(simulation_step_index);
 }
 
-tl::optional<InputEvent> KeyboardInput::sdl_event_to_input_event(const SDL_Event& event) const {
+tl::optional<InputEvent> KeyboardInput::sdl_event_to_input_event( // NOLINT(readability-function-cognitive-complexity)
+        const SDL_Event& event
+) const {
     if (event.type == SDL_KEYDOWN and event.key.repeat == 0) {
         const auto key = event.key.keysym.sym;
         if (key == to_sdl_keycode(m_controls.rotate_left)) {
@@ -276,7 +278,7 @@ void ReplayInput::late_update(const SimulationStep simulation_step_index) {
 
 #if defined(__ANDROID__)
 
-void TouchInput::handle_event(const SDL_Event& event) {
+void TouchInput::handle_event(const SDL_Event& event, const Window*) {
     m_event_buffer.push_back(event);
 }
 
@@ -391,7 +393,7 @@ tl::optional<InputEvent> TouchInput::sdl_event_to_input_event(const SDL_Event& e
 #if defined(__SWITCH__)
 
 
-void JoystickInput::handle_event(const SDL_Event& event) {
+void JoystickInput::handle_event(const SDL_Event& event, const Window*) {
     m_event_buffer.push_back(event);
 }
 

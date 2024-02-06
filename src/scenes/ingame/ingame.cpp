@@ -12,7 +12,7 @@
 
 namespace scenes {
 
-    Ingame::Ingame(ServiceProvider* service_provider) : Scene{ SceneId::Ingame, service_provider } {
+    Ingame::Ingame(ServiceProvider* service_provider, const ui::Layout& layout) : Scene{ service_provider, layout } {
         static constexpr auto num_tetrions = u8{ 1 };
 
         if (is_replay_mode()) {
@@ -37,12 +37,12 @@ namespace scenes {
 
             m_tetrions.push_back(std::make_unique<Tetrion>(
                     tetrion_index, seeds.at(tetrion_index), starting_level, m_service_provider,
-                    recording_writer_optional()
+                    recording_writer_optional(), layout
             ));
 
             auto on_event_callback = create_on_event_callback(tetrion_index);
 
-            const auto tetrion_pointer = m_tetrions.back().get();
+            auto* const tetrion_pointer = m_tetrions.back().get();
             if (is_replay_mode()) {
                 m_inputs.push_back(create_replay_input(m_recording_reader.get(), tetrion_pointer, [](InputEvent) {}));
             } else {
@@ -190,7 +190,10 @@ namespace scenes {
 
         const auto ingame_scene_is_topmost_scene = (m_service_provider->active_scenes().back() == this);
         if (is_game_over() and ingame_scene_is_topmost_scene) {
-            return UpdateResult{ SceneUpdate::ContinueUpdating, Scene::Push{ SceneId::GameOver } };
+            return UpdateResult{
+                SceneUpdate::ContinueUpdating,
+                Scene::Push{SceneId::GameOver, ui::FullScreenLayout{ m_service_provider->window() }}
+            };
         }
 
         if (m_is_paused) {
@@ -228,9 +231,16 @@ namespace scenes {
 
             switch (next_scene) {
                 case NextScene::Pause:
-                    return UpdateResult{ SceneUpdate::ContinueUpdating, Scene::Push{ SceneId::Pause } };
+                    return UpdateResult{
+                        SceneUpdate::ContinueUpdating,
+                        Scene::Push{SceneId::Pause, ui::FullScreenLayout{ m_service_provider->window() }}
+                    };
                 case NextScene::Settings:
-                    return UpdateResult{ SceneUpdate::ContinueUpdating, Scene::Push{ SceneId::SettingsMenu } };
+                    return UpdateResult{
+                        SceneUpdate::ContinueUpdating,
+                        Scene::Push{SceneId::SettingsMenu,
+                                    ui::RelativeLayout{ m_service_provider->window(), 0.15, 0.15, 0.7, 0.7 }}
+                    };
                 default:
                     utils::unreachable();
             }
@@ -244,15 +254,18 @@ namespace scenes {
         }
     }
 
-    [[nodiscard]] bool Ingame::handle_event(const SDL_Event& event) {
+    [[nodiscard]] bool Ingame::handle_event(const SDL_Event& event, const Window*) {
 
         if (utils::event_is_action(event, utils::CrossPlatformAction::PAUSE) and not is_game_over()) {
             m_next_scene = NextScene::Pause;
             return true;
         }
-        if (utils::event_is_action(event, utils::CrossPlatformAction::OPEN_SETTINGS)) {
-            m_next_scene = NextScene::Settings;
-            return true;
+
+        if (utils::device_supports_keys()) {
+            if (utils::event_is_action(event, utils::CrossPlatformAction::OPEN_SETTINGS)) {
+                m_next_scene = NextScene::Settings;
+                return true;
+            }
         }
         return false;
     }

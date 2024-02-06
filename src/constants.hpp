@@ -11,7 +11,7 @@ namespace constants {
     inline constexpr auto music_change_level = 30;
 
 #if not defined(AUDIO_QUALITY)
-#define AUDIO_QUALITY 0
+#define AUDIO_QUALITY 0 // NOLINT(cppcoreguidelines-macro-usage)
 #endif
 
 #if AUDIO_QUALITY == 0 // 0 = HIGH

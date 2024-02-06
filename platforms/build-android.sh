@@ -40,7 +40,34 @@ export SDK_VERSION=$(jq '.max' -M -r -c "$BASE_PATH/meta/platforms.json")
 
 mapfile -t ARCH_KEYS < <(jq 'keys' -M -r -c "$BASE_PATH/meta/abis.json" | tr -d '[]"' | sed 's/,/\n/g')
 
-for INDEX in "${!ARCH_KEYS[@]}"; do
+export ARCH_KEYS_INDEX=("${!ARCH_KEYS[@]}")
+
+if [ "$#" -eq 0 ]; then
+    # nothing
+    echo "Using all architectures"
+elif [ "$#" -eq 1 ]; then
+    ARCH=$1
+
+    FOUND=""
+
+    for INDEX in "${!ARCH_KEYS[@]}"; do
+        if [[ "$ARCH" == "${ARCH_KEYS[$INDEX]}" ]]; then
+            FOUND="$INDEX"
+        fi
+    done
+
+    if [ -z "$FOUND" ]; then
+        echo "Invalid arch: '${ARCH}', supported archs are:" "${ARCH_KEYS[@]}"
+        exit 2
+    fi
+
+    ARCH_KEYS_INDEX=("$FOUND")
+else
+    echo "Too many arguemtns given, expected at most 1"
+    exit 1
+fi
+
+for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
     export KEY=${ARCH_KEYS[$INDEX]}
 
     RAW_JSON=$(jq '.[$KEY]' -M -r -c --arg KEY "$KEY" "$BASE_PATH/meta/abis.json")

@@ -10,9 +10,18 @@ on:
 
 jobs:
   android-build:
+    name: Build android apk for - ${{ matrix.config.arch }}
     runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - arch: armeabi-v7a
+          - arch: arm64-v8a
+          - arch: x86
+          - arch: x86_64
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: "0"
 
@@ -28,33 +37,35 @@ jobs:
           sed -i 's/# diff_files/diff_files/g' subprojects/magic_enum.wrap 
 
       - name: Setup ninja
-        uses: abdes/gha-setup-ninja@master
+        run: |
+            sudo apt-get update
+            sudo apt-get install ninja-build
 
       - name: Setup JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
         
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v2
+        uses: android-actions/setup-android@v3
         
       - name: Setup NDK
         run: | 
           sdkmanager --install "ndk;26.1.10909125"
 
-      - name: Run all
+      - name: Build natibe libraries
         run: |
-          bash ./platforms/build-android.sh
+          bash ./platforms/build-android.sh ${{ matrix.config.arch }}
           cp -r ./assets/ platforms/android/app/src/main
 
       - name: Build APK
         run: | 
           cd platforms/android/
-          ./gradlew assembleDebug --no-daemon
+          ./gradlew assembleDebug --no-daemon -PANDROID_ABI=${{ matrix.config.arch }}
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: oopetris.all-apks
+          name: oopetris.${{ matrix.config.arch }}.apk
           path: platforms/android/app/build/outputs/apk/debug/app-*-debug.apk

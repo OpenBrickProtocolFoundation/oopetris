@@ -218,7 +218,7 @@ void MusicManager::hook_music_finished() {
 
 [[nodiscard]] tl::optional<float> MusicManager::get_volume() const {
 #ifdef DEBUG_BUILD
-    int result = Mix_Volume(-1);
+    int result = Mix_VolumeMusic(-1);
     if (result == 0) {
         return tl::nullopt;
     }
@@ -229,7 +229,11 @@ void MusicManager::hook_music_finished() {
 #endif
 }
 
-void MusicManager::set_volume(const tl::optional<float> new_volume, const bool force_update) {
+void MusicManager::set_volume(
+        const tl::optional<float> new_volume,
+        const bool force_update,
+        const bool notify_listeners
+) {
 
     if (volume == new_volume and not force_update) {
         return;
@@ -263,6 +267,11 @@ void MusicManager::set_volume(const tl::optional<float> new_volume, const bool f
 
 
     volume = new_volume;
+    if (notify_listeners) {
+        for (const auto& [_, listener] : volume_listeners) {
+            listener(volume);
+        }
+    }
 }
 
 tl::optional<float> MusicManager::change_volume(const std::int8_t steps) {
@@ -277,14 +286,14 @@ tl::optional<float> MusicManager::change_volume(const std::int8_t steps) {
     if (steps > 0) {
 
         if (not current_volume.has_value()) {
-            new_volume = MusicManager::step_width * steps;
+            new_volume = MusicManager::step_width * static_cast<float>(steps);
 
         } else {
             if (current_volume >= 1.0F) {
                 return 1.0F;
             }
 
-            new_volume = current_volume.value() + MusicManager::step_width * steps;
+            new_volume = current_volume.value() + MusicManager::step_width * static_cast<float>(steps);
         }
 
         if (new_volume >= 1.0F) {
@@ -304,7 +313,7 @@ tl::optional<float> MusicManager::change_volume(const std::int8_t steps) {
             new_volume = tl::nullopt;
         } else {
 
-            new_volume = current_volume.value() + MusicManager::step_width * steps;
+            new_volume = current_volume.value() + MusicManager::step_width * static_cast<float>(steps);
 
 
             if (new_volume <= 0.0F) {
@@ -317,4 +326,23 @@ tl::optional<float> MusicManager::change_volume(const std::int8_t steps) {
     set_volume(new_volume);
 
     return new_volume;
+}
+
+bool MusicManager::handle_event(const SDL_Event& event) {
+
+
+    if (utils::device_supports_keys() && event.type == SDL_KEYDOWN) {
+
+        if (event.key.keysym.sym == SDLK_PLUS or event.key.keysym.sym == SDLK_KP_PLUS) {
+            change_volume(1);
+            return true;
+        }
+
+        if (event.key.keysym.sym == SDLK_MINUS or event.key.keysym.sym == SDLK_KP_MINUS) {
+            change_volume(-1);
+            return true;
+        }
+    }
+
+    return false;
 }

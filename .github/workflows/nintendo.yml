@@ -12,7 +12,7 @@ jobs:
         container:
             image: devkitpro/devkita64 ## base on debian:buster-slim
         steps:
-            - uses: actions/checkout@v3
+            - uses: actions/checkout@v4
               with:
                   fetch-depth: "0"
 
@@ -24,14 +24,16 @@ jobs:
                   pip install meson
 
             - name: Setup ninja
-              uses: abdes/gha-setup-ninja@master
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install ninja-build
 
             - name: Configure and Build
               run: |
                   bash ./platforms/build-switch.sh
 
             - name: Upload artifacts
-              uses: actions/upload-artifact@v3
+              uses: actions/upload-artifact@v4
               with:
                   name: oopetris.nro
                   path: build-switch/oopetris.nro

@@ -46,7 +46,7 @@ public:
         return static_cast<double>(SDL_GetTicks()) / 1000.0;
     }
 
-    void handle_event(const SDL_Event& event) override;
+    void handle_event(const SDL_Event& event, const Window* window) override;
 
     virtual void update();
     virtual void render() const;

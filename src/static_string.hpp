@@ -12,11 +12,11 @@ struct StaticString {
 private:
     std::array<char, data_size> m_data;
 
-private:
     constexpr StaticString() : m_data{} { }
 
 public:
-    constexpr StaticString(const char (&chars)[data_size]) {
+    constexpr StaticString(const char (&chars // NOLINT(modernize-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
+    )[data_size]) {
         std::copy(chars, chars + data_size, begin());
     }
 

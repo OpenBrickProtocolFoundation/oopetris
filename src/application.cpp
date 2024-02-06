@@ -20,7 +20,8 @@ Application::Application(
     : m_command_line_arguments{ argc, argv },
       m_window{ title, position, width, height },
       m_renderer{ m_window, Renderer::VSync::Enabled },
-      m_music_manager{ this, num_audio_channels } {
+      m_music_manager{ this, num_audio_channels },
+      m_event_dispatcher{ &m_window } {
     initialize();
 }
 
@@ -28,7 +29,8 @@ Application::Application(int argc, char** argv, const std::string& title, Window
     : m_command_line_arguments{ argc, argv },
       m_window{ title, position },
       m_renderer{ m_window, Renderer::VSync::Enabled },
-      m_music_manager{ this, num_audio_channels } {
+      m_music_manager{ this, num_audio_channels },
+      m_event_dispatcher{ &m_window } {
     initialize();
 }
 
@@ -49,27 +51,20 @@ void Application::run() {
     }
 }
 
-void Application::handle_event(const SDL_Event& event) {
+void Application::handle_event(const SDL_Event& event, const Window* window) {
     if (event.type == SDL_QUIT) {
         m_is_running = false;
     }
 
     for (usize i = 0; i < m_scene_stack.size(); ++i) {
         const auto index = m_scene_stack.size() - i - 1;
-        if (m_scene_stack.at(index)->handle_event(event)) {
+        if (m_scene_stack.at(index)->handle_event(event, window)) {
             return;
         }
     }
 
-    if (utils::device_supports_keys() && event.type == SDL_KEYDOWN) {
-
-        if (event.key.keysym.sym == SDLK_PLUS or event.key.keysym.sym == SDLK_KP_PLUS) {
-            m_music_manager.change_volume(1);
-            return;
-        } else if (event.key.keysym.sym == SDLK_MINUS or event.key.keysym.sym == SDLK_KP_MINUS) {
-            m_music_manager.change_volume(-1);
-            return;
-        }
+    if (m_music_manager.handle_event(event)) {
+        return;
     }
 }
 
@@ -92,12 +87,14 @@ void Application::update() {
                             },
                             [this](const scenes::Scene::Push& push) {
                                 spdlog::info("pushing back scene {}", magic_enum::enum_name(push.target_scene));
-                                m_scene_stack.push_back(scenes::create_scene(*this, &m_window, push.target_scene));
+                                m_scene_stack.push_back(scenes::create_scene(*this, push.target_scene, push.layout));
                             },
                             [this](const scenes::Scene::Switch& switch_) {
                                 spdlog::info("switching to scene {}", magic_enum::enum_name(switch_.target_scene));
                                 m_scene_stack.clear();
-                                m_scene_stack.push_back(scenes::create_scene(*this, &m_window, switch_.target_scene));
+                                m_scene_stack.push_back(
+                                        scenes::create_scene(*this, switch_.target_scene, switch_.layout)
+                                );
                             },
                             [this](const scenes::Scene::Exit&) { m_is_running = false; },
                     },
@@ -120,7 +117,7 @@ void Application::render() const {
 void Application::initialize() {
     try_load_settings();
     load_resources();
-    push_scene(scenes::create_scene(*this, &m_window, SceneId::MainMenu));
+    push_scene(scenes::create_scene(*this, SceneId::MainMenu, ui::FullScreenLayout{ m_window }));
 }
 
 void Application::try_load_settings() {
@@ -153,13 +150,7 @@ void Application::try_load_settings() {
 
 void Application::load_resources() {
     const auto font_path = utils::get_assets_folder() / "fonts" / "PressStart2P.ttf";
-#if defined(__ANDROID__)
-    constexpr auto font_size = 35;
-#else
-    constexpr auto font_size = 18;
-#endif
-
-    // TODO: catch exception
+    constexpr auto font_size = 128;
     m_font_manager.load(FontId::Default, font_path, font_size);
 }
 
