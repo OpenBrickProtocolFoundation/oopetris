@@ -35,10 +35,10 @@ endif
 deps = []
 inc_dirs = []
 
-
 native = true
 only_allow_native_libs = false
-sdl_name = 'sdl2'
+allow_non_native_sdl = false
+
 if (meson.is_cross_build())
     if (host_machine.system() == 'android')
 
@@ -53,8 +53,9 @@ if (meson.is_cross_build())
 
         native = false
         only_allow_native_libs = true
-        sdl_name = 'sdl'
-        compile_args += ['-D_USE_SDL_LEGACY_VERSION']
+        allow_non_native_sdl = true
+    else
+        error('unsupported cross platform build: ' + host_machine.system())
     endif
 endif
 
@@ -62,10 +63,10 @@ endif
 
 
 sdl2_dep = dependency(
-    sdl_name,
-    sdl_name.to_upper(),
+    'sdl2',
+    'SDL2',
     allow_fallback: false,
-    required: only_allow_native_libs,
+    required: only_allow_native_libs and not allow_non_native_sdl,
     native: native,
 )
 
@@ -88,27 +89,47 @@ else
 endif
 
 
-
-
 deps += dependency(
-    sdl_name + '_ttf',
-    sdl_name.to_upper() + '_ttf',
-    allow_fallback: not only_allow_native_libs,
+    'sdl2_ttf',
+    'SDL2_ttf',
+    allow_fallback: (not only_allow_native_libs) or allow_non_native_sdl,
     required: true,
     native: native,
 )
 
 
-if sdl_name == 'sdl'
-    deps += dependency(
-        sdl_name + '_gfx',
-        sdl_name.to_upper() + '_gfx',
-        allow_fallback: not only_allow_native_libs,
-        required: true,
-        native: native,
-    )
+sdl2_mixer_flags = []
+sdl2_mixer_defines = []
 
-    compile_args += ['-D_HAVE_SDL_GFX']
+
+
+vorbis_dep = dependency(
+    'vorbis',
+    allow_fallback: not only_allow_native_libs,
+    required: false,
+    native: native,
+)
+if vorbis_dep.found()
+    sdl2_mixer_flags += 'vorbis=enabled'
+    deps += vorbis_dep
+else
+    sdl2_mixer_flags += 'vorbis=disabled'
+endif
+
+
+flac_dep = dependency(
+    'libflac',
+    'libFLAC',
+    allow_fallback: not only_allow_native_libs,
+    required: false,
+    native: native,
+)
+if flac_dep.found()
+    sdl2_mixer_flags += 'flac=enabled'
+    deps += flac_dep
+    sdl2_mixer_defines += ['-DAUDIO_WITH_FLAC_SUPPORT']
+else
+    sdl2_mixer_flags += 'flac=disabled'
 endif
 
 
@@ -120,8 +141,7 @@ mpg123_dep = dependency(
     required: false,
     native: native,
 )
-sdl2_mixer_flags = ['flac=enabled']
-sdl2_mixer_defines = ['-DAUDIO_WITH_FLAC_SUPPORT']
+
 if mpg123_dep.found()
     sdl2_mixer_flags += 'mpg123=enabled'
     sdl2_mixer_defines += '-DAUDIO_WITH_MP3_SUPPORT'
@@ -142,11 +162,10 @@ else
 endif
 
 
-
 deps += dependency(
-    sdl_name + '_mixer',
-    sdl_name.to_upper() + '_mixer',
-    allow_fallback: not only_allow_native_libs,
+    'sdl2_mixer',
+    'SDL2_mixer',
+    allow_fallback: (not only_allow_native_libs) or allow_non_native_sdl,
     required: true,
     native: native,
     default_options: sdl2_mixer_flags,

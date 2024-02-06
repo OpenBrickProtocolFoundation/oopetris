@@ -29,7 +29,7 @@ export CMAKE="$BIN_DIR/$TOOL_PREFIX-cmake"
 export PATH="$BIN_DIR:$PATH"
 
 export CC="$COMPILER_BIN/$TOOL_PREFIX-gcc"
-export CXX="$COMPILER_BIN/$TOOL_PREFIX-g"++
+export CXX="$COMPILER_BIN/$TOOL_PREFIX-g++"
 export AS="$COMPILER_BIN/$TOOL_PREFIX-as"
 export AR="$COMPILER_BIN/$TOOL_PREFIX-gcc-ar"
 export RANLIB="$COMPILER_BIN/$TOOL_PREFIX-gcc-ranlib"
@@ -39,14 +39,15 @@ export STRIP="$COMPILER_BIN/$TOOL_PREFIX-strip"
 
 # compat flags for some POSIX functions, for some ABI errors, and spdlog thread local errors
 export COMPAT_FLAGS="'-D_XOPEN_SOURCE','-Wno-psabi','-DSPDLOG_NO_TLS'"
-
 export ARCH=arm
 export ARM_VERSION=arm11mpcore
-export COMMON_FLAGS="'-D__3DS__','-mword-relocations', '-ffunction-sections', '-fdata-sections', $COMPAT_FLAGS"
+export COMMON_FLAGS="'-D__3DS__','-mword-relocations', '-ffunction-sections', '-fdata-sections', '-march=armv6k','-mtune=mpcore','-mfloat-abi=hard', '-mtp=soft', $COMPAT_FLAGS"
 
-export COMPILE_FLAGS="'-march=armv6k','-mtune=mpcore','-mfloat-abi=hard', '-mtp=soft', '-isystem', '$LIBCTRU/include'"
+export COMPILE_FLAGS="'-isystem', '$LIBCTRU/include'"
 
-export LINK_FLAGS="'-L$PORTLIBS_LIB','-L$LIBCTRU_LIB','-fPIE','-specs=$ARCH_DEVKIT_FOLDER/$TOOL_PREFIX/lib/3dsx.specs'"
+export ARCH_SPEC_LIB="$ARCH_DEVKIT_FOLDER/$TOOL_PREFIX/lib"
+
+export LINK_FLAGS="'-L$PORTLIBS_LIB','-L$LIBCTRU_LIB','-fPIE','-specs=$ARCH_SPEC_LIB/3dsx.specs', '-lctru'"
 
 export CROSS_FILE="./platforms/crossbuild-3ds.ini"
 
@@ -108,7 +109,7 @@ cp -r assets $ROMFS
 
 meson setup "$BUILD_DIR" \
     --cross-file "$CROSS_FILE" \
-    -Ddefault_library=static
+    -Ddefault_library=static 
 
 meson compile -C "$BUILD_DIR"
 
@@ -118,3 +119,14 @@ meson compile -C "$BUILD_DIR"
 # sdl gfx old version docs: https://www.cs.cmu.edu/afs/cs/user/meogata/Scramble/W%20i%20i/SDL_gfx/Docs/
 # sdl 1.2 tutorial: http://gamedevgeek.com/tutorials/getting-started-with-sdl/
 # sdl source code for 1.2, that is used: https://github.com/nop90/SDL-3DS
+
+# https://wiibrew.org/wiki/SDL_Wii/tutorial
+# https://wiibrew.org/wiki/Sdl
+# https://wiibrew.org/wiki/SDL_Wii/tutorial
+# https://wiibrew.org/wiki/SDL_Wii/Inputs
+# https://wiki.libsdl.org/SDL2/README/n3ds
+
+##  $DEVKITPRO/meson-cross.sh 3ds 3ds_crossfile_2.txt 3ds_build_2 && meson compile -C 3ds_build_2
+
+
+# SDL_ttf crahses in Find_GlyphByIndex

@@ -2,7 +2,6 @@
 # libraries
 
 _3ds_dependencies = [
-    'freetype2',
     'libpng16',
     'opusfile',
     'opus',
@@ -12,10 +11,10 @@ _3ds_dependencies = [
     'zlib',
     'vorbisidec',
     'ogg',
-    'libmikmod',
+    'libmikmod'
 ]
 
-_3ds_dependencies_native = ['ctru', 'bz2', 'libmad']
+_3ds_dependencies_native = ['ctru', 'bz2', 'mad']
 
 
 library_dirs = meson.get_external_property('library_dirs', [''])
@@ -153,7 +152,7 @@ endif
 
 
 
-APP_ROMFS = meson.get_external_property('romfs_dir', '')
+APP_ROMFS = meson.get_external_property('APP_ROMFS', '')
 
 if APP_ROMFS != ''
 

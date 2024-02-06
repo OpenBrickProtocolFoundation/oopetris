@@ -28,7 +28,7 @@ export CMAKE="$BIN_DIR/$TOOL_PREFIX-cmake"
 export PATH="$BIN_DIR:$PATH"
 
 export CC="$COMPILER_BIN/$TOOL_PREFIX-gcc"
-export CXX="$COMPILER_BIN/$TOOL_PREFIX-g"++
+export CXX="$COMPILER_BIN/$TOOL_PREFIX-g++"
 export AS="$COMPILER_BIN/$TOOL_PREFIX-as"
 export AR="$COMPILER_BIN/$TOOL_PREFIX-gcc-ar"
 export RANLIB="$COMPILER_BIN/$TOOL_PREFIX-gcc-ranlib"
@@ -40,11 +40,11 @@ export COMPAT_FLAGS="'-D_XOPEN_SOURCE'"
 
 export ARCH=aarch64
 export CPU_ARCH=cortex-a57
-export COMMON_FLAGS="'-D__SWITCH__','-ffunction-sections','-fdata-sections','-ftls-model=local-exec', $COMPAT_FLAGS"
+export COMMON_FLAGS="'-D__SWITCH__','-ffunction-sections','-fdata-sections','-ftls-model=local-exec', '-march=armv8-a+crc+crypto','-mtune=cortex-a57','-mtp=soft','-ftls-model=local-exec','-fPIC', '-isystem', $COMPAT_FLAGS"
 
-export COMPILE_FLAGS="'-march=armv8-a+crc+crypto','-mtune=cortex-a57','-mtp=soft','-ftls-model=local-exec','-fPIC', '-isystem', '$LIBNX/include'"
+export COMPILE_FLAGS="'-isystem', '$LIBNX/include'"
 
-export LINK_FLAGS="'-L$PORTLIBS_LIB','-L$LIBNX_LIB','-fPIE','-specs=$DEVKITPRO/libnx/switch.specs'"
+export LINK_FLAGS="'-L$PORTLIBS_LIB','-L$LIBNX_LIB','-fPIE','-specs=$DEVKITPRO/libnx/switch.specs', '-lnx'"
 
 export CROSS_FILE="./platforms/crossbuild-switch.ini"
 

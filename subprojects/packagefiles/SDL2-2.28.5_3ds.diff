@@ -1,0 +1,298 @@
+diff --git a/meson.build b/meson.build
+index 6d49243..6e8a8e2 100644
+--- a/meson.build
++++ b/meson.build
+@@ -1,7 +1,7 @@
+ project('sdl2', 'c',
+     version : '2.28.5',
+     license : 'zlib',
+-    meson_version : '>=0.60',
++    meson_version : '>=1.2.0',
+     default_options : ['c_std=none'],
+ )
+ 
+@@ -83,6 +83,11 @@ platform_is_apple = (
+ )
+ 
+ platform_is_unixlike_or_apple = platform_is_unixlike or platform_is_apple
++platform_is_3ds = (
++    host_machine.system() == '3ds'
++    or (host_machine.system() == 'horizon'
++    and host_machine.cpu_family() == 'arm')
++)
+ 
+ # END platform detection logic
+ 
+@@ -113,6 +118,8 @@ opt_video_openglesv2 = get_option('use_video_openglesv2')
+ opt_video_vulkan = get_option('use_video_vulkan')
+ opt_video_offscreen = get_option('use_video_offscreen')
+ 
++use_dummies = get_option('use_dummies')
++
+ if opt_video.disabled()
+     opt_video_x11 = opt_video
+     opt_video_wayland = opt_video
+@@ -143,6 +150,13 @@ if platform_is_android
+     opt_haptic = opt_joystick
+ endif
+ 
++if platform_is_3ds
++    opt_video_opengl = opt_video_opengl.disable_if(true)
++    opt_video_openglesv2 = opt_video_openglesv2.disable_if(true)
++    use_dummies = false
++endif
++
++
+ fake_dep = dependency('', required : false)
+ assert(not fake_dep.found(), 'checking if fake dependency has been found')
+ 
+@@ -989,6 +1003,18 @@ elif platform_is_emscripten
+     sys_power = ['emscripten']
+     sys_video_driver = ['emscripten']
+     sys_dynamic_api = false
++elif platform_is_3ds
++    sys_audio_driver = ['n3ds']
++    sys_filesystem = ['n3ds']
++    sys_joystick = ['n3ds']
++    sys_power = ['n3ds']
++    sys_thread = ['n3ds']
++    sys_timer = ['n3ds']
++    sys_sensor = ['n3ds']
++    sys_video = ['n3ds']
++    sys_video_driver = ['n3ds']
++    sys_video_render = ['n3ds']
++    sys_dynamic_api = false
+ else
+     error('Unsupported platform @0@, please add.'.format(host_machine.system()))
+ endif
+@@ -1089,7 +1115,7 @@ if enabled_subsystems.contains('hidapi')
+     sys_joystick += 'hidapi'
+ endif
+ 
+-if get_option('use_dummies')
++if use_dummies
+     sys_audio_driver += 'dummy'
+     sys_video_driver += 'dummy'
+     sys_joystick += 'dummy'
+@@ -1191,7 +1217,6 @@ sdl2_dep = declare_dependency(
+     link_with : sdl2,
+     dependencies : deps,
+     include_directories : core_inc,
+-    compile_args : c_args,
+ )
+ 
+ test_deps = []
+@@ -1216,7 +1241,7 @@ sdl2_test_dep = declare_dependency(
+     link_with : sdl2_test,
+     dependencies : [sdl2_dep],
+     include_directories : core_inc,
+-    compile_args : c_args,
++
+ )
+ 
+ meson.override_dependency('sdl2', sdl2_dep)
+diff --git a/src/audio/meson.build b/src/audio/meson.build
+index 60e75b4..ef9419e 100644
+--- a/src/audio/meson.build
++++ b/src/audio/meson.build
+@@ -21,6 +21,7 @@ subdir('esd')
+ subdir('fusionsound')
+ subdir('haiku')
+ subdir('jack')
++subdir('n3ds')
+ subdir('nacl')
+ subdir('nas')
+ subdir('netbsd')
+diff --git a/src/audio/n3ds/meson.build b/src/audio/n3ds/meson.build
+new file mode 100644
+index 0000000..9127bdc
+--- /dev/null
++++ b/src/audio/n3ds/meson.build
+@@ -0,0 +1 @@
++c_sources += files('SDL_n3dsaudio.c')
+diff --git a/src/file/meson.build b/src/file/meson.build
+index afd7405..bafbf4b 100644
+--- a/src/file/meson.build
++++ b/src/file/meson.build
+@@ -5,3 +5,8 @@ c_sources += files(
+ if platform_is_macos
+     subdir('cocoa')
+ endif
++
++
++if platform_is_3ds
++    subdir('n3ds')
++endif
+diff --git a/src/file/n3ds/meson.build b/src/file/n3ds/meson.build
+new file mode 100644
+index 0000000..3043461
+--- /dev/null
++++ b/src/file/n3ds/meson.build
+@@ -0,0 +1 @@
++c_sources += files('SDL_rwopsromfs.c')
+diff --git a/src/filesystem/meson.build b/src/filesystem/meson.build
+index 21fafcb..20fe400 100644
+--- a/src/filesystem/meson.build
++++ b/src/filesystem/meson.build
+@@ -4,6 +4,7 @@ subdir('cocoa')
+ subdir('dummy')
+ subdir('emscripten')
+ subdir('haiku')
++subdir('n3ds')
+ subdir('nacl')
+ subdir('os2')
+ subdir('unix')
+diff --git a/src/filesystem/n3ds/meson.build b/src/filesystem/n3ds/meson.build
+new file mode 100644
+index 0000000..3678fc6
+--- /dev/null
++++ b/src/filesystem/n3ds/meson.build
+@@ -0,0 +1 @@
++c_sources += files('SDL_sysfilesystem.c')
+diff --git a/src/joystick/meson.build b/src/joystick/meson.build
+index 8bef92e..468a461 100644
+--- a/src/joystick/meson.build
++++ b/src/joystick/meson.build
+@@ -30,4 +30,6 @@ elif platform_is_vita
+     subdir('vita')
+ elif platform_is_os2
+     subdir('os2')
++elif platform_is_3ds
++    subdir('n3ds')
+ endif
+diff --git a/src/joystick/n3ds/meson.build b/src/joystick/n3ds/meson.build
+new file mode 100644
+index 0000000..1a86353
+--- /dev/null
++++ b/src/joystick/n3ds/meson.build
+@@ -0,0 +1 @@
++c_sources += files('SDL_sysjoystick.c')
+diff --git a/src/locale/meson.build b/src/locale/meson.build
+index e99e139..a81bbf3 100644
+--- a/src/locale/meson.build
++++ b/src/locale/meson.build
+@@ -15,6 +15,8 @@ if enabled_subsystems.contains('locale')
+         subdir('windows')
+     elif platform_is_winrt
+         subdir('winrt')
++    elif platform_is_3ds
++        subdir('n3ds')
+     else
+         subdir('dummy')
+     endif
+diff --git a/src/locale/n3ds/meson.build b/src/locale/n3ds/meson.build
+new file mode 100644
+index 0000000..7b29ff1
+--- /dev/null
++++ b/src/locale/n3ds/meson.build
+@@ -0,0 +1 @@
++c_sources += files('SDL_syslocale.c')
+diff --git a/src/main/meson.build b/src/main/meson.build
+index b92689f..424f1ad 100644
+--- a/src/main/meson.build
++++ b/src/main/meson.build
+@@ -9,6 +9,8 @@ elif platform_is_winrt
+     subdir('winrt')
+ elif platform_is_windows
+     subdir('windows')
++elif platform_is_3ds
++    subdir('n3ds')
+ else
+     subdir('dummy')
+ endif
+diff --git a/src/main/n3ds/meson.build b/src/main/n3ds/meson.build
+new file mode 100644
+index 0000000..af566db
+--- /dev/null
++++ b/src/main/n3ds/meson.build
+@@ -0,0 +1 @@
++main_sources += files('SDL_n3ds_main.c')
+diff --git a/src/power/meson.build b/src/power/meson.build
+index 34ca8a3..46639b7 100644
+--- a/src/power/meson.build
++++ b/src/power/meson.build
+@@ -8,6 +8,7 @@ subdir('haiku')
+ subdir('linux')
+ subdir('macosx')
+ subdir('psp')
++subdir('n3ds')
+ subdir('uikit')
+ subdir('vita')
+ subdir('windows')
+diff --git a/src/power/n3ds/meson.build b/src/power/n3ds/meson.build
+new file mode 100644
+index 0000000..a72b168
+--- /dev/null
++++ b/src/power/n3ds/meson.build
+@@ -0,0 +1,3 @@
++c_sources += files(
++    'SDL_syspower.c',
++)
+diff --git a/src/sensor/meson.build b/src/sensor/meson.build
+index 5f1d641..8421d7a 100644
+--- a/src/sensor/meson.build
++++ b/src/sensor/meson.build
+@@ -5,5 +5,6 @@ c_sources += files(
+ subdir('android')
+ subdir('coremotion')
+ subdir('dummy')
++subdir('n3ds')
+ subdir('vita')
+ subdir('windows')
+diff --git a/src/sensor/n3ds/meson.build b/src/sensor/n3ds/meson.build
+new file mode 100644
+index 0000000..1befd46
+--- /dev/null
++++ b/src/sensor/n3ds/meson.build
+@@ -0,0 +1,3 @@
++c_sources += files(
++    'SDL_n3dssensor.c',
++)
+diff --git a/src/thread/n3ds/meson.build b/src/thread/n3ds/meson.build
+new file mode 100644
+index 0000000..98a40d3
+--- /dev/null
++++ b/src/thread/n3ds/meson.build
+@@ -0,0 +1,7 @@
++c_sources += files(
++    '../generic/SDL_systls.c',
++    'SDL_syscond.c',
++    'SDL_sysmutex.c',
++    'SDL_syssem.c',
++    'SDL_systhread.c',
++)
+diff --git a/src/timer/n3ds/meson.build b/src/timer/n3ds/meson.build
+new file mode 100644
+index 0000000..5ffe126
+--- /dev/null
++++ b/src/timer/n3ds/meson.build
+@@ -0,0 +1,3 @@
++c_sources += files(
++    'SDL_systimer.c',
++)
+diff --git a/src/video/meson.build b/src/video/meson.build
+index 0ccd2ed..8a552e5 100644
+--- a/src/video/meson.build
++++ b/src/video/meson.build
+@@ -29,6 +29,7 @@ subdir('dummy')
+ subdir('emscripten')
+ subdir('haiku')
+ subdir('kmsdrm')
++subdir('n3ds')
+ subdir('nacl')
+ subdir('offscreen')
+ subdir('pandora')
+diff --git a/src/video/n3ds/meson.build b/src/video/n3ds/meson.build
+new file mode 100644
+index 0000000..8c54aad
+--- /dev/null
++++ b/src/video/n3ds/meson.build
+@@ -0,0 +1,8 @@
++c_sources += files(
++    'SDL_n3dsevents.c',
++    'SDL_n3dsframebuffer.c',
++    'SDL_n3dsswkb.c',
++    'SDL_n3dstouch.c',
++    'SDL_n3dsvideo.c',
++)
++

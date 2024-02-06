@@ -1,0 +1,101 @@
+diff --git a/meson.build b/meson.build
+index 5556b74..976fce4 100644
+--- a/meson.build
++++ b/meson.build
+@@ -1,22 +1,29 @@
+-project(
+-  'sdl2 mixer',
+-  'c',
+-  version : '2.6.2'
+-)
++project('sdl2 mixer', 'c', version: '2.6.2')
+ 
+ cc = meson.get_compiler('c')
+ 
+-feature_args = ['-DMUSIC_WAV', '-DMUSIC_OGG']
++feature_args = ['-DMUSIC_WAV']
+ if get_option('default_library') != 'static' and host_machine.system() == 'windows'
+   feature_args += '-DDLL_EXPORT'
+ endif
+ 
+ sdl2_dep = dependency('sdl2')
+-ogg_dep = dependency('ogg')
+-vorbis_dep = dependency('vorbis')
+-vorbisfile_dep = dependency('vorbisfile')
+ 
+-flac_dep = dependency('libflac', required: get_option('flac'))
++
++opt_vorbis = get_option('vorbis')
++
++opt_deps = []
++
++if opt_vorbis.allowed()
++  ogg_dep = dependency('ogg')
++  vorbis_dep = dependency('vorbis')
++  vorbisfile_dep = dependency('vorbisfile')
++
++  feature_args += '-DMUSIC_OGG'
++  opt_deps += [ogg_dep, vorbis_dep, vorbisfile_dep]
++endif
++
++flac_dep = dependency('libflac', 'libFLAC', required: get_option('flac'))
+ if flac_dep.found()
+   feature_args += '-DMUSIC_FLAC_LIBFLAC'
+ endif
+@@ -64,7 +71,7 @@ sdl2_mixer_lib = library(
+   sources,
+   c_args: feature_args,
+   include_directories: incdirs,
+-  dependencies: [vorbisfile_dep, vorbis_dep, ogg_dep, opus_dep, mpg123_dep, flac_dep, sdl2_dep],
++  dependencies: [opt_deps, opus_dep, mpg123_dep, flac_dep, sdl2_dep],
+ )
+ 
+ sdl2_mixer_dep = declare_dependency(
+@@ -72,14 +79,17 @@ sdl2_mixer_dep = declare_dependency(
+   link_with: sdl2_mixer_lib,
+ )
+ 
+-if sdl2_dep.type_name() == 'internal'
+-  sdl2main_dep = dependency('sdl2main')
+-else
+-  sdl2main_dep = cc.find_library('SDL2main')
+-endif
++if get_option('playmus')
++  if sdl2_dep.type_name() == 'internal'
++    sdl2main_dep = dependency('sdl2main')
++  else
++    sdl2main_dep = cc.find_library('SDL2main')
++  endif
+ 
+-executable(
+-  'playmus',
+-  'playmus.c',
+-  dependencies: [sdl2_dep, sdl2main_dep, sdl2_mixer_dep],
+-)
++  executable(
++    'playmus',
++    'playmus.c',
++    dependencies: [sdl2_dep, sdl2main_dep, sdl2_mixer_dep],
++  )
++
++endif
+diff --git a/meson_options.txt b/meson_options.txt
+index 34a5d2a..c7be106 100644
+--- a/meson_options.txt
++++ b/meson_options.txt
+@@ -15,3 +15,15 @@ option(
+   description: 'Opus support',
+ )
+ 
++option(
++  'vorbis',
++  type: 'feature',
++  description: 'Vorbis (OGG) support',
++)
++
++option(
++  'playmus',
++  type: 'boolean',
++  value: false,
++  description: 'Build playmus executable',
++)

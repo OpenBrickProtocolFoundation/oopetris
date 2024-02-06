@@ -53,7 +53,7 @@ namespace utils {
 #elif defined(FLATPAK_BUILD)
         // this is a read write location in the flatpak build, see https://docs.flatpak.org/en/latest/conventions.html
         const char* data_home = std::getenv("XDG_DATA_HOME");
-        if (data_home == = nullptr) {
+        if (data_home == nullptr) {
             throw std::runtime_error{ "Failed to get flatpak data directory (XDG_DATA_HOME)" };
         }
 
