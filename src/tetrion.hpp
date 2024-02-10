@@ -3,20 +3,20 @@
 #include "bag.hpp"
 #include "clock_source.hpp"
 #include "grid.hpp"
+#include "grid_layout.hpp"
 #include "input.hpp"
+#include "label.hpp"
+#include "layout.hpp"
 #include "mino_stack.hpp"
 #include "music_manager.hpp"
 #include "random.hpp"
 #include "service_provider.hpp"
 #include "tetromino.hpp"
 #include "text.hpp"
+#include "tile_layout.hpp"
 #include "types.hpp"
 #include "utils.hpp"
-#include <grid_layout.hpp>
-#include <label.hpp>
-#include <layout.hpp>
-#include <tile_layout.hpp>
-#include <widget.hpp>
+#include "widget.hpp"
 
 #include <array>
 #include <cmath>

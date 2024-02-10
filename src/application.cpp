@@ -6,7 +6,7 @@
 #include <stdexcept>
 
 #if defined(__SWITCH__)
-#include <switch.h>
+#include "switch.h"
 #endif
 
 Application::Application(

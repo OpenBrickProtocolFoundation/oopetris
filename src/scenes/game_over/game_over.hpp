@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../scene.hpp"
-#include <label.hpp>
+#include "label.hpp"
 
 namespace scenes {
 

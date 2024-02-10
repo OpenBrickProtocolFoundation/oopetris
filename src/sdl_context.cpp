@@ -3,7 +3,7 @@
 #include <SDL_ttf.h>
 
 #if defined(__SWITCH__)
-#include <switch.h>
+#include "switch.h"
 #endif
 
 SdlContext::SdlContext() {

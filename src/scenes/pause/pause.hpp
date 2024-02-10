@@ -2,7 +2,7 @@
 
 #include "../../event_listener.hpp"
 #include "../scene.hpp"
-#include <label.hpp>
+#include "label.hpp"
 
 namespace scenes {
     struct Pause : public scenes::Scene {

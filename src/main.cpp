@@ -13,7 +13,7 @@
 
 #if defined(__SWITCH__)
 #include <string.h>
-#include <switch.h>
+#include "switch.h"
 #endif
 
 #include <fmt/format.h>
