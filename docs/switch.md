@@ -14,7 +14,7 @@ You need:
 
 Cross Compiling is only possible on linux-like systems.
 
-We use meson and cross-compilation files, everythind is wrapped into shell script, so you just need to run:
+We use meson and cross-compilation files, everything is wrapped into shell script, so you just need to run:
 
 
 ```bash
