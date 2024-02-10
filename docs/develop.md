@@ -1,7 +1,6 @@
 <!-- LTeX: enabled=true, language=en -->
 
-## Develop OOPetris
-
+# Develop OOPetris
 
 We support two different build-tools for C++, [meson](https://mesonbuild.com/) and [CMake](https://cmake.org/).
 

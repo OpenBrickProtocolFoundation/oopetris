@@ -1,10 +1,11 @@
-## Linux build
+# Linux build
 
 
 You need:
+
 - a C++23 compatible compiler, We support Clang and GCC.
 - meson or CMake
-- some developement packages, these are optional, since either meson or CMake can compile them from source
+- some development packages, these are optional, since either meson or CMake can compile them from source
 
 
 ## Compiling with CMake
@@ -37,4 +38,16 @@ meson compile -C build
 
 
 ./build/oopetris # to run the executable
+```
+
+
+## Compiling for flatpak
+
+You optionally can compile a flatpak image.
+
+For that you need some additional binaries, namely the flatpak-builder, than just run:
+
+<!-- WIP: that is not entirely correct -->
+```bash
+flatpak-build com.github.mgerhold.OOPetris.yml
 ```
