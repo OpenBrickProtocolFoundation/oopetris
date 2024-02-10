@@ -28,3 +28,8 @@ To download artifacts, click on the newest action and download the artifacts.
 [Nintendo Switch](https://github.com/mgerhold/oopetris/actions/workflows/nintendo.yml)
 
 There is no correct WIndows build atm, you have to built it yourself or use the (maybe not published yet) release builds on github.
+
+
+## Logo
+
+![OOPetris Logo](assets/OOPetris.svg)
