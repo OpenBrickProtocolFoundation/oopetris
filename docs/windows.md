@@ -4,7 +4,7 @@
 You need:
 
 - a C++23 compatible compiler, we only support MSVC
-
+- meson or CMake
 
 
 ## Compiling with CMake
