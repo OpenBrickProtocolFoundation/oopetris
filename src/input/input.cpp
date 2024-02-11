@@ -12,7 +12,7 @@
 #endif
 
 #if defined(__SWITCH__)
-#include "switch_buttons.hpp"
+#include "platform/switch_buttons.hpp"
 #endif
 
 void Input::handle_event(const InputEvent event, const SimulationStep simulation_step_index) {

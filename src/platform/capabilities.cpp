@@ -7,7 +7,7 @@
 
 
 #if defined(__SWITCH__)
-#include "switch_buttons.hpp"
+#include "platform/switch_buttons.hpp"
 #endif
 
 [[nodiscard]] bool utils::event_is_action(const SDL_Event& event, const CrossPlatformAction action) {

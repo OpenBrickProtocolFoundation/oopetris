@@ -4,7 +4,7 @@
 #include "scenes/scene.hpp"
 
 #if defined(__SWITCH__)
-#include "switch_buttons.hpp"
+#include "platform/switch_buttons.hpp"
 #endif
 
 #include <fmt/format.h>

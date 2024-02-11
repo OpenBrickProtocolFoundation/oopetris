@@ -9,7 +9,7 @@
 #include <string>
 
 #if defined(__ANDROID__) or defined(BUILD_INSTALLER) or defined(FLATPAK_BUILD)
-#include <constants.hpp>
+#include "helper/constants.hpp"
 #include <tl/optional.hpp>
 #endif
 namespace utils {

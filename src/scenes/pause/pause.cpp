@@ -6,7 +6,7 @@
 
 
 #if defined(__SWITCH__)
-#include "switch_buttons.hpp"
+#include "platform/switch_buttons.hpp"
 #endif
 namespace scenes {
 

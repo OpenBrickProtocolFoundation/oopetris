@@ -13,7 +13,7 @@
 #include "graphics/window.hpp"
 
 #if defined(__SWITCH__)
-#include "switch_buttons.hpp"
+#include "platform/switch_buttons.hpp"
 #endif
 
 namespace utils {
