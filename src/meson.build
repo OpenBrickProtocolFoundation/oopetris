@@ -1,63 +1,16 @@
 src_files += files(
     'application.cpp',
     'application.hpp',
-    'bag.cpp',
-    'bag.hpp',
-    'capabilities.cpp',
-    'clock_source.cpp',
-    'clock_source.hpp',
-    'color.hpp',
-    'command_line_arguments.hpp',
-    'constants.hpp',
-    'controls.hpp',
-    'event_dispatcher.cpp',
-    'event_dispatcher.hpp',
-    'event_listener.hpp',
-    'font.cpp',
-    'font.hpp',
-    'grid.cpp',
-    'grid.hpp',
-    'input.cpp',
-    'input.hpp',
-    'input_event.hpp',
-    'key_codes.hpp',
-    'magic_enum_wrapper.hpp',
     'main.cpp',
-    'mino.cpp',
-    'mino.hpp',
-    'mino_stack.cpp',
-    'mino_stack.hpp',
-    'music_manager.cpp',
-    'point.hpp',
-    'random.cpp',
-    'random.hpp',
-    'recording.hpp',
-    'rect.hpp',
-    'renderer.cpp',
-    'renderer.hpp',
-    'resource_manager.hpp',
-    'scene_id.hpp',
-    'sdl_context.cpp',
-    'sdl_context.hpp',
-    'service_provider.hpp',
-    'settings.hpp',
-    'static_string.hpp',
-    'tetrion.cpp',
-    'tetrion.hpp',
-    'tetrion_snapshot.cpp',
-    'tetrion_snapshot.hpp',
-    'tetromino.hpp',
-    'tetromino_type.hpp',
-    'text.cpp',
-    'text.hpp',
-    'types.hpp',
-    'utils.cpp',
-    'utils.hpp',
-    'window.cpp',
-    'window.hpp',
 )
 
 inc_dirs += include_directories('.')
 
+subdir('game')
+subdir('graphics')
+subdir('helper')
+subdir('input')
+subdir('manager')
+subdir('platform')
 subdir('scenes')
 subdir('ui')

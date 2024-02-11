@@ -5,8 +5,7 @@ src_files += files(
     'label.hpp',
     'layout.cpp',
     'layout.hpp',
+    'slider.hpp',
+    'tile_layout.hpp',
     'widget.hpp',
 )
-
-
-inc_dirs += include_directories('.')
