@@ -17,7 +17,7 @@ namespace {
 
 #if defined(_MSC_VER)
         char buffer[256] = { 0 };
-        const auto result = strerror_s<256>(&buffer, errno);
+        const auto result = strerror_s<256>(buffer, errno);
 
         if (result == 0) {
             return std::string{ buffer };
