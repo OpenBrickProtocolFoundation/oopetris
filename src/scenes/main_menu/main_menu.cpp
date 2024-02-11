@@ -32,20 +32,20 @@ namespace scenes {
 
         m_main_grid.add<ui::Button>(
                 id_helper.index(), "Start", id_helper.focus_id(),
-                [this](const ui::Button&) {
-                    spdlog::info("setting next command");
-                    m_next_command = Command::StartGame;
-                },
-                button_size, button_alignment, button_margins
+                [this](const ui::Button&) { m_next_command = Command::StartGame; }, button_size, button_alignment,
+                button_margins
         );
 
         m_main_grid.add<ui::Button>(
                 id_helper.index(), "Settings", id_helper.focus_id(),
-                [this](const ui::Button&) {
-                    spdlog::info("setting next command");
-                    m_next_command = Command::OpenSettingsMenu;
-                },
-                button_size, button_alignment, button_margins
+                [this](const ui::Button&) { m_next_command = Command::OpenSettingsMenu; }, button_size,
+                button_alignment, button_margins
+        );
+
+        m_main_grid.add<ui::Button>(
+                id_helper.index(), "About", id_helper.focus_id(),
+                [this](const ui::Button&) { m_next_command = Command::OpenAboutPage; }, button_size, button_alignment,
+                button_margins
         );
 
         m_main_grid.add<ui::Button>(
@@ -68,6 +68,13 @@ namespace scenes {
                     return UpdateResult{
                         SceneUpdate::ContinueUpdating,
                         Scene::Switch{SceneId::Ingame, ui::FullScreenLayout{ m_service_provider->window() }}
+                    };
+                case Command::OpenAboutPage:
+                    // perform a push and reset the command, so that the music keeps playing the entire time
+                    m_next_command = tl::nullopt;
+                    return UpdateResult{
+                        SceneUpdate::ContinueUpdating,
+                        Scene::Push{SceneId::AboutPage, ui::FullScreenLayout{ m_service_provider->window() }}
                     };
                 case Command::OpenSettingsMenu:
                     // perform a push and reset the command, so that the music keeps playing the entire time

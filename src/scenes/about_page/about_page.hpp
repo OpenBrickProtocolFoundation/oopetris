@@ -4,23 +4,18 @@
 #include "ui/button.hpp"
 #include "ui/grid_layout.hpp"
 #include "ui/label.hpp"
+#include "ui/slider.hpp"
 
 namespace scenes {
 
-    struct MainMenu : public Scene {
+    struct AboutPage : public Scene {
     private:
-        enum class Command {
-            StartGame,
-            OpenSettingsMenu,
-            OpenAboutPage,
-            Exit,
-        };
+        bool m_should_exit = false;
+        ui::GridLayout<2> m_main_grid;
 
-        ui::GridLayout<5> m_main_grid;
-        tl::optional<Command> m_next_command;
 
     public:
-        explicit MainMenu(ServiceProvider* service_provider, const ui::Layout& layout);
+        explicit AboutPage(ServiceProvider* service_provider, const ui::Layout& layout);
 
         [[nodiscard]] UpdateResult update() override;
         void render(const ServiceProvider& service_provider) override;

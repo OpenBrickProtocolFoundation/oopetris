@@ -47,6 +47,7 @@ add_executable(oopetris
         src/helper/color.hpp
         src/helper/command_line_arguments.hpp
         src/helper/constants.hpp
+        src/helper/git_helper.hpp
         src/helper/magic_enum_wrapper.hpp
         src/helper/random.cpp
         src/helper/random.hpp

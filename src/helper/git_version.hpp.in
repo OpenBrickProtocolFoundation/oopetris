@@ -1,0 +1,4 @@
+
+
+
+#define GIT_VERSION "@GIT_VERSION@"

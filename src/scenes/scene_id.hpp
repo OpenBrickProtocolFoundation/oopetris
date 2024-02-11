@@ -1,9 +1,3 @@
 #pragma once
 
-enum class SceneId {
-    MainMenu,
-    Pause,
-    Ingame,
-    GameOver,
-    SettingsMenu,
-};
+enum class SceneId { MainMenu, Pause, Ingame, GameOver, SettingsMenu, AboutPage };

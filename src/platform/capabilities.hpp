@@ -8,7 +8,6 @@
 #include <vector>
 
 #include "graphics/window.hpp"
-#include "helper/static_string.hpp"
 #include "helper/types.hpp"
 #include "helper/utils.hpp"
 
@@ -103,6 +102,22 @@ namespace utils {
 
     [[nodiscard]] constexpr Orientation device_orientation() {
         return get_capabilities().orientation;
+    }
+
+    [[nodiscard]] constexpr std::string built_for_platform() {
+#if defined(__ANDROID__)
+        return "Android";
+#elif defined(__SWITCH__)
+        return "Nintendo Switch";
+#elif defined(FLATPAK_BUILD)
+        return "Linux (Flatpak)";
+#elif defined(__linux__)
+        return "Linux";
+#elif _WIN32
+        return "Windows";
+#else
+#error "Unsupported platform"
+#endif
     }
 
 

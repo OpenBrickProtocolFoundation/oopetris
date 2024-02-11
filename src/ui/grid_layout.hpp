@@ -34,6 +34,7 @@ namespace ui {
 
         void render(const ServiceProvider& service_provider) const override {
             for (const auto& widget : m_widgets) {
+                assert(widget.get() != nullptr && "Grid Layout initalized with to few child widgets!");
                 widget->render(service_provider);
             }
         }
