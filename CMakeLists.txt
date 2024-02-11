@@ -18,79 +18,85 @@ set(TARGET_LIST oopetris SDL2::SDL2-static)
 add_executable(oopetris
         src/application.cpp
         src/application.hpp
-        src/bag.cpp
-        src/bag.hpp
-        src/clock_source.cpp
-        src/clock_source.hpp
-        src/color.hpp
-        src/command_line_arguments.hpp
-        src/constants.hpp
-        src/controls.hpp
-        src/event_dispatcher.cpp
-        src/event_dispatcher.hpp
-        src/event_listener.hpp
-        src/font.cpp
-        src/font.hpp
-        src/grid.cpp
-        src/grid.hpp
-        src/input_event.hpp
-        src/input.cpp
-        src/input.hpp
-        src/key_codes.hpp
-        src/magic_enum_wrapper.hpp
+        src/game/bag.cpp
+        src/game/bag.hpp
+        src/game/grid.cpp
+        src/game/grid.hpp
+        src/game/mino_stack.cpp
+        src/game/mino_stack.hpp
+        src/game/mino.cpp
+        src/game/mino.hpp
+        src/game/tetrion_snapshot.cpp
+        src/game/tetrion_snapshot.hpp
+        src/game/tetrion.cpp
+        src/game/tetrion.hpp
+        src/game/tetromino_type.hpp
+        src/game/tetromino.hpp
+        src/graphics/point.hpp
+        src/graphics/rect.hpp
+        src/graphics/renderer.cpp
+        src/graphics/renderer.hpp
+        src/graphics/sdl_context.cpp
+        src/graphics/sdl_context.hpp
+        src/graphics/text.cpp
+        src/graphics/text.hpp
+        src/graphics/window.cpp
+        src/graphics/window.hpp
+        src/helper/clock_source.cpp
+        src/helper/clock_source.hpp
+        src/helper/color.hpp
+        src/helper/command_line_arguments.hpp
+        src/helper/constants.hpp
+        src/helper/magic_enum_wrapper.hpp
+        src/helper/random.cpp
+        src/helper/random.hpp
+        src/helper/static_string.hpp
+        src/helper/types.hpp
+        src/helper/utils.cpp
+        src/helper/utils.hpp
+        src/input/controls.hpp
+        src/input/event_dispatcher.cpp
+        src/input/event_dispatcher.hpp
+        src/input/event_listener.hpp
+        src/input/input_event.hpp
+        src/input/input.cpp
+        src/input/input.hpp
+        src/input/key_codes.hpp
         src/main.cpp
-        src/mino_stack.cpp
-        src/mino_stack.hpp
-        src/mino.cpp
-        src/mino.hpp
-        src/music_manager.cpp
-        src/point.hpp
-        src/random.cpp
-        src/random.hpp
-        src/recording.hpp
-        src/rect.hpp
-        src/renderer.cpp
-        src/renderer.hpp
-        src/sdl_context.cpp
-        src/sdl_context.hpp
-        src/settings.hpp
-        src/static_string.hpp
-        src/tetrion_snapshot.cpp
-        src/tetrion_snapshot.hpp
-        src/tetrion.cpp
-        src/tetrion.hpp
-        src/tetromino_type.hpp
-        src/tetromino.hpp
-        src/text.cpp
-        src/text.hpp
-        src/types.hpp
-        src/utils.cpp
-        src/utils.hpp
-        src/window.cpp
-        src/window.hpp
-        src/ui/widget.hpp
-        src/ui/layout.hpp
-        src/ui/layout.cpp
-        src/ui/label.hpp
-        src/scenes/scene.hpp
+        src/manager/font.cpp
+        src/manager/font.hpp
+        src/manager/music_manager.cpp
+        src/manager/music_manager.hpp
+        src/manager/recording.hpp
+        src/manager/resource_manager.hpp
+        src/manager/service_provider.hpp
+        src/manager/settings.hpp
+        src/platform/capabilities.cpp
+        src/platform/capabilities.hpp
+        src/platform/switch_buttons.hpp
+        src/scenes/game_over/game_over.cpp
+        src/scenes/game_over/game_over.hpp
         src/scenes/ingame/ingame.cpp
         src/scenes/ingame/ingame.hpp
-        src/scenes/scene.cpp
-        src/scenes/pause/pause.cpp
-        src/scenes/pause/pause.hpp
-        src/resource_manager.hpp
-        src/scene_id.hpp
-        src/service_provider.hpp
         src/scenes/main_menu/main_menu.cpp
         src/scenes/main_menu/main_menu.hpp
+        src/scenes/pause/pause.cpp
+        src/scenes/pause/pause.hpp
+        src/scenes/scene_id.hpp
+        src/scenes/scene.cpp
+        src/scenes/scene.hpp
         src/scenes/settings_menu/settings_menu.cpp
         src/scenes/settings_menu/settings_menu.hpp
         src/ui/button.hpp
-        src/ui/grid_layout.hpp
         src/ui/focusable.hpp
-        src/scenes/game_over/game_over.cpp
-        src/scenes/game_over/game_over.hpp
-        src/capabilities.cpp
+        src/ui/grid_layout.hpp
+        src/ui/hoverable.hpp
+        src/ui/label.hpp
+        src/ui/layout.cpp
+        src/ui/layout.hpp
+        src/ui/slider.hpp
+        src/ui/tile_layout.hpp
+        src/ui/widget.hpp
         )
 
 foreach (target ${TARGET_LIST})
@@ -137,7 +143,6 @@ target_link_libraries(oopetris PRIVATE tl::expected)
 
 target_compile_definitions(oopetris PUBLIC AUDIO_WITH_FLAC_SUPPORT AUDIO_WITH_MP3_SUPPORT AUDIO_PREFER_FLAC)
 
-target_include_directories(oopetris PRIVATE "src/ui/")
 target_include_directories(oopetris PRIVATE "src/")
 
 # static runtime library
