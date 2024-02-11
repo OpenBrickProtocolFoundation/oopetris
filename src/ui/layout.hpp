@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../types.hpp"
-#include "../utils.hpp"
-#include "../window.hpp"
+#include "graphics/window.hpp"
+#include "helper/types.hpp"
+#include "helper/utils.hpp"
 
 #include <cassert>
 

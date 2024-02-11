@@ -1,8 +1,8 @@
 #include "settings_menu.hpp"
-#include "../../constants.hpp"
-#include "../../music_manager.hpp"
-#include "../../resource_manager.hpp"
-#include "../../window.hpp"
+#include "graphics/window.hpp"
+#include "helper/constants.hpp"
+#include "manager/music_manager.hpp"
+#include "manager/resource_manager.hpp"
 
 namespace scenes {
 

@@ -4,14 +4,14 @@
 #include <spdlog/spdlog.h>
 #include <utility>
 
-#include "../capabilities.hpp"
-#include "../rect.hpp"
-#include "../renderer.hpp"
-#include "../resource_manager.hpp"
-#include "../text.hpp"
 #include "focusable.hpp"
+#include "graphics/rect.hpp"
+#include "graphics/renderer.hpp"
+#include "graphics/text.hpp"
 #include "hoverable.hpp"
-#include "widget.hpp"
+#include "manager/resource_manager.hpp"
+#include "platform/capabilities.hpp"
+#include "ui/widget.hpp"
 
 
 namespace ui {

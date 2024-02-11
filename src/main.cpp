@@ -1,6 +1,6 @@
 #include "application.hpp"
-#include "command_line_arguments.hpp"
-#include "utils.hpp"
+#include "helper/command_line_arguments.hpp"
+#include "helper/utils.hpp"
 #include <filesystem>
 
 #if defined(__ANDROID__)
@@ -12,8 +12,8 @@
 #include <spdlog/sinks/stdout_sinks.h>
 
 #if defined(__SWITCH__)
+#include "switch.h"
 #include <string.h>
-#include <switch.h>
 #endif
 
 #include <fmt/format.h>

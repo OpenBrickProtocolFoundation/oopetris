@@ -1,4 +1,4 @@
-#include "scene.hpp"
+#include "scenes/scene.hpp"
 #include "game_over/game_over.hpp"
 #include "ingame/ingame.hpp"
 #include "main_menu/main_menu.hpp"

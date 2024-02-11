@@ -1,10 +1,10 @@
 #include "ingame.hpp"
-#include "../../capabilities.hpp"
-#include "../../event_dispatcher.hpp"
-#include "../scene.hpp"
+#include "input/event_dispatcher.hpp"
+#include "platform/capabilities.hpp"
+#include "scenes/scene.hpp"
 
 #if defined(__SWITCH__)
-#include "../../switch_buttons.hpp"
+#include "platform/switch_buttons.hpp"
 #endif
 
 #include <fmt/format.h>

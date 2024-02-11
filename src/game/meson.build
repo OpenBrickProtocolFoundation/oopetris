@@ -1,0 +1,16 @@
+src_files += files(
+    'bag.cpp',
+    'bag.hpp',
+    'grid.cpp',
+    'grid.hpp',
+    'mino.cpp',
+    'mino.hpp',
+    'mino_stack.cpp',
+    'mino_stack.hpp',
+    'tetrion.cpp',
+    'tetrion.hpp',
+    'tetrion_snapshot.cpp',
+    'tetrion_snapshot.hpp',
+    'tetromino.hpp',
+    'tetromino_type.hpp',
+)

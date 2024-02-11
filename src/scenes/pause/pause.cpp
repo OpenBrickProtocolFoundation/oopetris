@@ -1,12 +1,12 @@
 #include "pause.hpp"
-#include "../../capabilities.hpp"
-#include "../../renderer.hpp"
-#include "../../resource_manager.hpp"
+#include "graphics/renderer.hpp"
+#include "manager/resource_manager.hpp"
+#include "platform/capabilities.hpp"
 #include <fmt/format.h>
 
 
 #if defined(__SWITCH__)
-#include "../../switch_buttons.hpp"
+#include "platform/switch_buttons.hpp"
 #endif
 namespace scenes {
 

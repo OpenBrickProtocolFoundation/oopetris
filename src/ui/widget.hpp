@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../rect.hpp"
-#include "../service_provider.hpp"
-#include "layout.hpp"
+#include "graphics/rect.hpp"
+#include "manager/service_provider.hpp"
+#include "ui/layout.hpp"
 #include <SDL.h>
 
 namespace ui {

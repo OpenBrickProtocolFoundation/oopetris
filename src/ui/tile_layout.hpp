@@ -1,11 +1,11 @@
 #pragma once
 
 
-#include "../types.hpp"
 #include "focusable.hpp"
-#include "grid_layout.hpp"
-#include "renderer.hpp"
-#include "widget.hpp"
+#include "graphics/renderer.hpp"
+#include "helper/types.hpp"
+#include "ui/grid_layout.hpp"
+#include "ui/widget.hpp"
 
 #include <array>
 
