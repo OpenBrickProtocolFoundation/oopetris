@@ -29,9 +29,9 @@
 // partially from: https://stackoverflow.com/questions/17347950/how-do-i-open-a-url-from-c
 [[nodiscard]] bool utils::open_url(const std::string& url) {
 #if defined(__ANDROID__)
-    const auto result = Android_JNI_OpenURL(url.c_str());
+    const auto result = SDL_OpenURL(url.c_str());
     if (result < 0) {
-        spdlog::error("Unknown error in opening url in android");
+        spdlog::error("Error in opening url in android: {}", SDL_GetError());
         return false;
     }
 
@@ -55,7 +55,7 @@
 
     const auto result = system(shellCommand.c_str());
     if (result < 0) {
-        spdlog::error("Error in opening url: {}", strerror(errno));
+        spdlog::error("Error in opening url: {}", std::strerror(errno));
         return false;
     }
 

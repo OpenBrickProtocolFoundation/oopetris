@@ -18,6 +18,7 @@
 #include "platform/switch_buttons.hpp"
 #endif
 
+
 namespace utils {
 
     enum class Orientation {
