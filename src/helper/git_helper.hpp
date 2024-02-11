@@ -4,7 +4,7 @@
 namespace utils {
 
 
-    [[nodiscard]] constexpr std::string git_commit() {
+    [[nodiscard]] inline std::string git_commit() {
 
 #if defined(_HAS_GIT_COMMIT_INFORMATION)
 

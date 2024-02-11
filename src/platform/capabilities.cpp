@@ -10,6 +10,32 @@
 #include "platform/switch_buttons.hpp"
 #endif
 
+
+namespace {
+
+    inline const std::string get_error_from_errno() {
+
+#if defined(MSVC)
+        const char buffer[256];
+        const auto result = strerror_s<256>(buffer, errno);
+
+        if (result == 0) {
+            return std::string{ buffer };
+
+        } else {
+            return std::string{ "Error while getting error!" };
+        }
+
+#else
+        return std::string{ std::strerror(errno) };
+
+#endif
+    }
+
+
+} // namespace
+
+
 [[nodiscard]] std::string utils::built_for_platform() {
 #if defined(__ANDROID__)
     return "Android";
@@ -39,6 +65,7 @@
     return true;
 
 #elif defined(__SWITCH__)
+    UNUSED(url);
     return false;
 #else
 
@@ -55,7 +82,7 @@
 
     const auto result = system(shellCommand.c_str());
     if (result < 0) {
-        spdlog::error("Error in opening url: {}", std::strerror(errno));
+        spdlog::error("Error in opening url: {}", get_error_from_errno());
         return false;
     }
 
