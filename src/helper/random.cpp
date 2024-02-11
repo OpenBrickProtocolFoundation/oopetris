@@ -1,4 +1,4 @@
-#include "random.hpp"
+#include "helper/random.hpp"
 #include <chrono>
 
 Random::Random() : Random{ generate_seed() } { }

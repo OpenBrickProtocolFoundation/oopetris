@@ -7,5 +7,4 @@ src_files += files(
     'resource_manager.hpp',
     'service_provider.hpp',
     'settings.hpp',
-    'text.cpp',
 )

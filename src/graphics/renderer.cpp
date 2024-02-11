@@ -1,4 +1,4 @@
-#include "renderer.hpp"
+#include "graphics/renderer.hpp"
 
 namespace {
     constexpr SDL_Rect to_sdl_rect(Rect rect) {

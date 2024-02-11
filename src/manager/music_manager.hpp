@@ -1,8 +1,8 @@
 #pragma once
 
-#include "capabilities.hpp"
-#include "service_provider.hpp"
-#include "types.hpp"
+#include "platform/capabilities.hpp"
+#include "manager/service_provider.hpp"
+#include "helper/types.hpp"
 #include <SDL_mixer.h>
 #include <atomic>
 #include <filesystem>

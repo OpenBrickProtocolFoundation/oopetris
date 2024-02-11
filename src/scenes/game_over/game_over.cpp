@@ -1,8 +1,8 @@
 #include "game_over.hpp"
-#include "../../capabilities.hpp"
-#include "../../music_manager.hpp"
-#include "../../renderer.hpp"
-#include "../../resource_manager.hpp"
+#include "platform/capabilities.hpp"
+#include "manager/music_manager.hpp"
+#include "graphics/renderer.hpp"
+#include "manager/resource_manager.hpp"
 #include <fmt/format.h>
 
 namespace scenes {

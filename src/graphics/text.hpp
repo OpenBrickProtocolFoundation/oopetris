@@ -1,10 +1,10 @@
 #pragma once
 
-#include "color.hpp"
-#include "font.hpp"
-#include "point.hpp"
-#include "rect.hpp"
-#include "service_provider.hpp"
+#include "helper/color.hpp"
+#include "manager/font.hpp"
+#include "graphics/point.hpp"
+#include "graphics/rect.hpp"
+#include "manager/service_provider.hpp"
 #include <memory>
 
 struct Text final {

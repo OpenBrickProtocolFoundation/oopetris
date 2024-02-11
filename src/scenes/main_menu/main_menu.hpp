@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../scene.hpp"
-#include "button.hpp"
-#include "grid_layout.hpp"
-#include "label.hpp"
+#include "scenes/scene.hpp"
+#include "ui/button.hpp"
+#include "ui/grid_layout.hpp"
+#include "ui/label.hpp"
 
 namespace scenes {
 

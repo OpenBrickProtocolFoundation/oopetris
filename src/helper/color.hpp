@@ -1,6 +1,6 @@
 #pragma once
 
-#include "types.hpp"
+#include "helper/types.hpp"
 
 struct Color {
     u8 r;

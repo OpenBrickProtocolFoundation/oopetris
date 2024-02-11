@@ -1,8 +1,8 @@
 #pragma once
 
-#include "capabilities.hpp"
+#include "platform/capabilities.hpp"
 #include "key_codes.hpp"
-#include "magic_enum_wrapper.hpp"
+#include "helper/magic_enum_wrapper.hpp"
 
 struct KeyboardControls final {
     KeyCode rotate_left = KeyCode::Left;

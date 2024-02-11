@@ -1,6 +1,6 @@
 #pragma once
 
-#include "point.hpp"
+#include "graphics/point.hpp"
 #include <SDL.h>
 
 //TODO: also add rect structures for unsigned Points, and remove many static_cast<int>()

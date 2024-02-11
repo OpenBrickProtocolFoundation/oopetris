@@ -1,8 +1,8 @@
-#include "input.hpp"
-#include "event_dispatcher.hpp"
+#include "input/input.hpp"
+#include "input/event_dispatcher.hpp"
 #include "key_codes.hpp"
-#include "recording.hpp"
-#include "tetrion.hpp"
+#include "manager/recording.hpp"
+#include "game/tetrion.hpp"
 #include <spdlog/spdlog.h>
 
 #if defined(__ANDROID__)

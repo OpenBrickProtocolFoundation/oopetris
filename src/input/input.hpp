@@ -1,12 +1,12 @@
 #pragma once
 
-#include "clock_source.hpp"
-#include "controls.hpp"
-#include "event_listener.hpp"
-#include "input_event.hpp"
-#include "random.hpp"
-#include "settings.hpp"
-#include "types.hpp"
+#include "helper/clock_source.hpp"
+#include "input/controls.hpp"
+#include "input/event_listener.hpp"
+#include "input/input_event.hpp"
+#include "helper/random.hpp"
+#include "manager/settings.hpp"
+#include "helper/types.hpp"
 #include <functional>
 #include <tl/optional.hpp>
 #include <unordered_map>

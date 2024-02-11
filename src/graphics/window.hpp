@@ -1,7 +1,7 @@
 #pragma once
 
-#include "point.hpp"
-#include "rect.hpp"
+#include "graphics/point.hpp"
+#include "graphics/rect.hpp"
 #include <SDL.h>
 #include <string>
 

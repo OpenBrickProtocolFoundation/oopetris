@@ -1,6 +1,6 @@
 #include "application.hpp"
-#include "command_line_arguments.hpp"
-#include "utils.hpp"
+#include "helper/command_line_arguments.hpp"
+#include "helper/utils.hpp"
 #include <filesystem>
 
 #if defined(__ANDROID__)

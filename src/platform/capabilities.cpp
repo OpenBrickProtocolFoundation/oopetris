@@ -2,8 +2,8 @@
 #include <SDL.h>
 #include <vector>
 
-#include "capabilities.hpp"
-#include "utils.hpp"
+#include "platform/capabilities.hpp"
+#include "helper/utils.hpp"
 
 
 #if defined(__SWITCH__)

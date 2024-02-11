@@ -1,5 +1,5 @@
 #include "grid.hpp"
-#include "renderer.hpp"
+#include "graphics/renderer.hpp"
 
 #include <spdlog/spdlog.h>
 

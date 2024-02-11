@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../../event_listener.hpp"
-#include "../scene.hpp"
-#include "label.hpp"
+#include "input/event_listener.hpp"
+#include "scenes/scene.hpp"
+#include "ui/label.hpp"
 
 namespace scenes {
     struct Pause : public scenes::Scene {

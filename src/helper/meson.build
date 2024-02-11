@@ -8,7 +8,6 @@ src_files += files(
     'random.cpp',
     'random.hpp',
     'static_string.hpp',
-    'text.hpp',
     'types.hpp',
     'utils.cpp',
     'utils.hpp',

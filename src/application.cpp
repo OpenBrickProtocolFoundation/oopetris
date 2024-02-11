@@ -1,5 +1,5 @@
 #include "application.hpp"
-#include "capabilities.hpp"
+#include "platform/capabilities.hpp"
 #include "scenes/scene.hpp"
 #include <fmt/format.h>
 #include <fstream>

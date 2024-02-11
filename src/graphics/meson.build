@@ -5,6 +5,9 @@ src_files += files(
     'renderer.hpp',
     'sdl_context.cpp',
     'sdl_context.hpp',
+    'text.cpp',
+    'text.hpp',
     'window.cpp',
     'window.hpp',
+
 )

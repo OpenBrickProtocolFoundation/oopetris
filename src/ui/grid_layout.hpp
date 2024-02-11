@@ -1,11 +1,11 @@
 #pragma once
 
 
-#include "../capabilities.hpp"
-#include "../rect.hpp"
-#include "../types.hpp"
+#include "platform/capabilities.hpp"
+#include "graphics/rect.hpp"
+#include "helper/types.hpp"
 #include "focusable.hpp"
-#include "widget.hpp"
+#include "ui/widget.hpp"
 
 #include <tl/optional.hpp>
 

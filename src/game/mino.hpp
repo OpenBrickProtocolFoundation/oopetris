@@ -1,9 +1,9 @@
 #pragma once
 
-#include "point.hpp"
-#include "service_provider.hpp"
+#include "graphics/point.hpp"
+#include "manager/service_provider.hpp"
 #include "tetromino_type.hpp"
-#include "types.hpp"
+#include "helper/types.hpp"
 #include <array>
 
 struct Grid;

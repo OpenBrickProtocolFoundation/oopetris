@@ -1,6 +1,6 @@
 #pragma once
 
-#include "event_listener.hpp"
+#include "input/event_listener.hpp"
 #include <SDL.h>
 #include <algorithm>
 #include <cassert>

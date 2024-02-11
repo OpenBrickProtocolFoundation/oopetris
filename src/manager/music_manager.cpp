@@ -1,7 +1,7 @@
-#include "music_manager.hpp"
-#include "command_line_arguments.hpp"
-#include "constants.hpp"
-#include "types.hpp"
+#include "manager/music_manager.hpp"
+#include "helper/command_line_arguments.hpp"
+#include "helper/constants.hpp"
+#include "helper/types.hpp"
 #include <SDL.h>
 #include <SDL_mixer.h>
 #include <filesystem>

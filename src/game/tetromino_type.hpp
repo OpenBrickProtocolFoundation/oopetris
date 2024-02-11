@@ -1,6 +1,6 @@
 #pragma once
 
-#include "color.hpp"
+#include "helper/color.hpp"
 #include <limits>
 
 enum class TetrominoType {

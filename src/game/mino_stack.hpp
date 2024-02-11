@@ -1,8 +1,8 @@
 #pragma once
 
 #include "mino.hpp"
-#include "service_provider.hpp"
-#include "types.hpp"
+#include "manager/service_provider.hpp"
+#include "helper/types.hpp"
 #include <algorithm>
 #include <magic_enum.hpp>
 #include <vector>

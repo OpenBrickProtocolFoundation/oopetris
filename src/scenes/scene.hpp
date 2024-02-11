@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../command_line_arguments.hpp"
-#include "../event_listener.hpp"
-#include "../scene_id.hpp"
-#include "../service_provider.hpp"
-#include "../settings.hpp"
-#include "layout.hpp"
+#include "helper/command_line_arguments.hpp"
+#include "input/event_listener.hpp"
+#include "scene_id.hpp"
+#include "manager/service_provider.hpp"
+#include "manager/settings.hpp"
+#include "ui/layout.hpp"
 
 #include <functional>
 

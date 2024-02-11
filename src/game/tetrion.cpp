@@ -1,8 +1,8 @@
-#include "tetrion.hpp"
-#include "constants.hpp"
-#include "recording.hpp"
-#include "resource_manager.hpp"
-#include "utils.hpp"
+#include "game/tetrion.hpp"
+#include "helper/constants.hpp"
+#include "manager/recording.hpp"
+#include "manager/resource_manager.hpp"
+#include "helper/utils.hpp"
 #include <cassert>
 #include <fstream>
 #include <spdlog/spdlog.h>

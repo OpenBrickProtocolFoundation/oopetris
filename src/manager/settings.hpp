@@ -1,7 +1,7 @@
 #pragma once
 
-#include "controls.hpp"
-#include "magic_enum_wrapper.hpp"
+#include "input/controls.hpp"
+#include "helper/magic_enum_wrapper.hpp"
 #include <array>
 
 #include <fmt/format.h>

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../text.hpp"
-#include "widget.hpp"
+#include "graphics/text.hpp"
+#include "ui/widget.hpp"
 #include <string>
 
 namespace ui {

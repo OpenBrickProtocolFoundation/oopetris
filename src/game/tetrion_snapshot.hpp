@@ -1,7 +1,7 @@
 #pragma once
 
-#include "tetrion.hpp"
-#include "utils.hpp"
+#include "game/tetrion.hpp"
+#include "helper/utils.hpp"
 #include <array>
 #include <span>
 #include <vector>

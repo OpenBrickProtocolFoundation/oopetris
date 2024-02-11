@@ -1,7 +1,7 @@
 #pragma once
 
-#include "static_string.hpp"
-#include "types.hpp"
+#include "helper/static_string.hpp"
+#include "helper/types.hpp"
 #include <algorithm>
 #include <array>
 #include <bit>
