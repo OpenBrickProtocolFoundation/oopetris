@@ -1,7 +1,7 @@
 #pragma once
 
-#include "mino.hpp"
 #include "graphics/point.hpp"
+#include "mino.hpp"
 #include "tetromino_type.hpp"
 #include <array>
 

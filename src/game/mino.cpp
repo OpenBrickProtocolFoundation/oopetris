@@ -1,6 +1,6 @@
 #include "mino.hpp"
-#include "grid.hpp"
 #include "graphics/renderer.hpp"
+#include "grid.hpp"
 #include "helper/utils.hpp"
 #include <cassert>
 

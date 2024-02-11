@@ -1,10 +1,10 @@
 #pragma once
 
 
-#include "platform/capabilities.hpp"
+#include "focusable.hpp"
 #include "graphics/rect.hpp"
 #include "helper/types.hpp"
-#include "focusable.hpp"
+#include "platform/capabilities.hpp"
 #include "ui/widget.hpp"
 
 #include <tl/optional.hpp>

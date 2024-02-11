@@ -1,7 +1,7 @@
 #pragma once
 
-#include "helper/random.hpp"
 #include "game/tetromino_type.hpp"
+#include "helper/random.hpp"
 #include <array>
 
 

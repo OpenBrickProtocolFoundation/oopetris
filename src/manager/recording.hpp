@@ -1,11 +1,11 @@
 #pragma once
 
+#include "game/tetrion.hpp"
+#include "game/tetrion_snapshot.hpp"
+#include "helper/random.hpp"
 #include "helper/types.hpp"
 #include "helper/utils.hpp"
 #include "input/input_event.hpp"
-#include "helper/random.hpp"
-#include "game/tetrion.hpp"
-#include "game/tetrion_snapshot.hpp"
 
 #include <filesystem>
 #include <fstream>

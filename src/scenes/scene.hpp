@@ -2,9 +2,9 @@
 
 #include "helper/command_line_arguments.hpp"
 #include "input/event_listener.hpp"
-#include "scene_id.hpp"
 #include "manager/service_provider.hpp"
 #include "manager/settings.hpp"
+#include "scene_id.hpp"
 #include "ui/layout.hpp"
 
 #include <functional>

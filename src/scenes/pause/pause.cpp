@@ -1,7 +1,7 @@
 #include "pause.hpp"
-#include "platform/capabilities.hpp"
 #include "graphics/renderer.hpp"
 #include "manager/resource_manager.hpp"
+#include "platform/capabilities.hpp"
 #include <fmt/format.h>
 
 

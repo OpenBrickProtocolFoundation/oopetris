@@ -12,8 +12,8 @@
 #include <spdlog/sinks/stdout_sinks.h>
 
 #if defined(__SWITCH__)
-#include <string.h>
 #include "switch.h"
+#include <string.h>
 #endif
 
 #include <fmt/format.h>

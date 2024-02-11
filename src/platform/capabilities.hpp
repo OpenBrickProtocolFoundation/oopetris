@@ -7,10 +7,10 @@
 #include <unordered_map>
 #include <vector>
 
+#include "graphics/window.hpp"
 #include "helper/static_string.hpp"
 #include "helper/types.hpp"
 #include "helper/utils.hpp"
-#include "graphics/window.hpp"
 
 #if defined(__SWITCH__)
 #include "platform/switch_buttons.hpp"

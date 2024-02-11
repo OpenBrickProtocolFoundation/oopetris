@@ -1,9 +1,9 @@
 #pragma once
 
-#include "helper/color.hpp"
-#include "manager/font.hpp"
 #include "graphics/point.hpp"
 #include "graphics/rect.hpp"
+#include "helper/color.hpp"
+#include "manager/font.hpp"
 #include "manager/service_provider.hpp"
 #include <memory>
 

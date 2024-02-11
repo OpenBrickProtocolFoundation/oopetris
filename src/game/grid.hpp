@@ -1,9 +1,9 @@
 #pragma once
 
-#include "mino.hpp"
 #include "graphics/point.hpp"
 #include "graphics/rect.hpp"
 #include "manager/service_provider.hpp"
+#include "mino.hpp"
 #include "ui/layout.hpp"
 #include "ui/widget.hpp"
 

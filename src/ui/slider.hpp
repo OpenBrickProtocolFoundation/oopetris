@@ -4,12 +4,12 @@
 #include <spdlog/spdlog.h>
 #include <utility>
 
-#include "platform/capabilities.hpp"
+#include "focusable.hpp"
 #include "graphics/rect.hpp"
 #include "graphics/renderer.hpp"
-#include "manager/resource_manager.hpp"
 #include "graphics/text.hpp"
-#include "focusable.hpp"
+#include "manager/resource_manager.hpp"
+#include "platform/capabilities.hpp"
 #include "ui/widget.hpp"
 
 

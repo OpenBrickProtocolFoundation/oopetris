@@ -1,16 +1,16 @@
 #pragma once
 
+#include "graphics/renderer.hpp"
+#include "graphics/sdl_context.hpp"
+#include "graphics/window.hpp"
 #include "helper/command_line_arguments.hpp"
+#include "helper/types.hpp"
 #include "input/event_dispatcher.hpp"
 #include "input/event_listener.hpp"
 #include "manager/music_manager.hpp"
-#include "graphics/renderer.hpp"
 #include "manager/resource_manager.hpp"
-#include "scenes/scene.hpp"
-#include "graphics/sdl_context.hpp"
 #include "manager/service_provider.hpp"
-#include "helper/types.hpp"
-#include "graphics/window.hpp"
+#include "scenes/scene.hpp"
 #include <memory>
 #include <vector>
 

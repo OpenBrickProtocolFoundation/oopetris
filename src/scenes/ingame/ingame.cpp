@@ -1,6 +1,6 @@
 #include "ingame.hpp"
-#include "platform/capabilities.hpp"
 #include "input/event_dispatcher.hpp"
+#include "platform/capabilities.hpp"
 #include "scenes/scene.hpp"
 
 #if defined(__SWITCH__)

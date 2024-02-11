@@ -1,9 +1,9 @@
 #pragma once
 
-#include "helper/color.hpp"
-#include "manager/font.hpp"
 #include "graphics/rect.hpp"
 #include "graphics/window.hpp"
+#include "helper/color.hpp"
+#include "manager/font.hpp"
 #include <SDL.h>
 #include <string>
 
