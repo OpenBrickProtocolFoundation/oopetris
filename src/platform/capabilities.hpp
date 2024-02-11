@@ -2,6 +2,9 @@
 #pragma once
 
 #include <SDL.h>
+#include <cerrno>
+#include <cstdlib>
+#include <spdlog/spdlog.h>
 #include <string>
 #include <string_view>
 #include <unordered_map>
@@ -104,22 +107,9 @@ namespace utils {
         return get_capabilities().orientation;
     }
 
-    [[nodiscard]] constexpr std::string built_for_platform() {
-#if defined(__ANDROID__)
-        return "Android";
-#elif defined(__SWITCH__)
-        return "Nintendo Switch";
-#elif defined(FLATPAK_BUILD)
-        return "Linux (Flatpak)";
-#elif defined(__linux__)
-        return "Linux";
-#elif _WIN32
-        return "Windows";
-#else
-#error "Unsupported platform"
-#endif
-    }
+    [[nodiscard]] std::string built_for_platform();
 
+    [[nodiscard]] bool open_url(const std::string& url);
 
     [[nodiscard]] bool event_is_action(const SDL_Event& event, CrossPlatformAction action);
 
