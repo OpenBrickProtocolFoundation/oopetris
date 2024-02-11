@@ -75,6 +75,8 @@ add_executable(oopetris
         src/platform/capabilities.cpp
         src/platform/capabilities.hpp
         src/platform/switch_buttons.hpp
+        src/scenes/about_page/about_page.cpp
+        src/scenes/about_page/about_page.hpp
         src/scenes/game_over/game_over.cpp
         src/scenes/game_over/game_over.hpp
         src/scenes/ingame/ingame.cpp
