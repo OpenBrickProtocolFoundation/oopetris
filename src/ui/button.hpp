@@ -21,30 +21,43 @@ namespace ui {
         using Callback = std::function<void(const Button&)>;
 
     private:
-        std::string m_caption;
+        Text m_text;
         Callback m_callback;
-        std::pair<u32, u32> margin;
         Rect m_fill_rect;
 
         explicit Button(
-                std::string caption,
+                ServiceProvider* service_provider,
+                const std::string& text,
                 usize focus_id,
                 Callback callback,
-                std::pair<u32, u32> margin,
+                const Font& font,
+                const Color& text_color,
                 const Rect& fill_rect,
+                std::pair<u32, u32> margin,
                 const Layout& layout
         )
             : Widget(layout),
-              Focusable{ focus_id },
+              Focusable{
+                  focus_id
+        },
               Hoverable{ fill_rect },
-              m_caption{ std::move(caption) },
+              m_text{ service_provider,
+                      text,
+                      font,
+                      text_color,
+                      { fill_rect.top_left.x + static_cast<int>(margin.first),
+                        fill_rect.top_left.y + static_cast<int>(margin.second),
+                        fill_rect.width() - 2 * static_cast<int>(margin.first),
+                        fill_rect.height() - 2 * static_cast<int>(margin.second) } },
               m_callback{ std::move(callback) },
-              margin{ margin },
               m_fill_rect{ fill_rect } { }
 
     public:
         explicit Button(
-                std::string caption,
+                ServiceProvider* service_provider,
+                const std::string& text,
+                const Font& font,
+                const Color& text_color,
                 usize focus_id,
                 Callback callback,
                 std::pair<double, double> size,
@@ -53,16 +66,19 @@ namespace ui {
                 const Layout& layout
         )
             : Button{
-                  std::move(caption),
+                  service_provider,
+                  text,
                   focus_id,
                   std::move(callback),
-                  {static_cast<u32>(margin.first * size.first), static_cast<u32>(margin.second * size.second)},
+                  font,
+                  text_color,
                   ui::get_rectangle_aligned(
                           layout,
                           static_cast<u32>(size.first * layout.get_rect().width()),
                           static_cast<u32>(size.second * layout.get_rect().height()),
                           alignment
                   ),
+                  {static_cast<u32>(margin.first * size.first), static_cast<u32>(margin.second * size.second)},
                   layout
         } { }
 
@@ -74,13 +90,7 @@ namespace ui {
                                     : Color::blue());
             service_provider.renderer().draw_rect_filled(m_fill_rect, color);
 
-            const Rect text_area{ m_fill_rect.top_left.x + static_cast<int>(margin.first),
-                                  m_fill_rect.top_left.y + static_cast<int>(margin.second),
-                                  m_fill_rect.width() - 2 * static_cast<int>(margin.first),
-                                  m_fill_rect.height() - 2 * static_cast<int>(margin.second) };
-            service_provider.renderer().draw_text(
-                    text_area, m_caption, service_provider.fonts().get(FontId::Default), Color::white()
-            );
+            m_text.render(service_provider);
         }
 
         bool handle_event(const SDL_Event& event, const Window* window) override {

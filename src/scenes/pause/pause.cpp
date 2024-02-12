@@ -11,13 +11,14 @@
 namespace scenes {
 
     Pause::Pause(ServiceProvider* service_provider, const ui::Layout& layout) : Scene{ service_provider, layout }, m_heading {
+        service_provider,
         fmt::format(
             "Pause ({}: continue, {}: quit)",
             utils::action_description(utils::CrossPlatformAction::UNPAUSE),
             utils::action_description(utils::CrossPlatformAction::EXIT)
         ),
-        Color::white(),
-        service_provider->fonts().get(FontId::Default), utils::device_orientation() == utils::Orientation::Landscape
+        service_provider->fonts().get(FontId::Default), 
+           Color::white(),utils::device_orientation() == utils::Orientation::Landscape
                                        ? std::pair<double, double>{ 0.7, 0.07 }
                                        : std::pair<double, double>{ 0.95, 0.07  },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },

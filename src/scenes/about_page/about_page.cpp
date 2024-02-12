@@ -24,22 +24,22 @@ namespace scenes {
         auto id_helper = ui::IDHelper{};
 
         m_main_grid.add<ui::Label>(
-                id_helper.index(), fmt::format("Git Commit: {}", utils::git_commit()), Color::white(),
-                service_provider->fonts().get(FontId::Default), std::pair<double, double>{ 0.3, 0.6 },
+                id_helper.index(), service_provider, fmt::format("Git Commit: {}", utils::git_commit()),
+                service_provider->fonts().get(FontId::Default), Color::white(), std::pair<double, double>{ 0.3, 0.6 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
         );
 
 
         m_main_grid.add<ui::Label>(
-                id_helper.index(), fmt::format("Build for: {}", utils::built_for_platform()), Color::white(),
-                service_provider->fonts().get(FontId::Default), std::pair<double, double>{ 0.3, 0.6 },
+                id_helper.index(), service_provider, fmt::format("Build for: {}", utils::built_for_platform()),
+                service_provider->fonts().get(FontId::Default), Color::white(), std::pair<double, double>{ 0.3, 0.6 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
         );
 
 
         m_main_grid.add<ui::Label>(
-                id_helper.index(), "Authors:", Color::white(), service_provider->fonts().get(FontId::Default),
-                std::pair<double, double>{ 0.3, 0.6 },
+                id_helper.index(), service_provider, "Authors:", service_provider->fonts().get(FontId::Default),
+                Color::white(), std::pair<double, double>{ 0.3, 0.6 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
         );
 
@@ -68,8 +68,9 @@ namespace scenes {
 
 
             tile_layout->add<ui::LinkLabel>(
-                    local_id_helper.index(), name, link, Color::white(), Color{ 0xA1, 0x9F, 0x9F },
-                    service_provider->fonts().get(FontId::Default), std::pair<double, double>{ 0.9, 0.8 },
+                    local_id_helper.index(), service_provider, name, link,
+                    service_provider->fonts().get(FontId::Default), Color::white(), Color{ 0xA1, 0x9F, 0x9F },
+                    std::pair<double, double>{ 0.9, 0.8 },
                     ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
             );
 

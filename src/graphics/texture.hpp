@@ -1,5 +1,8 @@
 
 
+#include "helper/color.hpp"
+#include "manager/font.hpp"
+
 #include <SDL.h>
 #include <SDL_image.h>
 #include <spdlog/spdlog.h>
@@ -16,9 +19,25 @@ public:
         SDL_Texture* image = IMG_LoadTexture(renderer, image_path.c_str());
 
         if (image == nullptr) {
-            spdlog::error("Failed to load image from path '{}'", image_path);
+            spdlog::error("Failed to load image from path '{}' with error: {}", image_path, SDL_GetError());
         }
         return Texture{ image };
+    }
+
+    static Texture
+    prerender_text(SDL_Renderer* renderer, const std::string& text, const Font& font, const Color& color) {
+
+        const SDL_Color text_color = color.to_sdl_color();
+        SDL_Surface* const surface = TTF_RenderUTF8_Solid(font.get(), text.c_str(), text_color);
+        if (surface == nullptr) {
+            spdlog::error("Failed to pre-render text with error: {}", SDL_GetError());
+        }
+
+        SDL_Texture* const texture = SDL_CreateTextureFromSurface(renderer, surface);
+        SDL_FreeSurface(surface);
+
+
+        return Texture{ texture };
     }
 
     Texture(const Texture&) = delete;
@@ -28,13 +47,21 @@ public:
         old.m_raw_texture = nullptr;
     };
 
-    Texture operator=(Texture&& old) {
-        return Texture{ std::move(old) };
+    Texture& operator=(Texture&& other) {
+        if (this != &other) {
+            this->~Texture();
+            this->m_raw_texture = other.m_raw_texture;
+            other.m_raw_texture = nullptr;
+        }
+
+        return *this;
     };
 
     ~Texture() {
+
         if (m_raw_texture != nullptr) {
             SDL_DestroyTexture(m_raw_texture);
+            m_raw_texture = nullptr;
         }
     }
 

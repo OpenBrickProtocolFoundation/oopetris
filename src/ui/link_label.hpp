@@ -11,48 +11,45 @@
 namespace ui {
     struct LinkLabel final : public Widget, public Hoverable {
     private:
-        std::string m_text;
+        Text m_text;
+        Text m_hover_text;
         std::string m_url;
-        Color m_color;
-        Color m_hover_color;
-        Font m_font;
-        Rect m_fill_rect;
 
         explicit LinkLabel(
-                std::string text,
-                std::string url,
-                Color color,
-                Color hover_color,
-                Font font,
+                ServiceProvider* service_provider,
+                const std::string& text,
+                const std::string& url,
+                const Font& font,
+                const Color& color,
+                const Color& hover_color,
                 const Rect& fill_rect,
                 const Layout& layout
         )
             : Widget{ layout },
               Hoverable{ fill_rect },
-              m_text{ std::move(text) },
-              m_url{ std::move(url) },
-              m_color{ color },
-              m_hover_color{ hover_color },
-              m_font{ std::move(font) },
-              m_fill_rect{ fill_rect } { }
+              m_text{ service_provider, text, font, color, fill_rect },
+              m_hover_text{ service_provider, text, font, hover_color, fill_rect },
+              m_url{ url } { }
 
 
     public:
         explicit LinkLabel(
-                std::string text,
-                std::string url,
-                Color color,
-                Color hover_color,
-                Font font,
+                ServiceProvider* service_provider,
+                const std::string& text,
+                const std::string& url,
+                const Font& font,
+                const Color& color,
+                const Color& hover_color,
                 std::pair<double, double> size,
                 Alignment alignment,
                 const Layout& layout
         )
-            : LinkLabel{ std::move(text),
-                         std::move(url),
+            : LinkLabel{ service_provider,
+                         text,
+                         url,
+                         font,
                          color,
                          hover_color,
-                         std::move(font),
                          ui::get_rectangle_aligned(
                                  layout,
                                  static_cast<u32>(size.first * layout.get_rect().width()),
@@ -62,10 +59,11 @@ namespace ui {
                          layout } { }
 
         void render(const ServiceProvider& service_provider) const override {
-            const auto color = is_hovered() ? m_hover_color : m_color;
-
-            const auto text = ScaledText{ m_fill_rect, color, m_text, m_font };
-            text.render(service_provider);
+            if (is_hovered()) {
+                m_hover_text.render(service_provider);
+            } else {
+                m_text.render(service_provider);
+            }
         }
 
         bool handle_event(const SDL_Event& event, const Window* window) override {
@@ -84,8 +82,9 @@ namespace ui {
             }
         }
 
-        void set_text(const std::string& text) {
-            m_text = text;
+        void set_text(const ServiceProvider& service_provider, const std::string& text) {
+            m_text.set_text(service_provider, text);
+            m_hover_text.set_text(service_provider, text);
         }
     };
 } // namespace ui

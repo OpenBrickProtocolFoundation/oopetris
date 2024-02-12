@@ -10,11 +10,13 @@ namespace scenes {
     GameOver::GameOver(ServiceProvider* service_provider, const ui::Layout& layout)
         : Scene{ service_provider, layout },
           text{
+            service_provider,
               fmt::format(
                       "Game Over, Press {} to continue",
                       utils::action_description(utils::CrossPlatformAction::EXIT)
               ),
-              Color::white(), service_provider->fonts().get(FontId::Default),
+               service_provider->fonts().get(FontId::Default),
+              Color::white(),
               utils::device_orientation() == utils::Orientation::Landscape
                                        ? std::pair<double, double>{ 0.7, 0.07 }
                                        : std::pair<double, double>{ 0.95, 0.07 },

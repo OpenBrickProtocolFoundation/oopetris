@@ -26,6 +26,8 @@ public:
     Font() = default;
     Font(const std::filesystem::path& path, int size);
 
+    TTF_Font* get() const;
+
     friend struct Text;
     friend struct Renderer;
 };

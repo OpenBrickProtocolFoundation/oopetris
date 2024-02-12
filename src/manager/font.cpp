@@ -13,3 +13,7 @@ Font::Font(const std::filesystem::path& path, int size)
         throw FontLoadingError{ "error loading font: '" + error + "'" };
     }
 }
+
+TTF_Font* Font::get() const {
+    return m_font.get();
+}

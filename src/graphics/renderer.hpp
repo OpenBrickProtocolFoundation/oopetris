@@ -29,11 +29,10 @@ public:
     void draw_rect_filled(Rect rect, Color color) const;
     void draw_rect_outline(Rect rect, Color color) const;
     void draw_line(Point start, Point end, Color color) const;
-    void draw_text(Point position, const std::string& text, const Font& font, Color color) const;
-    void draw_text(Rect dest, const std::string& text, const Font& font, Color color) const;
     void draw_texture(const Texture& texture, const Rect& rect) const;
 
     Texture load_image(const std::string& image_path) const;
+    Texture prerender_text(const std::string& text, const Font& font, const Color color) const;
 
     void present() const;
 
