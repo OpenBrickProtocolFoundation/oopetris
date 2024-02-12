@@ -120,7 +120,6 @@ deps += dependency(
     default_options: sdl2_mixer_flags,
 )
 
-
 if (meson.is_cross_build() and host_machine.system() == 'switch')
 
     fmt_lib = dependency(
@@ -218,6 +217,18 @@ deps += dependency(
     required: true,
     fallback: ['argparse'],
 )
+
+deps += dependency(
+    'cpp-httplib',
+    required: true,
+    native: native,
+    fallback: ['cpp-httplib'],
+    default_options: {
+        'cpp-httplib_openssl': 'enabled',
+        'cpp-httplib_zlib': 'enabled',
+    },
+)
+
 
 if (meson.is_cross_build() and host_machine.system() == 'switch')
 
