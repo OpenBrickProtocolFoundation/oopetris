@@ -1,4 +1,5 @@
 #include "scenes/scene.hpp"
+#include "about_page/about_page.hpp"
 #include "game_over/game_over.hpp"
 #include "ingame/ingame.hpp"
 #include "main_menu/main_menu.hpp"
@@ -23,6 +24,8 @@ namespace scenes {
                 return std::make_unique<GameOver>(&service_provider, layout);
             case SceneId::SettingsMenu:
                 return std::make_unique<SettingsMenu>(&service_provider, layout);
+            case SceneId::AboutPage:
+                return std::make_unique<AboutPage>(&service_provider, layout);
             default:
                 utils::unreachable();
         }

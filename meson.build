@@ -3,7 +3,7 @@ project(
     'c',
     'cpp',
     default_options: {
-        'buildtype': 'release',
+        'buildtype': 'debug',
         'optimization': '3',
         'strip': 'true',
         'cpp_std': 'c++20',
@@ -18,7 +18,7 @@ compile_args = []
 
 cpp = meson.get_compiler('cpp')
 
-if cpp.get_id() == 'msvc'
+if cpp.get_id() == 'msvcu'
     compile_args += ['/std:c++latest']
 elif cpp.get_id() == 'gcc'
     compile_args += ['-Wold-style-cast', '-std=c++23']
@@ -84,6 +84,15 @@ endif
 deps += dependency(
     'sdl2_ttf',
     'SDL2_ttf',
+    allow_fallback: not only_allow_native_libs,
+    required: true,
+    native: native,
+)
+
+
+deps += dependency(
+    'sdl2_image',
+    'SDL2_image',
     allow_fallback: not only_allow_native_libs,
     required: true,
     native: native,

@@ -10,6 +10,90 @@
 #include "platform/switch_buttons.hpp"
 #endif
 
+
+namespace {
+
+    inline std::string get_error_from_errno() {
+
+#if defined(_MSC_VER)
+        char buffer[256] = { 0 };
+        const auto result = strerror_s<256>(buffer, errno);
+
+        if (result == 0) {
+            return std::string{ buffer };
+
+        } else {
+            return std::string{ "Error while getting error!" };
+        }
+
+#else
+        return std::string{ std::strerror(errno) };
+
+#endif
+    }
+
+
+} // namespace
+
+
+[[nodiscard]] std::string utils::built_for_platform() {
+#if defined(__ANDROID__)
+    return "Android";
+#elif defined(__SWITCH__)
+    return "Nintendo Switch";
+#elif defined(FLATPAK_BUILD)
+    return "Linux (Flatpak)";
+#elif defined(__linux__)
+    return "Linux";
+#elif _WIN32
+    return "Windows";
+#else
+#error "Unsupported platform"
+#endif
+}
+
+// partially from: https://stackoverflow.com/questions/17347950/how-do-i-open-a-url-from-c
+[[nodiscard]] bool utils::open_url(const std::string& url) {
+#if defined(__ANDROID__)
+    const auto result = SDL_OpenURL(url.c_str());
+    if (result < 0) {
+        spdlog::error("Error in opening url in android: {}", SDL_GetError());
+        return false;
+    }
+
+
+    return true;
+
+#elif defined(__SWITCH__)
+    UNUSED(url);
+    return false;
+#else
+
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
+    const std::string shellCommand = "start " + url;
+#elif __APPLE__
+#const std::string shellCommand = "open " + url;
+#elif __linux__
+    const std::string shellCommand = "xdg-open " + url;
+#else
+
+#error "Unsupported platform"
+#endif
+
+    const auto result = system(shellCommand.c_str());
+    if (result < 0) {
+        spdlog::error("Error in opening url: {}", get_error_from_errno());
+        return false;
+    }
+
+
+    return true;
+
+
+#endif
+}
+
+
 [[nodiscard]] bool utils::event_is_action(const SDL_Event& event, const CrossPlatformAction action) {
 #if defined(__ANDROID__)
     switch (action) {

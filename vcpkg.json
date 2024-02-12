@@ -20,6 +20,11 @@
       "features":["libflac", "mpg123"]
     },
     {
+      "name": "sdl2-image",
+      "version>=": "2.6.3#1",
+      "platform": "(x64 & static)"
+    },
+    {
       "name": "tl-optional",
       "version>=": "2021-05-02",
       "platform": "(x64 & static)"

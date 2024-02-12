@@ -7,6 +7,7 @@ find_package(argparse CONFIG REQUIRED)
 find_package(SDL2 CONFIG REQUIRED)
 find_package(SDL2_ttf CONFIG REQUIRED)
 find_package(SDL2_mixer CONFIG REQUIRED)
+find_package(SDL2_image CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(magic_enum CONFIG REQUIRED)
@@ -40,6 +41,7 @@ add_executable(oopetris
         src/graphics/sdl_context.hpp
         src/graphics/text.cpp
         src/graphics/text.hpp
+        src/graphics/texture.hpp
         src/graphics/window.cpp
         src/graphics/window.hpp
         src/helper/clock_source.cpp
@@ -47,6 +49,7 @@ add_executable(oopetris
         src/helper/color.hpp
         src/helper/command_line_arguments.hpp
         src/helper/constants.hpp
+        src/helper/git_helper.hpp
         src/helper/magic_enum_wrapper.hpp
         src/helper/random.cpp
         src/helper/random.hpp
@@ -74,6 +77,8 @@ add_executable(oopetris
         src/platform/capabilities.cpp
         src/platform/capabilities.hpp
         src/platform/switch_buttons.hpp
+        src/scenes/about_page/about_page.cpp
+        src/scenes/about_page/about_page.hpp
         src/scenes/game_over/game_over.cpp
         src/scenes/game_over/game_over.hpp
         src/scenes/ingame/ingame.cpp
@@ -91,9 +96,11 @@ add_executable(oopetris
         src/ui/focusable.hpp
         src/ui/grid_layout.hpp
         src/ui/hoverable.hpp
+        src/ui/image_view.hpp
         src/ui/label.hpp
         src/ui/layout.cpp
         src/ui/layout.hpp
+        src/ui/link_label.hpp
         src/ui/slider.hpp
         src/ui/tile_layout.hpp
         src/ui/widget.hpp
@@ -138,6 +145,7 @@ target_link_libraries(oopetris PRIVATE nlohmann_json::nlohmann_json)
 target_link_libraries(oopetris PRIVATE magic_enum::magic_enum)
 target_link_libraries(oopetris PRIVATE $<IF:$<TARGET_EXISTS:SDL2_ttf::SDL2_ttf>,SDL2_ttf::SDL2_ttf,SDL2_ttf::SDL2_ttf-static>)
 target_link_libraries(oopetris PRIVATE $<IF:$<TARGET_EXISTS:SDL2_mixer::SDL2_mixer>,SDL2_mixer::SDL2_mixer,SDL2_mixer::SDL2_mixer-static>)
+target_link_libraries(oopetris PRIVATE $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,SDL2_image::SDL2_image,SDL2_image::SDL2_image-static>)
 target_link_libraries(oopetris PRIVATE tl::optional)
 target_link_libraries(oopetris PRIVATE tl::expected)
 

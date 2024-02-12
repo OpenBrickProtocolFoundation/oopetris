@@ -50,19 +50,19 @@ Tetrion::Tetrion(
                                        : std::pair<double, double>{ 0.6, 0.8 };
 
     texts->add<ui::Label>(
-            id_helper2.index(), "score: 0", Color::white(), service_provider->fonts().get(FontId::Default), text_size,
-            ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
+            id_helper2.index(), service_provider, "score: 0", service_provider->fonts().get(FontId::Default),
+            Color::white(), text_size, ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
     );
 
 
     texts->add<ui::Label>(
-            id_helper2.index(), "lines: 0", Color::white(), service_provider->fonts().get(FontId::Default), text_size,
-            ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
+            id_helper2.index(), service_provider, "lines: 0", service_provider->fonts().get(FontId::Default),
+            Color::white(), text_size, ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
     );
 
     texts->add<ui::Label>(
-            id_helper2.index(), "lines: 0", Color::white(), service_provider->fonts().get(FontId::Default), text_size,
-            ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
+            id_helper2.index(), service_provider, "lines: 0", service_provider->fonts().get(FontId::Default),
+            Color::white(), text_size, ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
     );
 
     refresh_texts();
@@ -300,15 +300,15 @@ void Tetrion::refresh_texts() {
 
     std::stringstream stream;
     stream << "score: " << m_score;
-    texts->get<ui::Label>(id_helper.index())->set_text(stream.str());
+    texts->get<ui::Label>(id_helper.index())->set_text(*m_service_provider, stream.str());
 
     stream = std::stringstream{};
     stream << "level: " << m_level;
-    texts->get<ui::Label>(id_helper.index())->set_text(stream.str());
+    texts->get<ui::Label>(id_helper.index())->set_text(*m_service_provider, stream.str());
 
     stream = std::stringstream{};
     stream << "lines: " << m_lines_cleared;
-    texts->get<ui::Label>(id_helper.index())->set_text(stream.str());
+    texts->get<ui::Label>(id_helper.index())->set_text(*m_service_provider, stream.str());
 }
 
 void Tetrion::clear_fully_occupied_lines() {

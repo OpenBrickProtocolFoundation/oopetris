@@ -1,33 +1,25 @@
 #include "text.hpp"
 #include "graphics/renderer.hpp"
+#include "manager/service_provider.hpp"
 
-Text::Text(Point position, Color color, std::string text, Font font)
-    : m_position{ position },
+
+Text::Text(
+        ServiceProvider* service_provider,
+        const std::string& text,
+        const Font& font,
+        const Color& color,
+        const Rect& dest
+)
+    : m_font{ font },
       m_color{ color },
-      m_text{ std::move(text) },
-      m_font{ std::move(font) } { }
+      m_dest{ dest },
+      m_text{ service_provider->renderer().prerender_text(text, font, color) } { }
 
 
 void Text::render(const ServiceProvider& service_provider) const {
-    service_provider.renderer().draw_text(m_position, m_text, m_font, m_color);
+    service_provider.renderer().draw_texture(m_text, m_dest);
 }
 
-void Text::set_text(std::string text) {
-    m_text = std::move(text);
-}
-
-
-ScaledText::ScaledText(Rect dest, Color color, std::string text, Font font)
-    : m_dest{ dest },
-      m_color{ color },
-      m_text{ std::move(text) },
-      m_font{ std::move(font) } { }
-
-
-void ScaledText::render(const ServiceProvider& service_provider) const {
-    service_provider.renderer().draw_text(m_dest, m_text, m_font, m_color);
-}
-
-void ScaledText::set_text(std::string text) {
-    m_text = std::move(text);
+void Text::set_text(const ServiceProvider& service_provider, const std::string& text) {
+    m_text = service_provider.renderer().prerender_text(text, m_font, m_color);
 }

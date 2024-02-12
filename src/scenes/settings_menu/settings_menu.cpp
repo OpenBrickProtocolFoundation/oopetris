@@ -17,15 +17,15 @@ namespace scenes {
         auto id_helper = ui::IDHelper{};
 
         m_main_grid.add<ui::Label>(
-                id_helper.index(), "Settings", Color::white(), service_provider->fonts().get(FontId::Default),
-                std::pair<double, double>{ 0.3, 0.6 },
+                id_helper.index(), service_provider, "Settings", service_provider->fonts().get(FontId::Default),
+                Color::white(), std::pair<double, double>{ 0.3, 0.6 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
         );
 
 
         m_main_grid.add<ui::Label>(
-                id_helper.index(), "Volume", Color::white(), service_provider->fonts().get(FontId::Default),
-                std::pair<double, double>{ 0.1, 0.3 },
+                id_helper.index(), service_provider, "Volume", service_provider->fonts().get(FontId::Default),
+                Color::white(), std::pair<double, double>{ 0.1, 0.3 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Bottom }
         );
 
@@ -49,7 +49,8 @@ namespace scenes {
         });
 
         m_main_grid.add<ui::Button>(
-                id_helper.index(), "Return", id_helper.focus_id(), [this](const ui::Button&) { m_should_exit = true; },
+                id_helper.index(), service_provider, "Return", service_provider->fonts().get(FontId::Default),
+                Color::white(), id_helper.focus_id(), [this](const ui::Button&) { m_should_exit = true; },
                 std::pair<double, double>{ 0.15, 0.85 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
                 std::pair<double, double>{ 0.1, 0.1 }

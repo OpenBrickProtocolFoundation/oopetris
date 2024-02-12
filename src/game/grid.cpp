@@ -18,7 +18,7 @@ Grid::Grid(const ui::Layout& layout) : ui::Widget{ layout } {
     );
 
     m_fill_rect = ui::get_rectangle_aligned(
-            layout, m_tile_size * total_x_tiles, m_tile_size * total_y_tiles,
+            layout, { m_tile_size * total_x_tiles, m_tile_size * total_y_tiles },
             ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
     );
 }

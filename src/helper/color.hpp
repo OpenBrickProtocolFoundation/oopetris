@@ -2,6 +2,8 @@
 
 #include "helper/types.hpp"
 
+#include <SDL.h>
+
 struct Color {
     u8 r;
     u8 g;
@@ -37,4 +39,8 @@ struct Color {
     static constexpr Color white(u8 alpha = 0xFF) {
         return Color{ 0xFF, 0xFF, 0xFF, alpha };
     };
+
+    [[nodiscard]] SDL_Color to_sdl_color() const {
+        return SDL_Color{ r, g, b, a };
+    }
 };

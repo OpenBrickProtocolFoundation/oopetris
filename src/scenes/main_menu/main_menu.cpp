@@ -15,8 +15,8 @@ namespace scenes {
         auto id_helper = ui::IDHelper{};
 
         m_main_grid.add<ui::Label>(
-                id_helper.index(), constants::program_name, Color::white(),
-                service_provider->fonts().get(FontId::Default), std::pair<double, double>{ 0.3, 1.0 },
+                id_helper.index(), service_provider, constants::program_name,
+                service_provider->fonts().get(FontId::Default), Color::white(), std::pair<double, double>{ 0.3, 1.0 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
         );
 
@@ -31,27 +31,30 @@ namespace scenes {
                                                 : std::pair<double, double>{ 0.2, 0.2 };
 
         m_main_grid.add<ui::Button>(
-                id_helper.index(), "Start", id_helper.focus_id(),
-                [this](const ui::Button&) {
-                    spdlog::info("setting next command");
-                    m_next_command = Command::StartGame;
-                },
-                button_size, button_alignment, button_margins
-        );
-
-        m_main_grid.add<ui::Button>(
-                id_helper.index(), "Settings", id_helper.focus_id(),
-                [this](const ui::Button&) {
-                    spdlog::info("setting next command");
-                    m_next_command = Command::OpenSettingsMenu;
-                },
-                button_size, button_alignment, button_margins
-        );
-
-        m_main_grid.add<ui::Button>(
-                id_helper.index(), "Exit", id_helper.focus_id(),
-                [this](const ui::Button&) { m_next_command = Command::Exit; }, button_size, button_alignment,
+                id_helper.index(), service_provider, "Start", service_provider->fonts().get(FontId::Default),
+                Color::white(), id_helper.focus_id(),
+                [this](const ui::Button&) { m_next_command = Command::StartGame; }, button_size, button_alignment,
                 button_margins
+        );
+
+        m_main_grid.add<ui::Button>(
+                id_helper.index(), service_provider, "Settings", service_provider->fonts().get(FontId::Default),
+                Color::white(), id_helper.focus_id(),
+                [this](const ui::Button&) { m_next_command = Command::OpenSettingsMenu; }, button_size,
+                button_alignment, button_margins
+        );
+
+        m_main_grid.add<ui::Button>(
+                id_helper.index(), service_provider, "About", service_provider->fonts().get(FontId::Default),
+                Color::white(), id_helper.focus_id(),
+                [this](const ui::Button&) { m_next_command = Command::OpenAboutPage; }, button_size, button_alignment,
+                button_margins
+        );
+
+        m_main_grid.add<ui::Button>(
+                id_helper.index(), service_provider, "Exit", service_provider->fonts().get(FontId::Default),
+                Color::white(), id_helper.focus_id(), [this](const ui::Button&) { m_next_command = Command::Exit; },
+                button_size, button_alignment, button_margins
         );
 
         service_provider->music_manager()
@@ -68,6 +71,13 @@ namespace scenes {
                     return UpdateResult{
                         SceneUpdate::ContinueUpdating,
                         Scene::Switch{SceneId::Ingame, ui::FullScreenLayout{ m_service_provider->window() }}
+                    };
+                case Command::OpenAboutPage:
+                    // perform a push and reset the command, so that the music keeps playing the entire time
+                    m_next_command = tl::nullopt;
+                    return UpdateResult{
+                        SceneUpdate::ContinueUpdating,
+                        Scene::Push{SceneId::AboutPage, ui::FullScreenLayout{ m_service_provider->window() }}
                     };
                 case Command::OpenSettingsMenu:
                     // perform a push and reset the command, so that the music keeps playing the entire time

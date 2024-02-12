@@ -2,19 +2,22 @@
 #pragma once
 
 #include <SDL.h>
+#include <cerrno>
+#include <cstdlib>
+#include <spdlog/spdlog.h>
 #include <string>
 #include <string_view>
 #include <unordered_map>
 #include <vector>
 
 #include "graphics/window.hpp"
-#include "helper/static_string.hpp"
 #include "helper/types.hpp"
 #include "helper/utils.hpp"
 
 #if defined(__SWITCH__)
 #include "platform/switch_buttons.hpp"
 #endif
+
 
 namespace utils {
 
@@ -105,6 +108,9 @@ namespace utils {
         return get_capabilities().orientation;
     }
 
+    [[nodiscard]] std::string built_for_platform();
+
+    [[nodiscard]] bool open_url(const std::string& url);
 
     [[nodiscard]] bool event_is_action(const SDL_Event& event, CrossPlatformAction action);
 

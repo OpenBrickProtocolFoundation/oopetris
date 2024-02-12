@@ -70,8 +70,8 @@ namespace ui {
               m_step{ step },
               fill_rect{ ui::get_rectangle_aligned(
                       layout,
-                      static_cast<u32>(size.first * layout.get_rect().width()),
-                      static_cast<u32>(size.second * layout.get_rect().height()),
+                      { static_cast<u32>(size.first * layout.get_rect().width()),
+                        static_cast<u32>(size.second * layout.get_rect().height()) },
                       alignment
               ) } {
             assert(m_range.first <= m_range.second && "Range has to be in correct order!");
