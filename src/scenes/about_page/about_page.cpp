@@ -2,8 +2,12 @@
 #include "graphics/window.hpp"
 #include "helper/constants.hpp"
 #include "helper/git_helper.hpp"
+#include "helper/utils.hpp"
 #include "manager/resource_manager.hpp"
 #include "platform/capabilities.hpp"
+#include "ui/image_view.hpp"
+#include "ui/link_label.hpp"
+#include "ui/tile_layout.hpp"
 
 #include <fmt/format.h>
 
@@ -32,22 +36,50 @@ namespace scenes {
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
         );
 
-        //TODO: add contributors with name, clickable link and image
-        /* 
-        m_main_grid.add<ui::GridLayout<2>>(
-                id_helper.index(), "Return", id_helper.focus_id(), [this](const ui::Button&) { m_should_exit = true; },
-                std::pair<double, double>{ 0.15, 0.85 },
-                ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
-                std::pair<double, double>{ 0.1, 0.1 }
+
+        m_main_grid.add<ui::Label>(
+                id_helper.index(), "Authors:", Color::white(), service_provider->fonts().get(FontId::Default),
+                std::pair<double, double>{ 0.3, 0.6 },
+                ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
         );
 
+        const std::vector<std::tuple<std::string, std::string, std::string>> authors = {
+            {"mgerhold", "https://github.com/mgerhold", "mgerhold.jpg"},
+            { "Totto16",  "https://github.com/Totto16",  "Totto16.png"}
+        };
 
-        m_main_grid.add<ui::GridLayout<2>>(
-                id_helper.index(), "Return", id_helper.focus_id(), [this](const ui::Button&) { m_should_exit = true; },
-                std::pair<double, double>{ 0.15, 0.85 },
-                ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
-                std::pair<double, double>{ 0.1, 0.1 }
-        ); */
+        for (const auto& [name, link, image_name] : authors) {
+
+
+            const auto index = id_helper.index();
+
+            if (index >= m_main_grid.size()) {
+                throw std::runtime_error("To much authors or to less space in the grid layout!");
+            }
+
+            m_main_grid.add<ui::TileLayout<2>>(
+                    index, ui::Direction::Horizontal, std::array<double, 1>{ 0.85 }, ui::AbsolutMargin{ 0 },
+                    std::pair<double, double>{ 0.05, 0.03 }
+            );
+
+            ui::TileLayout<2>* tile_layout = m_main_grid.get<ui::TileLayout<2>>(index);
+
+            auto local_id_helper = ui::IDHelper{};
+
+
+            tile_layout->add<ui::LinkLabel>(
+                    local_id_helper.index(), name, link, Color::white(), Color{ 0xA1, 0x9F, 0x9F },
+                    service_provider->fonts().get(FontId::Default), std::pair<double, double>{ 0.9, 0.8 },
+                    ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
+            );
+
+            const auto final_path = utils::get_assets_folder() / "authors" / image_name;
+
+            tile_layout->add<ui::ImageView>(
+                    local_id_helper.index(), final_path, std::pair<double, double>{ 0.9, 0.8 },
+                    ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
+            );
+        }
     }
 
     [[nodiscard]] Scene::UpdateResult AboutPage::update() {

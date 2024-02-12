@@ -24,7 +24,23 @@ namespace ui {
         std::string m_caption;
         Callback m_callback;
         std::pair<u32, u32> margin;
-        Rect fill_rect;
+        Rect m_fill_rect;
+
+        explicit Button(
+                std::string caption,
+                usize focus_id,
+                Callback callback,
+                std::pair<u32, u32> margin,
+                const Rect& fill_rect,
+                const Layout& layout
+        )
+            : Widget(layout),
+              Focusable{ focus_id },
+              Hoverable{ fill_rect },
+              m_caption{ std::move(caption) },
+              m_callback{ std::move(callback) },
+              margin{ margin },
+              m_fill_rect{ fill_rect } { }
 
     public:
         explicit Button(
@@ -36,17 +52,19 @@ namespace ui {
                 std::pair<double, double> margin,
                 const Layout& layout
         )
-            : Widget(layout),
-              Focusable{ focus_id },
-              m_caption{ std::move(caption) },
-              m_callback{ std::move(callback) },
-              margin{ static_cast<u32>(margin.first * size.first), static_cast<u32>(margin.second * size.second) },
-              fill_rect{ ui::get_rectangle_aligned(
-                      layout,
-                      static_cast<u32>(size.first * layout.get_rect().width()),
-                      static_cast<u32>(size.second * layout.get_rect().height()),
-                      alignment
-              ) } { }
+            : Button{
+                  std::move(caption),
+                  focus_id,
+                  std::move(callback),
+                  {static_cast<u32>(margin.first * size.first), static_cast<u32>(margin.second * size.second)},
+                  ui::get_rectangle_aligned(
+                          layout,
+                          static_cast<u32>(size.first * layout.get_rect().width()),
+                          static_cast<u32>(size.second * layout.get_rect().height()),
+                          alignment
+                  ),
+                  layout
+        } { }
 
 
         void render(const ServiceProvider& service_provider) const override {
@@ -54,12 +72,12 @@ namespace ui {
                     (has_focus()    ? is_hovered() ? Color(0xFF, 0x6A, 0x00) : Color::red()
                         : is_hovered() ? Color(0x00, 0xBB, 0xFF)
                                     : Color::blue());
-            service_provider.renderer().draw_rect_filled(fill_rect, color);
+            service_provider.renderer().draw_rect_filled(m_fill_rect, color);
 
-            const Rect text_area{ fill_rect.top_left.x + static_cast<int>(margin.first),
-                                  fill_rect.top_left.y + static_cast<int>(margin.second),
-                                  fill_rect.width() - 2 * static_cast<int>(margin.first),
-                                  fill_rect.height() - 2 * static_cast<int>(margin.second) };
+            const Rect text_area{ m_fill_rect.top_left.x + static_cast<int>(margin.first),
+                                  m_fill_rect.top_left.y + static_cast<int>(margin.second),
+                                  m_fill_rect.width() - 2 * static_cast<int>(margin.first),
+                                  m_fill_rect.height() - 2 * static_cast<int>(margin.second) };
             service_provider.renderer().draw_text(
                     text_area, m_caption, service_provider.fonts().get(FontId::Default), Color::white()
             );
@@ -70,34 +88,21 @@ namespace ui {
             if (utils::device_supports_keys()) {
                 if (has_focus() and utils::event_is_action(event, utils::CrossPlatformAction::OK)) {
                     spdlog::info("button pressed");
-                    m_callback(*this);
+                    on_clicked();
                     return true;
                 }
             }
 
-
-            if (utils::device_supports_clicks()) {
-
-                if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::Any)) {
-                    //TODO: this hover logic is bad at detecting unhovers, especially on anrdoid, fix that
-                    if (utils::is_event_in(window, event, fill_rect)) {
-
-                        on_hover();
-
-                        if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::ButtonDown)) {
-                            spdlog::info("button clicked");
-                            m_callback(*this);
-                        }
-
-                        return true;
-                    }
-
-                    on_unhover();
-                }
+            if (detect_hover(event, window)) {
+                return true;
             }
 
-
             return false;
+        }
+
+
+        void on_clicked() override {
+            m_callback(*this);
         }
 
     private:

@@ -90,6 +90,15 @@ deps += dependency(
 )
 
 
+deps += dependency(
+    'sdl2_image',
+    'SDL2_image',
+    allow_fallback: not only_allow_native_libs,
+    required: true,
+    native: native,
+)
+
+
 # a dirty thing atm, until mpg123 is ported to meson (maybe never...)
 mpg123_dep = dependency(
     'mpg123',

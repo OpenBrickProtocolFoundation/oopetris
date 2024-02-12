@@ -11,7 +11,7 @@ namespace scenes {
     struct AboutPage : public Scene {
     private:
         bool m_should_exit = false;
-        ui::GridLayout<2> m_main_grid;
+        ui::GridLayout<5> m_main_grid;
 
 
     public:

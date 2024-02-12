@@ -7,14 +7,13 @@
 
 namespace ui {
 
-    enum class Capabilites { Focusable, Hoverable };
 
     struct Widget {
     private:
         Layout m_layout;
 
     public:
-        explicit Widget(Layout layout) : m_layout{ layout } { }
+        explicit Widget(const Layout& layout) : m_layout{ layout } { }
 
         Widget(const Widget&) = delete;
         Widget(Widget&&) = delete;

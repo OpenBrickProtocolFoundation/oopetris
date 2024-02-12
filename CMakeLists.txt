@@ -94,9 +94,11 @@ add_executable(oopetris
         src/ui/focusable.hpp
         src/ui/grid_layout.hpp
         src/ui/hoverable.hpp
+        src/ui/image_view.hpp
         src/ui/label.hpp
         src/ui/layout.cpp
         src/ui/layout.hpp
+        src/ui/link_label.hpp
         src/ui/slider.hpp
         src/ui/tile_layout.hpp
         src/ui/widget.hpp

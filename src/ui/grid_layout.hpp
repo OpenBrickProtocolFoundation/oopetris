@@ -32,6 +32,10 @@ namespace ui {
               margin{ static_cast<u32>(margin.first * layout.get_rect().width()),
                       static_cast<u32>(margin.second * layout.get_rect().height()) } { }
 
+        u32 size() const {
+            return S;
+        }
+
         void render(const ServiceProvider& service_provider) const override {
             for (const auto& widget : m_widgets) {
                 assert(widget.get() != nullptr && "Grid Layout initalized with to few child widgets!");
