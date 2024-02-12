@@ -2,7 +2,7 @@ LOCAL_PATH := $(call my-dir)
 BUILD_PATH=../../../../build-$(TARGET_ARCH_ABI)
 SUBPROJECTS_PATH :=$(BUILD_PATH)/subprojects
 
-# TODO: don't hardcode the versiosn of the dependencies 
+# TODO: don't hardcode the versions of the dependencies 
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := SDL2
@@ -69,6 +69,13 @@ include $(PREBUILT_SHARED_LIBRARY)
 
 
 include $(CLEAR_VARS)
+LOCAL_MODULE := SDL2_image
+LIB_PATH := $(SUBPROJECTS_PATH)/SDL2_image-2.6.3
+LOCAL_SRC_FILES :=  $(LIB_PATH)/libsdl2image.so
+include $(PREBUILT_SHARED_LIBRARY)
+
+
+include $(CLEAR_VARS)
 LOCAL_MODULE := libfmt
 LIB_PATH := $(SUBPROJECTS_PATH)/fmt-10.1.1
 LOCAL_SRC_FILES :=  $(LIB_PATH)/libfmt.so
@@ -84,7 +91,7 @@ include $(PREBUILT_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := main
-LOCAL_SHARED_LIBRARIES := SDL2 SDL2_ttf freetype libpng SDL2_mixer libvorbis libvorbisfile libogg libflac libfmt liboopetris
+LOCAL_SHARED_LIBRARIES := SDL2 SDL2_ttf freetype libpng SDL2_mixer libvorbis libvorbisfile libogg libflac SDL2_image libfmt liboopetris
 LOCAL_LDLIBS := -ldl -lGLESv1_CM -lGLESv2 -lOpenSLES -llog -landroid
 LOCAL_LDFLAGS := -Wl,--no-undefined
 include $(BUILD_SHARED_LIBRARY)
