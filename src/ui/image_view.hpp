@@ -18,6 +18,7 @@ namespace ui {
                 ServiceProvider* service_provider,
                 const std::string& image_path,
                 std::pair<double, double> size,
+                bool respect_ratio,
                 Alignment alignment,
                 const Layout& layout
         )
@@ -25,8 +26,12 @@ namespace ui {
               m_image{ std::move(service_provider->renderer().load_image(image_path)) },
               m_fill_rect{ ui::get_rectangle_aligned(
                       layout,
-                      static_cast<u32>(size.first * layout.get_rect().width()),
-                      static_cast<u32>(size.second * layout.get_rect().height()),
+                      ui::ratio_helper(
+                              { static_cast<u32>(size.first * layout.get_rect().width()),
+                                static_cast<u32>(size.second * layout.get_rect().height()) },
+                              respect_ratio,
+                              m_image.size()
+                      ),
                       alignment
               ) } { }
 

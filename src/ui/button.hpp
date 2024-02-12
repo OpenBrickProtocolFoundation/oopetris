@@ -74,11 +74,11 @@ namespace ui {
                   text_color,
                   ui::get_rectangle_aligned(
                           layout,
-                          static_cast<u32>(size.first * layout.get_rect().width()),
-                          static_cast<u32>(size.second * layout.get_rect().height()),
+                          {static_cast<u32>(size.first * layout.get_rect().width()),
+                            static_cast<u32>(size.second * layout.get_rect().height())                                             },
                           alignment
                   ),
-                  {static_cast<u32>(margin.first * size.first), static_cast<u32>(margin.second * size.second)},
+                  {             static_cast<u32>(margin.first * size.first), static_cast<u32>(margin.second * size.second)},
                   layout
         } { }
 

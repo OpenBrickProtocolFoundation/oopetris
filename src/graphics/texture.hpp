@@ -2,6 +2,7 @@
 
 #include "helper/color.hpp"
 #include "manager/font.hpp"
+#include "point.hpp"
 
 #include <SDL.h>
 #include <SDL_image.h>
@@ -68,5 +69,16 @@ public:
     void render(SDL_Renderer* renderer, const Rect& rect) const {
         const SDL_Rect rect_sdl = rect.to_sdl_rect();
         SDL_RenderCopy(renderer, m_raw_texture, nullptr, &rect_sdl);
+    }
+
+    Point size() const {
+        Point size;
+        const auto result = SDL_QueryTexture(m_raw_texture, nullptr, nullptr, &size.x, &size.y);
+
+        if (result < 0) {
+            spdlog::error("Failed to get texture size with error: {}", SDL_GetError());
+            return { 0, 0 };
+        }
+        return size;
     }
 };

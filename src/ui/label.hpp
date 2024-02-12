@@ -21,8 +21,8 @@ namespace ui {
               m_text{ service_provider, text, font, color,
                       ui::get_rectangle_aligned(
                               layout,
-                              static_cast<u32>(size.first * layout.get_rect().width()),
-                              static_cast<u32>(size.second * layout.get_rect().height()),
+                              { static_cast<u32>(size.first * layout.get_rect().width()),
+                                static_cast<u32>(size.second * layout.get_rect().height()) },
                               alignment
                       ) } { }
 

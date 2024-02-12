@@ -81,7 +81,11 @@ namespace ui {
 
     [[nodiscard]] u32 get_vertical_alignment_offset(const Layout& layout, AlignmentVertical alignment, u32 height);
 
-    [[nodiscard]] Rect get_rectangle_aligned(const Layout& layout, u32 width, u32 height, const Alignment& alignment);
+    [[nodiscard]] Rect
+    get_rectangle_aligned(const Layout& layout, const std::pair<u32, u32>& size, const Alignment& alignment);
+
+    [[nodiscard]] std::pair<u32, u32>
+    ratio_helper(const std::pair<u32, u32>& size, bool respect_ratio, const Point& original_ratio);
 
 
     enum class Direction { Horizontal, Vertical };
