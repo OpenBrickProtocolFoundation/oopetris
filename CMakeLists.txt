@@ -145,6 +145,7 @@ target_link_libraries(oopetris PRIVATE nlohmann_json::nlohmann_json)
 target_link_libraries(oopetris PRIVATE magic_enum::magic_enum)
 target_link_libraries(oopetris PRIVATE $<IF:$<TARGET_EXISTS:SDL2_ttf::SDL2_ttf>,SDL2_ttf::SDL2_ttf,SDL2_ttf::SDL2_ttf-static>)
 target_link_libraries(oopetris PRIVATE $<IF:$<TARGET_EXISTS:SDL2_mixer::SDL2_mixer>,SDL2_mixer::SDL2_mixer,SDL2_mixer::SDL2_mixer-static>)
+target_link_libraries(oopetris PRIVATE $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,SDL2_image::SDL2_image,SDL2_image::SDL2_image-static>)
 target_link_libraries(oopetris PRIVATE tl::optional)
 target_link_libraries(oopetris PRIVATE tl::expected)
 

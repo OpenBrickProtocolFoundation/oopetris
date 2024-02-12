@@ -13,7 +13,7 @@ Text::Text(
     : m_font{ font },
       m_color{ color },
       m_dest{ dest },
-      m_text{ std::move(service_provider->renderer().prerender_text(text, font, color)) } { }
+      m_text{ service_provider->renderer().prerender_text(text, font, color) } { }
 
 
 void Text::render(const ServiceProvider& service_provider) const {
@@ -21,5 +21,5 @@ void Text::render(const ServiceProvider& service_provider) const {
 }
 
 void Text::set_text(const ServiceProvider& service_provider, const std::string& text) {
-    m_text = std::move(service_provider.renderer().prerender_text(text, m_font, m_color));
+    m_text = service_provider.renderer().prerender_text(text, m_font, m_color);
 }
