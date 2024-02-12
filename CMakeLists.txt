@@ -40,6 +40,7 @@ add_executable(oopetris
         src/graphics/sdl_context.hpp
         src/graphics/text.cpp
         src/graphics/text.hpp
+        src/graphics/texture.hpp
         src/graphics/window.cpp
         src/graphics/window.hpp
         src/helper/clock_source.cpp

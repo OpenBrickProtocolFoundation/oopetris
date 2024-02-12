@@ -76,3 +76,12 @@ void Renderer::draw_text(const Rect dest, const std::string& text, const Font& f
 
     SDL_DestroyTexture(texture);
 }
+
+
+void Renderer::draw_texture(const Texture& texture, const Rect& rect) const {
+    texture.render(m_renderer, rect);
+}
+
+Texture Renderer::load_image(const std::string& image_path) const {
+    return Texture::from_image(m_renderer, image_path);
+}
