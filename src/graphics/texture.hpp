@@ -3,6 +3,7 @@
 #include "helper/color.hpp"
 #include "manager/font.hpp"
 #include "point.hpp"
+#include "rect.hpp"
 
 #include <SDL.h>
 #include <SDL_image.h>
@@ -44,11 +45,11 @@ public:
     Texture(const Texture&) = delete;
     Texture& operator=(const Texture&) = delete;
 
-    Texture(Texture&& old) : m_raw_texture{ old.m_raw_texture } {
+    Texture(Texture&& old) noexcept : m_raw_texture{ old.m_raw_texture } {
         old.m_raw_texture = nullptr;
     };
 
-    Texture& operator=(Texture&& other) {
+    Texture& operator=(Texture&& other) noexcept {
         if (this != &other) {
             this->~Texture();
             this->m_raw_texture = other.m_raw_texture;
@@ -71,7 +72,7 @@ public:
         SDL_RenderCopy(renderer, m_raw_texture, nullptr, &rect_sdl);
     }
 
-    Point size() const {
+    [[nodiscard]] Point size() const {
         Point size;
         const auto result = SDL_QueryTexture(m_raw_texture, nullptr, nullptr, &size.x, &size.y);
 

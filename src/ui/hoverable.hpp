@@ -1,5 +1,8 @@
 #pragma once
+
 #include "helper/types.hpp"
+#include "platform/capabilities.hpp"
+
 #include <cassert>
 
 namespace ui {

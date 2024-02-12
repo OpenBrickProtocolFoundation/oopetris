@@ -51,13 +51,13 @@ ui::ratio_helper(const std::pair<u32, u32>& size, bool respect_ratio, const Poin
         return size;
     }
 
-    double dest_ratio = static_cast<double>(original_ratio.x) / static_cast<double>(original_ratio.y);
+    const double dest_ratio = static_cast<double>(original_ratio.x) / static_cast<double>(original_ratio.y);
 
-    double current_ratio = static_cast<double>(size.first) / static_cast<double>(size.second);
+    const double current_ratio = static_cast<double>(size.first) / static_cast<double>(size.second);
 
     if (current_ratio >= dest_ratio) {
         return { static_cast<u32>(dest_ratio * size.first / current_ratio), size.second };
-    } else {
-        return { size.first, static_cast<u32>(size.second * current_ratio / dest_ratio) };
     }
+
+    return { size.first, static_cast<u32>(size.second * current_ratio / dest_ratio) };
 }

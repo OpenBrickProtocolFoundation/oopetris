@@ -23,7 +23,7 @@ namespace ui {
                 const Layout& layout
         )
             : Widget{ layout },
-              m_image{ std::move(service_provider->renderer().load_image(image_path)) },
+              m_image{ service_provider->renderer().load_image(image_path) },
               m_fill_rect{ ui::get_rectangle_aligned(
                       layout,
                       ui::ratio_helper(

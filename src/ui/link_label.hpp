@@ -17,10 +17,10 @@ namespace ui {
 
         explicit LinkLabel(
                 ServiceProvider* service_provider,
-                const std::string& text,
-                const std::string& url,
+                const std::string& text, // NOLINT(bugprone-easily-swappable-parameters)
+                std::string url,
                 const Font& font,
-                const Color& color,
+                const Color& color, // NOLINT(bugprone-easily-swappable-parameters)
                 const Color& hover_color,
                 const Rect& fill_rect,
                 const Layout& layout
@@ -29,7 +29,7 @@ namespace ui {
               Hoverable{ fill_rect },
               m_text{ service_provider, text, font, color, fill_rect },
               m_hover_text{ service_provider, text, font, hover_color, fill_rect },
-              m_url{ url } { }
+              m_url{ std::move(url) } { }
 
 
     public:
@@ -68,11 +68,7 @@ namespace ui {
 
         bool handle_event(const SDL_Event& event, const Window* window) override {
 
-            if (detect_hover(event, window)) {
-                return true;
-            }
-
-            return false;
+            return detect_hover(event, window);
         }
 
         void on_clicked() override {

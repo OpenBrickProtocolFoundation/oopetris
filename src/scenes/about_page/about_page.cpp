@@ -62,7 +62,7 @@ namespace scenes {
                     std::pair<double, double>{ 0.05, 0.03 }
             );
 
-            ui::TileLayout<2>* tile_layout = m_main_grid.get<ui::TileLayout<2>>(index);
+            auto* tile_layout = m_main_grid.get<ui::TileLayout<2>>(index);
 
             auto local_id_helper = ui::IDHelper{};
 

@@ -18,22 +18,22 @@ Renderer::~Renderer() {
     SDL_DestroyRenderer(m_renderer);
 }
 
-void Renderer::set_draw_color(Color color) const {
+void Renderer::set_draw_color(const Color& color) const {
     SDL_SetRenderDrawColor(m_renderer, color.r, color.g, color.b, color.a);
 }
 
-void Renderer::clear(Color clear_color) const {
+void Renderer::clear(const Color& clear_color) const {
     set_draw_color(clear_color);
     SDL_RenderClear(m_renderer);
 }
 
-void Renderer::draw_rect_filled(Rect rect, Color color) const {
+void Renderer::draw_rect_filled(const Rect& rect, const Color& color) const {
     set_draw_color(color);
     const SDL_Rect sdl_rect = to_sdl_rect(rect);
     SDL_RenderFillRect(m_renderer, &sdl_rect);
 }
 
-void Renderer::draw_rect_outline(Rect rect, Color color) const {
+void Renderer::draw_rect_outline(const Rect& rect, const Color& color) const {
     set_draw_color(color);
     const SDL_Rect sdl_rect = to_sdl_rect(rect);
     SDL_RenderDrawRect(m_renderer, &sdl_rect);
@@ -43,7 +43,7 @@ void Renderer::present() const {
     SDL_RenderPresent(m_renderer);
 }
 
-void Renderer::draw_line(const Point start, const Point end, const Color color) const {
+void Renderer::draw_line(const Point& start, const Point& end, const Color& color) const {
     set_draw_color(color);
     SDL_RenderDrawLine(m_renderer, start.x, start.y, end.x, end.y);
 }
@@ -56,6 +56,6 @@ Texture Renderer::load_image(const std::string& image_path) const {
     return Texture::from_image(m_renderer, image_path);
 }
 
-Texture Renderer::prerender_text(const std::string& text, const Font& font, const Color color) const {
+Texture Renderer::prerender_text(const std::string& text, const Font& font, const Color& color) const {
     return Texture::prerender_text(m_renderer, text, font, color);
 }
