@@ -218,17 +218,20 @@ deps += dependency(
     fallback: ['argparse'],
 )
 
-deps += dependency(
-    'cpp-httplib',
-    required: true,
-    native: native,
-    fallback: ['cpp-httplib'],
-    default_options: {
-        'cpp-httplib_openssl': 'enabled',
-        'cpp-httplib_zlib': 'enabled',
-    },
-)
-
+if meson.is_cross_build() and host_machine.system() == 'switch'
+    compile_args += ['-D_HTTPLIB_NOT_SUPPORTED']
+else
+    deps += dependency(
+        'cpp-httplib',
+        required: true,
+        native: native,
+        fallback: ['cpp-httplib'],
+        default_options: {
+            'cpp-httplib_openssl': 'enabled',
+            'cpp-httplib_zlib': 'enabled',
+        },
+    )
+endif
 
 if (meson.is_cross_build() and host_machine.system() == 'switch')
 
@@ -250,6 +253,7 @@ if (meson.is_cross_build() and host_machine.system() == 'switch')
         'modplug',
         'harfbuzz',
         'FLAC',
+        'curl',
     ]
 
 

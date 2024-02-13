@@ -2,7 +2,11 @@
 
 #pragma once
 
-#define CPPHTTPLIB_USE_POLL // NOLINT(cppcoreguidelines-macro-usage)
+
+#if defined(_HTTPLIB_NOT_SUPPORTED)
+//TODO: nintendo switch doesn't support httplib, but it supports curl (which is not that convenient)
+#include <curl/curl.h>
+#else
 
 #if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic push
@@ -10,12 +14,15 @@
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
 
+#define CPPHTTPLIB_USE_POLL // NOLINT(cppcoreguidelines-macro-usage)
+
 #include <httplib.h>
 
 #if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
 
+#endif
 
 #include <fmt/format.h>
 #include <spdlog/spdlog.h>
@@ -23,6 +30,9 @@
 
 #include "helper/static_string.hpp"
 #include "lobby/types.hpp"
+
+//TODO: cleanup this mess in different header files
+#if !defined(_HTTPLIB_NOT_SUPPORTED)
 
 namespace constants {
     const std::string json_content_type = "application/json";
@@ -197,7 +207,7 @@ namespace lobby {
     public:
         Client(Client&& other)
             : m_client{ std::move(other.m_client) },
-              authentication_token{ std::move(other.authentication_token) } {};
+              authentication_token{ std::move(other.authentication_token) } { }
 
         tl::expected<Client, std::string> static get_client(const std::string& url) {
 
@@ -342,3 +352,24 @@ namespace lobby {
 
 
 } // namespace lobby
+
+#else
+
+//TODO: this is just a dummy atm
+
+namespace lobby {
+
+
+    struct Client {
+
+        Client(Client&&) { }
+
+        tl::expected<Client, std::string> static get_client([[maybe_unused]] const std::string& url) {
+
+            return tl::make_unexpected("NOT SUPPORTED ATM");
+        }
+    };
+} // namespace lobby
+
+
+#endif
