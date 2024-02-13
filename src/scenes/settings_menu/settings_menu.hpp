@@ -1,5 +1,8 @@
 #pragma once
 
+#include <memory>
+
+#include "lobby/api.hpp"
 #include "scenes/scene.hpp"
 #include "ui/button.hpp"
 #include "ui/grid_layout.hpp"
@@ -12,6 +15,7 @@ namespace scenes {
     private:
         bool m_should_exit = false;
         ui::GridLayout<4> m_main_grid;
+        std::unique_ptr<lobby::Client> client{ nullptr };
 
         const std::string listener_name = "settings_menu";
 

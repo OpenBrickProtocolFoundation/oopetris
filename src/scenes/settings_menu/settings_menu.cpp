@@ -4,6 +4,8 @@
 #include "manager/music_manager.hpp"
 #include "manager/resource_manager.hpp"
 
+#include <spdlog/spdlog.h>
+
 namespace scenes {
 
     SettingsMenu::SettingsMenu(ServiceProvider* service_provider, const  ui::Layout& layout) : Scene{service_provider, layout}
@@ -12,7 +14,16 @@ namespace scenes {
     ui::RelativeMargin{ layout, ui::Direction::Vertical, 0.05 },
     std::pair<double, double>{ 0.05, 0.05 } ,
     ui::RelativeLayout{layout, 0.0, 0.2, 1.0, 0.5  }
-} {
+} 
+{
+
+        auto maybe_client = lobby::Client::get_client("http://127.0.0.1:5000");
+        if (maybe_client.has_value()) {
+            client = std::make_unique<lobby::Client>(std::move(maybe_client.value()));
+        } else {
+            spdlog::error("Error in connecting to lobby client: {}", maybe_client.error());
+        }
+
 
         auto id_helper = ui::IDHelper{};
 
@@ -58,6 +69,8 @@ namespace scenes {
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
                 std::pair<double, double>{ 0.1, 0.1 }
         );
+
+        //std::cout << client.get_version().value().version << "\n";
     }
 
     [[nodiscard]] Scene::UpdateResult SettingsMenu::update() {

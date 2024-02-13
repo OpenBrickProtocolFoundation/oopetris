@@ -76,11 +76,11 @@ namespace lobby {
 
         static constexpr StaticString supported_version{ "0.1.0" };
 
-        void check_compatibility() {
+        tl::expected<bool, std::string> check_compatibility() {
             const auto server_version = get_version();
 
             if (not server_version.has_value()) {
-                throw std::runtime_error(fmt::format(
+                return tl::make_unexpected(fmt::format(
                         "Connecting to unsupported server, he can't report his version\nGot error: {}",
                         server_version.error()
                 ));
@@ -90,25 +90,56 @@ namespace lobby {
 
             //TODO: if version is semver, support semver comparison
             if (Client::supported_version.string() != version.version) {
-                throw std::runtime_error(fmt::format(
+                return tl::make_unexpected(fmt::format(
                         "Connecting to unsupported server, version is {}, but we support only {}",
                         Client::supported_version.string(), version.version
                 ));
             }
+
+            return true;
         }
 
+        tl::expected<bool, std::string> check_reachability() {
 
-    public:
+            auto result = m_client.Get("/");
+
+            if (not result) {
+                return tl::make_unexpected(fmt::format("Server not reachable: {}", httplib::to_string(result.error())));
+            }
+
+            return true;
+        }
+
         explicit Client(const std::string& api_url) : m_client{ api_url } {
 
-            check_compatibility();
+            m_client.set_default_headers({
+                    {"Accept-Encoding",    "gzip, deflate"},
+                    {         "Accept", "application/json"}
+            });
         }
 
-        //TODO: wait for https://github.com/OpenBrickProtocolFoundation/lobby/pull/4
         tl::expected<VersionResult, std::string> get_version() {
             auto res = m_client.Get("/version");
 
             return get_json_from_request<VersionResult>(res);
+        }
+
+    public:
+        Client(Client&& other) : m_client{ std::move(other.m_client) } {};
+
+        tl::expected<Client, std::string> static get_client(const std::string& url) {
+
+            Client client{ url };
+
+            const auto reachable = client.check_reachability();
+
+            if (not reachable.has_value()) {
+                return tl::make_unexpected(reachable.error());
+            }
+
+            //TODO: once version is standard, use that to check if the version is supported
+
+            return client;
         }
     };
 
