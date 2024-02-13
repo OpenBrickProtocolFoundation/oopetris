@@ -39,7 +39,7 @@ namespace {
 
         if (result->status != ok_code) {
             return tl::make_unexpected(fmt::format(
-                    "Status code was not {} but {}", ok_code, httplib::detail::status_message(result->status)
+                    "Status code was not {} but {}", ok_code, httplib::status_message(result->status)
             ));
         }
 
