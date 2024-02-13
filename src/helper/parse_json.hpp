@@ -10,6 +10,7 @@
 #include <filesystem>
 #include <fmt/format.h>
 #include <fstream>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <tl/expected.hpp>
@@ -41,19 +42,18 @@ namespace json {
 
         if (not std::filesystem::exists(file)) {
             return tl::make_unexpected(fmt::format("File '{}' doesn't exist", file.string()));
-        } else {
-
-            std::ifstream file_stream{ file };
-
-            if (!file_stream.is_open()) {
-                return tl::make_unexpected(fmt::format("File '{}' couldn't be opened!", file.string()));
-            }
-
-            std::stringstream result;
-            result << file_stream.rdbuf();
-
-            return try_parse_json<T>(result.str());
         }
+
+        std::ifstream file_stream{ file };
+
+        if (!file_stream.is_open()) {
+            return tl::make_unexpected(fmt::format("File '{}' couldn't be opened!", file.string()));
+        }
+
+        std::stringstream result;
+        result << file_stream.rdbuf();
+
+        return try_parse_json<T>(result.str());
     }
 
 

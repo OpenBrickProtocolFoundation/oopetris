@@ -20,6 +20,7 @@
 #include <fmt/format.h>
 #include <tl/expected.hpp>
 
+#include "helper/static_string.hpp"
 #include "lobby/types.hpp"
 
 namespace {
@@ -38,9 +39,9 @@ namespace {
 
 
         if (result->status != ok_code) {
-            return tl::make_unexpected(fmt::format(
-                    "Status code was not {} but {}", ok_code, httplib::status_message(result->status)
-            ));
+            return tl::make_unexpected(
+                    fmt::format("Status code was not {} but {}", ok_code, httplib::status_message(result->status))
+            );
         }
 
         if (not result->has_header("Content-Type")) {
@@ -56,9 +57,9 @@ namespace {
 
         if (parsed.has_value()) {
             return parsed.value();
-        } else {
-            return tl::make_unexpected(fmt::format("Couldn't parse json with error: {}", parsed.error()));
         }
+
+        return tl::make_unexpected(fmt::format("Couldn't parse json with error: {}", parsed.error()));
     }
 
 
@@ -73,7 +74,7 @@ namespace lobby {
         httplib::Client m_client;
 
 
-        static constexpr std::string supported_version{ "0.1.0" };
+        static constexpr StaticString supported_version{ "0.1.0" };
 
         void check_compatibility() {
             const auto server_version = get_version();
@@ -85,13 +86,13 @@ namespace lobby {
                 ));
             }
 
-            const auto version = server_version.value();
+            const auto& version = server_version.value();
 
             //TODO: if version is semver, support semver comparison
-            if (Client::supported_version != version.version) {
+            if (Client::supported_version.string() != version.version) {
                 throw std::runtime_error(fmt::format(
                         "Connecting to unsupported server, version is {}, but we support only {}",
-                        Client::supported_version, version.version
+                        Client::supported_version.string(), version.version
                 ));
             }
         }

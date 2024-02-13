@@ -74,14 +74,14 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
     BITNESS=$(echo "$RAW_JSON" | jq -M -r -c '."bitness"') || true
     ARCH=$(echo "$RAW_JSON" | jq -M -r -c '."arch"')
-    ARM_VERSION=$(echo "$RAW_JSON" | jq -M -r -c '."proc"' | tr -d "-")
+    ARCH_VERSION=$(echo "$RAW_JSON" | jq -M -r -c '."proc"' | tr -d "-")
     ARM_NAME_TRIPLE=$(echo "$RAW_JSON" | jq -M -r -c '."triple"')
     ARM_TARGET_ARCH=$KEY
     ARM_TRIPLE=$ARM_NAME_TRIPLE$SDK_VERSION
     ARM_COMPILER_TRIPLE=$(echo "$RAW_JSON" | jq -M -r -c '."llvm_triple"')
-    ARM_TOOL_TRIPLE=$(echo "$ARM_NAME_TRIPLE$SDK_VERSION" | sed s/$ARCH/$ARM_VERSION/)
+    ARM_TOOL_TRIPLE=$(echo "$ARM_NAME_TRIPLE$SDK_VERSION" | sed s/$ARCH/$ARCH_VERSION/)
 
-    export SYM_LINK_PATH=sysroot_sym-$ARM_VERSION
+    export SYM_LINK_PATH=sysroot_sym-$ARCH_VERSION
 
     export HOST_ROOT="$BASE_PATH/toolchains/llvm/prebuilt/linux-x86_64"
     export SYS_ROOT="${HOST_ROOT}/$SYM_LINK_PATH"
@@ -131,9 +131,11 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
     export STRIP=llvm-strip
     unset PKG_CONFIG
 
+    ## BUILD dependencies not buildable with meson (to complicated to port)
+
     ## build mpg123 with autotools (meson port is to much work atm, for this feature)
 
-    LAST_DIR=$PWD
+    LAST_DIR="$PWD"
 
     cd "$SYS_ROOT"
 
@@ -141,11 +143,11 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
     cd build
 
-    wget -q "https://www.mpg123.de/download/mpg123-1.31.3.tar.bz2"
+    wget -q "https://www.mpg123.de/download/mpg123-1.32.4.tar.bz2"
 
-    tar -xf "mpg123-1.31.3.tar.bz2"
+    tar -xf "mpg123-1.32.4.tar.bz2"
 
-    cd "mpg123-1.31.3"
+    cd "mpg123-1.32.4"
 
     BUILDYSTEM="cmake"
 
@@ -161,11 +163,13 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
         cd ports/cmake/
 
-        mkdir -p build
+        BUILD_DIR_MPG123="build-mpg123"
 
-        cd build
+        mkdir -p "$BUILD_DIR_MPG123"
 
-        if [ "$ARM_VERSION" = "i686" ]; then
+        cd "$BUILD_DIR_MPG123"
+
+        if [ "$ARCH_VERSION" = "i686" ]; then
             #cmake .. -DCMAKE_TOOLCHAIN_FILE=linux_i686.toolchain.cmake --install-prefix "$SYS_ROOT/usr" "-DCMAKE_SYSROOT=$SYS_ROOT" -DOUTPUT_MODULES=dummy -DCMAKE_POSITION_INDEPENDENT_CODE=ON
             # cmake --build .
 
@@ -183,6 +187,38 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
     cd "$LAST_DIR"
 
+    ## build openssl with make (meson port is to much work atm, for this feature)
+
+    LAST_DIR="$PWD"
+
+    cd "$SYS_ROOT"
+
+    BUILD_DIR_OPENSSL="build-openssl"
+
+    mkdir -p "$BUILD_DIR_OPENSSL"
+
+    cd "$BUILD_DIR_OPENSSL"
+
+    wget -q "https://www.openssl.org/source/openssl-3.0.13.tar.gz"
+
+    tar -xzf "openssl-3.0.13.tar.gz"
+
+    cd "openssl-3.0.13"
+
+    OPENSSL_TARGET_ARCH="android-$ARCH"
+
+    export ANDROID_NDK_ROOT="$ANDROID_NDK_HOME"
+
+    ./Configure --prefix="$SYS_ROOT/usr" no-tests "$OPENSSL_TARGET_ARCH" "-D__ANDROID_API__=$SDK_VERSION"
+
+    make -j build_sw
+
+    make install_sw
+
+    cd "$LAST_DIR"
+
+    ## END of manual build of dependencies
+
     MESON_CPU_FAMILY=$ARCH
 
     ## this is a flaw in the abis.json, everything is labelled with aarch64 and not arm64, but the "arch" json value is wrong, and meson (https://mesonbuild.com/Reference-tables.html#cpu-families) only knows aarch64!
@@ -194,7 +230,7 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 [host_machine]
 system = 'android'
 cpu_family = '$MESON_CPU_FAMILY'
-cpu = '$ARM_VERSION'
+cpu = '$ARCH_VERSION'
 endian = 'little'
 
 [constants]
