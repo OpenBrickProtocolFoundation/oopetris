@@ -14,6 +14,37 @@
 #include <stdexcept>
 #include <string>
 #include <tl/expected.hpp>
+#include <tl/optional.hpp>
+
+// START: general json parser helper
+
+//helper for tl::optional json conversion
+
+NLOHMANN_JSON_NAMESPACE_BEGIN
+template<typename T>
+struct adl_serializer<tl::optional<T>> {
+    static void to_json(json& j, const tl::optional<T>& opt) {
+        if (not opt) {
+            j = nullptr;
+        } else {
+            j = *opt; // this will call adl_serializer<T>::to_json which will
+                      // find the free function to_json in T's namespace!
+        }
+    }
+
+    static void from_json(const json& j, tl::optional<T>& opt) {
+        if (j.is_null()) {
+            opt = tl::nullopt;
+        } else {
+            opt = j.template get<T>(); // same as above, but with
+                                       // adl_serializer<T>::from_json
+        }
+    }
+};
+NLOHMANN_JSON_NAMESPACE_END
+
+
+// END: general json parser helper
 
 namespace json {
 
@@ -36,7 +67,6 @@ namespace json {
         }
     }
 
-
     template<typename T>
     [[nodiscard]] tl::expected<T, std::string> try_parse_json_file(const std::filesystem::path& file) {
 
@@ -54,6 +84,23 @@ namespace json {
         result << file_stream.rdbuf();
 
         return try_parse_json<T>(result.str());
+    }
+
+
+    template<typename T>
+    [[nodiscard]] tl::expected<std::string, std::string> try_json_to_string(const T& type) {
+        try {
+
+            const nlohmann::json value = type;
+            return value.dump(-1, ' ', false);
+
+        } catch (nlohmann::json::type_error& type_error) {
+            return tl::make_unexpected(fmt::format("type error: {}", type_error.what()));
+        } catch (nlohmann::json::exception& exception) {
+            return tl::make_unexpected(fmt::format("unknown json exception: {}", exception.what()));
+        } catch (std::exception& exception) {
+            return tl::make_unexpected(fmt::format("unknown exception: {}", exception.what()));
+        }
     }
 
 
