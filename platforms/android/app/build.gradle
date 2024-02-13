@@ -7,6 +7,11 @@ if (buildAsApplication) {
     apply plugin: 'com.android.library'
 }
 
+boolean existsABIDir(String abi) {
+    String path = "../../../../build-" + abi;
+    File file = project.file(project.getLayout().getBuildDirectory().file(path));
+    return file.exists();
+}
 
 /**
  * Read the Android ABI from user input.
@@ -16,13 +21,20 @@ if (buildAsApplication) {
 def List getAndroidABI() {
     String property = project.findProperty('ANDROID_ABI')
 
-    List<String> AbiFilters = new ArrayList<String>()
+    List<String> supportedABIs = ["armeabi-v7a", "arm64-v8a", "x86", "x86_64"];
 
+    List<String> AbiFilters = new ArrayList<String>()
     if (property == null) {
-        AbiFilters.add("armeabi-v7a");
-        AbiFilters.add("arm64-v8a");
-        AbiFilters.add("x86");
-        AbiFilters.add("x86_64");
+        // auto detect
+        for (abi in supportedABIs) {
+            if (existsABIDir(abi)) {
+                AbiFilters.add(abi);
+            }
+        }
+    } else if (property == "all") {
+        for (abi in supportedABIs) {
+            AbiFilters.add(abi);
+        }
     } else if (property.equalsIgnoreCase('armeabi-v7a')) {
         AbiFilters.add(property);
     } else if (property.equalsIgnoreCase('arm64-v8a')) {
@@ -34,21 +46,19 @@ def List getAndroidABI() {
     } else {
         throw new Exception('ERROR: Invalid ANDROID_ABI entered: ' + property)
     }
-    return AbiFilters
-}
 
-def checkIfBuildDirsExists(List<String> abis) {
-
-    for (abi in abis) {
-        String path = "../../../../build-" + abi;
-        File file = project.file(project.getLayout().getBuildDirectory().file(path));
-        if (!file.exists()) {
+    for (abi in AbiFilters) {
+        if (!existsABIDir(abi)) {
             throw new Exception('ERROR: build folder for abi \'' + abi + '\' doesn\'t  exist: ' + file);
         }
-
     }
-}
 
+    if (AbiFilters.size() == 0) {
+        throw new Exception('ERROR: at least one ABI is needed to build this app!');
+    }
+
+    return AbiFilters
+}
 
 android {
     compileSdk 34
@@ -98,8 +108,6 @@ android {
             }
         }
     }
-
-    checkIfBuildDirsExists(getAndroidABI())
 
     splits {
         // Configures multiple APKs based on ABI.

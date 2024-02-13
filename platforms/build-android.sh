@@ -209,7 +209,7 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
     export ANDROID_NDK_ROOT="$ANDROID_NDK_HOME"
 
-    ./Configure --prefix="$SYS_ROOT/usr" no-tests "$OPENSSL_TARGET_ARCH" "-D__ANDROID_API__=$SDK_VERSION"
+    ./Configure --prefix="$SYS_ROOT/usr" no-tests no-shared "$OPENSSL_TARGET_ARCH" "-D__ANDROID_API__=$SDK_VERSION"
 
     make -j build_sw
 
