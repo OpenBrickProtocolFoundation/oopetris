@@ -30,12 +30,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install meson
 
-      # see sdl2.wrap and the issue link in there, it is a problem on windows, and therefore it has to be enabled only in android, where it suceeds
-      - name: Temporary fix
-        run: |
-          sed -i 's/# diff_files/diff_files/g' subprojects/sdl2.wrap 
-          sed -i 's/# diff_files/diff_files/g' subprojects/magic_enum.wrap 
-
       - name: Setup ninja
         run: |
             sudo apt-get update
