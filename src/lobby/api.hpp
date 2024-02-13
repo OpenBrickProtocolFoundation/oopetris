@@ -8,17 +8,18 @@
 #include <curl/curl.h>
 #else
 
-#if defined(__GNUC__) && !defined(__clang__)
+#if defined(__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 #pragma GCC diagnostic ignored "-Warray-bounds"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
 
 #define CPPHTTPLIB_USE_POLL // NOLINT(cppcoreguidelines-macro-usage)
 
 #include <httplib.h>
 
-#if defined(__GNUC__) && !defined(__clang__)
+#if defined(__GNUC__)
 #pragma GCC diagnostic pop
 #endif
 
