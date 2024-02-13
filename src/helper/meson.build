@@ -8,6 +8,8 @@ src_files += files(
     'git_helper.hpp',
     'magic_enum_wrapper.hpp',
     'optional.hpp',
+    'parse_json.cpp',
+    'parse_json.hpp',
     'random.cpp',
     'random.hpp',
     'static_string.hpp',

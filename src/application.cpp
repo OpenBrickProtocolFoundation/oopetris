@@ -1,7 +1,7 @@
 #include "application.hpp"
 #include "platform/capabilities.hpp"
 #include "scenes/scene.hpp"
-#include <fmt/format.h>
+
 #include <fstream>
 #include <stdexcept>
 
@@ -78,7 +78,7 @@ void Application::update() {
         const auto [scene_update, scene_change] = m_scene_stack.at(index)->update();
         if (scene_change) {
             std::visit(
-                    overloaded{
+                    helpers::overloaded{
                             [this, index](const scenes::Scene::Pop&) {
                                 m_scene_stack.erase(
                                         m_scene_stack.begin()
@@ -122,30 +122,15 @@ void Application::initialize() {
 
 void Application::try_load_settings() {
     const std::filesystem::path settings_file = utils::get_root_folder() / settings_filename;
-    std::string reason{};
-    if (not std::filesystem::exists(settings_file)) {
-        reason = "file doesn't exist";
+
+    const auto result = json::try_parse_json_file<Settings>(settings_file);
+
+    if (result.has_value()) {
+        m_settings = result.value();
     } else {
-        try {
-            std::ifstream settings_file_stream{ settings_file };
-
-            m_settings = nlohmann::json::parse(settings_file_stream);
-            spdlog::info("settings loaded");
-            return;
-
-        } catch (nlohmann::json::parse_error& parse_error) {
-            reason = fmt::format("parse error: {}", parse_error.what());
-        } catch (nlohmann::json::type_error& type_error) {
-            reason = fmt::format("type error: {}", type_error.what());
-        } catch (nlohmann::json::exception& exception) {
-            reason = fmt::format("unknown json exception: {}", exception.what());
-        } catch (std::exception& exception) {
-            reason = fmt::format("unknown exception: {}", exception.what());
-        }
+        spdlog::error("unable to load settings from \"{}\": {}", settings_filename, result.error());
+        spdlog::warn("applying default settings");
     }
-
-    spdlog::error("unable to load settings from \"{}\": {}", settings_filename, reason);
-    spdlog::warn("applying default settings");
 }
 
 void Application::load_resources() {

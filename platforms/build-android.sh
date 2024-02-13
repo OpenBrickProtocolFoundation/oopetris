@@ -259,6 +259,7 @@ EOF
         "--includedir=$INC_PATH" \
         "--libdir=usr/lib/$ARM_NAME_TRIPLE/$SDK_VERSION" \
         --cross-file "./platforms/crossbuild-android-$ARM_TARGET_ARCH.ini" \
+        -Dbuildtype=release \
         -Dsdl2:use_hidapi=disabled \
         -Dcpp_args=-DAUDIO_PREFER_MP3
 

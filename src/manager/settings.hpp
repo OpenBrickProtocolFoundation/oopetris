@@ -1,17 +1,11 @@
 #pragma once
 
 #include "helper/magic_enum_wrapper.hpp"
+#include "helper/parse_json.hpp"
 #include "input/controls.hpp"
 #include <array>
 
 #include <fmt/format.h>
-
-#ifdef DEBUG_BUILD
-// better json error messages, see https://json.nlohmann.me/api/macros/json_diagnostics/
-#define JSON_DIAGNOSTICS 1
-#endif
-#include <nlohmann/json.hpp>
-
 #include <string>
 #include <variant>
 
@@ -48,6 +42,10 @@ inline KeyCode get_key_code_safe(const nlohmann::json& j, const std::string& nam
 
 inline void from_json(const nlohmann::json& j, KeyboardControls& controls) {
 
+    json::check_for_no_additional_keys(
+            j, { "type", "rotate_left", "rotate_right", "move_left", "move_right", "move_down", "drop", "hold" }
+    );
+
     controls.rotate_left = get_key_code_safe(j, "rotate_left");
     controls.rotate_right = get_key_code_safe(j, "rotate_right");
     controls.move_left = get_key_code_safe(j, "move_left");
@@ -60,16 +58,9 @@ inline void from_json(const nlohmann::json& j, KeyboardControls& controls) {
 
 using Controls = std::variant<KeyboardControls>;
 
-template<class... Ts>
-struct overloaded : Ts... {
-    using Ts::operator()...;
-};
-template<class... Ts>
-overloaded(Ts...) -> overloaded<Ts...>;
-
 inline void to_json(nlohmann::json& j, const Controls& controls) {
     std::visit(
-            overloaded{
+            helpers::overloaded{
                     [&](const KeyboardControls& keyboard_controls) {
                         to_json(j, keyboard_controls);
                         j["type"] = "keyboard";
@@ -81,12 +72,13 @@ inline void to_json(nlohmann::json& j, const Controls& controls) {
 
 inline void from_json(const nlohmann::json& j, Controls& controls) {
     const auto& type = j.at("type");
+
     if (type == "keyboard") {
         KeyboardControls keyboard_controls;
         from_json(j, keyboard_controls);
         controls = keyboard_controls;
     } else {
-        throw std::exception{};
+        throw std::runtime_error{ fmt::format("unsupported control type '{}'", to_string(type)) };
     }
 }
 

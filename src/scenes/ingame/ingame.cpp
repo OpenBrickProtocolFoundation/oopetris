@@ -66,7 +66,7 @@ namespace scenes {
     [[nodiscard]] std::unique_ptr<Input>
     Ingame::create_input(Controls controls, Tetrion* associated_tetrion, Input::OnEventCallback on_event_callback) {
         return std::visit(
-                overloaded{
+                helpers::overloaded{
                         [this, associated_tetrion, on_event_callback = std::move(on_event_callback)](
                                 [[maybe_unused]] KeyboardControls& keyboard_controls
                         ) mutable -> std::unique_ptr<Input> {

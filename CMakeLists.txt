@@ -52,6 +52,8 @@ add_executable(oopetris
     src/helper/git_helper.hpp
     src/helper/magic_enum_wrapper.hpp
     src/helper/optional.hpp
+    src/helper/parse_json.cpp
+    src/helper/parse_json.hpp
     src/helper/random.cpp
     src/helper/random.hpp
     src/helper/static_string.hpp
