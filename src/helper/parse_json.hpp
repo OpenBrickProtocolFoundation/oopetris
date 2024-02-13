@@ -88,11 +88,15 @@ namespace json {
 
 
     template<typename T>
-    [[nodiscard]] tl::expected<std::string, std::string> try_json_to_string(const T& type) {
+    [[nodiscard]] tl::expected<std::string, std::string> try_json_to_string(const T& type, const bool pretty = false) {
         try {
 
             const nlohmann::json value = type;
-            return value.dump(-1, ' ', false);
+            if (pretty) {
+                return value.dump(1, '\t');
+            }
+
+            return value.dump(-1, ' ');
 
         } catch (nlohmann::json::type_error& type_error) {
             return tl::make_unexpected(fmt::format("type error: {}", type_error.what()));
