@@ -98,4 +98,4 @@ jobs:
         if: matrix.config.os == 'windows'
         with:
           name: ${{ matrix.config.name }} Executable
-          path: build\${{ matrix.config.buildtype }}\oopetris.exe
+          path: build\oopetris.exe
