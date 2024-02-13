@@ -13,6 +13,8 @@
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #pragma GCC diagnostic ignored "-Wunused-parameter"
+#elif defined(_MSC_VER)
+#pragma warning(disable : 4100)
 #endif
 
 #define CPPHTTPLIB_USE_POLL // NOLINT(cppcoreguidelines-macro-usage)
@@ -21,6 +23,8 @@
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic pop
+#elif defined(_MSC_VER)
+#pragma warning(default : 4100)
 #endif
 
 #endif
