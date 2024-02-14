@@ -177,11 +177,11 @@ namespace scenes {
         return seeds;
     }
 
-    [[nodiscard]] tl::optional<RecordingWriter*> Ingame::recording_writer_optional() {
+    [[nodiscard]] helpers::optional<RecordingWriter*> Ingame::recording_writer_optional() {
         if (m_recording_writer) {
             return m_recording_writer.get();
         }
-        return tl::nullopt;
+        return helpers::nullopt;
     }
 
     [[nodiscard]] Scene::UpdateResult Ingame::update() {
@@ -200,7 +200,7 @@ namespace scenes {
             // if we would still be in pause mode, update() wouldn't have been called in the first place => we
             // must resume from pause
             m_is_paused = false;
-            m_next_scene = tl::nullopt;
+            m_next_scene = helpers::nullopt;
             for (auto& clock : m_clock_sources) {
                 assert(clock->can_be_paused());
                 clock->resume();
@@ -222,7 +222,7 @@ namespace scenes {
 
         if (m_next_scene.has_value()) {
             const auto next_scene = m_next_scene.value();
-            m_next_scene = tl::nullopt;
+            m_next_scene = helpers::nullopt;
             m_is_paused = true;
             for (auto& clock : m_clock_sources) {
                 assert(clock->can_be_paused());
@@ -245,7 +245,7 @@ namespace scenes {
                     utils::unreachable();
             }
         }
-        return UpdateResult{ SceneUpdate::ContinueUpdating, tl::nullopt };
+        return UpdateResult{ SceneUpdate::ContinueUpdating, helpers::nullopt };
     }
 
     void Ingame::render(const ServiceProvider& service_provider) {

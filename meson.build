@@ -2,16 +2,16 @@ project(
     'oopetris',
     'cpp',
     'c',
+    meson_version: '>=1.3.0',
     default_options: {
         'buildtype': 'debug',
         'optimization': '3',
         'strip': 'true',
-        'cpp_std': 'c++20',
+        'cpp_std': ['c++23', 'c++latest', 'vc++latest', 'c++20'],
         'b_ndebug': 'if-release',
 
     },
     version: '1.0.0-alpha',
-    meson_version: '>=1.2.0',
 )
 
 compile_args = []
@@ -19,22 +19,16 @@ deps = []
 
 cpp = meson.get_compiler('cpp')
 
-if cpp.get_id() == 'msvc'
-    compile_args += ['/std:c++latest']
-elif cpp.get_id() == 'gcc'
-    compile_args += ['-Wold-style-cast', '-std=c++23']
-elif meson.is_cross_build() and host_machine.system() == 'android'
-    compile_args += ['-std=c++2b']
+
+if cpp.get_id() == 'gcc'
+    compile_args += ['-Wold-style-cast']
 elif cpp.get_id() == 'clang'
     if host_machine.system() == 'darwin'
         compile_args += '-stdlib=libc++'
         deps += cpp.find_library('c++')
         deps += cpp.find_library('c++abi')
     endif
-else
-    compile_args += ['-std=c++23']
 endif
-
 
 if get_option('buildtype') == 'debug' or get_option('buildtype') == 'debugoptimized'
     compile_args += ['-DDEBUG_BUILD']
@@ -45,18 +39,12 @@ endif
 inc_dirs = []
 
 
-native = true
 only_allow_native_libs = false
 if (meson.is_cross_build())
-    if (host_machine.system() == 'android')
-
-        native = false
-
-    elif host_machine.system() == 'switch'
+    if host_machine.system() == 'switch'
         # we do not link to code that was compiled with gcc 10.1, the code we link with is all compiled with gcc 13.2
         compile_args += ['-Wno-psabi']
 
-        native = false
         only_allow_native_libs = true
     endif
 endif
@@ -67,7 +55,6 @@ sdl2_dep = dependency(
     'SDL2',
     allow_fallback: false,
     required: only_allow_native_libs,
-    native: native,
 )
 
 if sdl2_dep.found()
@@ -77,14 +64,12 @@ else
         'sdl2',
         required: true,
         fallback: 'sdl2',
-        native: native,
-        default_options: ['test=false'],
+        default_options: {'test': 'false'},
     )
     deps += dependency(
         'sdl2main',
         required: true,
         fallback: 'sdl2',
-        native: native,
     )
 endif
 
@@ -93,7 +78,6 @@ deps += dependency(
     'SDL2_ttf',
     allow_fallback: not only_allow_native_libs,
     required: true,
-    native: native,
 )
 
 
@@ -102,7 +86,6 @@ deps += dependency(
     'SDL2_image',
     allow_fallback: not only_allow_native_libs,
     required: true,
-    native: native,
 )
 
 
@@ -111,7 +94,6 @@ mpg123_dep = dependency(
     'mpg123',
     allow_fallback: true,
     required: false,
-    native: native,
 )
 sdl2_mixer_flags = {'flac': 'enabled'}
 sdl2_mixer_defines = ['-DAUDIO_WITH_FLAC_SUPPORT']
@@ -119,17 +101,12 @@ if mpg123_dep.found()
     sdl2_mixer_flags += {'mpg123': 'enabled'}
     sdl2_mixer_defines += '-DAUDIO_WITH_MP3_SUPPORT'
 else
-    cpp = meson.get_compiler('cpp')
     mpg123_dep = cpp.find_library('mpg123', required: only_allow_native_libs)
     if mpg123_dep.found()
         sdl2_mixer_flags += {'mpg123': 'enabled'}
         sdl2_mixer_defines += '-DAUDIO_WITH_MP3_SUPPORT'
 
-        meson.override_dependency(
-            'mpg123',
-            mpg123_dep,
-            native: native,
-        )
+        meson.override_dependency('mpg123', mpg123_dep)
     endif
 endif
 
@@ -140,7 +117,6 @@ deps += dependency(
     'SDL2_mixer',
     allow_fallback: not only_allow_native_libs,
     required: true,
-    native: native,
     default_options: sdl2_mixer_flags,
 )
 
@@ -150,7 +126,6 @@ if (meson.is_cross_build() and host_machine.system() == 'switch')
     fmt_lib = dependency(
         'fmt',
         required: false,
-        native: native,
         allow_fallback: false,
     )
 
@@ -161,7 +136,6 @@ if (meson.is_cross_build() and host_machine.system() == 'switch')
         fmt_header_only_dep = dependency(
             'fmt_header_only',
             required: true,
-            native: native,
             allow_fallback: true,
             default_options: {'default_library': 'static'},
         )
@@ -175,47 +149,72 @@ else
     deps += dependency(
         'fmt',
         required: true,
-        native: native,
     )
 endif
 
 deps += dependency(
     'spdlog',
     required: true,
-    native: native,
     default_options: {'tests': 'false'},
 )
 
 deps += dependency(
     'nlohmann_json',
     required: true,
-    native: native,
 )
 
-deps += dependency(
-    'tl-optional',
-    required: true,
-    fallback: ['tl-optional'],
-    native: native,
+## check std::expected support
+has_std_expected = cpp.compiles(
+    '''
+#include <expected>
+int main() {
+    using T = std::expected<int, char>;
+    return 0;
+}
+''',
 )
-deps += dependency(
-    'tl-expected',
-    required: true,
-    fallback: ['tl-expected'],
-    native: native,
+
+if not has_std_expected
+    compile_args += ['-D_USE_TL_EXPECTED']
+    deps += dependency(
+        'tl-expected',
+        required: true,
+        fallback: ['tl-expected'],
+    )
+endif
+
+## check std::expected support
+has_std_optional = cpp.compiles(
+    '''
+#include <optional>
+int main() {
+    using T = std::optional<int>;
+    return 0;
+}
+''',
 )
+
+if not has_std_optional
+    compile_args += ['-D_USE_TL_OPTIONAL']
+    deps += dependency(
+        'tl-optional',
+        required: true,
+        fallback: ['tl-optional'],
+    )
+endif
+
+
+
 deps += dependency(
     'magic_enum',
     required: true,
     fallback: ['magic_enum'],
-    native: native,
     default_options: {'test': 'false'},
 )
 deps += dependency(
     'argparse',
     required: true,
     fallback: ['argparse'],
-    native: native,
 )
 
 if (meson.is_cross_build() and host_machine.system() == 'switch')
@@ -278,7 +277,6 @@ if meson.is_cross_build() and host_machine.system() == 'android'
             'warning_level': '3',
             'werror': true,
         },
-        native: native,
     )
 elif meson.is_cross_build() and host_machine.system() == 'switch'
 
@@ -293,7 +291,6 @@ elif meson.is_cross_build() and host_machine.system() == 'switch'
             'warning_level': '3',
             'werror': true,
         },
-        native: native,
         target_type: 'executable',
     )
 
@@ -407,6 +404,5 @@ else
             'warning_level': '3',
             'werror': true,
         },
-        native: native,
     )
 endif

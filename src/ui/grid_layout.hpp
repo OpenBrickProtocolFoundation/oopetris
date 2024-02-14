@@ -7,7 +7,7 @@
 #include "platform/capabilities.hpp"
 #include "ui/widget.hpp"
 
-#include <tl/optional.hpp>
+#include "helper/optional.hpp"
 
 namespace ui {
     template<u32 S>
@@ -19,7 +19,7 @@ namespace ui {
         };
 
         std::array<std::unique_ptr<Widget>, S> m_widgets{};
-        tl::optional<usize> m_focus_id;
+        helpers::optional<usize> m_focus_id;
         Direction direction;
         Margin gap;
         std::pair<u32, u32> margin;
@@ -149,25 +149,25 @@ namespace ui {
             };
         }
 
-        void give_focus(Focusable& focusable) {
-            m_focus_id = focusable.focus_id();
-            focusable.focus();
+        void give_focus(Focusable* focusable) {
+            m_focus_id = focusable->focus_id();
+            focusable->focus();
         }
 
-        [[nodiscard]] static tl::optional<Focusable&> as_focusable(Widget& widget) {
+        [[nodiscard]] static helpers::optional<Focusable*> as_focusable(Widget& widget) {
             auto* const focusable = dynamic_cast<Focusable*>(&widget);
             if (focusable == nullptr) {
-                return tl::nullopt;
+                return helpers::nullopt;
             }
 
-            return *focusable;
+            return focusable;
         }
 
         [[nodiscard]] usize focusable_index_by_id(const usize id) {
             const auto find_iterator =
                     std::find_if(m_widgets.begin(), m_widgets.end(), [id](const std::unique_ptr<Widget>& widget) {
                         const auto focusable = as_focusable(*widget);
-                        return focusable.has_value() and focusable.value().focus_id() == id;
+                        return focusable.has_value() and focusable.value()->focus_id() == id;
                     });
             assert(find_iterator != m_widgets.end());
             const auto index = static_cast<usize>(std::distance(m_widgets.begin(), find_iterator));
@@ -179,7 +179,7 @@ namespace ui {
             for (const auto& widget : m_widgets) {
                 const auto focusable = as_focusable(*widget);
                 if (focusable) {
-                    result.push_back(focusable->focus_id());
+                    result.push_back((*focusable)->focus_id());
                 }
             }
 
@@ -217,9 +217,9 @@ namespace ui {
             assert(current_focusable.has_value());
             auto next_focusable = as_focusable(*m_widgets.at(focusable_index_by_id(focusable_ids.at(next_index))));
             assert(next_focusable.has_value());
-            current_focusable->unfocus();
-            next_focusable->focus();
-            m_focus_id = next_focusable->focus_id();
+            (*current_focusable)->unfocus();
+            (*next_focusable)->focus();
+            m_focus_id = (*next_focusable)->focus_id();
 
             return true;
         }

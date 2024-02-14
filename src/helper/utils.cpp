@@ -10,7 +10,7 @@
 
 #if defined(__ANDROID__) or defined(BUILD_INSTALLER) or defined(FLATPAK_BUILD)
 #include "helper/constants.hpp"
-#include <tl/optional.hpp>
+#include "helper/optional.hpp"
 #endif
 namespace utils {
     [[nodiscard]] std::string current_date_time_iso8601() {
@@ -87,9 +87,9 @@ namespace utils {
 #endif
     }
 
-    tl::optional<bool> log_error(const std::string& error) {
+    helpers::optional<bool> log_error(const std::string& error) {
         spdlog::error(error);
-        return tl::nullopt;
+        return helpers::nullopt;
     }
 
 } // namespace utils

@@ -17,7 +17,7 @@ namespace scenes {
         };
 
         ui::GridLayout<5> m_main_grid;
-        tl::optional<Command> m_next_command;
+        helpers::optional<Command> m_next_command;
 
     public:
         explicit MainMenu(ServiceProvider* service_provider, const ui::Layout& layout);

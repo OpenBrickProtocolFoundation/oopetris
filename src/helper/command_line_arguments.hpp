@@ -1,14 +1,15 @@
 #pragma once
 
 #include "helper/constants.hpp"
+#include "helper/optional.hpp"
 #include "helper/types.hpp"
 #include "helper/utils.hpp"
+
 #include <argparse/argparse.hpp>
 #include <filesystem>
 #include <spdlog/spdlog.h>
 #include <stdexcept>
 #include <string>
-#include <tl/optional.hpp>
 #include <type_traits>
 
 struct CommandLineArguments final {
@@ -17,7 +18,7 @@ private:
     static inline constexpr auto default_starting_level = i32{ 0 };
 
 public:
-    tl::optional<std::filesystem::path> recording_path{};
+    helpers::optional<std::filesystem::path> recording_path{};
     std::remove_cvref_t<decltype(default_target_fps)> target_fps{ default_target_fps };
     std::remove_cvref_t<decltype(default_starting_level)> starting_level{ default_starting_level };
     bool silent{ false };

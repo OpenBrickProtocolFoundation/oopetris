@@ -66,16 +66,16 @@ private:
     }
 
     template<utils::integral Integral>
-    [[nodiscard]] static tl::optional<Integral> read_from_istream(std::istream& istream) {
+    [[nodiscard]] static helpers::optional<Integral> read_from_istream(std::istream& istream) {
         if (not istream) {
-            return tl::nullopt;
+            return helpers::nullopt;
         }
         auto value = Integral{};
         istream.read(
                 reinterpret_cast<char*>(&value), sizeof(Integral) // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
         );
         if (not istream) {
-            return tl::nullopt;
+            return helpers::nullopt;
         }
         return utils::from_little_endian(value);
     }

@@ -37,16 +37,19 @@ namespace scenes {
                     return value.has_value() ? value.value() : 0.0F;
                 },
                 [service_provider](const float& amount) {
-                    const auto mapped_amount = amount <= 0.0F ? tl::nullopt : tl::make_optional(amount);
+                    const auto mapped_amount = amount <= 0.0F ? helpers::nullopt : helpers::optional{ amount };
                     return service_provider->music_manager().set_volume(mapped_amount, false, false);
                 },
                 0.05F, std::pair<double, double>{ 0.6, 1.0 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
         );
 
-        service_provider->music_manager().add_volume_listener(listener_name, [this, slider_index](tl::optional<float>) {
-            this->m_main_grid.get<ui::Slider>(slider_index)->on_change();
-        });
+        service_provider->music_manager().add_volume_listener(
+                listener_name,
+                [this, slider_index](helpers::optional<float>) {
+                    this->m_main_grid.get<ui::Slider>(slider_index)->on_change();
+                }
+        );
 
         m_main_grid.add<ui::Button>(
                 id_helper.index(), service_provider, "Return", service_provider->fonts().get(FontId::Default),
@@ -62,7 +65,7 @@ namespace scenes {
             m_service_provider->music_manager().remove_volume_listener(listener_name);
             return UpdateResult{ SceneUpdate::StopUpdating, Scene::Pop{} };
         }
-        return UpdateResult{ SceneUpdate::StopUpdating, tl::nullopt };
+        return UpdateResult{ SceneUpdate::StopUpdating, helpers::nullopt };
     }
 
     void SettingsMenu::render(const ServiceProvider& service_provider) {
