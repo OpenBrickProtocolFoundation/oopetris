@@ -8,7 +8,6 @@
 #if defined(__ANDROID__)
 #include <cmath>
 #include <stdexcept>
-#include <tl/optional.hpp>
 #endif
 
 #if defined(__SWITCH__)
@@ -121,7 +120,8 @@ void KeyboardInput::update(SimulationStep simulation_step_index) {
     Input::update(simulation_step_index);
 }
 
-helpers::optional<InputEvent> KeyboardInput::sdl_event_to_input_event( // NOLINT(readability-function-cognitive-complexity)
+helpers::optional<InputEvent>
+KeyboardInput::sdl_event_to_input_event( // NOLINT(readability-function-cognitive-complexity)
         const SDL_Event& event
 ) const {
     if (event.type == SDL_KEYDOWN and event.key.repeat == 0) {
@@ -314,7 +314,12 @@ helpers::optional<InputEvent> TouchInput::sdl_event_to_input_event(const SDL_Eve
         const auto y = event.tfinger.y;
         const auto timestamp = event.tfinger.timestamp;
 
-        m_finger_state.insert_or_assign(finger_id, helpers::make_optional(PressedState{ timestamp, x, y }));
+        m_finger_state.insert_or_assign(
+                finger_id,
+                helpers::optional<PressedState>{
+                        PressedState{timestamp, x, y}
+        }
+        );
     }
 
 
