@@ -15,7 +15,7 @@ namespace helpers {
     template<typename T>
     using optional = tl::optional<T>;
 
-    constexpr auto nullopt= tl::nullopt;
+    constexpr auto nullopt = tl::nullopt;
 
 #else
 

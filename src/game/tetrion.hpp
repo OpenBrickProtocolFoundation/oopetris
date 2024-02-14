@@ -4,6 +4,7 @@
 #include "graphics/text.hpp"
 #include "grid.hpp"
 #include "helper/clock_source.hpp"
+#include "helper/optional.hpp"
 #include "helper/random.hpp"
 #include "helper/types.hpp"
 #include "helper/utils.hpp"
@@ -17,7 +18,6 @@
 #include "ui/layout.hpp"
 #include "ui/tile_layout.hpp"
 #include "ui/widget.hpp"
-#include "helper/optional.hpp"
 
 #include <array>
 #include <cmath>
