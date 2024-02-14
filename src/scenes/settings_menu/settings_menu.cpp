@@ -37,7 +37,7 @@ namespace scenes {
                     return value.has_value() ? value.value() : 0.0F;
                 },
                 [service_provider](const float& amount) {
-                    const auto mapped_amount = amount <= 0.0F ? helpers::nullopt : helpers::optional{ amount };
+                    const auto mapped_amount = amount <= 0.0F ? helpers::nullopt : helpers::optional<float>{ amount };
                     return service_provider->music_manager().set_volume(mapped_amount, false, false);
                 },
                 0.05F, std::pair<double, double>{ 0.6, 1.0 },
