@@ -161,11 +161,12 @@ int main() {
 " HAVE_STD_EXPECTED)
 
 if(HAVE_STD_EXPECTED)
-else(HAVE_STD_EXPECTED)
-    find_package(tl-optional CONFIG REQUIRED)
-    target_link_libraries(oopetris PRIVATE tl::optional)
-    target_compile_definitions(oopetris INTERFACE "_USE_TL_EXPECTED")
-endif(HAVE_STD_EXPECTED)
+else()
+    find_package(tl-expected CONFIG REQUIRED)
+    target_link_libraries(oopetris PRIVATE tl::expected)
+    target_compile_definitions(oopetris PRIVATE "_USE_TL_EXPECTED")
+    message("Falling back to tl::expected")
+endif()
 
 # check std::optional support
 CHECK_CXX_SOURCE_COMPILES(
@@ -178,14 +179,12 @@ int main() {
 " HAVE_STD_OPTIONAL)
 
 if(HAVE_STD_OPTIONAL)
-else(HAVE_STD_OPTIONAL)
+else()
     find_package(tl-optional CONFIG REQUIRED)
     target_link_libraries(oopetris PRIVATE tl::optional)
-    target_compile_definitions(oopetris INTERFACE "_USE_TL_OPTIONAL")
-endif(HAVE_STD_OPTIONAL)
-
-find_package(tl-expected CONFIG REQUIRED)
-target_link_libraries(oopetris PRIVATE tl::expected)
+    target_compile_definitions(oopetris PRIVATE "_USE_TL_OPTIONAL")
+    message("Falling back to tl::optional")
+endif()
 
 target_compile_definitions(oopetris PUBLIC AUDIO_WITH_FLAC_SUPPORT AUDIO_WITH_MP3_SUPPORT AUDIO_PREFER_FLAC)
 
