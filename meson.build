@@ -163,8 +163,8 @@ deps += dependency(
     required: true,
 )
 
-## check std::expected support
-has_std_expected = cpp.compiles(
+# check std::expected support
+have_std_expected = cpp.compiles(
     '''
 #include <expected>
 int main() {
@@ -174,7 +174,7 @@ int main() {
 ''',
 )
 
-if not has_std_expected
+if not have_std_expected
     compile_args += ['-D_USE_TL_EXPECTED']
     deps += dependency(
         'tl-expected',
@@ -183,8 +183,8 @@ if not has_std_expected
     )
 endif
 
-## check std::expected support
-has_std_optional = cpp.compiles(
+# check std::optional support
+have_std_optional = cpp.compiles(
     '''
 #include <optional>
 int main() {
@@ -194,7 +194,7 @@ int main() {
 ''',
 )
 
-if not has_std_optional
+if not have_std_optional
     compile_args += ['-D_USE_TL_OPTIONAL']
     deps += dependency(
         'tl-optional',
