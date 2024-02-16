@@ -22,28 +22,42 @@ jobs:
             msvc: true
             buildtype: release
             library_type: static
-          # - name: Windows MingGW Release
-          #   os: windows
-          #   msvc: false
-          #   buildtype: release
-          #   library_type: static
+
+          - name: Windows MingGW Release
+            os: windows
+            os-version: 2022
+            msvc: false
+            buildtype: release
+            library_type: static
+
           - name: Linux Release
             os: ubuntu
             os-version: 22.04
             buildtype: release
             use-clang: false
             library_type: shared
+
           - name: Linux Clang Release
             os: ubuntu
             os-version: 22.04
             buildtype: release
             use-clang: true
             library_type: shared
+
           - name: MacOS Release
             os: macos
-            os-version: 12
+            os-version: 13-large
+            arm: false
             buildtype: release
             library_type: shared
+
+          - name: MacOS Release (Arm64)
+            os: macos
+            os-version: 13-xlarge
+            arm: true
+            buildtype: release
+            library_type: shared
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -78,11 +92,15 @@ jobs:
           version: 13
           platform: x64
 
+      - name: Setup MacPorts (MacOS)
+        if: matrix.config.os == 'macos'
+        uses: melusina-org/setup-macports@v1
+
       - name: Setup Clang (MacOS)
         if: matrix.config.os == 'macos'
         run: |
-          brew update
-          brew install clang-17 -y
+          sudo port install llvm-17
+          sudo port install clang-17
 
       - name: Install dependencies (Linux)
         if: matrix.config.os == 'ubuntu'
