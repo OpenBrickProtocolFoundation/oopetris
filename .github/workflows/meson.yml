@@ -68,9 +68,15 @@ jobs:
         run: |
           brew update 
           brew install python@3.12
+          brew install meson
           echo "/opt/homebrew/opt/python@3.12/libexec/bin" >> $GITHUB_PATH
 
+      - name: Install Ninja (If needed)
+        if: matrix.config.os == 'windows' && matrix.config.msvc == false
+        uses: abdes/gha-setup-ninja@master
+
       - name: Setup Meson
+        if: matrix.config.os != 'macos' || (! matrix.config.arm)
         run: |
           python -m pip install --upgrade pip
           pip install meson
@@ -83,8 +89,15 @@ jobs:
       - name: Setup MinGW (Windows)
         if: matrix.config.os == 'windows' && matrix.config.msvc == false
         uses: e-t-l/setup-mingw@patch-1
+        id : mingw-setup
         with:
           platform: x64
+
+      - name: Setup MinGW Compiler Paths (Windows) 
+        if: matrix.config.os == 'windows' && matrix.config.msvc == false
+        run: | 
+          echo "CC=${{ steps.mingw-setup.outputs.gcc }}" >> "$GITHUB_ENV"
+          echo "CXX=${{ steps.mingw-setup.outputs.gxx }}" >> "$GITHUB_ENV"
 
       - name: Setup Clang (Linux)
         if: matrix.config.os == 'ubuntu' && matrix.config.use-clang == true
@@ -105,23 +118,23 @@ jobs:
         run: |
           brew update
           brew install llvm@17
-          echo "/usr/local/opt/llvm/bin" >> $GITHUB_PATH
-          echo "LDFLAGS=-L/usr/local/opt/llvm/lib" >> "$GITHUB_ENV"
-          echo "CPPFLAGS=-I/usr/local/opt/llvm/include" >> "$GITHUB_ENV"
+          echo "$(brew --prefix)/opt/llvm/bin" >> $GITHUB_PATH
+          echo "LDFLAGS=-L$(brew --prefix)/opt/llvm/lib" >> "$GITHUB_ENV"
+          echo "CPPFLAGS=-I$(brew --prefix)/opt/llvm/include" >> "$GITHUB_ENV"
           echo "CC=clang-17" >> "$GITHUB_ENV"
-          echo "CXX=clang++-17 " >> "$GITHUB_ENV"
+          echo "CXX=clang-17" >> "$GITHUB_ENV"
 
       - name: Install dependencies (Linux)
         if: matrix.config.os == 'ubuntu'
         run: |
           sudo apt-get update
-          sudo apt-get install ninja-build libsdl2-2.0-0 libsdl2-dev libsdl2-ttf* libsdl2-image* -y
+          sudo apt-get install ninja-build libsdl2-2.0-0 libsdl2-dev libsdl2-ttf* libsdl2-mixer* libsdl2-image* -y
 
       - name: Install dependencies (MacOS)
         if: matrix.config.os == 'macos'
         run: |
           brew update
-          brew install ninja sdl2 sdl2_ttf sdl2_image
+          brew install ninja sdl2 sdl2_ttf sdl2_mixer sdl2_image fmt
 
       - name: Configure
         run: meson setup build -Dbuildtype=${{ matrix.config.buildtype }} -Ddefault_library=${{ matrix.config.library_type }}

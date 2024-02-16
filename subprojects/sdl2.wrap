@@ -8,7 +8,7 @@ patch_url = https://wrapdb.mesonbuild.com/v2/sdl2_2.28.5-1/get_patch
 patch_hash = 5d5f23359a841111e9b72060686a3ad8c4bf1eb4b338a36bdcdd4d37129d596c
 source_fallback_url = https://github.com/mesonbuild/wrapdb/releases/download/sdl2_2.28.5-1/SDL2-2.28.5.tar.gz
 wrapdb_version = 2.28.5-1
-diff_files = SDL2-2.28.5_android.diff
+diff_files = SDL2-2.28.5_android.diff, SDL2-2.28.5_mingw.diff
 
 [provide]
 sdl2 = sdl2_dep

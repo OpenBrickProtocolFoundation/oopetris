@@ -1,7 +1,7 @@
 project(
     'oopetris',
-    'c',
     'cpp',
+    'c',
     default_options: {
         'buildtype': 'debug',
         'optimization': '3',
@@ -18,7 +18,7 @@ compile_args = []
 
 cpp = meson.get_compiler('cpp')
 
-if cpp.get_id() == 'msvcu'
+if cpp.get_id() == 'msvc'
     compile_args += ['/std:c++latest']
 elif cpp.get_id() == 'gcc'
     compile_args += ['-Wold-style-cast', '-std=c++23']
