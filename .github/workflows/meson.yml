@@ -22,6 +22,7 @@ jobs:
             msvc: true
             buildtype: release
             library_type: static
+            shell: pwsh
 
           - name: Windows MingGW Release
             os: windows
@@ -29,6 +30,7 @@ jobs:
             msvc: false
             buildtype: release
             library_type: static
+            shell: msys2
 
           - name: Linux Release
             os: ubuntu
@@ -36,6 +38,7 @@ jobs:
             buildtype: release
             use-clang: false
             library_type: shared
+            shell: bash
 
           - name: Linux Clang Release
             os: ubuntu
@@ -43,6 +46,7 @@ jobs:
             buildtype: release
             use-clang: true
             library_type: shared
+            shell: bash
 
           - name: MacOS Release
             os: macos
@@ -50,6 +54,7 @@ jobs:
             arm: false
             buildtype: release
             library_type: shared
+            shell: bash
 
           - name: MacOS Release (Arm64)
             os: macos
@@ -57,6 +62,11 @@ jobs:
             arm: true
             buildtype: release
             library_type: shared
+            shell: bash
+
+    defaults:
+      run:
+        shell: ${{ matrix.config.shell }}
 
     steps:
       - uses: actions/checkout@v4
@@ -71,10 +81,6 @@ jobs:
           brew install meson
           echo "/opt/homebrew/opt/python@3.12/libexec/bin" >> $GITHUB_PATH
 
-      - name: Install Ninja (If needed)
-        if: matrix.config.os == 'windows' && matrix.config.msvc == false
-        uses: abdes/gha-setup-ninja@master
-
       - name: Setup Meson
         if: matrix.config.os != 'macos' || (! matrix.config.arm)
         run: |
@@ -88,16 +94,12 @@ jobs:
       # see https://github.com/egor-tensin/setup-mingw/pull/16
       - name: Setup MinGW (Windows)
         if: matrix.config.os == 'windows' && matrix.config.msvc == false
-        uses: e-t-l/setup-mingw@patch-1
-        id : mingw-setup
+        uses: msys2/setup-msys2@v2
         with:
-          platform: x64
+          msystem: MINGW64
+          update: true
+          install:  mingw-w64-x86_64-gcc mingw-w64-x86_64-ninja
 
-      - name: Setup MinGW Compiler Paths (Windows) 
-        if: matrix.config.os == 'windows' && matrix.config.msvc == false
-        run: | 
-          echo "CC=${{ steps.mingw-setup.outputs.gcc }}" >> "$GITHUB_ENV"
-          echo "CXX=${{ steps.mingw-setup.outputs.gxx }}" >> "$GITHUB_ENV"
 
       - name: Setup Clang (Linux)
         if: matrix.config.os == 'ubuntu' && matrix.config.use-clang == true
