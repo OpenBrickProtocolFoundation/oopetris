@@ -46,14 +46,14 @@ jobs:
 
           - name: MacOS Release
             os: macos
-            os-version: 13-large
+            os-version: 13
             arm: false
             buildtype: release
             library_type: shared
 
           - name: MacOS Release (Arm64)
             os: macos
-            os-version: 13-xlarge
+            os-version: 14
             arm: true
             buildtype: release
             library_type: shared
@@ -62,6 +62,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: "0"
+
+      - name: Install python (Id needed)
+        if: matrix.config.os == 'macos' && matrix.config.arm
+        run: |
+          brew update 
+          brew install python@3.12
 
       - name: Setup Meson
         run: |
@@ -105,14 +111,14 @@ jobs:
       - name: Install dependencies (Linux)
         if: matrix.config.os == 'ubuntu'
         run: |
-          brew update
-          sudo apt-get install ninja-build libsdl2-2.0-0 libsdl2-dev libsdl2-net* libsdl2-ttf* libsdl2-image* -y
+          sudo apt-get update
+          sudo apt-get install ninja-build libsdl2-2.0-0 libsdl2-dev libsdl2-ttf* libsdl2-image* -y
 
       - name: Install dependencies (MacOS)
         if: matrix.config.os == 'macos'
         run: |
           brew update
-          brew install ninja-build libsdl2-2.0-0 libsdl2-dev libsdl2-net* libsdl2-ttf* libsdl2-image*
+          brew install ninja sdl2 sdl2_ttf sdl2_image
 
       - name: Configure
         run: meson setup build -Dbuildtype=${{ matrix.config.buildtype }} -Ddefault_library=${{ matrix.config.library_type }}
