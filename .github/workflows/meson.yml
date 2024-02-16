@@ -99,15 +99,11 @@ jobs:
           version: 13
           platform: x64
 
-      - name: Setup MacPorts (MacOS)
-        if: matrix.config.os == 'macos'
-        uses: melusina-org/setup-macports@v1
-
       - name: Setup Clang (MacOS)
         if: matrix.config.os == 'macos'
         run: |
-          sudo port install llvm-17
-          sudo port install clang-17
+          brew update
+          brew install llvm@17
 
       - name: Install dependencies (Linux)
         if: matrix.config.os == 'ubuntu'
