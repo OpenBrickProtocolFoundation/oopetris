@@ -17,7 +17,7 @@ jobs:
         # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
         config:
           - name: Windows MSVC Release
-            os: windows-latest
+            os: windows-2022
             msvc: true
             buildtype: Release
           - name: Linux Release
@@ -30,7 +30,7 @@ jobs:
           fetch-depth: "0"
 
       - name: Setup MSVC
-        if: matrix.config.os == 'windows-latest' && matrix.config.msvc == true
+        if: matrix.config.os == 'windows-2022' && matrix.config.msvc == true
         uses: ilammy/msvc-dev-cmd@v1
 
       - name: Install dependencies (Linux)
@@ -67,7 +67,7 @@ jobs:
       - uses: abdes/gha-setup-ninja@master
 
       - name: Configure CMake (Windows only)
-        if: matrix.config.os == 'windows-latest'
+        if: matrix.config.os == 'windows-2022'
         # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
         # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
         run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{ matrix.config.buildtype }} -DCMAKE_TOOLCHAIN_FILE="${{github.workspace}}/vcpkg/scripts/buildsystems/vcpkg.cmake" ${{github.workspace}} -DVCPKG_TARGET_TRIPLET=x64-windows-static -G Ninja
@@ -91,7 +91,7 @@ jobs:
 
       - name: Upload artifacts - Windows
         uses: actions/upload-artifact@v4
-        if: matrix.config.os == 'windows-latest'
+        if: matrix.config.os == 'windows-2022'
         with:
           name: ${{ matrix.config.name }} Executable
           path: build/${{ matrix.config.buildtype }}\oopetris.exe
