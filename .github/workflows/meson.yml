@@ -63,11 +63,12 @@ jobs:
         with:
           fetch-depth: "0"
 
-      - name: Install python (Id needed)
+      - name: Install python (If needed)
         if: matrix.config.os == 'macos' && matrix.config.arm
         run: |
           brew update 
           brew install python@3.12
+          echo "/opt/homebrew/opt/python@3.12/libexec/bin" >> $GITHUB_PATH
 
       - name: Setup Meson
         run: |
@@ -104,6 +105,11 @@ jobs:
         run: |
           brew update
           brew install llvm@17
+          echo "/usr/local/opt/llvm/bin" >> $GITHUB_PATH
+          echo "LDFLAGS=-L/usr/local/opt/llvm/lib" >> "$GITHUB_ENV"
+          echo "CPPFLAGS=-I/usr/local/opt/llvm/include" >> "$GITHUB_ENV"
+          echo "CC=clang-17" >> "$GITHUB_ENV"
+          echo "CXX=clang++-17 " >> "$GITHUB_ENV"
 
       - name: Install dependencies (Linux)
         if: matrix.config.os == 'ubuntu'
