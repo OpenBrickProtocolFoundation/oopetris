@@ -18,8 +18,10 @@ if [ ! -d "$BASE_PATH" ]; then
 
     cd toolchains
 
-    wget -q "https://dl.google.com/android/repository/android-ndk-$NDK_VER_DOWNLOAD-linux.zip"
+    if [ ! -e "android-ndk-$NDK_VER_DOWNLOAD-linux.zip" ]; then
 
+        wget -q "https://dl.google.com/android/repository/android-ndk-$NDK_VER_DOWNLOAD-linux.zip"
+    fi
     unzip -q "android-ndk-$NDK_VER_DOWNLOAD-linux.zip"
 
     cd ..
@@ -105,7 +107,7 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
     export LIBRARY_PATH="$SYS_ROOT/usr/lib/$ARM_NAME_TRIPLE/$SDK_VERSION"
 
-    if [ "$COMPILE_TYPE" == "complete_rebuild" ]  || ! [ -e "$SYS_ROOT" ] then
+    if [ "$COMPILE_TYPE" == "complete_rebuild" ] || ! [ -e "$SYS_ROOT" ]; then
 
         LAST_DIR=$PWD
 
