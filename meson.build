@@ -175,6 +175,7 @@ int main() {
 )
 
 if not have_std_expected
+    message('Compiler doesn\'t support std::expected, using fallback')
     compile_args += ['-D_USE_TL_EXPECTED']
     deps += dependency(
         'tl-expected',
@@ -195,6 +196,7 @@ int main() {
 )
 
 if not have_std_optional
+    message('Compiler doesn\'t support std::optional, using fallback')
     compile_args += ['-D_USE_TL_OPTIONAL']
     deps += dependency(
         'tl-optional',
@@ -250,8 +252,6 @@ if (meson.is_cross_build() and host_machine.system() == 'switch')
         )
     endforeach
 
-
-
 endif
 
 
@@ -263,6 +263,51 @@ subdir('src')
 ## TODO: only istall needed ones, since sometimes we only need e.g. flacs or mp3 and no icons etc.
 ## install assets
 install_subdir('assets', install_dir: 'share/oopetris')
+
+app_name = 'oopetris'
+if get_option('flatpak_build')
+    app_name = 'com.github.mgerhold.OOPetris'
+    compile_args += ['-Dcpp_args=-DFLATPAK_BUILD', '-DBUILD_INSTALLER']
+endif
+
+conf = configuration_data()
+conf.set('APP_NAME', app_name)
+
+datadir = get_option('prefix') / get_option('datadir')
+
+desktop_file = configure_file(
+    input: 'assets/oopetris.desktop.in',
+    output: app_name + '.desktop',
+    configuration: conf,
+    install: true,
+    install_dir: datadir / 'applications',
+)
+
+logos = [
+    '24x24.png',
+    '48x48.png',
+    '64x64.png',
+    '72x72.png',
+    '96x96.png',
+    '128x128.png',
+    '144x144.png',
+    '160x160.png',
+    '192x192.png',
+    '256x256.png',
+    '512x512.png',
+    'scalable.svg',
+]
+
+foreach logo : logos
+    name = logo.split('.')[0]
+    ext = logo.split('.')[1]
+    install_data(
+        'assets' / 'icon' / logo,
+        install_dir: datadir / 'icons' / 'hicolor' / name / 'apps',
+        rename: [app_name + '.' + ext],
+    )
+endforeach
+
 
 if meson.is_cross_build() and host_machine.system() == 'android'
 
@@ -404,5 +449,11 @@ else
             'warning_level': '3',
             'werror': true,
         },
+        install: true,
     )
+
+
+
+
+
 endif
