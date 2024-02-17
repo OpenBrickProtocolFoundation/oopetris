@@ -105,7 +105,7 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
     export LIBRARY_PATH="$SYS_ROOT/usr/lib/$ARM_NAME_TRIPLE/$SDK_VERSION"
 
-    if [ "$COMPILE_TYPE" == "complete_rebuild" ]; then
+    if [ "$COMPILE_TYPE" == "complete_rebuild" ]  || ! [ -e "$SYS_ROOT" ] then
 
         LAST_DIR=$PWD
 
