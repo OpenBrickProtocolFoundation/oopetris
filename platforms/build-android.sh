@@ -283,6 +283,6 @@ for IDX in "${!DESC_ARRAY[@]}"; do
     export DESC_DIR="platforms/android/app/src/main/res/mipmap-${DESC}dpi"
 
     mkdir -p "$DESC_DIR"
-    cp -r "./assets/icon/icon_$RES.png" "${DESC_DIR}/ic_launcher.png"
+    cp -r "./assets/icon/${RES}x${RES}.png" "${DESC_DIR}/ic_launcher.png"
 
 done
