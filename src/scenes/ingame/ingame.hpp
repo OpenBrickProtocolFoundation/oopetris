@@ -18,7 +18,7 @@ namespace scenes {
         std::vector<std::unique_ptr<Input>> m_inputs;
         std::unique_ptr<RecordingWriter> m_recording_writer;
         std::unique_ptr<RecordingReader> m_recording_reader;
-        tl::optional<NextScene> m_next_scene{};
+        helpers::optional<NextScene> m_next_scene{};
         bool m_is_paused{ false };
 
     public:
@@ -55,7 +55,7 @@ namespace scenes {
 
         [[nodiscard]] std::vector<Random::Seed> create_seeds(u8 num_tetrions) const;
 
-        [[nodiscard]] tl::optional<RecordingWriter*> recording_writer_optional();
+        [[nodiscard]] helpers::optional<RecordingWriter*> recording_writer_optional();
 
         [[nodiscard]] bool is_game_over() const;
     };

@@ -1,7 +1,9 @@
 #pragma once
 
+#include "helper/optional.hpp"
 #include "helper/static_string.hpp"
 #include "helper/types.hpp"
+
 #include <algorithm>
 #include <array>
 #include <bit>
@@ -10,8 +12,8 @@
 #include <filesystem>
 #include <string>
 #include <string_view>
-#include <tl/optional.hpp>
 #include <type_traits>
+
 
 namespace utils {
     // taken from llvm: https://github.com/llvm/llvm-project/blob/main/libcxx/include/__concepts/arithmetic.h#L27-L30
@@ -54,7 +56,7 @@ namespace utils {
 
     [[nodiscard]] std::filesystem::path get_root_folder();
 
-    tl::optional<bool> log_error(const std::string& error);
+    helpers::optional<bool> log_error(const std::string& error);
 
     template<usize data_size>
     constexpr auto get_supported_music_extension(

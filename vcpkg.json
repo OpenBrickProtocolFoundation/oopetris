@@ -1,64 +1,63 @@
 {
-  "name": "oopetris",
-  "version-string": "1.0.0",
-  "builtin-baseline": "ffe7360e0f5ba62f98b620575294ecb9d8a02980",
-  "dependencies": [
-    {
-      "name": "sdl2",
-      "version>=": "2.28.5#1",
-      "platform": "(x64 & static)"
-    },
-    {
-      "name": "sdl2-ttf",
-      "version>=": "2.20.2#1",
-      "platform": "(x64 & static)"
-    },
-    {
-      "name": "sdl2-mixer",
-      "version>=": "2.6.3#2",
-      "platform": "(x64 & static)",
-      "features":["libflac", "mpg123"]
-    },
-    {
-      "name": "sdl2-image",
-      "version>=": "2.6.3#1",
-      "platform": "(x64 & static)"
-    },
-    {
-      "name": "tl-optional",
-      "version>=": "2021-05-02",
-      "platform": "(x64 & static)"
-    },
-    {
-      "name": "nlohmann-json",
-      "version>=": "3.11.3",
-      "platform": "(x64 & static)"
-    },
-    {
-      "name": "magic-enum",
-      "version>=": "0.9.5",
-      "platform": "(x64 & static)"
-    },
-    {
-      "name": "spdlog",
-      "version>=": "1.12.0",
-      "platform": "(x64 & static)"
-    },
-    {
-      "name": "argparse",
-      "version>=": "3.0",
-      "platform": "(x64 & static)"
-    },
-    {
-      "name": "tl-expected",
-      "version>=": "1.1.0",
-      "platform": "(x64 & static)"
-    }
-  ],
-  "overrides": [
-    {
-      "name": "tl-expected",
-      "version": "1.1.0"
-    }
-  ]
+	"name": "oopetris",
+	"version-string": "1.0.0",
+	"builtin-baseline": "095ee06e7f60dceef7d713e3f8b1c2eb10d650d7",
+	"dependencies": [
+		{
+			"name": "sdl2",
+			"version>=": "2.28.5#1",
+			"platform": "(x64 & static)"
+		},
+		{
+			"name": "sdl2-ttf",
+			"version>=": "2.20.2#1",
+			"platform": "(x64 & static)"
+		},
+		{
+			"name": "sdl2-mixer",
+			"version>=": "2.6.3#2",
+			"platform": "(x64 & static)",
+			"features": ["libflac", "mpg123"]
+		},
+		{
+			"name": "sdl2-image",
+			"version>=": "2.6.3#1",
+			"platform": "(x64 & static)"
+		},
+		{
+			"name": "tl-optional",
+			"version>=": "2021-05-02",
+			"platform": "(x64 & static)"
+		},
+		{
+			"name": "tl-expected",
+			"version>=": "1.1.0",
+			"platform": "(x64 & static)"
+		},
+		{
+			"name": "nlohmann-json",
+			"version>=": "3.11.3",
+			"platform": "(x64 & static)"
+		},
+		{
+			"name": "magic-enum",
+			"version>=": "0.9.5",
+			"platform": "(x64 & static)"
+		},
+		{
+			"name": "spdlog",
+			"version>=": "1.13.0",
+			"platform": "(x64 & static)"
+		},
+		{
+			"name": "argparse",
+			"version>=": "3.0",
+			"platform": "(x64 & static)"
+		},
+		{
+			"name": "fmt",
+			"version>=": "10.2.1",
+			"platform": "(x64 & static)"
+		}
+	]
 }

@@ -53,11 +53,13 @@ jobs:
           sudo apt-get update
           sudo apt-get install cmake -y
 
-      - name: Set Environment - Linux
+      - name: Setup GCC (Linux)
         if: matrix.config.os == 'ubuntu'
-        run: |
-          export CXX=g++-12
-          export CC=gcc-12
+        uses: egor-tensin/setup-gcc@v1
+        with:
+          version: 13
+          platform: x64
+
 
       - name: Install vcpkg
         shell: bash
@@ -96,4 +98,4 @@ jobs:
         if: matrix.config.os == 'windows'
         with:
           name: ${{ matrix.config.name }} Executable
-          path: build/${{ matrix.config.buildtype }}\oopetris.exe
+          path: build\${{ matrix.config.buildtype }}\oopetris.exe

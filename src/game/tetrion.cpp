@@ -13,7 +13,7 @@ Tetrion::Tetrion(
         const Random::Seed random_seed,
         const u32 starting_level,
         ServiceProvider* service_provider,
-        tl::optional<RecordingWriter*> recording_writer,
+        helpers::optional<RecordingWriter*> recording_writer,
         const ui::Layout& layout
 )
     : ui::Widget{layout},
@@ -468,7 +468,7 @@ bool Tetrion::rotate(Tetrion::RotationDirection rotation_direction) {
         m_active_tetromino->rotate_right();
     }
 
-    for (const auto translation : wall_kick_table->at(table_index)) {
+    for (const auto& translation : (*wall_kick_table)->at(table_index)) {
         m_active_tetromino->move(translation);
         if (is_active_tetromino_position_valid()) {
             return true;
@@ -509,7 +509,7 @@ bool Tetrion::move(const Tetrion::MoveDirection move_direction) {
     utils::unreachable();
 }
 
-tl::optional<const Tetrion::WallKickTable&> Tetrion::get_wall_kick_table() const {
+helpers::optional<const Tetrion::WallKickTable*> Tetrion::get_wall_kick_table() const {
     assert(m_active_tetromino.has_value() and "no active tetromino");
     const auto type = m_active_tetromino->type();
     switch (type) {
@@ -518,9 +518,9 @@ tl::optional<const Tetrion::WallKickTable&> Tetrion::get_wall_kick_table() const
         case TetrominoType::T:
         case TetrominoType::S:
         case TetrominoType::Z:
-            return wall_kick_data_jltsz;
+            return &wall_kick_data_jltsz;
         case TetrominoType::I:
-            return wall_kick_data_i;
+            return &wall_kick_data_i;
         case TetrominoType::O:
             return {};
     }

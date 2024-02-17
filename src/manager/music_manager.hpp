@@ -1,13 +1,14 @@
 #pragma once
 
+#include "helper/optional.hpp"
 #include "helper/types.hpp"
 #include "manager/service_provider.hpp"
 #include "platform/capabilities.hpp"
+
 #include <SDL_mixer.h>
 #include <atomic>
 #include <filesystem>
 #include <string>
-#include <tl/optional.hpp>
 #include <unordered_map>
 
 // a general note on music vs. chunk: a chunk is loaded into memory and there may be many of them (effects, not to large music)
@@ -18,7 +19,7 @@ private:
     static inline MusicManager* s_instance{ nullptr }; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
     static const inline float step_width = 0.05F;
 
-    using VolumeChangeFunction = std::function<void(tl::optional<float> volume)>;
+    using VolumeChangeFunction = std::function<void(helpers::optional<float> volume)>;
 
     Mix_Music* m_music;
     std::atomic<Mix_Music*> m_queued_music;
@@ -27,7 +28,7 @@ private:
     static constexpr unsigned fade_ms = 500;
     usize m_delay = MusicManager::fade_ms;
     ServiceProvider* m_service_provider;
-    tl::optional<float> volume;
+    helpers::optional<float> volume;
     std::unordered_map<std::string, VolumeChangeFunction> volume_listeners;
 
 public:
@@ -38,16 +39,16 @@ public:
     MusicManager& operator=(MusicManager&&) = delete;
     ~MusicManager();
 
-    tl::optional<std::string>
+    helpers::optional<std::string>
     load_and_play_music(const std::filesystem::path& location, usize delay = MusicManager::fade_ms);
 
-    tl::optional<std::string> load_effect(const std::string& name, std::filesystem::path& location);
-    tl::optional<std::string> play_effect(const std::string& name, u8 channel_num = 1, int loop = 0);
+    helpers::optional<std::string> load_effect(const std::string& name, std::filesystem::path& location);
+    helpers::optional<std::string> play_effect(const std::string& name, u8 channel_num = 1, int loop = 0);
 
-    [[nodiscard]] tl::optional<float> get_volume() const;
-    void set_volume(tl::optional<float> new_volume, bool force_update = false, bool notify_listeners = true);
+    [[nodiscard]] helpers::optional<float> get_volume() const;
+    void set_volume(helpers::optional<float> new_volume, bool force_update = false, bool notify_listeners = true);
     // no nodiscard, since the return value is only a side effect, that is maybe useful
-    tl::optional<float> change_volume(std::int8_t steps);
+    helpers::optional<float> change_volume(std::int8_t steps);
 
     bool handle_event(const SDL_Event& event);
 

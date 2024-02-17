@@ -4,15 +4,27 @@ runtime-version: "23.08"
 sdk: org.freedesktop.Sdk
 command: oopetris
 modules:
+  - name: meson_1.3_patch # TODO: remove after the sdk has meson >= 1.3
+    buildsystem: simple
+    build-options:
+      build-args:
+        - --share=network
+    build-commands:
+      - mkdir -p /app/python/
+      - PYTHONUSERBASE=/app/python/ pip install --user -U meson
+      - sed -i "s/import sys/import sys; sys.path.insert(1,'\/app\/python\/lib\/python3.11\/site-packages')/g" /app/python/bin/meson
+
   - name: OOPetris
     buildsystem: meson
     config-opts:
       - -Dbuildtype=release
-      - "-Dcpp_args=-DFLATPAK_BUILD -DBUILD_INSTALLER"
+      - -Ddefault_library=static
+      - -Dflatpak_build=true
     builddir: true
     build-options:
       build-args:
         - --share=network
+      prepend-path: /app/python/bin/ # TODO: remove after meson_1.3_patch was removed
     sources:
       - type: dir
         path: "."
@@ -20,14 +32,12 @@ modules:
           - .github/
           - .vscode/
           - build/
-    post-install:
-      - install -D oopetris /app/bin/oopetris
-      - bash ../platforms/flatpak-icon-helper.sh
-      - mkdir -p /app/share/applications/
-      - cp ../assets/OOPetris.desktop /app/share/applications/com.github.mgerhold.OOPetris.desktop
-      - rm -rf /app/include
-      - rm -rf /app/lib/pkgconfig
     run-tests: true
+
+cleanup-commands:
+  - rm -rf /app/include
+  - rm -rf /app/lib/pkgconfig
+  - rm -rf /app/python/ # TODO: remove after meson_1.3_patch was removed
 
 finish-args:
   - --socket=x11
