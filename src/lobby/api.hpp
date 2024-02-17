@@ -3,11 +3,6 @@
 #pragma once
 
 
-#if defined(_HTTPLIB_NOT_SUPPORTED)
-//TODO: nintendo switch doesn't support httplib, but it supports curl (which is not that convenient)
-#include <curl/curl.h>
-#else
-
 #if defined(__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wold-style-cast"
@@ -27,17 +22,12 @@
 #pragma warning(default : 4100)
 #endif
 
-#endif
-
 #include <fmt/format.h>
 #include <spdlog/spdlog.h>
 
 #include "helper/expected.hpp"
 #include "helper/static_string.hpp"
 #include "lobby/types.hpp"
-
-//TODO: cleanup this mess in different header files
-#if !defined(_HTTPLIB_NOT_SUPPORTED)
 
 namespace constants {
     const std::string json_content_type = "application/json";
@@ -195,16 +185,30 @@ namespace lobby {
 
 
             m_client.set_default_headers({
+#if defined(CPPHTTPLIB_ZLIB_SUPPORT) || defined(CPPHTTPLIB_BROTLI_SUPPORT)
+                {
+                    "Accept-Encoding",
+
 #if defined(CPPHTTPLIB_ZLIB_SUPPORT)
-                { "Accept-Encoding", "gzip, deflate" },
+                            "gzip, deflate"
+#endif
+#if defined(CPPHTTPLIB_ZLIB_SUPPORT) && defined(CPPHTTPLIB_BROTLI_SUPPORT)
+                            ", "
+#endif
+#if defined(CPPHTTPLIB_BROTLI_SUPPORT)
+                            "br"
+#endif
+                }
+                ,
 #endif
                 {
                     "Accept", constants::json_content_type
                 }
             });
 
-#if defined(CPPHTTPLIB_ZLIB_SUPPORT)
+#if defined(CPPHTTPLIB_ZLIB_SUPPORT) || defined(CPPHTTPLIB_BROTLI_SUPPORT)
             m_client.set_compress(true);
+            m_client.set_decompress(true);
 #endif
         }
 
@@ -380,24 +384,3 @@ namespace lobby {
 
 
 } // namespace lobby
-
-#else
-
-//TODO: this is just a dummy atm
-
-namespace lobby {
-
-
-    struct Client {
-
-        Client(Client&&) { }
-
-        helpers::expected<Client, std::string> static get_client([[maybe_unused]] const std::string& url) {
-
-            return helpers::unexpected<std::string>{ "NOT SUPPORTED ATM" };
-        }
-    };
-} // namespace lobby
-
-
-#endif

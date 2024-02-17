@@ -7,21 +7,15 @@
 
 namespace scenes {
 
-    struct MainMenu : public Scene {
+    struct PlaySelectMenu : public Scene {
     private:
-        enum class Command {
-            OpenPlaySelection,
-            OpenSettingsMenu,
-            OpenAboutPage,
-            OpenAchievements,
-            Exit,
-        };
+        enum class Command { SinglePlayer, MultiPlayer, Return };
 
-        ui::GridLayout<6> m_main_grid;
+        ui::GridLayout<4> m_main_grid;
         helpers::optional<Command> m_next_command;
 
     public:
-        explicit MainMenu(ServiceProvider* service_provider, const ui::Layout& layout);
+        explicit PlaySelectMenu(ServiceProvider* service_provider, const ui::Layout& layout);
 
         [[nodiscard]] UpdateResult update() override;
         void render(const ServiceProvider& service_provider) override;

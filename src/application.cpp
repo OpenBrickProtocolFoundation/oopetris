@@ -58,10 +58,28 @@ void Application::handle_event(const SDL_Event& event, const Window* window) {
 
     for (usize i = 0; i < m_scene_stack.size(); ++i) {
         const auto index = m_scene_stack.size() - i - 1;
-        if (m_scene_stack.at(index)->handle_event(event, window)) {
+        const auto& widget = m_scene_stack.at(index);
+        if (widget->handle_event(event, window)) {
             return;
+        } else {
+            // detect if the scene overlaps everything, if that's the case, break out of the loop, since no other scene should receive inputs, since it's not visible to the user
+
+            if (widget->get_layout().is_full_screen()) {
+                break;
+            } else {
+                // if the scene is not covering the whole screen, it should give scenes in the background mouse events, but keyboard events are still only captured by the scene in focus
+
+                if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::Any)) {
+                    if (utils::is_event_in(window, event, widget->get_layout().get_rect())) {
+                        break;
+                    }
+                }
+            }
         }
     }
+
+
+    // this global event handlers (atm only one) are special cases, they receive all inputs if they are not handled by the scene explicably
 
     if (m_music_manager.handle_event(event)) {
         return;

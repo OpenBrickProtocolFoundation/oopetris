@@ -6,7 +6,7 @@
 
 namespace scenes {
 
-    struct Ingame : public Scene {
+    struct SinglePlayerGame : public Scene {
     private:
         using TetrionHeaders = std::vector<Recording::TetrionHeader>;
 
@@ -22,7 +22,7 @@ namespace scenes {
         bool m_is_paused{ false };
 
     public:
-        explicit Ingame(ServiceProvider* service_provider, const ui::Layout& layout);
+        explicit SinglePlayerGame(ServiceProvider* service_provider, const ui::Layout& layout);
 
         [[nodiscard]] UpdateResult update() override;
         void render(const ServiceProvider& service_provider) override;

@@ -87,17 +87,19 @@ add_executable(oopetris
     src/scenes/about_page/about_page.hpp
     src/scenes/game_over/game_over.cpp
     src/scenes/game_over/game_over.hpp
-    src/scenes/ingame/ingame.cpp
-    src/scenes/ingame/ingame.hpp
     src/scenes/main_menu/main_menu.cpp
     src/scenes/main_menu/main_menu.hpp
     src/scenes/pause/pause.cpp
     src/scenes/pause/pause.hpp
+    src/scenes/play_select_menu/play_select_menu.cpp
+    src/scenes/play_select_menu/play_select_menu.hpp
     src/scenes/scene_id.hpp
     src/scenes/scene.cpp
     src/scenes/scene.hpp
     src/scenes/settings_menu/settings_menu.cpp
     src/scenes/settings_menu/settings_menu.hpp
+    src/scenes/single_player_game/single_player_game.cpp
+    src/scenes/single_player_game/single_player_game.hpp
     src/ui/button.hpp
     src/ui/focusable.hpp
     src/ui/grid_layout.hpp

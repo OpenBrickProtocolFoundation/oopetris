@@ -24,6 +24,7 @@ namespace ui {
         Text m_text;
         Callback m_callback;
         shapes::Rect m_fill_rect;
+        bool m_enabled;
 
         explicit Button(
                 ServiceProvider* service_provider,
@@ -50,7 +51,8 @@ namespace ui {
                         fill_rect.width() - 2 * static_cast<int>(margin.first),
                         fill_rect.height() - 2 * static_cast<int>(margin.second) } },
               m_callback{ std::move(callback) },
-              m_fill_rect{ fill_rect } { }
+              m_fill_rect{ fill_rect },
+              m_enabled{ true } { }
 
     public:
         explicit Button(
@@ -84,16 +86,19 @@ namespace ui {
 
 
         void render(const ServiceProvider& service_provider) const override {
-            const auto color =
-                    (has_focus()    ? is_hovered() ? Color(0xFF, 0x6A, 0x00) : Color::red()
-                        : is_hovered() ? Color(0x00, 0xBB, 0xFF)
-                                    : Color::blue());
+            const auto color = not m_enabled ? (has_focus() ? Color(0xA3, 0x6A, 0x6A) : Color(0x91, 0x91, 0x91))
+                                             : (has_focus()    ? is_hovered() ? Color(0xFF, 0x6A, 0x00) : Color::red()
+                                                   : is_hovered() ? Color(0x00, 0xBB, 0xFF)
+                                                               : Color::blue());
             service_provider.renderer().draw_rect_filled(m_fill_rect, color);
 
             m_text.render(service_provider);
         }
 
         bool handle_event(const SDL_Event& event, const Window* window) override {
+            if (not m_enabled) {
+                return false;
+            }
 
             if (utils::device_supports_keys()) {
                 if (has_focus() and utils::event_is_action(event, utils::CrossPlatformAction::OK)) {
@@ -113,6 +118,18 @@ namespace ui {
 
         void on_clicked() override {
             m_callback(*this);
+        }
+
+        void disable() {
+            m_enabled = false;
+        }
+
+        void enable() {
+            m_enabled = true;
+        }
+
+        bool is_enabled() const {
+            return m_enabled;
         }
 
     private:
