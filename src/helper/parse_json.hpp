@@ -58,13 +58,13 @@ namespace json {
             return result;
 
         } catch (nlohmann::json::parse_error& parse_error) {
-            return helpers::unexpected(fmt::format("parse error: {}", parse_error.what()));
+            return helpers::unexpected<std::string>{ fmt::format("parse error: {}", parse_error.what()) };
         } catch (nlohmann::json::type_error& type_error) {
-            return helpers::unexpected(fmt::format("type error: {}", type_error.what()));
+            return helpers::unexpected<std::string>{ fmt::format("type error: {}", type_error.what()) };
         } catch (nlohmann::json::exception& exception) {
-            return helpers::unexpected(fmt::format("unknown json exception: {}", exception.what()));
+            return helpers::unexpected<std::string>{ fmt::format("unknown json exception: {}", exception.what()) };
         } catch (std::exception& exception) {
-            return helpers::unexpected(fmt::format("unknown exception: {}", exception.what()));
+            return helpers::unexpected<std::string>{ fmt::format("unknown exception: {}", exception.what()) };
         }
     }
 
@@ -72,13 +72,13 @@ namespace json {
     [[nodiscard]] helpers::expected<T, std::string> try_parse_json_file(const std::filesystem::path& file) {
 
         if (not std::filesystem::exists(file)) {
-            return helpers::unexpected(fmt::format("File '{}' doesn't exist", file.string()));
+            return helpers::unexpected<std::string>{ fmt::format("File '{}' doesn't exist", file.string()) };
         }
 
         std::ifstream file_stream{ file };
 
         if (!file_stream.is_open()) {
-            return helpers::unexpected(fmt::format("File '{}' couldn't be opened!", file.string()));
+            return helpers::unexpected<std::string>{ fmt::format("File '{}' couldn't be opened!", file.string()) };
         }
 
         std::stringstream result;
@@ -101,11 +101,11 @@ namespace json {
             return value.dump(-1, ' ');
 
         } catch (nlohmann::json::type_error& type_error) {
-            return helpers::unexpected(fmt::format("type error: {}", type_error.what()));
+            return helpers::unexpected<std::string>{ fmt::format("type error: {}", type_error.what()) };
         } catch (nlohmann::json::exception& exception) {
-            return helpers::unexpected(fmt::format("unknown json exception: {}", exception.what()));
+            return helpers::unexpected<std::string>{ fmt::format("unknown json exception: {}", exception.what()) };
         } catch (std::exception& exception) {
-            return helpers::unexpected(fmt::format("unknown exception: {}", exception.what()));
+            return helpers::unexpected<std::string>{ fmt::format("unknown exception: {}", exception.what()) };
         }
     }
 

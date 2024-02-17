@@ -48,11 +48,11 @@ namespace {
 
     inline helpers::expected<std::string, std::string> is_json_response(const httplib::Result& result) {
         if (not result->has_header("Content-Type")) {
-            return helpers::unexpected("Content-Type not set!");
+            return helpers::unexpected<std::string>{ "Content-Type not set!" };
         }
 
         if (const auto value = result->get_header_value("Content-Type"); value != constants::json_content_type) {
-            return helpers::unexpected(fmt::format("Content-Type is not json but {}", value));
+            return helpers::unexpected<std::string>{ fmt::format("Content-Type is not json but {}", value) };
         }
 
         return result->body;
@@ -64,7 +64,7 @@ namespace {
 
         const auto body = is_json_response(result);
         if (not body.has_value()) {
-            return helpers::unexpected(body.error());
+            return helpers::unexpected<std::string>{ body.error() };
         }
 
         const auto parsed = json::try_parse_json<lobby::ErrorResponse>(body.value());
@@ -73,13 +73,15 @@ namespace {
             return parsed.value();
         }
 
-        return helpers::unexpected(fmt::format("Couldn't parse json with error: {}", parsed.error()));
+        return helpers::unexpected<std::string>{ fmt::format("Couldn't parse json with error: {}", parsed.error()) };
     }
 
     inline helpers::expected<bool, std::string> is_request_ok(const httplib::Result& result, int ok_code = 200) {
 
         if (not result) {
-            return helpers::unexpected(fmt::format("Request failed with: {}", httplib::to_string(result.error())));
+            return helpers::unexpected<std::string>{
+                fmt::format("Request failed with: {}", httplib::to_string(result.error()))
+            };
         }
 
         if (result->status == 401) {
@@ -87,10 +89,10 @@ namespace {
             const auto error_type = is_error_message_response(result);
 
             if (error_type.has_value()) {
-                return helpers::unexpected(fmt::format("Unauthorized: {}", error_type.value().message));
+                return helpers::unexpected<std::string>{ fmt::format("Unauthorized: {}", error_type.value().message) };
             }
 
-            return helpers::unexpected("Unauthorized");
+            return helpers::unexpected<std::string>{ "Unauthorized" };
         }
 
 
@@ -99,17 +101,17 @@ namespace {
             const auto error_type = is_error_message_response(result);
 
             if (error_type.has_value()) {
-                return helpers::unexpected(fmt::format(
+                return helpers::unexpected<std::string>{ fmt::format(
                         "Got error response with status code {}: '{}' and message: {}", result->status,
                         httplib::status_message(result->status), error_type.value().message
-                ));
+                ) };
             }
 
 
-            return helpers::unexpected(fmt::format(
+            return helpers::unexpected<std::string>{ fmt::format(
                     "Got error response with status code {}: '{}' but expected {}", result->status,
                     httplib::status_message(result->status), ok_code
-            ));
+            ) };
         }
 
         return true;
@@ -121,12 +123,12 @@ namespace {
 
         const auto temp = is_request_ok(result, ok_code);
         if (not temp.has_value()) {
-            return helpers::unexpected(temp.error());
+            return helpers::unexpected<std::string>{ temp.error() };
         }
 
         const auto body = is_json_response(result);
         if (not body.has_value()) {
-            return helpers::unexpected(body.error());
+            return helpers::unexpected<std::string>{ body.error() };
         }
 
         const auto parsed = json::try_parse_json<T>(body.value());
@@ -135,7 +137,7 @@ namespace {
             return parsed.value();
         }
 
-        return helpers::unexpected(fmt::format("Couldn't parse json with error: {}", parsed.error()));
+        return helpers::unexpected<std::string>{ fmt::format("Couldn't parse json with error: {}", parsed.error()) };
     }
 
 
@@ -157,20 +159,20 @@ namespace lobby {
             const auto server_version = get_version();
 
             if (not server_version.has_value()) {
-                return helpers::unexpected(fmt::format(
+                return helpers::unexpected<std::string>{ fmt::format(
                         "Connecting to unsupported server, he can't report his version\nGot error: {}",
                         server_version.error()
-                ));
+                ) };
             }
 
             const auto& version = server_version.value();
 
             //TODO: if version is semver, support semver comparison
             if (Client::supported_version.string() != version.version) {
-                return helpers::unexpected(fmt::format(
+                return helpers::unexpected<std::string>{ fmt::format(
                         "Connecting to unsupported server, version is {}, but we support only {}",
                         Client::supported_version.string(), version.version
-                ));
+                ) };
             }
 
             return true;
@@ -181,7 +183,9 @@ namespace lobby {
             auto result = m_client.Get("/");
 
             if (not result) {
-                return helpers::unexpected(fmt::format("Server not reachable: {}", httplib::to_string(result.error())));
+                return helpers::unexpected<std::string>{
+                    fmt::format("Server not reachable: {}", httplib::to_string(result.error()))
+                };
             }
 
             return true;
@@ -222,7 +226,7 @@ namespace lobby {
             const auto reachable = client.check_reachability();
 
             if (not reachable.has_value()) {
-                return helpers::unexpected(reachable.error());
+                return helpers::unexpected<std::string>{ reachable.error() };
             }
 
             //TODO: once version is standard, check here if the version is supported
@@ -234,7 +238,7 @@ namespace lobby {
         helpers::expected<LoginResponse, std::string> login(const Credentials& credentials) {
             const auto json_result = json::try_json_to_string(credentials);
             if (not json_result.has_value()) {
-                return helpers::unexpected(json_result.error());
+                return helpers::unexpected<std::string>{ json_result.error() };
             }
 
             auto res = m_client.Post("/login", json_result.value(), constants::json_content_type);
@@ -274,7 +278,10 @@ namespace lobby {
 
         helpers::expected<bool, std::string> join_lobby(int lobby_id) {
             if (not is_authenticated()) {
-                return helpers::unexpected("Authentication needed for this endpoint, but not authenticated!");
+                return helpers::unexpected<std::string>{
+                    "Authentication needed for this "
+                    "endpoint, but not authenticated!"
+                };
             }
 
             auto res = m_client.Post(fmt::format("/lobbies/{}", lobby_id));
@@ -284,7 +291,10 @@ namespace lobby {
 
         helpers::expected<LobbyDetail, std::string> get_lobby_detail(int lobby_id) {
             if (not is_authenticated()) {
-                return helpers::unexpected("Authentication needed for this endpoint, but not authenticated!");
+                return helpers::unexpected<std::string>{
+                    "Authentication needed for this "
+                    "endpoint, but not authenticated!"
+                };
             }
 
             auto res = m_client.Get(fmt::format("/lobbies/{}", lobby_id));
@@ -294,7 +304,10 @@ namespace lobby {
 
         helpers::expected<bool, std::string> delete_lobby(int lobby_id) {
             if (not is_authenticated()) {
-                return helpers::unexpected("Authentication needed for this endpoint, but not authenticated!");
+                return helpers::unexpected<std::string>{
+                    "Authentication needed for this "
+                    "endpoint, but not authenticated!"
+                };
             }
 
             auto res = m_client.Delete(fmt::format("/lobbies/{}", lobby_id));
@@ -304,7 +317,10 @@ namespace lobby {
 
         helpers::expected<bool, std::string> leave_lobby(int lobby_id) {
             if (not is_authenticated()) {
-                return helpers::unexpected("Authentication needed for this endpoint, but not authenticated!");
+                return helpers::unexpected<std::string>{
+                    "Authentication needed for this "
+                    "endpoint, but not authenticated!"
+                };
             }
 
             auto res = m_client.Put(fmt::format("/lobbies/{}/leave", lobby_id));
@@ -314,7 +330,10 @@ namespace lobby {
 
         helpers::expected<bool, std::string> start_lobby(int lobby_id) {
             if (not is_authenticated()) {
-                return helpers::unexpected("Authentication needed for this endpoint, but not authenticated!");
+                return helpers::unexpected<std::string>{
+                    "Authentication needed for this "
+                    "endpoint, but not authenticated!"
+                };
             }
 
             auto res = m_client.Post(fmt::format("/lobbies/{}/start", lobby_id));
@@ -324,12 +343,15 @@ namespace lobby {
 
         helpers::expected<LobbyCreateResponse, std::string> create_lobby(const CreateLobbyRequest& arguments) {
             if (not is_authenticated()) {
-                return helpers::unexpected("Authentication needed for this endpoint, but not authenticated!");
+                return helpers::unexpected<std::string>{
+                    "Authentication needed for this "
+                    "endpoint, but not authenticated!"
+                };
             }
 
             const auto json_result = json::try_json_to_string(arguments);
             if (not json_result.has_value()) {
-                return helpers::unexpected(json_result.error());
+                return helpers::unexpected<std::string>{ json_result.error() };
             }
 
             auto res = m_client.Post("/lobbies", json_result.value(), constants::json_content_type);
@@ -347,7 +369,7 @@ namespace lobby {
         helpers::expected<bool, std::string> register_user(const RegisterRequest& register_request) {
             const auto json_result = json::try_json_to_string(register_request);
             if (not json_result.has_value()) {
-                return helpers::unexpected(json_result.error());
+                return helpers::unexpected<std::string>{ json_result.error() };
             }
 
             auto res = m_client.Post("/register", json_result.value(), constants::json_content_type);
@@ -372,7 +394,7 @@ namespace lobby {
 
         helpers::expected<Client, std::string> static get_client([[maybe_unused]] const std::string& url) {
 
-            return helpers::unexpected("NOT SUPPORTED ATM");
+            return helpers::unexpected<std::string>{ "NOT SUPPORTED ATM" };
         }
     };
 } // namespace lobby

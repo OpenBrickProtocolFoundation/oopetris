@@ -2,6 +2,9 @@
 
 set -e
 
+## options: "smart, complete_rebuild"
+export COMPILE_TYPE="smart"
+
 mkdir -p toolchains
 
 export NDK_VER_DOWNLOAD="r26c"
@@ -63,7 +66,16 @@ elif [ "$#" -eq 1 ]; then
 
     ARCH_KEYS_INDEX=("$FOUND")
 else
-    echo "Too many arguemtns given, expected at most 1"
+    echo "Too many argumetns given, expected at most 1"
+    exit 1
+fi
+
+if [ "$COMPILE_TYPE" == "smart" ]; then
+    : # noop
+elif [ "$COMPILE_TYPE" == "complete_rebuild" ]; then
+    : # noop
+else
+    echo "Invalid COMPILE_TYPE, expected: 'smart' or 'complete_rebuild'"
     exit 1
 fi
 
@@ -93,32 +105,36 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
     export LIBRARY_PATH="$SYS_ROOT/usr/lib/$ARM_NAME_TRIPLE/$SDK_VERSION"
 
-    LAST_DIR=$PWD
+    if [ "$COMPILE_TYPE" == "complete_rebuild" ]; then
 
-    if [ -d "${SYS_ROOT:?}/" ]; then
+        LAST_DIR=$PWD
 
-        rm -rf "${SYS_ROOT:?}/"
+        if [ -d "${SYS_ROOT:?}/" ]; then
+
+            rm -rf "${SYS_ROOT:?}/"
+        fi
+
+        mkdir -p "${SYS_ROOT:?}/usr/lib"
+
+        cd "${SYS_ROOT:?}/usr/"
+
+        ln -s "$HOST_ROOT/sysroot/usr/local" "${SYS_ROOT:?}/usr/"
+
+        ln -s "$HOST_ROOT/sysroot/usr/include" "${SYS_ROOT:?}/usr/"
+
+        find "$HOST_ROOT/sysroot/usr/lib/$ARM_NAME_TRIPLE/" -maxdepth 1 -name "*.so" -exec ln -s "{}" "${SYS_ROOT:?}/usr/lib/" \;
+
+        find "$HOST_ROOT/sysroot/usr/lib/$ARM_NAME_TRIPLE/" -maxdepth 1 -name "*.a" -exec ln -s "{}" "${SYS_ROOT:?}/usr/lib/" \;
+
+        find "$HOST_ROOT/sysroot/usr/lib/$ARM_NAME_TRIPLE/$SDK_VERSION/" -maxdepth 1 -name "*.a" -exec ln -s "{}" "${SYS_ROOT:?}/usr/lib/" \;
+
+        find "$HOST_ROOT/sysroot/usr/lib/$ARM_NAME_TRIPLE/$SDK_VERSION/" -maxdepth 1 -name "*.so" -exec ln -s "{}" "${SYS_ROOT:?}/usr/lib/" \;
+
+        find "$HOST_ROOT/sysroot/usr/lib/$ARM_NAME_TRIPLE/$SDK_VERSION/" -maxdepth 1 -name "*.o" -exec ln -s "{}" "${SYS_ROOT:?}/usr/lib/" \;
+
+        cd "$LAST_DIR"
+
     fi
-
-    mkdir -p "${SYS_ROOT:?}/usr/lib"
-
-    cd "${SYS_ROOT:?}/usr/"
-
-    ln -s "$HOST_ROOT/sysroot/usr/local" "${SYS_ROOT:?}/usr/"
-
-    ln -s "$HOST_ROOT/sysroot/usr/include" "${SYS_ROOT:?}/usr/"
-
-    find "$HOST_ROOT/sysroot/usr/lib/$ARM_NAME_TRIPLE/" -maxdepth 1 -name "*.so" -exec ln -s "{}" "${SYS_ROOT:?}/usr/lib/" \;
-
-    find "$HOST_ROOT/sysroot/usr/lib/$ARM_NAME_TRIPLE/" -maxdepth 1 -name "*.a" -exec ln -s "{}" "${SYS_ROOT:?}/usr/lib/" \;
-
-    find "$HOST_ROOT/sysroot/usr/lib/$ARM_NAME_TRIPLE/$SDK_VERSION/" -maxdepth 1 -name "*.a" -exec ln -s "{}" "${SYS_ROOT:?}/usr/lib/" \;
-
-    find "$HOST_ROOT/sysroot/usr/lib/$ARM_NAME_TRIPLE/$SDK_VERSION/" -maxdepth 1 -name "*.so" -exec ln -s "{}" "${SYS_ROOT:?}/usr/lib/" \;
-
-    find "$HOST_ROOT/sysroot/usr/lib/$ARM_NAME_TRIPLE/$SDK_VERSION/" -maxdepth 1 -name "*.o" -exec ln -s "{}" "${SYS_ROOT:?}/usr/lib/" \;
-
-    cd "$LAST_DIR"
 
     export BUILD_DIR="build-$ARM_TARGET_ARCH"
 
@@ -139,49 +155,59 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
     cd "$SYS_ROOT"
 
-    mkdir -p "build"
+    BUILD_DIR_MPG123="build-mpg123"
 
-    cd build
+    BUILD_MPG123_FILE="$SYS_ROOT/$BUILD_DIR_MPG123/build_succesfull.meta"
 
-    wget -q "https://www.mpg123.de/download/mpg123-1.32.4.tar.bz2"
-
-    tar -xf "mpg123-1.32.4.tar.bz2"
-
-    cd "mpg123-1.32.4"
-
-    BUILDYSTEM="cmake"
-
-    if [ $BUILDYSTEM = "autotools" ]; then
-
-        ./configure --prefix="$SYS_ROOT/usr" --oldincludedir="$SYS_ROOT/usr/include" --host="$ARM_NAME_TRIPLE" --with-sysroot="$SYS_ROOT" --with-audio="dummy"
-
-        make
-
-        make install
-
-    else
-
-        cd ports/cmake/
-
-        BUILD_DIR_MPG123="build-mpg123"
+    if [ "$COMPILE_TYPE" == "complete_rebuild" ] || ! [ -e "$BUILD_MPG123_FILE" ]; then
 
         mkdir -p "$BUILD_DIR_MPG123"
 
         cd "$BUILD_DIR_MPG123"
 
-        if [ "$ARCH_VERSION" = "i686" ]; then
-            #cmake .. -DCMAKE_TOOLCHAIN_FILE=linux_i686.toolchain.cmake --install-prefix "$SYS_ROOT/usr" "-DCMAKE_SYSROOT=$SYS_ROOT" -DOUTPUT_MODULES=dummy -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-            # cmake --build .
+        wget -q "https://www.mpg123.de/download/mpg123-1.32.4.tar.bz2"
 
-            # cmake --install .
-            : # nop, for bash syntax
+        tar -xf "mpg123-1.32.4.tar.bz2"
+
+        cd "mpg123-1.32.4"
+
+        BUILDYSTEM="cmake"
+
+        if [ $BUILDYSTEM = "autotools" ]; then
+
+            ./configure --prefix="$SYS_ROOT/usr" --oldincludedir="$SYS_ROOT/usr/include" --host="$ARM_NAME_TRIPLE" --with-sysroot="$SYS_ROOT" --with-audio="dummy"
+
+            make
+
+            make install
 
         else
-            cmake .. --install-prefix "$SYS_ROOT/usr" "-DCMAKE_SYSROOT=$SYS_ROOT" -DOUTPUT_MODULES=dummy -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-            cmake --build .
 
-            cmake --install .
+            cd ports/cmake/
+
+            BUILD_DIR_MPG123="build-mpg123"
+
+            mkdir -p "$BUILD_DIR_MPG123"
+
+            cd "$BUILD_DIR_MPG123"
+
+            if [ "$ARCH_VERSION" = "i686" ]; then
+                #cmake .. -DCMAKE_TOOLCHAIN_FILE=linux_i686.toolchain.cmake --install-prefix "$SYS_ROOT/usr" "-DCMAKE_SYSROOT=$SYS_ROOT" -DOUTPUT_MODULES=dummy -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+                # cmake --build .
+
+                # cmake --install .
+                : # nop, for bash syntax
+
+            else
+                cmake .. --install-prefix "$SYS_ROOT/usr" "-DCMAKE_SYSROOT=$SYS_ROOT" -DOUTPUT_MODULES=dummy -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+                cmake --build .
+
+                cmake --install .
+            fi
+
         fi
+
+        touch "$BUILD_MPG123_FILE"
 
     fi
 
@@ -195,25 +221,33 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
     BUILD_DIR_OPENSSL="build-openssl"
 
-    mkdir -p "$BUILD_DIR_OPENSSL"
+    BUILD_OPENSSL_FILE="$SYS_ROOT/$BUILD_DIR_OPENSSL/build_succesfull.meta"
 
-    cd "$BUILD_DIR_OPENSSL"
+    if [ "$COMPILE_TYPE" == "complete_rebuild" ] || ! [ -e "$BUILD_OPENSSL_FILE" ]; then
 
-    wget -q "https://www.openssl.org/source/openssl-3.0.13.tar.gz"
+        mkdir -p "$BUILD_DIR_OPENSSL"
 
-    tar -xzf "openssl-3.0.13.tar.gz"
+        cd "$BUILD_DIR_OPENSSL"
 
-    cd "openssl-3.0.13"
+        wget -q "https://www.openssl.org/source/openssl-3.0.13.tar.gz"
 
-    OPENSSL_TARGET_ARCH="android-$ARCH"
+        tar -xzf "openssl-3.0.13.tar.gz"
 
-    export ANDROID_NDK_ROOT="$ANDROID_NDK_HOME"
+        cd "openssl-3.0.13"
 
-    ./Configure --prefix="$SYS_ROOT/usr" no-tests no-shared "$OPENSSL_TARGET_ARCH" "-D__ANDROID_API__=$SDK_VERSION"
+        OPENSSL_TARGET_ARCH="android-$ARCH"
 
-    make -j build_sw
+        export ANDROID_NDK_ROOT="$ANDROID_NDK_HOME"
 
-    make install_sw
+        ./Configure --prefix="$SYS_ROOT/usr" no-tests no-shared "$OPENSSL_TARGET_ARCH" "-D__ANDROID_API__=$SDK_VERSION"
+
+        make -j build_sw
+
+        make install_sw
+
+        touch "$BUILD_OPENSSL_FILE"
+
+    fi
 
     cd "$LAST_DIR"
 
@@ -290,16 +324,23 @@ EOF
 
     export LIBRARY_PATH="$LIBRARY_PATH:usr/lib/$ARM_NAME_TRIPLE/$SDK_VERSION:$LIB_PATH"
 
-    meson setup "$BUILD_DIR" \
-        "--prefix=$SYS_ROOT" \
-        "--includedir=$INC_PATH" \
-        "--libdir=usr/lib/$ARM_NAME_TRIPLE/$SDK_VERSION" \
-        --cross-file "./platforms/crossbuild-android-$ARM_TARGET_ARCH.ini" \
-        -Dbuildtype=release \
-        -Dsdl2:use_hidapi=disabled \
-        -Dcpp_args=-DAUDIO_PREFER_MP3
+    if [ "$COMPILE_TYPE" == "complete_rebuild" ] || [ ! -e "$BUILD_DIR" ]; then
+
+        meson setup "$BUILD_DIR" \
+            "--prefix=$SYS_ROOT" \
+            "--wipe" \
+            "--includedir=$INC_PATH" \
+            "--libdir=usr/lib/$ARM_NAME_TRIPLE/$SDK_VERSION" \
+            --cross-file "./platforms/crossbuild-android-$ARM_TARGET_ARCH.ini" \
+            -Dbuildtype=release \
+            -Dsdl2:use_hidapi=disabled \
+            -Dcpp_args=-DAUDIO_PREFER_MP3
+
+    fi
 
     meson compile -C "$BUILD_DIR"
+
+    echo -e "Sucesfully build for andropid platform ${ARCH}\n"
 
 done
 
