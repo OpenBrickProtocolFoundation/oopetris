@@ -47,6 +47,8 @@ namespace {
     return "Linux";
 #elif _WIN32
     return "Windows";
+#elif __APPLE__
+    return "MacOS";
 #else
 #error "Unsupported platform"
 #endif
@@ -72,11 +74,10 @@ namespace {
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
     const std::string shellCommand = "start " + url;
 #elif __APPLE__
-#const std::string shellCommand = "open " + url;
+    const std::string shellCommand = "open " + url;
 #elif __linux__
     const std::string shellCommand = "xdg-open " + url;
 #else
-
 #error "Unsupported platform"
 #endif
 
