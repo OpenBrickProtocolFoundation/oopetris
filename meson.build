@@ -15,6 +15,7 @@ project(
 )
 
 compile_args = []
+deps = []
 
 cpp = meson.get_compiler('cpp')
 
@@ -24,6 +25,12 @@ elif cpp.get_id() == 'gcc'
     compile_args += ['-Wold-style-cast', '-std=c++23']
 elif meson.is_cross_build() and host_machine.system() == 'android'
     compile_args += ['-std=c++2b']
+elif cpp.get_id() == 'clang'
+    if host_machine.system() == 'darwin'
+        compile_args += '-stdlib=libc++'
+        deps += cpp.find_library('c++')
+        deps += cpp.find_library('c++abi')
+    endif
 else
     compile_args += ['-std=c++23']
 endif
@@ -34,7 +41,7 @@ if get_option('buildtype') == 'debug' or get_option('buildtype') == 'debugoptimi
 endif
 
 
-deps = []
+
 inc_dirs = []
 
 
