@@ -327,7 +327,7 @@ namespace {
 }
 
 
-[[nodiscard]] bool utils::is_event_in(const Window* window, const SDL_Event& event, const Rect& rect) {
+[[nodiscard]] bool utils::is_event_in(const Window* window, const SDL_Event& event, const shapes::Rect& rect) {
 
     const auto& [x, y] = get_raw_coordinates(window, event);
 

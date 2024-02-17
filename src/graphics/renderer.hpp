@@ -26,10 +26,10 @@ public:
 
     void set_draw_color(const Color& color) const;
     void clear(const Color& clear_color = Color::black()) const;
-    void draw_rect_filled(const Rect& rect, const Color& color) const;
-    void draw_rect_outline(const Rect& rect, const Color& color) const;
-    void draw_line(const Point& start, const Point& end, const Color& color) const;
-    void draw_texture(const Texture& texture, const Rect& rect) const;
+    void draw_rect_filled(const shapes::Rect& rect, const Color& color) const;
+    void draw_rect_outline(const shapes::Rect& rect, const Color& color) const;
+    void draw_line(const shapes::Point& start, const shapes::Point& end, const Color& color) const;
+    void draw_texture(const Texture& texture, const shapes::Rect& rect) const;
 
     [[nodiscard]] Texture load_image(const std::string& image_path) const;
     [[nodiscard]] Texture prerender_text(const std::string& text, const Font& font, const Color& color) const;

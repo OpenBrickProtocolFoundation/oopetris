@@ -29,7 +29,7 @@ void Mino::render(
         const ServiceProvider& service_provider,
         const Grid* grid,
         const MinoTransparency transparency,
-        const Point& offset
+        const shapes::Point& offset
 ) const {
     //TODO: get rid of the offset!
 
@@ -38,17 +38,17 @@ void Mino::render(
     const Color foreground = get_foreground_color(m_type, alpha);
     const Color background = get_background_color(m_type, alpha);
 
-    const Point top_left = grid->to_screen_coords(m_position + offset);
-    const Point top_right = top_left + Point{ grid->tile_size().x - 1, 0 };
-    const Point bottom_left = top_left + Point{ 0, grid->tile_size().y - 1 };
-    const Point bottom_right = top_left + grid->tile_size() - Point{ 1, 1 };
+    const shapes::Point top_left = grid->to_screen_coords(m_position + offset);
+    const shapes::Point top_right = top_left + shapes::Point{ grid->tile_size().x - 1, 0 };
+    const shapes::Point bottom_left = top_left + shapes::Point{ 0, grid->tile_size().y - 1 };
+    const shapes::Point bottom_right = top_left + grid->tile_size() - shapes::Point{ 1, 1 };
 
-    service_provider.renderer().draw_rect_filled(Rect{ top_left, bottom_right }, background);
+    service_provider.renderer().draw_rect_filled(shapes::Rect{ top_left, bottom_right }, background);
 
-    const Point inner_top_left = top_left + Point{ inset, inset };
-    const Point inner_top_right = top_right + Point{ -inset, inset };
-    const Point inner_bottom_left = bottom_left + Point{ inset, -inset };
-    const Point inner_bottom_right = bottom_right - Point{ inset, inset };
+    const shapes::Point inner_top_left = top_left + shapes::Point{ inset, inset };
+    const shapes::Point inner_top_right = top_right + shapes::Point{ -inset, inset };
+    const shapes::Point inner_bottom_left = bottom_left + shapes::Point{ inset, -inset };
+    const shapes::Point inner_bottom_right = bottom_right - shapes::Point{ inset, inset };
 
 
     service_provider.renderer().draw_line(
@@ -62,5 +62,5 @@ void Mino::render(
             bottom_right, inner_bottom_right, Color{ 80, 80, 80, static_cast<u8>(180.0 * alpha_factor) }
     );
 
-    service_provider.renderer().draw_rect_filled(Rect{ inner_top_left, inner_bottom_right }, foreground);
+    service_provider.renderer().draw_rect_filled(shapes::Rect{ inner_top_left, inner_bottom_right }, foreground);
 }

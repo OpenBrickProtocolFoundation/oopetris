@@ -67,13 +67,13 @@ public:
         }
     }
 
-    void render(SDL_Renderer* renderer, const Rect& rect) const {
+    void render(SDL_Renderer* renderer, const shapes::Rect& rect) const {
         const SDL_Rect rect_sdl = rect.to_sdl_rect();
         SDL_RenderCopy(renderer, m_raw_texture, nullptr, &rect_sdl);
     }
 
-    [[nodiscard]] Point size() const {
-        Point size;
+    [[nodiscard]] shapes::Point size() const {
+        shapes::Point size;
         const auto result = SDL_QueryTexture(m_raw_texture, nullptr, nullptr, &size.x, &size.y);
 
         if (result < 0) {

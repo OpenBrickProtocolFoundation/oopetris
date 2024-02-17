@@ -11,11 +11,11 @@ namespace ui {
 
     private:
         bool m_is_hovered{ false };
-        Rect m_fill_rect;
+        shapes::Rect m_fill_rect;
 
 
     public:
-        explicit Hoverable(const Rect& fill_rect)
+        explicit Hoverable(const shapes::Rect& fill_rect)
             : m_fill_rect{ fill_rect } {
 
               };

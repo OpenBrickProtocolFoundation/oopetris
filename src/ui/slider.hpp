@@ -29,9 +29,9 @@ namespace ui {
         float m_step;
         float current_value;
         bool is_dragging{ false };
-        Rect fill_rect;
+        shapes::Rect fill_rect;
 
-        [[nodiscard]] std::pair<Rect, Rect> get_rectangles() const {
+        [[nodiscard]] std::pair<shapes::Rect, shapes::Rect> get_rectangles() const {
 
             const auto origin = fill_rect.top_left;
 
@@ -42,9 +42,9 @@ namespace ui {
             const int position_x_middle =
                     origin.x + static_cast<int>(percentage * static_cast<float>(fill_rect.bottom_right.x - origin.x));
 
-            const auto slider_rect = Rect{
-                Point{position_x_middle - 5,     fill_rect.top_left.y},
-                Point{position_x_middle + 5, fill_rect.bottom_right.y}
+            const auto slider_rect = shapes::Rect{
+                shapes::Point{position_x_middle - 5,     fill_rect.top_left.y},
+                shapes::Point{position_x_middle + 5, fill_rect.bottom_right.y}
             };
 
             return { bar.get_rect(), slider_rect };

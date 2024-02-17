@@ -29,7 +29,7 @@
 }
 
 
-[[nodiscard]] Rect
+[[nodiscard]] shapes::Rect
 ui::get_rectangle_aligned(const Layout& layout, const std::pair<u32, u32>& size, const Alignment& alignment) {
 
     const auto width = size.first;
@@ -39,13 +39,13 @@ ui::get_rectangle_aligned(const Layout& layout, const std::pair<u32, u32>& size,
     const auto offset_y = get_vertical_alignment_offset(layout, alignment.second, height);
 
 
-    return Rect{ static_cast<int>(offset_x), static_cast<int>(offset_y), static_cast<int>(width),
-                 static_cast<int>(height) };
+    return shapes::Rect{ static_cast<int>(offset_x), static_cast<int>(offset_y), static_cast<int>(width),
+                         static_cast<int>(height) };
 }
 
 
 [[nodiscard]] std::pair<u32, u32>
-ui::ratio_helper(const std::pair<u32, u32>& size, bool respect_ratio, const Point& original_ratio) {
+ui::ratio_helper(const std::pair<u32, u32>& size, bool respect_ratio, const shapes::Point& original_ratio) {
 
     if (not respect_ratio) {
         return size;

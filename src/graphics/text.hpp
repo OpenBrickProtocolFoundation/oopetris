@@ -12,7 +12,7 @@ struct Text final {
 private:
     Font m_font;
     Color m_color;
-    Rect m_dest;
+    shapes::Rect m_dest;
     Texture m_text;
 
 public:
@@ -20,7 +20,7 @@ public:
          const std::string& text,
          const Font& font,
          const Color& color,
-         const Rect& dest);
+         const shapes::Rect& dest);
 
     void render(const ServiceProvider& service_provider) const;
     void set_text(const ServiceProvider& service_provider, const std::string& text);

@@ -23,7 +23,7 @@ namespace ui {
     private:
         Text m_text;
         Callback m_callback;
-        Rect m_fill_rect;
+        shapes::Rect m_fill_rect;
 
         explicit Button(
                 ServiceProvider* service_provider,
@@ -32,7 +32,7 @@ namespace ui {
                 Callback callback,
                 const Font& font,
                 const Color& text_color,
-                const Rect& fill_rect,
+                const shapes::Rect& fill_rect,
                 std::pair<u32, u32> margin,
                 const Layout& layout
         )

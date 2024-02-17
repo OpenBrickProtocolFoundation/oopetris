@@ -1,7 +1,7 @@
 #include "graphics/renderer.hpp"
 
 namespace {
-    constexpr SDL_Rect to_sdl_rect(Rect rect) {
+    constexpr SDL_Rect to_sdl_rect(shapes::Rect rect) {
         return SDL_Rect{ rect.top_left.x, rect.top_left.y, rect.bottom_right.x - rect.top_left.x + 1,
                          rect.bottom_right.y - rect.top_left.y + 1 };
     }
@@ -27,13 +27,13 @@ void Renderer::clear(const Color& clear_color) const {
     SDL_RenderClear(m_renderer);
 }
 
-void Renderer::draw_rect_filled(const Rect& rect, const Color& color) const {
+void Renderer::draw_rect_filled(const shapes::Rect& rect, const Color& color) const {
     set_draw_color(color);
     const SDL_Rect sdl_rect = to_sdl_rect(rect);
     SDL_RenderFillRect(m_renderer, &sdl_rect);
 }
 
-void Renderer::draw_rect_outline(const Rect& rect, const Color& color) const {
+void Renderer::draw_rect_outline(const shapes::Rect& rect, const Color& color) const {
     set_draw_color(color);
     const SDL_Rect sdl_rect = to_sdl_rect(rect);
     SDL_RenderDrawRect(m_renderer, &sdl_rect);
@@ -43,12 +43,12 @@ void Renderer::present() const {
     SDL_RenderPresent(m_renderer);
 }
 
-void Renderer::draw_line(const Point& start, const Point& end, const Color& color) const {
+void Renderer::draw_line(const shapes::Point& start, const shapes::Point& end, const Color& color) const {
     set_draw_color(color);
     SDL_RenderDrawLine(m_renderer, start.x, start.y, end.x, end.y);
 }
 
-void Renderer::draw_texture(const Texture& texture, const Rect& rect) const {
+void Renderer::draw_texture(const Texture& texture, const shapes::Rect& rect) const {
     texture.render(m_renderer, rect);
 }
 

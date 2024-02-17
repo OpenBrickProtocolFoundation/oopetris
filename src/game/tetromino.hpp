@@ -52,15 +52,15 @@ struct Grid;
 
 struct Tetromino final {
 private:
-    Point m_position;
+    shapes::Point m_position;
     Rotation m_rotation{ Rotation::North };
     TetrominoType m_type;
     std::array<Mino, 4> m_minos;
 
 public:
-    using Pattern = std::array<Point, 4>;
+    using Pattern = std::array<shapes::Point, 4>;
 
-    Tetromino(Point position, TetrominoType type)
+    Tetromino(shapes::Point position, TetrominoType type)
         : m_position{ position },
           m_type{ type },
           m_minos{ create_minos(position, m_rotation, type) } { }
@@ -77,7 +77,7 @@ public:
             const ServiceProvider& service_provider,
             const Grid* grid,
             const MinoTransparency transparency,
-            const Point& offset = Point::zero()
+            const shapes::Point& offset = shapes::Point::zero()
     ) const {
         for (const auto& mino : m_minos) {
             mino.render(service_provider, grid, transparency, offset);
@@ -110,7 +110,7 @@ public:
         move({ 1, 0 });
     }
 
-    void move(const Point offset) {
+    void move(const shapes::Point offset) {
         m_position += offset;
         refresh_minos();
     }
@@ -128,7 +128,7 @@ private:
         return tetrominos.at(static_cast<usize>(type)).at(static_cast<usize>(rotation));
     }
 
-    static std::array<Mino, 4> create_minos(Point position, Rotation rotation, TetrominoType type) {
+    static std::array<Mino, 4> create_minos(shapes::Point position, Rotation rotation, TetrominoType type) {
         return std::array<Mino, 4>{
             Mino{position + get_pattern(type, rotation).at(0), type},
             Mino{position + get_pattern(type, rotation).at(1), type},
@@ -143,52 +143,52 @@ private:
     static constexpr auto tetrominos = std::array<Tetromino::TetrominoPatterns, 7>{
         // I
         TetrominoPatterns{
-                          Pattern{ Point{ 0, 1 }, Point{ 1, 1 }, Point{ 2, 1 }, Point{ 3, 1 }, },
-                          Pattern{ Point{ 2, 0 }, Point{ 2, 1 }, Point{ 2, 2 }, Point{ 2, 3 }, },
-                          Pattern{ Point{ 0, 2 }, Point{ 1, 2 }, Point{ 2, 2 }, Point{ 3, 2 }, },
-                          Pattern{ Point{ 1, 0 }, Point{ 1, 1 }, Point{ 1, 2 }, Point{ 1, 3 }, },
+                          Pattern{ shapes::Point{ 0, 1 }, shapes::Point{ 1, 1 }, shapes::Point{ 2, 1 }, shapes::Point{ 3, 1 }, },
+                          Pattern{ shapes::Point{ 2, 0 }, shapes::Point{ 2, 1 }, shapes::Point{ 2, 2 }, shapes::Point{ 2, 3 }, },
+                          Pattern{ shapes::Point{ 0, 2 }, shapes::Point{ 1, 2 }, shapes::Point{ 2, 2 }, shapes::Point{ 3, 2 }, },
+                          Pattern{ shapes::Point{ 1, 0 }, shapes::Point{ 1, 1 }, shapes::Point{ 1, 2 }, shapes::Point{ 1, 3 }, },
                           },
         // J
         TetrominoPatterns{
-                          Pattern{ Point{ 0, 0 }, Point{ 0, 1 }, Point{ 1, 1 }, Point{ 2, 1 }, },
-                          Pattern{ Point{ 2, 0 }, Point{ 1, 0 }, Point{ 1, 1 }, Point{ 1, 2 }, },
-                          Pattern{ Point{ 0, 1 }, Point{ 1, 1 }, Point{ 2, 1 }, Point{ 2, 2 }, },
-                          Pattern{ Point{ 0, 2 }, Point{ 1, 2 }, Point{ 1, 1 }, Point{ 1, 0 }, },
+                          Pattern{ shapes::Point{ 0, 0 }, shapes::Point{ 0, 1 }, shapes::Point{ 1, 1 }, shapes::Point{ 2, 1 }, },
+                          Pattern{ shapes::Point{ 2, 0 }, shapes::Point{ 1, 0 }, shapes::Point{ 1, 1 }, shapes::Point{ 1, 2 }, },
+                          Pattern{ shapes::Point{ 0, 1 }, shapes::Point{ 1, 1 }, shapes::Point{ 2, 1 }, shapes::Point{ 2, 2 }, },
+                          Pattern{ shapes::Point{ 0, 2 }, shapes::Point{ 1, 2 }, shapes::Point{ 1, 1 }, shapes::Point{ 1, 0 }, },
                           },
         // L
         TetrominoPatterns{
-                          Pattern{ Point{ 0, 1 }, Point{ 1, 1 }, Point{ 2, 1 }, Point{ 2, 0 }, },
-                          Pattern{ Point{ 1, 0 }, Point{ 1, 1 }, Point{ 1, 2 }, Point{ 2, 2 }, },
-                          Pattern{ Point{ 0, 2 }, Point{ 0, 1 }, Point{ 1, 1 }, Point{ 2, 1 }, },
-                          Pattern{ Point{ 0, 0 }, Point{ 1, 0 }, Point{ 1, 1 }, Point{ 1, 2 }, },
+                          Pattern{ shapes::Point{ 0, 1 }, shapes::Point{ 1, 1 }, shapes::Point{ 2, 1 }, shapes::Point{ 2, 0 }, },
+                          Pattern{ shapes::Point{ 1, 0 }, shapes::Point{ 1, 1 }, shapes::Point{ 1, 2 }, shapes::Point{ 2, 2 }, },
+                          Pattern{ shapes::Point{ 0, 2 }, shapes::Point{ 0, 1 }, shapes::Point{ 1, 1 }, shapes::Point{ 2, 1 }, },
+                          Pattern{ shapes::Point{ 0, 0 }, shapes::Point{ 1, 0 }, shapes::Point{ 1, 1 }, shapes::Point{ 1, 2 }, },
                           },
         // O
         TetrominoPatterns{
-                          Pattern{ Point{ 1, 0 }, Point{ 2, 0 }, Point{ 1, 1 }, Point{ 2, 1 }, },
-                          Pattern{ Point{ 1, 0 }, Point{ 2, 0 }, Point{ 1, 1 }, Point{ 2, 1 }, },
-                          Pattern{ Point{ 1, 0 }, Point{ 2, 0 }, Point{ 1, 1 }, Point{ 2, 1 }, },
-                          Pattern{ Point{ 1, 0 }, Point{ 2, 0 }, Point{ 1, 1 }, Point{ 2, 1 }, },
+                          Pattern{ shapes::Point{ 1, 0 }, shapes::Point{ 2, 0 }, shapes::Point{ 1, 1 }, shapes::Point{ 2, 1 }, },
+                          Pattern{ shapes::Point{ 1, 0 }, shapes::Point{ 2, 0 }, shapes::Point{ 1, 1 }, shapes::Point{ 2, 1 }, },
+                          Pattern{ shapes::Point{ 1, 0 }, shapes::Point{ 2, 0 }, shapes::Point{ 1, 1 }, shapes::Point{ 2, 1 }, },
+                          Pattern{ shapes::Point{ 1, 0 }, shapes::Point{ 2, 0 }, shapes::Point{ 1, 1 }, shapes::Point{ 2, 1 }, },
                           },
         // S
         TetrominoPatterns{
-                          Pattern{ Point{ 0, 1 }, Point{ 1, 1 }, Point{ 1, 0 }, Point{ 2, 0 }, },
-                          Pattern{ Point{ 1, 0 }, Point{ 1, 1 }, Point{ 2, 1 }, Point{ 2, 2 }, },
-                          Pattern{ Point{ 0, 2 }, Point{ 1, 2 }, Point{ 1, 1 }, Point{ 2, 1 }, },
-                          Pattern{ Point{ 0, 0 }, Point{ 0, 1 }, Point{ 1, 1 }, Point{ 1, 2 }, },
+                          Pattern{ shapes::Point{ 0, 1 }, shapes::Point{ 1, 1 }, shapes::Point{ 1, 0 }, shapes::Point{ 2, 0 }, },
+                          Pattern{ shapes::Point{ 1, 0 }, shapes::Point{ 1, 1 }, shapes::Point{ 2, 1 }, shapes::Point{ 2, 2 }, },
+                          Pattern{ shapes::Point{ 0, 2 }, shapes::Point{ 1, 2 }, shapes::Point{ 1, 1 }, shapes::Point{ 2, 1 }, },
+                          Pattern{ shapes::Point{ 0, 0 }, shapes::Point{ 0, 1 }, shapes::Point{ 1, 1 }, shapes::Point{ 1, 2 }, },
                           },
         // T
         TetrominoPatterns{
-                          Pattern{ Point{ 0, 1 }, Point{ 1, 1 }, Point{ 1, 0 }, Point{ 2, 1 }, },
-                          Pattern{ Point{ 1, 0 }, Point{ 1, 1 }, Point{ 2, 1 }, Point{ 1, 2 }, },
-                          Pattern{ Point{ 0, 1 }, Point{ 1, 1 }, Point{ 2, 1 }, Point{ 1, 2 }, },
-                          Pattern{ Point{ 1, 0 }, Point{ 1, 1 }, Point{ 0, 1 }, Point{ 1, 2 }, },
+                          Pattern{ shapes::Point{ 0, 1 }, shapes::Point{ 1, 1 }, shapes::Point{ 1, 0 }, shapes::Point{ 2, 1 }, },
+                          Pattern{ shapes::Point{ 1, 0 }, shapes::Point{ 1, 1 }, shapes::Point{ 2, 1 }, shapes::Point{ 1, 2 }, },
+                          Pattern{ shapes::Point{ 0, 1 }, shapes::Point{ 1, 1 }, shapes::Point{ 2, 1 }, shapes::Point{ 1, 2 }, },
+                          Pattern{ shapes::Point{ 1, 0 }, shapes::Point{ 1, 1 }, shapes::Point{ 0, 1 }, shapes::Point{ 1, 2 }, },
                           },
         // Z
         TetrominoPatterns{
-                          Pattern{ Point{ 0, 0 }, Point{ 1, 0 }, Point{ 1, 1 }, Point{ 2, 1 }, },
-                          Pattern{ Point{ 2, 0 }, Point{ 2, 1 }, Point{ 1, 1 }, Point{ 1, 2 }, },
-                          Pattern{ Point{ 0, 1 }, Point{ 1, 1 }, Point{ 1, 2 }, Point{ 2, 2 }, },
-                          Pattern{ Point{ 1, 0 }, Point{ 1, 1 }, Point{ 0, 1 }, Point{ 0, 2 }, },
+                          Pattern{ shapes::Point{ 0, 0 }, shapes::Point{ 1, 0 }, shapes::Point{ 1, 1 }, shapes::Point{ 2, 1 }, },
+                          Pattern{ shapes::Point{ 2, 0 }, shapes::Point{ 2, 1 }, shapes::Point{ 1, 1 }, shapes::Point{ 1, 2 }, },
+                          Pattern{ shapes::Point{ 0, 1 }, shapes::Point{ 1, 1 }, shapes::Point{ 1, 2 }, shapes::Point{ 2, 2 }, },
+                          Pattern{ shapes::Point{ 1, 0 }, shapes::Point{ 1, 1 }, shapes::Point{ 0, 1 }, shapes::Point{ 0, 2 }, },
                           },
     };
     // clang-format on

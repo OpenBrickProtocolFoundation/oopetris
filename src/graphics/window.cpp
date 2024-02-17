@@ -28,18 +28,18 @@ Window::~Window() {
     SDL_DestroyWindow(m_window);
 }
 
-[[nodiscard]] Point Window::size() const {
+[[nodiscard]] shapes::Point Window::size() const {
     int width{};
     int height{};
     SDL_GetWindowSize(m_window, &width, &height);
-    return Point{ width, height };
+    return shapes::Point{ width, height };
 }
 
 [[nodiscard]] SDL_Window* Window::get_sdl_window() const {
     return m_window;
 }
 
-[[nodiscard]] Rect Window::screen_rect() const {
+[[nodiscard]] shapes::Rect Window::screen_rect() const {
     const auto window_size = size();
-    return Rect{ 0, 0, window_size.x, window_size.y };
+    return shapes::Rect{ 0, 0, window_size.x, window_size.y };
 }

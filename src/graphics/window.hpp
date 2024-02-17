@@ -25,9 +25,9 @@ public:
     Window& operator=(Window&&) = delete;
     ~Window();
 
-    [[nodiscard]] Point size() const;
+    [[nodiscard]] shapes::Point size() const;
 
     [[nodiscard]] SDL_Window* get_sdl_window() const;
 
-    [[nodiscard]] Rect screen_rect() const;
+    [[nodiscard]] shapes::Rect screen_rect() const;
 };
