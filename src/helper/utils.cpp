@@ -22,7 +22,7 @@ namespace utils {
         std::array<char, buffer_size> buffer{};
 
         std::tm tm{};
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
         if (gmtime_s(&tm, &time) != 0) {
             spdlog::error("error calling gmtime_s");
             return "error";

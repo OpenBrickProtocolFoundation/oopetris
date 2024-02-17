@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     name: ${{ matrix.config.name }}
-    runs-on: ${{ matrix.config.os }}
+    runs-on: ${{ matrix.config.os }}-${{ matrix.config.os-version }}
 
     strategy:
       fail-fast: false
@@ -17,64 +17,125 @@ jobs:
         # Customize the Meson build type here ("plain", "debug", "debugoptimized", "release", "minsize", "custom".)
         config:
           - name: Windows MSVC Release
-            os: windows-latest
+            os: windows
+            os-version: 2022
             msvc: true
             buildtype: release
             library_type: static
-          # - name: Windows MingGW Release
-          #   os: windows-latest
-          #   msvc: false
-          #   buildtype: release
-          #   library_type: static
+            shell: pwsh
+
+          - name: Windows MingGW Release
+            os: windows
+            os-version: 2022
+            msvc: false
+            buildtype: release
+            library_type: static
+            shell: "msys2 {0}"
+
           - name: Linux Release
-            os: ubuntu-22.04
+            os: ubuntu
+            os-version: 22.04
             buildtype: release
             use-clang: false
             library_type: shared
+            shell: bash
+
           - name: Linux Clang Release
-            os: ubuntu-22.04
+            os: ubuntu
+            os-version: 22.04
             buildtype: release
             use-clang: true
             library_type: shared
+            shell: bash
+
+          - name: MacOS Release
+            os: macos
+            os-version: 13
+            arm: false
+            buildtype: release
+            library_type: shared
+            shell: bash
+
+          - name: MacOS Release (Arm64)
+            os: macos
+            os-version: 14
+            arm: true
+            buildtype: release
+            library_type: shared
+            shell: bash
+
+    defaults:
+      run:
+        shell: ${{ matrix.config.shell }}
+
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: "0"
 
-      - name: Setup Meson
-        run: |
-          python -m pip install --upgrade pip
-          pip install meson
-
       - name: Setup MSVC (Windows)
-        if: matrix.config.os == 'windows-latest' && matrix.config.msvc == true
+        if: matrix.config.os == 'windows' && matrix.config.msvc == true
         uses: ilammy/msvc-dev-cmd@v1
 
       - name: Setup MinGW (Windows)
-        if: matrix.config.os == 'windows-latest' && matrix.config.msvc == false
-        uses: egor-tensin/setup-mingw@v2
+        if: matrix.config.os == 'windows' && matrix.config.msvc == false
+        uses: msys2/setup-msys2@v2
         with:
-          platform: x64
+          msystem: MINGW64
+          update: true
+          install: mingw-w64-x86_64-gcc mingw-w64-x86_64-ninja mingw-w64-x86_64-python mingw-w64-x86_64-python-pip mingw-w64-x86_64-SDL2 mingw-w64-x86_64-SDL2_ttf mingw-w64-x86_64-SDL2_mixer mingw-w64-x86_64-SDL2_image mingw-w64-x86_64-pkg-config mingw-w64-x86_64-ca-certificates mingw-w64-x86_64-cmake git
+
 
       - name: Setup Clang (Linux)
-        if: matrix.config.os == 'ubuntu-22.04' && matrix.config.use-clang == true
+        if: matrix.config.os == 'ubuntu' && matrix.config.use-clang == true
         uses: egor-tensin/setup-clang@v1
         with:
           version: 17
           platform: x64
 
       - name: Setup GCC (Linux)
-        if: matrix.config.os == 'ubuntu-22.04' && matrix.config.use-clang == false
+        if: matrix.config.os == 'ubuntu' && matrix.config.use-clang == false
         uses: egor-tensin/setup-gcc@v1
         with:
           version: 13
           platform: x64
 
+      - name: Setup Clang (MacOS)
+        if: matrix.config.os == 'macos'
+        run: |
+          brew update
+          brew install llvm@17
+          echo "$(brew --prefix)/opt/llvm/bin" >> $GITHUB_PATH
+          echo "LDFLAGS=-L$(brew --prefix)/opt/llvm/lib -L$(brew --prefix)/opt/llvm/lib/c++ -Wl,-rpath,$(brew --prefix)/opt/llvm/lib/c++" >> "$GITHUB_ENV"
+          echo "CPPFLAGS=-I$(brew --prefix)/opt/llvm/include" >> "$GITHUB_ENV"
+          echo "CC=clang-17" >> "$GITHUB_ENV"
+          echo "CXX=clang-17" >> "$GITHUB_ENV"
+
+      - name: Install python (If needed)
+        if: matrix.config.os == 'macos' && matrix.config.arm
+        run: |
+          brew update 
+          brew install python@3.12
+            brew install meson
+            echo "/opt/homebrew/opt/python@3.12/libexec/bin" >> $GITHUB_PATH
+  
+      - name: Setup Meson
+        if: matrix.config.os != 'macos' || (! matrix.config.arm)
+        run: |
+          python -m pip install --upgrade pip
+          pip install meson
+
       - name: Install dependencies (Linux)
-        if: matrix.config.os == 'ubuntu-22.04'
+        if: matrix.config.os == 'ubuntu'
         run: |
           sudo apt-get update
-          sudo apt-get install ninja-build libsdl2-2.0-0 libsdl2-dev libsdl2-net* libsdl2-ttf* libsdl2-image* -y
+          sudo apt-get install ninja-build libsdl2-2.0-0 libsdl2-dev libsdl2-ttf* libsdl2-mixer* libsdl2-image* -y
+
+      - name: Install dependencies (MacOS)
+        if: matrix.config.os == 'macos'
+        run: |
+          brew update
+          brew install ninja sdl2 sdl2_ttf sdl2_mixer sdl2_image fmt
 
       - name: Configure
         run: meson setup build -Dbuildtype=${{ matrix.config.buildtype }} -Ddefault_library=${{ matrix.config.library_type }}
@@ -84,14 +145,21 @@ jobs:
 
       - name: Upload artifacts - Linux
         uses: actions/upload-artifact@v4
-        if: matrix.config.os == 'ubuntu-22.04'
+        if: matrix.config.os == 'ubuntu'
+        with:
+          name: ${{ matrix.config.name }} Executable
+          path: build/oopetris
+
+      - name: Upload artifacts - MacOS
+        uses: actions/upload-artifact@v4
+        if: matrix.config.os == 'macos'
         with:
           name: ${{ matrix.config.name }} Executable
           path: build/oopetris
 
       - name: Upload artifacts - Windows
         uses: actions/upload-artifact@v4
-        if: matrix.config.os == 'windows-latest'
+        if: matrix.config.os == 'windows'
         with:
           name: ${{ matrix.config.name }} Executable
           path: build/oopetris.exe
