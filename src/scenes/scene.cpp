@@ -2,6 +2,7 @@
 #include "about_page/about_page.hpp"
 #include "game_over/game_over.hpp"
 #include "main_menu/main_menu.hpp"
+#include "multiplayer_menu/multiplayer_menu.hpp"
 #include "pause/pause.hpp"
 #include "play_select_menu/play_select_menu.hpp"
 #include "settings_menu/settings_menu.hpp"
@@ -29,9 +30,10 @@ namespace scenes {
                 return std::make_unique<AboutPage>(&service_provider, layout);
             case SceneId::PlaySelectMenu:
                 return std::make_unique<PlaySelectMenu>(&service_provider, layout);
+            case SceneId::MultiPlayerModeSelectMenu:
+                return std::make_unique<MultiPlayerMenu>(&service_provider, layout);
                 //TODO
-                /*       case SceneId::MultiPlayerModeSelectMenu:
-                return std::make_unique<TODO>(&service_provider, layout);
+                /*      
             case SceneId::LocalMultiPlayerGame:
                 return std::make_unique<TODO>(&service_provider, layout);
             case SceneId::AIMultiPlayerGame:

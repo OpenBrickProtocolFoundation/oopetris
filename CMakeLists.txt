@@ -89,6 +89,8 @@ add_executable(oopetris
     src/scenes/game_over/game_over.hpp
     src/scenes/main_menu/main_menu.cpp
     src/scenes/main_menu/main_menu.hpp
+    src/scenes/multiplayer_menu/multiplayer_menu.cpp
+    src/scenes/multiplayer_menu/multiplayer_menu.hpp
     src/scenes/pause/pause.cpp
     src/scenes/pause/pause.hpp
     src/scenes/play_select_menu/play_select_menu.cpp

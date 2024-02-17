@@ -1,4 +1,4 @@
-#include "play_select_menu.hpp"
+#include "multiplayer_menu.hpp"
 #include "graphics/window.hpp"
 #include "helper/constants.hpp"
 #include "manager/music_manager.hpp"
@@ -7,16 +7,16 @@
 
 namespace scenes {
 
-    PlaySelectMenu::PlaySelectMenu(ServiceProvider* service_provider, const  ui::Layout& layout)
+    MultiPlayerMenu::MultiPlayerMenu(ServiceProvider* service_provider, const  ui::Layout& layout)
         : Scene{service_provider, layout},
           m_main_grid{ ui::Direction::Vertical, ui::RelativeMargin{layout,ui::Direction::Vertical, 0.05}, std::pair<double, double>{ 0.05, 0.05 
-            } ,ui::RelativeLayout{ layout, 0.0, 0.25, 1.0, 0.5 }} {
+            } ,ui::RelativeLayout{ layout, 0.0, 0.2, 1.0, 0.6 }} {
 
         auto id_helper = ui::IDHelper{};
 
         m_main_grid.add<ui::Label>(
-                id_helper.index(), service_provider, "Select Play Mode", service_provider->fonts().get(FontId::Default),
-                Color::white(), std::pair<double, double>{ 0.3, 1.0 },
+                id_helper.index(), service_provider, "Select MultiPlayer Mode",
+                service_provider->fonts().get(FontId::Default), Color::white(), std::pair<double, double>{ 0.3, 1.0 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
         );
 
@@ -30,19 +30,31 @@ namespace scenes {
                                                 ? std::pair<double, double>{ 0.1, 0.1 }
                                                 : std::pair<double, double>{ 0.2, 0.2 };
 
+        const auto local_button_id = id_helper.index();
         m_main_grid.add<ui::Button>(
-                id_helper.index(), service_provider, "Single Player", service_provider->fonts().get(FontId::Default),
+                local_button_id, service_provider, "Local", service_provider->fonts().get(FontId::Default),
                 Color::white(), id_helper.focus_id(),
-                [this](const ui::Button&) { m_next_command = Command::SinglePlayer; }, button_size, button_alignment,
-                button_margins
+                [this](const ui::Button&) { m_next_command = Command::LocalMultiPlayer; }, button_size,
+                button_alignment, button_margins
         );
+        m_main_grid.get<ui::Button>(local_button_id)->disable();
 
+        const auto online_button_id = id_helper.index();
         m_main_grid.add<ui::Button>(
-                id_helper.index(), service_provider, "Multi Player", service_provider->fonts().get(FontId::Default),
+                online_button_id, service_provider, "Online", service_provider->fonts().get(FontId::Default),
                 Color::white(), id_helper.focus_id(),
-                [this](const ui::Button&) { m_next_command = Command::MultiPlayer; }, button_size, button_alignment,
-                button_margins
+                [this](const ui::Button&) { m_next_command = Command::OnlineMultiPlayer; }, button_size,
+                button_alignment, button_margins
         );
+        m_main_grid.get<ui::Button>(online_button_id)->disable();
+
+        const auto ai_button_id = id_helper.index();
+        m_main_grid.add<ui::Button>(
+                ai_button_id, service_provider, "vs AI", service_provider->fonts().get(FontId::Default), Color::white(),
+                id_helper.focus_id(), [this](const ui::Button&) { m_next_command = Command::AIMultiPlayer; },
+                button_size, button_alignment, button_margins
+        );
+        m_main_grid.get<ui::Button>(ai_button_id)->disable();
 
         m_main_grid.add<ui::Button>(
                 id_helper.index(), service_provider, "Return", service_provider->fonts().get(FontId::Default),
@@ -51,21 +63,26 @@ namespace scenes {
         );
     }
 
-    [[nodiscard]] Scene::UpdateResult PlaySelectMenu::update() {
+    [[nodiscard]] Scene::UpdateResult MultiPlayerMenu::update() {
         if (m_next_command.has_value()) {
             switch (m_next_command.value()) {
-                case Command::SinglePlayer:
+                case Command::LocalMultiPlayer:
                     return UpdateResult{
                         SceneUpdate::ContinueUpdating,
-                        Scene::Switch{SceneId::SinglePlayerGame, ui::FullScreenLayout{ m_service_provider->window() }}
+                        Scene::Switch{SceneId::LocalMultiPlayerGame,
+                                      ui::FullScreenLayout{ m_service_provider->window() }}
                     };
-                case Command::MultiPlayer:
-                    // perform a push and reset the command, so that the music keeps playing the entire time
-                    m_next_command = helpers::nullopt;
+                case Command::OnlineMultiPlayer:
                     return UpdateResult{
                         SceneUpdate::ContinueUpdating,
-                        Scene::Push{SceneId::MultiPlayerModeSelectMenu,
-                                    ui::FullScreenLayout{ m_service_provider->window() }}
+                        Scene::Switch{SceneId::OnlineMultiplayerGame,
+                                      ui::FullScreenLayout{ m_service_provider->window() }}
+                    };
+                case Command::AIMultiPlayer:
+                    return UpdateResult{
+                        SceneUpdate::ContinueUpdating,
+                        Scene::Switch{SceneId::AIMultiPlayerGame,
+                                      ui::FullScreenLayout{ m_service_provider->window() }}
                     };
                 case Command::Return:
                     return UpdateResult{ SceneUpdate::StopUpdating, Scene::Pop{} };
@@ -76,14 +93,14 @@ namespace scenes {
         return UpdateResult{ SceneUpdate::ContinueUpdating, helpers::nullopt };
     }
 
-    void PlaySelectMenu::render(const ServiceProvider& service_provider) {
+    void MultiPlayerMenu::render(const ServiceProvider& service_provider) {
 
         service_provider.renderer().draw_rect_filled(get_layout().get_rect(), Color::black());
 
         m_main_grid.render(service_provider);
     }
 
-    bool PlaySelectMenu::handle_event(const SDL_Event& event, const Window* window) {
+    bool MultiPlayerMenu::handle_event(const SDL_Event& event, const Window* window) {
         if (m_main_grid.handle_event(event, window)) {
             return true;
         }
