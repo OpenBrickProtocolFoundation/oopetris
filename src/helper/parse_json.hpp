@@ -7,23 +7,24 @@
 #endif
 #include <nlohmann/json.hpp>
 
+#include "helper/expected.hpp"
+#include "helper/optional.hpp"
+
 #include <filesystem>
 #include <fmt/format.h>
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
 #include <string>
-#include <tl/expected.hpp>
-#include <tl/optional.hpp>
 
 // START: general json parser helper
 
-//helper for tl::optional json conversion
+//helper for helpers::optional json conversion
 
 NLOHMANN_JSON_NAMESPACE_BEGIN
 template<typename T>
-struct adl_serializer<tl::optional<T>> {
-    static void to_json(json& j, const tl::optional<T>& opt) {
+struct adl_serializer<helpers::optional<T>> {
+    static void to_json(json& j, const helpers::optional<T>& opt) {
         if (not opt) {
             j = nullptr;
         } else {
@@ -32,9 +33,9 @@ struct adl_serializer<tl::optional<T>> {
         }
     }
 
-    static void from_json(const json& j, tl::optional<T>& opt) {
+    static void from_json(const json& j, helpers::optional<T>& opt) {
         if (j.is_null()) {
-            opt = tl::nullopt;
+            opt = helpers::nullopt;
         } else {
             opt = j.template get<T>(); // same as above, but with
                                        // adl_serializer<T>::from_json
@@ -50,34 +51,34 @@ namespace json {
 
 
     template<typename T>
-    [[nodiscard]] tl::expected<T, std::string> try_parse_json(const std::string& content) {
+    [[nodiscard]] helpers::expected<T, std::string> try_parse_json(const std::string& content) {
 
         try {
             T result = nlohmann::json::parse(content);
             return result;
 
         } catch (nlohmann::json::parse_error& parse_error) {
-            return tl::make_unexpected(fmt::format("parse error: {}", parse_error.what()));
+            return helpers::unexpected(fmt::format("parse error: {}", parse_error.what()));
         } catch (nlohmann::json::type_error& type_error) {
-            return tl::make_unexpected(fmt::format("type error: {}", type_error.what()));
+            return helpers::unexpected(fmt::format("type error: {}", type_error.what()));
         } catch (nlohmann::json::exception& exception) {
-            return tl::make_unexpected(fmt::format("unknown json exception: {}", exception.what()));
+            return helpers::unexpected(fmt::format("unknown json exception: {}", exception.what()));
         } catch (std::exception& exception) {
-            return tl::make_unexpected(fmt::format("unknown exception: {}", exception.what()));
+            return helpers::unexpected(fmt::format("unknown exception: {}", exception.what()));
         }
     }
 
     template<typename T>
-    [[nodiscard]] tl::expected<T, std::string> try_parse_json_file(const std::filesystem::path& file) {
+    [[nodiscard]] helpers::expected<T, std::string> try_parse_json_file(const std::filesystem::path& file) {
 
         if (not std::filesystem::exists(file)) {
-            return tl::make_unexpected(fmt::format("File '{}' doesn't exist", file.string()));
+            return helpers::unexpected(fmt::format("File '{}' doesn't exist", file.string()));
         }
 
         std::ifstream file_stream{ file };
 
         if (!file_stream.is_open()) {
-            return tl::make_unexpected(fmt::format("File '{}' couldn't be opened!", file.string()));
+            return helpers::unexpected(fmt::format("File '{}' couldn't be opened!", file.string()));
         }
 
         std::stringstream result;
@@ -88,7 +89,8 @@ namespace json {
 
 
     template<typename T>
-    [[nodiscard]] tl::expected<std::string, std::string> try_json_to_string(const T& type, const bool pretty = false) {
+    [[nodiscard]] helpers::expected<std::string, std::string>
+    try_json_to_string(const T& type, const bool pretty = false) {
         try {
 
             const nlohmann::json value = type;
@@ -99,11 +101,11 @@ namespace json {
             return value.dump(-1, ' ');
 
         } catch (nlohmann::json::type_error& type_error) {
-            return tl::make_unexpected(fmt::format("type error: {}", type_error.what()));
+            return helpers::unexpected(fmt::format("type error: {}", type_error.what()));
         } catch (nlohmann::json::exception& exception) {
-            return tl::make_unexpected(fmt::format("unknown json exception: {}", exception.what()));
+            return helpers::unexpected(fmt::format("unknown json exception: {}", exception.what()));
         } catch (std::exception& exception) {
-            return tl::make_unexpected(fmt::format("unknown exception: {}", exception.what()));
+            return helpers::unexpected(fmt::format("unknown exception: {}", exception.what()));
         }
     }
 

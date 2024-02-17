@@ -224,7 +224,6 @@ else
     deps += dependency(
         'cpp-httplib',
         required: true,
-        native: native,
         fallback: ['cpp-httplib'],
         default_options: {
             'cpp-httplib_openssl': 'enabled',

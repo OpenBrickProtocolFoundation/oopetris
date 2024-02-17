@@ -2,8 +2,8 @@
 #pragma once
 
 #include <string>
-#include <tl/optional.hpp>
 
+#include "helper/optional.hpp"
 #include "helper/parse_json.hpp"
 
 namespace lobby {
@@ -42,7 +42,7 @@ namespace lobby {
         int size;
         PlayerInfo host_info;
         std::vector<PlayerInfo> player_infos;
-        tl::optional<int> gameserver_port;
+        helpers::optional<int> gameserver_port;
     };
 
 
