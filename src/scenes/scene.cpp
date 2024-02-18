@@ -3,11 +3,15 @@
 #include "game_over/game_over.hpp"
 #include "main_menu/main_menu.hpp"
 #include "multiplayer_menu/multiplayer_menu.hpp"
-#include "online_lobby/online_lobby.hpp"
 #include "pause/pause.hpp"
 #include "play_select_menu/play_select_menu.hpp"
 #include "settings_menu/settings_menu.hpp"
 #include "single_player_game/single_player_game.hpp"
+
+#if !defined(_ONLINE_MULTIPLAYER_NOT_SUPPORTED)
+#include "online_lobby/online_lobby.hpp"
+#endif
+
 
 namespace scenes {
     Scene::Scene(ServiceProvider* service_provider, const ui::Layout& layout)
@@ -33,10 +37,12 @@ namespace scenes {
                 return std::make_unique<PlaySelectMenu>(&service_provider, layout);
             case SceneId::MultiPlayerModeSelectMenu:
                 return std::make_unique<MultiPlayerMenu>(&service_provider, layout);
+#if !defined(_ONLINE_MULTIPLAYER_NOT_SUPPORTED)
             case SceneId::OnlineLobby:
                 return std::make_unique<OnlineLobby>(&service_provider, layout);
-                //TODO
-                /*      
+#endif
+            //TODO
+            /*      
             case SceneId::LocalMultiPlayerGame:
                 return std::make_unique<TODO>(&service_provider, layout);
             case SceneId::AIMultiPlayerGame:

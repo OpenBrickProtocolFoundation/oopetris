@@ -218,8 +218,11 @@ deps += dependency(
     fallback: ['argparse'],
 )
 
+online_multiplayer_not_supported = true
+
 if meson.is_cross_build() and host_machine.system() == 'switch'
-    compile_args += ['-D_HTTPLIB_NOT_SUPPORTED']
+    compile_args += ['-D_ONLINE_MULTIPLAYER_NOT_SUPPORTED']
+    online_multiplayer_not_supported = false
 else
     deps += dependency(
         'cpp-httplib',

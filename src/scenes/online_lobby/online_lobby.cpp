@@ -14,6 +14,15 @@ namespace scenes {
         ui::Direction::Vertical, std::array<double, 2>{ 0.1, 0.9 }, ui::AbsolutMargin{ 10 }, std::pair<double, double>{ 0.05, 0.03 }, layout
     }{
 
+        //TODO: after the settings have been reworked, make this url changeable!
+        auto maybe_client = lobby::Client::get_client("http://127.0.0.1:5000");
+        if (maybe_client.has_value()) {
+            client = std::make_unique<lobby::Client>(std::move(maybe_client.value()));
+        } else {
+            spdlog::error("Error in connecting to lobby client: {}", maybe_client.error());
+        }
+
+
         auto id_helper = ui::IDHelper{};
 
         m_main_layout.add<ui::Label>(

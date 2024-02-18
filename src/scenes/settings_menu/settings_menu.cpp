@@ -16,15 +16,6 @@ namespace scenes {
     ui::RelativeLayout{layout, 0.0, 0.2, 1.0, 0.5  }
 } 
 {
-
-        auto maybe_client = lobby::Client::get_client("http://127.0.0.1:5000");
-        if (maybe_client.has_value()) {
-            client = std::make_unique<lobby::Client>(std::move(maybe_client.value()));
-        } else {
-            spdlog::error("Error in connecting to lobby client: {}", maybe_client.error());
-        }
-
-
         auto id_helper = ui::IDHelper{};
 
         m_main_grid.add<ui::Label>(

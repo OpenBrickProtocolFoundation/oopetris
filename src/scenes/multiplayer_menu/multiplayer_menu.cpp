@@ -39,12 +39,16 @@ namespace scenes {
         );
         m_main_grid.get<ui::Button>(local_button_id)->disable();
 
+        const auto online_button_id = id_helper.index();
         m_main_grid.add<ui::Button>(
-                id_helper.index(), service_provider, "Online", service_provider->fonts().get(FontId::Default),
+                online_button_id, service_provider, "Online", service_provider->fonts().get(FontId::Default),
                 Color::white(), id_helper.focus_id(),
                 [this](const ui::Button&) { m_next_command = Command::OnlineMultiPlayer; }, button_size,
                 button_alignment, button_margins
         );
+#ifdef _ONLINE_MULTIPLAYER_NOT_SUPPORTED
+        m_main_grid.get<ui::Button>(online_button_id)->disable();
+#endif
 
         const auto ai_button_id = id_helper.index();
         m_main_grid.add<ui::Button>(

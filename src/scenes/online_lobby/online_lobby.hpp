@@ -1,9 +1,12 @@
 #pragma once
 
+#include "lobby/api.hpp"
 #include "scenes/scene.hpp"
 #include "ui/button.hpp"
 #include "ui/label.hpp"
 #include "ui/tile_layout.hpp"
+
+#include <memory>
 
 namespace scenes {
 
@@ -13,6 +16,7 @@ namespace scenes {
 
         ui::TileLayout<3> m_main_layout;
         helpers::optional<Command> m_next_command;
+        std::unique_ptr<lobby::Client> client{ nullptr };
 
     public:
         explicit OnlineLobby(ServiceProvider* service_provider, const ui::Layout& layout);

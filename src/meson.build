@@ -10,8 +10,12 @@ subdir('game')
 subdir('graphics')
 subdir('helper')
 subdir('input')
-subdir('lobby')
+
 subdir('manager')
 subdir('platform')
 subdir('scenes')
 subdir('ui')
+
+if online_multiplayer_not_supported
+    subdir('lobby')
+endif
