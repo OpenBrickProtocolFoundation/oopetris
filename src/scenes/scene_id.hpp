@@ -8,6 +8,7 @@ enum class SceneId {
     LocalMultiPlayerGame,
     MainMenu,
     MultiPlayerModeSelectMenu,
+    OnlineLobby,
     OnlineMultiplayerGame,
     Pause,
     PlaySelectMenu,

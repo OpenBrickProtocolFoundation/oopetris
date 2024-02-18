@@ -39,14 +39,12 @@ namespace scenes {
         );
         m_main_grid.get<ui::Button>(local_button_id)->disable();
 
-        const auto online_button_id = id_helper.index();
         m_main_grid.add<ui::Button>(
-                online_button_id, service_provider, "Online", service_provider->fonts().get(FontId::Default),
+                id_helper.index(), service_provider, "Online", service_provider->fonts().get(FontId::Default),
                 Color::white(), id_helper.focus_id(),
                 [this](const ui::Button&) { m_next_command = Command::OnlineMultiPlayer; }, button_size,
                 button_alignment, button_margins
         );
-        m_main_grid.get<ui::Button>(online_button_id)->disable();
 
         const auto ai_button_id = id_helper.index();
         m_main_grid.add<ui::Button>(
@@ -73,10 +71,11 @@ namespace scenes {
                                       ui::FullScreenLayout{ m_service_provider->window() }}
                     };
                 case Command::OnlineMultiPlayer:
+                    // perform a push and reset the command, so that the music keeps playing the entire time
+                    m_next_command = helpers::nullopt;
                     return UpdateResult{
                         SceneUpdate::ContinueUpdating,
-                        Scene::Switch{SceneId::OnlineMultiplayerGame,
-                                      ui::FullScreenLayout{ m_service_provider->window() }}
+                        Scene::Push{SceneId::OnlineLobby, ui::FullScreenLayout{ m_service_provider->window() }}
                     };
                 case Command::AIMultiPlayer:
                     return UpdateResult{
