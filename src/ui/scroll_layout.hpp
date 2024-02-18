@@ -2,49 +2,135 @@
 
 
 #include "focusable.hpp"
-#include "graphics/renderer.hpp"
+#include "graphics/rect.hpp"
+#include "graphics/texture.hpp"
+#include "helper/optional.hpp"
 #include "helper/types.hpp"
-#include "ui/grid_layout.hpp"
+#include "platform/capabilities.hpp"
 #include "ui/widget.hpp"
 
-#include <array>
+#include <vector>
 
 namespace ui {
 
-    template<size_t S>
-    struct TileLayout : public Widget {
+    enum class ItemSizeType { Relative, Absolut };
+
+    struct ItemSize {
+    private:
+        u32 height;
+        ItemSizeType type;
+
+    protected:
+        ItemSize(const u32 height, ItemSizeType type) : height{ height }, type{ type } { }
+
+    public:
+        [[nodiscard]] u32 get_height() const {
+            return height;
+        }
+    };
+
+    struct AbsolutItemSize : public ItemSize {
+        AbsolutItemSize(const u32 height) : ItemSize{ height, ItemSizeType::Absolut } { }
+    };
+
+
+    struct RelativeItemSize : public ItemSize {
+        RelativeItemSize(const shapes::Rect& rect, const double height)
+            : ItemSize{ static_cast<u32>(height * rect.height()), ItemSizeType::Relative } {
+            // no checks for upper cases, since it theoretically can also be larger than the whole screen!
+            assert(height >= 0.0 && "height has to be in correct percentage range!");
+        }
+        RelativeItemSize(const Window* window, const double height)
+            : RelativeItemSize{ window->screen_rect(), height } { }
+        RelativeItemSize(const Window& window, const double height)
+            : RelativeItemSize{ window.screen_rect(), height } { }
+        RelativeItemSize(const Layout& layout, const double height) : RelativeItemSize{ layout.get_rect(), height } { }
+    };
+
+
+    struct ScrollLayout : public Widget {
     private:
         enum class FocusChangeDirection {
             Forward,
             Backward,
         };
 
-        std::array<std::unique_ptr<Widget>, S> m_widgets{};
+        std::vector<std::unique_ptr<Widget>> m_widgets{};
         helpers::optional<usize> m_focus_id;
-        Direction direction;
-        std::array<double, S - 1> steps;
         Margin gap;
-        std::pair<u32, u32> margin;
+        Texture m_texture;
+        ServiceProvider* m_service_provider;
+        std::uint64_t current_scroll_postion;
+        Layout main_layout;
+        Layout scroll_bar_layout;
 
     public:
-        explicit TileLayout(
-                Direction direction,
-                std::array<double, S - 1> steps,
+        explicit ScrollLayout(
+                ServiceProvider* service_provider,
                 Margin gap,
                 std::pair<double, double> margin,
                 const Layout& layout
         )
             : Widget{ layout },
-              direction{ direction },
-              steps{ steps },
               gap{ gap },
-              margin{ static_cast<u32>(margin.first * layout.get_rect().width()),
-                      static_cast<u32>(margin.second * layout.get_rect().height()) } { }
+              m_texture{ service_provider->renderer().get_texture_for_render_target(
+                      shapes::Point(1, 1) // this is a dummy point!
+              ) },
+              m_service_provider{ service_provider },
+              current_scroll_postion{ 0 },
+              main_layout{ layout },
+              scroll_bar_layout{ layout } {
+
+            const auto layout_rect = layout.get_rect();
+            const auto absolut_margin = std::pair<u32, u32>{ static_cast<u32>(margin.first * layout_rect.width()),
+                                                             static_cast<u32>(margin.second * layout_rect.height()) };
+
+
+            const auto scroll_bar_width = static_cast<u32>(0.02 * layout_rect.width());
+
+            const auto start_x = layout_rect.top_left.x + absolut_margin.first;
+            const auto start_y = layout_rect.top_left.y + absolut_margin.second;
+
+            const auto new_width = layout_rect.width() - absolut_margin.first * 2;
+            const auto new_height = layout_rect.height() - absolut_margin.second * 2;
+
+
+            main_layout = AbsolutLayout{ start_x, start_y, new_width - scroll_bar_width, new_height };
+            scroll_bar_layout =
+                    AbsolutLayout{ start_x + new_width - scroll_bar_width, start_y, scroll_bar_width, new_height };
+        }
+
+        [[nodiscard]] u32 widget_count() const {
+            return m_widgets.size();
+        }
 
         void render(const ServiceProvider& service_provider) const override {
-            for (const auto& widget : m_widgets) {
-                widget->render(service_provider);
+
+            const auto& renderer = service_provider.renderer();
+
+            // at widget_count == 0, the texture is a dummy, so don#t use it!
+            if (widget_count() > 0) {
+
+                renderer.set_render_target(m_texture);
+                renderer.clear();
+                for (const auto& widget : m_widgets) {
+                    widget->render(service_provider);
+                }
+
+                renderer.reset_render_target();
+
+                const auto texture_size = m_texture.size();
+
+                //TODO: render texture correctly
+                const auto from = shapes::Rect{ 0, 0, texture_size.x, texture_size.y };
+
+                renderer.draw_texture(m_texture, from, main_layout.get_rect());
             }
+
+
+            renderer.draw_rect_filled(scroll_bar_layout.get_rect(), Color(0xA1, 0X97, 0x97));
+
+            //TODO render scroll bar
         }
 
         bool handle_event(const SDL_Event& event, const Window* window) override {
@@ -87,85 +173,66 @@ namespace ui {
         }
 
         template<typename T, typename... Args>
-        void add(const size_t index, Args... args) {
+        void add(ItemSize size, Args... args) {
 
-            const Layout layout = get_layout_for_index(index);
+            const Layout layout = get_layout_for_new(size);
 
-            m_widgets.at(index) = std::move(std::make_unique<T>(std::forward<Args>(args)..., layout));
-            auto focusable = as_focusable(*m_widgets.at(index));
+            m_widgets.push_back(std::move(std::make_unique<T>(std::forward<Args>(args)..., layout)));
+            auto focusable = as_focusable(*m_widgets.back());
             if (focusable.has_value() and not m_focus_id.has_value()) {
                 give_focus(focusable.value());
             }
+
+            //TODO: this is not entirely correct (check some cases, that might occur!), it might be also off by 1!
+            const auto total_size = layout.get_rect().bottom_right;
+
+
+            m_texture = m_service_provider->renderer().get_texture_for_render_target(total_size);
         }
 
-
         template<typename T>
-        T* get(const size_t index) {
+        T* get(const u32 index) {
             if (index >= m_widgets.size()) {
-                throw std::runtime_error("Invalid get of TileLayout item: index out of bound!");
+                throw std::runtime_error("Invalid get of ScrollLayout item: index out of bound!");
             }
 
             auto item = dynamic_cast<T*>(m_widgets.at(index).get());
             if (item == nullptr) {
-                throw std::runtime_error("Invalid get of TileLayout item!");
+                throw std::runtime_error("Invalid get of ScrollLayout item!");
             }
 
             return item;
         }
 
         template<typename T>
-        const T* get(const size_t index) const {
+        const T* get(const u32 index) const {
             if (index >= m_widgets.size()) {
-                throw std::runtime_error("Invalid get of TileLayout item: index out of bound!");
+                throw std::runtime_error("Invalid get of ScrollLayout item: index out of bound!");
             }
 
             const auto item = dynamic_cast<T*>(m_widgets.at(index).get());
             if (item == nullptr) {
-                throw std::runtime_error("Invalid get of TileLayout item!");
+                throw std::runtime_error("Invalid get of ScrollLayout item!");
             }
 
             return item;
         }
 
     private:
-        [[nodiscard]] Layout get_layout_for_index(size_t index) {
-            const auto start_point = layout().get_rect().top_left;
+        [[nodiscard]] Layout get_layout_for_new(ItemSize size) {
+            auto start_point = shapes::Point::zero();
 
-            u32 x = start_point.x + margin.first;
-            u32 y = start_point.y + margin.second;
-            u32 width = layout().get_rect().width() - (margin.first * 2);
-            u32 height = layout().get_rect().height() - (margin.second * 2);
-
-            if (direction == Direction::Horizontal) {
-                const auto previous_start =
-                        index == 0 ? 0 : static_cast<u32>(width * steps.at(index - 1)) + gap.get_margin() / 2;
-
-                const auto current_end =
-                        index == S - 1 ? width
-                                       : (steps.size() <= index
-                                                  ? width
-                                                  : static_cast<u32>(width * steps.at(index)) - gap.get_margin() / 2);
-
-                width = current_end - previous_start;
-                x += previous_start;
-            } else {
-                const auto previous_start =
-                        index == 0 ? 0 : static_cast<u32>(height * steps.at(index - 1)) + gap.get_margin() / 2;
-
-                const auto current_end =
-                        index == S - 1 ? height
-                                       : (steps.size() <= index
-                                                  ? height
-                                                  : static_cast<u32>(height * steps.at(index)) - gap.get_margin() / 2);
-
-                height = current_end - previous_start;
-                y += previous_start;
+            for (const auto& widget : m_widgets) {
+                const auto widget_rect = widget->layout().get_rect();
+                start_point.y += widget_rect.height() + gap.get_margin();
             }
 
+            const auto height = size.get_height();
+            const auto width = static_cast<u32>(main_layout.get_rect().height());
 
             return AbsolutLayout{
-                x,
-                y,
+                static_cast<u32>(start_point.x),
+                static_cast<u32>(start_point.y),
                 width,
                 height,
             };

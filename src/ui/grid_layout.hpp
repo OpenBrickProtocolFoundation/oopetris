@@ -3,11 +3,10 @@
 
 #include "focusable.hpp"
 #include "graphics/rect.hpp"
+#include "helper/optional.hpp"
 #include "helper/types.hpp"
 #include "platform/capabilities.hpp"
 #include "ui/widget.hpp"
-
-#include "helper/optional.hpp"
 
 namespace ui {
     template<u32 S>
@@ -32,7 +31,7 @@ namespace ui {
               margin{ static_cast<u32>(margin.first * layout.get_rect().width()),
                       static_cast<u32>(margin.second * layout.get_rect().height()) } { }
 
-        [[nodiscard]] u32 size() const {
+        [[nodiscard]] u32 widget_count() const {
             return S;
         }
 
@@ -62,10 +61,10 @@ namespace ui {
 
                 if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::Any)) {
 
-                    for (u32 i = 0; i < m_widgets.size(); ++i) {
-                        const auto layout = get_layout_for_index(i);
+                    for (auto& widget : m_widgets) {
+                        const auto layout = widget->layout();
                         if (utils::is_event_in(window, event, layout.get_rect())) {
-                            if (m_widgets.at(i)->handle_event(event, window)) {
+                            if (widget->handle_event(event, window)) {
                                 return true;
                             }
                         }
@@ -97,6 +96,10 @@ namespace ui {
 
         template<typename T>
         T* get(const u32 index) {
+            if (index >= m_widgets.size()) {
+                throw std::runtime_error("Invalid get of GridLayout item: index out of bound!");
+            }
+
             auto item = dynamic_cast<T*>(m_widgets.at(index).get());
             if (item == nullptr) {
                 throw std::runtime_error("Invalid get of GridLayout item!");
@@ -107,6 +110,10 @@ namespace ui {
 
         template<typename T>
         const T* get(const u32 index) const {
+            if (index >= m_widgets.size()) {
+                throw std::runtime_error("Invalid get of GridLayout item: index out of bound!");
+            }
+
             const auto item = dynamic_cast<T*>(m_widgets.at(index).get());
             if (item == nullptr) {
                 throw std::runtime_error("Invalid get of GridLayout item!");

@@ -53,7 +53,7 @@ namespace scenes {
 
             const auto index = id_helper.index();
 
-            if (index >= m_main_grid.size()) {
+            if (index >= m_main_grid.widget_count()) {
                 throw std::runtime_error("To much authors or to less space in the grid layout!");
             }
 

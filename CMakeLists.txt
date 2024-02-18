@@ -113,6 +113,7 @@ add_executable(oopetris
     src/ui/layout.cpp
     src/ui/layout.hpp
     src/ui/link_label.hpp
+    src/ui/scroll_layout.hpp
     src/ui/slider.hpp
     src/ui/tile_layout.hpp
     src/ui/widget.hpp

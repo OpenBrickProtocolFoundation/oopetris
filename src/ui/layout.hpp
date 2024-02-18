@@ -15,10 +15,10 @@ namespace ui {
         shapes::Rect m_rect;
         LayoutType type;
 
-    public:
+    protected:
         Layout(const shapes::Rect& rect, LayoutType type) : m_rect{ rect }, type{ type } { }
 
-
+    public:
         [[nodiscard]] const shapes::Rect& get_rect() const {
             return m_rect;
         }

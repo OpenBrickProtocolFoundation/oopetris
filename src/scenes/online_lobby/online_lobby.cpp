@@ -4,6 +4,7 @@
 #include "manager/music_manager.hpp"
 #include "manager/resource_manager.hpp"
 #include "ui/layout.hpp"
+#include "ui/scroll_layout.hpp"
 
 namespace scenes {
 
@@ -21,12 +22,23 @@ namespace scenes {
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
         );
 
-        //TODO:
-        m_main_layout.add<ui::Label>(
-                id_helper.index(), service_provider, "TODO", service_provider->fonts().get(FontId::Default),
-                Color::white(), std::pair<double, double>{ 0.5, 1.0 },
-                ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
+        const auto scroll_layout_id = id_helper.index();
+        m_main_layout.add<ui::ScrollLayout>(
+                scroll_layout_id, service_provider, ui::AbsolutMargin{ 100 }, std::pair<double, double>{ 0.05, 0.03 }
         );
+
+        auto scroll_layout = m_main_layout.get<ui::ScrollLayout>(scroll_layout_id);
+
+        for (auto i = 0; i < 15; ++i) {
+            scroll_layout->add<ui::Button>(
+                    ui::RelativeItemSize{ scroll_layout->layout(), 0.2 }, service_provider,
+                    fmt::format("Button Nr.: {}", i), service_provider->fonts().get(FontId::Default), Color::white(),
+                    id_helper.focus_id(), [i](const ui::Button&) { std::cout << "Pressed button: " << i << "\n"; },
+                    std::pair<double, double>{ 1.0, 1.0 },
+                    ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
+                    std::pair<double, double>{ 0.2, 0.2 }
+            );
+        }
 
         constexpr auto button_size = utils::device_orientation() == utils::Orientation::Landscape
                                              ? std::pair<double, double>{ 0.15, 0.85 }
@@ -63,7 +75,6 @@ namespace scenes {
     }
 
     void OnlineLobby::render(const ServiceProvider& service_provider) {
-
         service_provider.renderer().draw_rect_filled(get_layout().get_rect(), Color::black());
 
         m_main_layout.render(service_provider);
