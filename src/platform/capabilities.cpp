@@ -274,11 +274,15 @@ namespace {
             desired_type = SDL_MOUSEBUTTONUP;
             break;
         case CrossPlatformClickEvent::Any:
-            return event.type == SDL_MOUSEMOTION || event.type == SDL_MOUSEBUTTONDOWN
-                   || event.type == SDL_MOUSEBUTTONUP;
+            return event.type == SDL_MOUSEMOTION
+                   || ((event.type == SDL_MOUSEBUTTONDOWN || event.type == SDL_MOUSEBUTTONUP)
+                       && event.button.button == SDL_BUTTON_LEFT);
         default:
             utils::unreachable();
     }
+
+
+    return event.type == desired_type && event.button.button == SDL_BUTTON_LEFT;
 #endif
 
 
