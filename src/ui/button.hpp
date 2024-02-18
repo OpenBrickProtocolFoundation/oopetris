@@ -128,7 +128,7 @@ namespace ui {
             m_enabled = true;
         }
 
-        bool is_enabled() const {
+        [[nodiscard]] bool is_enabled() const {
             return m_enabled;
         }
 
