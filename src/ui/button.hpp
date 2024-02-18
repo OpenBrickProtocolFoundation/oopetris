@@ -132,15 +132,6 @@ namespace ui {
         [[nodiscard]] bool is_enabled() const {
             return m_enabled;
         }
-
-    private:
-        void on_focus() override {
-            spdlog::info("button focused");
-        }
-
-        void on_unfocus() override {
-            spdlog::info("button unfocused");
-        }
     };
 
 } // namespace ui

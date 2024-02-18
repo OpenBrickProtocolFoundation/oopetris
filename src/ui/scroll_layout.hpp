@@ -48,7 +48,7 @@ namespace ui {
     };
 
 
-    struct ScrollLayout : public Widget {
+    struct ScrollLayout : public Widget, public Focusable {
     private:
         enum class FocusChangeDirection {
             Forward,
@@ -60,26 +60,30 @@ namespace ui {
         Margin gap;
         Texture m_texture;
         ServiceProvider* m_service_provider;
-        std::uint64_t current_scroll_postion;
-        Layout main_layout;
-        Layout scroll_bar_layout;
+        shapes::Rect main_rect;
+        shapes::Rect scrollbar_rect;
+        shapes::Rect scrollbar_mover_rect;
+        shapes::Rect m_viewport;
+        bool is_dragging;
+        u32 m_step_size;
 
     public:
         explicit ScrollLayout(
                 ServiceProvider* service_provider,
+                usize focus_id,
                 Margin gap,
                 std::pair<double, double> margin,
                 const Layout& layout
         )
             : Widget{ layout },
+              Focusable{ focus_id },
               gap{ gap },
               m_texture{ service_provider->renderer().get_texture_for_render_target(
                       shapes::Point(1, 1) // this is a dummy point!
               ) },
               m_service_provider{ service_provider },
-              current_scroll_postion{ 0 },
-              main_layout{ layout },
-              scroll_bar_layout{ layout } {
+              is_dragging{ false },
+              m_step_size{ static_cast<u32>(layout.get_rect().height() * 0.05) } {
 
             const auto layout_rect = layout.get_rect();
             const auto absolut_margin = std::pair<u32, u32>{ static_cast<u32>(margin.first * layout_rect.width()),
@@ -95,9 +99,13 @@ namespace ui {
             const auto new_height = layout_rect.height() - absolut_margin.second * 2;
 
 
-            main_layout = AbsolutLayout{ start_x, start_y, new_width - scroll_bar_width, new_height };
-            scroll_bar_layout =
-                    AbsolutLayout{ start_x + new_width - scroll_bar_width, start_y, scroll_bar_width, new_height };
+            main_rect = shapes::Rect{ static_cast<int>(start_x), static_cast<int>(start_y),
+                                      static_cast<int>(new_width - scroll_bar_width), static_cast<int>(new_height) };
+            scrollbar_rect =
+                    shapes::Rect{ static_cast<int>(start_x + new_width - scroll_bar_width), static_cast<int>(start_y),
+                                  static_cast<int>(scroll_bar_width), static_cast<int>(new_height) };
+            scrollbar_mover_rect = scrollbar_rect;
+            m_viewport = shapes::Rect{ 0, 0, 0, 0 };
         }
 
         [[nodiscard]] u32 widget_count() const {
@@ -108,33 +116,57 @@ namespace ui {
 
             const auto& renderer = service_provider.renderer();
 
-            // at widget_count == 0, the texture is a dummy, so don#t use it!
+            //TODO: check for off by one error
+            const auto total_widgets_height = m_widgets.back()->layout().get_rect().bottom_right.y;
+
+            // at widget_count == 0, the texture is a dummy, so don't use it!
             if (widget_count() > 0) {
 
                 renderer.set_render_target(m_texture);
                 renderer.clear();
                 for (const auto& widget : m_widgets) {
+                    // smart rendering, only render, when viewport needs this widget
+                    const auto layout_rect = widget->layout().get_rect();
+                    if (layout_rect.top_left.y > m_viewport.bottom_right.y) {
+                        continue;
+                    }
+
+                    if (layout_rect.bottom_right.y < m_viewport.top_left.y) {
+                        continue;
+                    }
+
                     widget->render(service_provider);
                 }
 
                 renderer.reset_render_target();
 
-                const auto texture_size = m_texture.size();
+                auto to_rect = main_rect;
+                // if we don't need to fill-up the whole main_rect, we need a special to_rect
+                if (total_widgets_height < scrollbar_rect.height()) {
+                    to_rect = shapes::Rect{ main_rect.top_left.x, main_rect.top_left.y, main_rect.width(),
+                                            total_widgets_height };
+                }
 
-                //TODO: render texture correctly
-                const auto from = shapes::Rect{ 0, 0, texture_size.x, texture_size.y };
-
-                renderer.draw_texture(m_texture, from, main_layout.get_rect());
+                renderer.draw_texture(m_texture, m_viewport, to_rect);
             }
 
-
-            renderer.draw_rect_filled(scroll_bar_layout.get_rect(), Color(0xA1, 0X97, 0x97));
-
-            //TODO render scroll bar
+            // only render the scrollbar_when it makes sense
+            if (total_widgets_height > scrollbar_rect.height()) {
+                renderer.draw_rect_filled(scrollbar_rect, Color(0xA1, 0X97, 0x97));
+                renderer.draw_rect_filled(
+                        scrollbar_mover_rect, is_dragging ? Color(0x66, 0x61, 0x61) : Color(0x52, 0x4F, 0x4F)
+                );
+            }
         }
 
         bool handle_event(const SDL_Event& event, const Window* window) override {
+
+            if (not has_focus()) {
+                return false;
+            }
+
             auto handled = false;
+
             if (utils::device_supports_keys()) {
                 if (utils::event_is_action(event, utils::CrossPlatformAction::DOWN)
                     || utils::event_is_action(event, utils::CrossPlatformAction::TAB)) {
@@ -145,24 +177,104 @@ namespace ui {
             }
 
             if (handled) {
+                auto_move_after_focus_change();
                 return true;
             }
 
             if (utils::device_supports_clicks()) {
 
+                //TODO: check for off by one error
+                const auto total_widgets_height = m_widgets.back()->layout().get_rect().bottom_right.y;
+
+
+                const auto change_value_on_scroll = [&window, &event, total_widgets_height, this]() {
+                    const auto& [_, y] = utils::get_raw_coordinates(window, event);
+
+                    auto desired_scroll_height = 0;
+
+
+                    if (y <= scrollbar_rect.top_left.y) {
+                        desired_scroll_height = 0;
+                    } else if (y >= scrollbar_rect.bottom_right.y) {
+                        // this is to high, but recalculate_sizes reset it to the highest possible value!
+                        desired_scroll_height = total_widgets_height;
+                    } else {
+
+                        const double percentage = static_cast<double>(y - scrollbar_rect.top_left.y)
+                                                  / static_cast<double>(scrollbar_rect.height());
+
+                        // we want the final point to be in the middle, but desired_scroll_height expects the top position.
+                        desired_scroll_height =
+                                static_cast<int>(percentage * total_widgets_height) - scrollbar_rect.height() / 2;
+                        is_dragging = true;
+                    }
+
+
+                    recalculate_sizes(desired_scroll_height);
+                };
+
+
+                if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::ButtonDown)) {
+                    // note: this behaviour is intentional, namely, clicking into the scroll slider doesn't move it, it just "grabs" it for dragging
+                    if (utils::is_event_in(window, event, scrollbar_mover_rect)) {
+                        is_dragging = true;
+                        handled = true;
+                    } else if (utils::is_event_in(window, event, scrollbar_rect)) {
+
+                        change_value_on_scroll();
+                        handled = true;
+                    }
+
+                } else if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::ButtonUp)) {
+                    is_dragging = false;
+                    handled = true;
+
+                } else if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::Motion)) {
+
+                    if (is_dragging) {
+
+                        change_value_on_scroll();
+                        handled = true;
+                    }
+                } else if (event.type == SDL_MOUSEWHEEL) {
+
+                    // attention the mouse direction changes (it's called natural scrolling on macos/ windows / linux) are not detected by sdl until restart, and here we use the correct scroll behaviour, as teh user configured the mouse in it's OS
+                    const bool direction_is_down =
+                            event.wheel.direction == SDL_MOUSEWHEEL_NORMAL ? event.wheel.y < 0 : event.wheel.y > 0;
+
+
+                    auto desired_scroll_height = 0;
+
+                    if (direction_is_down) {
+                        desired_scroll_height = m_viewport.top_left.y + m_step_size;
+                    } else {
+                        desired_scroll_height = m_viewport.top_left.y - m_step_size;
+                    }
+
+                    recalculate_sizes(desired_scroll_height);
+                    handled = true;
+                }
+
+                if (handled) {
+                    return true;
+                }
+
+                //TODO:
+                /* 
                 if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::Any)) {
 
                     for (auto& widget : m_widgets) {
                         const auto layout = widget->layout();
                         if (utils::is_event_in(window, event, layout.get_rect())) {
+                         //TODO: offset
+                        
                             if (widget->handle_event(event, window)) {
                                 return true;
                             }
                         }
                     }
-                }
+                } */
             }
-
 
             for (auto& widget : m_widgets) {
                 if (widget->handle_event(event, window)) {
@@ -183,11 +295,12 @@ namespace ui {
                 give_focus(focusable.value());
             }
 
-            //TODO: this is not entirely correct (check some cases, that might occur!), it might be also off by 1!
+            //TODO: this might be also off by 1!
             const auto total_size = layout.get_rect().bottom_right;
 
 
             m_texture = m_service_provider->renderer().get_texture_for_render_target(total_size);
+            recalculate_sizes(0);
         }
 
         template<typename T>
@@ -228,7 +341,7 @@ namespace ui {
             }
 
             const auto height = size.get_height();
-            const auto width = static_cast<u32>(main_layout.get_rect().height());
+            const auto width = static_cast<u32>(main_rect.height());
 
             return AbsolutLayout{
                 static_cast<u32>(start_point.x),
@@ -236,6 +349,86 @@ namespace ui {
                 width,
                 height,
             };
+        }
+
+
+        void auto_move_after_focus_change() {
+
+            if (not m_focus_id.has_value()) {
+                return;
+            }
+
+            //TODO: check for off by one error
+            const auto total_widgets_height = m_widgets.back()->layout().get_rect().bottom_right.y;
+
+            // if we don't need to fill-up the whole main_rect, we need a special viewport, but top position is always 0
+            if (total_widgets_height < scrollbar_rect.height()) {
+                recalculate_sizes(0);
+                return;
+            }
+
+            // we center the in focus element (if possible -> not on top or bottom)
+
+            const auto& widget = m_widgets.at(focusable_index_by_id(m_focus_id.value()));
+
+            const auto widget_rect = widget->layout().get_rect();
+
+            // determine if the middle is +- (1 % px) in the viewport middle
+            const auto middle_of_rect_y = widget_rect.top_left.y + (widget_rect.height() / 2);
+
+
+            const auto viewport_middle_y = m_viewport.top_left.y + (m_viewport.height() / 2);
+
+            const auto is_circa_in_middle =
+                    std::abs(viewport_middle_y - middle_of_rect_y)
+                    <= static_cast<int>(m_service_provider->window().screen_rect().height() * 0.01);
+
+            if (is_circa_in_middle) {
+                return;
+            }
+
+            recalculate_sizes(m_viewport.top_left.y + viewport_middle_y - middle_of_rect_y);
+        }
+
+        // it's called desired, since it might not be entirely valid
+        void recalculate_sizes(i32 desired_scroll_height) {
+
+            //TODO: check for off by one error
+            const auto total_widgets_height = m_widgets.back()->layout().get_rect().bottom_right.y;
+
+            // if we don't need to fill-up the whole main_rect, we need a special viewport
+            if (total_widgets_height < scrollbar_rect.height()) {
+                m_viewport = shapes::Rect{ 0, 0, main_rect.width(), total_widgets_height };
+            }
+
+            // check if desired_scroll_height is valid:
+            auto scroll_height = desired_scroll_height;
+
+            if (desired_scroll_height < 0) {
+                scroll_height = 0;
+            } else if (desired_scroll_height + main_rect.height() > total_widgets_height) {
+                scroll_height = total_widgets_height - main_rect.height();
+            }
+
+            m_viewport = shapes::Rect{ 0, scroll_height, main_rect.width(), main_rect.height() };
+
+
+            // recalculate scrollbar mover rect
+            const auto current_start_height = static_cast<u32>(
+                    scrollbar_rect.height()
+                    * (static_cast<double>(m_viewport.top_left.y) / static_cast<double>(total_widgets_height))
+            );
+
+            const auto current_end_height = static_cast<u32>(
+                    scrollbar_rect.height()
+                    * (static_cast<double>(m_viewport.top_left.y + scrollbar_rect.height())
+                       / static_cast<double>(total_widgets_height))
+            );
+
+            scrollbar_mover_rect =
+                    shapes::Rect{ scrollbar_rect.top_left.x,
+                                  static_cast<int>(scrollbar_rect.top_left.y + current_start_height),
+                                  scrollbar_rect.width(), static_cast<int>(current_end_height - current_start_height) };
         }
 
         void give_focus(Focusable* focusable) {

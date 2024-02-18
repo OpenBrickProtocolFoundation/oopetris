@@ -57,8 +57,12 @@ namespace ui {
         }
 
     private:
-        virtual void on_focus() = 0;
-        virtual void on_unfocus() = 0;
+        virtual void on_focus(){
+            //do nothing
+        };
+        virtual void on_unfocus() {
+            //do nothing
+        }
     };
 
 } // namespace ui

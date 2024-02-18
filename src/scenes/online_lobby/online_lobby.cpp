@@ -24,7 +24,8 @@ namespace scenes {
 
         const auto scroll_layout_id = id_helper.index();
         m_main_layout.add<ui::ScrollLayout>(
-                scroll_layout_id, service_provider, ui::AbsolutMargin{ 100 }, std::pair<double, double>{ 0.05, 0.03 }
+                scroll_layout_id, service_provider, id_helper.focus_id(), ui::AbsolutMargin{ 10 },
+                std::pair<double, double>{ 0.05, 0.03 }
         );
 
         auto scroll_layout = m_main_layout.get<ui::ScrollLayout>(scroll_layout_id);
@@ -34,9 +35,9 @@ namespace scenes {
                     ui::RelativeItemSize{ scroll_layout->layout(), 0.2 }, service_provider,
                     fmt::format("Button Nr.: {}", i), service_provider->fonts().get(FontId::Default), Color::white(),
                     id_helper.focus_id(), [i](const ui::Button&) { std::cout << "Pressed button: " << i << "\n"; },
-                    std::pair<double, double>{ 1.0, 1.0 },
+                    std::pair<double, double>{ 0.8, 1.0 },
                     ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
-                    std::pair<double, double>{ 0.2, 0.2 }
+                    std::pair<double, double>{ 0.1, 0.2 }
             );
         }
 
