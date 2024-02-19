@@ -126,4 +126,7 @@ namespace utils {
     [[nodiscard]] std::pair<int, int> get_raw_coordinates(const Window* window, const SDL_Event& event);
 
     [[nodiscard]] bool is_event_in(const Window* window, const SDL_Event& event, const shapes::Rect& rect);
+
+    [[nodiscard]] SDL_Event offset_event(const Window* window, const SDL_Event& event, const shapes::Point& point);
+
 } // namespace utils

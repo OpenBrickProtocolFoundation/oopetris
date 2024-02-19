@@ -291,8 +291,10 @@ namespace {
 
 [[nodiscard]] std::pair<int, int> utils::get_raw_coordinates(const Window* window, const SDL_Event& event) {
 
+    assert(utils::event_is_click_event(event, utils::CrossPlatformClickEvent::Any) && "expected a click event");
+
 #if defined(__ANDROID__)
-    // These are doubles, from 0-1 in percent, the have to be casted to absolut x coordinates!
+    // These are doubles, from 0-1 (or if using virtual layouts > 0) in percent, the have to be casted to absolut x coordinates!
     const double x_percent = event.tfinger.x;
     const double y_percent = event.tfinger.y;
     const auto window_size = window->size();
@@ -344,4 +346,53 @@ namespace {
     const bool button_clicked = (x >= rect_start_x and x <= rect_end_x and y >= rect_start_y and y <= rect_end_y);
 
     return button_clicked;
+}
+
+
+[[nodiscard]] SDL_Event
+utils::offset_event(const Window* window, const SDL_Event& event, const shapes::Point& point) {
+
+
+    assert(utils::event_is_click_event(event, utils::CrossPlatformClickEvent::Any) && "expected a click event");
+
+
+    auto new_event = event;
+
+#if defined(__ANDROID__)
+    // These are doubles in percent, the have to be modified by using the windows sizes
+
+
+    const double x_percent = event.tfinger.x;
+    const double y_percent = event.tfinger.y;
+    const auto window_size = window->size();
+    new_event.tfinger.x = x_percent + static_cast<double>(point.x) / static_cast<double>(window_size.x);
+    new_event.tfinger.y = y_percent + static_cast<double>(point.y) / static_cast<double>(window_size.y);
+
+
+#elif defined(__SWITCH__)
+    UNUSED(window);
+    UNUSED(event);
+    UNUSED(point);
+    UNUSED(new_event);
+    throw std::runtime_error("Not supported on the Nintendo switch");
+#else
+    UNUSED(window);
+
+    switch (event.type) {
+        case SDL_MOUSEMOTION:
+            new_event.motion.x = event.motion.x + point.x;
+            new_event.motion.y = event.motion.y + point.y;
+            break;
+        case SDL_MOUSEBUTTONDOWN:
+        case SDL_MOUSEBUTTONUP:
+            new_event.button.x = event.button.x + point.x;
+            new_event.button.y = event.button.y + point.y;
+            break;
+        default:
+            utils::unreachable();
+    }
+#endif
+
+
+    return new_event;
 }

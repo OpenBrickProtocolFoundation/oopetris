@@ -74,15 +74,18 @@ namespace ui {
                             }
                         }
                     }
+
+                    return false;
                 }
             }
 
-
-            for (auto& widget : m_widgets) {
+            if (m_focus_id.has_value()) {
+                const auto& widget = m_widgets.at(focusable_index_by_id(m_focus_id.value()));
                 if (widget->handle_event(event, window)) {
                     return true;
                 }
             }
+
             return false;
         }
 

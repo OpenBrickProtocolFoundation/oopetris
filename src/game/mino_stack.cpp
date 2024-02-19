@@ -1,7 +1,6 @@
 #include "mino_stack.hpp"
 #include "grid.hpp"
 #include <algorithm>
-#include <iostream>
 
 void MinoStack::clear_row_and_let_sink(int row) {
     m_minos.erase(

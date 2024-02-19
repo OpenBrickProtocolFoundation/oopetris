@@ -15,7 +15,6 @@
 
 
 namespace ui {
-
     struct Button : public Widget, public Focusable, public Hoverable {
     public:
         using Callback = std::function<void(const Button&)>;

@@ -98,13 +98,10 @@ namespace ui {
         bool
         handle_event(const SDL_Event& event, const Window* window) // NOLINT(readability-function-cognitive-complexity)
                 override {
-            if (not has_focus()) {
-                return false;
-            }
+
             bool changed = false;
 
-
-            if (utils::device_supports_keys()) {
+            if (utils::device_supports_keys() and has_focus()) {
                 if (utils::event_is_action(event, utils::CrossPlatformAction::RIGHT)) {
                     current_value = current_value + m_step;
                     if (current_value >= m_range.second) {
@@ -136,7 +133,7 @@ namespace ui {
                     } else {
 
                         const float percentage =
-                                static_cast<double>(x - bar_rect.top_left.x) / static_cast<double>(bar_rect.width());
+                                static_cast<float>(x - bar_rect.top_left.x) / static_cast<float>(bar_rect.width());
                         current_value = percentage * (m_range.second - m_range.first) + m_range.first;
                         is_dragging = true;
                     }

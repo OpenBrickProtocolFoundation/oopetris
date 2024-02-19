@@ -226,7 +226,7 @@ void MusicManager::hook_music_finished() {
         return helpers::nullopt;
     }
 
-    return static_cast<double>(result) / MIX_MAX_VOLUME;
+    return static_cast<float>(result) / MIX_MAX_VOLUME;
 #else
     return volume;
 #endif
@@ -289,14 +289,14 @@ helpers::optional<float> MusicManager::change_volume(const std::int8_t steps) {
     if (steps > 0) {
 
         if (not current_volume.has_value()) {
-            new_volume = MusicManager::step_width * static_cast<double>(steps);
+            new_volume = MusicManager::step_width * static_cast<float>(steps);
 
         } else {
             if (current_volume >= 1.0F) {
                 return 1.0F;
             }
 
-            new_volume = current_volume.value() + MusicManager::step_width * static_cast<double>(steps);
+            new_volume = current_volume.value() + MusicManager::step_width * static_cast<float>(steps);
         }
 
         if (new_volume >= 1.0F) {
@@ -316,7 +316,7 @@ helpers::optional<float> MusicManager::change_volume(const std::int8_t steps) {
             new_volume = helpers::nullopt;
         } else {
 
-            new_volume = current_volume.value() + MusicManager::step_width * static_cast<double>(steps);
+            new_volume = current_volume.value() + MusicManager::step_width * static_cast<float>(steps);
 
 
             if (new_volume <= 0.0F) {

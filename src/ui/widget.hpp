@@ -22,7 +22,7 @@ namespace ui {
 
         virtual ~Widget() = default;
 
-        [[nodiscard]] Layout layout() const {
+        [[nodiscard]] const Layout& layout() const {
             return m_layout;
         }
 

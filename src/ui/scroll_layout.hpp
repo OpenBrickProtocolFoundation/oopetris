@@ -27,6 +27,10 @@ namespace ui {
         [[nodiscard]] u32 get_height() const {
             return height;
         }
+
+        [[nodiscard]] ItemSizeType get_type() const {
+            return type;
+        }
     };
 
     struct AbsolutItemSize : public ItemSize {
@@ -161,13 +165,9 @@ namespace ui {
 
         bool handle_event(const SDL_Event& event, const Window* window) override {
 
-            if (not has_focus()) {
-                return false;
-            }
-
             auto handled = false;
 
-            if (utils::device_supports_keys()) {
+            if (utils::device_supports_keys() and has_focus()) {
                 if (utils::event_is_action(event, utils::CrossPlatformAction::DOWN)
                     || utils::event_is_action(event, utils::CrossPlatformAction::TAB)) {
                     handled = try_set_next_focus(FocusChangeDirection::Forward);
@@ -259,24 +259,33 @@ namespace ui {
                     return true;
                 }
 
-                //TODO:
-                /* 
                 if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::Any)) {
 
+                    const auto offset_distance = main_rect.top_left - m_viewport.top_left;
+                    int i = 0;
                     for (auto& widget : m_widgets) {
-                        const auto layout = widget->layout();
-                        if (utils::is_event_in(window, event, layout.get_rect())) {
-                         //TODO: offset
-                        
-                            if (widget->handle_event(event, window)) {
-                                return true;
-                            }
+                        const auto& layout_rect = widget->layout().get_rect();
+                        const auto& offset_rect = layout_rect.move(offset_distance);
+
+                        if (utils::is_event_in(window, event, offset_rect)) {
+                            const auto offset_event = utils::offset_event(window, event, -offset_distance);
+
+                            return widget->handle_event(offset_event, window);
                         }
+
+                        ++i;
                     }
-                } */
+
+                    return false;
+                }
             }
 
-            for (auto& widget : m_widgets) {
+            if (not has_focus()) {
+                return false;
+            }
+
+            if (m_focus_id.has_value()) {
+                const auto& widget = m_widgets.at(focusable_index_by_id(m_focus_id.value()));
                 if (widget->handle_event(event, window)) {
                     return true;
                 }
@@ -297,7 +306,6 @@ namespace ui {
 
             //TODO: this might be also off by 1!
             const auto total_size = layout.get_rect().bottom_right;
-
 
             m_texture = m_service_provider->renderer().get_texture_for_render_target(total_size);
             recalculate_sizes(0);
@@ -333,19 +341,19 @@ namespace ui {
 
     private:
         [[nodiscard]] Layout get_layout_for_new(ItemSize size) {
-            auto start_point = shapes::Point::zero();
+            auto start_point_y = 0;
 
             for (const auto& widget : m_widgets) {
-                const auto widget_rect = widget->layout().get_rect();
-                start_point.y += widget_rect.height() + gap.get_margin();
+                const auto& widget_rect = widget->layout().get_rect();
+                start_point_y += widget_rect.height() + gap.get_margin();
             }
 
+            const auto width = static_cast<u32>(main_rect.width());
             const auto height = size.get_height();
-            const auto width = static_cast<u32>(main_rect.height());
 
             return AbsolutLayout{
-                static_cast<u32>(start_point.x),
-                static_cast<u32>(start_point.y),
+                0,
+                static_cast<u32>(start_point_y),
                 width,
                 height,
             };

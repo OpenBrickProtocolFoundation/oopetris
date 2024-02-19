@@ -56,7 +56,7 @@ namespace scenes {
         }
     }
 
-    [[nodiscard]] ui::Layout Scene::get_layout() const {
+    [[nodiscard]] const ui::Layout& Scene::get_layout() const {
         return m_layout;
     }
 
