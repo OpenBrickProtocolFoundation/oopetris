@@ -56,6 +56,8 @@ namespace scenes {
         }
     }
 
+    void Scene::on_unhover() { }
+
     [[nodiscard]] const ui::Layout& Scene::get_layout() const {
         return m_layout;
     }

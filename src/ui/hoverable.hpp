@@ -35,7 +35,6 @@ namespace ui {
             if (utils::device_supports_clicks()) {
 
                 if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::Any)) {
-                    //TODO: this hover logic is bad at detecting un-hovers, especially on android, fix that
                     if (utils::is_event_in(window, event, m_fill_rect)) {
 
                         on_hover();
@@ -55,10 +54,9 @@ namespace ui {
             return false;
         }
 
-        virtual void on_clicked() = 0;
+        virtual void on_clicked(){};
 
 
-    protected:
         void on_hover() {
             m_is_hovered = true;
         }
@@ -67,5 +65,6 @@ namespace ui {
             m_is_hovered = false;
         }
     };
+
 
 } // namespace ui

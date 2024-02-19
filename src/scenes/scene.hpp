@@ -58,6 +58,8 @@ namespace scenes {
         [[nodiscard]] virtual UpdateResult update() = 0;
         virtual void render(const ServiceProvider& service_provider) = 0;
         virtual bool handle_event(const SDL_Event& event, const Window* window) = 0;
+        // override this, if you (the scene) could potentially be displayed in non fullscreen!
+        virtual void on_unhover();
         [[nodiscard]] const ui::Layout& get_layout() const;
     };
 

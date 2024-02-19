@@ -67,7 +67,6 @@ namespace ui {
         }
 
         bool handle_event(const SDL_Event& event, const Window* window) override {
-
             return detect_hover(event, window);
         }
 

@@ -5,12 +5,13 @@
 #include "graphics/rect.hpp"
 #include "helper/optional.hpp"
 #include "helper/types.hpp"
+#include "hoverable.hpp"
 #include "platform/capabilities.hpp"
 #include "ui/widget.hpp"
 
 namespace ui {
     template<u32 S>
-    struct GridLayout : public Widget {
+    struct GridLayout : public Widget, public Hoverable {
     private:
         enum class FocusChangeDirection {
             Forward,
@@ -26,6 +27,7 @@ namespace ui {
     public:
         explicit GridLayout(Direction direction, Margin gap, std::pair<double, double> margin, const Layout& layout)
             : Widget{ layout },
+              Hoverable{ layout.get_rect() },
               direction{ direction },
               gap{ gap },
               margin{ static_cast<u32>(margin.first * layout.get_rect().width()),
@@ -63,14 +65,19 @@ namespace ui {
 
                     for (auto& widget : m_widgets) {
                         const auto layout = widget->layout();
-                        if (utils::is_event_in(window, event, layout.get_rect())) {
+                        if (not handled and utils::is_event_in(window, event, layout.get_rect())) {
                             if (widget->handle_event(event, window)) {
-                                return true;
+                                handled = true;
+                                break;
+                            }
+                        } else {
+                            const auto hoverable = as_hoverable(widget.get());
+                            if (hoverable.has_value()) {
+                                hoverable.value()->on_unhover();
                             }
                         }
                     }
-
-                    return false;
+                    return handled;
                 }
             }
 
@@ -90,7 +97,7 @@ namespace ui {
             const Layout layout = get_layout_for_index(index);
 
             m_widgets.at(index) = std::move(std::make_unique<T>(std::forward<Args>(args)..., layout));
-            auto focusable = as_focusable(*m_widgets.at(index));
+            auto focusable = as_focusable(m_widgets.at(index).get());
             if (focusable.has_value() and not m_focus_id.has_value()) {
                 give_focus(focusable.value());
             }
@@ -164,19 +171,10 @@ namespace ui {
             focusable->focus();
         }
 
-        [[nodiscard]] static helpers::optional<Focusable*> as_focusable(Widget& widget) {
-            auto* const focusable = dynamic_cast<Focusable*>(&widget);
-            if (focusable == nullptr) {
-                return helpers::nullopt;
-            }
-
-            return focusable;
-        }
-
         [[nodiscard]] usize focusable_index_by_id(const usize id) {
             const auto find_iterator =
                     std::find_if(m_widgets.begin(), m_widgets.end(), [id](const std::unique_ptr<Widget>& widget) {
-                        const auto focusable = as_focusable(*widget);
+                        const auto focusable = as_focusable(widget.get());
                         return focusable.has_value() and focusable.value()->focus_id() == id;
                     });
             assert(find_iterator != m_widgets.end());
@@ -187,7 +185,7 @@ namespace ui {
         [[nodiscard]] std::vector<usize> focusable_ids_sorted() const {
             auto result = std::vector<usize>{};
             for (const auto& widget : m_widgets) {
-                const auto focusable = as_focusable(*widget);
+                const auto focusable = as_focusable(widget.get());
                 if (focusable) {
                     result.push_back((*focusable)->focus_id());
                 }
@@ -223,9 +221,9 @@ namespace ui {
                              : ((current_index + focusable_ids.size() - 1) % focusable_ids.size()));
 
             auto current_focusable =
-                    as_focusable(*m_widgets.at(focusable_index_by_id(focusable_ids.at(current_index))));
+                    as_focusable(m_widgets.at(focusable_index_by_id(focusable_ids.at(current_index))).get());
             assert(current_focusable.has_value());
-            auto next_focusable = as_focusable(*m_widgets.at(focusable_index_by_id(focusable_ids.at(next_index))));
+            auto next_focusable = as_focusable(m_widgets.at(focusable_index_by_id(focusable_ids.at(next_index))).get());
             assert(next_focusable.has_value());
             (*current_focusable)->unfocus();
             (*next_focusable)->focus();

@@ -6,6 +6,7 @@
 #include "graphics/texture.hpp"
 #include "helper/optional.hpp"
 #include "helper/types.hpp"
+#include "hoverable.hpp"
 #include "platform/capabilities.hpp"
 #include "ui/widget.hpp"
 
@@ -52,7 +53,7 @@ namespace ui {
     };
 
 
-    struct ScrollLayout : public Widget, public Focusable {
+    struct ScrollLayout : public Widget, public Focusable, public Hoverable {
     private:
         enum class FocusChangeDirection {
             Forward,
@@ -81,6 +82,7 @@ namespace ui {
         )
             : Widget{ layout },
               Focusable{ focus_id },
+              Hoverable{ layout.get_rect() },
               gap{ gap },
               m_texture{ service_provider->renderer().get_texture_for_render_target(
                       shapes::Point(1, 1) // this is a dummy point!
@@ -120,7 +122,6 @@ namespace ui {
 
             const auto& renderer = service_provider.renderer();
 
-            //TODO: check for off by one error
             const auto total_widgets_height = m_widgets.back()->layout().get_rect().bottom_right.y;
 
             // at widget_count == 0, the texture is a dummy, so don't use it!
@@ -183,9 +184,7 @@ namespace ui {
 
             if (utils::device_supports_clicks()) {
 
-                //TODO: check for off by one error
                 const auto total_widgets_height = m_widgets.back()->layout().get_rect().bottom_right.y;
-
 
                 const auto change_value_on_scroll = [&window, &event, total_widgets_height, this]() {
                     const auto& [_, y] = utils::get_raw_coordinates(window, event);
@@ -255,28 +254,29 @@ namespace ui {
                     handled = true;
                 }
 
-                if (handled) {
-                    return true;
-                }
-
                 if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::Any)) {
 
                     const auto offset_distance = main_rect.top_left - m_viewport.top_left;
-                    int i = 0;
                     for (auto& widget : m_widgets) {
                         const auto& layout_rect = widget->layout().get_rect();
                         const auto& offset_rect = layout_rect.move(offset_distance);
 
-                        if (utils::is_event_in(window, event, offset_rect)) {
+                        if (not handled and utils::is_event_in(window, event, offset_rect)) {
                             const auto offset_event = utils::offset_event(window, event, -offset_distance);
 
-                            return widget->handle_event(offset_event, window);
+                            if (widget->handle_event(offset_event, window)) {
+                                handled = true;
+                                break;
+                            }
+                        } else {
+                            const auto hoverable = as_hoverable(widget.get());
+                            if (hoverable.has_value()) {
+                                hoverable.value()->on_unhover();
+                            }
                         }
-
-                        ++i;
                     }
 
-                    return false;
+                    return handled;
                 }
             }
 
@@ -299,12 +299,11 @@ namespace ui {
             const Layout layout = get_layout_for_new(size);
 
             m_widgets.push_back(std::move(std::make_unique<T>(std::forward<Args>(args)..., layout)));
-            auto focusable = as_focusable(*m_widgets.back());
+            auto focusable = as_focusable(m_widgets.back().get());
             if (focusable.has_value() and not m_focus_id.has_value()) {
                 give_focus(focusable.value());
             }
 
-            //TODO: this might be also off by 1!
             const auto total_size = layout.get_rect().bottom_right;
 
             m_texture = m_service_provider->renderer().get_texture_for_render_target(total_size);
@@ -366,7 +365,6 @@ namespace ui {
                 return;
             }
 
-            //TODO: check for off by one error
             const auto total_widgets_height = m_widgets.back()->layout().get_rect().bottom_right.y;
 
             // if we don't need to fill-up the whole main_rect, we need a special viewport, but top position is always 0
@@ -401,7 +399,6 @@ namespace ui {
         // it's called desired, since it might not be entirely valid
         void recalculate_sizes(i32 desired_scroll_height) {
 
-            //TODO: check for off by one error
             const auto total_widgets_height = m_widgets.back()->layout().get_rect().bottom_right.y;
 
             // if we don't need to fill-up the whole main_rect, we need a special viewport
@@ -444,19 +441,11 @@ namespace ui {
             focusable->focus();
         }
 
-        [[nodiscard]] static helpers::optional<Focusable*> as_focusable(Widget& widget) {
-            auto* const focusable = dynamic_cast<Focusable*>(&widget);
-            if (focusable == nullptr) {
-                return helpers::nullopt;
-            }
-
-            return focusable;
-        }
-
+        //TODO: this was copied a few times, deduplicate it
         [[nodiscard]] usize focusable_index_by_id(const usize id) {
             const auto find_iterator =
                     std::find_if(m_widgets.begin(), m_widgets.end(), [id](const std::unique_ptr<Widget>& widget) {
-                        const auto focusable = as_focusable(*widget);
+                        const auto focusable = as_focusable(widget.get());
                         return focusable.has_value() and focusable.value()->focus_id() == id;
                     });
             assert(find_iterator != m_widgets.end());
@@ -467,7 +456,7 @@ namespace ui {
         [[nodiscard]] std::vector<usize> focusable_ids_sorted() const {
             auto result = std::vector<usize>{};
             for (const auto& widget : m_widgets) {
-                const auto focusable = as_focusable(*widget);
+                const auto focusable = as_focusable(widget.get());
                 if (focusable) {
                     result.push_back((*focusable)->focus_id());
                 }
@@ -503,9 +492,9 @@ namespace ui {
                              : ((current_index + focusable_ids.size() - 1) % focusable_ids.size()));
 
             auto current_focusable =
-                    as_focusable(*m_widgets.at(focusable_index_by_id(focusable_ids.at(current_index))));
+                    as_focusable(m_widgets.at(focusable_index_by_id(focusable_ids.at(current_index))).get());
             assert(current_focusable.has_value());
-            auto next_focusable = as_focusable(*m_widgets.at(focusable_index_by_id(focusable_ids.at(next_index))));
+            auto next_focusable = as_focusable(m_widgets.at(focusable_index_by_id(focusable_ids.at(next_index))).get());
             assert(next_focusable.has_value());
             (*current_focusable)->unfocus();
             (*next_focusable)->focus();

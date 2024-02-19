@@ -3,6 +3,7 @@
 #include "scenes/scene.hpp"
 
 #include <fstream>
+#include <ranges>
 #include <stdexcept>
 
 #if defined(__SWITCH__)
@@ -56,29 +57,50 @@ void Application::handle_event(const SDL_Event& event, const Window* window) {
         m_is_running = false;
     }
 
-    for (usize i = 0; i < m_scene_stack.size(); ++i) {
-        const auto index = m_scene_stack.size() - i - 1;
-        const auto& widget = m_scene_stack.at(index);
-        if (widget->handle_event(event, window)) {
-            return;
+    auto handled = false;
+
+    for (const auto& scene : std::ranges::views::reverse(m_scene_stack)) {
+        if (not handled and scene->handle_event(event, window)) {
+            handled = true;
         }
 
         // detect if the scene overlaps everything, if that's the case, break out of the loop, since no other scene should receive inputs, since it's not visible to the user
 
-        if (widget->get_layout().is_full_screen()) {
+        if (scene->get_layout().is_full_screen()) {
             break;
         }
 
-        // if the scene is not covering the whole screen, it should give scenes in the background mouse events, but keyboard events are still only captured by the scene in focus
+        // if the scene is not covering the whole screen, it should give scenes in the background mouse events, but keyboard events are still only captured by the scene in focus, we also detect unhovers for whole scenes here
         if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::Any)) {
-            if (utils::is_event_in(window, event, widget->get_layout().get_rect())) {
-                break;
+            if (not utils::is_event_in(window, event, scene->get_layout().get_rect())) {
+                scene->on_unhover();
             }
         }
     }
 
+    if (handled) {
+        return;
+    }
 
-    // this global event handlers (atm only one) are special cases, they receive all inputs if they are not handled by the scene explicably
+    // handle some special events
+
+    switch (event.type) {
+        case SDL_WINDOWEVENT:
+            switch (event.window.event) {
+                case SDL_WINDOWEVENT_HIDDEN:
+                case SDL_WINDOWEVENT_MINIMIZED:
+                case SDL_WINDOWEVENT_LEAVE:
+                    for (const auto& scene : m_scene_stack) {
+                        scene->on_unhover();
+                    }
+                    break;
+            }
+
+
+            break;
+    }
+
+    // this global event handlers (atm only one) are special cases, they receive all inputs if they are not handled by the scenes explicably
 
     if (m_music_manager.handle_event(event)) {
         return;

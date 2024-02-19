@@ -116,6 +116,7 @@ add_executable(oopetris
     src/ui/scroll_layout.hpp
     src/ui/slider.hpp
     src/ui/tile_layout.hpp
+    src/ui/widget.cpp
     src/ui/widget.hpp
 )
 

@@ -349,8 +349,7 @@ namespace {
 }
 
 
-[[nodiscard]] SDL_Event
-utils::offset_event(const Window* window, const SDL_Event& event, const shapes::Point& point) {
+[[nodiscard]] SDL_Event utils::offset_event(const Window* window, const SDL_Event& event, const shapes::Point& point) {
 
 
     assert(utils::event_is_click_event(event, utils::CrossPlatformClickEvent::Any) && "expected a click event");

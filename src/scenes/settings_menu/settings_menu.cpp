@@ -105,4 +105,10 @@ namespace scenes {
         return false;
     }
 
+    // we might be in non fullscreen, so we can detect full scene unhovers here
+    void SettingsMenu::on_unhover() {
+        m_main_grid.on_unhover();
+    }
+
+
 } // namespace scenes

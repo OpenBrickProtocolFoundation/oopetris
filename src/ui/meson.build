@@ -10,5 +10,6 @@ src_files += files(
     'scroll_layout.hpp',
     'slider.hpp',
     'tile_layout.hpp',
+    'widget.cpp',
     'widget.hpp',
 )
