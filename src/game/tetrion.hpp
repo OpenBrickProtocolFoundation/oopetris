@@ -38,8 +38,6 @@ enum class MovementType {
 struct Tetrion final : public ui::Widget {
 private:
     using WallKickTable = std::array<std::array<shapes::Point, 5>, 8>;
-
-    static constexpr int tile_size = 26;
     static constexpr SimulationStep lock_delay = 30;
     static constexpr int num_lock_delays = 30;
 

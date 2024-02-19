@@ -25,7 +25,7 @@ struct Mino final {
 private:
     shapes::Point m_position;
     TetrominoType m_type;
-    static constexpr int inset = 3;
+    static constexpr int original_inset = 3;
 
 public:
     explicit constexpr Mino(shapes::Point coords, TetrominoType type) : m_position{ coords }, m_type{ type } { }

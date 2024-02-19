@@ -12,6 +12,8 @@
 
 struct Grid final : public ui::Widget {
 public:
+    static constexpr int original_tile_size = 26;
+
     static constexpr usize width_in_tiles = 10;
     static constexpr usize height_in_tiles = 22;
     static constexpr usize invisible_rows = 2;
@@ -36,6 +38,7 @@ private:
 public:
     Grid(const ui::Layout& layout);
     [[nodiscard]] shapes::Point tile_size() const;
+    [[nodiscard]] double scale_to_original() const;
     [[nodiscard]] shapes::Point to_screen_coords(shapes::Point grid_coords) const;
     void render(const ServiceProvider& service_provider) const override;
     [[nodiscard]] bool handle_event(const SDL_Event& event, const Window* window) override;

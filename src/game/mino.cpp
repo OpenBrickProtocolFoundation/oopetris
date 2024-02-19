@@ -38,17 +38,23 @@ void Mino::render(
     const Color foreground = get_foreground_color(m_type, alpha);
     const Color background = get_background_color(m_type, alpha);
 
+    const auto one_scaled_unit = static_cast<int>(grid->scale_to_original());
+
+    const auto inset_scaled = static_cast<int>(grid->scale_to_original() * original_inset);
+
+
     const shapes::Point top_left = grid->to_screen_coords(m_position + offset);
-    const shapes::Point top_right = top_left + shapes::Point{ grid->tile_size().x - 1, 0 };
-    const shapes::Point bottom_left = top_left + shapes::Point{ 0, grid->tile_size().y - 1 };
-    const shapes::Point bottom_right = top_left + grid->tile_size() - shapes::Point{ 1, 1 };
+    const shapes::Point top_right = top_left + shapes::Point{ grid->tile_size().x - one_scaled_unit, 0 };
+    const shapes::Point bottom_left = top_left + shapes::Point{ 0, grid->tile_size().y - one_scaled_unit };
+    const shapes::Point bottom_right =
+            top_left + grid->tile_size() - (shapes::Point{ one_scaled_unit, one_scaled_unit });
 
     service_provider.renderer().draw_rect_filled(shapes::Rect{ top_left, bottom_right }, background);
 
-    const shapes::Point inner_top_left = top_left + shapes::Point{ inset, inset };
-    const shapes::Point inner_top_right = top_right + shapes::Point{ -inset, inset };
-    const shapes::Point inner_bottom_left = bottom_left + shapes::Point{ inset, -inset };
-    const shapes::Point inner_bottom_right = bottom_right - shapes::Point{ inset, inset };
+    const shapes::Point inner_top_left = top_left + shapes::Point{ inset_scaled, inset_scaled };
+    const shapes::Point inner_top_right = top_right + shapes::Point{ -inset_scaled, inset_scaled };
+    const shapes::Point inner_bottom_left = bottom_left + shapes::Point{ inset_scaled, -inset_scaled };
+    const shapes::Point inner_bottom_right = bottom_right - shapes::Point{ inset_scaled, inset_scaled };
 
 
     service_provider.renderer().draw_line(

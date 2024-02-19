@@ -26,6 +26,9 @@ Grid::Grid(const ui::Layout& layout) : ui::Widget{ layout } {
 [[nodiscard]] shapes::Point Grid::tile_size() const {
     return shapes::Point{ static_cast<int>(m_tile_size), static_cast<int>(m_tile_size) };
 }
+[[nodiscard]] double Grid::scale_to_original() const {
+    return static_cast<double>(m_tile_size) / static_cast<double>(original_tile_size);
+}
 
 [[nodiscard]] shapes::Point Grid::to_screen_coords(shapes::Point grid_coords) const {
     return m_fill_rect.top_left + (grid_coords - shapes::Point{ 0, invisible_rows }) * static_cast<int>(m_tile_size);
