@@ -115,7 +115,7 @@ namespace ui {
         }
 
         [[nodiscard]] u32 widget_count() const {
-            return m_widgets.size();
+            return static_cast<u32>(m_widgets.size());
         }
 
         void render(const ServiceProvider& service_provider) const override {
@@ -155,7 +155,7 @@ namespace ui {
                 renderer.draw_texture(m_texture, m_viewport, to_rect);
             }
 
-            // only render the scrollbar_when it makes sense
+            // render the scrollbar when it makes sense
             if (total_widgets_height > scrollbar_rect.height()) {
                 renderer.draw_rect_filled(scrollbar_rect, Color(0xA1, 0X97, 0x97));
                 renderer.draw_rect_filled(
@@ -168,9 +168,10 @@ namespace ui {
 
             auto handled = false;
 
+            // can't use tab and doesn't cycle, since this is not a fully focusable ui component! (normally only components and not layouts are focusable)
+
             if (utils::device_supports_keys() and has_focus()) {
-                if (utils::event_is_action(event, utils::CrossPlatformAction::DOWN)
-                    || utils::event_is_action(event, utils::CrossPlatformAction::TAB)) {
+                if (utils::event_is_action(event, utils::CrossPlatformAction::DOWN)) {
                     handled = try_set_next_focus(FocusChangeDirection::Forward);
                 } else if (utils::event_is_action(event, utils::CrossPlatformAction::UP)) {
                     handled = try_set_next_focus(FocusChangeDirection::Backward);
@@ -386,14 +387,14 @@ namespace ui {
             const auto viewport_middle_y = m_viewport.top_left.y + (m_viewport.height() / 2);
 
             const auto is_circa_in_middle =
-                    std::abs(viewport_middle_y - middle_of_rect_y)
-                    <= static_cast<int>(m_service_provider->window().screen_rect().height() * 0.01);
+                    std::abs(middle_of_rect_y - viewport_middle_y)
+                    <= static_cast<int>(m_service_provider->window().screen_rect().height() * 0.05);
 
             if (is_circa_in_middle) {
                 return;
             }
 
-            recalculate_sizes(m_viewport.top_left.y + viewport_middle_y - middle_of_rect_y);
+            recalculate_sizes(middle_of_rect_y - (m_viewport.height() / 2));
         }
 
         // it's called desired, since it might not be entirely valid
@@ -486,10 +487,17 @@ namespace ui {
 
             assert(not focusable_ids.empty());
             const auto current_index = index_of(focusable_ids, m_focus_id.value());
-            const auto next_index =
-                    (focus_direction == FocusChangeDirection::Forward
-                             ? ((current_index + 1) % focusable_ids.size())
-                             : ((current_index + focusable_ids.size() - 1) % focusable_ids.size()));
+            const int next_index =
+                    (focus_direction == FocusChangeDirection::Forward ? current_index + 1
+                                                                      : static_cast<int>(current_index) - 1);
+
+            if (next_index < 0) {
+                return false;
+            }
+
+            if (next_index >= static_cast<int>(focusable_ids.size())) {
+                return false;
+            }
 
             auto current_focusable =
                     as_focusable(m_widgets.at(focusable_index_by_id(focusable_ids.at(current_index))).get());
