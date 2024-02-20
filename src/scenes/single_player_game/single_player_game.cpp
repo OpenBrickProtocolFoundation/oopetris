@@ -16,9 +16,9 @@ namespace scenes {
         : Scene{ service_provider, layout } {
         static constexpr auto num_tetrions = u8{ 1 };
 
-        if (is_replay_mode()) {
-            m_recording_reader =
-                    std::make_unique<RecordingReader>(*(m_service_provider->command_line_arguments().recording_path));
+        if (const auto recording_path = m_service_provider->command_line_arguments().recording_path;
+            recording_path.has_value()) {
+            m_recording_reader = std::make_unique<RecordingReader>(recording_path.value());
         }
 
         const auto seeds = create_seeds(num_tetrions);

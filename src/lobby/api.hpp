@@ -219,7 +219,7 @@ namespace lobby {
         }
 
     public:
-        Client(Client&& other)
+        Client(Client&& other) noexcept
             : m_client{ std::move(other.m_client) },
               authentication_token{ std::move(other.authentication_token) } { }
 

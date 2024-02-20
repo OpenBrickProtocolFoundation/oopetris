@@ -58,7 +58,7 @@ public:
         }
 
 
-        const auto texture = SDL_CreateTexture(renderer, mode.format, SDL_TEXTUREACCESS_TARGET, size.x, size.y);
+        auto* const texture = SDL_CreateTexture(renderer, mode.format, SDL_TEXTUREACCESS_TARGET, size.x, size.y);
         if (texture == nullptr) {
             throw std::runtime_error(fmt::format("Failed to create texture with error: {}", SDL_GetError()));
         }

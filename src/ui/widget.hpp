@@ -33,9 +33,9 @@ namespace ui {
         [[nodiscard]] virtual bool handle_event(const SDL_Event& event, const Window* window) = 0;
     };
 
-    [[nodiscard]] helpers::optional<Focusable*> as_focusable(Widget* const widget);
+    [[nodiscard]] helpers::optional<Focusable*> as_focusable(Widget* widget);
 
-    [[nodiscard]] helpers::optional<Hoverable*> as_hoverable(Widget* const widget);
+    [[nodiscard]] helpers::optional<Hoverable*> as_hoverable(Widget* widget);
 
 
 } // namespace ui

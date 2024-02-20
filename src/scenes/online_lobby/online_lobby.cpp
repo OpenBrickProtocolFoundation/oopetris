@@ -37,7 +37,7 @@ namespace scenes {
                 std::pair<double, double>{ 0.05, 0.03 }
         );
 
-        auto scroll_layout = m_main_layout.get<ui::ScrollLayout>(scroll_layout_id);
+        auto* scroll_layout = m_main_layout.get<ui::ScrollLayout>(scroll_layout_id);
 
         for (auto i = 0; i < 15; ++i) {
             scroll_layout->add<ui::Button>(
@@ -94,7 +94,7 @@ namespace scenes {
         // description of intentional behaviour of this scene, even if it seems off:
         // the return button or the scroll layout can have the focus, if the scroll_layout has the focus, it can be scrolled by the scroll wheel and you can move around the focused item of the scroll_layout with up and down, but not with TAB, with tab you can change the focus to the return button, where you can't use the scroll wheel or up / down to change the scroll items, but you still can use click events, they are not affected by focus
 
-        const auto scroll_layout = m_main_layout.get<ui::ScrollLayout>(1);
+        auto* const scroll_layout = m_main_layout.get<ui::ScrollLayout>(1);
         if (scroll_layout->has_focus() and scroll_layout->handle_event(event, window)) {
             return true;
         }

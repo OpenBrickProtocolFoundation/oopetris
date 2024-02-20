@@ -113,13 +113,13 @@ void Tetrion::render(const ServiceProvider& service_provider) const {
     }
     for (std::underlying_type_t<MinoTransparency> i = 0; i < static_cast<decltype(i)>(m_preview_tetrominos.size());
          ++i) {
-        if (m_preview_tetrominos.at(i)) {
+        if (const auto current_preview_tetromino = m_preview_tetrominos.at(i); current_preview_tetromino.has_value()) {
             static constexpr auto enum_index = magic_enum::enum_index(MinoTransparency::Preview0);
             static_assert(enum_index.has_value());
             const auto transparency = magic_enum::enum_value<MinoTransparency>(
                     enum_index.value() + i // NOLINT(bugprone-unchecked-optional-access)
             );
-            m_preview_tetrominos.at(i)->render(service_provider, grid, transparency);
+            current_preview_tetromino->render(service_provider, grid, transparency);
         }
     }
     if (m_tetromino_on_hold) {
@@ -511,7 +511,7 @@ bool Tetrion::move(const Tetrion::MoveDirection move_direction) {
 
 helpers::optional<const Tetrion::WallKickTable*> Tetrion::get_wall_kick_table() const {
     assert(m_active_tetromino.has_value() and "no active tetromino");
-    const auto type = m_active_tetromino->type();
+    const auto type = m_active_tetromino->type(); // NOLINT(bugprone-unchecked-optional-access)
     switch (type) {
         case TetrominoType::J:
         case TetrominoType::L:
@@ -523,6 +523,7 @@ helpers::optional<const Tetrion::WallKickTable*> Tetrion::get_wall_kick_table() 
             return &wall_kick_data_i;
         case TetrominoType::O:
             return {};
+        default:
+            utils::unreachable();
     }
-    utils::unreachable();
 }

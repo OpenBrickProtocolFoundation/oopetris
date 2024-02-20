@@ -44,7 +44,9 @@ namespace ui {
             }
         }
 
-        bool handle_event(const SDL_Event& event, const Window* window) override {
+        bool
+        handle_event(const SDL_Event& event, const Window* window) // NOLINT(readability-function-cognitive-complexity)
+                override {
             auto handled = false;
             if (utils::device_supports_keys()) {
                 if (utils::event_is_action(event, utils::CrossPlatformAction::DOWN)

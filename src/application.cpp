@@ -89,14 +89,17 @@ void Application::handle_event(const SDL_Event& event, const Window* window) {
             switch (event.window.event) {
                 case SDL_WINDOWEVENT_HIDDEN:
                 case SDL_WINDOWEVENT_MINIMIZED:
-                case SDL_WINDOWEVENT_LEAVE:
+                case SDL_WINDOWEVENT_LEAVE: {
                     for (const auto& scene : m_scene_stack) {
                         scene->on_unhover();
                     }
                     break;
+                }
+                default:
+                    break;
             }
-
-
+            break;
+        default:
             break;
     }
 

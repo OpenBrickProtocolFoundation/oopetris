@@ -3,6 +3,7 @@
 
 #include "focusable.hpp"
 #include "graphics/rect.hpp"
+#include "graphics/renderer.hpp"
 #include "graphics/texture.hpp"
 #include "helper/optional.hpp"
 #include "helper/types.hpp"
@@ -69,7 +70,7 @@ namespace ui {
         shapes::Rect scrollbar_rect;
         shapes::Rect scrollbar_mover_rect;
         shapes::Rect m_viewport;
-        bool is_dragging;
+        bool is_dragging{ false };
         u32 m_step_size;
 
     public:
@@ -88,7 +89,6 @@ namespace ui {
                       shapes::Point(1, 1) // this is a dummy point!
               ) },
               m_service_provider{ service_provider },
-              is_dragging{ false },
               m_step_size{ static_cast<u32>(layout.get_rect().height() * 0.05) } {
 
             const auto layout_rect = layout.get_rect();
@@ -110,7 +110,7 @@ namespace ui {
             scrollbar_rect =
                     shapes::Rect{ static_cast<int>(start_x + new_width - scroll_bar_width), static_cast<int>(start_y),
                                   static_cast<int>(scroll_bar_width), static_cast<int>(new_height) };
-            scrollbar_mover_rect = scrollbar_rect;
+            scrollbar_mover_rect = scrollbar_rect; // NOLINT(cppcoreguidelines-prefer-member-initializer)
             m_viewport = shapes::Rect{ 0, 0, 0, 0 };
         }
 
@@ -164,7 +164,9 @@ namespace ui {
             }
         }
 
-        bool handle_event(const SDL_Event& event, const Window* window) override {
+        bool
+        handle_event(const SDL_Event& event, const Window* window) // NOLINT(readability-function-cognitive-complexity)
+                override {
 
             auto handled = false;
 
@@ -246,9 +248,9 @@ namespace ui {
                     auto desired_scroll_height = 0;
 
                     if (direction_is_down) {
-                        desired_scroll_height = m_viewport.top_left.y + m_step_size;
+                        desired_scroll_height = m_viewport.top_left.y + static_cast<int>(m_step_size);
                     } else {
-                        desired_scroll_height = m_viewport.top_left.y - m_step_size;
+                        desired_scroll_height = m_viewport.top_left.y - static_cast<int>(m_step_size);
                     }
 
                     recalculate_sizes(desired_scroll_height);
@@ -341,19 +343,21 @@ namespace ui {
 
     private:
         [[nodiscard]] Layout get_layout_for_new(ItemSize size) {
-            auto start_point_y = 0;
+            u32 start_point_y = 0;
 
             for (const auto& widget : m_widgets) {
                 const auto& widget_rect = widget->layout().get_rect();
-                start_point_y += widget_rect.height() + gap.get_margin();
+                start_point_y += static_cast<u32>(widget_rect.height());
             }
+
+            start_point_y += m_widgets.empty() ? 0 : gap.get_margin() * (m_widgets.size() - 1);
 
             const auto width = static_cast<u32>(main_rect.width());
             const auto height = size.get_height();
 
             return AbsolutLayout{
                 0,
-                static_cast<u32>(start_point_y),
+                start_point_y,
                 width,
                 height,
             };
@@ -486,10 +490,9 @@ namespace ui {
             const auto focusable_ids = focusable_ids_sorted();
 
             assert(not focusable_ids.empty());
-            const auto current_index = index_of(focusable_ids, m_focus_id.value());
+            const int current_index = static_cast<int>(index_of(focusable_ids, m_focus_id.value()));
             const int next_index =
-                    (focus_direction == FocusChangeDirection::Forward ? current_index + 1
-                                                                      : static_cast<int>(current_index) - 1);
+                    (focus_direction == FocusChangeDirection::Forward ? current_index + 1 : current_index - 1);
 
             if (next_index < 0) {
                 return false;
@@ -504,9 +507,9 @@ namespace ui {
             assert(current_focusable.has_value());
             auto next_focusable = as_focusable(m_widgets.at(focusable_index_by_id(focusable_ids.at(next_index))).get());
             assert(next_focusable.has_value());
-            (*current_focusable)->unfocus();
-            (*next_focusable)->focus();
-            m_focus_id = (*next_focusable)->focus_id();
+            current_focusable.value()->unfocus();            // NOLINT(bugprone-unchecked-optional-access)
+            next_focusable.value()->focus();                 // NOLINT(bugprone-unchecked-optional-access)
+            m_focus_id = next_focusable.value()->focus_id(); // NOLINT(bugprone-unchecked-optional-access)
 
             return true;
         }
