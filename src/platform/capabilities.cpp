@@ -240,8 +240,9 @@ namespace {
 //TODO: not correctly supported ButtonUp, since it only can be triggered, when a ButtonDown event is fired first and the target is not left (unhovered)
 
 [[nodiscard]] bool utils::event_is_click_event(const SDL_Event& event, CrossPlatformClickEvent click_type) {
-    decltype(event.type) desired_type{};
+
 #if defined(__ANDROID__)
+    decltype(event.type) desired_type{};
     switch (click_type) {
         case CrossPlatformClickEvent::Motion:
             desired_type = SDL_FINGERMOTION;
@@ -258,11 +259,14 @@ namespace {
             utils::unreachable();
     }
 
+    return event.type == desired_type;
+
 #elif defined(__SWITCH__)
     UNUSED(event);
     UNUSED(click_type);
     throw std::runtime_error("Not supported on the Nintendo switch");
 #else
+    decltype(event.type) desired_type{};
     switch (click_type) {
         case CrossPlatformClickEvent::Motion:
             desired_type = SDL_MOUSEMOTION;
@@ -284,9 +288,6 @@ namespace {
 
     return event.type == desired_type && event.button.button == SDL_BUTTON_LEFT;
 #endif
-
-
-    return event.type == desired_type;
 }
 
 [[nodiscard]] std::pair<int, int> utils::get_raw_coordinates(const Window* window, const SDL_Event& event) {
