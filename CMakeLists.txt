@@ -92,7 +92,7 @@ add_executable(oopetris
     src/scenes/multiplayer_menu/multiplayer_menu.cpp
     src/scenes/multiplayer_menu/multiplayer_menu.hpp
     src/scenes/online_lobby/online_lobby.cpp
-    src/scenes/online_lobby/play_select_menu.hpp
+    src/scenes/online_lobby/online_lobby.hpp
     src/scenes/pause/pause.cpp
     src/scenes/pause/pause.hpp
     src/scenes/play_select_menu/play_select_menu.cpp
