@@ -104,18 +104,18 @@ add_executable(oopetris
     src/scenes/settings_menu/settings_menu.hpp
     src/scenes/single_player_game/single_player_game.cpp
     src/scenes/single_player_game/single_player_game.hpp
-    src/ui/button.hpp
+    src/ui/components/button.hpp
+    src/ui/components/image_view.hpp
+    src/ui/components/label.hpp
+    src/ui/components/link_label.hpp
+    src/ui/components/slider.hpp
     src/ui/focusable.hpp
-    src/ui/grid_layout.hpp
     src/ui/hoverable.hpp
-    src/ui/image_view.hpp
-    src/ui/label.hpp
     src/ui/layout.cpp
     src/ui/layout.hpp
-    src/ui/link_label.hpp
-    src/ui/scroll_layout.hpp
-    src/ui/slider.hpp
-    src/ui/tile_layout.hpp
+    src/ui/layouts/grid_layout.hpp
+    src/ui/layouts/scroll_layout.hpp
+    src/ui/layouts/tile_layout.hpp
     src/ui/widget.cpp
     src/ui/widget.hpp
 )

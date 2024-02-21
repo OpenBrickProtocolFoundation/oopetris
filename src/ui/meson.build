@@ -1,15 +1,10 @@
 src_files += files(
-    'button.hpp',
     'focusable.hpp',
-    'grid_layout.hpp',
-    'image_view.hpp',
-    'label.hpp',
     'layout.cpp',
     'layout.hpp',
-    'link_label.hpp',
-    'scroll_layout.hpp',
-    'slider.hpp',
-    'tile_layout.hpp',
     'widget.cpp',
     'widget.hpp',
 )
+
+subdir('components')
+subdir('layouts')
