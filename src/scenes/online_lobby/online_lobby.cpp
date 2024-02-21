@@ -4,7 +4,7 @@
 #include "manager/music_manager.hpp"
 #include "manager/resource_manager.hpp"
 #include "ui/layout.hpp"
-#include "ui/scroll_layout.hpp"
+#include "ui/layouts/scroll_layout.hpp"
 
 namespace scenes {
 

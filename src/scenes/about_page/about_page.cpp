@@ -5,9 +5,9 @@
 #include "helper/utils.hpp"
 #include "manager/resource_manager.hpp"
 #include "platform/capabilities.hpp"
-#include "ui/image_view.hpp"
-#include "ui/link_label.hpp"
-#include "ui/tile_layout.hpp"
+#include "ui/components/image_view.hpp"
+#include "ui/components/link_label.hpp"
+#include "ui/layouts/tile_layout.hpp"
 
 #include <fmt/format.h>
 

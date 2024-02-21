@@ -4,7 +4,7 @@
 #include <spdlog/spdlog.h>
 #include <utility>
 
-#include "focusable.hpp"
+#include "ui/focusable.hpp"
 #include "graphics/rect.hpp"
 #include "graphics/renderer.hpp"
 #include "graphics/text.hpp"

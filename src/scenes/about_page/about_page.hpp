@@ -1,10 +1,10 @@
 #pragma once
 
 #include "scenes/scene.hpp"
-#include "ui/button.hpp"
-#include "ui/grid_layout.hpp"
-#include "ui/label.hpp"
-#include "ui/slider.hpp"
+#include "ui/components/button.hpp"
+#include "ui/layouts/grid_layout.hpp"
+#include "ui/components/label.hpp"
+#include "ui/components/slider.hpp"
 
 namespace scenes {
 

@@ -1,13 +1,13 @@
 #pragma once
 
 
-#include "focusable.hpp"
+#include "ui/focusable.hpp"
 #include "graphics/rect.hpp"
 #include "graphics/renderer.hpp"
 #include "graphics/texture.hpp"
 #include "helper/optional.hpp"
 #include "helper/types.hpp"
-#include "hoverable.hpp"
+#include "ui/hoverable.hpp"
 #include "platform/capabilities.hpp"
 #include "ui/widget.hpp"
 

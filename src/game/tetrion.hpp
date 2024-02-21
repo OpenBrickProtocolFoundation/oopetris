@@ -13,10 +13,10 @@
 #include "manager/service_provider.hpp"
 #include "mino_stack.hpp"
 #include "tetromino.hpp"
-#include "ui/grid_layout.hpp"
-#include "ui/label.hpp"
+#include "ui/layouts/grid_layout.hpp"
+#include "ui/components/label.hpp"
 #include "ui/layout.hpp"
-#include "ui/tile_layout.hpp"
+#include "ui/layouts/tile_layout.hpp"
 #include "ui/widget.hpp"
 
 #include <array>

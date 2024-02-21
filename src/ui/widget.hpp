@@ -1,9 +1,9 @@
 #pragma once
 
-#include "focusable.hpp"
+#include "ui/focusable.hpp"
 #include "graphics/rect.hpp"
 #include "helper/optional.hpp"
-#include "hoverable.hpp"
+#include "ui/hoverable.hpp"
 #include "manager/service_provider.hpp"
 #include "ui/layout.hpp"
 

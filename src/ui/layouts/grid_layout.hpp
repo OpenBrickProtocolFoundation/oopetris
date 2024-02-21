@@ -1,12 +1,12 @@
 #pragma once
 
 
-#include "focusable.hpp"
 #include "graphics/rect.hpp"
 #include "helper/optional.hpp"
 #include "helper/types.hpp"
-#include "hoverable.hpp"
 #include "platform/capabilities.hpp"
+#include "ui/focusable.hpp"
+#include "ui/hoverable.hpp"
 #include "ui/widget.hpp"
 
 namespace ui {

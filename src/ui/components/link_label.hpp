@@ -1,7 +1,7 @@
 #pragma once
 
 #include "graphics/text.hpp"
-#include "hoverable.hpp"
+#include "ui/hoverable.hpp"
 #include "platform/capabilities.hpp"
 #include "ui/widget.hpp"
 

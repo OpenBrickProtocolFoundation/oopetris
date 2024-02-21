@@ -2,7 +2,7 @@
 
 #include "graphics/renderer.hpp"
 #include "graphics/text.hpp"
-#include "hoverable.hpp"
+#include "ui/hoverable.hpp"
 #include "ui/widget.hpp"
 
 #include <string>
