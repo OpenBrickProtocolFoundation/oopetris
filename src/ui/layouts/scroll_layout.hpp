@@ -269,7 +269,7 @@ namespace ui {
 
                             if (widget->handle_event(offset_event, window)) {
                                 handled = true;
-                                break;
+                                continue;
                             }
                         } else {
                             const auto hoverable = as_hoverable(widget.get());
@@ -350,7 +350,7 @@ namespace ui {
                 start_point_y += static_cast<u32>(widget_rect.height());
             }
 
-            start_point_y += m_widgets.empty() ? 0 : gap.get_margin() * (static_cast<u32>(m_widgets.size() - 1));
+            start_point_y += gap.get_margin() * static_cast<u32>(m_widgets.size());
 
             const auto width = static_cast<u32>(main_rect.width());
             const auto height = size.get_height();

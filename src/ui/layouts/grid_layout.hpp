@@ -79,7 +79,7 @@ namespace ui {
                         if (not handled and utils::is_event_in(window, event, layout.get_rect())) {
                             if (widget->handle_event(event, window)) {
                                 handled = true;
-                                break;
+                                continue;
                             }
                         } else {
                             const auto hoverable = as_hoverable(widget.get());
