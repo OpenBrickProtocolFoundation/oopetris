@@ -18,8 +18,9 @@ modules:
     buildsystem: meson
     config-opts:
       - -Dbuildtype=release
-      - -Ddefault_library=static
+      - -Ddefault_library=shared
       - -Dflatpak_build=true
+      - -Dlibdir=lib
     builddir: true
     build-options:
       build-args:
@@ -34,10 +35,11 @@ modules:
           - build/
     run-tests: true
 
-cleanup-commands:
-  - rm -rf /app/include
-  - rm -rf /app/lib/pkgconfig
-  - rm -rf /app/python/ # TODO: remove after meson_1.3_patch was removed
+cleanup:
+  - /include
+  - /lib/pkgconfig
+  - /share/pkgconfig
+  - /python # TODO: remove after meson_1.3_patch was removed
 
 finish-args:
   - --socket=x11
@@ -45,3 +47,4 @@ finish-args:
   - --device=all
   - --device=dri
   - --socket=pulseaudio
+  - --share=network
