@@ -8,9 +8,16 @@
 
 namespace scenes {
 
-    OnlineLobby::OnlineLobby(ServiceProvider* service_provider, const ui::Layout& layout): Scene{ service_provider, layout },m_main_layout {3,
-        ui::Direction::Vertical, { 0.1, 0.9 }, ui::AbsolutMargin{ 10 }, std::pair<double, double>{ 0.05, 0.03 }, layout
-    }{
+    OnlineLobby::OnlineLobby(ServiceProvider* service_provider, const ui::Layout& layout)
+        : Scene{ service_provider, layout },
+          m_main_layout{ 
+                utils::size_t_identity<3>(),
+                ui::Direction::Vertical,
+                { 0.1, 0.9 },
+                ui::AbsolutMargin{ 10 },
+                std::pair<double, double>{ 0.05, 0.03 },
+                layout
+          } {
 
         //TODO: after the settings have been reworked, make this url changeable!
         auto maybe_client = lobby::Client::get_client("http://127.0.0.1:5000");

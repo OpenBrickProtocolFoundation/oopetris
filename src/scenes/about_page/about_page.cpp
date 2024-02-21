@@ -43,8 +43,8 @@ namespace scenes {
 
 
             const auto tile_layout_index = m_main_grid.add<ui::TileLayout>(
-                    2, ui::Direction::Horizontal, std::initializer_list<double>{ 0.85 }, ui::AbsolutMargin{ 0 },
-                    std::pair<double, double>{ 0.05, 0.03 }
+                    utils::size_t_identity<2>(), ui::Direction::Horizontal, std::array<double, 1>{ 0.85 },
+                    ui::AbsolutMargin{ 0 }, std::pair<double, double>{ 0.05, 0.03 }
             );
 
             auto* tile_layout = m_main_grid.get<ui::TileLayout>(tile_layout_index);

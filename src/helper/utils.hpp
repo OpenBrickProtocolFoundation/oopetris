@@ -88,6 +88,12 @@ namespace utils {
         std::terminate();
     }
 
+    template<size_t T>
+    struct size_t_identity {
+        //using type = T;
+    };
+
+
 } // namespace utils
 
 

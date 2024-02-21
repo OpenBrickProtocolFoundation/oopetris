@@ -28,25 +28,25 @@ namespace ui {
         std::pair<u32, u32> margin;
 
     public:
+        // see here, why utils::size_t_identity<S> is needed: https://stackoverflow.com/questions/2786946/c-invoke-explicit-template-constructor
+        template<size_t S>
         explicit TileLayout(
-                u32 size,
+                utils::size_t_identity<S>,
                 Direction direction,
-                std::initializer_list<double> steps,
+                std::array<double, S - 1> steps,
                 Margin gap,
                 std::pair<double, double> margin,
                 const Layout& layout
         )
             : Widget{ layout },
               Hoverable{ layout.get_rect() },
-              size{ size },
+              size{ S },
               direction{ direction },
-              steps{ steps },
+              steps{ steps.cbegin(), steps.cend() },
               gap{ gap },
               margin{ static_cast<u32>(margin.first * layout.get_rect().width()),
                       static_cast<u32>(margin.second * layout.get_rect().height()) } {
-            if (size == 0 or steps.size() != size - 1) {
-                throw std::runtime_error("Invalid construction of TileLayout: 'steps' is not of correct size");
-            }
+            static_assert(S != 0 and "TileLayout has to hold at least one child");
         }
 
         void render(const ServiceProvider& service_provider) const override {

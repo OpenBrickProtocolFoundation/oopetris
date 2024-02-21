@@ -3,6 +3,7 @@
 #include "helper/utils.hpp"
 #include "manager/recording.hpp"
 #include "manager/resource_manager.hpp"
+
 #include <cassert>
 #include <fstream>
 #include <spdlog/spdlog.h>
@@ -16,23 +17,22 @@ Tetrion::Tetrion(
         helpers::optional<RecordingWriter*> recording_writer,
         const ui::Layout& layout
 )
-    : ui::Widget{layout},
+    : ui::Widget{ layout },
       m_next_gravity_simulation_step_index{ get_gravity_delay_frames() },
       m_lock_delay_step_index{ lock_delay },
       m_service_provider{ service_provider },
       m_recording_writer{ recording_writer },
       m_random{ random_seed },
       m_level{ starting_level },
-    m_tetrion_index{ tetrion_index },
-    main_layout{
-        2,
-        ui::Direction::Vertical,
-        { 0.85},
-        ui::AbsolutMargin{0},
-        std::pair<double, double>{0.05,0.03},
-        layout
-    }
-    {
+      m_tetrion_index{ tetrion_index },
+      main_layout{ 
+            utils::size_t_identity<2>(),
+              ui::Direction::Vertical,
+              { 0.85 },
+              ui::AbsolutMargin{ 0 },
+              std::pair<double, double>{ 0.05, 0.03 },
+              layout
+       } {
 
     main_layout.add<Grid>();
 
