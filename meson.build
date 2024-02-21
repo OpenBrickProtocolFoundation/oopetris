@@ -279,12 +279,17 @@ subdir('src')
 
 ## TODO: only istall needed ones, since sometimes we only need e.g. flacs or mp3 and no icons etc.
 ## install assets
-install_subdir('assets', install_dir: 'share/oopetris')
+install_subdir(
+    'assets',
+    install_dir: 'share/oopetris',
+    exclude_files: ['oopetris.desktop.in', 'OOPetris.svg'],
+    exclude_directories: ['icon'],
+)
 
 app_name = 'oopetris'
 if get_option('flatpak_build')
     app_name = 'com.github.mgerhold.OOPetris'
-    compile_args += ['-Dcpp_args=-DFLATPAK_BUILD', '-DBUILD_INSTALLER']
+    compile_args += ['-DFLATPAK_BUILD', '-DBUILD_INSTALLER']
 endif
 
 conf = configuration_data()
