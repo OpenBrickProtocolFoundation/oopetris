@@ -4,6 +4,8 @@
 #include "manager/music_manager.hpp"
 #include "manager/resource_manager.hpp"
 
+#include <spdlog/spdlog.h>
+
 namespace scenes {
 
     SettingsMenu::SettingsMenu(ServiceProvider* service_provider, const  ui::Layout& layout) : Scene{service_provider, layout}
@@ -12,8 +14,8 @@ namespace scenes {
     ui::RelativeMargin{ layout, ui::Direction::Vertical, 0.05 },
     std::pair<double, double>{ 0.05, 0.05 } ,
     ui::RelativeLayout{layout, 0.0, 0.2, 1.0, 0.5  }
-} {
-
+} 
+{
         auto id_helper = ui::IDHelper{};
 
         m_main_grid.add<ui::Label>(
@@ -58,6 +60,8 @@ namespace scenes {
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
                 std::pair<double, double>{ 0.1, 0.1 }
         );
+
+        //std::cout << client.get_version().value().version << "\n";
     }
 
     [[nodiscard]] Scene::UpdateResult SettingsMenu::update() {
@@ -100,5 +104,11 @@ namespace scenes {
 
         return false;
     }
+
+    // we might be in non fullscreen, so we can detect full scene unhovers here
+    void SettingsMenu::on_unhover() {
+        m_main_grid.on_unhover();
+    }
+
 
 } // namespace scenes

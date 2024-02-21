@@ -120,7 +120,6 @@ deps += dependency(
     default_options: sdl2_mixer_flags,
 )
 
-
 if (meson.is_cross_build() and host_machine.system() == 'switch')
 
     fmt_lib = dependency(
@@ -219,6 +218,23 @@ deps += dependency(
     fallback: ['argparse'],
 )
 
+online_multiplayer_not_supported = true
+
+if meson.is_cross_build() and host_machine.system() == 'switch'
+    compile_args += ['-D_ONLINE_MULTIPLAYER_NOT_SUPPORTED']
+    online_multiplayer_not_supported = false
+else
+    deps += dependency(
+        'cpp-httplib',
+        required: true,
+        fallback: ['cpp-httplib'],
+        default_options: {
+            'cpp-httplib_openssl': 'enabled',
+            'cpp-httplib_zlib': 'enabled',
+        },
+    )
+endif
+
 if (meson.is_cross_build() and host_machine.system() == 'switch')
 
     switch_dependencies = [
@@ -239,6 +255,7 @@ if (meson.is_cross_build() and host_machine.system() == 'switch')
         'modplug',
         'harfbuzz',
         'FLAC',
+        'curl',
     ]
 
 

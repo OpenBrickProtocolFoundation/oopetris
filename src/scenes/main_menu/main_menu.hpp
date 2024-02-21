@@ -10,13 +10,14 @@ namespace scenes {
     struct MainMenu : public Scene {
     private:
         enum class Command {
-            StartGame,
+            OpenPlaySelection,
             OpenSettingsMenu,
             OpenAboutPage,
+            OpenAchievements,
             Exit,
         };
 
-        ui::GridLayout<5> m_main_grid;
+        ui::GridLayout<6> m_main_grid;
         helpers::optional<Command> m_next_command;
 
     public:

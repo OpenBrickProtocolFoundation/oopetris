@@ -2,6 +2,9 @@
 
 set -e
 
+## options: "smart, complete_rebuild"
+export COMPILE_TYPE="smart"
+
 export DEVKITPRO=/opt/devkitpro
 export COMPILER_BIN="$DEVKITPRO/devkitA64/bin"
 export PATH="$DEVKITPRO/tools/bin:$COMPILER_BIN:$PATH"
@@ -96,11 +99,26 @@ APP_VERSION = '1.0'
 
 EOF
 
+if [ "$COMPILE_TYPE" == "smart" ]; then
+    : # noop
+elif [ "$COMPILE_TYPE" == "complete_rebuild" ]; then
+    : # noop
+else
+    echo "Invalid COMPILE_TYPE, expected: 'smart' or 'complete_rebuild'"
+    exit 1
+fi
+
 mkdir -p $ROMFS
 
 cp -r assets $ROMFS
 
-meson setup "$BUILD_DIR" \
-    --cross-file "./platforms/crossbuild-switch.ini"
+if [ "$COMPILE_TYPE" == "complete_rebuild" ] || [ ! -e "$BUILD_DIR" ]; then
+
+    meson setup "$BUILD_DIR" \
+        "--wipe" \
+        --cross-file "./platforms/crossbuild-switch.ini" \
+        -Dbuildtype=release
+
+fi
 
 meson compile -C "$BUILD_DIR"

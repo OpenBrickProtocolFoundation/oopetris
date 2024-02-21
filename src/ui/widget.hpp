@@ -1,10 +1,13 @@
 #pragma once
 
+#include "focusable.hpp"
 #include "graphics/rect.hpp"
+#include "helper/optional.hpp"
+#include "hoverable.hpp"
 #include "manager/service_provider.hpp"
 #include "ui/layout.hpp"
-#include <SDL.h>
 
+#include <SDL.h>
 namespace ui {
 
 
@@ -22,11 +25,17 @@ namespace ui {
 
         virtual ~Widget() = default;
 
-        [[nodiscard]] Layout layout() const {
+        [[nodiscard]] const Layout& layout() const {
             return m_layout;
         }
 
         virtual void render(const ServiceProvider& service_provider) const = 0;
         [[nodiscard]] virtual bool handle_event(const SDL_Event& event, const Window* window) = 0;
     };
+
+    [[nodiscard]] helpers::optional<Focusable*> as_focusable(Widget* widget);
+
+    [[nodiscard]] helpers::optional<Hoverable*> as_hoverable(Widget* widget);
+
+
 } // namespace ui

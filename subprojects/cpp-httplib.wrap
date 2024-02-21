@@ -1,0 +1,11 @@
+[wrap-file]
+directory = cpp-httplib-0.15.3
+source_url = https://github.com/yhirose/cpp-httplib/archive/refs/tags/v0.15.3.tar.gz
+source_filename = cpp-httplib-0.15.3.tar.gz
+source_hash = 2121bbf38871bb2aafb5f7f2b9b94705366170909f434428352187cb0216124e
+source_fallback_url = https://github.com/mesonbuild/wrapdb/releases/download/cpp-httplib_0.15.3-1/cpp-httplib-0.15.3.tar.gz
+wrapdb_version = 0.15.3-1
+diff_files = cpp-httplib-0.15.3_mingw.diff
+
+[provide]
+cpp-httplib = cpp_httplib_dep

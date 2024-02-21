@@ -12,6 +12,7 @@ find_package(fmt CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(magic_enum CONFIG REQUIRED)
+find_package(httplib CONFIG REQUIRED COMPONENTS OpenSSL ZLIB)
 
 set(TARGET_LIST oopetris SDL2::SDL2-static)
 
@@ -52,6 +53,8 @@ add_executable(oopetris
     src/helper/git_helper.hpp
     src/helper/magic_enum_wrapper.hpp
     src/helper/optional.hpp
+    src/helper/parse_json.cpp
+    src/helper/parse_json.hpp
     src/helper/random.cpp
     src/helper/random.hpp
     src/helper/static_string.hpp
@@ -66,6 +69,8 @@ add_executable(oopetris
     src/input/input.cpp
     src/input/input.hpp
     src/input/key_codes.hpp
+    src/lobby/api.hpp
+    src/lobby/types.hpp
     src/main.cpp
     src/manager/font.cpp
     src/manager/font.hpp
@@ -82,17 +87,23 @@ add_executable(oopetris
     src/scenes/about_page/about_page.hpp
     src/scenes/game_over/game_over.cpp
     src/scenes/game_over/game_over.hpp
-    src/scenes/ingame/ingame.cpp
-    src/scenes/ingame/ingame.hpp
     src/scenes/main_menu/main_menu.cpp
     src/scenes/main_menu/main_menu.hpp
+    src/scenes/multiplayer_menu/multiplayer_menu.cpp
+    src/scenes/multiplayer_menu/multiplayer_menu.hpp
+    src/scenes/online_lobby/online_lobby.cpp
+    src/scenes/online_lobby/online_lobby.hpp
     src/scenes/pause/pause.cpp
     src/scenes/pause/pause.hpp
+    src/scenes/play_select_menu/play_select_menu.cpp
+    src/scenes/play_select_menu/play_select_menu.hpp
     src/scenes/scene_id.hpp
     src/scenes/scene.cpp
     src/scenes/scene.hpp
     src/scenes/settings_menu/settings_menu.cpp
     src/scenes/settings_menu/settings_menu.hpp
+    src/scenes/single_player_game/single_player_game.cpp
+    src/scenes/single_player_game/single_player_game.hpp
     src/ui/button.hpp
     src/ui/focusable.hpp
     src/ui/grid_layout.hpp
@@ -102,8 +113,10 @@ add_executable(oopetris
     src/ui/layout.cpp
     src/ui/layout.hpp
     src/ui/link_label.hpp
+    src/ui/scroll_layout.hpp
     src/ui/slider.hpp
     src/ui/tile_layout.hpp
+    src/ui/widget.cpp
     src/ui/widget.hpp
 )
 
@@ -149,6 +162,7 @@ target_link_libraries(oopetris PRIVATE magic_enum::magic_enum)
 target_link_libraries(oopetris PRIVATE $<IF:$<TARGET_EXISTS:SDL2_ttf::SDL2_ttf>,SDL2_ttf::SDL2_ttf,SDL2_ttf::SDL2_ttf-static>)
 target_link_libraries(oopetris PRIVATE $<IF:$<TARGET_EXISTS:SDL2_mixer::SDL2_mixer>,SDL2_mixer::SDL2_mixer,SDL2_mixer::SDL2_mixer-static>)
 target_link_libraries(oopetris PRIVATE $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,SDL2_image::SDL2_image,SDL2_image::SDL2_image-static>)
+target_link_libraries(oopetris PRIVATE httplib::httplib)
 
 INCLUDE(CheckCXXSourceCompiles)
 

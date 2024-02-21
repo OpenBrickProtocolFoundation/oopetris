@@ -15,7 +15,6 @@
 
 
 namespace ui {
-
     struct Button : public Widget, public Focusable, public Hoverable {
     public:
         using Callback = std::function<void(const Button&)>;
@@ -23,7 +22,8 @@ namespace ui {
     private:
         Text m_text;
         Callback m_callback;
-        Rect m_fill_rect;
+        shapes::Rect m_fill_rect;
+        bool m_enabled;
 
         explicit Button(
                 ServiceProvider* service_provider,
@@ -32,7 +32,7 @@ namespace ui {
                 Callback callback,
                 const Font& font,
                 const Color& text_color,
-                const Rect& fill_rect,
+                const shapes::Rect& fill_rect,
                 std::pair<u32, u32> margin,
                 const Layout& layout
         )
@@ -50,7 +50,8 @@ namespace ui {
                         fill_rect.width() - 2 * static_cast<int>(margin.first),
                         fill_rect.height() - 2 * static_cast<int>(margin.second) } },
               m_callback{ std::move(callback) },
-              m_fill_rect{ fill_rect } { }
+              m_fill_rect{ fill_rect },
+              m_enabled{ true } { }
 
     public:
         explicit Button(
@@ -74,26 +75,30 @@ namespace ui {
                   text_color,
                   ui::get_rectangle_aligned(
                           layout,
-                          {static_cast<u32>(size.first * layout.get_rect().width()),
-                            static_cast<u32>(size.second * layout.get_rect().height())                                             },
+                          {               static_cast<u32>(size.first * layout.get_rect().width()),
+                            static_cast<u32>(size.second * layout.get_rect().height())                },
                           alignment
                   ),
-                  {             static_cast<u32>(margin.first * size.first), static_cast<u32>(margin.second * size.second)},
+                  {static_cast<u32>(margin.first * size.first * layout.get_rect().width()),
+                            static_cast<u32>(margin.second * size.second * layout.get_rect().height())},
                   layout
         } { }
 
 
         void render(const ServiceProvider& service_provider) const override {
-            const auto color =
-                    (has_focus()    ? is_hovered() ? Color(0xFF, 0x6A, 0x00) : Color::red()
-                        : is_hovered() ? Color(0x00, 0xBB, 0xFF)
-                                    : Color::blue());
+            const auto color = not m_enabled ? (has_focus() ? Color(0xA3, 0x6A, 0x6A) : Color(0x91, 0x91, 0x91))
+                                             : (has_focus()    ? is_hovered() ? Color(0xFF, 0x6A, 0x00) : Color::red()
+                                                   : is_hovered() ? Color(0x00, 0xBB, 0xFF)
+                                                               : Color::blue());
             service_provider.renderer().draw_rect_filled(m_fill_rect, color);
 
             m_text.render(service_provider);
         }
 
         bool handle_event(const SDL_Event& event, const Window* window) override {
+            if (not m_enabled) {
+                return false;
+            }
 
             if (utils::device_supports_keys()) {
                 if (has_focus() and utils::event_is_action(event, utils::CrossPlatformAction::OK)) {
@@ -115,13 +120,16 @@ namespace ui {
             m_callback(*this);
         }
 
-    private:
-        void on_focus() override {
-            spdlog::info("button focused");
+        void disable() {
+            m_enabled = false;
         }
 
-        void on_unfocus() override {
-            spdlog::info("button unfocused");
+        void enable() {
+            m_enabled = true;
+        }
+
+        [[nodiscard]] bool is_enabled() const {
+            return m_enabled;
         }
     };
 

@@ -4,6 +4,7 @@
 #include "focusable.hpp"
 #include "graphics/renderer.hpp"
 #include "helper/types.hpp"
+#include "hoverable.hpp"
 #include "ui/grid_layout.hpp"
 #include "ui/widget.hpp"
 
@@ -12,7 +13,7 @@
 namespace ui {
 
     template<size_t S>
-    struct TileLayout : public Widget {
+    struct TileLayout : public Widget, public Hoverable {
     private:
         enum class FocusChangeDirection {
             Forward,
@@ -35,6 +36,7 @@ namespace ui {
                 const Layout& layout
         )
             : Widget{ layout },
+              Hoverable{ layout.get_rect() },
               direction{ direction },
               steps{ steps },
               gap{ gap },
@@ -47,7 +49,9 @@ namespace ui {
             }
         }
 
-        bool handle_event(const SDL_Event& event, const Window* window) override {
+        bool
+        handle_event(const SDL_Event& event, const Window* window) // NOLINT(readability-function-cognitive-complexity)
+                override {
             auto handled = false;
             if (utils::device_supports_keys()) {
                 if (utils::event_is_action(event, utils::CrossPlatformAction::DOWN)
@@ -66,23 +70,32 @@ namespace ui {
 
                 if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::Any)) {
 
-                    for (usize i = 0; i < m_widgets.size(); ++i) {
-                        const auto layout = get_layout_for_index(i);
-                        if (utils::is_event_in(window, event, layout.get_rect())) {
-                            if (m_widgets.at(i)->handle_event(event, window)) {
-                                return true;
+                    for (auto& widget : m_widgets) {
+                        const auto layout = widget->layout();
+                        if (not handled and utils::is_event_in(window, event, layout.get_rect())) {
+                            if (widget->handle_event(event, window)) {
+                                handled = true;
+                                break;
+                            }
+                        } else {
+                            const auto hoverable = as_hoverable(widget.get());
+                            if (hoverable.has_value()) {
+                                hoverable.value()->on_unhover();
                             }
                         }
                     }
+
+                    return handled;
                 }
             }
 
-
-            for (auto& widget : m_widgets) {
+            if (m_focus_id.has_value()) {
+                const auto& widget = m_widgets.at(focusable_index_by_id(m_focus_id.value()));
                 if (widget->handle_event(event, window)) {
                     return true;
                 }
             }
+
             return false;
         }
 
@@ -92,7 +105,7 @@ namespace ui {
             const Layout layout = get_layout_for_index(index);
 
             m_widgets.at(index) = std::move(std::make_unique<T>(std::forward<Args>(args)..., layout));
-            auto focusable = as_focusable(*m_widgets.at(index));
+            auto focusable = as_focusable(m_widgets.at(index).get());
             if (focusable.has_value() and not m_focus_id.has_value()) {
                 give_focus(focusable.value());
             }
@@ -101,6 +114,10 @@ namespace ui {
 
         template<typename T>
         T* get(const size_t index) {
+            if (index >= m_widgets.size()) {
+                throw std::runtime_error("Invalid get of TileLayout item: index out of bound!");
+            }
+
             auto item = dynamic_cast<T*>(m_widgets.at(index).get());
             if (item == nullptr) {
                 throw std::runtime_error("Invalid get of TileLayout item!");
@@ -111,6 +128,10 @@ namespace ui {
 
         template<typename T>
         const T* get(const size_t index) const {
+            if (index >= m_widgets.size()) {
+                throw std::runtime_error("Invalid get of TileLayout item: index out of bound!");
+            }
+
             const auto item = dynamic_cast<T*>(m_widgets.at(index).get());
             if (item == nullptr) {
                 throw std::runtime_error("Invalid get of TileLayout item!");
@@ -168,19 +189,10 @@ namespace ui {
             focusable->focus();
         }
 
-        [[nodiscard]] static helpers::optional<Focusable*> as_focusable(Widget& widget) {
-            auto* const focusable = dynamic_cast<Focusable*>(&widget);
-            if (focusable == nullptr) {
-                return helpers::nullopt;
-            }
-
-            return focusable;
-        }
-
         [[nodiscard]] usize focusable_index_by_id(const usize id) {
             const auto find_iterator =
                     std::find_if(m_widgets.begin(), m_widgets.end(), [id](const std::unique_ptr<Widget>& widget) {
-                        const auto focusable = as_focusable(*widget);
+                        const auto focusable = as_focusable(widget.get());
                         return focusable.has_value() and focusable.value()->focus_id() == id;
                     });
             assert(find_iterator != m_widgets.end());
@@ -191,7 +203,7 @@ namespace ui {
         [[nodiscard]] std::vector<usize> focusable_ids_sorted() const {
             auto result = std::vector<usize>{};
             for (const auto& widget : m_widgets) {
-                const auto focusable = as_focusable(*widget);
+                const auto focusable = as_focusable(widget.get());
                 if (focusable) {
                     result.push_back((*focusable)->focus_id());
                 }
@@ -227,13 +239,13 @@ namespace ui {
                              : ((current_index + focusable_ids.size() - 1) % focusable_ids.size()));
 
             auto current_focusable =
-                    as_focusable(*m_widgets.at(focusable_index_by_id(focusable_ids.at(current_index))));
+                    as_focusable(m_widgets.at(focusable_index_by_id(focusable_ids.at(current_index))).get());
             assert(current_focusable.has_value());
-            auto next_focusable = as_focusable(*m_widgets.at(focusable_index_by_id(focusable_ids.at(next_index))));
+            auto next_focusable = as_focusable(m_widgets.at(focusable_index_by_id(focusable_ids.at(next_index))).get());
             assert(next_focusable.has_value());
-            (*current_focusable)->unfocus();
-            (*next_focusable)->focus();
-            m_focus_id = (*next_focusable)->focus_id();
+            current_focusable.value()->unfocus();            // NOLINT(bugprone-unchecked-optional-access)
+            next_focusable.value()->focus();                 // NOLINT(bugprone-unchecked-optional-access)
+            m_focus_id = next_focusable.value()->focus_id(); // NOLINT(bugprone-unchecked-optional-access)
 
             return true;
         }

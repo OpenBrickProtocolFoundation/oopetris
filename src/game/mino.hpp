@@ -23,29 +23,29 @@ enum class MinoTransparency : u8 {
 
 struct Mino final {
 private:
-    Point m_position;
+    shapes::Point m_position;
     TetrominoType m_type;
-    static constexpr int inset = 3;
+    static constexpr int original_inset = 3;
 
 public:
-    explicit constexpr Mino(Point coords, TetrominoType type) : m_position{ coords }, m_type{ type } { }
+    explicit constexpr Mino(shapes::Point coords, TetrominoType type) : m_position{ coords }, m_type{ type } { }
 
     void render(
             const ServiceProvider& service_provider,
             const Grid* grid,
             MinoTransparency transparency,
-            const Point& offset = Point::zero()
+            const shapes::Point& offset = shapes::Point::zero()
     ) const;
 
     [[nodiscard]] TetrominoType type() const {
         return m_type;
     }
 
-    [[nodiscard]] Point position() const {
+    [[nodiscard]] shapes::Point position() const {
         return m_position;
     }
 
-    [[nodiscard]] Point& position() {
+    [[nodiscard]] shapes::Point& position() {
         return m_position;
     }
 

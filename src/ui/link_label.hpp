@@ -22,7 +22,7 @@ namespace ui {
                 const Font& font,
                 const Color& color, // NOLINT(bugprone-easily-swappable-parameters)
                 const Color& hover_color,
-                const Rect& fill_rect,
+                const shapes::Rect& fill_rect,
                 const Layout& layout
         )
             : Widget{ layout },
@@ -67,7 +67,6 @@ namespace ui {
         }
 
         bool handle_event(const SDL_Event& event, const Window* window) override {
-
             return detect_hover(event, window);
         }
 

@@ -7,7 +7,9 @@ src_files += files(
     'layout.cpp',
     'layout.hpp',
     'link_label.hpp',
+    'scroll_layout.hpp',
     'slider.hpp',
     'tile_layout.hpp',
+    'widget.cpp',
     'widget.hpp',
 )

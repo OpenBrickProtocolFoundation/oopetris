@@ -12,7 +12,6 @@
 #include "platform/capabilities.hpp"
 #include "ui/widget.hpp"
 
-
 namespace ui {
 
     struct Slider : public Widget, public Focusable {
@@ -29,9 +28,11 @@ namespace ui {
         float m_step;
         float current_value;
         bool is_dragging{ false };
-        Rect fill_rect;
+        shapes::Rect fill_rect;
 
-        [[nodiscard]] std::pair<Rect, Rect> get_rectangles() const {
+
+        //TODO: refactor this in member variables, so that recalculations only happen when changing them and not every frame!
+        [[nodiscard]] std::pair<shapes::Rect, shapes::Rect> get_rectangles() const {
 
             const auto origin = fill_rect.top_left;
 
@@ -40,11 +41,11 @@ namespace ui {
             const float percentage = (current_value - m_range.first) / (m_range.second - m_range.first);
 
             const int position_x_middle =
-                    origin.x + static_cast<int>(percentage * static_cast<float>(fill_rect.bottom_right.x - origin.x));
+                    origin.x + static_cast<int>(percentage * static_cast<double>(fill_rect.bottom_right.x - origin.x));
 
-            const auto slider_rect = Rect{
-                Point{position_x_middle - 5,     fill_rect.top_left.y},
-                Point{position_x_middle + 5, fill_rect.bottom_right.y}
+            const auto slider_rect = shapes::Rect{
+                shapes::Point{position_x_middle - 5,     fill_rect.top_left.y},
+                shapes::Point{position_x_middle + 5, fill_rect.bottom_right.y}
             };
 
             return { bar.get_rect(), slider_rect };
@@ -97,13 +98,10 @@ namespace ui {
         bool
         handle_event(const SDL_Event& event, const Window* window) // NOLINT(readability-function-cognitive-complexity)
                 override {
-            if (not has_focus()) {
-                return false;
-            }
+
             bool changed = false;
 
-
-            if (utils::device_supports_keys()) {
+            if (utils::device_supports_keys() and has_focus()) {
                 if (utils::event_is_action(event, utils::CrossPlatformAction::RIGHT)) {
                     current_value = current_value + m_step;
                     if (current_value >= m_range.second) {
@@ -123,29 +121,36 @@ namespace ui {
 
             if (not changed and utils::device_supports_clicks()) {
 
-                if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::ButtonDown)) {
+                const auto change_value_on_scroll = [&window, &event, this]() {
                     const auto& [bar_rect, slider_rect] = get_rectangles();
-                    if (utils::is_event_in(window, event, slider_rect)) {
+
+                    const auto& [x, _] = utils::get_raw_coordinates(window, event);
+
+                    if (x <= bar_rect.top_left.x) {
+                        current_value = m_range.first;
+                    } else if (x >= bar_rect.bottom_right.x) {
+                        current_value = m_range.second;
+                    } else {
+
+                        const float percentage =
+                                static_cast<float>(x - bar_rect.top_left.x) / static_cast<float>(bar_rect.width());
+                        current_value = percentage * (m_range.second - m_range.first) + m_range.first;
                         is_dragging = true;
-                        changed = true;
                     }
+                };
+
+
+                if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::ButtonDown)) {
+
+                    const auto& [bar_rect, slider_rect] = get_rectangles();
 
                     if (utils::is_event_in(window, event, bar_rect)) {
 
-                        const auto& [x, _1] = utils::get_raw_coordinates(window, event);
+                        change_value_on_scroll();
+                        changed = true;
 
-                        if (x <= bar_rect.top_left.x) {
-                            current_value = m_range.first;
-                        } else if (x >= bar_rect.bottom_right.x) {
-                            current_value = m_range.second;
-                        } else {
-
-                            const float percentage =
-                                    static_cast<float>(x - bar_rect.top_left.x) / static_cast<float>(bar_rect.width());
-                            current_value = percentage * (m_range.second - m_range.first) + m_range.first;
-                            is_dragging = true;
-                        }
-
+                    } else if (utils::is_event_in(window, event, slider_rect)) {
+                        is_dragging = true;
                         changed = true;
                     }
 
@@ -156,25 +161,13 @@ namespace ui {
                 } else if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::Motion)) {
 
                     if (is_dragging) {
-                        const auto& [bar_rect, _] = get_rectangles();
-
-                        const auto& [x, _1] = utils::get_raw_coordinates(window, event);
-
-                        if (x <= bar_rect.top_left.x) {
-                            current_value = m_range.first;
-                        } else if (x >= bar_rect.bottom_right.x) {
-                            current_value = m_range.second;
-                        } else {
-
-                            const float percentage =
-                                    static_cast<float>(x - bar_rect.top_left.x) / static_cast<float>(bar_rect.width());
-                            current_value = percentage * (m_range.second - m_range.first) + m_range.first;
-                        }
-
+                        change_value_on_scroll();
                         changed = true;
                     }
+
                 } else if (event.type == SDL_MOUSEWHEEL) {
 
+                    // here we use a reverse scroll behaviour, since moving the mouse up is always considered increasing the volume, regardless of you OS setting about natural scrolling or not
                     const bool direction_is_up =
                             event.wheel.direction == SDL_MOUSEWHEEL_NORMAL ? event.wheel.y > 0 : event.wheel.y < 0;
 
@@ -184,15 +177,14 @@ namespace ui {
                             current_value = m_range.second;
                         }
 
-                        changed = true;
                     } else {
                         current_value = current_value - m_step;
                         if (current_value <= m_range.first) {
                             current_value = m_range.first;
                         }
-
-                        changed = true;
                     }
+
+                    changed = true;
                 }
             }
 
@@ -208,15 +200,6 @@ namespace ui {
         void on_change() {
             current_value = m_getter();
             m_setter(current_value);
-        }
-
-    private:
-        void on_focus() override {
-            spdlog::info("button focused");
-        }
-
-        void on_unfocus() override {
-            spdlog::info("button unfocused");
         }
     };
 

@@ -1,8 +1,9 @@
 #include "application.hpp"
 #include "platform/capabilities.hpp"
 #include "scenes/scene.hpp"
-#include <fmt/format.h>
+
 #include <fstream>
+#include <ranges>
 #include <stdexcept>
 
 #if defined(__SWITCH__)
@@ -56,12 +57,53 @@ void Application::handle_event(const SDL_Event& event, const Window* window) {
         m_is_running = false;
     }
 
-    for (usize i = 0; i < m_scene_stack.size(); ++i) {
-        const auto index = m_scene_stack.size() - i - 1;
-        if (m_scene_stack.at(index)->handle_event(event, window)) {
-            return;
+    auto handled = false;
+
+    for (const auto& scene : std::ranges::views::reverse(m_scene_stack)) {
+        if (not handled and scene->handle_event(event, window)) {
+            handled = true;
+        }
+
+        // detect if the scene overlaps everything, if that's the case, break out of the loop, since no other scene should receive inputs, since it's not visible to the user
+
+        if (scene->get_layout().is_full_screen()) {
+            break;
+        }
+
+        // if the scene is not covering the whole screen, it should give scenes in the background mouse events, but keyboard events are still only captured by the scene in focus, we also detect unhovers for whole scenes here
+        if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::Any)) {
+            if (not utils::is_event_in(window, event, scene->get_layout().get_rect())) {
+                scene->on_unhover();
+            }
         }
     }
+
+    if (handled) {
+        return;
+    }
+
+    // handle some special events
+
+    switch (event.type) {
+        case SDL_WINDOWEVENT:
+            switch (event.window.event) {
+                case SDL_WINDOWEVENT_HIDDEN:
+                case SDL_WINDOWEVENT_MINIMIZED:
+                case SDL_WINDOWEVENT_LEAVE: {
+                    for (const auto& scene : m_scene_stack) {
+                        scene->on_unhover();
+                    }
+                    break;
+                }
+                default:
+                    break;
+            }
+            break;
+        default:
+            break;
+    }
+
+    // this global event handlers (atm only one) are special cases, they receive all inputs if they are not handled by the scenes explicably
 
     if (m_music_manager.handle_event(event)) {
         return;
@@ -78,7 +120,7 @@ void Application::update() {
         const auto [scene_update, scene_change] = m_scene_stack.at(index)->update();
         if (scene_change) {
             std::visit(
-                    overloaded{
+                    helpers::overloaded{
                             [this, index](const scenes::Scene::Pop&) {
                                 m_scene_stack.erase(
                                         m_scene_stack.begin()
@@ -122,30 +164,15 @@ void Application::initialize() {
 
 void Application::try_load_settings() {
     const std::filesystem::path settings_file = utils::get_root_folder() / settings_filename;
-    std::string reason{};
-    if (not std::filesystem::exists(settings_file)) {
-        reason = "file doesn't exist";
+
+    const auto result = json::try_parse_json_file<Settings>(settings_file);
+
+    if (result.has_value()) {
+        m_settings = result.value();
     } else {
-        try {
-            std::ifstream settings_file_stream{ settings_file };
-
-            m_settings = nlohmann::json::parse(settings_file_stream);
-            spdlog::info("settings loaded");
-            return;
-
-        } catch (nlohmann::json::parse_error& parse_error) {
-            reason = fmt::format("parse error: {}", parse_error.what());
-        } catch (nlohmann::json::type_error& type_error) {
-            reason = fmt::format("type error: {}", type_error.what());
-        } catch (nlohmann::json::exception& exception) {
-            reason = fmt::format("unknown json exception: {}", exception.what());
-        } catch (std::exception& exception) {
-            reason = fmt::format("unknown exception: {}", exception.what());
-        }
+        spdlog::error("unable to load settings from \"{}\": {}", settings_filename, result.error());
+        spdlog::warn("applying default settings");
     }
-
-    spdlog::error("unable to load settings from \"{}\": {}", settings_filename, reason);
-    spdlog::warn("applying default settings");
 }
 
 void Application::load_resources() {

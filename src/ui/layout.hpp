@@ -12,14 +12,14 @@ namespace ui {
 
     struct Layout {
     private:
-        Rect m_rect;
+        shapes::Rect m_rect;
         LayoutType type;
 
+    protected:
+        Layout(const shapes::Rect& rect, LayoutType type) : m_rect{ rect }, type{ type } { }
+
     public:
-        Layout(const Rect& rect, LayoutType type) : m_rect{ rect }, type{ type } { }
-
-
-        [[nodiscard]] const Rect& get_rect() const {
+        [[nodiscard]] const shapes::Rect& get_rect() const {
             return m_rect;
         }
 
@@ -32,22 +32,29 @@ namespace ui {
     struct AbsolutLayout : public Layout {
         AbsolutLayout(const u32 x, const u32 y, const u32 width, const u32 height)
             : Layout{
-                  Rect{static_cast<int>(x), static_cast<int>(y), static_cast<int>(width), static_cast<int>(height)},
+                  shapes::Rect{static_cast<int>(x), static_cast<int>(y), static_cast<int>(width),
+                               static_cast<int>(height)},
                   LayoutType::Absolut
         } { }
     };
 
 
     struct FullScreenLayout : public Layout {
-        FullScreenLayout(const Rect& rect) : Layout{ rect, LayoutType::FullScreen } { }
+        FullScreenLayout(const shapes::Rect& rect) : Layout{ rect, LayoutType::FullScreen } { }
         FullScreenLayout(const Window& window) : FullScreenLayout{ window.screen_rect() } { }
         FullScreenLayout(const Window* window) : FullScreenLayout{ window->screen_rect() } { }
     };
 
 
     struct RelativeLayout : public Layout {
-        RelativeLayout(const Rect& rect, const double x, const double y, const double width, const double height)
-            : Layout{ (Rect{
+        RelativeLayout(
+                const shapes::Rect& rect,
+                const double x,
+                const double y,
+                const double width,
+                const double height
+        )
+            : Layout{ (shapes::Rect{
                                static_cast<int>(x * rect.width()),
                                static_cast<int>(y * rect.height()),
                                static_cast<int>(width * rect.width()),
@@ -81,11 +88,11 @@ namespace ui {
 
     [[nodiscard]] u32 get_vertical_alignment_offset(const Layout& layout, AlignmentVertical alignment, u32 height);
 
-    [[nodiscard]] Rect
+    [[nodiscard]] shapes::Rect
     get_rectangle_aligned(const Layout& layout, const std::pair<u32, u32>& size, const Alignment& alignment);
 
     [[nodiscard]] std::pair<u32, u32>
-    ratio_helper(const std::pair<u32, u32>& size, bool respect_ratio, const Point& original_ratio);
+    ratio_helper(const std::pair<u32, u32>& size, bool respect_ratio, const shapes::Point& original_ratio);
 
 
     enum class Direction { Horizontal, Vertical };
@@ -108,7 +115,7 @@ namespace ui {
     };
 
     struct RelativeMargin : public Margin {
-        RelativeMargin(const Rect& rect, Direction direction, const double margin)
+        RelativeMargin(const shapes::Rect& rect, Direction direction, const double margin)
             : Margin{ static_cast<u32>(margin * (direction == Direction::Horizontal ? rect.width() : rect.height())) } {
 
             assert(margin >= 0.0 && margin <= 1.0 && "margin has to be in correct percentage range!");

@@ -1,4 +1,4 @@
-#include "ingame.hpp"
+#include "single_player_game.hpp"
 #include "input/event_dispatcher.hpp"
 #include "platform/capabilities.hpp"
 #include "scenes/scene.hpp"
@@ -12,12 +12,13 @@
 
 namespace scenes {
 
-    Ingame::Ingame(ServiceProvider* service_provider, const ui::Layout& layout) : Scene{ service_provider, layout } {
+    SinglePlayerGame::SinglePlayerGame(ServiceProvider* service_provider, const ui::Layout& layout)
+        : Scene{ service_provider, layout } {
         static constexpr auto num_tetrions = u8{ 1 };
 
-        if (is_replay_mode()) {
-            m_recording_reader =
-                    std::make_unique<RecordingReader>(*(m_service_provider->command_line_arguments().recording_path));
+        if (const auto recording_path = m_service_provider->command_line_arguments().recording_path;
+            recording_path.has_value()) {
+            m_recording_reader = std::make_unique<RecordingReader>(recording_path.value());
         }
 
         const auto seeds = create_seeds(num_tetrions);
@@ -63,10 +64,13 @@ namespace scenes {
                 .and_then(utils::log_error);
     }
 
-    [[nodiscard]] std::unique_ptr<Input>
-    Ingame::create_input(Controls controls, Tetrion* associated_tetrion, Input::OnEventCallback on_event_callback) {
+    [[nodiscard]] std::unique_ptr<Input> SinglePlayerGame::create_input(
+            Controls controls,
+            Tetrion* associated_tetrion,
+            Input::OnEventCallback on_event_callback
+    ) {
         return std::visit(
-                overloaded{
+                helpers::overloaded{
                         [this, associated_tetrion, on_event_callback = std::move(on_event_callback)](
                                 [[maybe_unused]] KeyboardControls& keyboard_controls
                         ) mutable -> std::unique_ptr<Input> {
@@ -94,7 +98,7 @@ namespace scenes {
         );
     }
 
-    [[nodiscard]] std::unique_ptr<Input> Ingame::create_replay_input(
+    [[nodiscard]] std::unique_ptr<Input> SinglePlayerGame::create_replay_input(
             RecordingReader* const recording_reader,
             Tetrion* const associated_tetrion,
             Input::OnEventCallback on_event_callback
@@ -102,7 +106,7 @@ namespace scenes {
         return std::make_unique<ReplayInput>(associated_tetrion, std::move(on_event_callback), recording_reader);
     }
 
-    [[nodiscard]] Input::OnEventCallback Ingame::create_on_event_callback(const int tetrion_index) {
+    [[nodiscard]] Input::OnEventCallback SinglePlayerGame::create_on_event_callback(const int tetrion_index) {
         if (!m_recording_writer) {
             return Input::OnEventCallback{}; // empty std::function object
         }
@@ -119,25 +123,27 @@ namespace scenes {
         };
     }
 
-    [[nodiscard]] bool Ingame::is_replay_mode() const {
+    [[nodiscard]] bool SinglePlayerGame::is_replay_mode() const {
         return m_service_provider->command_line_arguments().recording_path.has_value();
     }
 
-    [[nodiscard]] bool Ingame::game_is_recorded() const {
+    [[nodiscard]] bool SinglePlayerGame::game_is_recorded() const {
         return not is_replay_mode();
     }
 
-    [[nodiscard]] Random::Seed Ingame::seed_for_tetrion(const u8 tetrion_index, const Random::Seed common_seed) const {
+    [[nodiscard]] Random::Seed
+    SinglePlayerGame::seed_for_tetrion(const u8 tetrion_index, const Random::Seed common_seed) const {
         return (is_replay_mode() ? m_recording_reader->tetrion_headers().at(tetrion_index).seed : common_seed);
     }
 
-    [[nodiscard]] auto Ingame::starting_level_for_tetrion(const u8 tetrion_index) const
+    [[nodiscard]] auto SinglePlayerGame::starting_level_for_tetrion(const u8 tetrion_index) const
             -> decltype(CommandLineArguments::starting_level) {
         return is_replay_mode() ? m_recording_reader->tetrion_headers().at(tetrion_index).starting_level
                                 : m_service_provider->command_line_arguments().starting_level;
     }
 
-    [[nodiscard]] Ingame::TetrionHeaders Ingame::create_tetrion_headers(const std::span<const Random::Seed> seeds
+    [[nodiscard]] SinglePlayerGame::TetrionHeaders SinglePlayerGame::create_tetrion_headers(
+            const std::span<const Random::Seed> seeds
     ) const {
         const auto num_tetrions = seeds.size();
         auto headers = TetrionHeaders{};
@@ -151,7 +157,9 @@ namespace scenes {
         return headers;
     }
 
-    [[nodiscard]] std::unique_ptr<RecordingWriter> Ingame::create_recording_writer(TetrionHeaders tetrion_headers) {
+    [[nodiscard]] std::unique_ptr<RecordingWriter> SinglePlayerGame::create_recording_writer(
+            TetrionHeaders tetrion_headers
+    ) {
 
         static constexpr auto recordings_directory = "recordings";
         const auto recording_directory_path = utils::get_root_folder() / recordings_directory;
@@ -165,7 +173,7 @@ namespace scenes {
         return std::make_unique<RecordingWriter>(file_path, std::move(tetrion_headers));
     }
 
-    [[nodiscard]] std::vector<Random::Seed> Ingame::create_seeds(const u8 num_tetrions) const {
+    [[nodiscard]] std::vector<Random::Seed> SinglePlayerGame::create_seeds(const u8 num_tetrions) const {
         auto seeds = std::vector<Random::Seed>{};
         seeds.reserve(num_tetrions);
         const auto common_seed = Random::generate_seed();
@@ -177,14 +185,14 @@ namespace scenes {
         return seeds;
     }
 
-    [[nodiscard]] helpers::optional<RecordingWriter*> Ingame::recording_writer_optional() {
+    [[nodiscard]] helpers::optional<RecordingWriter*> SinglePlayerGame::recording_writer_optional() {
         if (m_recording_writer) {
             return m_recording_writer.get();
         }
         return helpers::nullopt;
     }
 
-    [[nodiscard]] Scene::UpdateResult Ingame::update() {
+    [[nodiscard]] Scene::UpdateResult SinglePlayerGame::update() {
         assert(m_inputs.size() == m_tetrions.size());
         assert(m_inputs.size() == m_simulation_step_indices.size());
 
@@ -248,13 +256,13 @@ namespace scenes {
         return UpdateResult{ SceneUpdate::ContinueUpdating, helpers::nullopt };
     }
 
-    void Ingame::render(const ServiceProvider& service_provider) {
+    void SinglePlayerGame::render(const ServiceProvider& service_provider) {
         for (const auto& tetrion : m_tetrions) {
             tetrion->render(service_provider);
         }
     }
 
-    [[nodiscard]] bool Ingame::handle_event(const SDL_Event& event, const Window*) {
+    [[nodiscard]] bool SinglePlayerGame::handle_event(const SDL_Event& event, const Window*) {
 
         if (utils::event_is_action(event, utils::CrossPlatformAction::PAUSE) and not is_game_over()) {
             m_next_scene = NextScene::Pause;
@@ -270,7 +278,7 @@ namespace scenes {
         return false;
     }
 
-    [[nodiscard]] bool Ingame::is_game_over() const {
+    [[nodiscard]] bool SinglePlayerGame::is_game_over() const {
         for (const auto& tetrion : m_tetrions) {
             if (not tetrion->is_game_over()) {
                 return false;

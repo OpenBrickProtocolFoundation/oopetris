@@ -23,12 +23,15 @@ Grid::Grid(const ui::Layout& layout) : ui::Widget{ layout } {
     );
 }
 
-[[nodiscard]] Point Grid::tile_size() const {
-    return Point{ static_cast<int>(m_tile_size), static_cast<int>(m_tile_size) };
+[[nodiscard]] shapes::Point Grid::tile_size() const {
+    return shapes::Point{ static_cast<int>(m_tile_size), static_cast<int>(m_tile_size) };
+}
+[[nodiscard]] double Grid::scale_to_original() const {
+    return static_cast<double>(m_tile_size) / static_cast<double>(original_tile_size);
 }
 
-[[nodiscard]] Point Grid::to_screen_coords(Point grid_coords) const {
-    return m_fill_rect.top_left + (grid_coords - Point{ 0, invisible_rows }) * static_cast<int>(m_tile_size);
+[[nodiscard]] shapes::Point Grid::to_screen_coords(shapes::Point grid_coords) const {
+    return m_fill_rect.top_left + (grid_coords - shapes::Point{ 0, invisible_rows }) * static_cast<int>(m_tile_size);
 }
 
 void Grid::render(const ServiceProvider& service_provider) const {
@@ -44,9 +47,9 @@ void Grid::render(const ServiceProvider& service_provider) const {
 void Grid::draw_preview_background(const ServiceProvider& service_provider) const {
     draw_background(
             service_provider,
-            Rect{
+            shapes::Rect{
                     preview_background_position,
-                    preview_background_position + preview_extends - Point{1, 1},
+                    preview_background_position + preview_extends - shapes::Point{1, 1},
     }
     );
 }
@@ -54,9 +57,9 @@ void Grid::draw_preview_background(const ServiceProvider& service_provider) cons
 void Grid::draw_hold_background(const ServiceProvider& service_provider) const {
     draw_background(
             service_provider,
-            Rect{
+            shapes::Rect{
                     hold_background_position,
-                    hold_background_position + hold_background_extends - Point{1, 1},
+                    hold_background_position + hold_background_extends - shapes::Point{1, 1},
     }
     );
 }
@@ -64,42 +67,43 @@ void Grid::draw_hold_background(const ServiceProvider& service_provider) const {
 void Grid::draw_playing_field_background(const ServiceProvider& service_provider) const {
     draw_background(
             service_provider,
-            Rect{
+            shapes::Rect{
                     grid_position,
-                    grid_position + Point{width_in_tiles - 1, height_in_tiles - invisible_rows - 1},
+                    grid_position + shapes::Point{width_in_tiles - 1, height_in_tiles - invisible_rows - 1},
     }
     );
 }
 
-void Grid::draw_background(const ServiceProvider& service_provider, Rect grid_rect) const {
+void Grid::draw_background(const ServiceProvider& service_provider, shapes::Rect grid_rect) const {
     const auto top_left = m_fill_rect.top_left + grid_rect.top_left * static_cast<int>(m_tile_size);
 
 
-    const auto bottom_right = top_left + Point{ grid_rect.width(), grid_rect.height() } * static_cast<int>(m_tile_size);
+    const auto bottom_right =
+            top_left + shapes::Point{ grid_rect.width(), grid_rect.height() } * static_cast<int>(m_tile_size);
 
-    service_provider.renderer().draw_rect_filled(Rect{ top_left, bottom_right }, background_color);
+    service_provider.renderer().draw_rect_filled(shapes::Rect{ top_left, bottom_right }, background_color);
 
     for (usize column = 0; column <= static_cast<usize>(grid_rect.width()); ++column) {
-        const auto start = top_left + Point{ static_cast<int>(column * m_tile_size), 0 };
-        const auto end = Point{ start.x, static_cast<int>(start.y + grid_rect.height() * m_tile_size) };
+        const auto start = top_left + shapes::Point{ static_cast<int>(column * m_tile_size), 0 };
+        const auto end = shapes::Point{ start.x, static_cast<int>(start.y + grid_rect.height() * m_tile_size) };
         service_provider.renderer().draw_line(start, end, grid_color);
-        service_provider.renderer().draw_line(start - Point{ 1, 0 }, end - Point{ 1, 0 }, grid_color);
+        service_provider.renderer().draw_line(start - shapes::Point{ 1, 0 }, end - shapes::Point{ 1, 0 }, grid_color);
     }
 
     for (usize row = 0; row <= static_cast<usize>(grid_rect.height()); ++row) {
-        const auto start = top_left + Point{ 0, static_cast<int>(row * m_tile_size) };
-        const auto end = Point{ bottom_right.x, start.y };
+        const auto start = top_left + shapes::Point{ 0, static_cast<int>(row * m_tile_size) };
+        const auto end = shapes::Point{ bottom_right.x, start.y };
         service_provider.renderer().draw_line(start, end, grid_color);
-        service_provider.renderer().draw_line(start - Point{ 0, 1 }, end - Point{ 0, 1 }, grid_color);
+        service_provider.renderer().draw_line(start - shapes::Point{ 0, 1 }, end - shapes::Point{ 0, 1 }, grid_color);
     }
 
-    const auto outline_top_left = top_left - Point{ 2, 2 };
-    const auto outline_bottom_right = Point{
+    const auto outline_top_left = top_left - shapes::Point{ 2, 2 };
+    const auto outline_bottom_right = shapes::Point{
         static_cast<int>(top_left.x + grid_rect.width() * m_tile_size + 1),
         static_cast<int>(top_left.y + grid_rect.height() * m_tile_size + 1),
     };
 
-    const Rect outline_rect = Rect{
+    const auto outline_rect = shapes::Rect{
         outline_top_left,
         outline_bottom_right,
     };

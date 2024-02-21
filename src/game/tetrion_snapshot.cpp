@@ -79,10 +79,10 @@ TetrionSnapshot::TetrionSnapshot(std::istream& istream) {
             throw std::exception{};
         }
 
-        using PointCoordinate = decltype(Point::x);
+        using PointCoordinate = decltype(shapes::Point::x);
 
         m_mino_stack.set(
-                Point{ static_cast<PointCoordinate>(*x), static_cast<PointCoordinate>(*y) },
+                shapes::Point{ static_cast<PointCoordinate>(*x), static_cast<PointCoordinate>(*y) },
                 static_cast<TetrominoType>(*type)
         );
     }
