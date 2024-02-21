@@ -9,7 +9,7 @@
 namespace scenes {
 
     SettingsMenu::SettingsMenu(ServiceProvider* service_provider, const  ui::Layout& layout) : Scene{service_provider, layout}
-, m_main_grid{
+, m_main_grid{4,
     ui::Direction::Vertical,
     ui::RelativeMargin{ layout, ui::Direction::Vertical, 0.05 },
     std::pair<double, double>{ 0.05, 0.05 } ,
@@ -19,21 +19,20 @@ namespace scenes {
         auto id_helper = ui::IDHelper{};
 
         m_main_grid.add<ui::Label>(
-                id_helper.index(), service_provider, "Settings", service_provider->fonts().get(FontId::Default),
-                Color::white(), std::pair<double, double>{ 0.3, 0.6 },
+                service_provider, "Settings", service_provider->fonts().get(FontId::Default), Color::white(),
+                std::pair<double, double>{ 0.3, 0.6 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
         );
 
 
         m_main_grid.add<ui::Label>(
-                id_helper.index(), service_provider, "Volume", service_provider->fonts().get(FontId::Default),
-                Color::white(), std::pair<double, double>{ 0.1, 0.3 },
+                service_provider, "Volume", service_provider->fonts().get(FontId::Default), Color::white(),
+                std::pair<double, double>{ 0.1, 0.3 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Bottom }
         );
 
-        const auto slider_index = id_helper.index();
-        m_main_grid.add<ui::Slider>(
-                slider_index, id_helper.focus_id(), ui::Slider::Range{ 0.0F, 1.0F },
+        const auto slider_index = m_main_grid.add<ui::Slider>(
+                id_helper.focus_id(), ui::Slider::Range{ 0.0F, 1.0F },
                 [service_provider]() {
                     const auto value = service_provider->music_manager().get_volume();
                     return value.has_value() ? value.value() : 0.0F;
@@ -54,14 +53,12 @@ namespace scenes {
         );
 
         m_main_grid.add<ui::Button>(
-                id_helper.index(), service_provider, "Return", service_provider->fonts().get(FontId::Default),
-                Color::white(), id_helper.focus_id(), [this](const ui::Button&) { m_should_exit = true; },
+                service_provider, "Return", service_provider->fonts().get(FontId::Default), Color::white(),
+                id_helper.focus_id(), [this](const ui::Button&) { m_should_exit = true; },
                 std::pair<double, double>{ 0.15, 0.85 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
                 std::pair<double, double>{ 0.1, 0.1 }
         );
-
-        //std::cout << client.get_version().value().version << "\n";
     }
 
     [[nodiscard]] Scene::UpdateResult SettingsMenu::update() {

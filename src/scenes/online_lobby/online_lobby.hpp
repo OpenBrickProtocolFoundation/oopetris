@@ -14,7 +14,7 @@ namespace scenes {
     private:
         enum class Command { Play, Return };
 
-        ui::TileLayout<3> m_main_layout;
+        ui::TileLayout m_main_layout;
         helpers::optional<Command> m_next_command;
         std::unique_ptr<lobby::Client> client{ nullptr };
 

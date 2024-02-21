@@ -7,10 +7,10 @@
 #include "graphics/rect.hpp"
 #include "graphics/renderer.hpp"
 #include "graphics/text.hpp"
-#include "ui/hoverable.hpp"
 #include "manager/resource_manager.hpp"
 #include "platform/capabilities.hpp"
 #include "ui/focusable.hpp"
+#include "ui/hoverable.hpp"
 #include "ui/widget.hpp"
 
 

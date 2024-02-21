@@ -8,10 +8,8 @@
 
 namespace scenes {
 
-    OnlineLobby::OnlineLobby(ServiceProvider* service_provider, const ui::Layout& layout)
-        : Scene{ service_provider, layout },
-          m_main_layout {
-        ui::Direction::Vertical, std::array<double, 2>{ 0.1, 0.9 }, ui::AbsolutMargin{ 10 }, std::pair<double, double>{ 0.05, 0.03 }, layout
+    OnlineLobby::OnlineLobby(ServiceProvider* service_provider, const ui::Layout& layout): Scene{ service_provider, layout },m_main_layout {3,
+        ui::Direction::Vertical, { 0.1, 0.9 }, ui::AbsolutMargin{ 10 }, std::pair<double, double>{ 0.05, 0.03 }, layout
     }{
 
         //TODO: after the settings have been reworked, make this url changeable!
@@ -22,22 +20,19 @@ namespace scenes {
             spdlog::error("Error in connecting to lobby client: {}", maybe_client.error());
         }
 
-
         auto id_helper = ui::IDHelper{};
 
         m_main_layout.add<ui::Label>(
-                id_helper.index(), service_provider, "Select Lobby to play in",
-                service_provider->fonts().get(FontId::Default), Color::white(), std::pair<double, double>{ 0.5, 1.0 },
+                service_provider, "Select Lobby to play in", service_provider->fonts().get(FontId::Default),
+                Color::white(), std::pair<double, double>{ 0.5, 1.0 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
         );
 
-        const auto scroll_layout_id = id_helper.index();
-        m_main_layout.add<ui::ScrollLayout>(
-                scroll_layout_id, service_provider, id_helper.focus_id(), ui::AbsolutMargin{ 10 },
-                std::pair<double, double>{ 0.05, 0.03 }
+        const auto scroll_layout_index = m_main_layout.add<ui::ScrollLayout>(
+                service_provider, id_helper.focus_id(), ui::AbsolutMargin{ 10 }, std::pair<double, double>{ 0.05, 0.03 }
         );
 
-        auto* scroll_layout = m_main_layout.get<ui::ScrollLayout>(scroll_layout_id);
+        auto* scroll_layout = m_main_layout.get<ui::ScrollLayout>(scroll_layout_index);
 
         for (auto i = 0; i < 15; ++i) {
             scroll_layout->add<ui::Button>(
@@ -60,9 +55,9 @@ namespace scenes {
                                                 : std::pair<double, double>{ 0.2, 0.2 };
 
         m_main_layout.add<ui::Button>(
-                id_helper.index(), service_provider, "Return", service_provider->fonts().get(FontId::Default),
-                Color::white(), id_helper.focus_id(), [this](const ui::Button&) { m_next_command = Command::Return; },
-                button_size, button_alignment, button_margins
+                service_provider, "Return", service_provider->fonts().get(FontId::Default), Color::white(),
+                id_helper.focus_id(), [this](const ui::Button&) { m_next_command = Command::Return; }, button_size,
+                button_alignment, button_margins
         );
     }
 

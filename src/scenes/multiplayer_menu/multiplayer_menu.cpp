@@ -9,14 +9,14 @@ namespace scenes {
 
     MultiPlayerMenu::MultiPlayerMenu(ServiceProvider* service_provider, const  ui::Layout& layout)
         : Scene{service_provider, layout},
-          m_main_grid{ ui::Direction::Vertical, ui::RelativeMargin{layout,ui::Direction::Vertical, 0.05}, std::pair<double, double>{ 0.05, 0.05 
+          m_main_grid{5, ui::Direction::Vertical, ui::RelativeMargin{layout,ui::Direction::Vertical, 0.05}, std::pair<double, double>{ 0.05, 0.05 
             } ,ui::RelativeLayout{ layout, 0.0, 0.2, 1.0, 0.6 }} {
 
         auto id_helper = ui::IDHelper{};
 
         m_main_grid.add<ui::Label>(
-                id_helper.index(), service_provider, "Select MultiPlayer Mode",
-                service_provider->fonts().get(FontId::Default), Color::white(), std::pair<double, double>{ 0.3, 1.0 },
+                service_provider, "Select MultiPlayer Mode", service_provider->fonts().get(FontId::Default),
+                Color::white(), std::pair<double, double>{ 0.3, 1.0 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
         );
 
@@ -30,38 +30,35 @@ namespace scenes {
                                                 ? std::pair<double, double>{ 0.1, 0.1 }
                                                 : std::pair<double, double>{ 0.2, 0.2 };
 
-        const auto local_button_id = id_helper.index();
-        m_main_grid.add<ui::Button>(
-                local_button_id, service_provider, "Local", service_provider->fonts().get(FontId::Default),
-                Color::white(), id_helper.focus_id(),
-                [this](const ui::Button&) { m_next_command = Command::LocalMultiPlayer; }, button_size,
-                button_alignment, button_margins
+        const auto local_button_id = m_main_grid.add<ui::Button>(
+                service_provider, "Local", service_provider->fonts().get(FontId::Default), Color::white(),
+                id_helper.focus_id(), [this](const ui::Button&) { m_next_command = Command::LocalMultiPlayer; },
+                button_size, button_alignment, button_margins
         );
         m_main_grid.get<ui::Button>(local_button_id)->disable();
 
-        const auto online_button_id = id_helper.index();
-        m_main_grid.add<ui::Button>(
-                online_button_id, service_provider, "Online", service_provider->fonts().get(FontId::Default),
-                Color::white(), id_helper.focus_id(),
-                [this](const ui::Button&) { m_next_command = Command::OnlineMultiPlayer; }, button_size,
-                button_alignment, button_margins
+        const auto online_button_id = m_main_grid.add<ui::Button>(
+                service_provider, "Online", service_provider->fonts().get(FontId::Default), Color::white(),
+                id_helper.focus_id(), [this](const ui::Button&) { m_next_command = Command::OnlineMultiPlayer; },
+                button_size, button_alignment, button_margins
         );
 #ifdef _ONLINE_MULTIPLAYER_NOT_SUPPORTED
         m_main_grid.get<ui::Button>(online_button_id)->disable();
+#else
+        UNUSED(online_button_id);
 #endif
 
-        const auto ai_button_id = id_helper.index();
-        m_main_grid.add<ui::Button>(
-                ai_button_id, service_provider, "vs AI", service_provider->fonts().get(FontId::Default), Color::white(),
+        const auto ai_button_id = m_main_grid.add<ui::Button>(
+                service_provider, "vs AI", service_provider->fonts().get(FontId::Default), Color::white(),
                 id_helper.focus_id(), [this](const ui::Button&) { m_next_command = Command::AIMultiPlayer; },
                 button_size, button_alignment, button_margins
         );
         m_main_grid.get<ui::Button>(ai_button_id)->disable();
 
         m_main_grid.add<ui::Button>(
-                id_helper.index(), service_provider, "Return", service_provider->fonts().get(FontId::Default),
-                Color::white(), id_helper.focus_id(), [this](const ui::Button&) { m_next_command = Command::Return; },
-                button_size, button_alignment, button_margins
+                service_provider, "Return", service_provider->fonts().get(FontId::Default), Color::white(),
+                id_helper.focus_id(), [this](const ui::Button&) { m_next_command = Command::Return; }, button_size,
+                button_alignment, button_margins
         );
     }
 

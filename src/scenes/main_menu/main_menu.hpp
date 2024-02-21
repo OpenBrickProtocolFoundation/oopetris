@@ -2,8 +2,8 @@
 
 #include "scenes/scene.hpp"
 #include "ui/components/button.hpp"
-#include "ui/layouts/grid_layout.hpp"
 #include "ui/components/label.hpp"
+#include "ui/layouts/grid_layout.hpp"
 
 namespace scenes {
 
@@ -17,7 +17,7 @@ namespace scenes {
             Exit,
         };
 
-        ui::GridLayout<6> m_main_grid;
+        ui::GridLayout m_main_grid;
         helpers::optional<Command> m_next_command;
 
     public:

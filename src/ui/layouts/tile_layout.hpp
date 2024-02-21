@@ -1,18 +1,17 @@
 #pragma once
 
 
-#include "ui/focusable.hpp"
 #include "graphics/renderer.hpp"
 #include "helper/types.hpp"
+#include "ui/focusable.hpp"
 #include "ui/hoverable.hpp"
 #include "ui/layouts/grid_layout.hpp"
 #include "ui/widget.hpp"
 
-#include <array>
+#include <vector>
 
 namespace ui {
 
-    template<size_t S>
     struct TileLayout : public Widget, public Hoverable {
     private:
         enum class FocusChangeDirection {
@@ -20,28 +19,35 @@ namespace ui {
             Backward,
         };
 
-        std::array<std::unique_ptr<Widget>, S> m_widgets{};
+        std::vector<std::unique_ptr<Widget>> m_widgets{};
+        u32 size;
         helpers::optional<usize> m_focus_id;
         Direction direction;
-        std::array<double, S - 1> steps;
+        std::vector<double> steps;
         Margin gap;
         std::pair<u32, u32> margin;
 
     public:
         explicit TileLayout(
+                u32 size,
                 Direction direction,
-                std::array<double, S - 1> steps,
+                std::initializer_list<double> steps,
                 Margin gap,
                 std::pair<double, double> margin,
                 const Layout& layout
         )
             : Widget{ layout },
               Hoverable{ layout.get_rect() },
+              size{ size },
               direction{ direction },
               steps{ steps },
               gap{ gap },
               margin{ static_cast<u32>(margin.first * layout.get_rect().width()),
-                      static_cast<u32>(margin.second * layout.get_rect().height()) } { }
+                      static_cast<u32>(margin.second * layout.get_rect().height()) } {
+            if (size == 0 or steps.size() != size - 1) {
+                throw std::runtime_error("Invalid construction of TileLayout: 'steps' is not of correct size");
+            }
+        }
 
         void render(const ServiceProvider& service_provider) const override {
             for (const auto& widget : m_widgets) {
@@ -100,15 +106,22 @@ namespace ui {
         }
 
         template<typename T, typename... Args>
-        void add(const size_t index, Args... args) {
+        u32 add(Args... args) {
+            const auto index = m_widgets.size();
+
+            if (index >= this->size) {
+                throw std::runtime_error("TileLayout is already full");
+            }
 
             const Layout layout = get_layout_for_index(index);
 
-            m_widgets.at(index) = std::move(std::make_unique<T>(std::forward<Args>(args)..., layout));
-            auto focusable = as_focusable(m_widgets.at(index).get());
+            m_widgets.push_back(std::move(std::make_unique<T>(std::forward<Args>(args)..., layout)));
+            auto focusable = as_focusable(m_widgets.back().get());
             if (focusable.has_value() and not m_focus_id.has_value()) {
                 give_focus(focusable.value());
             }
+
+            return static_cast<u32>(index);
         }
 
 
@@ -153,11 +166,11 @@ namespace ui {
                 const auto previous_start =
                         index == 0 ? 0 : static_cast<u32>(width * steps.at(index - 1)) + gap.get_margin() / 2;
 
-                const auto current_end =
-                        index == S - 1 ? width
-                                       : (steps.size() <= index
-                                                  ? width
-                                                  : static_cast<u32>(width * steps.at(index)) - gap.get_margin() / 2);
+                const auto current_end = index == this->size - 1
+                                                 ? width
+                                                 : (steps.size() <= index ? width
+                                                                          : static_cast<u32>(width * steps.at(index))
+                                                                                    - gap.get_margin() / 2);
 
                 width = current_end - previous_start;
                 x += previous_start;
@@ -165,11 +178,11 @@ namespace ui {
                 const auto previous_start =
                         index == 0 ? 0 : static_cast<u32>(height * steps.at(index - 1)) + gap.get_margin() / 2;
 
-                const auto current_end =
-                        index == S - 1 ? height
-                                       : (steps.size() <= index
-                                                  ? height
-                                                  : static_cast<u32>(height * steps.at(index)) - gap.get_margin() / 2);
+                const auto current_end = index == this->size - 1
+                                                 ? height
+                                                 : (steps.size() <= index ? height
+                                                                          : static_cast<u32>(height * steps.at(index))
+                                                                                    - gap.get_margin() / 2);
 
                 height = current_end - previous_start;
                 y += previous_start;

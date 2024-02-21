@@ -9,8 +9,9 @@
 #include "ui/hoverable.hpp"
 #include "ui/widget.hpp"
 
+#include <vector>
+
 namespace ui {
-    template<u32 S>
     struct GridLayout : public Widget, public Hoverable {
     private:
         enum class FocusChangeDirection {
@@ -18,23 +19,31 @@ namespace ui {
             Backward,
         };
 
-        std::array<std::unique_ptr<Widget>, S> m_widgets{};
+        std::vector<std::unique_ptr<Widget>> m_widgets{};
+        u32 size;
         helpers::optional<usize> m_focus_id;
         Direction direction;
         Margin gap;
         std::pair<u32, u32> margin;
 
     public:
-        explicit GridLayout(Direction direction, Margin gap, std::pair<double, double> margin, const Layout& layout)
+        explicit GridLayout(
+                u32 size,
+                Direction direction,
+                Margin gap,
+                std::pair<double, double> margin,
+                const Layout& layout
+        )
             : Widget{ layout },
               Hoverable{ layout.get_rect() },
+              size{ size },
               direction{ direction },
               gap{ gap },
               margin{ static_cast<u32>(margin.first * layout.get_rect().width()),
                       static_cast<u32>(margin.second * layout.get_rect().height()) } { }
 
         [[nodiscard]] u32 widget_count() const {
-            return S;
+            return size;
         }
 
         void render(const ServiceProvider& service_provider) const override {
@@ -94,15 +103,22 @@ namespace ui {
         }
 
         template<typename T, typename... Args>
-        void add(const u32 index, Args... args) {
+        u32 add(Args... args) {
+            const auto index = m_widgets.size();
+
+            if (index >= this->size) {
+                throw std::runtime_error("GridLayout is already full");
+            }
 
             const Layout layout = get_layout_for_index(index);
 
-            m_widgets.at(index) = std::move(std::make_unique<T>(std::forward<Args>(args)..., layout));
-            auto focusable = as_focusable(m_widgets.at(index).get());
+            m_widgets.push_back(std::move(std::make_unique<T>(std::forward<Args>(args)..., layout)));
+            auto focusable = as_focusable(m_widgets.back().get());
             if (focusable.has_value() and not m_focus_id.has_value()) {
                 give_focus(focusable.value());
             }
+
+            return static_cast<u32>(index);
         }
 
 
@@ -144,15 +160,15 @@ namespace ui {
             u32 height = layout().get_rect().height() - (margin.second * 2);
 
             if (direction == Direction::Horizontal) {
-                const u32 total_margin = S <= 1 ? 0 : (S - 1) * gap.get_margin();
-                width = (layout().get_rect().width() - total_margin - (margin.first * 2)) / S;
+                const u32 total_margin = this->size <= 1 ? 0 : (this->size - 1) * gap.get_margin();
+                width = (layout().get_rect().width() - total_margin - (margin.first * 2)) / this->size;
 
                 const u32 margin_x = index * gap.get_margin();
                 const u32 total_width = width * index;
                 x += margin_x + total_width;
             } else {
-                const u32 total_margin = S <= 1 ? 0 : (S - 1) * gap.get_margin();
-                height = (layout().get_rect().height() - total_margin - (margin.second * 2)) / S;
+                const u32 total_margin = this->size <= 1 ? 0 : (this->size - 1) * gap.get_margin();
+                height = (layout().get_rect().height() - total_margin - (margin.second * 2)) / this->size;
 
                 const u32 margin_y = index * gap.get_margin();
                 const u32 total_height = height * index;

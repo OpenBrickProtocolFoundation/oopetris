@@ -9,14 +9,14 @@ namespace scenes {
 
     MainMenu::MainMenu(ServiceProvider* service_provider, const  ui::Layout& layout)
         : Scene{service_provider, layout},
-          m_main_grid{ ui::Direction::Vertical, ui::RelativeMargin{layout,ui::Direction::Vertical, 0.05}, std::pair<double, double>{ 0.05, 0.05 
+          m_main_grid{ 6,ui::Direction::Vertical, ui::RelativeMargin{layout,ui::Direction::Vertical, 0.05}, std::pair<double, double>{ 0.05, 0.05 
             } ,ui::RelativeLayout{ layout, 0.0, 0.1, 1.0, 0.8 }} {
 
         auto id_helper = ui::IDHelper{};
 
         m_main_grid.add<ui::Label>(
-                id_helper.index(), service_provider, constants::program_name,
-                service_provider->fonts().get(FontId::Default), Color::white(), std::pair<double, double>{ 0.3, 1.0 },
+                service_provider, constants::program_name, service_provider->fonts().get(FontId::Default),
+                Color::white(), std::pair<double, double>{ 0.3, 1.0 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
         );
 
@@ -31,39 +31,34 @@ namespace scenes {
                                                 : std::pair<double, double>{ 0.2, 0.2 };
 
         m_main_grid.add<ui::Button>(
-                id_helper.index(), service_provider, "Play", service_provider->fonts().get(FontId::Default),
-                Color::white(), id_helper.focus_id(),
-                [this](const ui::Button&) { m_next_command = Command::OpenPlaySelection; }, button_size,
-                button_alignment, button_margins
-        );
-
-        m_main_grid.add<ui::Button>(
-                id_helper.index(), service_provider, "Settings", service_provider->fonts().get(FontId::Default),
-                Color::white(), id_helper.focus_id(),
-                [this](const ui::Button&) { m_next_command = Command::OpenSettingsMenu; }, button_size,
-                button_alignment, button_margins
-        );
-
-        m_main_grid.add<ui::Button>(
-                id_helper.index(), service_provider, "About", service_provider->fonts().get(FontId::Default),
-                Color::white(), id_helper.focus_id(),
-                [this](const ui::Button&) { m_next_command = Command::OpenAboutPage; }, button_size, button_alignment,
-                button_margins
-        );
-
-        const auto achievement_button_id = id_helper.index();
-        m_main_grid.add<ui::Button>(
-                achievement_button_id, service_provider, "Achievements", service_provider->fonts().get(FontId::Default),
-                Color::white(), id_helper.focus_id(),
-                [this](const ui::Button&) { m_next_command = Command::OpenAchievements; }, button_size,
-                button_alignment, button_margins
-        );
-        m_main_grid.get<ui::Button>(achievement_button_id)->disable();
-
-        m_main_grid.add<ui::Button>(
-                id_helper.index(), service_provider, "Exit", service_provider->fonts().get(FontId::Default),
-                Color::white(), id_helper.focus_id(), [this](const ui::Button&) { m_next_command = Command::Exit; },
+                service_provider, "Play", service_provider->fonts().get(FontId::Default), Color::white(),
+                id_helper.focus_id(), [this](const ui::Button&) { m_next_command = Command::OpenPlaySelection; },
                 button_size, button_alignment, button_margins
+        );
+
+        m_main_grid.add<ui::Button>(
+                service_provider, "Settings", service_provider->fonts().get(FontId::Default), Color::white(),
+                id_helper.focus_id(), [this](const ui::Button&) { m_next_command = Command::OpenSettingsMenu; },
+                button_size, button_alignment, button_margins
+        );
+
+        m_main_grid.add<ui::Button>(
+                service_provider, "About", service_provider->fonts().get(FontId::Default), Color::white(),
+                id_helper.focus_id(), [this](const ui::Button&) { m_next_command = Command::OpenAboutPage; },
+                button_size, button_alignment, button_margins
+        );
+
+        m_main_grid.add<ui::Button>(
+                service_provider, "Achievements", service_provider->fonts().get(FontId::Default), Color::white(),
+                id_helper.focus_id(), [this](const ui::Button&) { m_next_command = Command::OpenAchievements; },
+                button_size, button_alignment, button_margins
+        );
+        m_main_grid.get<ui::Button>(4)->disable();
+
+        m_main_grid.add<ui::Button>(
+                service_provider, "Exit", service_provider->fonts().get(FontId::Default), Color::white(),
+                id_helper.focus_id(), [this](const ui::Button&) { m_next_command = Command::Exit; }, button_size,
+                button_alignment, button_margins
         );
 
         service_provider->music_manager()

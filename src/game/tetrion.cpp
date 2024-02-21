@@ -25,44 +25,42 @@ Tetrion::Tetrion(
       m_level{ starting_level },
     m_tetrion_index{ tetrion_index },
     main_layout{
+        2,
         ui::Direction::Vertical,
-       std::array<double,1>{ 0.85},
-       ui::AbsolutMargin{0},
+        { 0.85},
+        ui::AbsolutMargin{0},
         std::pair<double, double>{0.05,0.03},
-               layout
-        }
-       {
+        layout
+    }
+    {
 
-    auto id_helper = ui::IDHelper{};
+    main_layout.add<Grid>();
 
-    main_layout.add<Grid>(id_helper.index());
-
-    main_layout.add<ui::GridLayout<3>>(
-            id_helper.index(), ui::Direction::Vertical, ui::AbsolutMargin{ 0 }, std::pair<double, double>{ 0.0, 0.1 }
+    main_layout.add<ui::GridLayout>(
+            3, ui::Direction::Vertical, ui::AbsolutMargin{ 0 }, std::pair<double, double>{ 0.0, 0.1 }
     );
 
 
     auto* texts = get_texts();
-    auto id_helper2 = ui::IDHelper{};
 
     constexpr auto text_size = utils::device_orientation() == utils::Orientation::Landscape
                                        ? std::pair<double, double>{ 0.2, 0.8 }
                                        : std::pair<double, double>{ 0.6, 0.8 };
 
     texts->add<ui::Label>(
-            id_helper2.index(), service_provider, "score: 0", service_provider->fonts().get(FontId::Default),
-            Color::white(), text_size, ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
+            service_provider, "score: 0", service_provider->fonts().get(FontId::Default), Color::white(), text_size,
+            ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
     );
 
 
     texts->add<ui::Label>(
-            id_helper2.index(), service_provider, "lines: 0", service_provider->fonts().get(FontId::Default),
-            Color::white(), text_size, ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
+            service_provider, "lines: 0", service_provider->fonts().get(FontId::Default), Color::white(), text_size,
+            ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
     );
 
     texts->add<ui::Label>(
-            id_helper2.index(), service_provider, "lines: 0", service_provider->fonts().get(FontId::Default),
-            Color::white(), text_size, ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
+            service_provider, "lines: 0", service_provider->fonts().get(FontId::Default), Color::white(), text_size,
+            ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
     );
 
     refresh_texts();

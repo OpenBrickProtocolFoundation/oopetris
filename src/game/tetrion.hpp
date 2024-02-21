@@ -13,9 +13,9 @@
 #include "manager/service_provider.hpp"
 #include "mino_stack.hpp"
 #include "tetromino.hpp"
-#include "ui/layouts/grid_layout.hpp"
 #include "ui/components/label.hpp"
 #include "ui/layout.hpp"
+#include "ui/layouts/grid_layout.hpp"
 #include "ui/layouts/tile_layout.hpp"
 #include "ui/widget.hpp"
 
@@ -75,7 +75,7 @@ private:
     helpers::optional<Tetromino> m_tetromino_on_hold;
     std::array<helpers::optional<Tetromino>, num_preview_tetrominos> m_preview_tetrominos{};
     u8 m_tetrion_index;
-    ui::TileLayout<2> main_layout;
+    ui::TileLayout main_layout;
 
 
 public:
@@ -110,12 +110,12 @@ public:
     }
 
 
-    [[nodiscard]] ui::GridLayout<3>* get_texts() {
-        return main_layout.get<ui::GridLayout<3>>(1);
+    [[nodiscard]] ui::GridLayout* get_texts() {
+        return main_layout.get<ui::GridLayout>(1);
     }
 
-    [[nodiscard]] const ui::GridLayout<3>* get_texts() const {
-        return main_layout.get<ui::GridLayout<3>>(1);
+    [[nodiscard]] const ui::GridLayout* get_texts() const {
+        return main_layout.get<ui::GridLayout>(1);
     }
 
     [[nodiscard]] auto tetrion_index() const {

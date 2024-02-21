@@ -2,8 +2,8 @@
 
 #include "scenes/scene.hpp"
 #include "ui/components/button.hpp"
-#include "ui/layouts/grid_layout.hpp"
 #include "ui/components/label.hpp"
+#include "ui/layouts/grid_layout.hpp"
 
 namespace scenes {
 
@@ -11,7 +11,7 @@ namespace scenes {
     private:
         enum class Command { SinglePlayer, MultiPlayer, Return };
 
-        ui::GridLayout<4> m_main_grid;
+        ui::GridLayout m_main_grid;
         helpers::optional<Command> m_next_command;
 
     public:

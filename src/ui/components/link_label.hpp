@@ -1,8 +1,8 @@
 #pragma once
 
 #include "graphics/text.hpp"
-#include "ui/hoverable.hpp"
 #include "platform/capabilities.hpp"
+#include "ui/hoverable.hpp"
 #include "ui/widget.hpp"
 
 #include <spdlog/spdlog.h>

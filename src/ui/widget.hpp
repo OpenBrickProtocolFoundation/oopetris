@@ -1,10 +1,10 @@
 #pragma once
 
-#include "ui/focusable.hpp"
 #include "graphics/rect.hpp"
 #include "helper/optional.hpp"
-#include "ui/hoverable.hpp"
 #include "manager/service_provider.hpp"
+#include "ui/focusable.hpp"
+#include "ui/hoverable.hpp"
 #include "ui/layout.hpp"
 
 #include <SDL.h>
