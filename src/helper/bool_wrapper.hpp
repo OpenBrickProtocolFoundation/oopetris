@@ -1,3 +1,5 @@
+#pragma once
+
 #include "helper/optional.hpp"
 
 

@@ -125,7 +125,7 @@ void Tetrion::render(const ServiceProvider& service_provider) const {
     }
 }
 
-[[nodiscard]] bool Tetrion::handle_event(const SDL_Event&, const Window*) {
+[[nodiscard]] helper::BoolWrapper<ui::EventHandleType> Tetrion::handle_event(const SDL_Event&, const Window*) {
     return false;
 }
 

@@ -95,11 +95,11 @@ namespace ui {
             service_provider.renderer().draw_rect_filled(slider_rect, slider_color);
         }
 
-        bool
+        helper::BoolWrapper<ui::EventHandleType>
         handle_event(const SDL_Event& event, const Window* window) // NOLINT(readability-function-cognitive-complexity)
                 override {
 
-            bool changed = false;
+            helper::BoolWrapper<ui::EventHandleType> handled = false;
 
             if (utils::device_supports_keys() and has_focus()) {
                 if (utils::event_is_action(event, utils::CrossPlatformAction::RIGHT)) {
@@ -108,18 +108,18 @@ namespace ui {
                         current_value = m_range.second;
                     }
 
-                    changed = true;
+                    handled = true;
                 } else if (utils::event_is_action(event, utils::CrossPlatformAction::LEFT)) {
                     current_value = current_value - m_step;
                     if (current_value <= m_range.first) {
                         current_value = m_range.first;
                     }
 
-                    changed = true;
+                    handled = true;
                 }
             }
 
-            if (not changed and utils::device_supports_clicks()) {
+            if (not handled and utils::device_supports_clicks()) {
 
                 const auto change_value_on_scroll = [&window, &event, this]() {
                     const auto& [bar_rect, slider_rect] = get_rectangles();
@@ -147,22 +147,22 @@ namespace ui {
                     if (utils::is_event_in(window, event, bar_rect)) {
 
                         change_value_on_scroll();
-                        changed = true;
+                        handled = { true, ui::EventHandleType::RequestFocus };
 
                     } else if (utils::is_event_in(window, event, slider_rect)) {
                         is_dragging = true;
-                        changed = true;
+                        handled = { true, ui::EventHandleType::RequestFocus };
                     }
 
                 } else if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::ButtonUp)) {
                     is_dragging = false;
-                    changed = true;
+                    handled = true;
 
                 } else if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::Motion)) {
 
                     if (is_dragging) {
                         change_value_on_scroll();
-                        changed = true;
+                        handled = true;
                     }
 
                 } else if (event.type == SDL_MOUSEWHEEL) {
@@ -184,14 +184,14 @@ namespace ui {
                         }
                     }
 
-                    changed = true;
+                    handled = true;
                 }
             }
 
 
-            if (changed) {
+            if (handled) {
                 m_setter(current_value);
-                return true;
+                return handled;
             }
 
             return false;

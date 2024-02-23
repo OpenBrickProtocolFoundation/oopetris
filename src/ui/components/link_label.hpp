@@ -66,7 +66,7 @@ namespace ui {
             }
         }
 
-        bool handle_event(const SDL_Event& event, const Window* window) override {
+        helper::BoolWrapper<ui::EventHandleType> handle_event(const SDL_Event& event, const Window* window) override {
             if (const auto hover_result = detect_hover(event, window); hover_result) {
                 if (hover_result.is(ActionType::Clicked)) {
                     on_clicked();

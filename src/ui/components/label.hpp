@@ -30,7 +30,7 @@ namespace ui {
             m_text.render(service_provider);
         }
 
-        bool handle_event(const SDL_Event&, const Window*) override {
+        helper::BoolWrapper<ui::EventHandleType> handle_event(const SDL_Event&, const Window*) override {
             return false;
         }
 

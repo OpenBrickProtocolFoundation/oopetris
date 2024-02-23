@@ -40,7 +40,7 @@ namespace ui {
             service_provider.renderer().draw_texture(m_image, m_fill_rect);
         }
 
-        bool handle_event(const SDL_Event&, const Window*) override {
+        helper::BoolWrapper<ui::EventHandleType> handle_event(const SDL_Event&, const Window*) override {
 
             return false;
         }

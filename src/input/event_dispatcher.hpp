@@ -15,8 +15,8 @@ private:
     std::vector<EventListener*> m_listeners;
     Window* m_window;
     bool m_input_activated{ false };
-    std::vector<SDL_Keycode> allowed_input_keys{ SDLK_RETURN, SDLK_BACKSPACE, SDLK_DOWN,  SDLK_UP,
-                                                 SDLK_LEFT,   SDLK_RIGHT,     SDLK_ESCAPE };
+    std::vector<SDL_Keycode> allowed_input_keys{ SDLK_RETURN, SDLK_BACKSPACE, SDLK_DOWN,   SDLK_UP,
+                                                 SDLK_LEFT,   SDLK_RIGHT,     SDLK_ESCAPE, SDLK_TAB };
 
 public:
     EventDispatcher(Window* window) : m_window{ window } {};

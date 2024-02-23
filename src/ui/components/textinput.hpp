@@ -78,12 +78,10 @@ namespace ui {
             }
         }
 
-        /* BoolWrapper<EventHandleType> */
-
-        bool handle_event(const SDL_Event& event, const Window* window) override {
+        helper::BoolWrapper<ui::EventHandleType> handle_event(const SDL_Event& event, const Window* window) override {
             if (const auto hover_result = detect_hover(event, window); hover_result) {
                 if (hover_result.is(ActionType::Clicked)) {
-                    // return { true, EventHandleType::RequestFocus };
+                    return { true, EventHandleType::RequestFocus };
                     return true;
                 }
 
@@ -95,8 +93,7 @@ namespace ui {
                     switch (event.key.keysym.sym) {
                         case SDLK_RETURN: {
                             on_unfocus();
-                            return true;
-                            //return { true, EventHandleType::RequestUnFocus };
+                            return { true, EventHandleType::RequestUnFocus };
                         }
                         case SDLK_BACKSPACE: {
                             const auto remove_all = (event.key.keysym.mod & KMOD_CTRL) != 0;

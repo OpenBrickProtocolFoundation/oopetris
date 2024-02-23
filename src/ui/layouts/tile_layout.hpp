@@ -10,6 +10,11 @@
 
 #include <vector>
 
+
+// this is needed for some hacks regarding scroll layout focus switches
+namespace scenes {
+    struct OnlineLobby;
+}
 namespace ui {
 
     struct TileLayout : public Widget, public Hoverable {
@@ -55,10 +60,11 @@ namespace ui {
             }
         }
 
-        bool
+        helper::BoolWrapper<ui::EventHandleType>
         handle_event(const SDL_Event& event, const Window* window) // NOLINT(readability-function-cognitive-complexity)
                 override {
-            auto handled = false;
+            helper::BoolWrapper<ui::EventHandleType> handled = false;
+
             if (utils::device_supports_keys()) {
                 if (utils::event_is_action(event, utils::CrossPlatformAction::DOWN)
                     || utils::event_is_action(event, utils::CrossPlatformAction::TAB)) {
@@ -79,8 +85,8 @@ namespace ui {
                     for (auto& widget : m_widgets) {
                         const auto layout = widget->layout();
                         if (not handled and utils::is_event_in(window, event, layout.get_rect())) {
-                            if (widget->handle_event(event, window)) {
-                                handled = true;
+                            if (const auto event_result = widget->handle_event(event, window); event_result) {
+                                handled = { true, handle_event_result(event_result.get_additional(), widget.get()) };
                                 continue;
                             }
                         } else {
@@ -97,8 +103,8 @@ namespace ui {
 
             if (m_focus_id.has_value()) {
                 const auto& widget = m_widgets.at(focusable_index_by_id(m_focus_id.value()));
-                if (widget->handle_event(event, window)) {
-                    return true;
+                if (const auto event_result = widget->handle_event(event, window); event_result) {
+                    return { true, handle_event_result(event_result.get_additional(), widget.get()) };
                 }
             }
 
@@ -154,6 +160,68 @@ namespace ui {
         }
 
     private:
+        [[nodiscard]] helper::optional<ui::EventHandleType>
+        handle_event_result(const helper::optional<ui::EventHandleType>& result, Widget* widget) {
+
+            if (not result.has_value()) {
+                return helper::nullopt;
+            }
+
+            switch (result.value()) {
+                case ui::EventHandleType::RequestFocus: {
+                    const auto focusable = as_focusable(widget);
+                    if (not focusable.has_value()) {
+                        throw std::runtime_error("Only Focusables can request focus!");
+                    }
+
+                    if (not m_focus_id.has_value()) {
+                        return helper::nullopt;
+                    }
+
+                    const auto widget_focus_id = focusable.value()->focus_id();
+
+                    if (m_focus_id.value() == widget_focus_id) {
+                        return helper::nullopt;
+                    }
+
+                    auto current_focusable =
+                            as_focusable(m_widgets.at(focusable_index_by_id(m_focus_id.value())).get());
+                    assert(current_focusable.has_value());
+                    current_focusable.value()->unfocus(); // NOLINT(bugprone-unchecked-optional-access)
+                    focusable.value()->focus();           // NOLINT(bugprone-unchecked-optional-access)
+                    m_focus_id = widget_focus_id;
+
+                    return helper::nullopt;
+                }
+                case ui::EventHandleType::RequestUnFocus: {
+                    const auto focusable = as_focusable(widget);
+                    if (not focusable.has_value()) {
+                        throw std::runtime_error("Only Focusables can request un-focus!");
+                    }
+
+
+                    if (not m_focus_id.has_value()) {
+                        return helper::nullopt;
+                    }
+
+                    const auto widget_focus_id = focusable.value()->focus_id();
+
+                    if (m_focus_id.value() != widget_focus_id) {
+                        return helper::nullopt;
+                    }
+
+                    const auto test_forward = try_set_next_focus(FocusChangeDirection::Forward);
+                    if (not test_forward) {
+                        return ui::EventHandleType::RequestUnFocus;
+                    }
+
+                    return helper::nullopt;
+                }
+                default:
+                    std::unreachable();
+            }
+        }
+
         [[nodiscard]] Layout get_layout_for_index(size_t index) {
             const auto start_point = layout().get_rect().top_left;
 
@@ -245,6 +313,11 @@ namespace ui {
             const auto focusable_ids = focusable_ids_sorted();
 
             assert(not focusable_ids.empty());
+
+            if (focusable_ids.size() == 1) {
+                return false;
+            }
+
             const auto current_index = index_of(focusable_ids, m_focus_id.value());
             const auto next_index =
                     (focus_direction == FocusChangeDirection::Forward
@@ -262,6 +335,9 @@ namespace ui {
 
             return true;
         }
+
+        // this is needed for some hacks regarding scroll layout focus switches
+        friend struct scenes::OnlineLobby;
     };
 
 } // namespace ui
