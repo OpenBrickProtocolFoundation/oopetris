@@ -176,9 +176,17 @@ void Application::try_load_settings() {
 }
 
 void Application::load_resources() {
-    const auto font_path = utils::get_assets_folder() / "fonts" / "PressStart2P.ttf";
-    constexpr auto font_size = 128;
-    m_font_manager.load(FontId::Default, font_path, font_size);
+    constexpr auto fonts_size = 128;
+    const std::vector<std::tuple<FontId, std::string>> fonts{
+        {       FontId::Default,   "PressStart2P.ttf"},
+        {         FontId::Arial,          "arial.ttf"},
+        {FontId::NotoColorEmoji, "NotoColorEmoji.ttf"},
+        {       FontId::Symbola,        "Symbola.ttf"}
+    };
+    for (const auto& [font_id, path] : fonts) {
+        const auto font_path = utils::get_assets_folder() / "fonts" / path;
+        m_font_manager.load(font_id, font_path, fonts_size);
+    }
 }
 
 [[nodiscard]] std::vector<scenes::Scene*> Application::active_scenes() const {
