@@ -14,7 +14,7 @@
 #include <spdlog/spdlog.h>
 #include <string>
 
-enum class RenderType { Solid, Blended, Shaded, LCD };
+enum class RenderType { Solid, Blended, Shaded };
 
 struct Texture {
 private:
@@ -39,8 +39,8 @@ public:
             const std::string& text,
             const Font& font,
             const Color& color,
-            RenderType render_type = RenderType::Blended,
-            const Color& background_color = Color::black()
+            RenderType render_type,
+            const Color& background_color
     ) {
 
         const SDL_Color text_color = color.to_sdl_color();
@@ -51,8 +51,6 @@ public:
             surface = TTF_RenderUTF8_Blended(font.get(), text.c_str(), text_color);
         } else if (render_type == RenderType::Shaded) {
             surface = TTF_RenderUTF8_Shaded(font.get(), text.c_str(), text_color, background_color.to_sdl_color());
-        } else if (render_type == RenderType::LCD) {
-            surface = TTF_RenderUTF8_LCD(font.get(), text.c_str(), text_color, background_color.to_sdl_color());
         } else {
             utils::unreachable();
         }

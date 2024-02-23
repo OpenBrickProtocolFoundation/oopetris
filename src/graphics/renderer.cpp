@@ -62,8 +62,14 @@ Texture Renderer::load_image(const std::string& image_path) const {
     return Texture::from_image(m_renderer, image_path);
 }
 
-Texture Renderer::prerender_text(const std::string& text, const Font& font, const Color& color) const {
-    return Texture::prerender_text(m_renderer, text, font, color);
+Texture Renderer::prerender_text(
+        const std::string& text,
+        const Font& font,
+        const Color& color,
+        RenderType render_type,
+        const Color& background_color
+) const {
+    return Texture::prerender_text(m_renderer, text, font, color, render_type, background_color);
 }
 
 Texture Renderer::get_texture_for_render_target(const shapes::Point& size) const {
