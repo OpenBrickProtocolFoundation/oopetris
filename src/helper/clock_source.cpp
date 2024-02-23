@@ -31,7 +31,7 @@ double LocalClock::resume() {
     }
     const auto duration = Application::elapsed_time() - *m_paused_at;
     m_start_time += duration;
-    m_paused_at = helpers::nullopt;
+    m_paused_at = helper::nullopt;
     spdlog::info("resuming clock (duration of pause: {} s)", duration);
     return duration;
 }

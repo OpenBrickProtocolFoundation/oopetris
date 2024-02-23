@@ -108,7 +108,10 @@ namespace ui {
                 }
             }
 
-            if (detect_hover(event, window)) {
+            if (const auto hover_result = detect_hover(event, window); hover_result) {
+                if (hover_result.is(ActionType::Clicked)) {
+                    on_clicked();
+                }
                 return true;
             }
 
@@ -116,7 +119,7 @@ namespace ui {
         }
 
 
-        void on_clicked() override {
+        void on_clicked() {
             m_callback(*this);
         }
 

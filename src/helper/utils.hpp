@@ -56,7 +56,7 @@ namespace utils {
 
     [[nodiscard]] std::filesystem::path get_root_folder();
 
-    helpers::optional<bool> log_error(const std::string& error);
+    helper::optional<bool> log_error(const std::string& error);
 
     template<usize data_size>
     constexpr auto get_supported_music_extension(

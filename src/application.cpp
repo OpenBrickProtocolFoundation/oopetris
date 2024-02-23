@@ -120,7 +120,7 @@ void Application::update() {
         const auto [scene_update, scene_change] = m_scene_stack.at(index)->update();
         if (scene_change) {
             std::visit(
-                    helpers::overloaded{
+                    helper::overloaded{
                             [this, index](const scenes::Scene::Pop&) {
                                 m_scene_stack.erase(
                                         m_scene_stack.begin()

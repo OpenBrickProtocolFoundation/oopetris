@@ -18,7 +18,7 @@ private:
     static inline constexpr auto default_starting_level = i32{ 0 };
 
 public:
-    helpers::optional<std::filesystem::path> recording_path{};
+    helper::optional<std::filesystem::path> recording_path{};
     std::remove_cvref_t<decltype(default_target_fps)> target_fps{ default_target_fps };
     std::remove_cvref_t<decltype(default_starting_level)> starting_level{ default_starting_level };
     bool silent{ false };

@@ -73,7 +73,7 @@ namespace scenes {
                     };
                 case Command::OnlineMultiPlayer:
                     // perform a push and reset the command, so that the music keeps playing the entire time
-                    m_next_command = helpers::nullopt;
+                    m_next_command = helper::nullopt;
                     return UpdateResult{
                         SceneUpdate::ContinueUpdating,
                         Scene::Push{SceneId::OnlineLobby, ui::FullScreenLayout{ m_service_provider->window() }}
@@ -90,7 +90,7 @@ namespace scenes {
                     utils::unreachable();
             }
         }
-        return UpdateResult{ SceneUpdate::ContinueUpdating, helpers::nullopt };
+        return UpdateResult{ SceneUpdate::ContinueUpdating, helper::nullopt };
     }
 
     void MultiPlayerMenu::render(const ServiceProvider& service_provider) {

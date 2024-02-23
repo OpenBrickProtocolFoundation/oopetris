@@ -60,7 +60,7 @@ public:
         }
     }
 
-    void start_text_input(const helpers::optional<shapes::Rect>& rect) {
+    void start_text_input(const helper::optional<shapes::Rect>& rect) {
         if (m_input_activated) {
             return;
         }

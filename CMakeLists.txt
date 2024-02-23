@@ -45,6 +45,7 @@ add_executable(oopetris
     src/graphics/texture.hpp
     src/graphics/window.cpp
     src/graphics/window.hpp
+    src/helper/bool_wrapper.hpp
     src/helper/clock_source.cpp
     src/helper/clock_source.hpp
     src/helper/color.hpp

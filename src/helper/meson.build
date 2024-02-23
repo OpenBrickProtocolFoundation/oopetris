@@ -1,4 +1,5 @@
 src_files += files(
+    'bool_wrapper.hpp',
     'clock_source.cpp',
     'clock_source.hpp',
     'color.hpp',

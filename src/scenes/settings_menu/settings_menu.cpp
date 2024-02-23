@@ -38,7 +38,7 @@ namespace scenes {
                     return value.has_value() ? value.value() : 0.0F;
                 },
                 [service_provider](const float& amount) {
-                    const auto mapped_amount = amount <= 0.0F ? helpers::nullopt : helpers::optional<float>{ amount };
+                    const auto mapped_amount = amount <= 0.0F ? helper::nullopt : helper::optional<float>{ amount };
                     return service_provider->music_manager().set_volume(mapped_amount, false, false);
                 },
                 0.05F, std::pair<double, double>{ 0.6, 1.0 },
@@ -47,7 +47,7 @@ namespace scenes {
 
         service_provider->music_manager().add_volume_listener(
                 listener_name,
-                [this, slider_index](helpers::optional<float>) {
+                [this, slider_index](helper::optional<float>) {
                     this->m_main_grid.get<ui::Slider>(slider_index)->on_change();
                 }
         );
@@ -66,7 +66,7 @@ namespace scenes {
             m_service_provider->music_manager().remove_volume_listener(listener_name);
             return UpdateResult{ SceneUpdate::StopUpdating, Scene::Pop{} };
         }
-        return UpdateResult{ SceneUpdate::StopUpdating, helpers::nullopt };
+        return UpdateResult{ SceneUpdate::StopUpdating, helper::nullopt };
     }
 
     void SettingsMenu::render(const ServiceProvider& service_provider) {

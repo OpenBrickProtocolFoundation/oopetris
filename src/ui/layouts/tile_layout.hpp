@@ -21,7 +21,7 @@ namespace ui {
 
         std::vector<std::unique_ptr<Widget>> m_widgets{};
         u32 size;
-        helpers::optional<usize> m_focus_id;
+        helper::optional<usize> m_focus_id;
         Direction direction;
         std::vector<double> steps;
         Margin gap;

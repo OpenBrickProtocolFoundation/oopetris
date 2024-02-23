@@ -83,7 +83,7 @@ public:
     void update(SimulationStep simulation_step_index) override;
 
 private:
-    [[nodiscard]] helpers::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event) const;
+    [[nodiscard]] helper::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event) const;
 };
 
 struct RecordingReader;
@@ -114,7 +114,7 @@ private:
         explicit PressedState(Uint32 timestamp, float x, float y) : timestamp{ timestamp }, x{ x }, y{ y } { }
     };
 
-    std::unordered_map<SDL_FingerID, helpers::optional<PressedState>> m_finger_state;
+    std::unordered_map<SDL_FingerID, helper::optional<PressedState>> m_finger_state;
     std::vector<SDL_Event> m_event_buffer;
 
 
@@ -126,7 +126,7 @@ public:
     void update(SimulationStep simulation_step_index) override;
 
 private:
-    [[nodiscard]] helpers::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event);
+    [[nodiscard]] helper::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event);
 };
 #endif
 
@@ -144,6 +144,6 @@ public:
     void update(SimulationStep simulation_step_index) override;
 
 private:
-    [[nodiscard]] helpers::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event) const;
+    [[nodiscard]] helper::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event) const;
 };
 #endif

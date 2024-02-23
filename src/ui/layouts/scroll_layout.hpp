@@ -62,7 +62,7 @@ namespace ui {
         };
 
         std::vector<std::unique_ptr<Widget>> m_widgets{};
-        helpers::optional<usize> m_focus_id;
+        helper::optional<usize> m_focus_id;
         Margin gap;
         Texture m_texture;
         ServiceProvider* m_service_provider;

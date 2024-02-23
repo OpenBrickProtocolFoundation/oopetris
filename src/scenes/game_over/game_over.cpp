@@ -37,7 +37,7 @@ namespace scenes {
                 Scene::Switch{SceneId::MainMenu, ui::FullScreenLayout{ m_service_provider->window() }}
             };
         }
-        return UpdateResult{ SceneUpdate::ContinueUpdating, helpers::nullopt };
+        return UpdateResult{ SceneUpdate::ContinueUpdating, helper::nullopt };
     }
 
     void GameOver::render(const ServiceProvider& service_provider) {

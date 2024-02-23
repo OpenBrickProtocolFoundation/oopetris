@@ -1,11 +1,14 @@
 #pragma once
 
+#include "helper/bool_wrapper.hpp"
 #include "helper/types.hpp"
 #include "platform/capabilities.hpp"
 
 #include <cassert>
 
 namespace ui {
+
+    enum class ActionType { Hover, Clicked };
 
     struct Hoverable {
 
@@ -30,7 +33,7 @@ namespace ui {
         }
 
 
-        [[nodiscard]] bool detect_hover(const SDL_Event& event, const Window* window) {
+        [[nodiscard]] helper::BoolWrapper<ui::ActionType> detect_hover(const SDL_Event& event, const Window* window) {
 
             if (utils::device_supports_clicks()) {
 
@@ -40,10 +43,10 @@ namespace ui {
                         on_hover();
 
                         if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::ButtonDown)) {
-                            on_clicked();
+                            return { true, ActionType::Clicked };
                         }
 
-                        return true;
+                        return { true, ActionType::Hover };
                     }
 
                     on_unhover();
@@ -53,8 +56,6 @@ namespace ui {
 
             return false;
         }
-
-        virtual void on_clicked(){};
 
 
         void on_hover() {

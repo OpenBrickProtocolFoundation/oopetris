@@ -94,7 +94,7 @@ namespace scenes {
                     utils::unreachable();
             }
         }
-        return UpdateResult{ SceneUpdate::ContinueUpdating, helpers::nullopt };
+        return UpdateResult{ SceneUpdate::ContinueUpdating, helper::nullopt };
     }
 
     void OnlineLobby::render(const ServiceProvider& service_provider) {

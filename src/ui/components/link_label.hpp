@@ -67,10 +67,17 @@ namespace ui {
         }
 
         bool handle_event(const SDL_Event& event, const Window* window) override {
-            return detect_hover(event, window);
+            if (const auto hover_result = detect_hover(event, window); hover_result) {
+                if (hover_result.is(ActionType::Clicked)) {
+                    on_clicked();
+                }
+                return true;
+            }
+
+            return false;
         }
 
-        void on_clicked() override {
+        void on_clicked() {
             const auto result = utils::open_url(m_url);
             if (not result) {
                 spdlog::error("Couldn't open link label");

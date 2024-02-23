@@ -3,13 +3,14 @@
 #include "graphics/text.hpp"
 #include "input/event_dispatcher.hpp"
 #include "ui/focusable.hpp"
+#include "ui/hoverable.hpp"
 #include "ui/widget.hpp"
 
 #include <string>
 #include <utf8.h>
 
 namespace ui {
-    struct TextInput final : public Widget, public Focusable {
+    struct TextInput final : public Widget, public Focusable, public Hoverable {
     private:
         std::string m_text{};
         u32 cursor_position{ 0 };
@@ -17,10 +18,29 @@ namespace ui {
         Font m_font;
         Color m_color;
         shapes::Rect m_text_rect;
+        //  Texture text;
+        //  shapes::Rect m_viewport;
         bool cursor_shown{ false };
 
+
+        explicit TextInput(
+                ServiceProvider* service_provider,
+                const Font& font,
+                const Color& color,
+                usize focus_id,
+                const shapes::Rect& fill_rect,
+                Layout layout
+        )
+            : Widget{ layout },
+              Focusable{ focus_id },
+              Hoverable{ fill_rect },
+              m_service_provider{ service_provider },
+              m_font{ font },
+              m_color{ color },
+              m_text_rect{ layout.get_rect() } { }
+
     public:
-        TextInput(
+        explicit TextInput(
                 ServiceProvider* service_provider,
                 const Font& font,
                 const Color& color,
@@ -29,19 +49,17 @@ namespace ui {
                 Alignment alignment,
                 Layout layout
         )
-            : Widget{ layout },
-              Focusable{ focus_id },
-              m_service_provider{ service_provider },
-              m_font{ font },
-              m_color{ color },
-              m_text_rect{
-                  ui::get_rectangle_aligned(
-                          layout,
-                          { static_cast<u32>(size.first * layout.get_rect().width()),
-                            static_cast<u32>(size.second * layout.get_rect().height()) },
-                          alignment
-                  ),
-              } { }
+            : TextInput{ service_provider,
+                         font,
+                         color,
+                         focus_id,
+                         ui::get_rectangle_aligned(
+                                 layout,
+                                 { static_cast<u32>(size.first * layout.get_rect().width()),
+                                   static_cast<u32>(size.second * layout.get_rect().height()) },
+                                 alignment
+                         ),
+                         layout } { }
 
         ~TextInput() {
             on_unfocus();
@@ -49,7 +67,9 @@ namespace ui {
 
 
         void render(const ServiceProvider& service_provider) const override {
-            const auto background_color = has_focus() ? Color(0x6D, 0x6E, 0x6D) : Color(0x3A, 0x3B, 0x39);
+            const auto background_color = has_focus()    ? Color(0x6D, 0x6E, 0x6D)
+                                          : is_hovered() ? Color(0x47, 0x47, 0x47)
+                                                         : Color(0x3A, 0x3B, 0x39);
 
             service_provider.renderer().draw_rect_filled(layout().get_rect(), background_color);
             if (not m_text.empty()) {
@@ -58,13 +78,25 @@ namespace ui {
             }
         }
 
-        bool handle_event(const SDL_Event& event, const Window*) override {
+        /* BoolWrapper<EventHandleType> */
+
+        bool handle_event(const SDL_Event& event, const Window* window) override {
+            if (const auto hover_result = detect_hover(event, window); hover_result) {
+                if (hover_result.is(ActionType::Clicked)) {
+                    // return { true, EventHandleType::RequestFocus };
+                    return true;
+                }
+
+                return true;
+            }
+
             switch (event.type) {
                 case SDL_KEYDOWN: {
                     switch (event.key.keysym.sym) {
                         case SDLK_RETURN: {
                             on_unfocus();
                             return true;
+                            //return { true, EventHandleType::RequestUnFocus };
                         }
                         case SDLK_BACKSPACE: {
                             const auto remove_all = (event.key.keysym.mod & KMOD_CTRL) != 0;

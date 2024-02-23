@@ -59,7 +59,7 @@ namespace scenes {
                     };
                 case Command::MultiPlayer:
                     // perform a push and reset the command, so that the music keeps playing the entire time
-                    m_next_command = helpers::nullopt;
+                    m_next_command = helper::nullopt;
                     return UpdateResult{
                         SceneUpdate::ContinueUpdating,
                         Scene::Push{SceneId::MultiPlayerModeSelectMenu,
@@ -71,7 +71,7 @@ namespace scenes {
                     utils::unreachable();
             }
         }
-        return UpdateResult{ SceneUpdate::ContinueUpdating, helpers::nullopt };
+        return UpdateResult{ SceneUpdate::ContinueUpdating, helper::nullopt };
     }
 
     void PlaySelectMenu::render(const ServiceProvider& service_provider) {

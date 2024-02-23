@@ -12,7 +12,7 @@ namespace scenes {
         enum class Command { LocalMultiPlayer, OnlineMultiPlayer, AIMultiPlayer, Return };
 
         ui::GridLayout m_main_grid;
-        helpers::optional<Command> m_next_command;
+        helper::optional<Command> m_next_command;
 
     public:
         explicit MultiPlayerMenu(ServiceProvider* service_provider, const ui::Layout& layout);

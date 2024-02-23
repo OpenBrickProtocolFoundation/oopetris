@@ -120,7 +120,7 @@ void KeyboardInput::update(SimulationStep simulation_step_index) {
     Input::update(simulation_step_index);
 }
 
-helpers::optional<InputEvent>
+helper::optional<InputEvent>
 KeyboardInput::sdl_event_to_input_event( // NOLINT(readability-function-cognitive-complexity)
         const SDL_Event& event
 ) const {
@@ -171,7 +171,7 @@ KeyboardInput::sdl_event_to_input_event( // NOLINT(readability-function-cognitiv
             return InputEvent::HoldReleased;
         }
     }
-    return helpers::nullopt;
+    return helper::nullopt;
 }
 KeyboardInput::KeyboardInput(
         Tetrion* target_tetrion,
@@ -294,7 +294,7 @@ void TouchInput::update(SimulationStep simulation_step_index) {
     Input::update(simulation_step_index);
 }
 
-helpers::optional<InputEvent> TouchInput::sdl_event_to_input_event(const SDL_Event& event) {
+helper::optional<InputEvent> TouchInput::sdl_event_to_input_event(const SDL_Event& event) {
     //TODO to handle those things better, holding has to be supported
 
     // also take into accounts fingerId, since there may be multiple fingers, each finger has it's own saved state
@@ -307,7 +307,7 @@ helpers::optional<InputEvent> TouchInput::sdl_event_to_input_event(const SDL_Eve
     if (event.type == SDL_FINGERDOWN) {
         if (m_finger_state.contains(finger_id) and m_finger_state.at(finger_id).has_value()) {
             // there are some valid reasons, this can occur now
-            return helpers::nullopt;
+            return helper::nullopt;
         }
 
         const auto x = event.tfinger.x;
@@ -316,7 +316,7 @@ helpers::optional<InputEvent> TouchInput::sdl_event_to_input_event(const SDL_Eve
 
         m_finger_state.insert_or_assign(
                 finger_id,
-                helpers::optional<PressedState>{
+                helper::optional<PressedState>{
                         PressedState{timestamp, x, y}
         }
         );
@@ -326,7 +326,7 @@ helpers::optional<InputEvent> TouchInput::sdl_event_to_input_event(const SDL_Eve
     if (event.type == SDL_FINGERUP) {
         if (!m_finger_state.contains(finger_id) or !m_finger_state.at(finger_id).has_value()) {
             // there are some valid reasons, this can occur now
-            return helpers::nullopt;
+            return helper::nullopt;
         }
 
         const auto pressed_state = m_finger_state.at(finger_id).value();
@@ -347,7 +347,7 @@ helpers::optional<InputEvent> TouchInput::sdl_event_to_input_event(const SDL_Eve
         const auto dx_abs = std::fabs(dx);
         const auto dy_abs = std::fabs(dy);
 
-        m_finger_state.insert_or_assign(finger_id, helpers::nullopt);
+        m_finger_state.insert_or_assign(finger_id, helper::nullopt);
         if (duration < duration_threshold) {
             if (dx_abs < threshold_x and dy_abs < threshold_y) {
                 // tap on the right side of the screen
@@ -390,7 +390,7 @@ helpers::optional<InputEvent> TouchInput::sdl_event_to_input_event(const SDL_Eve
     }
 
 
-    return helpers::nullopt;
+    return helper::nullopt;
 }
 #endif
 
@@ -414,7 +414,7 @@ void JoystickInput::update(SimulationStep simulation_step_index) {
     Input::update(simulation_step_index);
 }
 
-helpers::optional<InputEvent> JoystickInput::sdl_event_to_input_event(const SDL_Event& event) const {
+helper::optional<InputEvent> JoystickInput::sdl_event_to_input_event(const SDL_Event& event) const {
     if (event.type == SDL_JOYBUTTONDOWN) {
         const auto button = event.jbutton.button;
         if (button == JOYCON_CROSS_LEFT) {
@@ -462,7 +462,7 @@ helpers::optional<InputEvent> JoystickInput::sdl_event_to_input_event(const SDL_
             return InputEvent::HoldReleased;
         }
     }
-    return helpers::nullopt;
+    return helper::nullopt;
 }
 
 
