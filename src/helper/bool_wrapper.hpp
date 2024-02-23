@@ -8,21 +8,21 @@ namespace helper {
     template<typename T>
     struct BoolWrapper {
     private:
-        bool value;
+        bool m_value;
         helper::optional<T> additional;
 
     public:
-        BoolWrapper(bool value) : value{ value }, additional{ helper::nullopt } { }
+        BoolWrapper(bool value) : m_value{ value }, additional{ helper::nullopt } { }
 
-        BoolWrapper(bool value, const T& additional) : value{ value }, additional{ additional } { }
+        BoolWrapper(bool value, const T& additional) : m_value{ value }, additional{ additional } { }
 
-        BoolWrapper(bool value, const helper::optional<T>& additional) : value{ value }, additional{ additional } { }
+        BoolWrapper(bool value, const helper::optional<T>& additional) : m_value{ value }, additional{ additional } { }
 
         const helper::optional<T>& get_additional() const {
             return additional;
         }
 
-        bool has_additional() const {
+        [[nodiscard]] bool has_additional() const {
             return additional.has_value();
         }
 
@@ -32,7 +32,7 @@ namespace helper {
         }
 
         operator bool() const {
-            return value;
+            return m_value;
         }
     };
 

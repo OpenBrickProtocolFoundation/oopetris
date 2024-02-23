@@ -44,7 +44,7 @@ public:
     ) {
 
         const SDL_Color text_color = color.to_sdl_color();
-        SDL_Surface* surface;
+        SDL_Surface* surface{ nullptr };
         if (render_type == RenderType::Solid) {
             surface = TTF_RenderUTF8_Solid(font.get(), text.c_str(), text_color);
         } else if (render_type == RenderType::Blended) {

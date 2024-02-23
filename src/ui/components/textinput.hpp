@@ -78,7 +78,9 @@ namespace ui {
             }
         }
 
-        helper::BoolWrapper<ui::EventHandleType> handle_event(const SDL_Event& event, const Window* window) override {
+        helper::BoolWrapper<ui::EventHandleType>
+        handle_event(const SDL_Event& event, const Window* window) // NOLINT(readability-function-cognitive-complexity)
+                override {
             if (const auto hover_result = detect_hover(event, window); hover_result) {
                 if (hover_result.is(ActionType::Clicked)) {
                     return { true, EventHandleType::RequestFocus };
@@ -157,7 +159,7 @@ namespace ui {
                     break;
                 }
                 case SDL_TEXTINPUT: {
-                    if (SDL_strlen(event.text.text) == 0 || event.text.text[0] == '\n') {
+                    if (SDL_strlen(event.text.text) == 0 or event.text.text[0] == '\n') {
                         return true;
                     }
 
@@ -192,7 +194,7 @@ namespace ui {
                 throw std::runtime_error("cursor_postion is invalid!");
             }
 
-            std::string result{};
+            const std::string result{};
 
             for (auto [current_iterator, i] = std::tuple{ m_text.begin(), u32{ 0 } };; ++i) {
 

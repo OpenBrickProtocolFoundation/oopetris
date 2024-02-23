@@ -311,9 +311,9 @@ namespace ui {
             assert(current_focusable.has_value());
             auto next_focusable = as_focusable(m_widgets.at(focusable_index_by_id(focusable_ids.at(next_index))).get());
             assert(next_focusable.has_value());
-            (*current_focusable)->unfocus();
-            (*next_focusable)->focus();
-            m_focus_id = (*next_focusable)->focus_id();
+            current_focusable.value()->unfocus();            // NOLINT(bugprone-unchecked-optional-access)
+            next_focusable.value()->focus();                 // NOLINT(bugprone-unchecked-optional-access)
+            m_focus_id = next_focusable.value()->focus_id(); // NOLINT(bugprone-unchecked-optional-access)
 
             return true;
         }
