@@ -266,7 +266,8 @@ namespace ui {
                         const auto& layout_rect = widget->layout().get_rect();
                         const auto& offset_rect = layout_rect.move(offset_distance);
 
-                        if (not handled and utils::is_event_in(window, event, main_rect) and utils::is_event_in(window, event, offset_rect)) {
+                        if (not handled and utils::is_event_in(window, event, main_rect)
+                            and utils::is_event_in(window, event, offset_rect)) {
                             const auto offset_event = utils::offset_event(window, event, -offset_distance);
 
                             if (widget->handle_event(offset_event, window)) {
@@ -411,18 +412,18 @@ namespace ui {
             // if we don't need to fill-up the whole main_rect, we need a special viewport
             if (total_widgets_height < scrollbar_rect.height()) {
                 m_viewport = shapes::Rect{ 0, 0, main_rect.width(), total_widgets_height };
+            } else {
+                // check if desired_scroll_height is valid:
+                auto scroll_height = desired_scroll_height;
+
+                if (desired_scroll_height < 0) {
+                    scroll_height = 0;
+                } else if (desired_scroll_height + main_rect.height() > total_widgets_height) {
+                    scroll_height = total_widgets_height - main_rect.height();
+                }
+
+                m_viewport = shapes::Rect{ 0, scroll_height, main_rect.width(), main_rect.height() };
             }
-
-            // check if desired_scroll_height is valid:
-            auto scroll_height = desired_scroll_height;
-
-            if (desired_scroll_height < 0) {
-                scroll_height = 0;
-            } else if (desired_scroll_height + main_rect.height() > total_widgets_height) {
-                scroll_height = total_widgets_height - main_rect.height();
-            }
-
-            m_viewport = shapes::Rect{ 0, scroll_height, main_rect.width(), main_rect.height() };
 
 
             // recalculate scrollbar mover rect

@@ -36,4 +36,8 @@ namespace shapes {
         }
     };
 
+    inline std::ostream& operator<<(std::ostream& ostream, const Rect& rect) {
+        ostream << rect.top_left << ": " << rect.width() << "x" << rect.height();
+        return ostream;
+    }
 } // namespace shapes
