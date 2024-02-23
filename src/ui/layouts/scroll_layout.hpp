@@ -95,6 +95,7 @@ namespace ui {
             const auto absolut_margin = std::pair<u32, u32>{ static_cast<u32>(margin.first * layout_rect.width()),
                                                              static_cast<u32>(margin.second * layout_rect.height()) };
 
+            constexpr u32 absolut_gap = 10;
 
             const auto scroll_bar_width = static_cast<u32>(0.02 * layout_rect.width());
 
@@ -106,7 +107,8 @@ namespace ui {
 
 
             main_rect = shapes::Rect{ static_cast<int>(start_x), static_cast<int>(start_y),
-                                      static_cast<int>(new_width - scroll_bar_width), static_cast<int>(new_height) };
+                                      static_cast<int>(new_width - scroll_bar_width - absolut_gap),
+                                      static_cast<int>(new_height) };
             scrollbar_rect =
                     shapes::Rect{ static_cast<int>(start_x + new_width - scroll_bar_width), static_cast<int>(start_y),
                                   static_cast<int>(scroll_bar_width), static_cast<int>(new_height) };
@@ -264,7 +266,7 @@ namespace ui {
                         const auto& layout_rect = widget->layout().get_rect();
                         const auto& offset_rect = layout_rect.move(offset_distance);
 
-                        if (not handled and utils::is_event_in(window, event, offset_rect)) {
+                        if (not handled and utils::is_event_in(window, event, main_rect) and utils::is_event_in(window, event, offset_rect)) {
                             const auto offset_event = utils::offset_event(window, event, -offset_distance);
 
                             if (widget->handle_event(offset_event, window)) {
