@@ -13,6 +13,7 @@ find_package(spdlog CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(magic_enum CONFIG REQUIRED)
 find_package(httplib CONFIG REQUIRED COMPONENTS OpenSSL ZLIB)
+find_package(utf8cpp CONFIG REQUIRED)
 
 set(TARGET_LIST oopetris SDL2::SDL2-static)
 
@@ -109,6 +110,7 @@ add_executable(oopetris
     src/ui/components/label.hpp
     src/ui/components/link_label.hpp
     src/ui/components/slider.hpp
+    src/ui/components/textinput.hpp
     src/ui/focusable.hpp
     src/ui/hoverable.hpp
     src/ui/layout.cpp
@@ -163,6 +165,7 @@ target_link_libraries(oopetris PRIVATE $<IF:$<TARGET_EXISTS:SDL2_ttf::SDL2_ttf>,
 target_link_libraries(oopetris PRIVATE $<IF:$<TARGET_EXISTS:SDL2_mixer::SDL2_mixer>,SDL2_mixer::SDL2_mixer,SDL2_mixer::SDL2_mixer-static>)
 target_link_libraries(oopetris PRIVATE $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,SDL2_image::SDL2_image,SDL2_image::SDL2_image-static>)
 target_link_libraries(oopetris PRIVATE httplib::httplib)
+target_link_libraries(oopetris PRIVATE utf8cpp::utf8cpp)
 
 INCLUDE(CheckCXXSourceCompiles)
 
