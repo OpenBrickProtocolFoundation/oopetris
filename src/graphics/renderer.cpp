@@ -66,7 +66,6 @@ Texture Renderer::prerender_text(const std::string& text, const Font& font, cons
     return Texture::prerender_text(m_renderer, text, font, color);
 }
 
-
 Texture Renderer::get_texture_for_render_target(const shapes::Point& size) const {
 
 

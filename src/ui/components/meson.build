@@ -4,4 +4,5 @@ src_files += files(
     'label.hpp',
     'link_label.hpp',
     'slider.hpp',
+    'textinput.hpp',
 )

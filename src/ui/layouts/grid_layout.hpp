@@ -104,7 +104,7 @@ namespace ui {
 
         template<typename T, typename... Args>
         u32 add(Args... args) {
-            const auto index = m_widgets.size();
+            const u32 index = static_cast<u32>(m_widgets.size());
 
             if (index >= this->size) {
                 throw std::runtime_error("GridLayout is already full");

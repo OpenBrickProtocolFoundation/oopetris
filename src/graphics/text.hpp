@@ -16,7 +16,7 @@ private:
     Texture m_text;
 
 public:
-    Text(ServiceProvider* service_provider,
+    Text(const ServiceProvider* service_provider,
          const std::string& text,
          const Font& font,
          const Color& color,

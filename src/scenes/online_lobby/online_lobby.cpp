@@ -3,6 +3,7 @@
 #include "helper/constants.hpp"
 #include "manager/music_manager.hpp"
 #include "manager/resource_manager.hpp"
+#include "ui/components/textinput.hpp"
 #include "ui/layout.hpp"
 #include "ui/layouts/scroll_layout.hpp"
 
@@ -41,15 +42,25 @@ namespace scenes {
 
         auto* scroll_layout = m_main_layout.get<ui::ScrollLayout>(scroll_layout_index);
 
-        for (auto i = 0; i < 15; ++i) {
-            scroll_layout->add<ui::Button>(
-                    ui::RelativeItemSize{ scroll_layout->layout(), 0.2 }, service_provider,
-                    fmt::format("Button Nr.: {}", i), service_provider->fonts().get(FontId::Default), Color::white(),
-                    id_helper.focus_id(), [i](const ui::Button&) { std::cout << "Pressed button: " << i << "\n"; },
-                    std::pair<double, double>{ 0.8, 1.0 },
-                    ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
-                    std::pair<double, double>{ 0.1, 0.2 }
-            );
+        for (auto i = 0; i < 3; ++i) {
+            if (i == 2) {
+                scroll_layout->add<ui::TextInput>(
+                        ui::RelativeItemSize{ scroll_layout->layout(), 0.2 }, service_provider,
+                        service_provider->fonts().get(FontId::Symbola), Color::white(), id_helper.focus_id(),
+                        std::pair<double, double>{ 0.9, 0.9 },
+                        ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
+                );
+            } else {
+                scroll_layout->add<ui::Button>(
+                        ui::RelativeItemSize{ scroll_layout->layout(), 0.2 }, service_provider,
+                        fmt::format("Button Nr.: {}", i), service_provider->fonts().get(FontId::Default),
+                        Color::white(), id_helper.focus_id(),
+                        [i](const ui::Button&) { std::cout << "Pressed button: " << i << "\n"; },
+                        std::pair<double, double>{ 0.8, 1.0 },
+                        ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
+                        std::pair<double, double>{ 0.1, 0.2 }
+                );
+            }
         }
 
         constexpr auto button_size = utils::device_orientation() == utils::Orientation::Landscape

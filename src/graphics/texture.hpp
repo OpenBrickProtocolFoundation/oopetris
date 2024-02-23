@@ -3,6 +3,7 @@
 
 
 #include "helper/color.hpp"
+#include "helper/utils.hpp"
 #include "manager/font.hpp"
 #include "point.hpp"
 #include "rect.hpp"
@@ -12,6 +13,8 @@
 #include <fmt/format.h>
 #include <spdlog/spdlog.h>
 #include <string>
+
+enum class RenderType { Solid, Blended, Shaded, LCD };
 
 struct Texture {
 private:
@@ -31,11 +34,28 @@ public:
         return Texture{ image };
     }
 
-    static Texture
-    prerender_text(SDL_Renderer* renderer, const std::string& text, const Font& font, const Color& color) {
+    static Texture prerender_text(
+            SDL_Renderer* renderer,
+            const std::string& text,
+            const Font& font,
+            const Color& color,
+            RenderType render_type = RenderType::Blended,
+            const Color& background_color = Color::black()
+    ) {
 
         const SDL_Color text_color = color.to_sdl_color();
-        SDL_Surface* const surface = TTF_RenderUTF8_Solid(font.get(), text.c_str(), text_color);
+        SDL_Surface* surface;
+        if (render_type == RenderType::Solid) {
+            surface = TTF_RenderUTF8_Solid(font.get(), text.c_str(), text_color);
+        } else if (render_type == RenderType::Blended) {
+            surface = TTF_RenderUTF8_Blended(font.get(), text.c_str(), text_color);
+        } else if (render_type == RenderType::Shaded) {
+            surface = TTF_RenderUTF8_Shaded(font.get(), text.c_str(), text_color, background_color.to_sdl_color());
+        } else if (render_type == RenderType::LCD) {
+            surface = TTF_RenderUTF8_LCD(font.get(), text.c_str(), text_color, background_color.to_sdl_color());
+        } else {
+            utils::unreachable();
+        }
         if (surface == nullptr) {
             throw std::runtime_error(fmt::format("Failed to pre-render text with error: {}", SDL_GetError()));
         }
