@@ -25,7 +25,7 @@ namespace ui {
 
         explicit TextInput(
                 ServiceProvider* service_provider,
-                const Font& font,
+                Font font,
                 const Color& color,
                 usize focus_id,
                 const shapes::Rect& fill_rect,
@@ -35,14 +35,14 @@ namespace ui {
               Focusable{ focus_id },
               Hoverable{ fill_rect },
               m_service_provider{ service_provider },
-              m_font{ font },
+              m_font{ std::move(font) },
               m_color{ color },
               m_text_rect{ layout.get_rect() } { }
 
     public:
         explicit TextInput(
                 ServiceProvider* service_provider,
-                const Font& font,
+                Font font,
                 const Color& color,
                 usize focus_id,
                 std::pair<double, double> size,
@@ -50,7 +50,7 @@ namespace ui {
                 Layout layout
         )
             : TextInput{ service_provider,
-                         font,
+                         std::move(font),
                          color,
                          focus_id,
                          ui::get_rectangle_aligned(
@@ -141,11 +141,13 @@ namespace ui {
 
                                 if (SDL_HasClipboardText() != SDL_FALSE) {
                                     char* text = SDL_GetClipboardText();
-                                    if (SDL_strlen(event.text.text) == 0) {
+                                    if (SDL_strlen(static_cast<const char*>(event.text.text)) == 0) {
                                         return true;
                                     }
-                                    std::string new_string{ text };
-                                    SDL_free(text);
+                                    const std::string new_string{ text };
+                                    SDL_free( // NOLINT(cppcoreguidelines-no-malloc, cppcoreguidelines-owning-memory)
+                                            text
+                                    );
                                     add_string(new_string);
                                 }
 
@@ -159,11 +161,11 @@ namespace ui {
                     break;
                 }
                 case SDL_TEXTINPUT: {
-                    if (SDL_strlen(event.text.text) == 0 or event.text.text[0] == '\n') {
+                    if (SDL_strlen(static_cast<const char*>(event.text.text)) == 0 or event.text.text[0] == '\n') {
                         return true;
                     }
 
-                    std::string new_string{ event.text.text };
+                    const std::string new_string{ static_cast<const char*>(event.text.text) };
                     add_string(new_string);
 
                     return true;
@@ -194,7 +196,7 @@ namespace ui {
                 throw std::runtime_error("cursor_postion is invalid!");
             }
 
-            const std::string result{};
+            std::string result{};
 
             for (auto [current_iterator, i] = std::tuple{ m_text.begin(), u32{ 0 } };; ++i) {
 
