@@ -50,6 +50,8 @@ namespace scenes {
     }
 
     [[nodiscard]] Scene::UpdateResult PlaySelectMenu::update() {
+        m_main_grid.update();
+
         if (m_next_command.has_value()) {
             switch (m_next_command.value()) {
                 case Command::SinglePlayer:

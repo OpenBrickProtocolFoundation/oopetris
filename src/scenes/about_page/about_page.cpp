@@ -65,6 +65,8 @@ namespace scenes {
     }
 
     [[nodiscard]] Scene::UpdateResult AboutPage::update() {
+        m_main_grid.update();
+
         if (m_should_exit) {
             return UpdateResult{ SceneUpdate::StopUpdating, Scene::Pop{} };
         }

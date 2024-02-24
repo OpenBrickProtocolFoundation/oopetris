@@ -62,6 +62,8 @@ namespace scenes {
     }
 
     [[nodiscard]] Scene::UpdateResult SettingsMenu::update() {
+        m_main_grid.update();
+
         if (m_should_exit) {
             m_service_provider->music_manager().remove_volume_listener(listener_name);
             return UpdateResult{ SceneUpdate::StopUpdating, Scene::Pop{} };

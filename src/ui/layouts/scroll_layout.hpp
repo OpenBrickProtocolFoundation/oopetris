@@ -120,6 +120,12 @@ namespace ui {
             return static_cast<u32>(m_widgets.size());
         }
 
+        void update() override {
+            for (auto& widget : m_widgets) {
+                widget->update();
+            }
+        }
+
         void render(const ServiceProvider& service_provider) const override {
 
             const auto& renderer = service_provider.renderer();

@@ -80,6 +80,8 @@ namespace scenes {
     }
 
     [[nodiscard]] Scene::UpdateResult OnlineLobby::update() {
+        m_main_layout.update();
+
         if (m_next_command.has_value()) {
             switch (m_next_command.value()) {
                 case Command::Play:

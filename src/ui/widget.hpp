@@ -31,6 +31,9 @@ namespace ui {
             return m_layout;
         }
 
+        virtual void update() {
+            // do nothing
+        }
         virtual void render(const ServiceProvider& service_provider) const = 0;
         [[nodiscard]] virtual helper::BoolWrapper<ui::EventHandleType>
         handle_event(const SDL_Event& event, const Window* window) = 0;

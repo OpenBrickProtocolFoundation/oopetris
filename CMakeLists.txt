@@ -60,6 +60,7 @@ add_executable(oopetris
     src/helper/random.cpp
     src/helper/random.hpp
     src/helper/static_string.hpp
+    src/helper/timer.hpp
     src/helper/types.hpp
     src/helper/utils.cpp
     src/helper/utils.hpp

@@ -1,6 +1,8 @@
 #pragma once
 
+#include "graphics/renderer.hpp"
 #include "graphics/text.hpp"
+#include "helper/timer.hpp"
 #include "input/event_dispatcher.hpp"
 #include "ui/focusable.hpp"
 #include "ui/hoverable.hpp"
@@ -18,10 +20,12 @@ namespace ui {
         Font m_font;
         Color m_color;
         shapes::Rect m_text_rect;
-        //  Texture text;
-        //  shapes::Rect m_viewport;
-        bool cursor_shown{ false };
-
+        Texture m_text_texture;
+        shapes::Rect m_viewport;
+        shapes::Rect m_cursor_rect;
+        u32 scaled_text_size;
+        bool cursor_shown{ true };
+        helper::Timer timer;
 
         explicit TextInput(
                 ServiceProvider* service_provider,
@@ -37,7 +41,14 @@ namespace ui {
               m_service_provider{ service_provider },
               m_font{ std::move(font) },
               m_color{ color },
-              m_text_rect{ layout.get_rect() } { }
+              m_text_rect{ layout.get_rect() },
+              m_text_texture{ service_provider->renderer().get_texture_for_render_target(
+                      shapes::Point(1, 1) // this is a dummy point!
+              ) },
+              scaled_text_size{ 0 },
+              timer{ [this]() { this->cursor_shown = !this->cursor_shown; }, std::chrono::milliseconds(500) } {
+            recalculate_textures(false);
+        }
 
     public:
         explicit TextInput(
@@ -66,15 +77,38 @@ namespace ui {
         }
 
 
+        void update() override {
+            // update the timer every frame (in which we have the focus), to check if the time has passed, to have a blinking cursor
+            if (has_focus()) {
+                timer.check();
+            }
+        }
+
         void render(const ServiceProvider& service_provider) const override {
             const auto background_color = has_focus()    ? Color(0x6D, 0x6E, 0x6D)
                                           : is_hovered() ? Color(0x47, 0x47, 0x47)
                                                          : Color(0x3A, 0x3B, 0x39);
 
-            service_provider.renderer().draw_rect_filled(layout().get_rect(), background_color);
+            const auto& renderer = service_provider.renderer();
+            const auto& layout_rect = layout().get_rect();
+
+            renderer.draw_rect_filled(layout_rect, background_color);
             if (not m_text.empty()) {
-                const Text text{ &service_provider, m_text, m_font, m_color, m_text_rect };
-                text.render(service_provider);
+
+                auto to_rect = layout_rect;
+
+                // the text fits, so we don't have to scroll, the to_rect isn't the whole layout_rect
+                if (scaled_text_size < static_cast<u32>(layout_rect.width())) {
+                    to_rect = shapes::Rect{ layout_rect.top_left.x, layout_rect.top_left.y,
+                                            static_cast<int>(scaled_text_size), layout_rect.height() };
+                }
+
+
+                renderer.draw_texture(m_text_texture, m_viewport, to_rect);
+            }
+
+            if (cursor_shown and has_focus()) {
+                renderer.draw_rect_filled(m_cursor_rect, m_color);
             }
         }
 
@@ -104,10 +138,12 @@ namespace ui {
                                 if (remove_all) {
                                     m_text = "";
                                     cursor_position = 0;
+                                    recalculate_textures(true);
                                     return true;
                                 }
 
                                 remove_at_cursor();
+                                recalculate_textures(true);
                             }
 
                             return true;
@@ -121,6 +157,7 @@ namespace ui {
                                 }
                             }
 
+                            recalculate_textures(false);
                             return true;
                         }
                         case SDLK_RIGHT: {
@@ -134,6 +171,7 @@ namespace ui {
                                 }
                             }
 
+                            recalculate_textures(false);
                             return true;
                         }
                         case SDLK_v: {
@@ -149,6 +187,7 @@ namespace ui {
                                             text
                                     );
                                     add_string(new_string);
+                                    recalculate_textures(true);
                                 }
 
                                 return true;
@@ -167,6 +206,7 @@ namespace ui {
 
                     const std::string new_string{ static_cast<const char*>(event.text.text) };
                     add_string(new_string);
+                    recalculate_textures(true);
 
                     return true;
                 }
@@ -181,6 +221,95 @@ namespace ui {
         }
 
     private:
+        void recalculate_textures(bool text_changed) {
+
+            const auto layout_rect = layout().get_rect();
+            const auto& renderer = m_service_provider->renderer();
+
+            const auto unmoved_cursor = shapes::Rect(
+                    0, static_cast<int>(static_cast<double>(layout_rect.height()) * 0.05), 5,
+                    static_cast<int>(static_cast<double>(layout_rect.height()) * 0.90)
+            );
+
+            if (m_text.empty()) {
+                m_viewport = shapes::Rect{ 0, 0, 0, 0 };
+
+                m_cursor_rect = unmoved_cursor.move(layout_rect.top_left);
+
+
+                if (text_changed) {
+                    m_text_texture =
+                            renderer.get_texture_for_render_target(shapes::Point(1, 1) // this is a dummy point!
+                            );
+                    scaled_text_size = 0;
+                }
+
+
+                return;
+            }
+
+
+            if (text_changed) {
+                m_text_texture = renderer.prerender_text(m_text, m_font, m_color);
+
+                const double ratio =
+                        static_cast<double>(m_text_texture.size().y) / static_cast<double>(layout_rect.height());
+
+                scaled_text_size = static_cast<u32>(static_cast<double>(m_text_texture.size().x) / ratio);
+            }
+
+
+            m_viewport = shapes::Rect{ 0, 0, m_text_texture.size().x, m_text_texture.size().y };
+
+
+            if (cursor_position == 0) {
+                m_cursor_rect = unmoved_cursor.move(layout_rect.top_left);
+            } else {
+                // calculate substring that is before the cursor
+
+                std::string sub_string{};
+
+                for (auto [current_iterator, i] = std::tuple{ m_text.begin(), u32{ 0 } };; ++i) {
+
+                    if (i == cursor_position) {
+                        break;
+                    }
+
+                    if (current_iterator == m_text.end()) {
+                        break;
+                    }
+
+                    utf8::append(utf8::next(current_iterator, m_text.end()), sub_string);
+                }
+
+
+                int w = 0;
+                int h = 0;
+                int result = TTF_SizeUTF8(m_font.get(), sub_string.c_str(), &w, &h);
+
+                if (result < 0) {
+                    throw std::runtime_error("Error during SDL_TTF_SizeUTF8: " + std::string{ SDL_GetError() });
+                }
+
+
+                const double ratio = static_cast<double>(h) / static_cast<double>(layout_rect.height());
+
+
+                const int move_x = static_cast<int>(static_cast<double>(w) / ratio);
+
+                m_cursor_rect = unmoved_cursor.move(layout_rect.top_left).move(shapes::Point{ move_x, 0 });
+            }
+
+
+            // the text doesn't fit, so we have to scroll,we have to offset the viewport and the cursor_rect accordingly and center the viewport around teh cursor
+            if (scaled_text_size >= static_cast<u32>(layout_rect.width())) {
+                
+                //TODO: WIP
+                //TODO: adapt viewport
+                //TODO move cursor rect correctly
+            }
+        }
+
         bool add_string(const std::string& add) {
 
             const auto is_valid = utf8::is_valid(add.cbegin(), add.cend());
@@ -244,22 +373,14 @@ namespace ui {
             return true;
         }
 
-        void recalculate_cursor() {
-
-            const auto current_string_length = utf8::distance(m_text.cbegin(), m_text.cend());
-
-            // cursor_position is the range [0, length] (inclusively !)
-            if (cursor_position > current_string_length) {
-                throw std::runtime_error("cursor_postion is invalid!");
-            }
-        }
-
         void on_focus() override {
             m_service_provider->event_dispatcher().start_text_input(layout().get_rect());
+            timer.start();
         }
 
         void on_unfocus() override {
             m_service_provider->event_dispatcher().stop_text_input();
+            timer.stop();
         }
     };
 } // namespace ui

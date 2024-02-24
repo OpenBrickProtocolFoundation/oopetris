@@ -46,9 +46,14 @@ namespace ui {
             return size;
         }
 
+        void update() override {
+            for (auto& widget : m_widgets) {
+                widget->update();
+            }
+        }
+
         void render(const ServiceProvider& service_provider) const override {
             for (const auto& widget : m_widgets) {
-                assert(widget.get() != nullptr && "Grid Layout initalized with to few child widgets!");
                 widget->render(service_provider);
             }
         }

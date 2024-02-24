@@ -14,6 +14,7 @@ src_files += files(
     'random.cpp',
     'random.hpp',
     'static_string.hpp',
+    'timer.hpp',
     'types.hpp',
     'utils.cpp',
     'utils.hpp',

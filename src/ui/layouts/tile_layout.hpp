@@ -54,6 +54,12 @@ namespace ui {
             static_assert(S != 0 and "TileLayout has to hold at least one child");
         }
 
+        void update() override {
+            for (auto& widget : m_widgets) {
+                widget->update();
+            }
+        }
+
         void render(const ServiceProvider& service_provider) const override {
             for (const auto& widget : m_widgets) {
                 widget->render(service_provider);
