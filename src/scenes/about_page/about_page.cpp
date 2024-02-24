@@ -15,7 +15,7 @@ namespace scenes {
 
     AboutPage::AboutPage(ServiceProvider* service_provider, const  ui::Layout& layout) : Scene{service_provider, layout}
 , m_main_grid{
-    3 + authors.size(),
+    3 + static_cast<u32>(authors.size()),
     ui::Direction::Vertical,
     ui::RelativeMargin{ layout, ui::Direction::Vertical, 0.05 },
     std::pair<double, double>{ 0.05, 0.05 } ,
