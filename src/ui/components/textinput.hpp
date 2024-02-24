@@ -84,6 +84,7 @@ namespace ui {
             }
         }
 
+        //TODO: how to handle text limits (since texture for texts on the gpu can't get unlimitedly big, maybe use software texture?)
         void render(const ServiceProvider& service_provider) const override {
             const auto background_color = has_focus()    ? Color(0x6D, 0x6E, 0x6D)
                                           : is_hovered() ? Color(0x47, 0x47, 0x47)
@@ -226,8 +227,9 @@ namespace ui {
             const auto layout_rect = layout().get_rect();
             const auto& renderer = m_service_provider->renderer();
 
+            constexpr auto cursor_width = 4;
             const auto unmoved_cursor = shapes::Rect(
-                    0, static_cast<int>(static_cast<double>(layout_rect.height()) * 0.05), 5,
+                    0, static_cast<int>(static_cast<double>(layout_rect.height()) * 0.05), cursor_width,
                     static_cast<int>(static_cast<double>(layout_rect.height()) * 0.90)
             );
 
@@ -244,27 +246,25 @@ namespace ui {
                     scaled_text_size = 0;
                 }
 
-
                 return;
             }
 
 
+            double ratio = static_cast<double>(m_text_texture.size().y) / static_cast<double>(layout_rect.height());
+
             if (text_changed) {
                 m_text_texture = renderer.prerender_text(m_text, m_font, m_color);
 
-                const double ratio =
-                        static_cast<double>(m_text_texture.size().y) / static_cast<double>(layout_rect.height());
+                ratio = static_cast<double>(m_text_texture.size().y) / static_cast<double>(layout_rect.height());
 
                 scaled_text_size = static_cast<u32>(static_cast<double>(m_text_texture.size().x) / ratio);
             }
 
-
             m_viewport = shapes::Rect{ 0, 0, m_text_texture.size().x, m_text_texture.size().y };
 
+            int cursor_offset = 0;
 
-            if (cursor_position == 0) {
-                m_cursor_rect = unmoved_cursor.move(layout_rect.top_left);
-            } else {
+            if (cursor_position != 0) {
                 // calculate substring that is before the cursor
 
                 std::string sub_string{};
@@ -282,7 +282,6 @@ namespace ui {
                     utf8::append(utf8::next(current_iterator, m_text.end()), sub_string);
                 }
 
-
                 int w = 0;
                 int h = 0;
                 int result = TTF_SizeUTF8(m_font.get(), sub_string.c_str(), &w, &h);
@@ -291,22 +290,35 @@ namespace ui {
                     throw std::runtime_error("Error during SDL_TTF_SizeUTF8: " + std::string{ SDL_GetError() });
                 }
 
+                const double ratio_sub_string = static_cast<double>(h) / static_cast<double>(layout_rect.height());
 
-                const double ratio = static_cast<double>(h) / static_cast<double>(layout_rect.height());
-
-
-                const int move_x = static_cast<int>(static_cast<double>(w) / ratio);
-
-                m_cursor_rect = unmoved_cursor.move(layout_rect.top_left).move(shapes::Point{ move_x, 0 });
+                cursor_offset = static_cast<int>(static_cast<double>(w) / ratio_sub_string);
             }
 
+            m_cursor_rect = unmoved_cursor.move(layout_rect.top_left).move(shapes::Point{ cursor_offset, 0 });
 
-            // the text doesn't fit, so we have to scroll,we have to offset the viewport and the cursor_rect accordingly and center the viewport around teh cursor
+            // the text doesn't fit, so we have to scroll,we have to offset the viewport and the cursor_rect accordingly and center the viewport around the cursor
             if (scaled_text_size >= static_cast<u32>(layout_rect.width())) {
-                
-                //TODO: WIP
-                //TODO: adapt viewport
-                //TODO move cursor rect correctly
+
+                const auto cursor_middle = cursor_offset - (layout_rect.width() / 2);
+
+                auto final_offset = cursor_middle;
+
+                if (cursor_middle < 0) {
+                    final_offset = 0;
+                } else if ((scaled_text_size - cursor_middle) < static_cast<u32>(layout_rect.width())) {
+                    final_offset = scaled_text_size - layout_rect.width();
+
+                    // if we reached the end, we have shift the cursor for some  pixels, so that we can see the bar xD, thsi strectehces it slightly, but it's a simple solution
+                    if ((scaled_text_size - cursor_middle) <= static_cast<u32>(layout_rect.width() / 2)) {
+                        final_offset += 2 * cursor_width;
+                    }
+                }
+
+                m_viewport = shapes::Rect{ static_cast<int>(static_cast<double>(final_offset) * ratio), 0,
+                                           static_cast<int>(static_cast<double>(layout_rect.width()) * ratio),
+                                           m_text_texture.size().y };
+                m_cursor_rect = m_cursor_rect.move(shapes::Point{ -final_offset, 0 });
             }
         }
 

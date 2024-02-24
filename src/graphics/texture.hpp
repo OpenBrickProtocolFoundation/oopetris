@@ -55,11 +55,18 @@ public:
             utils::unreachable();
         }
         if (surface == nullptr) {
-            throw std::runtime_error(fmt::format("Failed to pre-render text with error: {}", SDL_GetError()));
+            throw std::runtime_error(
+                    fmt::format("Failed to pre-render text into surface with error: {}", SDL_GetError())
+            );
         }
 
         SDL_Texture* const texture = SDL_CreateTextureFromSurface(renderer, surface);
         SDL_FreeSurface(surface);
+        if (texture == nullptr) {
+            throw std::runtime_error(
+                    fmt::format("Failed to pre-render text into texture with error: {}", SDL_GetError())
+            );
+        }
 
 
         return Texture{ texture };

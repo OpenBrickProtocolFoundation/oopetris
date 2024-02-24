@@ -248,7 +248,7 @@ namespace ui {
                     }
                 } else if (event.type == SDL_MOUSEWHEEL) {
 
-                    // attention the mouse direction changes (it's called natural scrolling on macos/ windows / linux) are not detected by sdl until restart, and here we use the correct scroll behaviour, as teh user configured the mouse in it's OS
+                    // attention the mouse direction changes (it's called natural scrolling on macos/ windows / linux) are not detected by sdl until restart, and here we use the correct scroll behaviour, as the user configured the mouse in it's OS
                     const bool direction_is_down =
                             event.wheel.direction == SDL_MOUSEWHEEL_NORMAL ? event.wheel.y < 0 : event.wheel.y > 0;
 
