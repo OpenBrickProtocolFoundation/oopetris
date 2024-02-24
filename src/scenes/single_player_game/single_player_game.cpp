@@ -223,7 +223,7 @@ namespace scenes {
             while (simulation_step_index < m_clock_sources.at(i)->simulation_step_index()) {
                 ++simulation_step_index;
                 input.update(simulation_step_index);
-                tetrion.update(simulation_step_index);
+                tetrion.update_step(simulation_step_index);
                 input.late_update(simulation_step_index);
             }
         }

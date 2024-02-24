@@ -66,7 +66,7 @@ Tetrion::Tetrion(
     refresh_texts();
 }
 
-void Tetrion::update(const SimulationStep simulation_step_index) {
+void Tetrion::update_step(const SimulationStep simulation_step_index) {
     switch (m_game_state) {
         case GameState::Playing: {
             if (simulation_step_index >= m_next_gravity_simulation_step_index) {

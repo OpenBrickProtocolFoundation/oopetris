@@ -85,7 +85,7 @@ public:
             ServiceProvider* service_provider,
             helper::optional<RecordingWriter*> recording_writer,
             const ui::Layout& layout);
-    void update(SimulationStep simulation_step_index);
+    void update_step(SimulationStep simulation_step_index);
     void render(const ServiceProvider& service_provider) const override;
     [[nodiscard]] helper::BoolWrapper<ui::EventHandleType> handle_event(const SDL_Event& event, const Window* window)
             override;
