@@ -13,7 +13,6 @@ namespace helper {
         using Clock = std::chrono::high_resolution_clock;
         using Duration = std::chrono::nanoseconds;
 
-        Clock m_clock{};
         bool m_running{ false };
         std::chrono::time_point<Clock> last_measured;
         Callback m_callback;
@@ -27,7 +26,7 @@ namespace helper {
 
         void start() {
             m_running = true;
-            last_measured = m_clock.now();
+            last_measured = Clock::now();
         }
 
         void stop() {
@@ -39,7 +38,7 @@ namespace helper {
                 return;
             }
 
-            const auto now = m_clock.now();
+            const auto now = Clock::now();
 
             const auto difference = now - last_measured;
 

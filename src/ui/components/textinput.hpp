@@ -72,7 +72,7 @@ namespace ui {
                          ),
                          layout } { }
 
-        ~TextInput() {
+        ~TextInput() override {
             on_unfocus();
         }
 
@@ -284,7 +284,7 @@ namespace ui {
 
                 int w = 0;
                 int h = 0;
-                int result = TTF_SizeUTF8(m_font.get(), sub_string.c_str(), &w, &h);
+                const int result = TTF_SizeUTF8(m_font.get(), sub_string.c_str(), &w, &h);
 
                 if (result < 0) {
                     throw std::runtime_error("Error during SDL_TTF_SizeUTF8: " + std::string{ SDL_GetError() });
@@ -307,7 +307,7 @@ namespace ui {
                 if (cursor_middle < 0) {
                     final_offset = 0;
                 } else if ((scaled_text_size - cursor_middle) < static_cast<u32>(layout_rect.width())) {
-                    final_offset = scaled_text_size - layout_rect.width();
+                    final_offset = scaled_text_size - static_cast<u32>(layout_rect.width());
 
                     // if we reached the end, we have shift the cursor for some  pixels, so that we can see the bar xD, thsi strectehces it slightly, but it's a simple solution
                     if ((scaled_text_size - cursor_middle) <= static_cast<u32>(layout_rect.width() / 2)) {
