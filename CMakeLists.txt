@@ -13,6 +13,7 @@ find_package(spdlog CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(magic_enum CONFIG REQUIRED)
 find_package(httplib CONFIG REQUIRED COMPONENTS OpenSSL ZLIB)
+find_package(utf8cpp CONFIG REQUIRED)
 
 set(TARGET_LIST oopetris SDL2::SDL2-static)
 
@@ -44,6 +45,7 @@ add_executable(oopetris
     src/graphics/texture.hpp
     src/graphics/window.cpp
     src/graphics/window.hpp
+    src/helper/bool_wrapper.hpp
     src/helper/clock_source.cpp
     src/helper/clock_source.hpp
     src/helper/color.hpp
@@ -58,6 +60,7 @@ add_executable(oopetris
     src/helper/random.cpp
     src/helper/random.hpp
     src/helper/static_string.hpp
+    src/helper/timer.hpp
     src/helper/types.hpp
     src/helper/utils.cpp
     src/helper/utils.hpp
@@ -104,18 +107,19 @@ add_executable(oopetris
     src/scenes/settings_menu/settings_menu.hpp
     src/scenes/single_player_game/single_player_game.cpp
     src/scenes/single_player_game/single_player_game.hpp
-    src/ui/button.hpp
+    src/ui/components/button.hpp
+    src/ui/components/image_view.hpp
+    src/ui/components/label.hpp
+    src/ui/components/link_label.hpp
+    src/ui/components/slider.hpp
+    src/ui/components/textinput.hpp
     src/ui/focusable.hpp
-    src/ui/grid_layout.hpp
     src/ui/hoverable.hpp
-    src/ui/image_view.hpp
-    src/ui/label.hpp
     src/ui/layout.cpp
     src/ui/layout.hpp
-    src/ui/link_label.hpp
-    src/ui/scroll_layout.hpp
-    src/ui/slider.hpp
-    src/ui/tile_layout.hpp
+    src/ui/layouts/grid_layout.hpp
+    src/ui/layouts/scroll_layout.hpp
+    src/ui/layouts/tile_layout.hpp
     src/ui/widget.cpp
     src/ui/widget.hpp
 )
@@ -163,6 +167,7 @@ target_link_libraries(oopetris PRIVATE $<IF:$<TARGET_EXISTS:SDL2_ttf::SDL2_ttf>,
 target_link_libraries(oopetris PRIVATE $<IF:$<TARGET_EXISTS:SDL2_mixer::SDL2_mixer>,SDL2_mixer::SDL2_mixer,SDL2_mixer::SDL2_mixer-static>)
 target_link_libraries(oopetris PRIVATE $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,SDL2_image::SDL2_image,SDL2_image::SDL2_image-static>)
 target_link_libraries(oopetris PRIVATE httplib::httplib)
+target_link_libraries(oopetris PRIVATE utf8cpp::utf8cpp)
 
 INCLUDE(CheckCXXSourceCompiles)
 

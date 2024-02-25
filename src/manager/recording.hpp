@@ -139,13 +139,13 @@ private:
     };
 
     template<typename Result>
-    using ReadResult = helpers::expected<Result, ReadError>;
+    using ReadResult = helper::expected<Result, ReadError>;
 
     template<utils::integral Integral>
     [[nodiscard]] static ReadResult<Integral> read_integral_from_file(std::ifstream& file) {
         if (not file) {
             spdlog::error("failed to read data from file");
-            return helpers::unexpected<ReadError>{ ReadError::InvalidStream };
+            return helper::unexpected<ReadError>{ ReadError::InvalidStream };
         }
 
         Integral little_endian_data;
@@ -154,7 +154,7 @@ private:
                 sizeof(little_endian_data)
         );
         if (not file) {
-            return helpers::unexpected<ReadError>{ ReadError::Incomplete };
+            return helper::unexpected<ReadError>{ ReadError::Incomplete };
         }
         return utils::from_little_endian(little_endian_data);
     }
@@ -162,18 +162,18 @@ private:
     [[nodiscard]] static ReadResult<TetrionHeader> read_tetrion_header_from_file(std::ifstream& file) {
         if (not file) {
             spdlog::error("failed to read data from file");
-            return helpers::unexpected<ReadError>{ ReadError::InvalidStream };
+            return helper::unexpected<ReadError>{ ReadError::InvalidStream };
         }
 
         const auto seed = read_integral_from_file<decltype(TetrionHeader::seed)>(file);
 
         if (not seed.has_value()) {
-            return helpers::unexpected<ReadError>{ ReadError::Incomplete };
+            return helper::unexpected<ReadError>{ ReadError::Incomplete };
         }
 
         const auto starting_level = read_integral_from_file<decltype(TetrionHeader::starting_level)>(file);
         if (not starting_level.has_value()) {
-            return helpers::unexpected<ReadError>{ ReadError::Incomplete };
+            return helper::unexpected<ReadError>{ ReadError::Incomplete };
         }
 
         return TetrionHeader{ .seed = *seed, .starting_level = *starting_level };
@@ -182,22 +182,22 @@ private:
     [[nodiscard]] static ReadResult<Record> read_record_from_file(std::ifstream& file) {
         if (not file) {
             spdlog::error("invalid input file stream while trying to read record");
-            return helpers::unexpected<ReadError>{ ReadError::InvalidStream };
+            return helper::unexpected<ReadError>{ ReadError::InvalidStream };
         }
 
         const auto tetrion_index = read_integral_from_file<decltype(Record::tetrion_index)>(file);
         if (not tetrion_index.has_value()) {
-            return helpers::unexpected<ReadError>{ ReadError::EndOfFile };
+            return helper::unexpected<ReadError>{ ReadError::EndOfFile };
         }
 
         const auto simulation_step_index = read_integral_from_file<decltype(Record::simulation_step_index)>(file);
         if (not simulation_step_index.has_value()) {
-            return helpers::unexpected<ReadError>{ ReadError::Incomplete };
+            return helper::unexpected<ReadError>{ ReadError::Incomplete };
         }
 
         const auto event = read_integral_from_file<u8>(file);
         if (not file) {
-            return helpers::unexpected<ReadError>{ ReadError::Incomplete };
+            return helper::unexpected<ReadError>{ ReadError::Incomplete };
         }
 
         return Record{

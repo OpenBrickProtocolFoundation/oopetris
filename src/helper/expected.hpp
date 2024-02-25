@@ -8,7 +8,7 @@
 #endif
 
 
-namespace helpers {
+namespace helper {
 
 #ifdef _USE_TL_EXPECTED
     template<typename S, typename T>
@@ -27,4 +27,4 @@ namespace helpers {
 #endif
 
 
-} // namespace helpers
+} // namespace helper

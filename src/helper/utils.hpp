@@ -56,7 +56,7 @@ namespace utils {
 
     [[nodiscard]] std::filesystem::path get_root_folder();
 
-    helpers::optional<bool> log_error(const std::string& error);
+    helper::optional<bool> log_error(const std::string& error);
 
     template<usize data_size>
     constexpr auto get_supported_music_extension(
@@ -87,6 +87,12 @@ namespace utils {
         // TODO: throw exception in android build
         std::terminate();
     }
+
+    template<size_t T>
+    struct size_t_identity {
+        //using type = T;
+    };
+
 
 } // namespace utils
 

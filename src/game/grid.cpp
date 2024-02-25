@@ -40,7 +40,7 @@ void Grid::render(const ServiceProvider& service_provider) const {
     draw_playing_field_background(service_provider);
 }
 
-[[nodiscard]] bool Grid::handle_event(const SDL_Event&, const Window*) {
+[[nodiscard]] helper::BoolWrapper<ui::EventHandleType> Grid::handle_event(const SDL_Event&, const Window*) {
     return false;
 }
 

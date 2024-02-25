@@ -1,17 +1,24 @@
 #pragma once
 
 #include "scenes/scene.hpp"
-#include "ui/button.hpp"
-#include "ui/grid_layout.hpp"
-#include "ui/label.hpp"
-#include "ui/slider.hpp"
+#include "ui/components/button.hpp"
+#include "ui/components/label.hpp"
+#include "ui/components/slider.hpp"
+#include "ui/layouts/grid_layout.hpp"
 
 namespace scenes {
 
     struct AboutPage : public Scene {
     private:
         bool m_should_exit = false;
-        ui::GridLayout<5> m_main_grid;
+        ui::GridLayout m_main_grid;
+
+
+        static constexpr std::initializer_list<std::tuple<const char* const, const char* const, const char* const>>
+                authors{
+                    {"mgerhold", "https://github.com/mgerhold", "mgerhold.jpg"},
+                    { "Totto16",  "https://github.com/Totto16",  "Totto16.png"}
+        };
 
 
     public:

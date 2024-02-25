@@ -3,6 +3,7 @@
 #include "helper/utils.hpp"
 #include "manager/recording.hpp"
 #include "manager/resource_manager.hpp"
+
 #include <cassert>
 #include <fstream>
 #include <spdlog/spdlog.h>
@@ -13,62 +14,59 @@ Tetrion::Tetrion(
         const Random::Seed random_seed,
         const u32 starting_level,
         ServiceProvider* service_provider,
-        helpers::optional<RecordingWriter*> recording_writer,
+        helper::optional<RecordingWriter*> recording_writer,
         const ui::Layout& layout
 )
-    : ui::Widget{layout},
+    : ui::Widget{ layout },
       m_next_gravity_simulation_step_index{ get_gravity_delay_frames() },
       m_lock_delay_step_index{ lock_delay },
       m_service_provider{ service_provider },
       m_recording_writer{ recording_writer },
       m_random{ random_seed },
       m_level{ starting_level },
-    m_tetrion_index{ tetrion_index },
-    main_layout{
-        ui::Direction::Vertical,
-       std::array<double,1>{ 0.85},
-       ui::AbsolutMargin{0},
-        std::pair<double, double>{0.05,0.03},
-               layout
-        }
-       {
+      m_tetrion_index{ tetrion_index },
+      main_layout{ 
+            utils::size_t_identity<2>(),
+              ui::Direction::Vertical,
+              { 0.85 },
+              ui::AbsolutMargin{ 0 },
+              std::pair<double, double>{ 0.05, 0.03 },
+              layout
+       } {
 
-    auto id_helper = ui::IDHelper{};
+    main_layout.add<Grid>();
 
-    main_layout.add<Grid>(id_helper.index());
-
-    main_layout.add<ui::GridLayout<3>>(
-            id_helper.index(), ui::Direction::Vertical, ui::AbsolutMargin{ 0 }, std::pair<double, double>{ 0.0, 0.1 }
+    main_layout.add<ui::GridLayout>(
+            3, ui::Direction::Vertical, ui::AbsolutMargin{ 0 }, std::pair<double, double>{ 0.0, 0.1 }
     );
 
 
     auto* texts = get_texts();
-    auto id_helper2 = ui::IDHelper{};
 
     constexpr auto text_size = utils::device_orientation() == utils::Orientation::Landscape
                                        ? std::pair<double, double>{ 0.2, 0.8 }
                                        : std::pair<double, double>{ 0.6, 0.8 };
 
     texts->add<ui::Label>(
-            id_helper2.index(), service_provider, "score: 0", service_provider->fonts().get(FontId::Default),
-            Color::white(), text_size, ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
+            service_provider, "score: 0", service_provider->fonts().get(FontId::Default), Color::white(), text_size,
+            ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
     );
 
 
     texts->add<ui::Label>(
-            id_helper2.index(), service_provider, "lines: 0", service_provider->fonts().get(FontId::Default),
-            Color::white(), text_size, ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
+            service_provider, "lines: 0", service_provider->fonts().get(FontId::Default), Color::white(), text_size,
+            ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
     );
 
     texts->add<ui::Label>(
-            id_helper2.index(), service_provider, "lines: 0", service_provider->fonts().get(FontId::Default),
-            Color::white(), text_size, ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
+            service_provider, "lines: 0", service_provider->fonts().get(FontId::Default), Color::white(), text_size,
+            ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
     );
 
     refresh_texts();
 }
 
-void Tetrion::update(const SimulationStep simulation_step_index) {
+void Tetrion::update_step(const SimulationStep simulation_step_index) {
     switch (m_game_state) {
         case GameState::Playing: {
             if (simulation_step_index >= m_next_gravity_simulation_step_index) {
@@ -127,7 +125,7 @@ void Tetrion::render(const ServiceProvider& service_provider) const {
     }
 }
 
-[[nodiscard]] bool Tetrion::handle_event(const SDL_Event&, const Window*) {
+[[nodiscard]] helper::BoolWrapper<ui::EventHandleType> Tetrion::handle_event(const SDL_Event&, const Window*) {
     return false;
 }
 
@@ -509,7 +507,7 @@ bool Tetrion::move(const Tetrion::MoveDirection move_direction) {
     utils::unreachable();
 }
 
-helpers::optional<const Tetrion::WallKickTable*> Tetrion::get_wall_kick_table() const {
+helper::optional<const Tetrion::WallKickTable*> Tetrion::get_wall_kick_table() const {
     assert(m_active_tetromino.has_value() and "no active tetromino");
     const auto type = m_active_tetromino->type(); // NOLINT(bugprone-unchecked-optional-access)
     switch (type) {

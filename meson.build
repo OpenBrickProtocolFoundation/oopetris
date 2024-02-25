@@ -235,6 +235,14 @@ else
     )
 endif
 
+deps += dependency(
+    'utf8cpp',
+    required: true,
+    fallback: ['utfcpp'],
+    version: '>=4.0.0',
+)
+
+
 if (meson.is_cross_build() and host_machine.system() == 'switch')
 
     switch_dependencies = [

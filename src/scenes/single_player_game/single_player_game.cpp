@@ -70,7 +70,7 @@ namespace scenes {
             Input::OnEventCallback on_event_callback
     ) {
         return std::visit(
-                helpers::overloaded{
+                helper::overloaded{
                         [this, associated_tetrion, on_event_callback = std::move(on_event_callback)](
                                 [[maybe_unused]] KeyboardControls& keyboard_controls
                         ) mutable -> std::unique_ptr<Input> {
@@ -185,11 +185,11 @@ namespace scenes {
         return seeds;
     }
 
-    [[nodiscard]] helpers::optional<RecordingWriter*> SinglePlayerGame::recording_writer_optional() {
+    [[nodiscard]] helper::optional<RecordingWriter*> SinglePlayerGame::recording_writer_optional() {
         if (m_recording_writer) {
             return m_recording_writer.get();
         }
-        return helpers::nullopt;
+        return helper::nullopt;
     }
 
     [[nodiscard]] Scene::UpdateResult SinglePlayerGame::update() {
@@ -208,7 +208,7 @@ namespace scenes {
             // if we would still be in pause mode, update() wouldn't have been called in the first place => we
             // must resume from pause
             m_is_paused = false;
-            m_next_scene = helpers::nullopt;
+            m_next_scene = helper::nullopt;
             for (auto& clock : m_clock_sources) {
                 assert(clock->can_be_paused());
                 clock->resume();
@@ -223,14 +223,14 @@ namespace scenes {
             while (simulation_step_index < m_clock_sources.at(i)->simulation_step_index()) {
                 ++simulation_step_index;
                 input.update(simulation_step_index);
-                tetrion.update(simulation_step_index);
+                tetrion.update_step(simulation_step_index);
                 input.late_update(simulation_step_index);
             }
         }
 
         if (m_next_scene.has_value()) {
             const auto next_scene = m_next_scene.value();
-            m_next_scene = helpers::nullopt;
+            m_next_scene = helper::nullopt;
             m_is_paused = true;
             for (auto& clock : m_clock_sources) {
                 assert(clock->can_be_paused());
@@ -253,7 +253,7 @@ namespace scenes {
                     utils::unreachable();
             }
         }
-        return UpdateResult{ SceneUpdate::ContinueUpdating, helpers::nullopt };
+        return UpdateResult{ SceneUpdate::ContinueUpdating, helper::nullopt };
     }
 
     void SinglePlayerGame::render(const ServiceProvider& service_provider) {

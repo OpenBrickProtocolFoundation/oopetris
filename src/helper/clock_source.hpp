@@ -26,7 +26,7 @@ struct LocalClock : public ClockSource {
 private:
     double m_start_time;
     double m_step_duration;
-    helpers::optional<double> m_paused_at{};
+    helper::optional<double> m_paused_at{};
 
 public:
     explicit LocalClock(u32 target_frequency);

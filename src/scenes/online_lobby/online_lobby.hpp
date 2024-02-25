@@ -2,9 +2,9 @@
 
 #include "lobby/api.hpp"
 #include "scenes/scene.hpp"
-#include "ui/button.hpp"
-#include "ui/label.hpp"
-#include "ui/tile_layout.hpp"
+#include "ui/components/button.hpp"
+#include "ui/components/label.hpp"
+#include "ui/layouts/tile_layout.hpp"
 
 #include <memory>
 
@@ -14,8 +14,8 @@ namespace scenes {
     private:
         enum class Command { Play, Return };
 
-        ui::TileLayout<3> m_main_layout;
-        helpers::optional<Command> m_next_command;
+        ui::TileLayout m_main_layout;
+        helper::optional<Command> m_next_command;
         std::unique_ptr<lobby::Client> client{ nullptr };
 
     public:

@@ -60,7 +60,7 @@ using Controls = std::variant<KeyboardControls>;
 
 inline void to_json(nlohmann::json& j, const Controls& controls) {
     std::visit(
-            helpers::overloaded{
+            helper::overloaded{
                     [&](const KeyboardControls& keyboard_controls) {
                         to_json(j, keyboard_controls);
                         j["type"] = "keyboard";

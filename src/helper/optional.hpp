@@ -8,7 +8,7 @@
 #endif
 
 
-namespace helpers {
+namespace helper {
 
 #ifdef __USE_TL_OPTIONAL
 
@@ -27,4 +27,4 @@ namespace helpers {
 #endif
 
 
-} // namespace helpers
+} // namespace helper

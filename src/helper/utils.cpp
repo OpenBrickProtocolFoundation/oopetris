@@ -87,9 +87,9 @@ namespace utils {
 #endif
     }
 
-    helpers::optional<bool> log_error(const std::string& error) {
+    helper::optional<bool> log_error(const std::string& error) {
         spdlog::error(error);
-        return helpers::nullopt;
+        return helper::nullopt;
     }
 
 } // namespace utils

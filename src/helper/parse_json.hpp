@@ -19,12 +19,12 @@
 
 // START: general json parser helper
 
-//helper for helpers::optional json conversion
+//helper for helper::optional json conversion
 
 NLOHMANN_JSON_NAMESPACE_BEGIN
 template<typename T>
-struct adl_serializer<helpers::optional<T>> {
-    static void to_json(json& j, const helpers::optional<T>& opt) {
+struct adl_serializer<helper::optional<T>> {
+    static void to_json(json& j, const helper::optional<T>& opt) {
         if (not opt) {
             j = nullptr;
         } else {
@@ -33,9 +33,9 @@ struct adl_serializer<helpers::optional<T>> {
         }
     }
 
-    static void from_json(const json& j, helpers::optional<T>& opt) {
+    static void from_json(const json& j, helper::optional<T>& opt) {
         if (j.is_null()) {
-            opt = helpers::nullopt;
+            opt = helper::nullopt;
         } else {
             opt = j.template get<T>(); // same as above, but with
                                        // adl_serializer<T>::from_json
@@ -51,34 +51,34 @@ namespace json {
 
 
     template<typename T>
-    [[nodiscard]] helpers::expected<T, std::string> try_parse_json(const std::string& content) {
+    [[nodiscard]] helper::expected<T, std::string> try_parse_json(const std::string& content) {
 
         try {
             T result = nlohmann::json::parse(content);
             return result;
 
         } catch (nlohmann::json::parse_error& parse_error) {
-            return helpers::unexpected<std::string>{ fmt::format("parse error: {}", parse_error.what()) };
+            return helper::unexpected<std::string>{ fmt::format("parse error: {}", parse_error.what()) };
         } catch (nlohmann::json::type_error& type_error) {
-            return helpers::unexpected<std::string>{ fmt::format("type error: {}", type_error.what()) };
+            return helper::unexpected<std::string>{ fmt::format("type error: {}", type_error.what()) };
         } catch (nlohmann::json::exception& exception) {
-            return helpers::unexpected<std::string>{ fmt::format("unknown json exception: {}", exception.what()) };
+            return helper::unexpected<std::string>{ fmt::format("unknown json exception: {}", exception.what()) };
         } catch (std::exception& exception) {
-            return helpers::unexpected<std::string>{ fmt::format("unknown exception: {}", exception.what()) };
+            return helper::unexpected<std::string>{ fmt::format("unknown exception: {}", exception.what()) };
         }
     }
 
     template<typename T>
-    [[nodiscard]] helpers::expected<T, std::string> try_parse_json_file(const std::filesystem::path& file) {
+    [[nodiscard]] helper::expected<T, std::string> try_parse_json_file(const std::filesystem::path& file) {
 
         if (not std::filesystem::exists(file)) {
-            return helpers::unexpected<std::string>{ fmt::format("File '{}' doesn't exist", file.string()) };
+            return helper::unexpected<std::string>{ fmt::format("File '{}' doesn't exist", file.string()) };
         }
 
         std::ifstream file_stream{ file };
 
         if (!file_stream.is_open()) {
-            return helpers::unexpected<std::string>{ fmt::format("File '{}' couldn't be opened!", file.string()) };
+            return helper::unexpected<std::string>{ fmt::format("File '{}' couldn't be opened!", file.string()) };
         }
 
         std::stringstream result;
@@ -89,7 +89,7 @@ namespace json {
 
 
     template<typename T>
-    [[nodiscard]] helpers::expected<std::string, std::string>
+    [[nodiscard]] helper::expected<std::string, std::string>
     try_json_to_string(const T& type, const bool pretty = false) {
         try {
 
@@ -101,11 +101,11 @@ namespace json {
             return value.dump(-1, ' ');
 
         } catch (nlohmann::json::type_error& type_error) {
-            return helpers::unexpected<std::string>{ fmt::format("type error: {}", type_error.what()) };
+            return helper::unexpected<std::string>{ fmt::format("type error: {}", type_error.what()) };
         } catch (nlohmann::json::exception& exception) {
-            return helpers::unexpected<std::string>{ fmt::format("unknown json exception: {}", exception.what()) };
+            return helper::unexpected<std::string>{ fmt::format("unknown json exception: {}", exception.what()) };
         } catch (std::exception& exception) {
-            return helpers::unexpected<std::string>{ fmt::format("unknown exception: {}", exception.what()) };
+            return helper::unexpected<std::string>{ fmt::format("unknown exception: {}", exception.what()) };
         }
     }
 
@@ -117,7 +117,7 @@ namespace json {
 
 } // namespace json
 
-namespace helpers {
+namespace helper {
 
     template<class... Ts>
     struct overloaded : Ts... {
@@ -125,4 +125,4 @@ namespace helpers {
     };
     template<class... Ts>
     overloaded(Ts...) -> overloaded<Ts...>;
-} // namespace helpers
+} // namespace helper

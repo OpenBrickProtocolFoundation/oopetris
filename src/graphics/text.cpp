@@ -4,7 +4,7 @@
 
 
 Text::Text(
-        ServiceProvider* service_provider,
+        const ServiceProvider* service_provider,
         const std::string& text,
         const Font& font,
         const Color& color,

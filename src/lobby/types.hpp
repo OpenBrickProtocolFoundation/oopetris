@@ -42,7 +42,7 @@ namespace lobby {
         int size;
         PlayerInfo host_info;
         std::vector<PlayerInfo> player_infos;
-        helpers::optional<int> gameserver_port;
+        helper::optional<int> gameserver_port;
     };
 
 

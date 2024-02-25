@@ -13,10 +13,10 @@
 #include "manager/service_provider.hpp"
 #include "mino_stack.hpp"
 #include "tetromino.hpp"
-#include "ui/grid_layout.hpp"
-#include "ui/label.hpp"
+#include "ui/components/label.hpp"
 #include "ui/layout.hpp"
-#include "ui/tile_layout.hpp"
+#include "ui/layouts/grid_layout.hpp"
+#include "ui/layouts/tile_layout.hpp"
 #include "ui/widget.hpp"
 
 #include <array>
@@ -61,7 +61,7 @@ private:
     u64 m_next_gravity_simulation_step_index;
     u64 m_lock_delay_step_index;
     ServiceProvider* m_service_provider;
-    helpers::optional<RecordingWriter*> m_recording_writer;
+    helper::optional<RecordingWriter*> m_recording_writer;
     MinoStack m_mino_stack;
     Random m_random;
     u32 m_level = 0;
@@ -70,12 +70,12 @@ private:
     int m_sequence_index = 0;
     u32 m_score = 0;
     std::array<Bag, 2> m_sequence_bags{ Bag{ m_random }, Bag{ m_random } };
-    helpers::optional<Tetromino> m_active_tetromino;
-    helpers::optional<Tetromino> m_ghost_tetromino;
-    helpers::optional<Tetromino> m_tetromino_on_hold;
-    std::array<helpers::optional<Tetromino>, num_preview_tetrominos> m_preview_tetrominos{};
+    helper::optional<Tetromino> m_active_tetromino;
+    helper::optional<Tetromino> m_ghost_tetromino;
+    helper::optional<Tetromino> m_tetromino_on_hold;
+    std::array<helper::optional<Tetromino>, num_preview_tetrominos> m_preview_tetrominos{};
     u8 m_tetrion_index;
-    ui::TileLayout<2> main_layout;
+    ui::TileLayout main_layout;
 
 
 public:
@@ -83,11 +83,12 @@ public:
             Random::Seed random_seed,
             u32 starting_level,
             ServiceProvider* service_provider,
-            helpers::optional<RecordingWriter*> recording_writer,
+            helper::optional<RecordingWriter*> recording_writer,
             const ui::Layout& layout);
-    void update(SimulationStep simulation_step_index);
+    void update_step(SimulationStep simulation_step_index);
     void render(const ServiceProvider& service_provider) const override;
-    [[nodiscard]] bool handle_event(const SDL_Event& event, const Window* window) override;
+    [[nodiscard]] helper::BoolWrapper<ui::EventHandleType> handle_event(const SDL_Event& event, const Window* window)
+            override;
 
     // returns if the input event lead to a movement
     bool handle_input_command(InputCommand command, SimulationStep simulation_step_index);
@@ -110,12 +111,12 @@ public:
     }
 
 
-    [[nodiscard]] ui::GridLayout<3>* get_texts() {
-        return main_layout.get<ui::GridLayout<3>>(1);
+    [[nodiscard]] ui::GridLayout* get_texts() {
+        return main_layout.get<ui::GridLayout>(1);
     }
 
-    [[nodiscard]] const ui::GridLayout<3>* get_texts() const {
-        return main_layout.get<ui::GridLayout<3>>(1);
+    [[nodiscard]] const ui::GridLayout* get_texts() const {
+        return main_layout.get<ui::GridLayout>(1);
     }
 
     [[nodiscard]] auto tetrion_index() const {
@@ -154,7 +155,7 @@ private:
 
     bool rotate(RotationDirection rotation_direction);
     bool move(MoveDirection move_direction);
-    [[nodiscard]] helpers::optional<const WallKickTable*> get_wall_kick_table() const;
+    [[nodiscard]] helper::optional<const WallKickTable*> get_wall_kick_table() const;
     void reset_lock_delay(SimulationStep simulation_step_index);
     void refresh_texts();
     void clear_fully_occupied_lines();

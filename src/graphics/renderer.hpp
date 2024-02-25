@@ -35,7 +35,13 @@ public:
 
 
     [[nodiscard]] Texture load_image(const std::string& image_path) const;
-    [[nodiscard]] Texture prerender_text(const std::string& text, const Font& font, const Color& color) const;
+    [[nodiscard]] Texture prerender_text(
+            const std::string& text,
+            const Font& font,
+            const Color& color,
+            RenderType render_type = RenderType::Blended,
+            const Color& background_color = Color::black()
+    ) const;
     [[nodiscard]] Texture get_texture_for_render_target(const shapes::Point& size) const;
 
     void set_render_target(const Texture& texture) const;

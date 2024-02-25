@@ -1,6 +1,9 @@
 #pragma once
 
+#include "graphics/rect.hpp"
+#include "helper/optional.hpp"
 #include "input/event_listener.hpp"
+
 #include <SDL.h>
 #include <algorithm>
 #include <cassert>
@@ -11,6 +14,9 @@ struct EventDispatcher final {
 private:
     std::vector<EventListener*> m_listeners;
     Window* m_window;
+    bool m_input_activated{ false };
+    std::vector<SDL_Keycode> allowed_input_keys{ SDLK_RETURN, SDLK_BACKSPACE, SDLK_DOWN,   SDLK_UP,
+                                                 SDLK_LEFT,   SDLK_RIGHT,     SDLK_ESCAPE, SDLK_TAB };
 
 public:
     EventDispatcher(Window* window) : m_window{ window } {};
@@ -28,9 +34,54 @@ public:
     void dispatch_pending_events() const {
         SDL_Event event;
         while (SDL_PollEvent(&event) != 0) {
+
+            if (m_input_activated) {
+                switch (event.type) {
+                    case SDL_KEYDOWN:
+                    case SDL_KEYUP: {
+                        if (event.key.keysym.sym == SDLK_v and (event.key.keysym.mod & KMOD_CTRL) != 0) {
+                            break;
+                        }
+                        if (std::find(allowed_input_keys.cbegin(), allowed_input_keys.cend(), event.key.keysym.sym)
+                            == allowed_input_keys.cend()) {
+                            return;
+                        }
+
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
             for (const auto& listener : m_listeners) {
                 listener->handle_event(event, m_window);
             }
         }
+    }
+
+    void start_text_input(const helper::optional<shapes::Rect>& rect) {
+        if (m_input_activated) {
+            return;
+        }
+
+        if (rect.has_value()) {
+            SDL_Rect sdl_rect = rect.value().to_sdl_rect();
+            SDL_SetTextInputRect(&sdl_rect);
+        }
+
+        SDL_StartTextInput();
+
+        m_input_activated = true;
+    }
+
+    void stop_text_input() {
+        if (not m_input_activated) {
+            return;
+        }
+
+        SDL_StopTextInput();
+
+        m_input_activated = false;
     }
 };

@@ -1,15 +1,17 @@
 #pragma once
 
-#include "focusable.hpp"
 #include "graphics/rect.hpp"
+#include "helper/bool_wrapper.hpp"
 #include "helper/optional.hpp"
-#include "hoverable.hpp"
 #include "manager/service_provider.hpp"
+#include "ui/focusable.hpp"
+#include "ui/hoverable.hpp"
 #include "ui/layout.hpp"
 
 #include <SDL.h>
 namespace ui {
 
+    enum class EventHandleType { RequestFocus, RequestUnFocus };
 
     struct Widget {
     private:
@@ -29,13 +31,17 @@ namespace ui {
             return m_layout;
         }
 
+        virtual void update() {
+            // do nothing
+        }
         virtual void render(const ServiceProvider& service_provider) const = 0;
-        [[nodiscard]] virtual bool handle_event(const SDL_Event& event, const Window* window) = 0;
+        [[nodiscard]] virtual helper::BoolWrapper<ui::EventHandleType>
+        handle_event(const SDL_Event& event, const Window* window) = 0;
     };
 
-    [[nodiscard]] helpers::optional<Focusable*> as_focusable(Widget* widget);
+    [[nodiscard]] helper::optional<Focusable*> as_focusable(Widget* widget);
 
-    [[nodiscard]] helpers::optional<Hoverable*> as_hoverable(Widget* widget);
+    [[nodiscard]] helper::optional<Hoverable*> as_hoverable(Widget* widget);
 
 
 } // namespace ui
