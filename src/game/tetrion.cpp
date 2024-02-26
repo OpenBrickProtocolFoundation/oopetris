@@ -382,6 +382,14 @@ bool Tetrion::is_valid_mino_position(shapes::UPoint position) const {
     return position.x < Grid::width_in_tiles and position.y < Grid::height_in_tiles and m_mino_stack.is_empty(position);
 }
 
+bool Tetrion::mino_can_move_down(shapes::UPoint position) const {
+    if (position.y == 0) {
+        return false;
+    }
+
+    return is_valid_mino_position(position - shapes::UPoint{ 0, 1 });
+}
+
 bool Tetrion::is_active_tetromino_completely_visible() const {
     if (not m_active_tetromino) {
         return false;
@@ -399,12 +407,10 @@ void Tetrion::refresh_ghost_tetromino() {
         m_ghost_tetromino = {};
         return;
     }
-    m_ghost_tetromino = *m_active_tetromino;
-    //TODO: since the psotion can never be negative, this has to be solved in another way
-    while (is_tetromino_position_valid(*m_ghost_tetromino)) {
+    m_ghost_tetromino = m_active_tetromino.value();
+    while (tetromino_can_move_down(m_ghost_tetromino.value())) {
         m_ghost_tetromino->move_down();
     }
-    m_ghost_tetromino->move_up();
 }
 
 void Tetrion::refresh_previews() {
@@ -435,6 +441,15 @@ TetrominoType Tetrion::get_next_tetromino_type() {
         m_sequence_bags[1] = Bag{ m_random };
     }
     return next_type;
+}
+
+bool Tetrion::tetromino_can_move_down(const Tetromino& tetromino) const {
+    for (const Mino& mino : tetromino.minos()) { // NOLINT(readability-use-anyofallof)
+        if (not mino_can_move_down(mino.position())) {
+            return false;
+        }
+    }
+    return true;
 }
 
 bool Tetrion::is_tetromino_position_valid(const Tetromino& tetromino) const {

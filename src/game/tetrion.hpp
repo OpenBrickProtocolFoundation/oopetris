@@ -162,13 +162,16 @@ private:
     void clear_fully_occupied_lines();
     void lock_active_tetromino(SimulationStep simulation_step_index);
     [[nodiscard]] bool is_active_tetromino_position_valid() const;
+    [[nodiscard]] bool mino_can_move_down(shapes::UPoint position) const;
     [[nodiscard]] bool is_valid_mino_position(shapes::UPoint position) const;
+
     [[nodiscard]] bool is_active_tetromino_completely_visible() const;
     void refresh_ghost_tetromino();
     void refresh_previews();
     TetrominoType get_next_tetromino_type();
 
     [[nodiscard]] bool is_tetromino_position_valid(const Tetromino& tetromino) const;
+    [[nodiscard]] bool tetromino_can_move_down(const Tetromino& tetromino) const;
 
     [[nodiscard]] u64 get_gravity_delay_frames() const {
         const auto frames = (m_level >= frames_per_tile.size() ? frames_per_tile.back() : frames_per_tile.at(m_level));
