@@ -15,8 +15,8 @@ Application::Application(
         char** argv,
         const std::string& title,
         WindowPosition position,
-        int width,
-        int height
+        u32 width,
+        u32 height
 )
     : m_command_line_arguments{ argc, argv },
       m_window{ title, position, width, height },

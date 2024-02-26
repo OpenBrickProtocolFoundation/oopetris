@@ -37,7 +37,8 @@ enum class MovementType {
 
 struct Tetrion final : public ui::Widget {
 private:
-    using WallKickTable = std::array<std::array<shapes::Point, 5>, 8>;
+    using WallKickPoint = shapes::AbstractPoint<i8>;
+    using WallKickTable = std::array<std::array<WallKickPoint, 5>, 8>;
     static constexpr SimulationStep lock_delay = 30;
     static constexpr int num_lock_delays = 30;
 
@@ -161,7 +162,7 @@ private:
     void clear_fully_occupied_lines();
     void lock_active_tetromino(SimulationStep simulation_step_index);
     [[nodiscard]] bool is_active_tetromino_position_valid() const;
-    [[nodiscard]] bool is_valid_mino_position(shapes::Point position) const;
+    [[nodiscard]] bool is_valid_mino_position(shapes::UPoint position) const;
     [[nodiscard]] bool is_active_tetromino_completely_visible() const;
     void refresh_ghost_tetromino();
     void refresh_previews();
@@ -208,134 +209,134 @@ private:
     static constexpr auto wall_kick_data_jltsz = WallKickTable{
   // North -> East
         std::array{
-                   shapes::Point{ 0, 0 },
-                   shapes::Point{ -1, 0 },
-                   shapes::Point{ -1, -1 },
-                   shapes::Point{ 0, 2 },
-                   shapes::Point{ -1, 2 },
+                   WallKickPoint{ 0, 0 },
+                   WallKickPoint{ -1, 0 },
+                   WallKickPoint{ -1, -1 },
+                   WallKickPoint{ 0, 2 },
+                   WallKickPoint{ -1, 2 },
                    },
  // East -> North
         std::array{
-                   shapes::Point{ 0, 0 },
-                   shapes::Point{ 1, 0 },
-                   shapes::Point{ 1, 1 },
-                   shapes::Point{ 0, -2 },
-                   shapes::Point{ 1, -2 },
+                   WallKickPoint{ 0, 0 },
+                   WallKickPoint{ 1, 0 },
+                   WallKickPoint{ 1, 1 },
+                   WallKickPoint{ 0, -2 },
+                   WallKickPoint{ 1, -2 },
                    },
  // East -> South
         std::array{
-                   shapes::Point{ 0, 0 },
-                   shapes::Point{ 1, 0 },
-                   shapes::Point{ 1, 1 },
-                   shapes::Point{ 0, -2 },
-                   shapes::Point{ 1, -2 },
+                   WallKickPoint{ 0, 0 },
+                   WallKickPoint{ 1, 0 },
+                   WallKickPoint{ 1, 1 },
+                   WallKickPoint{ 0, -2 },
+                   WallKickPoint{ 1, -2 },
                    },
  // South -> East
         std::array{
-                   shapes::Point{ 0, 0 },
-                   shapes::Point{ -1, 0 },
-                   shapes::Point{ -1, -1 },
-                   shapes::Point{ 0, 2 },
-                   shapes::Point{ -1, 2 },
+                   WallKickPoint{ 0, 0 },
+                   WallKickPoint{ -1, 0 },
+                   WallKickPoint{ -1, -1 },
+                   WallKickPoint{ 0, 2 },
+                   WallKickPoint{ -1, 2 },
                    },
  // South -> West
         std::array{
-                   shapes::Point{ 0, 0 },
-                   shapes::Point{ 1, 0 },
-                   shapes::Point{ 1, -1 },
-                   shapes::Point{ 0, 2 },
-                   shapes::Point{ 1, 2 },
+                   WallKickPoint{ 0, 0 },
+                   WallKickPoint{ 1, 0 },
+                   WallKickPoint{ 1, -1 },
+                   WallKickPoint{ 0, 2 },
+                   WallKickPoint{ 1, 2 },
                    },
  // West -> South
         std::array{
-                   shapes::Point{ 0, 0 },
-                   shapes::Point{ -1, 0 },
-                   shapes::Point{ -1, 1 },
-                   shapes::Point{ 0, -2 },
-                   shapes::Point{ -1, -2 },
+                   WallKickPoint{ 0, 0 },
+                   WallKickPoint{ -1, 0 },
+                   WallKickPoint{ -1, 1 },
+                   WallKickPoint{ 0, -2 },
+                   WallKickPoint{ -1, -2 },
                    },
  // West -> North
         std::array{
-                   shapes::Point{ 0, 0 },
-                   shapes::Point{ -1, 0 },
-                   shapes::Point{ -1, 1 },
-                   shapes::Point{ 0, -2 },
-                   shapes::Point{ -1, -2 },
+                   WallKickPoint{ 0, 0 },
+                   WallKickPoint{ -1, 0 },
+                   WallKickPoint{ -1, 1 },
+                   WallKickPoint{ 0, -2 },
+                   WallKickPoint{ -1, -2 },
                    },
  // North -> West
         std::array{
-                   shapes::Point{ 0, 0 },
-                   shapes::Point{ 1, 0 },
-                   shapes::Point{ 1, -1 },
-                   shapes::Point{ 0, 2 },
-                   shapes::Point{ 1, 2 },
+                   WallKickPoint{ 0, 0 },
+                   WallKickPoint{ 1, 0 },
+                   WallKickPoint{ 1, -1 },
+                   WallKickPoint{ 0, 2 },
+                   WallKickPoint{ 1, 2 },
                    },
     };
 
     static constexpr auto wall_kick_data_i = WallKickTable{
   // North -> East
         std::array{
-                   shapes::Point{ 0, 0 },
-                   shapes::Point{ -2, 0 },
-                   shapes::Point{ 1, 0 },
-                   shapes::Point{ -2, 1 },
-                   shapes::Point{ 1, -2 },
+                   WallKickPoint{ 0, 0 },
+                   WallKickPoint{ -2, 0 },
+                   WallKickPoint{ 1, 0 },
+                   WallKickPoint{ -2, 1 },
+                   WallKickPoint{ 1, -2 },
                    },
  // East -> North
         std::array{
-                   shapes::Point{ 0, 0 },
-                   shapes::Point{ 2, 0 },
-                   shapes::Point{ -1, 0 },
-                   shapes::Point{ 2, -1 },
-                   shapes::Point{ -1, 2 },
+                   WallKickPoint{ 0, 0 },
+                   WallKickPoint{ 2, 0 },
+                   WallKickPoint{ -1, 0 },
+                   WallKickPoint{ 2, -1 },
+                   WallKickPoint{ -1, 2 },
                    },
  // East -> South
         std::array{
-                   shapes::Point{ 0, 0 },
-                   shapes::Point{ -1, 0 },
-                   shapes::Point{ 2, 0 },
-                   shapes::Point{ -1, -2 },
-                   shapes::Point{ 2, 1 },
+                   WallKickPoint{ 0, 0 },
+                   WallKickPoint{ -1, 0 },
+                   WallKickPoint{ 2, 0 },
+                   WallKickPoint{ -1, -2 },
+                   WallKickPoint{ 2, 1 },
                    },
  // South -> East
         std::array{
-                   shapes::Point{ 0, 0 },
-                   shapes::Point{ 1, 0 },
-                   shapes::Point{ -2, 0 },
-                   shapes::Point{ 1, 2 },
-                   shapes::Point{ -2, -1 },
+                   WallKickPoint{ 0, 0 },
+                   WallKickPoint{ 1, 0 },
+                   WallKickPoint{ -2, 0 },
+                   WallKickPoint{ 1, 2 },
+                   WallKickPoint{ -2, -1 },
                    },
  // South -> West
         std::array{
-                   shapes::Point{ 0, 0 },
-                   shapes::Point{ 2, 0 },
-                   shapes::Point{ -1, 0 },
-                   shapes::Point{ 2, -1 },
-                   shapes::Point{ -1, 2 },
+                   WallKickPoint{ 0, 0 },
+                   WallKickPoint{ 2, 0 },
+                   WallKickPoint{ -1, 0 },
+                   WallKickPoint{ 2, -1 },
+                   WallKickPoint{ -1, 2 },
                    },
  // West -> South
         std::array{
-                   shapes::Point{ 0, 0 },
-                   shapes::Point{ -2, 0 },
-                   shapes::Point{ 1, 0 },
-                   shapes::Point{ -2, 1 },
-                   shapes::Point{ 1, -2 },
+                   WallKickPoint{ 0, 0 },
+                   WallKickPoint{ -2, 0 },
+                   WallKickPoint{ 1, 0 },
+                   WallKickPoint{ -2, 1 },
+                   WallKickPoint{ 1, -2 },
                    },
  // West -> North
         std::array{
-                   shapes::Point{ 0, 0 },
-                   shapes::Point{ 1, 0 },
-                   shapes::Point{ -2, 0 },
-                   shapes::Point{ 1, 2 },
-                   shapes::Point{ -2, -1 },
+                   WallKickPoint{ 0, 0 },
+                   WallKickPoint{ 1, 0 },
+                   WallKickPoint{ -2, 0 },
+                   WallKickPoint{ 1, 2 },
+                   WallKickPoint{ -2, -1 },
                    },
  // North -> West
         std::array{
-                   shapes::Point{ 0, 0 },
-                   shapes::Point{ -1, 0 },
-                   shapes::Point{ 2, 0 },
-                   shapes::Point{ -1, -2 },
-                   shapes::Point{ 2, 1 },
+                   WallKickPoint{ 0, 0 },
+                   WallKickPoint{ -1, 0 },
+                   WallKickPoint{ 2, 0 },
+                   WallKickPoint{ -1, -2 },
+                   WallKickPoint{ 2, 1 },
                    },
     };
 

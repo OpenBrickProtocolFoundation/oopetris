@@ -192,7 +192,7 @@ void Tetrion::spawn_next_tetromino(const SimulationStep simulation_step_index) {
 }
 
 void Tetrion::spawn_next_tetromino(const TetrominoType type, const SimulationStep simulation_step_index) {
-    static constexpr shapes::Point spawn_position{ 3, 0 };
+    static constexpr shapes::UPoint spawn_position{ 3, 0 };
     m_active_tetromino = Tetromino{ spawn_position, type };
     refresh_previews();
     if (not is_active_tetromino_position_valid()) {
@@ -314,10 +314,10 @@ void Tetrion::clear_fully_occupied_lines() {
     const u32 lines_cleared_before = m_lines_cleared;
     do { // NOLINT(cppcoreguidelines-avoid-do-while)
         cleared = false;
-        for (usize row = 0; row < Grid::height_in_tiles; ++row) {
+        for (u32 row = 0; row < Grid::height_in_tiles; ++row) {
             bool fully_occupied = true;
-            for (usize column = 0; column < Grid::width_in_tiles; ++column) {
-                if (m_mino_stack.is_empty(shapes::Point{ static_cast<int>(column), static_cast<int>(row) })) {
+            for (u32 column = 0; column < Grid::width_in_tiles; ++column) {
+                if (m_mino_stack.is_empty(shapes::UPoint{ column, row })) {
                     fully_occupied = false;
                     break;
                 }
@@ -378,9 +378,8 @@ bool Tetrion::is_active_tetromino_position_valid() const {
     return is_tetromino_position_valid(*m_active_tetromino);
 }
 
-bool Tetrion::is_valid_mino_position(shapes::Point position) const {
-    return position.x >= 0 and position.x < static_cast<int>(Grid::width_in_tiles) and position.y >= 0
-           and position.y < static_cast<int>(Grid::height_in_tiles) and m_mino_stack.is_empty(position);
+bool Tetrion::is_valid_mino_position(shapes::UPoint position) const {
+    return position.x < Grid::width_in_tiles and position.y < Grid::height_in_tiles and m_mino_stack.is_empty(position);
 }
 
 bool Tetrion::is_active_tetromino_completely_visible() const {
@@ -401,6 +400,7 @@ void Tetrion::refresh_ghost_tetromino() {
         return;
     }
     m_ghost_tetromino = *m_active_tetromino;
+    //TODO: since the psotion can never be negative, this has to be solved in another way
     while (is_tetromino_position_valid(*m_ghost_tetromino)) {
         m_ghost_tetromino->move_down();
     }
@@ -412,7 +412,7 @@ void Tetrion::refresh_previews() {
     auto bag_index = usize{ 0 };
     for (std::remove_cvref_t<decltype(num_preview_tetrominos)> i = 0; i < num_preview_tetrominos; ++i) {
         m_preview_tetrominos.at(static_cast<usize>(i)) = Tetromino{
-            Grid::preview_tetromino_position + shapes::Point{0, static_cast<int>(Grid::preview_padding * i)},
+            Grid::preview_tetromino_position + shapes::UPoint{0, static_cast<u32>(Grid::preview_padding * i)},
             m_sequence_bags.at(bag_index)[sequence_index]
         };
         ++sequence_index;

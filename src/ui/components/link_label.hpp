@@ -22,7 +22,7 @@ namespace ui {
                 const Font& font,
                 const Color& color, // NOLINT(bugprone-easily-swappable-parameters)
                 const Color& hover_color,
-                const shapes::Rect& fill_rect,
+                const shapes::URect& fill_rect,
                 const Layout& layout
         )
             : Widget{ layout },

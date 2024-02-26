@@ -1,5 +1,6 @@
 #pragma once
 
+#include "graphics/rect.hpp"
 #include "graphics/window.hpp"
 #include "helper/types.hpp"
 #include "helper/utils.hpp"
@@ -12,14 +13,14 @@ namespace ui {
 
     struct Layout {
     private:
-        shapes::Rect m_rect;
+        shapes::URect m_rect;
         LayoutType type;
 
     protected:
-        Layout(const shapes::Rect& rect, LayoutType type) : m_rect{ rect }, type{ type } { }
+        Layout(const shapes::URect& rect, LayoutType type) : m_rect{ rect }, type{ type } { }
 
     public:
-        [[nodiscard]] const shapes::Rect& get_rect() const {
+        [[nodiscard]] const shapes::URect& get_rect() const {
             return m_rect;
         }
 
@@ -32,15 +33,14 @@ namespace ui {
     struct AbsolutLayout : public Layout {
         AbsolutLayout(const u32 x, const u32 y, const u32 width, const u32 height)
             : Layout{
-                  shapes::Rect{static_cast<int>(x), static_cast<int>(y), static_cast<int>(width),
-                               static_cast<int>(height)},
+                  shapes::URect{x, y, width, height},
                   LayoutType::Absolut
         } { }
     };
 
 
     struct FullScreenLayout : public Layout {
-        FullScreenLayout(const shapes::Rect& rect) : Layout{ rect, LayoutType::FullScreen } { }
+        FullScreenLayout(const shapes::URect& rect) : Layout{ rect, LayoutType::FullScreen } { }
         FullScreenLayout(const Window& window) : FullScreenLayout{ window.screen_rect() } { }
         FullScreenLayout(const Window* window) : FullScreenLayout{ window->screen_rect() } { }
     };
@@ -48,19 +48,14 @@ namespace ui {
 
     struct RelativeLayout : public Layout {
         RelativeLayout(
-                const shapes::Rect& rect,
+                const shapes::URect& rect,
                 const double x,
                 const double y,
                 const double width,
                 const double height
         )
-            : Layout{ (shapes::Rect{
-                               static_cast<int>(x * rect.width()),
-                               static_cast<int>(y * rect.height()),
-                               static_cast<int>(width * rect.width()),
-                               static_cast<int>(height * rect.height()),
-                       })
-                              .move(rect.top_left),
+            : Layout{ shapes::URect(x * rect.width(), y * rect.height(), width * rect.width(), height * rect.height())
+                              >> rect.top_left,
                       LayoutType::Relative } {
             assert(x >= 0.0 && x <= 1.0 && "x has to be in correct percentage range!");
             assert(y >= 0.0 && y <= 1.0 && "y has to be in correct percentage range!");
@@ -88,11 +83,11 @@ namespace ui {
 
     [[nodiscard]] u32 get_vertical_alignment_offset(const Layout& layout, AlignmentVertical alignment, u32 height);
 
-    [[nodiscard]] shapes::Rect
+    [[nodiscard]] shapes::URect
     get_rectangle_aligned(const Layout& layout, const std::pair<u32, u32>& size, const Alignment& alignment);
 
     [[nodiscard]] std::pair<u32, u32>
-    ratio_helper(const std::pair<u32, u32>& size, bool respect_ratio, const shapes::Point& original_ratio);
+    ratio_helper(const std::pair<u32, u32>& size, bool respect_ratio, const shapes::UPoint& original_ratio);
 
 
     enum class Direction { Horizontal, Vertical };
@@ -115,7 +110,7 @@ namespace ui {
     };
 
     struct RelativeMargin : public Margin {
-        RelativeMargin(const shapes::Rect& rect, Direction direction, const double margin)
+        RelativeMargin(const shapes::URect& rect, Direction direction, const double margin)
             : Margin{ static_cast<u32>(margin * (direction == Direction::Horizontal ? rect.width() : rect.height())) } {
 
             assert(margin >= 0.0 && margin <= 1.0 && "margin has to be in correct percentage range!");

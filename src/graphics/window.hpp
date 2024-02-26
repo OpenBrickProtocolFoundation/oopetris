@@ -15,19 +15,19 @@ private:
     SDL_Window* m_window;
 
 public:
-    Window(const std::string& title, WindowPosition position, int width, int height);
-    Window(const std::string& title, int x, int y, int width, int height);
+    Window(const std::string& title, WindowPosition position, u32 width, u32 height);
+    Window(const std::string& title, u32 x, u32 y, u32 width, u32 height);
     Window(const std::string& title, WindowPosition position);
-    Window(const std::string& title, int x, int y);
+    Window(const std::string& title, u32 x, u32 y);
     Window(const Window&) = delete;
     Window(Window&&) = delete;
     Window& operator=(const Window&) = delete;
     Window& operator=(Window&&) = delete;
     ~Window();
 
-    [[nodiscard]] shapes::Point size() const;
+    [[nodiscard]] shapes::UPoint size() const;
 
     [[nodiscard]] SDL_Window* get_sdl_window() const;
 
-    [[nodiscard]] shapes::Rect screen_rect() const;
+    [[nodiscard]] shapes::URect screen_rect() const;
 };

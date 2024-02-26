@@ -35,7 +35,7 @@ private:
     std::vector<std::unique_ptr<scenes::Scene>> m_scene_stack;
 
 public:
-    Application(int argc, char** argv, const std::string& title, WindowPosition position, int width, int height);
+    Application(int argc, char** argv, const std::string& title, WindowPosition position, u32 width, u32 height);
     Application(int argc, char** argv, const std::string& title, WindowPosition position);
     Application(const Application&) = delete;
     Application& operator=(const Application&) = delete;

@@ -22,7 +22,7 @@ namespace ui {
     private:
         Text m_text;
         Callback m_callback;
-        shapes::Rect m_fill_rect;
+        shapes::URect m_fill_rect;
         bool m_enabled;
 
         explicit Button(
@@ -32,7 +32,7 @@ namespace ui {
                 Callback callback,
                 const Font& font,
                 const Color& text_color,
-                const shapes::Rect& fill_rect,
+                const shapes::URect& fill_rect,
                 std::pair<u32, u32> margin,
                 const Layout& layout
         )

@@ -52,15 +52,16 @@ struct Grid;
 
 struct Tetromino final {
 private:
-    shapes::Point m_position;
+    shapes::UPoint m_position;
     Rotation m_rotation{ Rotation::North };
     TetrominoType m_type;
     std::array<Mino, 4> m_minos;
 
 public:
-    using Pattern = std::array<shapes::Point, 4>;
+    using TetrominoPoint = shapes::AbstractPoint<u8>;
+    using Pattern = std::array<TetrominoPoint, 4>;
 
-    Tetromino(shapes::Point position, TetrominoType type)
+    Tetromino(shapes::UPoint position, TetrominoType type)
         : m_position{ position },
           m_type{ type },
           m_minos{ create_minos(position, m_rotation, type) } { }
@@ -77,7 +78,7 @@ public:
             const ServiceProvider& service_provider,
             const Grid* grid,
             const MinoTransparency transparency,
-            const shapes::Point& offset = shapes::Point::zero()
+            const shapes::UPoint& offset = shapes::UPoint::zero()
     ) const {
         for (const auto& mino : m_minos) {
             mino.render(service_provider, grid, transparency, offset);
@@ -110,8 +111,9 @@ public:
         move({ 1, 0 });
     }
 
-    void move(const shapes::Point offset) {
-        m_position += offset;
+    void move(const shapes::AbstractPoint<i8> offset) {
+        // this looks weird but silently asserts, that the final point is not negative
+        m_position = (m_position.cast<i32>() + offset).cast<u32>();
         refresh_minos();
     }
 
@@ -128,7 +130,7 @@ private:
         return tetrominos.at(static_cast<usize>(type)).at(static_cast<usize>(rotation));
     }
 
-    static std::array<Mino, 4> create_minos(shapes::Point position, Rotation rotation, TetrominoType type) {
+    static std::array<Mino, 4> create_minos(shapes::UPoint position, Rotation rotation, TetrominoType type) {
         return std::array<Mino, 4>{
             Mino{position + get_pattern(type, rotation).at(0), type},
             Mino{position + get_pattern(type, rotation).at(1), type},
@@ -143,52 +145,52 @@ private:
     static constexpr auto tetrominos = std::array<Tetromino::TetrominoPatterns, 7>{
         // I
         TetrominoPatterns{
-                          Pattern{ shapes::Point{ 0, 1 }, shapes::Point{ 1, 1 }, shapes::Point{ 2, 1 }, shapes::Point{ 3, 1 }, },
-                          Pattern{ shapes::Point{ 2, 0 }, shapes::Point{ 2, 1 }, shapes::Point{ 2, 2 }, shapes::Point{ 2, 3 }, },
-                          Pattern{ shapes::Point{ 0, 2 }, shapes::Point{ 1, 2 }, shapes::Point{ 2, 2 }, shapes::Point{ 3, 2 }, },
-                          Pattern{ shapes::Point{ 1, 0 }, shapes::Point{ 1, 1 }, shapes::Point{ 1, 2 }, shapes::Point{ 1, 3 }, },
+                          Pattern{ TetrominoPoint{ 0, 1 }, TetrominoPoint{ 1, 1 }, TetrominoPoint{ 2, 1 }, TetrominoPoint{ 3, 1 }, },
+                          Pattern{ TetrominoPoint{ 2, 0 }, TetrominoPoint{ 2, 1 }, TetrominoPoint{ 2, 2 }, TetrominoPoint{ 2, 3 }, },
+                          Pattern{ TetrominoPoint{ 0, 2 }, TetrominoPoint{ 1, 2 }, TetrominoPoint{ 2, 2 }, TetrominoPoint{ 3, 2 }, },
+                          Pattern{ TetrominoPoint{ 1, 0 }, TetrominoPoint{ 1, 1 }, TetrominoPoint{ 1, 2 }, TetrominoPoint{ 1, 3 }, },
                           },
         // J
         TetrominoPatterns{
-                          Pattern{ shapes::Point{ 0, 0 }, shapes::Point{ 0, 1 }, shapes::Point{ 1, 1 }, shapes::Point{ 2, 1 }, },
-                          Pattern{ shapes::Point{ 2, 0 }, shapes::Point{ 1, 0 }, shapes::Point{ 1, 1 }, shapes::Point{ 1, 2 }, },
-                          Pattern{ shapes::Point{ 0, 1 }, shapes::Point{ 1, 1 }, shapes::Point{ 2, 1 }, shapes::Point{ 2, 2 }, },
-                          Pattern{ shapes::Point{ 0, 2 }, shapes::Point{ 1, 2 }, shapes::Point{ 1, 1 }, shapes::Point{ 1, 0 }, },
+                          Pattern{ TetrominoPoint{ 0, 0 }, TetrominoPoint{ 0, 1 }, TetrominoPoint{ 1, 1 }, TetrominoPoint{ 2, 1 }, },
+                          Pattern{ TetrominoPoint{ 2, 0 }, TetrominoPoint{ 1, 0 }, TetrominoPoint{ 1, 1 }, TetrominoPoint{ 1, 2 }, },
+                          Pattern{ TetrominoPoint{ 0, 1 }, TetrominoPoint{ 1, 1 }, TetrominoPoint{ 2, 1 }, TetrominoPoint{ 2, 2 }, },
+                          Pattern{ TetrominoPoint{ 0, 2 }, TetrominoPoint{ 1, 2 }, TetrominoPoint{ 1, 1 }, TetrominoPoint{ 1, 0 }, },
                           },
         // L
         TetrominoPatterns{
-                          Pattern{ shapes::Point{ 0, 1 }, shapes::Point{ 1, 1 }, shapes::Point{ 2, 1 }, shapes::Point{ 2, 0 }, },
-                          Pattern{ shapes::Point{ 1, 0 }, shapes::Point{ 1, 1 }, shapes::Point{ 1, 2 }, shapes::Point{ 2, 2 }, },
-                          Pattern{ shapes::Point{ 0, 2 }, shapes::Point{ 0, 1 }, shapes::Point{ 1, 1 }, shapes::Point{ 2, 1 }, },
-                          Pattern{ shapes::Point{ 0, 0 }, shapes::Point{ 1, 0 }, shapes::Point{ 1, 1 }, shapes::Point{ 1, 2 }, },
+                          Pattern{ TetrominoPoint{ 0, 1 }, TetrominoPoint{ 1, 1 }, TetrominoPoint{ 2, 1 }, TetrominoPoint{ 2, 0 }, },
+                          Pattern{ TetrominoPoint{ 1, 0 }, TetrominoPoint{ 1, 1 }, TetrominoPoint{ 1, 2 }, TetrominoPoint{ 2, 2 }, },
+                          Pattern{ TetrominoPoint{ 0, 2 }, TetrominoPoint{ 0, 1 }, TetrominoPoint{ 1, 1 }, TetrominoPoint{ 2, 1 }, },
+                          Pattern{ TetrominoPoint{ 0, 0 }, TetrominoPoint{ 1, 0 }, TetrominoPoint{ 1, 1 }, TetrominoPoint{ 1, 2 }, },
                           },
         // O
         TetrominoPatterns{
-                          Pattern{ shapes::Point{ 1, 0 }, shapes::Point{ 2, 0 }, shapes::Point{ 1, 1 }, shapes::Point{ 2, 1 }, },
-                          Pattern{ shapes::Point{ 1, 0 }, shapes::Point{ 2, 0 }, shapes::Point{ 1, 1 }, shapes::Point{ 2, 1 }, },
-                          Pattern{ shapes::Point{ 1, 0 }, shapes::Point{ 2, 0 }, shapes::Point{ 1, 1 }, shapes::Point{ 2, 1 }, },
-                          Pattern{ shapes::Point{ 1, 0 }, shapes::Point{ 2, 0 }, shapes::Point{ 1, 1 }, shapes::Point{ 2, 1 }, },
+                          Pattern{ TetrominoPoint{ 1, 0 }, TetrominoPoint{ 2, 0 }, TetrominoPoint{ 1, 1 }, TetrominoPoint{ 2, 1 }, },
+                          Pattern{ TetrominoPoint{ 1, 0 }, TetrominoPoint{ 2, 0 }, TetrominoPoint{ 1, 1 }, TetrominoPoint{ 2, 1 }, },
+                          Pattern{ TetrominoPoint{ 1, 0 }, TetrominoPoint{ 2, 0 }, TetrominoPoint{ 1, 1 }, TetrominoPoint{ 2, 1 }, },
+                          Pattern{ TetrominoPoint{ 1, 0 }, TetrominoPoint{ 2, 0 }, TetrominoPoint{ 1, 1 }, TetrominoPoint{ 2, 1 }, },
                           },
         // S
         TetrominoPatterns{
-                          Pattern{ shapes::Point{ 0, 1 }, shapes::Point{ 1, 1 }, shapes::Point{ 1, 0 }, shapes::Point{ 2, 0 }, },
-                          Pattern{ shapes::Point{ 1, 0 }, shapes::Point{ 1, 1 }, shapes::Point{ 2, 1 }, shapes::Point{ 2, 2 }, },
-                          Pattern{ shapes::Point{ 0, 2 }, shapes::Point{ 1, 2 }, shapes::Point{ 1, 1 }, shapes::Point{ 2, 1 }, },
-                          Pattern{ shapes::Point{ 0, 0 }, shapes::Point{ 0, 1 }, shapes::Point{ 1, 1 }, shapes::Point{ 1, 2 }, },
+                          Pattern{ TetrominoPoint{ 0, 1 }, TetrominoPoint{ 1, 1 }, TetrominoPoint{ 1, 0 }, TetrominoPoint{ 2, 0 }, },
+                          Pattern{ TetrominoPoint{ 1, 0 }, TetrominoPoint{ 1, 1 }, TetrominoPoint{ 2, 1 }, TetrominoPoint{ 2, 2 }, },
+                          Pattern{ TetrominoPoint{ 0, 2 }, TetrominoPoint{ 1, 2 }, TetrominoPoint{ 1, 1 }, TetrominoPoint{ 2, 1 }, },
+                          Pattern{ TetrominoPoint{ 0, 0 }, TetrominoPoint{ 0, 1 }, TetrominoPoint{ 1, 1 }, TetrominoPoint{ 1, 2 }, },
                           },
         // T
         TetrominoPatterns{
-                          Pattern{ shapes::Point{ 0, 1 }, shapes::Point{ 1, 1 }, shapes::Point{ 1, 0 }, shapes::Point{ 2, 1 }, },
-                          Pattern{ shapes::Point{ 1, 0 }, shapes::Point{ 1, 1 }, shapes::Point{ 2, 1 }, shapes::Point{ 1, 2 }, },
-                          Pattern{ shapes::Point{ 0, 1 }, shapes::Point{ 1, 1 }, shapes::Point{ 2, 1 }, shapes::Point{ 1, 2 }, },
-                          Pattern{ shapes::Point{ 1, 0 }, shapes::Point{ 1, 1 }, shapes::Point{ 0, 1 }, shapes::Point{ 1, 2 }, },
+                          Pattern{ TetrominoPoint{ 0, 1 }, TetrominoPoint{ 1, 1 }, TetrominoPoint{ 1, 0 }, TetrominoPoint{ 2, 1 }, },
+                          Pattern{ TetrominoPoint{ 1, 0 }, TetrominoPoint{ 1, 1 }, TetrominoPoint{ 2, 1 }, TetrominoPoint{ 1, 2 }, },
+                          Pattern{ TetrominoPoint{ 0, 1 }, TetrominoPoint{ 1, 1 }, TetrominoPoint{ 2, 1 }, TetrominoPoint{ 1, 2 }, },
+                          Pattern{ TetrominoPoint{ 1, 0 }, TetrominoPoint{ 1, 1 }, TetrominoPoint{ 0, 1 }, TetrominoPoint{ 1, 2 }, },
                           },
         // Z
         TetrominoPatterns{
-                          Pattern{ shapes::Point{ 0, 0 }, shapes::Point{ 1, 0 }, shapes::Point{ 1, 1 }, shapes::Point{ 2, 1 }, },
-                          Pattern{ shapes::Point{ 2, 0 }, shapes::Point{ 2, 1 }, shapes::Point{ 1, 1 }, shapes::Point{ 1, 2 }, },
-                          Pattern{ shapes::Point{ 0, 1 }, shapes::Point{ 1, 1 }, shapes::Point{ 1, 2 }, shapes::Point{ 2, 2 }, },
-                          Pattern{ shapes::Point{ 1, 0 }, shapes::Point{ 1, 1 }, shapes::Point{ 0, 1 }, shapes::Point{ 0, 2 }, },
+                          Pattern{ TetrominoPoint{ 0, 0 }, TetrominoPoint{ 1, 0 }, TetrominoPoint{ 1, 1 }, TetrominoPoint{ 2, 1 }, },
+                          Pattern{ TetrominoPoint{ 2, 0 }, TetrominoPoint{ 2, 1 }, TetrominoPoint{ 1, 1 }, TetrominoPoint{ 1, 2 }, },
+                          Pattern{ TetrominoPoint{ 0, 1 }, TetrominoPoint{ 1, 1 }, TetrominoPoint{ 1, 2 }, TetrominoPoint{ 2, 2 }, },
+                          Pattern{ TetrominoPoint{ 1, 0 }, TetrominoPoint{ 1, 1 }, TetrominoPoint{ 0, 1 }, TetrominoPoint{ 0, 2 }, },
                           },
     };
     // clang-format on

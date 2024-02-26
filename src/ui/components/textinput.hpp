@@ -19,10 +19,10 @@ namespace ui {
         ServiceProvider* m_service_provider;
         Font m_font;
         Color m_color;
-        shapes::Rect m_text_rect;
+        shapes::URect m_text_rect;
         Texture m_text_texture;
-        shapes::Rect m_viewport;
-        shapes::Rect m_cursor_rect;
+        shapes::URect m_viewport;
+        shapes::URect m_cursor_rect;
         u32 scaled_text_size;
         bool cursor_shown{ true };
         helper::Timer timer;
@@ -32,7 +32,7 @@ namespace ui {
                 Font font,
                 const Color& color,
                 usize focus_id,
-                const shapes::Rect& fill_rect,
+                const shapes::URect& fill_rect,
                 Layout layout
         )
             : Widget{ layout },
@@ -43,7 +43,7 @@ namespace ui {
               m_color{ color },
               m_text_rect{ layout.get_rect() },
               m_text_texture{ service_provider->renderer().get_texture_for_render_target(
-                      shapes::Point(1, 1) // this is a dummy point!
+                      shapes::UPoint(1, 1) // this is a dummy point!
               ) },
               scaled_text_size{ 0 },
               timer{ [this]() { this->cursor_shown = !this->cursor_shown; }, std::chrono::milliseconds(500) } {
@@ -100,8 +100,8 @@ namespace ui {
 
                 // the text fits, so we don't have to scroll, the to_rect isn't the whole layout_rect
                 if (scaled_text_size < static_cast<u32>(layout_rect.width())) {
-                    to_rect = shapes::Rect{ layout_rect.top_left.x, layout_rect.top_left.y,
-                                            static_cast<int>(scaled_text_size), layout_rect.height() };
+                    to_rect = shapes::URect{ layout_rect.top_left.x, layout_rect.top_left.y, scaled_text_size,
+                                             layout_rect.height() };
                 }
 
 
@@ -228,20 +228,20 @@ namespace ui {
             const auto& renderer = m_service_provider->renderer();
 
             constexpr auto cursor_width = 4;
-            const auto unmoved_cursor = shapes::Rect(
-                    0, static_cast<int>(static_cast<double>(layout_rect.height()) * 0.05), cursor_width,
-                    static_cast<int>(static_cast<double>(layout_rect.height()) * 0.90)
+            const auto unmoved_cursor = shapes::URect(
+                    0, static_cast<u32>(static_cast<double>(layout_rect.height()) * 0.05), cursor_width,
+                    static_cast<u32>(static_cast<double>(layout_rect.height()) * 0.90)
             );
 
             if (m_text.empty()) {
-                m_viewport = shapes::Rect{ 0, 0, 0, 0 };
+                m_viewport = shapes::URect{ 0, 0, 0, 0 };
 
-                m_cursor_rect = unmoved_cursor.move(layout_rect.top_left);
+                m_cursor_rect = unmoved_cursor >> layout_rect.top_left;
 
 
                 if (text_changed) {
                     m_text_texture =
-                            renderer.get_texture_for_render_target(shapes::Point(1, 1) // this is a dummy point!
+                            renderer.get_texture_for_render_target(shapes::UPoint(1, 1) // this is a dummy point!
                             );
                     scaled_text_size = 0;
                 }
@@ -260,9 +260,9 @@ namespace ui {
                 scaled_text_size = static_cast<u32>(static_cast<double>(m_text_texture.size().x) / ratio);
             }
 
-            m_viewport = shapes::Rect{ 0, 0, m_text_texture.size().x, m_text_texture.size().y };
+            m_viewport = shapes::URect{ 0, 0, m_text_texture.size().x, m_text_texture.size().y };
 
-            int cursor_offset = 0;
+            u32 cursor_offset = 0;
 
             if (cursor_position != 0) {
                 // calculate substring that is before the cursor
@@ -292,17 +292,17 @@ namespace ui {
 
                 const double ratio_sub_string = static_cast<double>(h) / static_cast<double>(layout_rect.height());
 
-                cursor_offset = static_cast<int>(static_cast<double>(w) / ratio_sub_string);
+                cursor_offset = static_cast<u32>(static_cast<double>(w) / ratio_sub_string);
             }
 
-            m_cursor_rect = unmoved_cursor.move(layout_rect.top_left).move(shapes::Point{ cursor_offset, 0 });
+            m_cursor_rect = unmoved_cursor >> layout_rect.top_left >> shapes::UPoint{ cursor_offset, 0 };
 
             // the text doesn't fit, so we have to scroll,we have to offset the viewport and the cursor_rect accordingly and center the viewport around the cursor
             if (scaled_text_size >= static_cast<u32>(layout_rect.width())) {
 
-                const auto cursor_middle = cursor_offset - (layout_rect.width() / 2);
+                const int cursor_middle = static_cast<int>(cursor_offset) - static_cast<int>(layout_rect.width() / 2);
 
-                auto final_offset = cursor_middle;
+                u32 final_offset = 0;
 
                 if (cursor_middle < 0) {
                     final_offset = 0;
@@ -313,12 +313,14 @@ namespace ui {
                     if ((scaled_text_size - cursor_middle) <= static_cast<u32>(layout_rect.width() / 2)) {
                         final_offset += 2 * cursor_width;
                     }
+                } else {
+                    final_offset = static_cast<u32>(cursor_middle);
                 }
 
-                m_viewport = shapes::Rect{ static_cast<int>(static_cast<double>(final_offset) * ratio), 0,
-                                           static_cast<int>(static_cast<double>(layout_rect.width()) * ratio),
-                                           m_text_texture.size().y };
-                m_cursor_rect = m_cursor_rect.move(shapes::Point{ -final_offset, 0 });
+                m_viewport = shapes::URect{ static_cast<u32>(static_cast<double>(final_offset) * ratio), 0,
+                                            static_cast<u32>(static_cast<double>(layout_rect.width()) * ratio),
+                                            m_text_texture.size().y };
+                m_cursor_rect = m_cursor_rect >> shapes::IPoint{ -static_cast<int>(final_offset), 0 };
             }
         }
 

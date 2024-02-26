@@ -1,12 +1,5 @@
 #include "renderer.hpp"
 
-namespace {
-    constexpr SDL_Rect to_sdl_rect(shapes::Rect rect) {
-        return SDL_Rect{ rect.top_left.x, rect.top_left.y, rect.bottom_right.x - rect.top_left.x + 1,
-                         rect.bottom_right.y - rect.top_left.y + 1 };
-    }
-} // namespace
-
 Renderer::Renderer(Window& window, const VSync v_sync)
     : m_renderer{ SDL_CreateRenderer(
             window.get_sdl_window(),
@@ -29,34 +22,9 @@ void Renderer::clear(const Color& clear_color) const {
     SDL_RenderClear(m_renderer);
 }
 
-void Renderer::draw_rect_filled(const shapes::Rect& rect, const Color& color) const {
-    set_draw_color(color);
-    const SDL_Rect sdl_rect = to_sdl_rect(rect);
-    SDL_RenderFillRect(m_renderer, &sdl_rect);
-}
-
-void Renderer::draw_rect_outline(const shapes::Rect& rect, const Color& color) const {
-    set_draw_color(color);
-    const SDL_Rect sdl_rect = to_sdl_rect(rect);
-    SDL_RenderDrawRect(m_renderer, &sdl_rect);
-}
-
 void Renderer::present() const {
     SDL_RenderPresent(m_renderer);
 }
-
-void Renderer::draw_line(const shapes::Point& start, const shapes::Point& end, const Color& color) const {
-    set_draw_color(color);
-    SDL_RenderDrawLine(m_renderer, start.x, start.y, end.x, end.y);
-}
-
-void Renderer::draw_texture(const Texture& texture, const shapes::Rect& rect) const {
-    texture.render(m_renderer, rect);
-}
-void Renderer::draw_texture(const Texture& texture, const shapes::Rect& from, const shapes::Rect& to) const {
-    texture.render(m_renderer, from, to);
-}
-
 
 Texture Renderer::load_image(const std::string& image_path) const {
     return Texture::from_image(m_renderer, image_path);
@@ -72,7 +40,7 @@ Texture Renderer::prerender_text(
     return Texture::prerender_text(m_renderer, text, font, color, render_type, background_color);
 }
 
-Texture Renderer::get_texture_for_render_target(const shapes::Point& size) const {
+Texture Renderer::get_texture_for_render_target(const shapes::UPoint& size) const {
 
 
     const auto supported = SDL_RenderTargetSupported(m_renderer);

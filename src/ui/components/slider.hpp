@@ -28,11 +28,11 @@ namespace ui {
         float m_step;
         float current_value;
         bool is_dragging{ false };
-        shapes::Rect fill_rect;
+        shapes::URect fill_rect;
 
 
         //TODO: refactor this in member variables, so that recalculations only happen when changing them and not every frame!
-        [[nodiscard]] std::pair<shapes::Rect, shapes::Rect> get_rectangles() const {
+        [[nodiscard]] std::pair<shapes::URect, shapes::URect> get_rectangles() const {
 
             const auto origin = fill_rect.top_left;
 
@@ -40,12 +40,12 @@ namespace ui {
 
             const float percentage = (current_value - m_range.first) / (m_range.second - m_range.first);
 
-            const int position_x_middle =
-                    origin.x + static_cast<int>(percentage * static_cast<double>(fill_rect.bottom_right.x - origin.x));
+            const u32 position_x_middle =
+                    origin.x + static_cast<u32>(percentage * static_cast<double>(fill_rect.bottom_right.x - origin.x));
 
-            const auto slider_rect = shapes::Rect{
-                shapes::Point{position_x_middle - 5,     fill_rect.top_left.y},
-                shapes::Point{position_x_middle + 5, fill_rect.bottom_right.y}
+            const auto slider_rect = shapes::URect{
+                shapes::UPoint{position_x_middle - 5,     fill_rect.top_left.y},
+                shapes::UPoint{position_x_middle + 5, fill_rect.bottom_right.y}
             };
 
             return { bar.get_rect(), slider_rect };

@@ -41,7 +41,7 @@ namespace ui {
 
 
     struct RelativeItemSize : public ItemSize {
-        RelativeItemSize(const shapes::Rect& rect, const double height)
+        RelativeItemSize(const shapes::URect& rect, const double height)
             : ItemSize{ static_cast<u32>(height * rect.height()), ItemSizeType::Relative } {
             // no checks for upper cases, since it theoretically can also be larger than the whole screen!
             assert(height >= 0.0 && "height has to be in correct percentage range!");
@@ -66,10 +66,10 @@ namespace ui {
         Margin gap;
         Texture m_texture;
         ServiceProvider* m_service_provider;
-        shapes::Rect main_rect;
-        shapes::Rect scrollbar_rect;
-        shapes::Rect scrollbar_mover_rect;
-        shapes::Rect m_viewport;
+        shapes::URect main_rect;
+        shapes::URect scrollbar_rect;
+        shapes::URect scrollbar_mover_rect;
+        shapes::URect m_viewport;
         bool is_dragging{ false };
         u32 m_step_size;
 
@@ -86,7 +86,7 @@ namespace ui {
               Hoverable{ layout.get_rect() },
               gap{ gap },
               m_texture{ service_provider->renderer().get_texture_for_render_target(
-                      shapes::Point(1, 1) // this is a dummy point!
+                      shapes::UPoint(1, 1) // this is a dummy point!
               ) },
               m_service_provider{ service_provider },
               m_step_size{ static_cast<u32>(layout.get_rect().height() * 0.05) } {
@@ -99,21 +99,18 @@ namespace ui {
 
             const auto scroll_bar_width = static_cast<u32>(0.02 * layout_rect.width());
 
-            const auto start_x = layout_rect.top_left.x + absolut_margin.first;
-            const auto start_y = layout_rect.top_left.y + absolut_margin.second;
+            const u32 start_x = layout_rect.top_left.x + absolut_margin.first;
+            const u32 start_y = layout_rect.top_left.y + absolut_margin.second;
 
-            const auto new_width = layout_rect.width() - absolut_margin.first * 2;
-            const auto new_height = layout_rect.height() - absolut_margin.second * 2;
+            const u32 new_width = layout_rect.width() - absolut_margin.first * 2;
+            const u32 new_height = layout_rect.height() - absolut_margin.second * 2;
 
 
-            main_rect = shapes::Rect{ static_cast<int>(start_x), static_cast<int>(start_y),
-                                      static_cast<int>(new_width - scroll_bar_width - absolut_gap),
-                                      static_cast<int>(new_height) };
+            main_rect = shapes::URect{ start_x, start_y, new_width - scroll_bar_width - absolut_gap, new_height };
             scrollbar_rect =
-                    shapes::Rect{ static_cast<int>(start_x + new_width - scroll_bar_width), static_cast<int>(start_y),
-                                  static_cast<int>(scroll_bar_width), static_cast<int>(new_height) };
+                    shapes::URect{ start_x + new_width - scroll_bar_width, start_y, scroll_bar_width, new_height };
             scrollbar_mover_rect = scrollbar_rect; // NOLINT(cppcoreguidelines-prefer-member-initializer)
-            m_viewport = shapes::Rect{ 0, 0, 0, 0 };
+            m_viewport = shapes::URect{ 0, 0, 0, 0 };
         }
 
         [[nodiscard]] u32 widget_count() const {
@@ -156,8 +153,8 @@ namespace ui {
                 auto to_rect = main_rect;
                 // if we don't need to fill-up the whole main_rect, we need a special to_rect
                 if (total_widgets_height < scrollbar_rect.height()) {
-                    to_rect = shapes::Rect{ main_rect.top_left.x, main_rect.top_left.y, main_rect.width(),
-                                            total_widgets_height };
+                    to_rect = shapes::URect{ main_rect.top_left.x, main_rect.top_left.y, main_rect.width(),
+                                             total_widgets_height };
                 }
 
                 renderer.draw_texture(m_texture, m_viewport, to_rect);
@@ -270,11 +267,11 @@ namespace ui {
                     const auto offset_distance = main_rect.top_left - m_viewport.top_left;
                     for (auto& widget : m_widgets) {
                         const auto& layout_rect = widget->layout().get_rect();
-                        const auto& offset_rect = layout_rect.move(offset_distance);
+                        const auto& offset_rect = layout_rect >> offset_distance;
 
                         if (not handled and utils::is_event_in(window, event, main_rect)
                             and utils::is_event_in(window, event, offset_rect)) {
-                            const auto offset_event = utils::offset_event(window, event, -offset_distance);
+                            const auto offset_event = utils::offset_event(window, event, -(offset_distance.cast<i32>()));
                             if (const auto event_result = widget->handle_event(offset_event, window); event_result) {
                                 handled = { true, handle_event_result(event_result.get_additional(), widget.get()) };
                                 continue;
@@ -462,7 +459,7 @@ namespace ui {
             const auto viewport_middle_y = m_viewport.top_left.y + (m_viewport.height() / 2);
 
             const auto is_circa_in_middle =
-                    std::abs(middle_of_rect_y - viewport_middle_y)
+                    std::abs(static_cast<i32>(middle_of_rect_y) - static_cast<i32>(viewport_middle_y))
                     <= static_cast<int>(m_service_provider->window().screen_rect().height() * 0.05);
 
             if (is_circa_in_middle) {
@@ -479,7 +476,7 @@ namespace ui {
 
             // if we don't need to fill-up the whole main_rect, we need a special viewport
             if (total_widgets_height < scrollbar_rect.height()) {
-                m_viewport = shapes::Rect{ 0, 0, main_rect.width(), total_widgets_height };
+                m_viewport = shapes::URect{ 0, 0, main_rect.width(), total_widgets_height };
             } else {
                 // check if desired_scroll_height is valid:
                 auto scroll_height = desired_scroll_height;
@@ -490,7 +487,7 @@ namespace ui {
                     scroll_height = total_widgets_height - main_rect.height();
                 }
 
-                m_viewport = shapes::Rect{ 0, scroll_height, main_rect.width(), main_rect.height() };
+                m_viewport = shapes::URect{ 0, static_cast<u32>(scroll_height), main_rect.width(), main_rect.height() };
             }
 
 
@@ -507,9 +504,8 @@ namespace ui {
             );
 
             scrollbar_mover_rect =
-                    shapes::Rect{ scrollbar_rect.top_left.x,
-                                  static_cast<int>(scrollbar_rect.top_left.y + current_start_height),
-                                  scrollbar_rect.width(), static_cast<int>(current_end_height - current_start_height) };
+                    shapes::URect{ scrollbar_rect.top_left.x, scrollbar_rect.top_left.y + current_start_height,
+                                   scrollbar_rect.width(), current_end_height - current_start_height };
         }
 
         void give_focus(Focusable* focusable) {

@@ -2,7 +2,7 @@
 #include "grid.hpp"
 #include <algorithm>
 
-void MinoStack::clear_row_and_let_sink(int row) {
+void MinoStack::clear_row_and_let_sink(u32 row) {
     m_minos.erase(
             std::remove_if(m_minos.begin(), m_minos.end(), [&](const Mino& mino) { return mino.position().y == row; }),
             m_minos.end()
@@ -14,7 +14,7 @@ void MinoStack::clear_row_and_let_sink(int row) {
     }
 }
 
-[[nodiscard]] bool MinoStack::is_empty(shapes::Point coordinates) const {
+[[nodiscard]] bool MinoStack::is_empty(shapes::UPoint coordinates) const {
     for (const Mino& mino : m_minos) { // NOLINT(readability-use-anyofallof)
         if (mino.position() == coordinates) {
             return false;
@@ -23,7 +23,7 @@ void MinoStack::clear_row_and_let_sink(int row) {
     return true;
 }
 
-void MinoStack::set(shapes::Point coordinates, TetrominoType type) {
+void MinoStack::set(shapes::UPoint coordinates, TetrominoType type) {
     const Mino to_insert = Mino{ coordinates, type };
     for (Mino& current : m_minos) {
         if (current.position() == coordinates) {
@@ -44,11 +44,11 @@ void MinoStack::draw_minos(const ServiceProvider& service_provider, const Grid* 
 
 std::ostream& operator<<(std::ostream& ostream, const MinoStack& mino_stack) {
     ostream << "MinoStack(\n";
-    for (usize y = 0; y < Grid::height_in_tiles; ++y) {
-        for (usize x = 0; x < Grid::width_in_tiles; ++x) {
+    for (u32 y = 0; y < Grid::height_in_tiles; ++y) {
+        for (u32 x = 0; x < Grid::width_in_tiles; ++x) {
             const auto find_iterator =
                     std::find_if(mino_stack.minos().cbegin(), mino_stack.minos().cend(), [&](const auto& mino) {
-                        return mino.position() == shapes::Point{ static_cast<int>(x), static_cast<int>(y) };
+                        return mino.position() == shapes::UPoint{ x, y };
                     });
             const auto found = (find_iterator != mino_stack.minos().cend());
             if (found) {

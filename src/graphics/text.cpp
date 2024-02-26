@@ -8,7 +8,7 @@ Text::Text(
         const std::string& text,
         const Font& font,
         const Color& color,
-        const shapes::Rect& dest
+        const shapes::URect& dest
 )
     : m_font{ font },
       m_color{ color },

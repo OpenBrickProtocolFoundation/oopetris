@@ -14,9 +14,9 @@ private:
     std::vector<Mino> m_minos;
 
 public:
-    void clear_row_and_let_sink(int row);
-    [[nodiscard]] bool is_empty(shapes::Point coordinates) const;
-    void set(shapes::Point coordinates, TetrominoType type);
+    void clear_row_and_let_sink(u32 row);
+    [[nodiscard]] bool is_empty(shapes::UPoint coordinates) const;
+    void set(shapes::UPoint coordinates, TetrominoType type);
     void draw_minos(const ServiceProvider& service_provider, const Grid* grid) const;
 
     [[nodiscard]] usize num_minos() const {
