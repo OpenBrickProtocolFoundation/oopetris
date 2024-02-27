@@ -14,8 +14,8 @@
 
 struct CommandLineArguments final {
 private:
-    static inline constexpr auto default_target_fps = u64{ 60 };
-    static inline constexpr auto default_starting_level = i32{ 0 };
+    static inline constexpr auto default_target_fps = u32{ 60 };
+    static inline constexpr auto default_starting_level = u32{ 0 };
 
 public:
     helper::optional<std::filesystem::path> recording_path{};
@@ -52,7 +52,7 @@ public:
             }
 
             const auto level = parser.get<decltype(starting_level)>("--level");
-            if (level >= 0 and level <= 30) {
+            if (level <= 30) {
                 starting_level = level;
             } else {
                 spdlog::error(

@@ -6,6 +6,7 @@
 #include <span>
 #include <vector>
 
+//TODO: this needs versioning, since now we changed some sizes of some types!!
 struct TetrionSnapshot final {
 public:
     using Level = decltype(Tetrion::m_level);
@@ -22,7 +23,7 @@ private:
 
 public:
     using MinoCount = u64;
-    using Coordinate = i32;
+    using Coordinate = u8;
     using MinoType = u8;
 
     TetrionSnapshot(

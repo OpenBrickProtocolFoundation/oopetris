@@ -1,8 +1,12 @@
 src_files += files(
     'bag.cpp',
     'bag.hpp',
+    'game.cpp',
+    'game.hpp',
     'grid.cpp',
     'grid.hpp',
+    'input_creator.cpp',
+    'input_creator.hpp',
     'mino.cpp',
     'mino.hpp',
     'mino_stack.cpp',
@@ -11,6 +15,7 @@ src_files += files(
     'tetrion.hpp',
     'tetrion_snapshot.cpp',
     'tetrion_snapshot.hpp',
+    'tetromino.cpp',
     'tetromino.hpp',
     'tetromino_type.hpp',
 )

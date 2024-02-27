@@ -56,16 +56,15 @@ namespace scenes {
             switch (m_next_command.value()) {
                 case Command::SinglePlayer:
                     return UpdateResult{
-                        SceneUpdate::ContinueUpdating,
+                        SceneUpdate::StopUpdating,
                         Scene::Switch{SceneId::SinglePlayerGame, ui::FullScreenLayout{ m_service_provider->window() }}
                     };
                 case Command::MultiPlayer:
                     // perform a push and reset the command, so that the music keeps playing the entire time
                     m_next_command = helper::nullopt;
                     return UpdateResult{
-                        SceneUpdate::ContinueUpdating,
-                        Scene::Push{SceneId::MultiPlayerModeSelectMenu,
-                                    ui::FullScreenLayout{ m_service_provider->window() }}
+                        SceneUpdate::StopUpdating, Scene::Push{SceneId::MultiPlayerModeSelectMenu,
+                                                               ui::FullScreenLayout{ m_service_provider->window() }}
                     };
                 case Command::Return:
                     return UpdateResult{ SceneUpdate::StopUpdating, Scene::Pop{} };
@@ -73,7 +72,7 @@ namespace scenes {
                     utils::unreachable();
             }
         }
-        return UpdateResult{ SceneUpdate::ContinueUpdating, helper::nullopt };
+        return UpdateResult{ SceneUpdate::StopUpdating, helper::nullopt };
     }
 
     void PlaySelectMenu::render(const ServiceProvider& service_provider) {

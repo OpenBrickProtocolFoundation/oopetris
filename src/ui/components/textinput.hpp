@@ -3,7 +3,7 @@
 #include "graphics/renderer.hpp"
 #include "graphics/text.hpp"
 #include "helper/timer.hpp"
-#include "input/event_dispatcher.hpp"
+#include "manager/event_dispatcher.hpp"
 #include "ui/focusable.hpp"
 #include "ui/hoverable.hpp"
 #include "ui/widget.hpp"

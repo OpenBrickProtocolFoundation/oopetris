@@ -4,9 +4,9 @@
 #include "helper/types.hpp"
 #include "manager/service_provider.hpp"
 #include "tetromino_type.hpp"
-#include <array>
 
-struct Grid;
+#include <array>
+#include <functional>
 
 enum class MinoTransparency : u8 {
     // here the enum value is used as index into the preview alpha array
@@ -23,29 +23,32 @@ enum class MinoTransparency : u8 {
 
 struct Mino final {
 private:
-    shapes::UPoint m_position;
+    using GridPoint = shapes::AbstractPoint<u8>;
+    using ScreenCordsFunction = std::function<shapes::UPoint(const GridPoint&)>;
+    GridPoint m_position;
     TetrominoType m_type;
     static constexpr int original_inset = 3;
 
 public:
-    explicit constexpr Mino(shapes::UPoint coords, TetrominoType type) : m_position{ coords }, m_type{ type } { }
+    explicit constexpr Mino(GridPoint position, TetrominoType type) : m_position{ position }, m_type{ type } { }
 
     void render(
             const ServiceProvider& service_provider,
-            const Grid* grid,
             MinoTransparency transparency,
-            const shapes::UPoint& offset = shapes::UPoint::zero()
+            const double original_scale,
+            const ScreenCordsFunction& to_screen_coords,
+            const shapes::UPoint& tile_size
     ) const;
 
     [[nodiscard]] TetrominoType type() const {
         return m_type;
     }
 
-    [[nodiscard]] shapes::UPoint position() const {
+    [[nodiscard]] GridPoint position() const {
         return m_position;
     }
 
-    [[nodiscard]] shapes::UPoint& position() {
+    [[nodiscard]] GridPoint& position() {
         return m_position;
     }
 

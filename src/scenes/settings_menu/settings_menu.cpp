@@ -68,7 +68,7 @@ namespace scenes {
             m_service_provider->music_manager().remove_volume_listener(listener_name);
             return UpdateResult{ SceneUpdate::StopUpdating, Scene::Pop{} };
         }
-        return UpdateResult{ SceneUpdate::StopUpdating, helper::nullopt };
+        return UpdateResult{ SceneUpdate::ContinueUpdating, helper::nullopt };
     }
 
     void SettingsMenu::render(const ServiceProvider& service_provider) {

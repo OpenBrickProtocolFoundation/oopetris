@@ -2,7 +2,7 @@
 
 #include "graphics/rect.hpp"
 #include "helper/optional.hpp"
-#include "input/event_listener.hpp"
+#include "manager/event_listener.hpp"
 
 #include <SDL.h>
 #include <algorithm>

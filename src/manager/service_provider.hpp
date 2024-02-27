@@ -35,5 +35,4 @@ struct ServiceProvider {
     [[nodiscard]] virtual const EventDispatcher& event_dispatcher() const = 0;
     [[nodiscard]] virtual const Window& window() const = 0;
     [[nodiscard]] virtual Window& window() = 0;
-    [[nodiscard]] virtual std::vector<scenes::Scene*> active_scenes() const = 0;
 };

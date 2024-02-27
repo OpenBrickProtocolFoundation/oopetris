@@ -3,6 +3,8 @@
 #include "helper/optional.hpp"
 #include "helper/types.hpp"
 
+#include <stdexcept>
+
 struct ClockSource {
     virtual ~ClockSource() = default;
 
@@ -10,7 +12,7 @@ struct ClockSource {
     [[nodiscard]] virtual bool can_be_paused() = 0;
 
     virtual void pause() {
-        throw std::exception{};
+        throw std::runtime_error("not implemented");
     }
 
     /**
@@ -18,7 +20,7 @@ struct ClockSource {
      * @return The duration of the pause.
      */
     virtual double resume() {
-        throw std::exception{};
+        throw std::runtime_error("not implemented");
     };
 };
 

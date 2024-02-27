@@ -3,24 +3,33 @@
 #include "helper/types.hpp"
 #include "manager/service_provider.hpp"
 #include "mino.hpp"
+
 #include <algorithm>
 #include <magic_enum.hpp>
 #include <vector>
 
-struct Grid;
+
 
 struct MinoStack final {
 private:
+    using GridPoint = shapes::AbstractPoint<u8>;
+    using ScreenCordsFunction = std::function<shapes::UPoint(const GridPoint&)>;
+
     std::vector<Mino> m_minos;
 
 public:
-    void clear_row_and_let_sink(u32 row);
-    [[nodiscard]] bool is_empty(shapes::UPoint coordinates) const;
-    void set(shapes::UPoint coordinates, TetrominoType type);
-    void draw_minos(const ServiceProvider& service_provider, const Grid* grid) const;
+    void clear_row_and_let_sink(u8 row);
+    [[nodiscard]] bool is_empty(GridPoint coordinates) const;
+    void set(GridPoint coordinates, TetrominoType type);
+    void draw_minos(
+            const ServiceProvider& service_provider,
+            const double original_scale,
+            const ScreenCordsFunction& to_screen_coords,
+            const shapes::UPoint& tile_size
+    ) const;
 
-    [[nodiscard]] usize num_minos() const {
-        return m_minos.size();
+    [[nodiscard]] u32 num_minos() const {
+        return static_cast<u32>(m_minos.size());
     }
 
     [[nodiscard]] const std::vector<Mino>& minos() const {

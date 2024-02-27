@@ -5,12 +5,13 @@
 #include "graphics/window.hpp"
 #include "helper/command_line_arguments.hpp"
 #include "helper/types.hpp"
-#include "input/event_dispatcher.hpp"
-#include "input/event_listener.hpp"
+#include "manager/event_dispatcher.hpp"
+#include "manager/event_listener.hpp"
 #include "manager/music_manager.hpp"
 #include "manager/resource_manager.hpp"
 #include "manager/service_provider.hpp"
 #include "scenes/scene.hpp"
+
 #include <memory>
 #include <vector>
 
@@ -41,10 +42,6 @@ public:
     Application& operator=(const Application&) = delete;
 
     void run();
-
-    [[nodiscard]] static double elapsed_time() {
-        return static_cast<double>(SDL_GetTicks()) / 1000.0;
-    }
 
     void handle_event(const SDL_Event& event, const Window* window) override;
 
@@ -101,8 +98,6 @@ public:
     [[nodiscard]] Window& window() override {
         return m_window;
     }
-
-    [[nodiscard]] std::vector<scenes::Scene*> active_scenes() const override;
 
 private:
     void initialize();

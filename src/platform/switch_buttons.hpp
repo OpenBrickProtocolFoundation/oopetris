@@ -3,8 +3,8 @@
 #pragma once
 
 #if not defined(__SWITCH__)
-// this header is switch only
-#else
+#error "this header is switch only"
+#endif
 
 #include "switch.h"
 
@@ -46,6 +46,3 @@ enum JOYCON {
 // some static asserts to check if BITL_REVERSE works as expected
 static_assert(BITL(JOYCON_B) == HidNpadButton_B);
 static_assert(BITL(JOYCON_PLUS) == HidNpadButton_Plus);
-
-
-#endif

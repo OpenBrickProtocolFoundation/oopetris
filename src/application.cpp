@@ -188,11 +188,3 @@ void Application::load_resources() {
         m_font_manager.load(font_id, font_path, fonts_size);
     }
 }
-
-[[nodiscard]] std::vector<scenes::Scene*> Application::active_scenes() const {
-    auto result = std::vector<scenes::Scene*>{};
-    for (const auto& scene : m_scene_stack) {
-        result.push_back(scene.get());
-    }
-    return result;
-}

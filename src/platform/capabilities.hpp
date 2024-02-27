@@ -18,6 +18,7 @@
 #include "platform/switch_buttons.hpp"
 #endif
 
+//TODO factor this file into mulitple ones, according to logic distribution of what the functions are doing
 
 namespace utils {
 

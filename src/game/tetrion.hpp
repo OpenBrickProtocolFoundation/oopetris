@@ -8,10 +8,10 @@
 #include "helper/random.hpp"
 #include "helper/types.hpp"
 #include "helper/utils.hpp"
-#include "input/input.hpp"
 #include "manager/music_manager.hpp"
 #include "manager/service_provider.hpp"
 #include "mino_stack.hpp"
+#include "platform/input.hpp"
 #include "tetromino.hpp"
 #include "ui/components/label.hpp"
 #include "ui/layout.hpp"
@@ -39,6 +39,9 @@ struct Tetrion final : public ui::Widget {
 private:
     using WallKickPoint = shapes::AbstractPoint<i8>;
     using WallKickTable = std::array<std::array<WallKickPoint, 5>, 8>;
+    using GridPoint = shapes::AbstractPoint<u8>;
+    using ScreenCordsFunction = std::function<shapes::UPoint(const GridPoint&)>;
+
     static constexpr SimulationStep lock_delay = 30;
     static constexpr int num_lock_delays = 30;
 
@@ -52,7 +55,7 @@ private:
         Right,
     };
 
-    static constexpr int num_preview_tetrominos = 6;
+    static constexpr u8 num_preview_tetrominos = 6;
 
     bool m_is_accelerated_down_movement = false;
     bool m_down_key_pressed = false;
@@ -61,15 +64,15 @@ private:
     u32 m_num_executed_lock_delays = 0;
     u64 m_next_gravity_simulation_step_index;
     u64 m_lock_delay_step_index;
-    ServiceProvider* m_service_provider;
-    helper::optional<RecordingWriter*> m_recording_writer;
+    ServiceProvider* const m_service_provider;
+    helper::optional<std::shared_ptr<RecordingWriter>> m_recording_writer;
     MinoStack m_mino_stack;
     Random m_random;
     u32 m_level = 0;
     u32 m_lines_cleared = 0;
     GameState m_game_state = GameState::Playing;
     int m_sequence_index = 0;
-    u32 m_score = 0;
+    u64 m_score = 0;
     std::array<Bag, 2> m_sequence_bags{ Bag{ m_random }, Bag{ m_random } };
     helper::optional<Tetromino> m_active_tetromino;
     helper::optional<Tetromino> m_ghost_tetromino;
@@ -83,8 +86,8 @@ public:
     Tetrion(u8 tetrion_index,
             Random::Seed random_seed,
             u32 starting_level,
-            ServiceProvider* service_provider,
-            helper::optional<RecordingWriter*> recording_writer,
+            ServiceProvider* const service_provider,
+            helper::optional<std::shared_ptr<RecordingWriter>> recording_writer,
             const ui::Layout& layout);
     void update_step(SimulationStep simulation_step_index);
     void render(const ServiceProvider& service_provider) const override;
@@ -162,10 +165,9 @@ private:
     void clear_fully_occupied_lines();
     void lock_active_tetromino(SimulationStep simulation_step_index);
     [[nodiscard]] bool is_active_tetromino_position_valid() const;
-    [[nodiscard]] bool mino_can_move_down(shapes::UPoint position) const;
-    [[nodiscard]] bool is_valid_mino_position(shapes::UPoint position) const;
+    [[nodiscard]] bool mino_can_move_down(GridPoint position) const;
+    [[nodiscard]] bool is_valid_mino_position(GridPoint position) const;
 
-    [[nodiscard]] bool is_active_tetromino_completely_visible() const;
     void refresh_ghost_tetromino();
     void refresh_previews();
     TetrominoType get_next_tetromino_type();

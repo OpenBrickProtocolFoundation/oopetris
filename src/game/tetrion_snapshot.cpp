@@ -79,12 +79,8 @@ TetrionSnapshot::TetrionSnapshot(std::istream& istream) {
             throw std::exception{};
         }
 
-        // this is signed for backwards compatibility with recordings
-        using PointCoordinate = decltype(shapes::IPoint::x);
-
         m_mino_stack.set(
-                shapes::UPoint(static_cast<PointCoordinate>(*x), static_cast<PointCoordinate>(*y)).cast<u32>(),
-                static_cast<TetrominoType>(*type)
+                shapes::AbstractPoint<u8>(static_cast<u8>(*x), static_cast<u8>(*y)), static_cast<TetrominoType>(*type)
         );
     }
 }

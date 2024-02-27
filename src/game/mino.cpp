@@ -1,7 +1,7 @@
 #include "mino.hpp"
 #include "graphics/renderer.hpp"
-#include "grid.hpp"
 #include "helper/utils.hpp"
+
 #include <cassert>
 
 static constexpr std::array<u8, 6> transparency_values = { 255, 173, 118, 80, 55, 37 };
@@ -27,34 +27,35 @@ namespace {
 
 void Mino::render(
         const ServiceProvider& service_provider,
-        const Grid* grid,
         const MinoTransparency transparency,
-        const shapes::UPoint& offset
+        const double original_scale,
+        const ScreenCordsFunction& to_screen_coords,
+        const shapes::UPoint& tile_size
 ) const {
-    //TODO: get rid of the offset!
-
     const auto alpha = get_transparency_value(transparency);
     const auto alpha_factor = static_cast<double>(alpha) / 255.0;
     const Color foreground = get_foreground_color(m_type, alpha);
     const Color background = get_background_color(m_type, alpha);
 
-    const auto one_scaled_unit = static_cast<u32>(grid->scale_to_original());
+    const auto one_scaled_unit = static_cast<u32>(original_scale);
 
-    const auto inset_scaled = static_cast<int>(grid->scale_to_original() * original_inset);
+    const auto inset_scaled = static_cast<int>(original_scale * original_inset);
 
-
-    const shapes::UPoint top_left = grid->to_screen_coords(m_position + offset);
-    const shapes::UPoint top_right = top_left + shapes::UPoint{ grid->tile_size().x - one_scaled_unit, 0 };
-    const shapes::UPoint bottom_left = top_left + shapes::UPoint{ 0, grid->tile_size().y - one_scaled_unit };
-    const shapes::UPoint bottom_right =
-            top_left + grid->tile_size() - (shapes::UPoint{ one_scaled_unit, one_scaled_unit });
+    const shapes::UPoint top_left = to_screen_coords(m_position);
+    const shapes::UPoint top_right = top_left + shapes::UPoint{ tile_size.x - one_scaled_unit, 0 };
+    const shapes::UPoint bottom_left = top_left + shapes::UPoint{ 0, tile_size.y - one_scaled_unit };
+    const shapes::UPoint bottom_right = top_left + tile_size - (shapes::UPoint{ one_scaled_unit, one_scaled_unit });
 
     service_provider.renderer().draw_rect_filled(shapes::URect{ top_left, bottom_right }, background);
 
-    const shapes::IPoint inner_top_left = top_left.cast<i32>() + shapes::IPoint{ inset_scaled, inset_scaled };
-    const shapes::IPoint inner_top_right = top_right.cast<i32>() + shapes::IPoint{ -inset_scaled, inset_scaled };
-    const shapes::IPoint inner_bottom_left = bottom_left.cast<i32>() + shapes::IPoint{ inset_scaled, -inset_scaled };
-    const shapes::IPoint inner_bottom_right = bottom_right.cast<i32>() - shapes::IPoint{ inset_scaled, inset_scaled };
+    const shapes::UPoint inner_top_left =
+            (top_left.cast<i32>() + shapes::IPoint(inset_scaled, inset_scaled)).cast<u32>();
+    const shapes::UPoint inner_top_right =
+            (top_right.cast<i32>() + shapes::IPoint(-inset_scaled, inset_scaled)).cast<u32>();
+    const shapes::UPoint inner_bottom_left =
+            (bottom_left.cast<i32>() + shapes::IPoint(inset_scaled, -inset_scaled)).cast<u32>();
+    const shapes::UPoint inner_bottom_right =
+            (bottom_right.cast<i32>() - shapes::IPoint(inset_scaled, inset_scaled)).cast<u32>();
 
 
     service_provider.renderer().draw_line(
@@ -68,5 +69,5 @@ void Mino::render(
             bottom_right, inner_bottom_right, Color{ 80, 80, 80, static_cast<u8>(180.0 * alpha_factor) }
     );
 
-    service_provider.renderer().draw_rect_filled(shapes::IRect{ inner_top_left, inner_bottom_right }, foreground);
+    service_provider.renderer().draw_rect_filled(shapes::URect{ inner_top_left, inner_bottom_right }, foreground);
 }

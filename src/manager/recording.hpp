@@ -7,7 +7,7 @@
 #include "helper/random.hpp"
 #include "helper/types.hpp"
 #include "helper/utils.hpp"
-#include "input/input_event.hpp"
+#include "manager/input_event.hpp"
 
 #include <filesystem>
 #include <fstream>
@@ -27,7 +27,7 @@ protected:
 public:
     struct TetrionHeader final {
         Random::Seed seed;
-        i32 starting_level;
+        u32 starting_level;
     };
 
 protected:

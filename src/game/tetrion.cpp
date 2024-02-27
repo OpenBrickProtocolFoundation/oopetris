@@ -13,8 +13,8 @@ Tetrion::Tetrion(
         const u8 tetrion_index,
         const Random::Seed random_seed,
         const u32 starting_level,
-        ServiceProvider* service_provider,
-        helper::optional<RecordingWriter*> recording_writer,
+        ServiceProvider* const service_provider,
+        helper::optional<std::shared_ptr<RecordingWriter>> recording_writer,
         const ui::Layout& layout
 )
     : ui::Widget{ layout },
@@ -99,15 +99,23 @@ void Tetrion::render(const ServiceProvider& service_provider) const {
 
     main_layout.render(service_provider);
 
-    //TODO: move the rendering into the grid, this here is ugly
     const auto* grid = get_grid();
+    const double original_scale = grid->scale_to_original();
+    const ScreenCordsFunction to_screen_coords = [grid](const GridPoint& point) {
+        return grid->to_screen_coords(point);
+    };
+    const shapes::UPoint& tile_size = grid->tile_size();
 
-    m_mino_stack.draw_minos(service_provider, grid);
+    m_mino_stack.draw_minos(service_provider, original_scale, to_screen_coords, tile_size);
     if (m_active_tetromino) {
-        m_active_tetromino->render(service_provider, grid, MinoTransparency::Solid, Grid::grid_position);
+        m_active_tetromino->render(
+                service_provider, MinoTransparency::Solid, original_scale, to_screen_coords, tile_size
+        );
     }
     if (m_ghost_tetromino) {
-        m_ghost_tetromino->render(service_provider, grid, MinoTransparency::Ghost, Grid::grid_position);
+        m_ghost_tetromino->render(
+                service_provider, MinoTransparency::Ghost, original_scale, to_screen_coords, tile_size
+        );
     }
     for (std::underlying_type_t<MinoTransparency> i = 0; i < static_cast<decltype(i)>(m_preview_tetrominos.size());
          ++i) {
@@ -117,11 +125,15 @@ void Tetrion::render(const ServiceProvider& service_provider) const {
             const auto transparency = magic_enum::enum_value<MinoTransparency>(
                     enum_index.value() + i // NOLINT(bugprone-unchecked-optional-access)
             );
-            current_preview_tetromino->render(service_provider, grid, transparency);
+            current_preview_tetromino->render(
+                    service_provider, transparency, original_scale, to_screen_coords, tile_size
+            );
         }
     }
     if (m_tetromino_on_hold) {
-        m_tetromino_on_hold->render(service_provider, grid, MinoTransparency::Solid);
+        m_tetromino_on_hold->render(
+                service_provider, MinoTransparency::Solid, original_scale, to_screen_coords, tile_size
+        );
     }
 }
 
@@ -192,28 +204,23 @@ void Tetrion::spawn_next_tetromino(const SimulationStep simulation_step_index) {
 }
 
 void Tetrion::spawn_next_tetromino(const TetrominoType type, const SimulationStep simulation_step_index) {
-    static constexpr shapes::UPoint spawn_position{ 3, 0 };
+    static constexpr GridPoint spawn_position{ 3, 0 };
     m_active_tetromino = Tetromino{ spawn_position, type };
     refresh_previews();
     if (not is_active_tetromino_position_valid()) {
+        //TODO: render teh one minos, that re in the grid, if possible!
         m_game_state = GameState::GameOver;
 
         spdlog::info("game over");
         if (m_recording_writer.has_value()) {
             spdlog::info("writing snapshot");
-            (*m_recording_writer)->add_snapshot(m_tetrion_index, simulation_step_index, *this);
+            m_recording_writer.value()->add_snapshot(m_tetrion_index, simulation_step_index, *this);
         }
         m_active_tetromino = {};
         m_ghost_tetromino = {};
         return;
     }
-    for (usize i = 0; not is_active_tetromino_completely_visible() and i < Grid::invisible_rows; ++i) {
-        m_active_tetromino->move_down();
-        if (not is_active_tetromino_position_valid()) {
-            m_active_tetromino->move_up();
-            break;
-        }
-    }
+
     m_next_gravity_simulation_step_index = simulation_step_index + get_gravity_delay_frames();
     refresh_ghost_tetromino();
 }
@@ -314,10 +321,10 @@ void Tetrion::clear_fully_occupied_lines() {
     const u32 lines_cleared_before = m_lines_cleared;
     do { // NOLINT(cppcoreguidelines-avoid-do-while)
         cleared = false;
-        for (u32 row = 0; row < Grid::height_in_tiles; ++row) {
+        for (u8 row = 0; row < Grid::height_in_tiles; ++row) {
             bool fully_occupied = true;
-            for (u32 column = 0; column < Grid::width_in_tiles; ++column) {
-                if (m_mino_stack.is_empty(shapes::UPoint{ column, row })) {
+            for (u8 column = 0; column < Grid::width_in_tiles; ++column) {
+                if (m_mino_stack.is_empty(GridPoint{ column, row })) {
                     fully_occupied = false;
                     break;
                 }
@@ -378,29 +385,18 @@ bool Tetrion::is_active_tetromino_position_valid() const {
     return is_tetromino_position_valid(*m_active_tetromino);
 }
 
-bool Tetrion::is_valid_mino_position(shapes::UPoint position) const {
+bool Tetrion::is_valid_mino_position(GridPoint position) const {
     return position.x < Grid::width_in_tiles and position.y < Grid::height_in_tiles and m_mino_stack.is_empty(position);
 }
 
-bool Tetrion::mino_can_move_down(shapes::UPoint position) const {
+bool Tetrion::mino_can_move_down(GridPoint position) const {
     if (position.y == 0) {
         return false;
     }
 
-    return is_valid_mino_position(position - shapes::UPoint{ 0, 1 });
+    return is_valid_mino_position(position - GridPoint{ 0, 1 });
 }
 
-bool Tetrion::is_active_tetromino_completely_visible() const {
-    if (not m_active_tetromino) {
-        return false;
-    }
-    for (const Mino& mino : m_active_tetromino->minos()) { // NOLINT(readability-use-anyofallof)
-        if (mino.position().y < static_cast<int>(Grid::invisible_rows)) {
-            return false;
-        }
-    }
-    return true;
-}
 
 void Tetrion::refresh_ghost_tetromino() {
     if (not m_active_tetromino.has_value()) {

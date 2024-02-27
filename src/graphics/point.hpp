@@ -36,7 +36,7 @@ namespace shapes {
         }
 
         inline constexpr AbstractPoint<T> operator+(AbstractPoint<T> rhs) const {
-            return AbstractPoint<T>{ x + rhs.x, y + rhs.y };
+            return AbstractPoint<T>{ static_cast<T>(x + rhs.x), static_cast<T>(y + rhs.y) };
         }
 
         inline constexpr AbstractPoint<T> operator+() const {
@@ -49,7 +49,7 @@ namespace shapes {
             }
 
             assert(x >= rhs.x && y >= rhs.y && "underflow in subtraction");
-            return AbstractPoint<T>{ x - rhs.x, y - rhs.y };
+            return AbstractPoint<T>{ static_cast<T>(x - rhs.x), static_cast<T>(y - rhs.y) };
         }
 
         inline constexpr AbstractPoint<T> operator+=(AbstractPoint<T> rhs) {
@@ -86,13 +86,14 @@ namespace shapes {
     template<typename S, typename T, typename R = S>
         requires(std::is_signed_v<S> == std::is_signed_v<T> && std::is_signed_v<T> == std::is_signed_v<R>)
     inline constexpr AbstractPoint<R> operator+(AbstractPoint<S> lhs, AbstractPoint<T> rhs) {
-        return AbstractPoint<R>{ static_cast<R>(lhs.x) + static_cast<R>(rhs.x),
-                                 static_cast<R>(lhs.y) + static_cast<R>(rhs.y) };
+        return AbstractPoint<R>{ static_cast<R>(static_cast<R>(lhs.x) + static_cast<R>(rhs.x)),
+                                 static_cast<R>(static_cast<R>(lhs.y) + static_cast<R>(rhs.y)) };
     }
 
     template<typename T>
     inline std::ostream& operator<<(std::ostream& ostream, const AbstractPoint<T>& point) {
-        ostream << point.x << ", " << point.y;
+        using PrintType = typename std::conditional<std::is_same<T, u8>::value, u32, T>::type;
+        ostream << static_cast<PrintType>(point.x) << ", " << static_cast<PrintType>(point.y);
         return ostream;
     }
 

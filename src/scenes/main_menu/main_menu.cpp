@@ -77,37 +77,37 @@ namespace scenes {
                     // perform a push and reset the command, so that the music keeps playing the entire time
                     m_next_command = helper::nullopt;
                     return UpdateResult{
-                        SceneUpdate::ContinueUpdating,
+                        SceneUpdate::StopUpdating,
                         Scene::Push{SceneId::PlaySelectMenu, ui::FullScreenLayout{ m_service_provider->window() }}
                     };
                 case Command::OpenAboutPage:
                     // perform a push and reset the command, so that the music keeps playing the entire time
                     m_next_command = helper::nullopt;
                     return UpdateResult{
-                        SceneUpdate::ContinueUpdating,
+                        SceneUpdate::StopUpdating,
                         Scene::Push{SceneId::AboutPage, ui::FullScreenLayout{ m_service_provider->window() }}
                     };
                 case Command::OpenSettingsMenu:
                     // perform a push and reset the command, so that the music keeps playing the entire time
                     m_next_command = helper::nullopt;
                     return UpdateResult{
-                        SceneUpdate::ContinueUpdating,
+                        SceneUpdate::StopUpdating,
                         Scene::Push{SceneId::SettingsMenu, ui::FullScreenLayout{ m_service_provider->window() }}
                     };
                 case Command::OpenAchievements:
                     // perform a push and reset the command, so that the music keeps playing the entire time
                     m_next_command = helper::nullopt;
                     return UpdateResult{
-                        SceneUpdate::ContinueUpdating,
+                        SceneUpdate::StopUpdating,
                         Scene::Push{SceneId::AchievementsPage, ui::FullScreenLayout{ m_service_provider->window() }}
                     };
                 case Command::Exit:
-                    return UpdateResult{ SceneUpdate::ContinueUpdating, Scene::Exit{} };
+                    return UpdateResult{ SceneUpdate::StopUpdating, Scene::Exit{} };
                 default:
                     utils::unreachable();
             }
         }
-        return UpdateResult{ SceneUpdate::ContinueUpdating, helper::nullopt };
+        return UpdateResult{ SceneUpdate::StopUpdating, helper::nullopt };
     }
 
     void MainMenu::render(const ServiceProvider& service_provider) {

@@ -3,6 +3,7 @@
 #include "graphics/point.hpp"
 #include "mino.hpp"
 #include "tetromino_type.hpp"
+
 #include <array>
 
 enum class Rotation {
@@ -48,11 +49,12 @@ inline Rotation operator-(const Rotation rotation, const int offset) {
     return rotation + (-offset);
 }
 
-struct Grid;
-
 struct Tetromino final {
 private:
-    shapes::UPoint m_position;
+    using GridPoint = shapes::AbstractPoint<u8>;
+    using ScreenCordsFunction = std::function<shapes::UPoint(const GridPoint&)>;
+
+    GridPoint m_position;
     Rotation m_rotation{ Rotation::North };
     TetrominoType m_type;
     std::array<Mino, 4> m_minos;
@@ -61,76 +63,41 @@ public:
     using TetrominoPoint = shapes::AbstractPoint<u8>;
     using Pattern = std::array<TetrominoPoint, 4>;
 
-    Tetromino(shapes::UPoint position, TetrominoType type)
+    Tetromino(GridPoint position, TetrominoType type)
         : m_position{ position },
           m_type{ type },
           m_minos{ create_minos(position, m_rotation, type) } { }
 
-    [[nodiscard]] TetrominoType type() const {
-        return m_type;
-    }
-
-    [[nodiscard]] Rotation rotation() const {
-        return m_rotation;
-    }
+    [[nodiscard]] TetrominoType type() const;
+    [[nodiscard]] Rotation rotation() const;
 
     void render(
             const ServiceProvider& service_provider,
-            const Grid* grid,
-            const MinoTransparency transparency,
-            const shapes::UPoint& offset = shapes::UPoint::zero()
-    ) const {
-        for (const auto& mino : m_minos) {
-            mino.render(service_provider, grid, transparency, offset);
-        }
-    }
+            MinoTransparency transparency,
+            const double original_scale,
+            const ScreenCordsFunction& to_screen_coords,
+            const shapes::UPoint& tile_size
+    ) const;
 
-    void rotate_right() {
-        ++m_rotation;
-        refresh_minos();
-    }
+    void rotate_right();
+    void rotate_left();
+    void move_down();
+    void move_up();
+    void move_left();
+    void move_right();
+    void move(const shapes::AbstractPoint<i8> offset);
 
-    void rotate_left() {
-        --m_rotation;
-        refresh_minos();
-    }
+    [[nodiscard]] const std::array<Mino, 4>& minos() const;
 
-    void move_down() {
-        move({ 0, 1 });
-    }
-
-    void move_up() {
-        move({ 0, -1 });
-    }
-
-    void move_left() {
-        move({ -1, 0 });
-    }
-
-    void move_right() {
-        move({ 1, 0 });
-    }
-
-    void move(const shapes::AbstractPoint<i8> offset) {
-        // this looks weird but silently asserts, that the final point is not negative
-        m_position = (m_position.cast<i32>() + offset).cast<u32>();
-        refresh_minos();
-    }
-
-    [[nodiscard]] const std::array<Mino, 4>& minos() const {
-        return m_minos;
-    }
 
 private:
-    void refresh_minos() {
-        m_minos = create_minos(m_position, m_rotation, m_type);
-    }
+    void refresh_minos();
 
     static Pattern get_pattern(TetrominoType type, Rotation rotation) {
         return tetrominos.at(static_cast<usize>(type)).at(static_cast<usize>(rotation));
     }
 
-    static std::array<Mino, 4> create_minos(shapes::UPoint position, Rotation rotation, TetrominoType type) {
+    static std::array<Mino, 4> create_minos(GridPoint position, Rotation rotation, TetrominoType type) {
         return std::array<Mino, 4>{
             Mino{position + get_pattern(type, rotation).at(0), type},
             Mino{position + get_pattern(type, rotation).at(1), type},
@@ -138,6 +105,7 @@ private:
             Mino{position + get_pattern(type, rotation).at(3), type},
         };
     }
+
 
     using TetrominoPatterns = std::array<Pattern, 4>; // one pattern per rotation
 

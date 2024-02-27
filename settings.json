@@ -1,44 +1,14 @@
 {
-  "controls": [
-    {
-      "drop": "W",
-      "hold": "E",
-      "move_down": "S",
-      "move_left": "A",
-      "move_right": "D",
-      "rotate_left": "Left",
-      "rotate_right": "Right",
-      "type": "keyboard"
-    },
-    {
-      "drop": "Up",
-      "hold": "Tab",
-      "move_down": "Down",
-      "move_left": "Left",
-      "move_right": "Right",
-      "rotate_left": "Y",
-      "rotate_right": "X",
-      "type": "keyboard"
-    },
-    {
-      "drop": "W",
-      "hold": "Tab",
-      "move_down": "S",
-      "move_left": "A",
-      "move_right": "D",
-      "rotate_left": "Left",
-      "rotate_right": "Right",
-      "type": "keyboard"
-    },
-    {
-      "drop": "W",
-      "hold": "Tab",
-      "move_down": "S",
-      "move_left": "A",
-      "move_right": "D",
-      "rotate_left": "Left",
-      "rotate_right": "Right",
-      "type": "keyboard"
-    }
-  ]
+	"platform": "pc",
+	"controls": {
+		"type": "keyboard",
+		"drop": "W",
+		"hold": "E",
+		"move_down": "S",
+		"move_left": "A",
+		"move_right": "D",
+		"rotate_left": "Left",
+		"rotate_right": "Right"
+	},
+	"volume": 0.2
 }

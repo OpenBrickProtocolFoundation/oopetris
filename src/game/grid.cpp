@@ -6,7 +6,7 @@
 Grid::Grid(const ui::Layout& layout) : ui::Widget{ layout } {
 
     const u32 total_x_tiles = preview_extends.x * 2 + 2 + width_in_tiles;
-    const u32 total_y_tiles = height_in_tiles - invisible_rows;
+    constexpr u32 total_y_tiles = height_in_tiles;
 
     const u32 tile_size_x = layout.get_rect().width() / total_x_tiles;
     const u32 tile_size_y = layout.get_rect().height() / total_y_tiles;
@@ -30,8 +30,8 @@ Grid::Grid(const ui::Layout& layout) : ui::Widget{ layout } {
     return static_cast<double>(m_tile_size) / static_cast<double>(original_tile_size);
 }
 
-[[nodiscard]] shapes::UPoint Grid::to_screen_coords(shapes::UPoint grid_coords) const {
-    return m_fill_rect.top_left + grid_coords - shapes::UPoint{ 0, invisible_rows } * m_tile_size;
+[[nodiscard]] shapes::UPoint Grid::to_screen_coords(GridPoint grid_coords) const {
+    return m_fill_rect.top_left + (grid_coords.cast<u32>() * m_tile_size);
 }
 
 void Grid::render(const ServiceProvider& service_provider) const {
@@ -47,9 +47,9 @@ void Grid::render(const ServiceProvider& service_provider) const {
 void Grid::draw_preview_background(const ServiceProvider& service_provider) const {
     draw_background(
             service_provider,
-            shapes::URect{
+            GridRect{
                     preview_background_position,
-                    preview_background_position + preview_extends - shapes::UPoint{1, 1},
+                    preview_background_position + preview_extends - GridPoint{1, 1},
     }
     );
 }
@@ -57,9 +57,9 @@ void Grid::draw_preview_background(const ServiceProvider& service_provider) cons
 void Grid::draw_hold_background(const ServiceProvider& service_provider) const {
     draw_background(
             service_provider,
-            shapes::URect{
+            GridRect{
                     hold_background_position,
-                    hold_background_position + hold_background_extends - shapes::UPoint{1, 1},
+                    hold_background_position + hold_background_extends - GridPoint{1, 1},
     }
     );
 }
@@ -67,18 +67,18 @@ void Grid::draw_hold_background(const ServiceProvider& service_provider) const {
 void Grid::draw_playing_field_background(const ServiceProvider& service_provider) const {
     draw_background(
             service_provider,
-            shapes::URect{
+            GridRect{
                     grid_position,
-                    grid_position + shapes::UPoint{width_in_tiles - 1, height_in_tiles - invisible_rows - 1},
+                    grid_position + shapes::UPoint{width_in_tiles - 1, height_in_tiles - 1},
     }
     );
 }
 
-void Grid::draw_background(const ServiceProvider& service_provider, shapes::URect grid_rect) const {
-    const auto top_left = m_fill_rect.top_left + grid_rect.top_left * m_tile_size;
+void Grid::draw_background(const ServiceProvider& service_provider, GridRect grid_rect) const {
+    const auto top_left = m_fill_rect.top_left + (grid_rect.top_left.cast<u32>() * m_tile_size);
 
 
-    const auto bottom_right = top_left + shapes::UPoint{ grid_rect.width(), grid_rect.height() } * m_tile_size;
+    const auto bottom_right = top_left + (GridPoint(grid_rect.width(), grid_rect.height()).cast<u32>() * m_tile_size);
 
     service_provider.renderer().draw_rect_filled(shapes::URect{ top_left, bottom_right }, background_color);
 
