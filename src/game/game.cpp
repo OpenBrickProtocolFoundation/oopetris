@@ -77,6 +77,12 @@ void Game::set_paused(bool paused) {
     } else {
         m_clock_source->resume();
     }
+
+    auto* listener = dynamic_cast<EventListener*>(m_input.get());
+
+    if (listener != nullptr) {
+        listener->set_paused(paused);
+    }
 }
 
 [[nodiscard]] bool Game::is_paused() const {

@@ -55,6 +55,10 @@ public:
             }
 
             for (const auto& listener : m_listeners) {
+                if (listener->is_paused()) {
+                    continue;
+                }
+
                 listener->handle_event(event, m_window);
             }
         }
