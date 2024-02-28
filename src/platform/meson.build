@@ -16,6 +16,7 @@ if meson.is_cross_build() and host_machine.system() == 'android'
 elif meson.is_cross_build() and host_machine.system() == 'switch'
     src_files += files(
         'switch_buttons.hpp',
+        'switch_input.cpp',
         'switch_input.hpp',
     )
 else

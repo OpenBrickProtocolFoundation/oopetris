@@ -16,7 +16,9 @@ private:
     EventDispatcher* m_event_dispatcher;
 
 public:
-    JoystickInput(EventDispatcher* event_dispatcher) : Input{ InputType::Controller } {
+    JoystickInput(EventDispatcher* event_dispatcher)
+        : Input{ InputType::Controller },
+          m_event_dispatcher{ event_dispatcher } {
         m_event_dispatcher->register_listener(this);
     }
 
