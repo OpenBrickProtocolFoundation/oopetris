@@ -8,7 +8,7 @@
 #include <string_view>
 #include <unordered_map>
 
-enum class FontId { Default, Arial, NotoColorEmoji, Symbola };
+enum class FontId : u8 { Default, Arial, NotoColorEmoji, Symbola };
 
 template<typename Key, typename Resource>
 struct ResourceManager {

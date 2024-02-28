@@ -9,7 +9,7 @@ namespace scenes {
 
     struct MultiPlayerMenu : public Scene {
     private:
-        enum class Command { LocalMultiPlayer, OnlineMultiPlayer, AIMultiPlayer, Return };
+        enum class Command : u8 { LocalMultiPlayer, OnlineMultiPlayer, AIMultiPlayer, Return };
 
         ui::GridLayout m_main_grid;
         helper::optional<Command> m_next_command;

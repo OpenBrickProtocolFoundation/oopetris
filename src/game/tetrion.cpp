@@ -170,6 +170,7 @@ bool Tetrion::handle_input_command(const InputCommand command, const SimulationS
             }
             return false;
         case InputCommand::MoveDown:
+            //TODO: use input_type() != InputType:Touch
 #if not defined(__ANDROID__)
             m_down_key_pressed = true;
             m_is_accelerated_down_movement = true;

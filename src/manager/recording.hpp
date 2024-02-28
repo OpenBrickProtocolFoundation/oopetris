@@ -134,7 +134,7 @@ public:
     }
 
 private:
-    enum class ReadError {
+    enum class ReadError : u8 {
         EndOfFile,
         Incomplete,
         InvalidStream,

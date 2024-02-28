@@ -15,7 +15,7 @@
 
 namespace ui {
 
-    enum class ItemSizeType { Relative, Absolut };
+    enum class ItemSizeType : u8 { Relative, Absolut };
 
     struct ItemSize {
     private:
@@ -56,7 +56,7 @@ namespace ui {
 
     struct ScrollLayout : public Widget, public Focusable, public Hoverable {
     private:
-        enum class FocusChangeDirection {
+        enum class FocusChangeDirection : u8 {
             Forward,
             Backward,
         };

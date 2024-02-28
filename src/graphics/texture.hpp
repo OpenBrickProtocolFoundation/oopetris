@@ -14,7 +14,7 @@
 #include <spdlog/spdlog.h>
 #include <string>
 
-enum class RenderType { Solid, Blended, Shaded };
+enum class RenderType : u8 { Solid, Blended, Shaded };
 
 struct Texture {
 private:

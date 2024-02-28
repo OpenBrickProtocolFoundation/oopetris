@@ -3,7 +3,7 @@
 #include "helper/color.hpp"
 #include <limits>
 
-enum class TetrominoType {
+enum class TetrominoType : u8 {
     I = 0,
     J,
     L,

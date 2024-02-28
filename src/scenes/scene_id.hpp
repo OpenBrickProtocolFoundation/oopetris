@@ -1,6 +1,6 @@
 #pragma once
 
-enum class SceneId {
+enum class SceneId : u8 {
     AboutPage,
     AchievementsPage,
     AIMultiPlayerGame,

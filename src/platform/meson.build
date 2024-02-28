@@ -10,6 +10,7 @@ src_files += files(
 
 if meson.is_cross_build() and host_machine.system() == 'android'
     src_files += files(
+        'android_input.cpp',
         'android_input.hpp',
     )
 elif meson.is_cross_build() and host_machine.system() == 'switch'
@@ -19,7 +20,7 @@ elif meson.is_cross_build() and host_machine.system() == 'switch'
     )
 else
     src_files += files(
-        'pc_input.cpp',
-        'pc_input.hpp',
+        'keyboard_input.cpp',
+        'keyboard_input.hpp',
     )
 endif

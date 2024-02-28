@@ -15,6 +15,7 @@ Game::Game(
       m_simulation_step_index{ 0 },
       m_input{ std::move(input) } {
 
+
     spdlog::info("starting level for tetrion {}", starting_parameters.starting_level);
 
     m_tetrion = std::make_unique<Tetrion>(
@@ -25,6 +26,16 @@ Game::Game(
     m_tetrion->spawn_next_tetromino(0);
 
     m_input->set_target_tetrion(m_tetrion.get());
+    if (starting_parameters.recording_writer.has_value()) {
+        const auto recording_writer = starting_parameters.recording_writer.value();
+        const auto tetrion_index = starting_parameters.tetrion_index;
+        m_input->set_event_callback([this, recording_writer, tetrion_index](InputEvent event) {
+            const auto simulation_step_index = m_clock_source->simulation_step_index();
+            spdlog::debug("event: {} (step {})", magic_enum::enum_name(event), simulation_step_index);
+
+            recording_writer->add_event(tetrion_index, simulation_step_index, event);
+        });
+    }
 }
 
 void Game::update() {

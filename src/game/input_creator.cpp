@@ -9,7 +9,7 @@
 #elif defined(__SWITCH__)
 #include "platform/switch_input.hpp"
 #else
-#include "platform/pc_input.hpp"
+#include "platform/keyboard_input.hpp"
 #endif
 
 #include <fmt/format.h>

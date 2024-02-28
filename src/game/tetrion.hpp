@@ -3,7 +3,6 @@
 #include "bag.hpp"
 #include "graphics/text.hpp"
 #include "grid.hpp"
-#include "helper/clock_source.hpp"
 #include "helper/optional.hpp"
 #include "helper/random.hpp"
 #include "helper/types.hpp"
@@ -25,12 +24,12 @@
 
 struct RecordingWriter;
 
-enum class GameState {
+enum class GameState : u8 {
     Playing,
     GameOver,
 };
 
-enum class MovementType {
+enum class MovementType : u8 {
     Gravity,
     Forced,
 };
@@ -45,12 +44,12 @@ private:
     static constexpr SimulationStep lock_delay = 30;
     static constexpr int num_lock_delays = 30;
 
-    enum class RotationDirection {
+    enum class RotationDirection : u8 {
         Left,
         Right,
     };
 
-    enum class MoveDirection {
+    enum class MoveDirection : u8 {
         Left,
         Right,
     };

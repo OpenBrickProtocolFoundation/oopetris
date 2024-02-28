@@ -9,7 +9,7 @@
 
 namespace ui {
 
-    enum class LayoutType { FullScreen, Relative, Absolut };
+    enum class LayoutType : u8 { FullScreen, Relative, Absolut };
 
     struct Layout {
     private:
@@ -72,8 +72,8 @@ namespace ui {
     };
 
 
-    enum class AlignmentVertical { Top, Center, Bottom };
-    enum class AlignmentHorizontal { Left, Middle, Right };
+    enum class AlignmentVertical : u8 { Top, Center, Bottom };
+    enum class AlignmentHorizontal : u8 { Left, Middle, Right };
 
     using Alignment = std::pair<AlignmentHorizontal, AlignmentVertical>;
 
@@ -90,7 +90,7 @@ namespace ui {
     ratio_helper(const std::pair<u32, u32>& size, bool respect_ratio, const shapes::UPoint& original_ratio);
 
 
-    enum class Direction { Horizontal, Vertical };
+    enum class Direction : u8 { Horizontal, Vertical };
 
     struct Margin {
     private:

@@ -22,7 +22,7 @@
 
 namespace utils {
 
-    enum class Orientation {
+    enum class Orientation : u8 {
         Portrait, // 9x16, e.g. smartphone
         Landscape //  16x9
     };
@@ -120,7 +120,7 @@ namespace utils {
 
     [[nodiscard]] std::string action_description(CrossPlatformAction action);
 
-    enum class CrossPlatformClickEvent { Motion, ButtonDown, ButtonUp, Any };
+    enum class CrossPlatformClickEvent : u8 { Motion, ButtonDown, ButtonUp, Any };
 
     [[nodiscard]] bool event_is_click_event(const SDL_Event& event, CrossPlatformClickEvent click_type);
 

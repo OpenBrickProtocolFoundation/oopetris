@@ -11,7 +11,7 @@
 #include <SDL.h>
 namespace ui {
 
-    enum class EventHandleType { RequestFocus, RequestUnFocus };
+    enum class EventHandleType : u8 { RequestFocus, RequestUnFocus };
 
     struct Widget {
     private:

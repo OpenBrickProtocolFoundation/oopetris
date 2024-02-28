@@ -14,7 +14,7 @@
 
 struct Tetrion;
 
-enum class InputCommand {
+enum class InputCommand : u8 {
     MoveLeft,
     MoveRight,
     MoveDown,
@@ -25,14 +25,14 @@ enum class InputCommand {
     ReleaseMoveDown,
 };
 
-enum class InputType { Touch, Keyboard, Controller, Recording };
+enum class InputType : u8 { Touch, Keyboard, Controller, Recording };
 
 struct Input {
 public:
     using OnEventCallback = std::function<void(InputEvent)>;
 
 private:
-    enum class HoldableKey {
+    enum class HoldableKey : u8 {
         Left,
         Right,
     };

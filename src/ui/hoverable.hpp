@@ -8,7 +8,7 @@
 
 namespace ui {
 
-    enum class ActionType { Hover, Clicked };
+    enum class ActionType : u8 { Hover, Clicked };
 
     struct Hoverable {
 

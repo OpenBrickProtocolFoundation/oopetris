@@ -9,7 +9,7 @@ namespace scenes {
 
     struct SinglePlayerGame : public Scene {
     private:
-        enum class NextScene { Pause, Settings };
+        enum class NextScene : u8 { Pause, Settings };
 
 
         helper::optional<NextScene> m_next_scene{};

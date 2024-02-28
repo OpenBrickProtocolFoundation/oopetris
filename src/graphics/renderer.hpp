@@ -11,7 +11,7 @@
 
 struct Renderer final {
 public:
-    enum class VSync {
+    enum class VSync : u8 {
         Enabled,
         Disabled,
     };

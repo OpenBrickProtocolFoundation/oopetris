@@ -11,7 +11,7 @@
 
 
 namespace scenes {
-    enum class SceneUpdate {
+    enum class SceneUpdate : u8 {
         ContinueUpdating,
         StopUpdating,
     };
