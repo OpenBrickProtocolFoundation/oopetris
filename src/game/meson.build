@@ -15,8 +15,6 @@ src_files += files(
     'rotation.hpp',
     'tetrion.cpp',
     'tetrion.hpp',
-    'tetrion_snapshot.cpp',
-    'tetrion_snapshot.hpp',
     'tetromino.cpp',
     'tetromino.hpp',
     'tetromino_type.hpp',

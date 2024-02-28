@@ -6,4 +6,6 @@ src_files += files(
     'recording_reader.hpp',
     'recording_writer.cpp',
     'recording_writer.hpp',
+    'tetrion_snapshot.cpp',
+    'tetrion_snapshot.hpp',
 )

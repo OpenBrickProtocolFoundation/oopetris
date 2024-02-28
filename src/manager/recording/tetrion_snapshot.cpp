@@ -1,4 +1,4 @@
-#include "game/tetrion_snapshot.hpp"
+#include "tetrion_snapshot.hpp"
 
 #include <fmt/format.h>
 #include <magic_enum.hpp>

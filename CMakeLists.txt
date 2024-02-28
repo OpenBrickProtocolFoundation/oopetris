@@ -34,8 +34,6 @@ add_executable(oopetris
     src/game/mino.hpp
     src/game/rotation.cpp
     src/game/rotation.hpp
-    src/game/tetrion_snapshot.cpp
-    src/game/tetrion_snapshot.hpp
     src/game/tetrion.cpp
     src/game/tetrion.hpp
     src/game/tetromino_type.hpp
@@ -84,6 +82,8 @@ add_executable(oopetris
     src/manager/recording/recording_writer.hpp
     src/manager/recording/recording.cpp
     src/manager/recording/recording.hpp
+    src/manager/recording/tetrion_snapshot.cpp
+    src/manager/recording/tetrion_snapshot.hpp
     src/manager/resource_manager.hpp
     src/manager/service_provider.hpp
     src/manager/settings.hpp

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "game/tetrion_snapshot.hpp"
 #include "recording.hpp"
+#include "tetrion_snapshot.hpp"
 
 #include <filesystem>
 #include <fstream>
