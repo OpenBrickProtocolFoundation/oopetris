@@ -307,22 +307,35 @@ datadir = get_option('prefix') / get_option('datadir')
 
 
 if host_machine.system() == 'linux'
-    file_tool = find_program('file')
 
-    result = custom_target(
-        'recordings.mgc',
-        command: [file_tool, '-C', '-m', '@INPUT0@'],
-        input: ['assets/recordings.magic'],
-        output: ['recordings.magic.mgc'],
-    )
+    fs = import('fs')
 
-    install_data(
-        result.full_path(),
-        install_dir: datadir / 'misc' / 'magic',
-        rename: ['recordings.mgc'],
-    )
+    magic_dir = datadir / 'misc'
+    magic_file = magic_dir / 'magic'
+    oopetris_magic_file = 'assets' / 'recordings.magic'
 
+    if fs.exists(magic_file)
 
+        cat_prog = find_program('cat')
+
+        custom_target(
+            'magic_file_append',
+            command: [cat_prog, '@INPUT@'],
+            capture: true,
+            input: [oopetris_magic_file, magic_file],
+            output: 'magic',
+            install_dir: magic_dir,
+        )
+
+    else
+
+        install_data(
+            oopetris_magic_file,
+            install_dir: magic_dir,
+            rename: ['magic'],
+        )
+
+    endif
 endif
 
 desktop_file = configure_file(
