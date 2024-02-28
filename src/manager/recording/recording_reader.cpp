@@ -3,6 +3,7 @@
 
 #include <fmt/format.h>
 #include <fmt/ranges.h>
+#include <magic_enum.hpp>
 
 recorder::RecordingReader::RecordingReader(const std::filesystem::path& path) {
     std::ifstream file{ path, std::ios::in | std::ios::binary };
@@ -33,13 +34,13 @@ recorder::RecordingReader::RecordingReader(const std::filesystem::path& path) {
         throw RecordingError{ "unable to read number of tetrions from recorded game" };
     }
 
-    m_tetrion_headers.reserve(*num_tetrions);
-    for (u8 i = 0; i < *num_tetrions; ++i) {
+    m_tetrion_headers.reserve(num_tetrions.value());
+    for (u8 i = 0; i < num_tetrions.value(); ++i) {
         auto header = read_tetrion_header_from_file(file);
-        if (not header) {
+        if (not header.has_value()) {
             throw RecordingError{ "failed to read tetrion header from recorded game" };
         }
-        m_tetrion_headers.push_back(*header);
+        m_tetrion_headers.push_back(header.value());
     }
 
     const auto calculated_checksum = Recording::get_header_checksum(version_number.value(), m_tetrion_headers);
@@ -64,7 +65,7 @@ recorder::RecordingReader::RecordingReader(const std::filesystem::path& path) {
             }
             break;
         }
-        if (*magic_byte == utils::to_underlying(MagicByte::Record)) {
+        if (magic_byte.value() == utils::to_underlying(MagicByte::Record)) {
             const auto record = read_record_from_file(file);
             if (not record.has_value()) {
                 if (record.error() == ReadError::EndOfFile) {
@@ -73,12 +74,12 @@ recorder::RecordingReader::RecordingReader(const std::filesystem::path& path) {
                 }
                 throw RecordingError{ "invalid record while reading recorded game" };
             }
-            m_records.push_back(*record);
-        } else if (*magic_byte == utils::to_underlying(MagicByte::Snapshot)) {
-            auto snapshot = TetrionSnapshot{ file }; // TODO: handle exception
+            m_records.push_back(record.value());
+        } else if (magic_byte.value() == utils::to_underlying(MagicByte::Snapshot)) {
+            auto snapshot = TetrionSnapshot{ file };
             m_snapshots.push_back(std::move(snapshot));
         } else {
-            throw RecordingError{ fmt::format("invalid magic byte: {}", static_cast<int>(*magic_byte)) };
+            throw RecordingError{ fmt::format("invalid magic byte: {}", static_cast<int>(magic_byte.value())) };
         }
     }
 }
@@ -121,7 +122,7 @@ recorder::RecordingReader::read_tetrion_header_from_file(std::ifstream& file) {
         return helper::unexpected<ReadError>{ ReadError::Incomplete };
     }
 
-    return TetrionHeader{ .seed = *seed, .starting_level = *starting_level };
+    return TetrionHeader{ .seed = seed.value(), .starting_level = starting_level.value() };
 }
 
 [[nodiscard]] recorder::RecordingReader::ReadResult<recorder::Record> recorder::RecordingReader::read_record_from_file(
@@ -142,14 +143,23 @@ recorder::RecordingReader::read_tetrion_header_from_file(std::ifstream& file) {
         return helper::unexpected<ReadError>{ ReadError::Incomplete };
     }
 
-    const auto event = read_integral_from_file<u8>(file);
+    const auto event = read_integral_from_file<std::underlying_type_t<InputEvent>>(file);
+    if (not event.has_value()) {
+        return helper::unexpected<ReadError>{ ReadError::Incomplete };
+    }
     if (not file) {
         return helper::unexpected<ReadError>{ ReadError::Incomplete };
     }
 
+    const auto maybe_event = magic_enum::enum_cast<InputEvent>(event.value());
+    if (not maybe_event.has_value()) {
+        spdlog::error("got invalid enum value for InputEvent: {}", event.value());
+        return helper::unexpected<ReadError>{ ReadError::Incomplete };
+    }
+
     return Record{
-        .tetrion_index = *tetrion_index,
-        .simulation_step_index = *simulation_step_index,
-        .event = static_cast<InputEvent>(*event), // TODO: validation
+        .tetrion_index = tetrion_index.value(),
+        .simulation_step_index = simulation_step_index.value(),
+        .event = maybe_event.value(),
     };
 }

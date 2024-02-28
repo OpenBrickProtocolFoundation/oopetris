@@ -24,7 +24,6 @@ private:
 public:
     using MinoCount = u64;
     using Coordinate = u8;
-    using MinoType = u8;
 
     TetrionSnapshot(
             u8 tetrion_index,

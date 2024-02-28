@@ -1,7 +1,11 @@
 #include "game/tetrion_snapshot.hpp"
+
+#include <fmt/format.h>
+#include <magic_enum.hpp>
 #include <spdlog/spdlog.h>
 #include <sstream>
 #include <string_view>
+
 
 TetrionSnapshot::TetrionSnapshot(
         u8 tetrion_index, // NOLINT(bugprone-easily-swappable-parameters)
@@ -23,38 +27,38 @@ TetrionSnapshot::TetrionSnapshot(std::istream& istream) {
     if (not tetrion_index.has_value()) {
         throw std::runtime_error{ "unable to read tetrion index from snapshot" };
     }
-    m_tetrion_index = *tetrion_index;
+    m_tetrion_index = tetrion_index.value();
 
     const auto level = read_from_istream<Level>(istream);
     if (not level.has_value()) {
         throw std::runtime_error{ "unable to read level from snapshot" };
     }
-    m_level = *level;
+    m_level = level.value();
 
     const auto score = read_from_istream<Score>(istream);
     if (not score.has_value()) {
         throw std::runtime_error{ "unable to read score from snapshot" };
     }
-    m_score = *score;
+    m_score = score.value();
 
     const auto lines_cleared = read_from_istream<LineCount>(istream);
     if (not lines_cleared.has_value()) {
         throw std::runtime_error{ "unable to read lines cleared from snapshot" };
     }
-    m_lines_cleared = *lines_cleared;
+    m_lines_cleared = lines_cleared.value();
 
     const auto simulation_step_index = read_from_istream<SimulationStep>(istream);
     if (not simulation_step_index.has_value()) {
         throw std::runtime_error{ "unable to read simulation step index from snapshot" };
     }
-    m_simulation_step_index = *simulation_step_index;
+    m_simulation_step_index = simulation_step_index.value();
 
     const auto num_minos = read_from_istream<MinoCount>(istream);
     if (not num_minos.has_value()) {
         throw std::runtime_error{ "unable to read number of minos from snapshot" };
     }
 
-    for (MinoCount i = 0; i < *num_minos; ++i) {
+    for (MinoCount i = 0; i < num_minos.value(); ++i) {
         const auto x = read_from_istream<Coordinate>(istream);
         if (not x.has_value()) {
             throw std::runtime_error{ "unable to read x coordinate of mino from snapshot" };
@@ -65,14 +69,17 @@ TetrionSnapshot::TetrionSnapshot(std::istream& istream) {
             throw std::runtime_error{ "unable to read y coordinate of mino from snapshot" };
         }
 
-        const auto type = read_from_istream<MinoType>(istream);
+        const auto type = read_from_istream<std::underlying_type_t<TetrominoType>>(istream);
         if (not type.has_value()) {
             throw std::runtime_error{ "unable to read tetromino type of mino from snapshot" };
         }
 
-        m_mino_stack.set(
-                shapes::AbstractPoint<u8>(static_cast<u8>(*x), static_cast<u8>(*y)), static_cast<TetrominoType>(*type)
-        );
+        const auto maybe_type = magic_enum::enum_cast<TetrominoType>(type.value());
+        if (not maybe_type.has_value()) {
+            throw std::runtime_error{ fmt::format("got invalid enum value for TetrominoType: {}", type.value()) };
+        }
+
+        m_mino_stack.set(shapes::AbstractPoint<u8>(x.value(), y.value()), maybe_type.value());
     }
 }
 
@@ -119,8 +126,8 @@ TetrionSnapshot::TetrionSnapshot(const Tetrion& tetrion, const SimulationStep si
         static_assert(sizeof(decltype(mino.position().y)) == 1);
         append(bytes, mino.position().y);
 
-        static_assert(sizeof(MinoType) == 1);
-        append(bytes, static_cast<MinoType>(mino.type()));
+        static_assert(sizeof(std::underlying_type_t<TetrominoType>) == 1);
+        append(bytes, std::to_underlying(mino.type()));
     }
     return bytes;
 }
