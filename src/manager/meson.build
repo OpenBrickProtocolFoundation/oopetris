@@ -1,6 +1,5 @@
 src_files += files(
     'controls.hpp',
-    'event_dispatcher.cpp',
     'event_dispatcher.hpp',
     'event_listener.hpp',
     'font.cpp',

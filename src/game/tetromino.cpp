@@ -14,10 +14,11 @@ void Tetromino::render(
         MinoTransparency transparency,
         const double original_scale,
         const ScreenCordsFunction& to_screen_coords,
-        const shapes::UPoint& tile_size
+        const shapes::UPoint& tile_size,
+        const GridPoint& offset
 ) const {
     for (const auto& mino : m_minos) {
-        mino.render(service_provider, transparency, original_scale, to_screen_coords, tile_size);
+        mino.render(service_provider, transparency, original_scale, to_screen_coords, tile_size, offset);
     }
 }
 
@@ -33,10 +34,6 @@ void Tetromino::rotate_left() {
 
 void Tetromino::move_down() {
     move({ 0, 1 });
-}
-
-void Tetromino::move_up() {
-    move({ 0, -1 });
 }
 
 void Tetromino::move_left() {

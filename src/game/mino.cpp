@@ -30,7 +30,8 @@ void Mino::render(
         const MinoTransparency transparency,
         const double original_scale,
         const ScreenCordsFunction& to_screen_coords,
-        const shapes::UPoint& tile_size
+        const shapes::UPoint& tile_size,
+        const GridPoint& offset
 ) const {
     const auto alpha = get_transparency_value(transparency);
     const auto alpha_factor = static_cast<double>(alpha) / 255.0;
@@ -41,7 +42,7 @@ void Mino::render(
 
     const auto inset_scaled = static_cast<int>(original_scale * original_inset);
 
-    const shapes::UPoint top_left = to_screen_coords(m_position);
+    const shapes::UPoint top_left = to_screen_coords(m_position + offset);
     const shapes::UPoint top_right = top_left + shapes::UPoint{ tile_size.x - one_scaled_unit, 0 };
     const shapes::UPoint bottom_left = top_left + shapes::UPoint{ 0, tile_size.y - one_scaled_unit };
     const shapes::UPoint bottom_right = top_left + tile_size - (shapes::UPoint{ one_scaled_unit, one_scaled_unit });

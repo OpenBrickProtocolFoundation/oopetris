@@ -41,7 +41,10 @@ void MinoStack::draw_minos(
         const shapes::UPoint& tile_size
 ) const {
     for (const auto& mino : m_minos) {
-        mino.render(service_provider, MinoTransparency::Solid, original_scale, to_screen_coords, tile_size);
+        mino.render(
+                service_provider, MinoTransparency::Solid, original_scale, to_screen_coords, tile_size,
+                Grid::grid_position
+        );
     }
 }
 

@@ -37,7 +37,8 @@ public:
             MinoTransparency transparency,
             const double original_scale,
             const ScreenCordsFunction& to_screen_coords,
-            const shapes::UPoint& tile_size
+            const shapes::UPoint& tile_size,
+            const GridPoint& offset = GridPoint::zero()
     ) const;
 
     [[nodiscard]] TetrominoType type() const {

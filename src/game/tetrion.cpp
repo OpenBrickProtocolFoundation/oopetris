@@ -109,12 +109,14 @@ void Tetrion::render(const ServiceProvider& service_provider) const {
     m_mino_stack.draw_minos(service_provider, original_scale, to_screen_coords, tile_size);
     if (m_active_tetromino) {
         m_active_tetromino->render(
-                service_provider, MinoTransparency::Solid, original_scale, to_screen_coords, tile_size
+                service_provider, MinoTransparency::Solid, original_scale, to_screen_coords, tile_size,
+                Grid::grid_position
         );
     }
     if (m_ghost_tetromino) {
         m_ghost_tetromino->render(
-                service_provider, MinoTransparency::Ghost, original_scale, to_screen_coords, tile_size
+                service_provider, MinoTransparency::Ghost, original_scale, to_screen_coords, tile_size,
+                Grid::grid_position
         );
     }
     for (std::underlying_type_t<MinoTransparency> i = 0; i < static_cast<decltype(i)>(m_preview_tetrominos.size());
@@ -204,11 +206,11 @@ void Tetrion::spawn_next_tetromino(const SimulationStep simulation_step_index) {
 }
 
 void Tetrion::spawn_next_tetromino(const TetrominoType type, const SimulationStep simulation_step_index) {
-    static constexpr GridPoint spawn_position{ 3, 0 };
+    constexpr GridPoint spawn_position{ 3, 0 };
     m_active_tetromino = Tetromino{ spawn_position, type };
     refresh_previews();
     if (not is_active_tetromino_position_valid()) {
-        //TODO: render teh one minos, that re in the grid, if possible!
+        //TODO: render the one minos, that are in the grid, if possible!
         m_game_state = GameState::GameOver;
 
         spdlog::info("game over");
@@ -234,27 +236,28 @@ bool Tetrion::rotate_tetromino_left() {
 }
 
 bool Tetrion::move_tetromino_down(MovementType movement_type, const SimulationStep simulation_step_index) {
-    if (not m_active_tetromino) {
+    if (not m_active_tetromino.has_value()) {
         return false;
     }
     if (movement_type == MovementType::Forced) {
         m_score += 4;
     }
 
-    m_active_tetromino->move_down();
-    if (not is_active_tetromino_position_valid()) {
-        m_is_in_lock_delay = true;
-        m_active_tetromino->move_up();
-        if ((m_is_in_lock_delay and m_num_executed_lock_delays >= num_lock_delays)
-            or simulation_step_index >= m_lock_delay_step_index) {
-            lock_active_tetromino(simulation_step_index);
-            reset_lock_delay(simulation_step_index);
-        } else {
-            m_next_gravity_simulation_step_index = simulation_step_index + 1;
-        }
-        return false;
+
+    if (tetromino_can_move_down(m_active_tetromino.value())) {
+        m_active_tetromino->move_down();
+        return true;
     }
-    return true;
+
+    m_is_in_lock_delay = true;
+    if ((m_is_in_lock_delay and m_num_executed_lock_delays >= num_lock_delays)
+        or simulation_step_index >= m_lock_delay_step_index) {
+        lock_active_tetromino(simulation_step_index);
+        reset_lock_delay(simulation_step_index);
+    } else {
+        m_next_gravity_simulation_step_index = simulation_step_index + 1;
+    }
+    return false;
 }
 
 bool Tetrion::move_tetromino_left() {
@@ -266,15 +269,15 @@ bool Tetrion::move_tetromino_right() {
 }
 
 bool Tetrion::drop_tetromino(const SimulationStep simulation_step_index) {
-    if (not m_active_tetromino) {
+    if (not m_active_tetromino.has_value()) {
         return false;
     }
     int num_movements = 0;
-    while (is_active_tetromino_position_valid()) {
+    while (tetromino_can_move_down(m_active_tetromino.value())) {
         ++num_movements;
         m_active_tetromino->move_down();
     }
-    m_active_tetromino->move_up();
+
     m_score += 4 * num_movements;
     lock_active_tetromino(simulation_step_index);
     return num_movements > 0;
@@ -390,11 +393,11 @@ bool Tetrion::is_valid_mino_position(GridPoint position) const {
 }
 
 bool Tetrion::mino_can_move_down(GridPoint position) const {
-    if (position.y == 0) {
+    if (position.y == (Grid::height_in_tiles - 1)) {
         return false;
     }
 
-    return is_valid_mino_position(position - GridPoint{ 0, 1 });
+    return is_valid_mino_position(position + GridPoint{ 0, 1 });
 }
 
 
