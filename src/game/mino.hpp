@@ -45,7 +45,7 @@ public:
         return m_type;
     }
 
-    [[nodiscard]] GridPoint position() const {
+    [[nodiscard]] const GridPoint& position() const {
         return m_position;
     }
 

@@ -8,8 +8,6 @@
 #include <magic_enum.hpp>
 #include <vector>
 
-
-
 struct MinoStack final {
 private:
     using GridPoint = shapes::AbstractPoint<u8>;

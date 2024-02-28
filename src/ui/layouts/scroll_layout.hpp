@@ -271,7 +271,8 @@ namespace ui {
 
                         if (not handled and utils::is_event_in(window, event, main_rect)
                             and utils::is_event_in(window, event, offset_rect)) {
-                            const auto offset_event = utils::offset_event(window, event, -(offset_distance.cast<i32>()));
+                            const auto offset_event =
+                                    utils::offset_event(window, event, -(offset_distance.cast<i32>()));
                             if (const auto event_result = widget->handle_event(offset_event, window); event_result) {
                                 handled = { true, handle_event_result(event_result.get_additional(), widget.get()) };
                                 continue;

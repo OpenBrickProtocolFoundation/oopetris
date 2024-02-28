@@ -210,8 +210,33 @@ void Tetrion::spawn_next_tetromino(const TetrominoType type, const SimulationSte
     m_active_tetromino = Tetromino{ spawn_position, type };
     refresh_previews();
     if (not is_active_tetromino_position_valid()) {
-        //TODO: render the one minos, that are in the grid, if possible!
         m_game_state = GameState::GameOver;
+
+        auto current_pieces = m_active_tetromino.value().minos();
+
+        bool all_valid{ false };
+        u8 move_up = 0;
+        while (not all_valid) {
+            all_valid = true;
+            for (auto& mino : current_pieces) {
+                if (mino.position().y != 0) {
+                    mino.position() = mino.position() - GridPoint{ 0, 1 };
+                    if (not is_valid_mino_position(mino.position())) {
+                        all_valid = false;
+                    }
+                }
+            }
+
+            ++move_up;
+        }
+
+        for (const Mino& mino : m_active_tetromino->minos()) {
+            auto position = mino.position();
+            if (mino.position().y >= move_up && move_up != 0) {
+                position -= GridPoint{ 0, move_up };
+                m_mino_stack.set(position, mino.type());
+            }
+        }
 
         spdlog::info("game over");
         if (m_recording_writer.has_value()) {
@@ -385,7 +410,7 @@ bool Tetrion::is_active_tetromino_position_valid() const {
     if (not m_active_tetromino) {
         return false;
     }
-    return is_tetromino_position_valid(*m_active_tetromino);
+    return is_tetromino_position_valid(m_active_tetromino.value());
 }
 
 bool Tetrion::is_valid_mino_position(GridPoint position) const {
