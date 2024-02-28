@@ -1,35 +1,66 @@
 
 #include "recording_reader.hpp"
 
+#include <fmt/format.h>
+#include <fmt/ranges.h>
 
 recorder::RecordingReader::RecordingReader(const std::filesystem::path& path) {
     std::ifstream file{ path, std::ios::in | std::ios::binary };
     if (not file) {
-        spdlog::error("unable to load recording from file \"{}\"", path.string());
-        throw RecordingError{};
+        throw RecordingError{ fmt::format("unable to load recording from file \"{}\"", path.string()) };
     }
+
+    const auto magic_bytes = read_integral_from_file<decltype(Recording::magic_file_byte)>(file);
+    if (not magic_bytes.has_value()) {
+        throw RecordingError{ "unable to read magic file bytes from recorded game" };
+    }
+    if (magic_bytes.value() != Recording::magic_file_byte) {
+        throw RecordingError{ "magic file bytes are not correct, this is either an old format or no recording at all" };
+    }
+
+    const auto version_number = read_integral_from_file<u8>(file);
+    if (not version_number.has_value()) {
+        throw RecordingError{ "unable to read recording version from recorded game" };
+    }
+    if (version_number.value() != 1) {
+        throw RecordingError{
+            fmt::format("only supported version at the moment is {}, but got {}", 1, version_number.value())
+        };
+    }
+
     const auto num_tetrions = read_integral_from_file<u8>(file);
     if (not num_tetrions.has_value()) {
-        spdlog::error("unable to read number of tetrions from recorded game");
-        throw RecordingError{};
+        throw RecordingError{ "unable to read number of tetrions from recorded game" };
     }
 
     m_tetrion_headers.reserve(*num_tetrions);
     for (u8 i = 0; i < *num_tetrions; ++i) {
         auto header = read_tetrion_header_from_file(file);
         if (not header) {
-            spdlog::error("failed to read tetrion header from recorded game");
-            throw RecordingError{};
+            throw RecordingError{ "failed to read tetrion header from recorded game" };
         }
         m_tetrion_headers.push_back(*header);
+    }
+
+    const auto calculated_checksum = Recording::get_header_checksum(version_number.value(), m_tetrion_headers);
+
+    const auto read_checksum =
+            read_array_from_file<decltype(calculated_checksum)::value_type, Sha256Stream::ChecksumSize>(file);
+    if (not read_checksum.has_value()) {
+        throw RecordingError{ "unable to read header checksum from recorded game" };
+    }
+    if (read_checksum.value() != calculated_checksum) {
+        throw RecordingError{ fmt::format(
+                "header checksum mismatch, the file was altered: expected {:x} but got {:x}",
+                fmt::join(calculated_checksum, ""), fmt::join(read_checksum.value(), "")
+        ) };
     }
 
     while (true) {
         const auto magic_byte = read_integral_from_file<std::underlying_type_t<MagicByte>>(file);
         if (not magic_byte.has_value()) {
             if (magic_byte.error() == ReadError::InvalidStream) {
-                spdlog::error("unable to read magic byte");
-                throw RecordingError{};
+                throw RecordingError{ "unable to read magic byte" };
             }
             break;
         }
@@ -40,16 +71,14 @@ recorder::RecordingReader::RecordingReader(const std::filesystem::path& path) {
                     // finished reading
                     break;
                 }
-                spdlog::error("invalid record while reading recorded game");
-                throw RecordingError{};
+                throw RecordingError{ "invalid record while reading recorded game" };
             }
             m_records.push_back(*record);
         } else if (*magic_byte == utils::to_underlying(MagicByte::Snapshot)) {
             auto snapshot = TetrionSnapshot{ file }; // TODO: handle exception
             m_snapshots.push_back(std::move(snapshot));
         } else {
-            spdlog::error("invalid magic byte: {}", static_cast<int>(*magic_byte));
-            throw RecordingError{};
+            throw RecordingError{ fmt::format("invalid magic byte: {}", static_cast<int>(*magic_byte)) };
         }
     }
 }

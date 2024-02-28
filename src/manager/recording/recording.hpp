@@ -1,15 +1,21 @@
 #pragma once
 
 
+#include "checksum_helper.hpp"
 #include "helper/random.hpp"
 #include "helper/types.hpp"
 #include "manager/input_event.hpp"
 
+#include <stdexcept>
 #include <vector>
 
 namespace recorder {
 
-    struct RecordingError : public std::exception { };
+    struct RecordingError : public std::runtime_error {
+
+        template<typename T>
+        RecordingError(const T& text) : std::runtime_error{ text } { }
+    };
 
     struct Record final {
         u8 tetrion_index;
@@ -28,7 +34,7 @@ namespace recorder {
     };
 
     struct Recording {
-        constexpr static u32 magic_file_byte = 0xFF4F4F50; // 0xFF and than OOP in ascii
+        constexpr static u32 magic_file_byte = 0x504F4FFF; // 0xFF and than OOP in ascii (in little endian)
 
     protected:
         std::vector<TetrionHeader> m_tetrion_headers;
@@ -45,6 +51,10 @@ namespace recorder {
         virtual ~Recording() = default;
 
         [[nodiscard]] const std::vector<TetrionHeader>& tetrion_headers() const;
+
+        [[nodiscard]] static Sha256Stream::Checksum
+        get_header_checksum(u8 version_number, const std::vector<TetrionHeader>& tetrion_headers);
     };
+
 
 } // namespace recorder

@@ -20,7 +20,7 @@ modules:
       - -Dbuildtype=release
       - -Ddefault_library=shared
       - -Dflatpak_build=true
-      - -Dlibdir=lib
+      - --libdir=lib
     builddir: true
     build-options:
       build-args:

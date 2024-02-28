@@ -72,8 +72,7 @@ void ReplayInput::late_update(const SimulationStep simulation_step_index) {
                 spdlog::info("snapshots are equal");
             }
         } else {
-            spdlog::error("snapshots are not equal");
-            throw std::exception{};
+            throw std::runtime_error{ "snapshots are not equal" };
         }
         ++m_next_snapshot_index;
     }

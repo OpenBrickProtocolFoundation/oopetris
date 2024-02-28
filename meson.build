@@ -290,7 +290,7 @@ subdir('src')
 install_subdir(
     'assets',
     install_dir: 'share/oopetris',
-    exclude_files: ['oopetris.desktop.in', 'OOPetris.svg'],
+    exclude_files: ['oopetris.desktop.in', 'OOPetris.svg', 'recordings.magic'],
     exclude_directories: ['icon'],
 )
 
@@ -304,6 +304,26 @@ conf = configuration_data()
 conf.set('APP_NAME', app_name)
 
 datadir = get_option('prefix') / get_option('datadir')
+
+
+if host_machine.system() == 'linux'
+    file_tool = find_program('file')
+
+    result = custom_target(
+        'recordings.mgc',
+        command: [file_tool, '-C', '-m', '@INPUT0@'],
+        input: ['assets/recordings.magic'],
+        output: ['recordings.magic.mgc'],
+    )
+
+    install_data(
+        result.full_path(),
+        install_dir: datadir / 'misc' / 'magic',
+        rename: ['recordings.mgc'],
+    )
+
+
+endif
 
 desktop_file = configure_file(
     input: 'assets/oopetris.desktop.in',

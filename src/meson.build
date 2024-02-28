@@ -13,6 +13,7 @@ subdir('manager')
 subdir('platform')
 subdir('scenes')
 subdir('ui')
+subdir('thirdparty')
 
 if online_multiplayer_not_supported
     subdir('lobby')
