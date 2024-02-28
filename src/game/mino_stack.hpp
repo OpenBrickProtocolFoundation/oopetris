@@ -26,38 +26,13 @@ public:
             const shapes::UPoint& tile_size
     ) const;
 
-    [[nodiscard]] u32 num_minos() const {
-        return static_cast<u32>(m_minos.size());
-    }
+    [[nodiscard]] u32 num_minos() const;
 
-    [[nodiscard]] const std::vector<Mino>& minos() const {
-        return m_minos;
-    }
+    [[nodiscard]] const std::vector<Mino>& minos() const;
 
-    [[nodiscard]] bool operator==(const MinoStack& other) const {
-        if (m_minos.size() != other.m_minos.size()) {
-            return false;
-        }
+    [[nodiscard]] bool operator==(const MinoStack& other) const;
 
-        const auto all_of_this_in_other = std::all_of(m_minos.cbegin(), m_minos.cend(), [&](const auto& mino) {
-            return std::find(other.m_minos.cbegin(), other.m_minos.cend(), mino) != end(other.m_minos);
-        });
-
-        if (not all_of_this_in_other) {
-            return false;
-        }
-
-        const auto all_of_other_in_this =
-                std::all_of(other.m_minos.cbegin(), other.m_minos.cend(), [this](const auto& mino) {
-                    return std::find(m_minos.cbegin(), m_minos.cend(), mino) != end(m_minos);
-                });
-
-        return all_of_other_in_this;
-    }
-
-    [[nodiscard]] bool operator!=(const MinoStack& other) const {
-        return not(*this == other);
-    }
+    [[nodiscard]] bool operator!=(const MinoStack& other) const;
 };
 
 std::ostream& operator<<(std::ostream& ostream, const MinoStack& mino_stack);

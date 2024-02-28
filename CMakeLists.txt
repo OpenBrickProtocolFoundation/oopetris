@@ -24,10 +24,17 @@ add_executable(oopetris
     src/game/bag.hpp
     src/game/grid.cpp
     src/game/grid.hpp
+    src/game/game.cpp
+    src/game/game.hpp
+    src/game/input_creator.cpp
+    src/game/input_creator.hpp
     src/game/mino_stack.cpp
     src/game/mino_stack.hpp
     src/game/mino.cpp
+    src/game/mino.cpp
     src/game/mino.hpp
+    src/game/rotation.cpp
+    src/game/rotation.hpp
     src/game/tetrion_snapshot.cpp
     src/game/tetrion_snapshot.hpp
     src/game/tetrion.cpp

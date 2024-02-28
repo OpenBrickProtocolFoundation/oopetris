@@ -106,46 +106,17 @@ public:
     bool drop_tetromino(SimulationStep simulation_step_index);
     void hold_tetromino(SimulationStep simulation_step_index);
 
-    [[nodiscard]] Grid* get_grid() {
-        return main_layout.get<Grid>(0);
-    }
+    [[nodiscard]] Grid* get_grid();
+    [[nodiscard]] const Grid* get_grid() const;
+    [[nodiscard]] ui::GridLayout* get_texts();
+    [[nodiscard]] const ui::GridLayout* get_texts() const;
 
-    [[nodiscard]] const Grid* get_grid() const {
-        return main_layout.get<Grid>(0);
-    }
-
-
-    [[nodiscard]] ui::GridLayout* get_texts() {
-        return main_layout.get<ui::GridLayout>(1);
-    }
-
-    [[nodiscard]] const ui::GridLayout* get_texts() const {
-        return main_layout.get<ui::GridLayout>(1);
-    }
-
-    [[nodiscard]] auto tetrion_index() const {
-        return m_tetrion_index;
-    }
-
-    [[nodiscard]] auto level() const {
-        return m_level;
-    }
-
-    [[nodiscard]] auto score() const {
-        return m_score;
-    }
-
-    [[nodiscard]] auto lines_cleared() const {
-        return m_lines_cleared;
-    }
-
-    [[nodiscard]] const MinoStack& mino_stack() const {
-        return m_mino_stack;
-    }
-
-    [[nodiscard]] bool is_game_over() const {
-        return m_game_state == GameState::GameOver;
-    }
+    [[nodiscard]] u8 tetrion_index() const;
+    [[nodiscard]] u32 level() const;
+    [[nodiscard]] u64 score() const;
+    [[nodiscard]] u32 lines_cleared() const;
+    [[nodiscard]] const MinoStack& mino_stack() const;
+    [[nodiscard]] bool is_game_over() const;
 
 private:
     template<typename Callable>
@@ -175,41 +146,9 @@ private:
     [[nodiscard]] bool is_tetromino_position_valid(const Tetromino& tetromino) const;
     [[nodiscard]] bool tetromino_can_move_down(const Tetromino& tetromino) const;
 
-    [[nodiscard]] u64 get_gravity_delay_frames() const {
-        const auto frames = (m_level >= frames_per_tile.size() ? frames_per_tile.back() : frames_per_tile.at(m_level));
-        if (m_is_accelerated_down_movement) {
-            return std::max(u64{ 1 }, static_cast<u64>(std::round(static_cast<double>(frames) / 20.0)));
-        }
-        return frames;
-    }
+    [[nodiscard]] u64 get_gravity_delay_frames() const;
 
-    static usize rotation_to_index(const Rotation from, const Rotation to) {
-        if (from == Rotation::North and to == Rotation::East) {
-            return 0;
-        }
-        if (from == Rotation::East and to == Rotation::North) {
-            return 1;
-        }
-        if (from == Rotation::East and to == Rotation::South) {
-            return 2;
-        }
-        if (from == Rotation::South and to == Rotation::East) {
-            return 3;
-        }
-        if (from == Rotation::South and to == Rotation::West) {
-            return 4;
-        }
-        if (from == Rotation::West and to == Rotation::South) {
-            return 5;
-        }
-        if (from == Rotation::West and to == Rotation::North) {
-            return 6;
-        }
-        if (from == Rotation::North and to == Rotation::West) {
-            return 7;
-        }
-        utils::unreachable();
-    }
+    static u8 rotation_to_index(const Rotation from, const Rotation to);
 
     static constexpr auto wall_kick_data_jltsz = WallKickTable{
   // North -> East

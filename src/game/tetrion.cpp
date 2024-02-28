@@ -323,6 +323,46 @@ void Tetrion::hold_tetromino(const SimulationStep simulation_step_index) {
     }
 }
 
+[[nodiscard]] Grid* Tetrion::get_grid() {
+    return main_layout.get<Grid>(0);
+}
+
+[[nodiscard]] const Grid* Tetrion::get_grid() const {
+    return main_layout.get<Grid>(0);
+}
+
+[[nodiscard]] ui::GridLayout* Tetrion::get_texts() {
+    return main_layout.get<ui::GridLayout>(1);
+}
+
+[[nodiscard]] const ui::GridLayout* Tetrion::get_texts() const {
+    return main_layout.get<ui::GridLayout>(1);
+}
+
+[[nodiscard]] u8 Tetrion::tetrion_index() const {
+    return m_tetrion_index;
+}
+
+[[nodiscard]] u32 Tetrion::level() const {
+    return m_level;
+}
+
+[[nodiscard]] u64 Tetrion::score() const {
+    return m_score;
+}
+
+[[nodiscard]] u32 Tetrion::lines_cleared() const {
+    return m_lines_cleared;
+}
+
+[[nodiscard]] const MinoStack& Tetrion::mino_stack() const {
+    return m_mino_stack;
+}
+
+[[nodiscard]] bool Tetrion::is_game_over() const {
+    return m_game_state == GameState::GameOver;
+}
+
 void Tetrion::reset_lock_delay(const SimulationStep simulation_step_index) {
     m_lock_delay_step_index = simulation_step_index + lock_delay;
 }
@@ -474,6 +514,43 @@ bool Tetrion::tetromino_can_move_down(const Tetromino& tetromino) const {
         }
     }
     return true;
+}
+
+
+[[nodiscard]] u64 Tetrion::get_gravity_delay_frames() const {
+    const auto frames = (m_level >= frames_per_tile.size() ? frames_per_tile.back() : frames_per_tile.at(m_level));
+    if (m_is_accelerated_down_movement) {
+        return std::max(u64{ 1 }, static_cast<u64>(std::round(static_cast<double>(frames) / 20.0)));
+    }
+    return frames;
+}
+
+u8 Tetrion::rotation_to_index(const Rotation from, const Rotation to) {
+    if (from == Rotation::North and to == Rotation::East) {
+        return 0;
+    }
+    if (from == Rotation::East and to == Rotation::North) {
+        return 1;
+    }
+    if (from == Rotation::East and to == Rotation::South) {
+        return 2;
+    }
+    if (from == Rotation::South and to == Rotation::East) {
+        return 3;
+    }
+    if (from == Rotation::South and to == Rotation::West) {
+        return 4;
+    }
+    if (from == Rotation::West and to == Rotation::South) {
+        return 5;
+    }
+    if (from == Rotation::West and to == Rotation::North) {
+        return 6;
+    }
+    if (from == Rotation::North and to == Rotation::West) {
+        return 7;
+    }
+    utils::unreachable();
 }
 
 bool Tetrion::is_tetromino_position_valid(const Tetromino& tetromino) const {

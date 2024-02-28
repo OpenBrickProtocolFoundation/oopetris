@@ -2,52 +2,11 @@
 
 #include "graphics/point.hpp"
 #include "mino.hpp"
+#include "rotation.hpp"
 #include "tetromino_type.hpp"
 
 #include <array>
 
-enum class Rotation {
-    North = 0,
-    East,
-    South,
-    West,
-    LastRotation = West,
-};
-
-inline Rotation& operator++(Rotation& rotation) {
-    rotation = static_cast<Rotation>((static_cast<int>(rotation) + 1) % (static_cast<int>(Rotation::LastRotation) + 1));
-    return rotation;
-}
-
-inline Rotation& operator--(Rotation& rotation) {
-    rotation = static_cast<Rotation>(
-            (static_cast<int>(rotation) + static_cast<int>(Rotation::LastRotation))
-            % (static_cast<int>(Rotation::LastRotation) + 1)
-    );
-    return rotation;
-}
-
-inline Rotation operator+(Rotation rotation, const int offset) {
-    if (offset == 0) {
-        return rotation;
-    }
-
-    if (offset > 0) {
-        for (usize i = 0; i < static_cast<usize>(offset); ++i) {
-            ++rotation;
-        }
-        return rotation;
-    }
-
-    for (usize i = 0; i < static_cast<usize>(-offset); ++i) {
-        --rotation;
-    }
-    return rotation;
-}
-
-inline Rotation operator-(const Rotation rotation, const int offset) {
-    return rotation + (-offset);
-}
 
 struct Tetromino final {
 private:
@@ -94,19 +53,9 @@ public:
 private:
     void refresh_minos();
 
-    static Pattern get_pattern(TetrominoType type, Rotation rotation) {
-        return tetrominos.at(static_cast<usize>(type)).at(static_cast<usize>(rotation));
-    }
+    static Pattern get_pattern(TetrominoType type, Rotation rotation);
 
-    static std::array<Mino, 4> create_minos(GridPoint position, Rotation rotation, TetrominoType type) {
-        return std::array<Mino, 4>{
-            Mino{position + get_pattern(type, rotation).at(0), type},
-            Mino{position + get_pattern(type, rotation).at(1), type},
-            Mino{position + get_pattern(type, rotation).at(2), type},
-            Mino{position + get_pattern(type, rotation).at(3), type},
-        };
-    }
-
+    static std::array<Mino, 4> create_minos(GridPoint position, Rotation rotation, TetrominoType type);
 
     using TetrominoPatterns = std::array<Pattern, 4>; // one pattern per rotation
 

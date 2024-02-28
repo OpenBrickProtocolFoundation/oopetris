@@ -9,9 +9,9 @@
 //TODO: this needs versioning, since now we changed some sizes of some types!!
 struct TetrionSnapshot final {
 public:
-    using Level = decltype(Tetrion::m_level);
-    using Score = decltype(Tetrion::m_score);
-    using LineCount = decltype(Tetrion::m_lines_cleared);
+    using Level = u32;
+    using Score = u64;
+    using LineCount = u32;
 
 private:
     u8 m_tetrion_index;
@@ -32,20 +32,16 @@ public:
             Score score,
             LineCount lines_cleared,
             SimulationStep simulation_step_index,
-            MinoStack mino_stack
+            const MinoStack& mino_stack
     );
 
     explicit TetrionSnapshot(std::istream& istream);
 
     TetrionSnapshot(const Tetrion& tetrion, SimulationStep simulation_step_index);
 
-    [[nodiscard]] auto tetrion_index() const {
-        return m_tetrion_index;
-    }
+    [[nodiscard]] u8 tetrion_index() const;
 
-    [[nodiscard]] auto simulation_step_index() const {
-        return m_simulation_step_index;
-    }
+    [[nodiscard]] u64 simulation_step_index() const;
 
     [[nodiscard]] std::vector<char> to_bytes() const;
 
@@ -73,7 +69,8 @@ private:
         }
         auto value = Integral{};
         istream.read(
-                reinterpret_cast<char*>(&value), sizeof(Integral) // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+                reinterpret_cast<char*>(&value),
+                sizeof(Integral) // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
         );
         if (not istream) {
             return helper::nullopt;

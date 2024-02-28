@@ -28,7 +28,7 @@ public:
         m_event_dispatcher->register_listener(this);
     }
 
-    ~KeyboardInput() override {
+    ~TouchInput() override {
         m_event_dispatcher->unregister_listener(this);
     }
 

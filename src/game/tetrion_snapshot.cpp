@@ -4,19 +4,19 @@
 #include <string_view>
 
 TetrionSnapshot::TetrionSnapshot(
-        const u8 tetrion_index, // NOLINT(bugprone-easily-swappable-parameters)
-        const Level level,
-        const Score score,
-        const LineCount lines_cleared,
-        const SimulationStep simulation_step_index,
-        MinoStack mino_stack
+        u8 tetrion_index, // NOLINT(bugprone-easily-swappable-parameters)
+        Level level,
+        Score score,
+        LineCount lines_cleared,
+        SimulationStep simulation_step_index,
+        const MinoStack& mino_stack
 )
     : m_tetrion_index{ tetrion_index },
       m_level{ level },
       m_score{ score },
       m_lines_cleared{ lines_cleared },
       m_simulation_step_index{ simulation_step_index },
-      m_mino_stack{ std::move(mino_stack) } { }
+      m_mino_stack{ mino_stack } { }
 
 TetrionSnapshot::TetrionSnapshot(std::istream& istream) {
     const auto tetrion_index = read_from_istream<u8>(istream);
@@ -88,6 +88,14 @@ TetrionSnapshot::TetrionSnapshot(std::istream& istream) {
 TetrionSnapshot::TetrionSnapshot(const Tetrion& tetrion, const SimulationStep simulation_step_index)
     : TetrionSnapshot{ tetrion.tetrion_index(), tetrion.level(),       tetrion.score(),
                        tetrion.lines_cleared(), simulation_step_index, tetrion.mino_stack() } { }
+
+[[nodiscard]] u8 TetrionSnapshot::tetrion_index() const {
+    return m_tetrion_index;
+}
+
+[[nodiscard]] u64 TetrionSnapshot::simulation_step_index() const {
+    return m_simulation_step_index;
+}
 
 [[nodiscard]] std::vector<char> TetrionSnapshot::to_bytes() const {
     auto bytes = std::vector<char>{};

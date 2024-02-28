@@ -41,23 +41,13 @@ public:
             const GridPoint& offset = GridPoint::zero()
     ) const;
 
-    [[nodiscard]] TetrominoType type() const {
-        return m_type;
-    }
+    [[nodiscard]] TetrominoType type() const;
 
-    [[nodiscard]] const GridPoint& position() const {
-        return m_position;
-    }
+    [[nodiscard]] const GridPoint& position() const;
 
-    [[nodiscard]] GridPoint& position() {
-        return m_position;
-    }
+    [[nodiscard]] GridPoint& position();
 
-    [[nodiscard]] bool operator==(const Mino& other) const {
-        return m_position == other.m_position and m_type == other.m_type;
-    }
+    [[nodiscard]] bool operator==(const Mino& other) const;
 
-    [[nodiscard]] bool operator!=(const Mino& other) const {
-        return not(*this == other);
-    }
+    [[nodiscard]] bool operator!=(const Mino& other) const;
 };

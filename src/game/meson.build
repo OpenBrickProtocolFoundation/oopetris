@@ -11,6 +11,8 @@ src_files += files(
     'mino.hpp',
     'mino_stack.cpp',
     'mino_stack.hpp',
+    'rotation.cpp',
+    'rotation.hpp',
     'tetrion.cpp',
     'tetrion.hpp',
     'tetrion_snapshot.cpp',

@@ -58,3 +58,17 @@ void Tetromino::move(const shapes::AbstractPoint<i8> offset) {
 void Tetromino::refresh_minos() {
     m_minos = create_minos(m_position, m_rotation, m_type);
 }
+
+Tetromino::Pattern Tetromino::get_pattern(TetrominoType type, Rotation rotation) {
+    return tetrominos.at(static_cast<usize>(type)).at(static_cast<usize>(rotation));
+}
+
+
+std::array<Mino, 4> Tetromino::create_minos(GridPoint position, Rotation rotation, TetrominoType type) {
+    return std::array<Mino, 4>{
+        Mino{position + get_pattern(type, rotation).at(0), type},
+        Mino{position + get_pattern(type, rotation).at(1), type},
+        Mino{position + get_pattern(type, rotation).at(2), type},
+        Mino{position + get_pattern(type, rotation).at(3), type},
+    };
+}

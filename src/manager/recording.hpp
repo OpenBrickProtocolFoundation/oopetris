@@ -24,6 +24,8 @@ protected:
         Snapshot = 43,
     };
 
+    constexpr static u32 magic_file_byte = 0xFF4F4F50; // 0xFF and than OOP in ascii
+
 public:
     struct TetrionHeader final {
         Random::Seed seed;
