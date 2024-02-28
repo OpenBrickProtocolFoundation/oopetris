@@ -14,7 +14,7 @@ namespace tetrion {
         u32 target_fps;
         Random::Seed seed;
         u32 starting_level;
-        u32 tetrion_index;
+        u8 tetrion_index;
         helper::optional<std::shared_ptr<recorder::RecordingWriter>> recording_writer;
     };
 } // namespace tetrion

@@ -22,15 +22,14 @@ add_executable(oopetris
     src/application.hpp
     src/game/bag.cpp
     src/game/bag.hpp
-    src/game/grid.cpp
-    src/game/grid.hpp
     src/game/game.cpp
     src/game/game.hpp
+    src/game/grid.cpp
+    src/game/grid.hpp
     src/game/input_creator.cpp
     src/game/input_creator.hpp
     src/game/mino_stack.cpp
     src/game/mino_stack.hpp
-    src/game/mino.cpp
     src/game/mino.cpp
     src/game/mino.hpp
     src/game/rotation.cpp
@@ -40,6 +39,7 @@ add_executable(oopetris
     src/game/tetrion.cpp
     src/game/tetrion.hpp
     src/game/tetromino_type.hpp
+    src/game/tetromino.cpp
     src/game/tetromino.hpp
     src/graphics/point.hpp
     src/graphics/rect.hpp
@@ -71,14 +71,6 @@ add_executable(oopetris
     src/helper/types.hpp
     src/helper/utils.cpp
     src/helper/utils.hpp
-    src/input/controls.hpp
-    src/input/event_dispatcher.cpp
-    src/input/event_dispatcher.hpp
-    src/input/event_listener.hpp
-    src/input/input_event.hpp
-    src/input/input.cpp
-    src/input/input.hpp
-    src/input/key_codes.hpp
     src/lobby/api.hpp
     src/lobby/types.hpp
     src/main.cpp
@@ -86,12 +78,20 @@ add_executable(oopetris
     src/manager/font.hpp
     src/manager/music_manager.cpp
     src/manager/music_manager.hpp
-    src/manager/recording.hpp
+    src/manager/recording/recording_reader.cpp
+    src/manager/recording/recording_reader.hpp
+    src/manager/recording/recording_writer.cpp
+    src/manager/recording/recording_writer.hpp
+    src/manager/recording/recording.cpp
+    src/manager/recording/recording.hpp
     src/manager/resource_manager.hpp
     src/manager/service_provider.hpp
     src/manager/settings.hpp
     src/platform/capabilities.cpp
     src/platform/capabilities.hpp
+    src/platform/input.cpp
+    src/platform/keyboard_input.cpp
+    src/platform/replay_input.cpp
     src/platform/switch_buttons.hpp
     src/scenes/about_page/about_page.cpp
     src/scenes/about_page/about_page.hpp
@@ -127,6 +127,7 @@ add_executable(oopetris
     src/ui/layouts/grid_layout.hpp
     src/ui/layouts/scroll_layout.hpp
     src/ui/layouts/tile_layout.hpp
+    src/ui/widget.cpp
     src/ui/widget.cpp
     src/ui/widget.hpp
 )

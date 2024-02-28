@@ -74,16 +74,16 @@ namespace input {
                 ));
             }
 
-            for (u32 i = 0; i < amount; ++i) {
+            for (u8 tetrion_index = 0; tetrion_index < amount; ++tetrion_index) {
 
                 auto input = std::make_unique<ReplayInput>(recording_reader);
 
 
-                const auto seed = tetrion_headers.at(i).seed;
-                const auto starting_level = tetrion_headers.at(i).starting_level;
+                const auto seed = tetrion_headers.at(tetrion_index).seed;
+                const auto starting_level = tetrion_headers.at(tetrion_index).starting_level;
 
-                const tetrion::StartingParameters starting_parameters = { target_fps, seed, starting_level, i,
-                                                                          helper::nullopt };
+                const tetrion::StartingParameters starting_parameters = { target_fps, seed, starting_level,
+                                                                          tetrion_index, helper::nullopt };
 
                 result.emplace_back(std::move(input), starting_parameters);
             }
@@ -91,7 +91,7 @@ namespace input {
 
         } else {
 
-            for (u32 i = 0; i < amount; ++i) {
+            for (u8 tetrion_index = 0; tetrion_index < amount; ++tetrion_index) {
 
                 //TODO: here we have to create different inputs, since the same won't work e.g. in local multiplayer etc.
                 auto input = create_input(service_provider);
@@ -100,8 +100,8 @@ namespace input {
 
                 const auto seed = Random::generate_seed();
 
-                const tetrion::StartingParameters starting_parameters = { target_fps, seed, starting_level, i,
-                                                                          helper::nullopt };
+                const tetrion::StartingParameters starting_parameters = { target_fps, seed, starting_level,
+                                                                          tetrion_index, helper::nullopt };
 
                 result.emplace_back(std::move(input), starting_parameters);
             }
