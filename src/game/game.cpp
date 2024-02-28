@@ -46,10 +46,7 @@ void Game::update() {
     if (m_is_paused) {
         // if we would still be in pause mode, update() wouldn't have been called in the first place => we
         // must resume from pause
-        m_is_paused = false;
-
-        assert(m_clock_source->can_be_paused());
-        m_clock_source->resume();
+        set_paused(false);
     }
 
     while (m_simulation_step_index < m_clock_source->simulation_step_index()) {
