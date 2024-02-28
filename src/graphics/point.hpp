@@ -46,10 +46,10 @@ namespace shapes {
         inline constexpr AbstractPoint<T> operator-(AbstractPoint<T> rhs) const {
             if constexpr (std::is_signed<T>::value) {
                 return *this + (-rhs);
+            } else {
+                assert(x >= rhs.x && y >= rhs.y && "underflow in subtraction");
+                return AbstractPoint<T>{ static_cast<T>(x - rhs.x), static_cast<T>(y - rhs.y) };
             }
-
-            assert(x >= rhs.x && y >= rhs.y && "underflow in subtraction");
-            return AbstractPoint<T>{ static_cast<T>(x - rhs.x), static_cast<T>(y - rhs.y) };
         }
 
         inline constexpr AbstractPoint<T> operator+=(AbstractPoint<T> rhs) {
@@ -66,8 +66,9 @@ namespace shapes {
         inline constexpr AbstractPoint<S> cast() const {
             if constexpr (std::is_signed<T>::value and not std::is_signed<T>::value) {
                 assert(x >= 0 && y >= 0 && "Not allowed to cast away negative number into an unsigned type");
+            } else {
+                return AbstractPoint<S>{ static_cast<S>(x), static_cast<S>(y) };
             }
-            return AbstractPoint<S>{ static_cast<S>(x), static_cast<S>(y) };
         }
     };
 
