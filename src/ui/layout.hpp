@@ -54,8 +54,12 @@ namespace ui {
                 const double width,
                 const double height
         )
-            : Layout{ shapes::URect(x * rect.width(), y * rect.height(), width * rect.width(), height * rect.height())
-                              >> rect.top_left,
+            : Layout{ shapes::URect(
+                              static_cast<u32>(x * static_cast<double>(rect.width())),
+                              static_cast<u32>(y * static_cast<double>(rect.height())),
+                              static_cast<u32>(width * static_cast<double>(rect.width())),
+                              static_cast<u32>(height * static_cast<double>(rect.height()))
+                      ) >> rect.top_left,
                       LayoutType::Relative } {
             assert(x >= 0.0 && x <= 1.0 && "x has to be in correct percentage range!");
             assert(y >= 0.0 && y <= 1.0 && "y has to be in correct percentage range!");
