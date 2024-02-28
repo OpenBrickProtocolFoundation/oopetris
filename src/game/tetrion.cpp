@@ -1,7 +1,7 @@
 #include "game/tetrion.hpp"
 #include "helper/constants.hpp"
 #include "helper/utils.hpp"
-#include "manager/recording.hpp"
+#include "manager/recording/recording_writer.hpp"
 #include "manager/resource_manager.hpp"
 
 #include <cassert>
@@ -14,7 +14,7 @@ Tetrion::Tetrion(
         const Random::Seed random_seed,
         const u32 starting_level,
         ServiceProvider* const service_provider,
-        helper::optional<std::shared_ptr<RecordingWriter>> recording_writer,
+        helper::optional<std::shared_ptr<recorder::RecordingWriter>> recording_writer,
         const ui::Layout& layout
 )
     : ui::Widget{ layout },

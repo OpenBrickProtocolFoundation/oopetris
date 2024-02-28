@@ -2,7 +2,6 @@
 
 #include "game/game.hpp"
 #include "helper/command_line_arguments.hpp"
-#include "manager/recording.hpp"
 #include "scenes/scene.hpp"
 
 namespace scenes {

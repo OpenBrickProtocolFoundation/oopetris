@@ -22,7 +22,9 @@
 #include <cmath>
 #include <vector>
 
-struct RecordingWriter;
+namespace recorder {
+    struct RecordingWriter;
+}
 
 enum class GameState : u8 {
     Playing,
@@ -64,7 +66,7 @@ private:
     u64 m_next_gravity_simulation_step_index;
     u64 m_lock_delay_step_index;
     ServiceProvider* const m_service_provider;
-    helper::optional<std::shared_ptr<RecordingWriter>> m_recording_writer;
+    helper::optional<std::shared_ptr<recorder::RecordingWriter>> m_recording_writer;
     MinoStack m_mino_stack;
     Random m_random;
     u32 m_level = 0;
@@ -86,7 +88,7 @@ public:
             Random::Seed random_seed,
             u32 starting_level,
             ServiceProvider* const service_provider,
-            helper::optional<std::shared_ptr<RecordingWriter>> recording_writer,
+            helper::optional<std::shared_ptr<recorder::RecordingWriter>> recording_writer,
             const ui::Layout& layout);
     void update_step(SimulationStep simulation_step_index);
     void render(const ServiceProvider& service_provider) const override;

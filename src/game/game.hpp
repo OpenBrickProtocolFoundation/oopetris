@@ -2,12 +2,12 @@
 
 #include "helper/clock_source.hpp"
 #include "input_creator.hpp"
-#include "manager/recording.hpp"
+#include "manager/recording/recording.hpp"
 #include "ui/widget.hpp"
 
 struct Game : public ui::Widget {
 private:
-    using TetrionHeaders = std::vector<Recording::TetrionHeader>;
+    using TetrionHeaders = std::vector<recorder::TetrionHeader>;
 
     std::unique_ptr<ClockSource> m_clock_source;
     SimulationStep m_simulation_step_index{ 0 };

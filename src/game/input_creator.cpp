@@ -37,15 +37,15 @@ namespace {
     }
 
 
-    [[nodiscard]] std::vector<Recording::TetrionHeader> create_tetrion_headers(
+    [[nodiscard]] std::vector<recorder::TetrionHeader> create_tetrion_headers(
             const std::vector<input::AdditionalInfo>& infos
     ) {
         const auto num_tetrions = infos.size();
-        std::vector<Recording::TetrionHeader> headers{};
+        std::vector<recorder::TetrionHeader> headers{};
         headers.reserve(num_tetrions);
         for (u8 tetrion_index = 0; tetrion_index < num_tetrions; ++tetrion_index) {
             const auto& info = std::get<1>(infos.at(tetrion_index));
-            headers.push_back(Recording::TetrionHeader{ .seed = info.seed, .starting_level = info.starting_level });
+            headers.push_back(recorder::TetrionHeader{ .seed = info.seed, .starting_level = info.starting_level });
         }
         return headers;
     }
@@ -63,7 +63,7 @@ namespace input {
         if (const auto recording_path = service_provider->command_line_arguments().recording_path;
             recording_path.has_value()) {
 
-            const auto recording_reader = std::make_shared<RecordingReader>(recording_path.value());
+            const auto recording_reader = std::make_shared<recorder::RecordingReader>(recording_path.value());
             const auto tetrion_headers = recording_reader->tetrion_headers();
 
             if (tetrion_headers.size() != amount) {
@@ -119,7 +119,8 @@ namespace input {
             const auto filename = fmt::format("{}.rec", utils::current_date_time_iso8601());
             const auto file_path = recording_directory_path / filename;
 
-            const auto recording_writer = std::make_shared<RecordingWriter>(file_path, std::move(tetrion_headers));
+            const auto recording_writer =
+                    std::make_shared<recorder::RecordingWriter>(file_path, std::move(tetrion_headers));
 
             for (auto& res : result) {
                 std::get<1>(res).recording_writer = recording_writer;

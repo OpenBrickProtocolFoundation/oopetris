@@ -1,7 +1,7 @@
 #include "replay_input.hpp"
 
 
-ReplayInput::ReplayInput(std::shared_ptr<RecordingReader> recording_reader)
+ReplayInput::ReplayInput(std::shared_ptr<recorder::RecordingReader> recording_reader)
     : Input{ InputType::Recording },
       m_recording_reader{ recording_reader } { }
 

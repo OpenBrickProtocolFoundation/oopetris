@@ -8,8 +8,7 @@ src_files += files(
     'key_codes.hpp',
     'music_manager.cpp',
     'music_manager.hpp',
-    'recording.hpp',
-    'resource_manager.hpp',
-    'service_provider.hpp',
     'settings.hpp',
 )
+
+subdir('recording')

@@ -2,7 +2,7 @@
 #pragma once
 
 #include "helper/optional.hpp"
-#include "manager/recording.hpp"
+#include "manager/recording/recording_writer.hpp"
 #include "manager/service_provider.hpp"
 #include "platform/input.hpp"
 
@@ -15,7 +15,7 @@ namespace tetrion {
         Random::Seed seed;
         u32 starting_level;
         u32 tetrion_index;
-        helper::optional<std::shared_ptr<RecordingWriter>> recording_writer;
+        helper::optional<std::shared_ptr<recorder::RecordingWriter>> recording_writer;
     };
 } // namespace tetrion
 
