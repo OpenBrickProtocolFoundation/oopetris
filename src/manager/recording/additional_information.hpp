@@ -79,7 +79,7 @@ namespace recorder {
                                         [](const std::vector<InformationValue>& value) {
                                             std::vector<std::string> strings{};
                                             for (const auto& element : value) {
-                                                strings.emplace_back(std::move(element.to_string()));
+                                                strings.emplace_back(element.to_string());
                                             }
 
                                             return fmt::format("{{ {} }}", fmt::join(strings, ", "));
