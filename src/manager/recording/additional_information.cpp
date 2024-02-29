@@ -3,7 +3,6 @@
 #include "additional_information.hpp"
 #include "helper.hpp"
 
-
 helper::expected<std::pair<std::string, recorder::InformationValue>, std::string>
 recorder::InformationValue::read_from_istream(std::istream& istream) {
 
@@ -24,58 +23,80 @@ recorder::InformationValue::read_from_istream(std::istream& istream) {
     auto bytes = std::vector<char>{};
 
     if (is<std::string>()) {
+        helper::writer::append_value<std::underlying_type_t<ValueType>>(bytes, std::to_underlying(ValueType::String));
         const auto value = string_to_bytes(as<std::string>());
         helper::writer::append_bytes(bytes, value);
         return bytes;
     } else if (is<float>()) {
         //TODO: validate that the float and double conversion works!
 
+        helper::writer::append_value<std::underlying_type_t<ValueType>>(bytes, std::to_underlying(ValueType::Float));
         static_assert(sizeof(float) == 4 && sizeof(u32) == 4);
-        const auto value = as<float>();
-        helper::writer::append_value<u32>(bytes, static_cast<u32>(value));
-        return bytes;
 
+        typedef union {
+            u32 original_value;
+            float value;
+        } float_conversion;
+
+        const float_conversion conversion_value{ .value = as<float>() };
+        helper::writer::append_value<u32>(bytes, conversion_value.original_value);
+        return bytes;
     } else if (is<double>()) {
+        helper::writer::append_value<std::underlying_type_t<ValueType>>(bytes, std::to_underlying(ValueType::Double));
         static_assert(sizeof(double) == 8 && sizeof(u64) == 8);
-        const auto value = as<double>();
-        helper::writer::append_value<u64>(bytes, static_cast<u64>(value));
+
+        typedef union {
+            u64 original_value;
+            double value;
+        } double_conversion;
+
+        const double_conversion conversion_value{ .value = as<double>() };
+        helper::writer::append_value<u64>(bytes, conversion_value.original_value);
         return bytes;
     } else if (is<bool>()) {
+        helper::writer::append_value<std::underlying_type_t<ValueType>>(bytes, std::to_underlying(ValueType::Bool));
         static_assert(sizeof(bool) == 1 && sizeof(u8) == 1);
         const auto value = as<bool>();
         helper::writer::append_value<u8>(bytes, static_cast<u8>(value));
         return bytes;
     } else if (is<u8>()) {
+        helper::writer::append_value<std::underlying_type_t<ValueType>>(bytes, std::to_underlying(ValueType::U8));
         static_assert(sizeof(u8) == 1);
         const auto value = as<u8>();
         helper::writer::append_value<u8>(bytes, value);
         return bytes;
     } else if (is<i8>()) {
+        helper::writer::append_value<std::underlying_type_t<ValueType>>(bytes, std::to_underlying(ValueType::I8));
         static_assert(sizeof(i8) == 1);
         const auto value = as<i8>();
         helper::writer::append_value<i8>(bytes, value);
         return bytes;
     } else if (is<u32>()) {
+        helper::writer::append_value<std::underlying_type_t<ValueType>>(bytes, std::to_underlying(ValueType::U32));
         static_assert(sizeof(u32) == 4);
         const auto value = as<u32>();
         helper::writer::append_value<u32>(bytes, value);
         return bytes;
     } else if (is<i32>()) {
+        helper::writer::append_value<std::underlying_type_t<ValueType>>(bytes, std::to_underlying(ValueType::I32));
         static_assert(sizeof(i32) == 4);
         const auto value = as<i32>();
         helper::writer::append_value<i32>(bytes, value);
         return bytes;
     } else if (is<u64>()) {
+        helper::writer::append_value<std::underlying_type_t<ValueType>>(bytes, std::to_underlying(ValueType::U64));
         static_assert(sizeof(u64) == 8);
         const auto value = as<u64>();
         helper::writer::append_value<u64>(bytes, value);
         return bytes;
     } else if (is<i64>()) {
+        helper::writer::append_value<std::underlying_type_t<ValueType>>(bytes, std::to_underlying(ValueType::I64));
         static_assert(sizeof(i64) == 8);
         const auto value = as<i64>();
         helper::writer::append_value<i64>(bytes, value);
         return bytes;
     } else if (is<std::vector<InformationValue>>()) {
+        helper::writer::append_value<std::underlying_type_t<ValueType>>(bytes, std::to_underlying(ValueType::Vector));
         static_assert(sizeof(u32) == 4);
         const auto& vector_value = as<std::vector<InformationValue>>();
         helper::writer::append_value<u32>(bytes, static_cast<u32>(vector_value.size()));
@@ -131,20 +152,20 @@ helper::expected<std::string, std::string> recorder::InformationValue::read_stri
 helper::expected<recorder::InformationValue, std::string> recorder::InformationValue::read_value_from_istream(
         std::istream& istream
 ) {
-    const auto magic_byte = helper::reader::read_from_istream<std::underlying_type_t<Type>>(istream);
+    const auto magic_byte = helper::reader::read_from_istream<std::underlying_type_t<ValueType>>(istream);
     if (not magic_byte.has_value()) {
         return helper::unexpected<std::string>{ "unable to read magic byte" };
     }
 
     const auto magic_byte_value = magic_byte.value();
 
-    if (magic_byte_value == utils::to_underlying(Type::String)) {
+    if (magic_byte_value == utils::to_underlying(ValueType::String)) {
         const auto value = read_string_from_istream(istream);
         if (not value.has_value()) {
             return helper::unexpected<std::string>{ value.error() };
         }
         return recorder::InformationValue{ value.value() };
-    } else if (magic_byte_value == utils::to_underlying(Type::Float)) {
+    } else if (magic_byte_value == utils::to_underlying(ValueType::Float)) {
         //TODO: validate that the float and double conversion works!
 
         static_assert(sizeof(float) == 4 && sizeof(u32) == 4);
@@ -153,10 +174,14 @@ helper::expected<recorder::InformationValue, std::string> recorder::InformationV
             return helper::unexpected<std::string>{ "unable to read float value" };
         }
 
-        const u32 raw_float_value = raw_float.value();
-        const float value = static_cast<float>(raw_float_value);
-        return recorder::InformationValue{ value };
-    } else if (magic_byte_value == utils::to_underlying(Type::Double)) {
+        typedef union {
+            u32 original_value;
+            float value;
+        } float_conversion;
+
+        const float_conversion raw_float_value{ .original_value = raw_float.value() };
+        return recorder::InformationValue{ raw_float_value.value };
+    } else if (magic_byte_value == utils::to_underlying(ValueType::Double)) {
 
         static_assert(sizeof(double) == 8 && sizeof(u64) == 8);
         const auto raw_double = helper::reader::read_from_istream<u64>(istream);
@@ -164,10 +189,14 @@ helper::expected<recorder::InformationValue, std::string> recorder::InformationV
             return helper::unexpected<std::string>{ "unable to read double value" };
         }
 
-        const u64 raw_double_value = raw_double.value();
-        const double value = static_cast<double>(raw_double_value);
-        return recorder::InformationValue{ value };
-    } else if (magic_byte_value == utils::to_underlying(Type::Bool)) {
+        typedef union {
+            u64 original_value;
+            double value;
+        } double_conversion;
+
+        const double_conversion raw_double_value{ .original_value = raw_double.value() };
+        return recorder::InformationValue{ raw_double_value.value };
+    } else if (magic_byte_value == utils::to_underlying(ValueType::Bool)) {
 
         static_assert(sizeof(bool) == 1 && sizeof(u8) == 1);
         const auto raw_value = helper::reader::read_from_istream<u8>(istream);
@@ -175,7 +204,7 @@ helper::expected<recorder::InformationValue, std::string> recorder::InformationV
             return helper::unexpected<std::string>{ "unable to read bool value" };
         }
         return recorder::InformationValue{ raw_value.value() != 0 };
-    } else if (magic_byte_value == utils::to_underlying(Type::U8)) {
+    } else if (magic_byte_value == utils::to_underlying(ValueType::U8)) {
 
         static_assert(sizeof(u8) == 1);
         const auto raw_value = helper::reader::read_from_istream<u8>(istream);
@@ -183,7 +212,7 @@ helper::expected<recorder::InformationValue, std::string> recorder::InformationV
             return helper::unexpected<std::string>{ "unable to read u8 value" };
         }
         return recorder::InformationValue{ raw_value.value() };
-    } else if (magic_byte_value == utils::to_underlying(Type::I8)) {
+    } else if (magic_byte_value == utils::to_underlying(ValueType::I8)) {
 
         static_assert(sizeof(i8) == 1);
         const auto raw_value = helper::reader::read_from_istream<i8>(istream);
@@ -191,7 +220,7 @@ helper::expected<recorder::InformationValue, std::string> recorder::InformationV
             return helper::unexpected<std::string>{ "unable to read i8 value" };
         }
         return recorder::InformationValue{ raw_value.value() };
-    } else if (magic_byte_value == utils::to_underlying(Type::U32)) {
+    } else if (magic_byte_value == utils::to_underlying(ValueType::U32)) {
 
         static_assert(sizeof(u32) == 4);
         const auto raw_value = helper::reader::read_from_istream<u32>(istream);
@@ -199,7 +228,7 @@ helper::expected<recorder::InformationValue, std::string> recorder::InformationV
             return helper::unexpected<std::string>{ "unable to read u32 value" };
         }
         return recorder::InformationValue{ raw_value.value() };
-    } else if (magic_byte_value == utils::to_underlying(Type::I32)) {
+    } else if (magic_byte_value == utils::to_underlying(ValueType::I32)) {
 
         static_assert(sizeof(i32) == 4);
         const auto raw_value = helper::reader::read_from_istream<i32>(istream);
@@ -207,7 +236,7 @@ helper::expected<recorder::InformationValue, std::string> recorder::InformationV
             return helper::unexpected<std::string>{ "unable to read i32 value" };
         }
         return recorder::InformationValue{ raw_value.value() };
-    } else if (magic_byte_value == utils::to_underlying(Type::U64)) {
+    } else if (magic_byte_value == utils::to_underlying(ValueType::U64)) {
 
         static_assert(sizeof(u64) == 8);
         const auto raw_value = helper::reader::read_from_istream<u64>(istream);
@@ -215,7 +244,7 @@ helper::expected<recorder::InformationValue, std::string> recorder::InformationV
             return helper::unexpected<std::string>{ "unable to read u64 value" };
         }
         return recorder::InformationValue{ raw_value.value() };
-    } else if (magic_byte_value == utils::to_underlying(Type::I64)) {
+    } else if (magic_byte_value == utils::to_underlying(ValueType::I64)) {
 
         static_assert(sizeof(i64) == 8);
         const auto raw_value = helper::reader::read_from_istream<i64>(istream);
@@ -223,7 +252,7 @@ helper::expected<recorder::InformationValue, std::string> recorder::InformationV
             return helper::unexpected<std::string>{ "unable to read i64 value" };
         }
         return recorder::InformationValue{ raw_value.value() };
-    } else if (magic_byte_value == utils::to_underlying(Type::Vector)) {
+    } else if (magic_byte_value == utils::to_underlying(ValueType::Vector)) {
 
         static_assert(sizeof(u32) == 4);
         const auto vector_size = helper::reader::read_from_istream<u32>(istream);
@@ -246,7 +275,6 @@ helper::expected<recorder::InformationValue, std::string> recorder::InformationV
         }
 
         return recorder::InformationValue{ result };
-
     } else {
         return helper::unexpected<std::string>{
             fmt::format("invalid magic byte: {}", static_cast<int>(magic_byte.value()))
@@ -368,9 +396,18 @@ helper::optional<recorder::InformationValue> recorder::AdditionalInformation::ge
     static_assert(sizeof(u32) == 4);
     sha256_creator << static_cast<u32>(values.size());
 
-    for (const auto& [key, value] : values) {
-        sha256_creator << key;
-        sha256_creator << value.to_string();
+    std::vector<std::string> keys{};
+    keys.reserve(values.size());
+    for (const auto& [key, _] : values) {
+
+        keys.push_back(key);
+    }
+
+    std::sort(keys.begin(), keys.end());
+
+    for (const auto& key : keys) {
+        sha256_creator << InformationValue::string_to_bytes(key);
+        sha256_creator << values.at(key).to_bytes();
     }
 
     return sha256_creator.get_hash();

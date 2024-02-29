@@ -5,6 +5,8 @@
 #include "helper/utils.hpp"
 
 #include <sha256.h>
+#include <string>
+#include <vector>
 
 struct Sha256Stream {
     static constexpr auto ChecksumSize = SHA256::HashBytes;
@@ -24,6 +26,15 @@ struct Sha256Stream {
     Sha256Stream& operator<<(const std::string& value) {
 
         library_object.add(reinterpret_cast<const void*>(value.c_str()), static_cast<usize>(value.size()));
+        return *this;
+    }
+
+    template<typename T>
+    Sha256Stream& operator<<(const std::vector<T>& values) {
+
+        for (const auto& value : values) {
+            *this << value;
+        }
         return *this;
     }
 

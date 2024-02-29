@@ -25,7 +25,7 @@ namespace recorder {
         std::variant<std::string, float, double, bool, u8, i8, u32, i32, u64, i64, std::vector<InformationValue>>
                 m_value;
 
-        enum class Type : u8 { String = 0, Float, Double, Bool, U8, I8, U32, I32, U64, I64, Vector };
+        enum class ValueType : u8 { String = 0, Float, Double, Bool, U8, I8, U32, I32, U64, I64, Vector };
 
     public:
         template<typename T>
