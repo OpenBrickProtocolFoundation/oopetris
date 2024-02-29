@@ -558,10 +558,10 @@ void SHA256::getHash(unsigned char buffer[SHA256::HashBytes]) {
 
     unsigned char* current = buffer;
     for (int i = 0; i < HashValues; i++) {
-        *current++ = (m_hash[i] >> 24) & 0xFF;
-        *current++ = (m_hash[i] >> 16) & 0xFF;
-        *current++ = (m_hash[i] >> 8) & 0xFF;
-        *current++ = m_hash[i] & 0xFF;
+        *current++ = static_cast<unsigned char>((m_hash[i] >> 24) & 0xFF);
+        *current++ = static_cast<unsigned char>((m_hash[i] >> 16) & 0xFF);
+        *current++ = static_cast<unsigned char>((m_hash[i] >> 8) & 0xFF);
+        *current++ = static_cast<unsigned char>(m_hash[i] & 0xFF);
 
         // restore old hash
         m_hash[i] = oldHash[i];

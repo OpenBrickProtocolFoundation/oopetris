@@ -84,6 +84,7 @@ add_executable(oopetris
     src/manager/recording/recording.hpp
     src/manager/recording/tetrion_snapshot.cpp
     src/manager/recording/tetrion_snapshot.hpp
+    src/manager/recording/additional_information.cpp
     src/manager/resource_manager.hpp
     src/manager/service_provider.hpp
     src/manager/settings.hpp
@@ -114,6 +115,7 @@ add_executable(oopetris
     src/scenes/settings_menu/settings_menu.hpp
     src/scenes/single_player_game/single_player_game.cpp
     src/scenes/single_player_game/single_player_game.hpp
+    src/thirdparty/hash-library/sha256.cpp
     src/ui/components/button.hpp
     src/ui/components/image_view.hpp
     src/ui/components/label.hpp
@@ -218,6 +220,7 @@ endif()
 target_compile_definitions(oopetris PUBLIC AUDIO_WITH_FLAC_SUPPORT AUDIO_WITH_MP3_SUPPORT AUDIO_PREFER_FLAC)
 
 target_include_directories(oopetris PRIVATE "src/")
+target_include_directories(oopetris PRIVATE "src/thirdparty/hash-library/")
 
 # static runtime library
 set_property(TARGET ${target} PROPERTY
