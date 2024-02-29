@@ -15,3 +15,19 @@ NLOHMANN_JSON_SERIALIZE_ENUM(
                 {Platform::Console, "console"}
 }
 )
+
+
+namespace utils {
+
+    constexpr std::string get_platform() {
+
+#if defined(__ANDROID__)
+        return "android";
+#elif defined(__SWITCH__)
+        return "console";
+#else
+        return "pc";
+#endif
+    };
+
+} // namespace utils

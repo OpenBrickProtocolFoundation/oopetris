@@ -6,8 +6,14 @@ namespace scenes {
     SinglePlayerGame::SinglePlayerGame(ServiceProvider* service_provider, const ui::Layout& layout)
         : Scene{ service_provider, layout } {
 
+        recorder::AdditionalInformation additional_info{};
+        additional_info.add("mode", "single_player");
+        additional_info.add("platform", utils::get_platform());
+        //TODO: add more information, if logged in
 
-        auto parameters = input::get_game_parameters(service_provider, 1);
+        std::vector<recorder::AdditionalInformation> additional_information = { additional_info };
+
+        auto parameters = input::get_game_parameters(service_provider, 1, additional_information);
 
         auto [input, starting_parameters] = std::move(parameters.at(0));
 

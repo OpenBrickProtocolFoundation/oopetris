@@ -23,6 +23,11 @@ namespace input {
 
     using AdditionalInfo = std::tuple<std::unique_ptr<Input>, tetrion::StartingParameters>;
 
-    [[nodiscard]] std::vector<AdditionalInfo> get_game_parameters(ServiceProvider* service_provider, u32 amount);
+    [[nodiscard]] std::vector<AdditionalInfo> get_game_parameters(
+            ServiceProvider* service_provider,
+            u32 amount,
+            const std::vector<recorder::AdditionalInformation>& additional_info =
+                    std::vector<recorder::AdditionalInformation>{}
+    );
 
 } // namespace input

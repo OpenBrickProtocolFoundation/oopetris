@@ -317,6 +317,13 @@ helper::optional<recorder::AdditionalInformation> recorder::AdditionalInformatio
     }
 }
 
+void recorder::AdditionalInformation::add_value(const std::string& key, const InformationValue& value, bool overwrite) {
+    if (values.contains(key) and not overwrite) {
+        throw std::runtime_error("Can't overwrite already existing key");
+    }
+
+    values.insert_or_assign(key, value);
+}
 
 helper::optional<recorder::InformationValue> recorder::AdditionalInformation::get(const std::string& key) const {
 

@@ -162,19 +162,12 @@ namespace recorder {
 
         explicit AdditionalInformation() = default;
 
-        template<typename T, typename std::enable_if_t<std::is_same_v<InformationValue, T>>>
-        void add(const std::string& key, const T& value, bool overwrite = false) {
-            if (value.contains(key) and not overwrite) {
-                throw std::runtime_error("Can't overwrite already existing key");
-            }
-
-            values.insert_or_assign(key, value);
-        }
+        void add_value(const std::string& key, const InformationValue& value, bool overwrite = false);
 
         template<typename T>
         void add(const std::string& key, const T& raw_value, bool overwrite = false) {
             const auto value = InformationValue{ raw_value };
-            add(key, value, overwrite);
+            add_value(key, value, overwrite);
         }
 
         [[nodiscard]] helper::optional<InformationValue> get(const std::string& key) const;

@@ -38,17 +38,20 @@ namespace {
 
 
     [[nodiscard]] std::vector<recorder::TetrionHeader> create_tetrion_headers(
-            const std::vector<input::AdditionalInfo>& infos
+            const std::vector<input::AdditionalInfo>& infos,
+            const std::vector<recorder::AdditionalInformation>& additional_info
     ) {
         const auto num_tetrions = infos.size();
         std::vector<recorder::TetrionHeader> headers{};
+
         headers.reserve(num_tetrions);
         for (u8 tetrion_index = 0; tetrion_index < num_tetrions; ++tetrion_index) {
             const auto& info = std::get<1>(infos.at(tetrion_index));
-            //TODO: create better information
+            const auto information = additional_info.size() > tetrion_index ? additional_info.at(tetrion_index)
+                                                                            : recorder::AdditionalInformation{};
             headers.push_back(recorder::TetrionHeader{ .seed = info.seed,
                                                        .starting_level = info.starting_level,
-                                                       .information = recorder::AdditionalInformation{} });
+                                                       .information = information });
         }
         return headers;
     }
@@ -57,7 +60,11 @@ namespace {
 
 
 namespace input {
-    [[nodiscard]] std::vector<AdditionalInfo> get_game_parameters(ServiceProvider* service_provider, u32 amount) {
+    [[nodiscard]] std::vector<AdditionalInfo> get_game_parameters(
+            ServiceProvider* service_provider,
+            u32 amount,
+            const std::vector<recorder::AdditionalInformation>& additional_info
+    ) {
 
         std::vector<AdditionalInfo> result{};
 
@@ -109,8 +116,7 @@ namespace input {
                 result.emplace_back(std::move(input), starting_parameters);
             }
 
-
-            const auto tetrion_headers = create_tetrion_headers(result);
+            const auto tetrion_headers = create_tetrion_headers(result, additional_info);
 
             static constexpr auto recordings_directory = "recordings";
             const auto recording_directory_path = utils::get_root_folder() / recordings_directory;
