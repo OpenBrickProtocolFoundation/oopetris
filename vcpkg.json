@@ -22,7 +22,8 @@
 		{
 			"name": "sdl2-image",
 			"version>=": "2.6.3#1",
-			"platform": "(x64 & static)"
+			"platform": "(x64 & static)",
+			"features": ["libjpeg-turbo"]
 		},
 		{
 			"name": "tl-optional",
