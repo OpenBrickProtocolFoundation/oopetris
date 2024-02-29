@@ -12,6 +12,10 @@
 #include "manager/service_provider.hpp"
 #include "scenes/scene.hpp"
 
+#ifdef DEBUG_BUILD
+#include "graphics/text.hpp"
+#endif
+
 #include <memory>
 #include <vector>
 
@@ -28,6 +32,9 @@ private:
     static constexpr auto settings_filename = "settings.json";
     Settings m_settings;
     FontManager m_font_manager;
+#ifdef DEBUG_BUILD
+    std::unique_ptr<Text> m_fps_text{ nullptr };
+#endif
 
 protected:
     EventDispatcher m_event_dispatcher;

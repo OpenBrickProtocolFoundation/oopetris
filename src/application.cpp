@@ -20,7 +20,7 @@ Application::Application(
 )
     : m_command_line_arguments{ argc, argv },
       m_window{ title, position, width, height },
-      m_renderer{ m_window, Renderer::VSync::Enabled },
+      m_renderer{ m_window, Renderer::VSync::Enabled }, //TODO: enabled conditionally
       m_music_manager{ this, num_audio_channels },
       m_event_dispatcher{ &m_window } {
     initialize();
@@ -37,6 +37,14 @@ Application::Application(int argc, char** argv, const std::string& title, Window
 
 void Application::run() {
     m_event_dispatcher.register_listener(this);
+
+#ifdef DEBUG_BUILD
+    auto start_time = SDL_GetPerformanceCounter();
+    const auto update_time = SDL_GetPerformanceFrequency() / 2; //0.5 s
+    const double count_per_s = static_cast<double>(SDL_GetPerformanceFrequency());
+    u64 frame_counter = 0;
+#endif
+
     while (m_is_running
 #if defined(__SWITCH__)
            // see https://switchbrew.github.io/libnx/applet_8h.html#a7ed640e5f4a81ed3960c763fdc1521c5
@@ -45,10 +53,28 @@ void Application::run() {
 #endif
 
     ) {
+
+
         m_event_dispatcher.dispatch_pending_events();
         update();
         render();
         m_renderer.present();
+
+#ifdef DEBUG_BUILD
+        ++frame_counter;
+
+        const Uint64 current_time = SDL_GetPerformanceCounter();
+
+        if (current_time - start_time >= update_time) {
+            double elapsed = static_cast<double>(current_time - start_time) / count_per_s;
+            m_fps_text->set_text(*this, fmt::format("FPS: {:.2f}", static_cast<double>(frame_counter) / elapsed));
+            start_time = current_time;
+            frame_counter = 0;
+        }
+#endif
+
+        //TODO: if VSync is disabled, use better function than SDL_Delay, which is inaccurate for high frame rates
+        //  SDL_Delay();
     }
 }
 
@@ -154,12 +180,22 @@ void Application::render() const {
     for (const auto& scene : m_scene_stack) {
         scene->render(*this);
     }
+#ifdef DEBUG_BUILD
+    m_fps_text->render(*this);
+#endif
 }
 
 void Application::initialize() {
     try_load_settings();
     load_resources();
     push_scene(scenes::create_scene(*this, SceneId::MainMenu, ui::FullScreenLayout{ m_window }));
+
+#ifdef DEBUG_BUILD
+    m_fps_text = std::make_unique<Text>(
+            this, "FPS: ?", fonts().get(FontId::Default), Color::white(),
+            ui::RelativeLayout(window(), 0.01, 0.01, 0.1, 0.05).get_rect()
+    );
+#endif
 }
 
 void Application::try_load_settings() {

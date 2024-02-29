@@ -5,6 +5,7 @@ Renderer::Renderer(Window& window, const VSync v_sync)
             window.get_sdl_window(),
             -1,
             (v_sync == VSync::Enabled ? SDL_RENDERER_PRESENTVSYNC : 0) | SDL_RENDERER_TARGETTEXTURE
+                    | SDL_RENDERER_ACCELERATED
     ) } {
     SDL_SetRenderDrawBlendMode(m_renderer, SDL_BLENDMODE_BLEND);
 }
