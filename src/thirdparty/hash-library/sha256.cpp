@@ -9,8 +9,10 @@
 #include "sha256.h"
 
 // big endian architectures need #define __BYTE_ORDER __BIG_ENDIAN
-#if defined(_MSC_VER)
-
+#if defined(_MSC_VER) || defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
+#if !defined(_MSC_VER)
+#include <sys/types.h
+#endif
 #elif defined(__SWITCH__)
 #if !(defined(__BYTE_ORDER__) or defined(__ORDER_BIG_ENDIAN__))
 #error "__BYTE_ORDER__ or __ORDER_BIG_ENDIAN__ not defined"!
