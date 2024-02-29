@@ -14,6 +14,16 @@
 #include <string_view>
 #include <type_traits>
 
+namespace helper {
+
+    template<class... Ts>
+    struct overloaded : Ts... {
+        using Ts::operator()...;
+    };
+    template<class... Ts>
+    overloaded(Ts...) -> overloaded<Ts...>;
+} // namespace helper
+
 
 namespace utils {
     // taken from llvm: https://github.com/llvm/llvm-project/blob/main/libcxx/include/__concepts/arithmetic.h#L27-L30

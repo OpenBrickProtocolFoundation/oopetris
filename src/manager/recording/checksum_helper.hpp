@@ -15,11 +15,18 @@ struct Sha256Stream {
     Sha256Stream() : library_object{} {};
 
     template<utils::integral Integral>
-    Sha256Stream& operator<<(Integral value) {
+    Sha256Stream& operator<<(const Integral value) {
 
-        library_object.add(reinterpret_cast<void*>(&value), static_cast<usize>(sizeof(value)));
+        library_object.add(reinterpret_cast<const void*>(&value), static_cast<usize>(sizeof(value)));
         return *this;
     }
+
+    Sha256Stream& operator<<(const std::string& value) {
+
+        library_object.add(reinterpret_cast<const void*>(value.c_str()), static_cast<usize>(value.size()));
+        return *this;
+    }
+
 
     [[nodiscard]] Checksum get_hash() {
         Checksum buffer{};

@@ -1,6 +1,7 @@
 #pragma once
 
 
+#include "additional_information.hpp"
 #include "checksum_helper.hpp"
 #include "helper/random.hpp"
 #include "helper/types.hpp"
@@ -31,6 +32,7 @@ namespace recorder {
     struct TetrionHeader final {
         Random::Seed seed;
         u32 starting_level;
+        AdditionalInformation information;
     };
 
     struct Recording {
@@ -52,8 +54,7 @@ namespace recorder {
 
         [[nodiscard]] const std::vector<TetrionHeader>& tetrion_headers() const;
 
-        [[nodiscard]] static Sha256Stream::Checksum
-        get_header_checksum(u8 version_number, const std::vector<TetrionHeader>& tetrion_headers);
+        [[nodiscard]] Sha256Stream::Checksum get_header_checksum(u8 version_number);
     };
 
 

@@ -21,6 +21,8 @@ private:
     SimulationStep m_simulation_step_index;
     MinoStack m_mino_stack;
 
+    explicit TetrionSnapshot(std::istream& istream);
+
 public:
     using MinoCount = u64;
     using Coordinate = u8;
@@ -34,7 +36,7 @@ public:
             const MinoStack& mino_stack
     );
 
-    explicit TetrionSnapshot(std::istream& istream);
+    static helper::optional<TetrionSnapshot> from_istream(std::istream& istream);
 
     TetrionSnapshot(const Tetrion& tetrion, SimulationStep simulation_step_index);
 
@@ -45,35 +47,4 @@ public:
     [[nodiscard]] std::vector<char> to_bytes() const;
 
     [[nodiscard]] bool compare_to(const TetrionSnapshot& other, bool log_result) const;
-
-private:
-    template<utils::integral Integral>
-    static void append(std::vector<char>& vector, const Integral value) {
-        const auto little_endian_value = utils::to_little_endian(value);
-        const char* const start = reinterpret_cast<const char*>( // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
-                &little_endian_value
-        );
-        const char* const end =
-                start + sizeof(little_endian_value); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-        for (const char* pointer = start; pointer < end;
-             ++pointer) { // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-            vector.push_back(*pointer);
-        }
-    }
-
-    template<utils::integral Integral>
-    [[nodiscard]] static helper::optional<Integral> read_from_istream(std::istream& istream) {
-        if (not istream) {
-            return helper::nullopt;
-        }
-        auto value = Integral{};
-        istream.read(
-                reinterpret_cast<char*>(&value),
-                sizeof(Integral) // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
-        );
-        if (not istream) {
-            return helper::nullopt;
-        }
-        return utils::from_little_endian(value);
-    }
 };

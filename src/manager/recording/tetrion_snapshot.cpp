@@ -1,4 +1,5 @@
 #include "tetrion_snapshot.hpp"
+#include "helper.hpp"
 
 #include <fmt/format.h>
 #include <magic_enum.hpp>
@@ -23,53 +24,53 @@ TetrionSnapshot::TetrionSnapshot(
       m_mino_stack{ mino_stack } { }
 
 TetrionSnapshot::TetrionSnapshot(std::istream& istream) {
-    const auto tetrion_index = read_from_istream<u8>(istream);
+    const auto tetrion_index = helper::reader::read_from_istream<u8>(istream);
     if (not tetrion_index.has_value()) {
         throw std::runtime_error{ "unable to read tetrion index from snapshot" };
     }
     m_tetrion_index = tetrion_index.value();
 
-    const auto level = read_from_istream<Level>(istream);
+    const auto level = helper::reader::read_from_istream<Level>(istream);
     if (not level.has_value()) {
         throw std::runtime_error{ "unable to read level from snapshot" };
     }
     m_level = level.value();
 
-    const auto score = read_from_istream<Score>(istream);
+    const auto score = helper::reader::read_from_istream<Score>(istream);
     if (not score.has_value()) {
         throw std::runtime_error{ "unable to read score from snapshot" };
     }
     m_score = score.value();
 
-    const auto lines_cleared = read_from_istream<LineCount>(istream);
+    const auto lines_cleared = helper::reader::read_from_istream<LineCount>(istream);
     if (not lines_cleared.has_value()) {
         throw std::runtime_error{ "unable to read lines cleared from snapshot" };
     }
     m_lines_cleared = lines_cleared.value();
 
-    const auto simulation_step_index = read_from_istream<SimulationStep>(istream);
+    const auto simulation_step_index = helper::reader::read_from_istream<SimulationStep>(istream);
     if (not simulation_step_index.has_value()) {
         throw std::runtime_error{ "unable to read simulation step index from snapshot" };
     }
     m_simulation_step_index = simulation_step_index.value();
 
-    const auto num_minos = read_from_istream<MinoCount>(istream);
+    const auto num_minos = helper::reader::read_from_istream<MinoCount>(istream);
     if (not num_minos.has_value()) {
         throw std::runtime_error{ "unable to read number of minos from snapshot" };
     }
 
     for (MinoCount i = 0; i < num_minos.value(); ++i) {
-        const auto x = read_from_istream<Coordinate>(istream);
+        const auto x = helper::reader::read_from_istream<Coordinate>(istream);
         if (not x.has_value()) {
             throw std::runtime_error{ "unable to read x coordinate of mino from snapshot" };
         }
 
-        const auto y = read_from_istream<Coordinate>(istream);
+        const auto y = helper::reader::read_from_istream<Coordinate>(istream);
         if (not y.has_value()) {
             throw std::runtime_error{ "unable to read y coordinate of mino from snapshot" };
         }
 
-        const auto type = read_from_istream<std::underlying_type_t<TetrominoType>>(istream);
+        const auto type = helper::reader::read_from_istream<std::underlying_type_t<TetrominoType>>(istream);
         if (not type.has_value()) {
             throw std::runtime_error{ "unable to read tetromino type of mino from snapshot" };
         }
@@ -80,6 +81,16 @@ TetrionSnapshot::TetrionSnapshot(std::istream& istream) {
         }
 
         m_mino_stack.set(shapes::AbstractPoint<u8>(x.value(), y.value()), maybe_type.value());
+    }
+}
+
+helper::optional<TetrionSnapshot> TetrionSnapshot::from_istream(std::istream& istream) {
+    try {
+        const auto result = TetrionSnapshot{ istream };
+        return result;
+    } catch (const std::exception& error) {
+        spdlog::error(error.what());
+        return helper::nullopt;
     }
 }
 
@@ -99,35 +110,35 @@ TetrionSnapshot::TetrionSnapshot(const Tetrion& tetrion, const SimulationStep si
     auto bytes = std::vector<char>{};
 
     static_assert(sizeof(decltype(m_tetrion_index)) == 1);
-    append(bytes, m_tetrion_index);
+    helper::writer::append_value(bytes, m_tetrion_index);
 
     static_assert(sizeof(decltype(m_level)) == 4);
-    append(bytes, m_level);
+    helper::writer::append_value(bytes, m_level);
 
     static_assert(sizeof(decltype(m_score)) == 8);
-    append(bytes, m_score);
+    helper::writer::append_value(bytes, m_score);
 
     static_assert(sizeof(decltype(m_lines_cleared)) == 4);
-    append(bytes, m_lines_cleared);
+    helper::writer::append_value(bytes, m_lines_cleared);
 
     static_assert(sizeof(decltype(m_simulation_step_index)) == 8);
-    append(bytes, m_simulation_step_index);
+    helper::writer::append_value(bytes, m_simulation_step_index);
     const auto num_minos = static_cast<MinoCount>(m_mino_stack.num_minos());
 
     static_assert(sizeof(decltype(num_minos)) == 8);
-    append(bytes, num_minos);
+    helper::writer::append_value(bytes, num_minos);
 
     for (const auto& mino : m_mino_stack.minos()) {
         static_assert(sizeof(Coordinate) == 1);
 
         static_assert(sizeof(decltype(mino.position().x)) == 1);
-        append(bytes, mino.position().x);
+        helper::writer::append_value(bytes, mino.position().x);
 
         static_assert(sizeof(decltype(mino.position().y)) == 1);
-        append(bytes, mino.position().y);
+        helper::writer::append_value(bytes, mino.position().y);
 
         static_assert(sizeof(std::underlying_type_t<TetrominoType>) == 1);
-        append(bytes, std::to_underlying(mino.type()));
+        helper::writer::append_value(bytes, std::to_underlying(mino.type()));
     }
     return bytes;
 }

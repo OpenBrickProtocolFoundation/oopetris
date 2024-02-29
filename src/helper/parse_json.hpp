@@ -9,6 +9,7 @@
 
 #include "helper/expected.hpp"
 #include "helper/optional.hpp"
+#include "helper/utils.hpp"
 
 #include <filesystem>
 #include <fmt/format.h>
@@ -116,13 +117,3 @@ namespace json {
 
 
 } // namespace json
-
-namespace helper {
-
-    template<class... Ts>
-    struct overloaded : Ts... {
-        using Ts::operator()...;
-    };
-    template<class... Ts>
-    overloaded(Ts...) -> overloaded<Ts...>;
-} // namespace helper
