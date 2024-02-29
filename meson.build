@@ -154,7 +154,7 @@ endif
 deps += dependency(
     'spdlog',
     required: true,
-    default_options: {'tests': 'false'},
+    default_options: {'tests': 'disabled'},
 )
 
 deps += dependency(
