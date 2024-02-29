@@ -1,7 +1,7 @@
 {
 	"name": "oopetris",
 	"version-string": "1.0.0",
-	"builtin-baseline": "095ee06e7f60dceef7d713e3f8b1c2eb10d650d7",
+	"builtin-baseline": "2ac6ba173be85207a7bac4f0f02f5486f9fd4c0f",
 	"dependencies": [
 		{
 			"name": "sdl2",
