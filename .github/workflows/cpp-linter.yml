@@ -29,7 +29,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install ninja-build libsdl2-2.0-0 libsdl2-dev libsdl2-ttf* libsdl2-mixer* libsdl2-image*  -y
-          meson setup build -Dbuildtype=release
+          meson setup build -Dbuildtype=release -Dclang_libcpp=disabled
           meson compile -C build git_version.hpp
 
       - uses: cpp-linter/cpp-linter-action@v2

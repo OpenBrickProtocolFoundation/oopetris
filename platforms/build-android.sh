@@ -336,7 +336,8 @@ EOF
             --cross-file "./platforms/crossbuild-android-$ARM_TARGET_ARCH.ini" \
             -Dbuildtype=release \
             -Dsdl2:use_hidapi=disabled \
-            -Dcpp_args=-DAUDIO_PREFER_MP3
+            -Dcpp_args=-DAUDIO_PREFER_MP3 \
+            -Dclang_libcpp=disabled
 
     fi
 
