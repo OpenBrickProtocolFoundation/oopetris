@@ -7,10 +7,12 @@
 #include <windows.h>
 #else
 #include <cerrno>
-#include <time.h>
-#endif
+#include <ctime>
 
 using namespace std::chrono_literals;
+
+#endif
+
 
 bool helper::sleep_nanoseconds(std::chrono::nanoseconds ns) {
 
@@ -39,15 +41,15 @@ bool helper::sleep_nanoseconds(std::chrono::nanoseconds ns) {
 
 #else
     int result{};
-    struct timespec remaining { };
-    struct timespec current {
+    std::timespec remaining{};
+    std::timespec current{
         static_cast<decltype(remaining.tv_sec)>(std::chrono::duration_cast<std::chrono::seconds>(ns).count()),
-                static_cast<decltype(remaining.tv_nsec)>(
-                        ns.count() % std::chrono::duration_cast<std::chrono::nanoseconds>(1s).count()
-                ),
+        static_cast<decltype(remaining.tv_nsec)>(
+                ns.count() % std::chrono::duration_cast<std::chrono::nanoseconds>(1s).count()
+        ),
     };
 
-    do {
+    do { // NOLINT(cppcoreguidelines-avoid-do-while)
         result = nanosleep(&current, &remaining);
 
         if (result == 0) {

@@ -93,7 +93,7 @@ namespace shapes {
 
     template<typename T>
     inline std::ostream& operator<<(std::ostream& ostream, const AbstractPoint<T>& point) {
-        using PrintType = typename std::conditional<std::is_same<T, u8>::value, u32, T>::type;
+        using PrintType = typename std::conditional_t<std::is_same_v<T, u8>, u32, T>;
         ostream << static_cast<PrintType>(point.x) << ", " << static_cast<PrintType>(point.y);
         return ostream;
     }

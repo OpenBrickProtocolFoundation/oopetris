@@ -81,7 +81,9 @@ public:
             throw std::runtime_error{ "failed in getting display mode: " + std::string{ SDL_GetError() } };
         }
 
-        auto* const texture = SDL_CreateTexture(renderer, mode.format, SDL_TEXTUREACCESS_TARGET, size.x, size.y);
+        auto* const texture = SDL_CreateTexture(
+                renderer, mode.format, SDL_TEXTUREACCESS_TARGET, static_cast<int>(size.x), static_cast<int>(size.y)
+        );
         if (texture == nullptr) {
             throw std::runtime_error(fmt::format("Failed to create texture with error: {}", SDL_GetError()));
         }

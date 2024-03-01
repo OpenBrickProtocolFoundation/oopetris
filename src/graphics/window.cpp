@@ -6,7 +6,14 @@ Window::Window(const std::string& title, WindowPosition position, u32 width, u32
     : Window{ title, static_cast<u32>(position), static_cast<u32>(position), width, height } { }
 
 Window::Window(const std::string& title, u32 x, u32 y, u32 width, u32 height)
-    : m_window{ SDL_CreateWindow(title.c_str(), x, y, width, height, 0) } { }
+    : m_window{ SDL_CreateWindow(
+            title.c_str(),
+            static_cast<int>(x),
+            static_cast<int>(y),
+            static_cast<int>(width),
+            static_cast<int>(height),
+            0
+    ) } { }
 
 Window::Window(const std::string& title, WindowPosition position)
     : Window{ title, static_cast<u32>(position), static_cast<u32>(position) } { }
@@ -18,7 +25,7 @@ Window::Window(const std::string& title, u32 x, u32 y) {
     if (result != 0) {
         throw std::runtime_error{ "failed in getting display mode: " + std::string{ SDL_GetError() } };
     }
-    m_window = SDL_CreateWindow(title.c_str(), x, y, mode.w, mode.h, 0);
+    m_window = SDL_CreateWindow(title.c_str(), static_cast<int>(x), static_cast<int>(y), mode.w, mode.h, 0);
     if (m_window == nullptr) {
         throw std::runtime_error{ "failed in creating window: " + std::string{ SDL_GetError() } };
     }

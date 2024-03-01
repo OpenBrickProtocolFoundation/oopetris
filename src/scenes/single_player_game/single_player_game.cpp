@@ -11,7 +11,7 @@ namespace scenes {
         additional_info.add("platform", utils::get_platform());
         //TODO: add more information, if logged in
 
-        std::vector<recorder::AdditionalInformation> additional_information = { additional_info };
+        const std::vector<recorder::AdditionalInformation> additional_information = { additional_info };
 
         auto parameters = input::get_game_parameters(service_provider, 1, additional_information);
 

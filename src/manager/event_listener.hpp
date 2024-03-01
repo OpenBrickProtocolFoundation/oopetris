@@ -11,7 +11,7 @@ struct EventListener {
 
     virtual void handle_event(const SDL_Event& event, const Window* window) = 0;
 
-    bool is_paused() const {
+    [[nodiscard]] bool is_paused() const {
         return m_is_paused;
     }
 

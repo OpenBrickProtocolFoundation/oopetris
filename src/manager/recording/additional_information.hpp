@@ -25,6 +25,7 @@ namespace recorder {
                 m_value;
 
         enum class ValueType : u8 { String = 0, Float, Double, Bool, U8, I8, U32, I32, U64, I64, Vector };
+        constexpr static u32 max_recursion_depth = 15;
 
     public:
         template<typename T>
@@ -138,7 +139,7 @@ namespace recorder {
                 std::istream& istream
         );
 
-        [[nodiscard]] std::vector<char> to_bytes() const;
+        [[nodiscard]] std::vector<char> to_bytes(u32 recursion_depth = 0) const;
 
         [[nodiscard]] static std::vector<char> string_to_bytes(const std::string& value);
 

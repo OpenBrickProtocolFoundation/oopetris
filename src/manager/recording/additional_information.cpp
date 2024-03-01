@@ -19,7 +19,8 @@ recorder::InformationValue::read_from_istream(std::istream& istream) {
     return std::pair<std::string, recorder::InformationValue>{ key.value(), value.value() };
 }
 
-[[nodiscard]] std::vector<char> recorder::InformationValue::to_bytes() const {
+[[nodiscard]] std::vector<char> recorder::InformationValue::to_bytes(u32 recursion_depth // NOLINT(misc-no-recursion)
+) const {
     auto bytes = std::vector<char>{};
 
     if (is<std::string>()) {
@@ -27,7 +28,9 @@ recorder::InformationValue::read_from_istream(std::istream& istream) {
         const auto value = string_to_bytes(as<std::string>());
         helper::writer::append_bytes(bytes, value);
         return bytes;
-    } else if (is<float>()) {
+    }
+
+    if (is<float>()) {
         //TODO: validate that the float and double conversion works!
 
         helper::writer::append_value<std::underlying_type_t<ValueType>>(bytes, std::to_underlying(ValueType::Float));
@@ -41,7 +44,9 @@ recorder::InformationValue::read_from_istream(std::istream& istream) {
         const float_conversion conversion_value{ .value = as<float>() };
         helper::writer::append_value<u32>(bytes, conversion_value.original_value);
         return bytes;
-    } else if (is<double>()) {
+    }
+
+    if (is<double>()) {
         helper::writer::append_value<std::underlying_type_t<ValueType>>(bytes, std::to_underlying(ValueType::Double));
         static_assert(sizeof(double) == 8 && sizeof(u64) == 8);
 
@@ -53,61 +58,85 @@ recorder::InformationValue::read_from_istream(std::istream& istream) {
         const double_conversion conversion_value{ .value = as<double>() };
         helper::writer::append_value<u64>(bytes, conversion_value.original_value);
         return bytes;
-    } else if (is<bool>()) {
+    }
+
+    if (is<bool>()) {
         helper::writer::append_value<std::underlying_type_t<ValueType>>(bytes, std::to_underlying(ValueType::Bool));
         static_assert(sizeof(bool) == 1 && sizeof(u8) == 1);
         const auto value = as<bool>();
         helper::writer::append_value<u8>(bytes, static_cast<u8>(value));
         return bytes;
-    } else if (is<u8>()) {
+    }
+
+    if (is<u8>()) {
         helper::writer::append_value<std::underlying_type_t<ValueType>>(bytes, std::to_underlying(ValueType::U8));
         static_assert(sizeof(u8) == 1);
         const auto value = as<u8>();
         helper::writer::append_value<u8>(bytes, value);
         return bytes;
-    } else if (is<i8>()) {
+    }
+
+    if (is<i8>()) {
         helper::writer::append_value<std::underlying_type_t<ValueType>>(bytes, std::to_underlying(ValueType::I8));
         static_assert(sizeof(i8) == 1);
         const auto value = as<i8>();
         helper::writer::append_value<i8>(bytes, value);
         return bytes;
-    } else if (is<u32>()) {
+    }
+
+    if (is<u32>()) {
         helper::writer::append_value<std::underlying_type_t<ValueType>>(bytes, std::to_underlying(ValueType::U32));
         static_assert(sizeof(u32) == 4);
         const auto value = as<u32>();
         helper::writer::append_value<u32>(bytes, value);
         return bytes;
-    } else if (is<i32>()) {
+    }
+
+    if (is<i32>()) {
         helper::writer::append_value<std::underlying_type_t<ValueType>>(bytes, std::to_underlying(ValueType::I32));
         static_assert(sizeof(i32) == 4);
         const auto value = as<i32>();
         helper::writer::append_value<i32>(bytes, value);
         return bytes;
-    } else if (is<u64>()) {
+    }
+
+    if (is<u64>()) {
         helper::writer::append_value<std::underlying_type_t<ValueType>>(bytes, std::to_underlying(ValueType::U64));
         static_assert(sizeof(u64) == 8);
         const auto value = as<u64>();
         helper::writer::append_value<u64>(bytes, value);
         return bytes;
-    } else if (is<i64>()) {
+    }
+
+    if (is<i64>()) {
         helper::writer::append_value<std::underlying_type_t<ValueType>>(bytes, std::to_underlying(ValueType::I64));
         static_assert(sizeof(i64) == 8);
         const auto value = as<i64>();
         helper::writer::append_value<i64>(bytes, value);
         return bytes;
-    } else if (is<std::vector<InformationValue>>()) {
+    }
+
+    if (is<std::vector<InformationValue>>()) {
+        if (recursion_depth >= max_recursion_depth) {
+            throw std::runtime_error(
+                    fmt::format("Reached maximum recursion depth of {} while serializing vectors!", max_recursion_depth)
+            );
+        }
+
         helper::writer::append_value<std::underlying_type_t<ValueType>>(bytes, std::to_underlying(ValueType::Vector));
         static_assert(sizeof(u32) == 4);
+
         const auto& vector_value = as<std::vector<InformationValue>>();
         helper::writer::append_value<u32>(bytes, static_cast<u32>(vector_value.size()));
+
         for (const auto& value : vector_value) {
-            const auto value_bytes = value.to_bytes();
+            const auto value_bytes = value.to_bytes(recursion_depth + 1);
             helper::writer::append_bytes(bytes, value_bytes);
         }
         return bytes;
-    } else {
-        utils::unreachable();
     }
+
+    utils::unreachable();
 }
 
 [[nodiscard]] std::vector<char> recorder::InformationValue::string_to_bytes(const std::string& value) {
@@ -118,7 +147,7 @@ recorder::InformationValue::read_from_istream(std::istream& istream) {
 
     const char* chars = value.c_str();
     for (decltype(value.size()) i = 0; i < value.size(); ++i) {
-        helper::writer::append_value<u8>(bytes, chars[i]);
+        helper::writer::append_value<u8>(bytes, chars[i]); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     }
 
     return bytes;
@@ -144,6 +173,8 @@ helper::expected<std::string, std::string> recorder::InformationValue::read_stri
     }
 
     std::string result{ raw_chars, string_size.value() };
+
+    delete[] raw_chars;
 
     return result;
 }
@@ -337,7 +368,7 @@ recorder::AdditionalInformation::AdditionalInformation(std::istream& istream) {
 
 helper::optional<recorder::AdditionalInformation> recorder::AdditionalInformation::from_istream(std::istream& istream) {
     try {
-        const auto result = recorder::AdditionalInformation{ istream };
+        auto result = recorder::AdditionalInformation{ istream };
         return result;
     } catch (const std::exception& error) {
         spdlog::error(error.what());
