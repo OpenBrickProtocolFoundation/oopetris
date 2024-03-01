@@ -98,10 +98,14 @@ jobs:
 
       - name: Setup Clang (Linux)
         if: matrix.config.os == 'ubuntu' && matrix.config.use-clang == true
-        uses: egor-tensin/setup-clang@v1
-        with:
-          version: 17
-          platform: x64
+        run: |
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh 17
+          sudo apt-get install libc++-17* libc++abi*17* -y
+          echo "CC=clang-17" >> "$GITHUB_ENV"
+          echo "CXX=clang++-17" >> "$GITHUB_ENV"
+
 
       - name: Setup GCC (Linux)
         if: matrix.config.os == 'ubuntu' && matrix.config.use-clang == false
