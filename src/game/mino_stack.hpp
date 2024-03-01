@@ -23,7 +23,7 @@ public:
 #if !defined(_NO_SDL)
     void draw_minos(
             const ServiceProvider& service_provider,
-            const double original_scale,
+            double original_scale,
             const ScreenCordsFunction& to_screen_coords,
             const shapes::UPoint& tile_size
     ) const;

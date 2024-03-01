@@ -21,7 +21,7 @@ namespace {
                 helper::overloaded{
                         [service_provider]([[maybe_unused]] KeyboardControls& keyboard_controls
                         ) mutable -> std::unique_ptr<Input> {
-                            const auto event_dispatcher = &(service_provider->event_dispatcher());
+                            auto* const event_dispatcher = &(service_provider->event_dispatcher());
 #if defined(__ANDROID__)
                             auto input = std::make_unique<TouchInput>(event_dispatcher);
 #elif defined(__SWITCH__)
@@ -62,7 +62,7 @@ namespace {
 namespace input {
     [[nodiscard]] std::vector<AdditionalInfo> get_game_parameters(
             ServiceProvider* service_provider,
-            u32 amount,
+            u8 amount,
             const std::vector<recorder::AdditionalInformation>& additional_info
     ) {
 
@@ -70,8 +70,9 @@ namespace input {
 
         u32 target_fps = 60;
 
-        if (service_provider->command_line_arguments().target_fps.has_value()) {
-            target_fps = service_provider->command_line_arguments().target_fps.value();
+        if (const auto optional_target_fps = service_provider->command_line_arguments().target_fps;
+            optional_target_fps.has_value()) {
+            target_fps = optional_target_fps.value();
         } else {
             SDL_DisplayMode mode{};
             const int mode_result = SDL_GetCurrentDisplayMode(0, &mode);
@@ -125,12 +126,12 @@ namespace input {
                 const auto seed = Random::generate_seed();
 
                 const tetrion::StartingParameters starting_parameters = { target_fps, seed, starting_level,
-                                                                          tetrion_index, helper::nullopt };
+                                                                          tetrion_index };
 
                 result.emplace_back(std::move(input), starting_parameters);
             }
 
-            const auto tetrion_headers = create_tetrion_headers(result, additional_info);
+            auto tetrion_headers = create_tetrion_headers(result, additional_info);
 
             static constexpr auto recordings_directory = "recordings";
             const auto recording_directory_path = utils::get_root_folder() / recordings_directory;

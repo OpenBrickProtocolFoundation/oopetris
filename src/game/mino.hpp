@@ -36,7 +36,7 @@ public:
     void render(
             const ServiceProvider& service_provider,
             MinoTransparency transparency,
-            const double original_scale,
+             double original_scale,
             const ScreenCordsFunction& to_screen_coords,
             const shapes::UPoint& tile_size,
             const GridPoint& offset = GridPoint::zero()

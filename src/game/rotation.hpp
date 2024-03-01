@@ -16,4 +16,4 @@ Rotation& operator--(Rotation& rotation);
 
 Rotation operator+(Rotation rotation, i8 offset);
 
-Rotation operator-(const Rotation rotation, i8 offset);
+Rotation operator-(Rotation rotation, i8 offset);

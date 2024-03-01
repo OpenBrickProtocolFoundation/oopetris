@@ -88,7 +88,7 @@ public:
     Tetrion(u8 tetrion_index,
             Random::Seed random_seed,
             u32 starting_level,
-            ServiceProvider* const service_provider,
+            ServiceProvider* service_provider,
             helper::optional<std::shared_ptr<recorder::RecordingWriter>> recording_writer,
             const ui::Layout& layout);
     void update_step(SimulationStep simulation_step_index);
@@ -152,7 +152,7 @@ private:
 
     [[nodiscard]] u64 get_gravity_delay_frames() const;
 
-    static u8 rotation_to_index(const Rotation from, const Rotation to);
+    static u8 rotation_to_index(Rotation from, Rotation to);
 
     static constexpr auto wall_kick_data_jltsz = WallKickTable{
   // North -> East

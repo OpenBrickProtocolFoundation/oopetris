@@ -13,7 +13,6 @@ Game::Game(
 )
     : ui::Widget{ layout },
       m_clock_source{ std::make_unique<LocalClock>(starting_parameters.target_fps) },
-      m_simulation_step_index{ 0 },
       m_input{ std::move(input) } {
 
 
@@ -93,7 +92,7 @@ void Game::set_paused(bool paused) {
         return true;
     };
 
-    const auto input_as_replay = dynamic_cast<ReplayInput*>(m_input.get());
+    auto* const input_as_replay = dynamic_cast<ReplayInput*>(m_input.get());
     if (input_as_replay != nullptr) {
         return input_as_replay->is_end_of_recording();
     }

@@ -22,7 +22,7 @@ Tetrion::Tetrion(
       m_next_gravity_simulation_step_index{ get_gravity_delay_frames() },
       m_lock_delay_step_index{ lock_delay },
       m_service_provider{ service_provider },
-      m_recording_writer{ recording_writer },
+      m_recording_writer{ std::move(recording_writer) },
       m_random{ random_seed },
       m_level{ starting_level },
       m_tetrion_index{ tetrion_index },
@@ -299,13 +299,13 @@ bool Tetrion::drop_tetromino(const SimulationStep simulation_step_index) {
     if (not m_active_tetromino.has_value()) {
         return false;
     }
-    int num_movements = 0;
+    u64 num_movements = 0;
     while (tetromino_can_move_down(m_active_tetromino.value())) {
         ++num_movements;
         m_active_tetromino->move_down();
     }
 
-    m_score += 4 * num_movements;
+    m_score += static_cast<u64>(4) * num_movements;
     lock_active_tetromino(simulation_step_index);
     return num_movements > 0;
 }
@@ -427,8 +427,8 @@ void Tetrion::clear_fully_occupied_lines() {
         }
     } while (cleared);
     const u32 num_lines_cleared = m_lines_cleared - lines_cleared_before;
-    static constexpr std::array<int, 5> score_per_line_multiplier{ 0, 40, 100, 300, 1200 };
-    m_score += score_per_line_multiplier.at(num_lines_cleared) * (m_level + 1);
+    static constexpr std::array<u32, 5> score_per_line_multiplier{ 0, 40, 100, 300, 1200 };
+    m_score += static_cast<u64>(score_per_line_multiplier.at(num_lines_cleared)) * static_cast<u64>(m_level + 1);
 }
 
 void Tetrion::lock_active_tetromino(const SimulationStep simulation_step_index) {
@@ -580,7 +580,7 @@ bool Tetrion::rotate(Tetrion::RotationDirection rotation_direction) {
     }
 
     const auto from_rotation = m_active_tetromino->rotation();
-    const auto to_rotation = from_rotation + (rotation_direction == RotationDirection::Left ? -1 : 1);
+    const auto to_rotation = from_rotation + static_cast<i8>(rotation_direction == RotationDirection::Left ? -1 : 1);
     const auto table_index = rotation_to_index(from_rotation, to_rotation);
 
     if (rotation_direction == RotationDirection::Left) {

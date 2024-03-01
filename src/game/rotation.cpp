@@ -34,5 +34,5 @@ Rotation operator+(Rotation rotation, i8 offset) {
 }
 
 Rotation operator-(const Rotation rotation, i8 offset) {
-    return rotation + (-offset);
+    return rotation + static_cast<i8>(-offset);
 }

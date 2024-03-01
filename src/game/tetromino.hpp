@@ -33,7 +33,7 @@ public:
     void render(
             const ServiceProvider& service_provider,
             MinoTransparency transparency,
-            const double original_scale,
+            double original_scale,
             const ScreenCordsFunction& to_screen_coords,
             const shapes::UPoint& tile_size,
             const GridPoint& offset = GridPoint::zero()
@@ -45,7 +45,7 @@ public:
     void move_up();
     void move_left();
     void move_right();
-    void move(const shapes::AbstractPoint<i8> offset);
+    void move(shapes::AbstractPoint<i8> offset);
 
     [[nodiscard]] const std::array<Mino, 4>& minos() const;
 

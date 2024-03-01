@@ -18,7 +18,7 @@ private:
 
 public:
     explicit Game(
-            ServiceProvider* const service_provider,
+            ServiceProvider* service_provider,
             const ui::Layout& layout,
             std::unique_ptr<Input>&& input,
             const tetrion::StartingParameters& starting_parameters
