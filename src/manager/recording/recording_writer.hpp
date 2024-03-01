@@ -24,7 +24,8 @@ namespace recorder {
                 InputEvent event
         );
 
-        void add_snapshot(u8 tetrion_index, u64 simulation_step_index, const Tetrion& tetrion);
+        void
+        add_snapshot(u8 tetrion_index, u64 simulation_step_index, std::unique_ptr<TetrionCoreInformation> information);
 
     private:
         static void write_tetrion_header_to_file(std::ofstream& file, const TetrionHeader& header);

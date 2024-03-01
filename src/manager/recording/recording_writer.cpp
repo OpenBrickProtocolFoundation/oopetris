@@ -48,13 +48,14 @@ void recorder::RecordingWriter::add_event(
 void recorder::RecordingWriter::add_snapshot(
         const u8 tetrion_index,
         const u64 simulation_step_index,
-        const Tetrion& tetrion
+        std::unique_ptr<TetrionCoreInformation> information
 ) {
 
     static_assert(sizeof(std::underlying_type_t<MagicByte>) == 1);
     write(utils::to_underlying(MagicByte::Snapshot));
-    const auto snapshot = TetrionSnapshot{ tetrion_index,           tetrion.level(),       tetrion.score(),
-                                           tetrion.lines_cleared(), simulation_step_index, tetrion.mino_stack() };
+    const auto snapshot = TetrionSnapshot{ tetrion_index,         information->level,
+                                           information->score,    information->lines_cleared,
+                                           simulation_step_index, information->mino_stack };
 
     const auto bytes = snapshot.to_bytes();
     helper::writer::write_vector_to_file(m_output_file, bytes);

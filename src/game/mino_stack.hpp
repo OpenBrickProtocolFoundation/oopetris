@@ -19,12 +19,15 @@ public:
     void clear_row_and_let_sink(u8 row);
     [[nodiscard]] bool is_empty(GridPoint coordinates) const;
     void set(GridPoint coordinates, TetrominoType type);
+
+#if !defined(_NO_SDL)
     void draw_minos(
             const ServiceProvider& service_provider,
             const double original_scale,
             const ScreenCordsFunction& to_screen_coords,
             const shapes::UPoint& tile_size
     ) const;
+#endif
 
     [[nodiscard]] u32 num_minos() const;
 

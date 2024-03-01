@@ -3,6 +3,7 @@
 #include "manager/event_dispatcher.hpp"
 #include "platform/capabilities.hpp"
 #include "platform/replay_input.hpp"
+#include "tetrion.hpp"
 
 Game::Game(
         ServiceProvider* const service_provider,

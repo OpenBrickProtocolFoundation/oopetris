@@ -1,9 +1,13 @@
 #include "mino.hpp"
-#include "graphics/renderer.hpp"
 #include "helper/utils.hpp"
+
+#if !defined(_NO_SDL)
+#include "graphics/renderer.hpp"
+#endif
 
 #include <cassert>
 
+#if !defined(_NO_SDL)
 static constexpr std::array<u8, 6> transparency_values = { 255, 173, 118, 80, 55, 37 };
 
 namespace {
@@ -24,6 +28,7 @@ namespace {
         }
     }
 } // namespace
+
 
 void Mino::render(
         const ServiceProvider& service_provider,
@@ -72,6 +77,7 @@ void Mino::render(
 
     service_provider.renderer().draw_rect_filled(shapes::URect{ inner_top_left, inner_bottom_right }, foreground);
 }
+#endif
 
 [[nodiscard]] TetrominoType Mino::type() const {
     return m_type;

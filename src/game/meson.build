@@ -1,3 +1,13 @@
+shared_files = files(
+    'mino.cpp',
+    'mino.hpp',
+    'mino_stack.cpp',
+    'mino_stack.hpp',
+)
+
+src_files += shared_files
+recording_src_files += shared_files
+
 src_files += files(
     'bag.cpp',
     'bag.hpp',
@@ -5,12 +15,9 @@ src_files += files(
     'game.hpp',
     'grid.cpp',
     'grid.hpp',
+    'grid_properties.hpp',
     'input_creator.cpp',
     'input_creator.hpp',
-    'mino.cpp',
-    'mino.hpp',
-    'mino_stack.cpp',
-    'mino_stack.hpp',
     'rotation.cpp',
     'rotation.hpp',
     'tetrion.cpp',
@@ -19,3 +26,5 @@ src_files += files(
     'tetromino.hpp',
     'tetromino_type.hpp',
 )
+
+

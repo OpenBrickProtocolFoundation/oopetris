@@ -1,6 +1,6 @@
 #include "mino_stack.hpp"
 
-#include "grid.hpp"
+#include "grid_properties.hpp"
 
 void MinoStack::clear_row_and_let_sink(u8 row) {
     m_minos.erase(
@@ -34,6 +34,7 @@ void MinoStack::set(GridPoint coordinates, TetrominoType type) {
     m_minos.push_back(to_insert);
 }
 
+#if !defined(_NO_SDL)
 void MinoStack::draw_minos(
         const ServiceProvider& service_provider,
         const double original_scale,
@@ -43,10 +44,11 @@ void MinoStack::draw_minos(
     for (const auto& mino : m_minos) {
         mino.render(
                 service_provider, MinoTransparency::Solid, original_scale, to_screen_coords, tile_size,
-                Grid::grid_position
+                grid::grid_position
         );
     }
 }
+#endif
 
 [[nodiscard]] u32 MinoStack::num_minos() const {
     return static_cast<u32>(m_minos.size());
@@ -83,8 +85,8 @@ void MinoStack::draw_minos(
 
 std::ostream& operator<<(std::ostream& ostream, const MinoStack& mino_stack) {
     ostream << "MinoStack(\n";
-    for (u8 y = 0; y < Grid::height_in_tiles; ++y) {
-        for (u8 x = 0; x < Grid::width_in_tiles; ++x) {
+    for (u8 y = 0; y < grid::height_in_tiles; ++y) {
+        for (u8 x = 0; x < grid::width_in_tiles; ++x) {
             const auto find_iterator =
                     std::find_if(mino_stack.minos().cbegin(), mino_stack.minos().cend(), [&](const auto& mino) {
                         return mino.position() == shapes::AbstractPoint<u8>{ x, y };

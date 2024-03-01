@@ -5,7 +5,6 @@
 #include "helper/expected.hpp"
 #include "helper/optional.hpp"
 #include "helper/types.hpp"
-#include "helper/utils.hpp"
 
 #include <fmt/format.h>
 #include <fmt/ranges.h>

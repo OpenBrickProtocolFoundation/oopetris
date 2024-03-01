@@ -1,5 +1,6 @@
-#include "game/tetrion.hpp"
+#include "tetrion.hpp"
 #include "helper/constants.hpp"
+#include "helper/music_utils.hpp"
 #include "helper/utils.hpp"
 #include "manager/recording/recording_writer.hpp"
 #include "manager/resource_manager.hpp"
@@ -110,13 +111,13 @@ void Tetrion::render(const ServiceProvider& service_provider) const {
     if (m_active_tetromino) {
         m_active_tetromino->render(
                 service_provider, MinoTransparency::Solid, original_scale, to_screen_coords, tile_size,
-                Grid::grid_position
+                grid::grid_position
         );
     }
     if (m_ghost_tetromino) {
         m_ghost_tetromino->render(
                 service_provider, MinoTransparency::Ghost, original_scale, to_screen_coords, tile_size,
-                Grid::grid_position
+                grid::grid_position
         );
     }
     for (std::underlying_type_t<MinoTransparency> i = 0; i < static_cast<decltype(i)>(m_preview_tetrominos.size());
@@ -242,7 +243,7 @@ void Tetrion::spawn_next_tetromino(const TetrominoType type, const SimulationSte
         spdlog::info("game over");
         if (m_recording_writer.has_value()) {
             spdlog::info("writing snapshot");
-            m_recording_writer.value()->add_snapshot(m_tetrion_index, simulation_step_index, *this);
+            m_recording_writer.value()->add_snapshot(m_tetrion_index, simulation_step_index, core_information());
         }
         m_active_tetromino = {};
         m_ghost_tetromino = {};
@@ -315,11 +316,11 @@ void Tetrion::hold_tetromino(const SimulationStep simulation_step_index) {
     }
 
     if (not m_tetromino_on_hold.has_value()) {
-        m_tetromino_on_hold = Tetromino{ Grid::hold_tetromino_position, m_active_tetromino->type() };
+        m_tetromino_on_hold = Tetromino{ grid::hold_tetromino_position, m_active_tetromino->type() };
         spawn_next_tetromino(simulation_step_index);
     } else {
         const auto on_hold = m_tetromino_on_hold->type();
-        m_tetromino_on_hold = Tetromino{ Grid::hold_tetromino_position, m_active_tetromino->type() };
+        m_tetromino_on_hold = Tetromino{ grid::hold_tetromino_position, m_active_tetromino->type() };
         spawn_next_tetromino(on_hold, simulation_step_index);
     }
 }
@@ -360,6 +361,11 @@ void Tetrion::hold_tetromino(const SimulationStep simulation_step_index) {
     return m_mino_stack;
 }
 
+[[nodiscard]] std::unique_ptr<TetrionCoreInformation> Tetrion::core_information() const {
+
+    return std::make_unique<TetrionCoreInformation>(m_tetrion_index, m_level, m_score, m_lines_cleared, m_mino_stack);
+}
+
 [[nodiscard]] bool Tetrion::is_game_over() const {
     return m_game_state == GameState::GameOver;
 }
@@ -390,9 +396,9 @@ void Tetrion::clear_fully_occupied_lines() {
     const u32 lines_cleared_before = m_lines_cleared;
     do { // NOLINT(cppcoreguidelines-avoid-do-while)
         cleared = false;
-        for (u8 row = 0; row < Grid::height_in_tiles; ++row) {
+        for (u8 row = 0; row < grid::height_in_tiles; ++row) {
             bool fully_occupied = true;
-            for (u8 column = 0; column < Grid::width_in_tiles; ++column) {
+            for (u8 column = 0; column < grid::width_in_tiles; ++column) {
                 if (m_mino_stack.is_empty(GridPoint{ column, row })) {
                     fully_occupied = false;
                     break;
@@ -442,7 +448,7 @@ void Tetrion::lock_active_tetromino(const SimulationStep simulation_step_index) 
 #ifdef DEBUG_BUILD
     if (m_recording_writer) {
         spdlog::debug("adding snapshot at step {}", simulation_step_index);
-        (*m_recording_writer)->add_snapshot(m_tetrion_index, simulation_step_index, *this);
+        (*m_recording_writer)->add_snapshot(m_tetrion_index, simulation_step_index, core_information());
     }
 #endif
 }
@@ -455,11 +461,11 @@ bool Tetrion::is_active_tetromino_position_valid() const {
 }
 
 bool Tetrion::is_valid_mino_position(GridPoint position) const {
-    return position.x < Grid::width_in_tiles and position.y < Grid::height_in_tiles and m_mino_stack.is_empty(position);
+    return position.x < grid::width_in_tiles and position.y < grid::height_in_tiles and m_mino_stack.is_empty(position);
 }
 
 bool Tetrion::mino_can_move_down(GridPoint position) const {
-    if (position.y == (Grid::height_in_tiles - 1)) {
+    if (position.y == (grid::height_in_tiles - 1)) {
         return false;
     }
 
@@ -483,7 +489,7 @@ void Tetrion::refresh_previews() {
     auto bag_index = usize{ 0 };
     for (std::remove_cvref_t<decltype(num_preview_tetrominos)> i = 0; i < num_preview_tetrominos; ++i) {
         m_preview_tetrominos.at(static_cast<usize>(i)) = Tetromino{
-            Grid::preview_tetromino_position + shapes::UPoint{0, static_cast<u32>(Grid::preview_padding * i)},
+            grid::preview_tetromino_position + shapes::UPoint{0, static_cast<u32>(grid::preview_padding * i)},
             m_sequence_bags.at(bag_index)[sequence_index]
         };
         ++sequence_index;

@@ -2,6 +2,7 @@
 
 #include "graphics/point.hpp"
 #include "graphics/rect.hpp"
+#include "grid_properties.hpp"
 #include "manager/service_provider.hpp"
 #include "mino.hpp"
 #include "ui/layout.hpp"
@@ -12,23 +13,9 @@
 
 struct Grid final : public ui::Widget {
 public:
-    using GridType = u8;
-    using GridPoint = shapes::AbstractPoint<GridType>;
+    using GridType = grid::GridType;
+    using GridPoint = grid::GridPoint;
     using GridRect = shapes::AbstractRect<GridType>;
-
-    static constexpr GridType original_tile_size = 26;
-
-    static constexpr GridType width_in_tiles = 10;
-    static constexpr GridType height_in_tiles = 20;
-
-    static constexpr GridPoint preview_extends{ 4, (6 * 3) + 1 };
-    static constexpr GridPoint hold_background_position{ 0, 0 };
-    static constexpr GridPoint grid_position = hold_background_position + GridPoint{ preview_extends.x + 1, 0 };
-    static constexpr GridPoint preview_background_position{ grid_position.x + width_in_tiles + 1, 0 };
-    static constexpr GridPoint preview_tetromino_position = preview_background_position + GridPoint{ 0, 1 };
-    static constexpr GridPoint hold_tetromino_position = hold_background_position + GridPoint{ 0, 1 };
-    static constexpr GridPoint hold_background_extends = GridPoint{ 4, 4 };
-    static constexpr GridType preview_padding = 3;
 
     static constexpr Color background_color{ 12, 12, 12 };
     static constexpr Color border_color{ 42, 42, 42 };

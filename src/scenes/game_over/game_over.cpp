@@ -3,6 +3,7 @@
 #include "manager/music_manager.hpp"
 #include "manager/resource_manager.hpp"
 #include "platform/capabilities.hpp"
+
 #include <fmt/format.h>
 
 namespace scenes {

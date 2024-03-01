@@ -1,4 +1,5 @@
 #include "replay_input.hpp"
+#include "game/tetrion.hpp"
 
 
 ReplayInput::ReplayInput(std::shared_ptr<recorder::RecordingReader> recording_reader)
@@ -57,7 +58,7 @@ void ReplayInput::late_update(const SimulationStep simulation_step_index) {
         }
 
         // create a snapshot from the current state of the tetrion and compare it to the loaded snapshot
-        const auto current_snapshot = TetrionSnapshot{ *m_target_tetrion, simulation_step_index };
+        const auto current_snapshot = TetrionSnapshot{ m_target_tetrion->core_information(), simulation_step_index };
 #ifdef DEBUG_BUILD
         static constexpr auto verbose_logging = true;
 #else

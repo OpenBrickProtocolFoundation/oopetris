@@ -1,5 +1,6 @@
 #pragma once
 
+#include "helper/music_utils.hpp"
 #include "helper/optional.hpp"
 #include "helper/types.hpp"
 #include "manager/service_provider.hpp"

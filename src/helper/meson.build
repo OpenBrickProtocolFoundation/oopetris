@@ -8,6 +8,7 @@ src_files += files(
     'expected.hpp',
     'git_helper.hpp',
     'magic_enum_wrapper.hpp',
+    'music_utils.hpp',
     'optional.hpp',
     'parse_json.cpp',
     'parse_json.hpp',

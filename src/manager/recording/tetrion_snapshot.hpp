@@ -1,8 +1,11 @@
 #pragma once
 
-#include "game/tetrion.hpp"
+#include "game/mino_stack.hpp"
 #include "helper/utils.hpp"
+#include "tetrion_core_information.hpp"
+
 #include <array>
+#include <memory>
 #include <span>
 #include <vector>
 
@@ -38,7 +41,7 @@ public:
 
     static helper::optional<TetrionSnapshot> from_istream(std::istream& istream);
 
-    TetrionSnapshot(const Tetrion& tetrion, SimulationStep simulation_step_index);
+    TetrionSnapshot(std::unique_ptr<TetrionCoreInformation> information, SimulationStep simulation_step_index);
 
     [[nodiscard]] u8 tetrion_index() const;
 

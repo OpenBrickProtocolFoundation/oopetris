@@ -32,6 +32,7 @@ private:
 public:
     explicit constexpr Mino(GridPoint position, TetrominoType type) : m_position{ position }, m_type{ type } { }
 
+#if !defined(_NO_SDL)
     void render(
             const ServiceProvider& service_provider,
             MinoTransparency transparency,
@@ -40,6 +41,7 @@ public:
             const shapes::UPoint& tile_size,
             const GridPoint& offset = GridPoint::zero()
     ) const;
+#endif
 
     [[nodiscard]] TetrominoType type() const;
 

@@ -1,5 +1,6 @@
 #include "tetrion_snapshot.hpp"
 #include "helper.hpp"
+#include "tetrion_core_information.hpp"
 
 #include <fmt/format.h>
 #include <magic_enum.hpp>
@@ -94,9 +95,12 @@ helper::optional<TetrionSnapshot> TetrionSnapshot::from_istream(std::istream& is
     }
 }
 
-TetrionSnapshot::TetrionSnapshot(const Tetrion& tetrion, const SimulationStep simulation_step_index)
-    : TetrionSnapshot{ tetrion.tetrion_index(), tetrion.level(),       tetrion.score(),
-                       tetrion.lines_cleared(), simulation_step_index, tetrion.mino_stack() } { }
+TetrionSnapshot::TetrionSnapshot(
+        std::unique_ptr<TetrionCoreInformation> information,
+        const SimulationStep simulation_step_index
+)
+    : TetrionSnapshot{ information->tetrion_index, information->level,    information->score,
+                       information->lines_cleared, simulation_step_index, information->mino_stack } { }
 
 [[nodiscard]] u8 TetrionSnapshot::tetrion_index() const {
     return m_tetrion_index;

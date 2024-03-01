@@ -16,6 +16,7 @@ project(
 
 compile_args = []
 deps = []
+recording_dependencies = []
 
 cpp = meson.get_compiler('cpp')
 
@@ -37,7 +38,7 @@ endif
 
 
 inc_dirs = []
-
+recording_inc_dirs = []
 
 only_allow_native_libs = false
 if (meson.is_cross_build())
@@ -142,20 +143,26 @@ if (meson.is_cross_build() and host_machine.system() == 'switch')
 
     endif
 
-
 else
 
-    deps += dependency(
+    fmt_dep = dependency(
         'fmt',
         required: true,
     )
+
+    recording_dependencies + fmt_dep
+    deps += fmt_dep
+
 endif
 
-deps += dependency(
+spdlog_dep = dependency(
     'spdlog',
     required: true,
     default_options: {'tests': 'disabled'},
 )
+recording_dependencies += spdlog_dep
+deps += spdlog_dep
+
 
 deps += dependency(
     'nlohmann_json',
@@ -176,11 +183,13 @@ int main() {
 if not have_std_expected
     message('Compiler doesn\'t support std::expected, using fallback')
     compile_args += ['-D_USE_TL_EXPECTED']
-    deps += dependency(
+    tl_exp_dep = dependency(
         'tl-expected',
         required: true,
         fallback: ['tl-expected'],
     )
+    recording_dependencies += tl_exp_dep
+    deps += tl_exp_dep
 endif
 
 # check std::optional support
@@ -197,26 +206,33 @@ int main() {
 if not have_std_optional
     message('Compiler doesn\'t support std::optional, using fallback')
     compile_args += ['-D_USE_TL_OPTIONAL']
-    deps += dependency(
+    tl_opt_dep = dependency(
         'tl-optional',
         required: true,
         fallback: ['tl-optional'],
     )
+    recording_dependencies += tl_opt_dep
+    deps += tl_opt_dep
 endif
 
 
 
-deps += dependency(
+magic_enum_dep = dependency(
     'magic_enum',
     required: true,
     fallback: ['magic_enum'],
     default_options: {'test': 'false'},
 )
-deps += dependency(
+recording_dependencies += magic_enum_dep
+deps += magic_enum_dep
+
+argparse_dep = dependency(
     'argparse',
     required: true,
     fallback: ['argparse'],
 )
+recording_dependencies += argparse_dep
+deps += argparse_dep
 
 online_multiplayer_not_supported = true
 
@@ -282,6 +298,7 @@ endif
 
 
 src_files = []
+recording_src_files = []
 
 subdir('src')
 
@@ -515,7 +532,18 @@ else
         install: true,
     )
 
-
+    executable(
+        'oopetris_recording_utility',
+        recording_src_files,
+        dependencies: recording_dependencies,
+        include_directories: recording_inc_dirs,
+        cpp_args: [compile_args, '-D_NO_SDL'],
+        override_options: {
+            'warning_level': '3',
+            'werror': true,
+        },
+        install: true,
+    )
 
 
 

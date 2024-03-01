@@ -1,6 +1,7 @@
 #pragma once
 
 #include "game/game.hpp"
+#include "game/tetrion.hpp"
 #include "helper/command_line_arguments.hpp"
 #include "scenes/scene.hpp"
 

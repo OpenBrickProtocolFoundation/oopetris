@@ -8,6 +8,7 @@
 #include "helper/types.hpp"
 #include "helper/utils.hpp"
 #include "manager/music_manager.hpp"
+#include "manager/recording/tetrion_core_information.hpp"
 #include "manager/service_provider.hpp"
 #include "mino_stack.hpp"
 #include "platform/input.hpp"
@@ -117,6 +118,8 @@ public:
     [[nodiscard]] u64 score() const;
     [[nodiscard]] u32 lines_cleared() const;
     [[nodiscard]] const MinoStack& mino_stack() const;
+    [[nodiscard]] std::unique_ptr<TetrionCoreInformation> core_information() const;
+
     [[nodiscard]] bool is_game_over() const;
 
 private:

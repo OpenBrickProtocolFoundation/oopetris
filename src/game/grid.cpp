@@ -5,8 +5,8 @@
 
 Grid::Grid(const ui::Layout& layout) : ui::Widget{ layout } {
 
-    const u32 total_x_tiles = preview_extends.x * 2 + 2 + width_in_tiles;
-    constexpr u32 total_y_tiles = height_in_tiles;
+    const u32 total_x_tiles = grid::preview_extends.x * 2 + 2 + grid::width_in_tiles;
+    constexpr u32 total_y_tiles = grid::height_in_tiles;
 
     const u32 tile_size_x = layout.get_rect().width() / total_x_tiles;
     const u32 tile_size_y = layout.get_rect().height() / total_y_tiles;
@@ -27,7 +27,7 @@ Grid::Grid(const ui::Layout& layout) : ui::Widget{ layout } {
     return shapes::UPoint{ m_tile_size, m_tile_size };
 }
 [[nodiscard]] double Grid::scale_to_original() const {
-    return static_cast<double>(m_tile_size) / static_cast<double>(original_tile_size);
+    return static_cast<double>(m_tile_size) / static_cast<double>(grid::original_tile_size);
 }
 
 [[nodiscard]] shapes::UPoint Grid::to_screen_coords(GridPoint grid_coords) const {
@@ -48,8 +48,8 @@ void Grid::draw_preview_background(const ServiceProvider& service_provider) cons
     draw_background(
             service_provider,
             GridRect{
-                    preview_background_position,
-                    preview_background_position + preview_extends - GridPoint{1, 1},
+                    grid::preview_background_position,
+                    grid::preview_background_position + grid::preview_extends - GridPoint{1, 1},
     }
     );
 }
@@ -58,8 +58,8 @@ void Grid::draw_hold_background(const ServiceProvider& service_provider) const {
     draw_background(
             service_provider,
             GridRect{
-                    hold_background_position,
-                    hold_background_position + hold_background_extends - GridPoint{1, 1},
+                    grid::hold_background_position,
+                    grid::hold_background_position + grid::hold_background_extends - GridPoint{1, 1},
     }
     );
 }
@@ -68,8 +68,8 @@ void Grid::draw_playing_field_background(const ServiceProvider& service_provider
     draw_background(
             service_provider,
             GridRect{
-                    grid_position,
-                    grid_position + shapes::UPoint{width_in_tiles - 1, height_in_tiles - 1},
+                    grid::grid_position,
+                    grid::grid_position + shapes::UPoint{grid::width_in_tiles - 1, grid::height_in_tiles - 1},
     }
     );
 }
