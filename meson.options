@@ -4,3 +4,10 @@ option(
     value: false,
     description: 'enable flatpak build features',
 )
+
+option(
+    'clang_libcpp',
+    type: 'feature',
+    value: 'auto',
+    description: 'if using clang, build with libc++ instead of libstdc++ (gcc stdlib)',
+)
