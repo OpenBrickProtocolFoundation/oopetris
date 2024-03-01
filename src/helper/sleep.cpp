@@ -22,7 +22,6 @@ bool helper::sleep_nanoseconds(std::chrono::nanoseconds ns) {
 
     timer = CreateWaitableTimer(nullptr, true, nullptr);
     if (timer == nullptr) {
-        spdlog::error("Failed to create timer");
         return false;
     }
     // use negative ns to set relative intervals
