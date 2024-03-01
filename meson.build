@@ -15,6 +15,7 @@ project(
 )
 
 compile_args = []
+link_args = []
 deps = []
 recording_dependencies = []
 
@@ -24,11 +25,10 @@ cpp = meson.get_compiler('cpp')
 if cpp.get_id() == 'gcc'
     compile_args += ['-Wold-style-cast']
 elif cpp.get_id() == 'clang'
-    if host_machine.system() == 'darwin'
-        compile_args += '-stdlib=libc++'
-        deps += cpp.find_library('c++')
-        deps += cpp.find_library('c++abi')
-    endif
+    compile_args += '-stdlib=libc++'
+    link_args += '-stdlib=libc++'
+    deps += cpp.find_library('c++')
+    deps += cpp.find_library('c++abi')
 endif
 
 if get_option('buildtype') == 'debug' or get_option('buildtype') == 'debugoptimized'
@@ -145,11 +145,20 @@ if (meson.is_cross_build() and host_machine.system() == 'switch')
 
 else
 
-    fmt_dep = dependency(
-        'fmt',
-        required: true,
-    )
-
+    # clang with libc++ creates some really long and confusing linker errors, so just use the header only library
+    if cpp.get_id() == 'clang' and compile_args.contains('-stdlib=libc++')
+        fmt_dep = dependency(
+            'fmt_header_only',
+            required: true,
+            allow_fallback: true,
+            default_options: {'default_library': 'static'},
+        )
+    else
+        fmt_dep = dependency(
+            'fmt',
+            required: true,
+        )
+    endif
     recording_dependencies += fmt_dep
     deps += fmt_dep
 
@@ -525,6 +534,7 @@ else
         dependencies: deps,
         c_args: sdl2_mixer_defines,
         cpp_args: compile_args + sdl2_mixer_defines,
+        link_args: link_args,
         override_options: {
             'warning_level': '3',
             'werror': true,
@@ -538,6 +548,7 @@ else
         dependencies: recording_dependencies,
         include_directories: recording_inc_dirs,
         cpp_args: [compile_args, '-D_NO_SDL'],
+        link_args: link_args,
         override_options: {
             'warning_level': '3',
             'werror': true,
