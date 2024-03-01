@@ -165,10 +165,11 @@ namespace ui {
                             return true;
                         }
                         case SDLK_RIGHT: {
-                            const auto current_string_length = utf8::distance(m_text.cbegin(), m_text.cend());
+                            const u32 current_string_length =
+                                    static_cast<u32>(utf8::distance(m_text.cbegin(), m_text.cend()));
                             if (cursor_position < current_string_length) {
                                 if ((event.key.keysym.mod & KMOD_CTRL) != 0) {
-                                    cursor_position = static_cast<u32>(current_string_length);
+                                    cursor_position = current_string_length;
 
                                 } else {
                                     ++cursor_position;
@@ -335,7 +336,7 @@ namespace ui {
                 return false;
             }
 
-            const auto current_string_length = utf8::distance(m_text.cbegin(), m_text.cend());
+            const u32 current_string_length = static_cast<u32>(utf8::distance(m_text.cbegin(), m_text.cend()));
 
             // cursor_position is the range [0, length] (inclusively !)
             if (cursor_position > current_string_length) {
@@ -373,7 +374,7 @@ namespace ui {
                 return false;
             }
 
-            const auto current_string_length = utf8::distance(m_text.cbegin(), m_text.cend());
+            const u32 current_string_length = static_cast<u32>(utf8::distance(m_text.cbegin(), m_text.cend()));
 
             // cursor_position is the range [0, length] (inclusively !)
             if (cursor_position > current_string_length) {

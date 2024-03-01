@@ -42,8 +42,8 @@ bool helper::sleep_nanoseconds(std::chrono::nanoseconds ns) {
     int result{};
     struct timespec remaining { };
     struct timespec current {
-        std::chrono::duration_cast<std::chrono::seconds>(ns).count(),
-                ns.count() % std::chrono::duration_cast<std::chrono::nanoseconds>(1s).count(),
+        static_cast<time_t>(std::chrono::duration_cast<std::chrono::seconds>(ns).count()),
+                static_cast<time_t>(ns.count() % std::chrono::duration_cast<std::chrono::nanoseconds>(1s).count()),
     };
 
     do {
