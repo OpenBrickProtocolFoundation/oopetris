@@ -33,7 +33,7 @@ namespace helper {
         [[nodiscard]] ReadResult<std::remove_cv_t<Integral>> read_integral_from_file(std::ifstream& file) {
             if (not file) {
                 return helper::unexpected<ReadError>{
-                    {ReadErrorType::InvalidStream, "failed to read data from file"}
+                    {ReadErrorType::InvalidStream, "failed to read data from file (before reading)"}
                 };
             }
 
@@ -45,7 +45,7 @@ namespace helper {
 
             if (not file) {
                 return helper::unexpected<ReadError>{
-                    {ReadErrorType::Incomplete, "failed to read data from file"}
+                    {ReadErrorType::Incomplete, "failed to read data from file (after reading)"}
                 };
             }
 
@@ -56,7 +56,7 @@ namespace helper {
         [[nodiscard]] ReadResult<std::array<Type, Size>> read_array_from_file(std::ifstream& file) {
             if (not file) {
                 return helper::unexpected<ReadError>{
-                    {ReadErrorType::InvalidStream, "failed to read data from file"}
+                    {ReadErrorType::InvalidStream, "failed to read data from file (before reading)"}
                 };
             }
 
@@ -71,7 +71,7 @@ namespace helper {
 
             if (not file) {
                 return helper::unexpected<ReadError>{
-                    {ReadErrorType::Incomplete, "failed to read data from file"}
+                    {ReadErrorType::Incomplete, "failed to read data from file (after reading)"}
                 };
             }
 

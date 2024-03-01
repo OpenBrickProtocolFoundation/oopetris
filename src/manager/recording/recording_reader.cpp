@@ -91,6 +91,9 @@ helper::expected<recorder::RecordingReader, std::string> recorder::RecordingRead
     while (true) {
         const auto magic_byte = helper::reader::read_integral_from_file<std::underlying_type_t<MagicByte>>(file);
         if (not magic_byte.has_value()) {
+            if (magic_byte.error().first == helper::reader::ReadErrorType::Incomplete) {
+                break;
+            }
             return helper::unexpected<std::string>{ "unable to read magic byte" };
         }
 
@@ -112,7 +115,7 @@ helper::expected<recorder::RecordingReader, std::string> recorder::RecordingRead
             };
         }
 
-        if (file.eof()) {
+        if (not file) {
             break;
         }
     }
