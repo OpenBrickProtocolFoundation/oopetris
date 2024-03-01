@@ -165,6 +165,9 @@ if (meson.is_cross_build() and host_machine.system() == 'switch')
             allow_fallback: true,
             default_options: {'default_library': 'static'},
         )
+
+        meson.override_dependency('fmt', fmt_header_only_dep)
+
         deps += fmt_header_only_dep
 
     endif
@@ -179,13 +182,15 @@ else
             allow_fallback: true,
             default_options: {'default_library': 'static'},
         )
-        meson.override_dependency('fmt', fmt_dep)
     else
         fmt_dep = dependency(
             'fmt',
             required: true,
         )
     endif
+
+    meson.override_dependency('fmt', fmt_dep)
+
     recording_dependencies += fmt_dep
     deps += fmt_dep
 
