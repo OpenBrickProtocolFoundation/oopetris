@@ -213,6 +213,7 @@ int main() {
     return 0;
 }
 ''',
+    args: compile_args,
 )
 
 if not have_std_expected
@@ -236,6 +237,7 @@ int main() {
     return 0;
 }
 ''',
+    args: compile_args,
 )
 
 if not have_std_optional
