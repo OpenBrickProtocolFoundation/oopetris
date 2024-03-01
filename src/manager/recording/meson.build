@@ -16,3 +16,5 @@ src_files += shared_files
 recording_src_files += shared_files
 
 subdir('executable')
+
+recording_inc_dirs += include_directories('.')

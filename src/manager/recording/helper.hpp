@@ -8,28 +8,33 @@
 #include "helper/utils.hpp"
 
 #include <filesystem>
+#include <fmt/format.h>
 #include <fstream>
-#include <spdlog/spdlog.h>
+#include <string>
+#include <utility>
+#include <vector>
 
 namespace helper {
 
     namespace reader {
 
-        enum class ReadError : u8 {
+        enum class ReadErrorType : u8 {
             EndOfFile,
             Incomplete,
             InvalidStream,
         };
 
 
+        using ReadError = std::pair<ReadErrorType, std::string>;
         template<typename Result>
         using ReadResult = helper::expected<Result, ReadError>;
 
         template<utils::integral Integral>
         [[nodiscard]] ReadResult<std::remove_cv_t<Integral>> read_integral_from_file(std::ifstream& file) {
             if (not file) {
-                spdlog::error("failed to read data from file");
-                return helper::unexpected<ReadError>{ ReadError::InvalidStream };
+                return helper::unexpected<ReadError>{
+                    {ReadErrorType::InvalidStream, "failed to read data from file"}
+                };
             }
 
             std::remove_cv_t<Integral> little_endian_data{};
@@ -39,7 +44,9 @@ namespace helper {
             );
 
             if (not file) {
-                return helper::unexpected<ReadError>{ ReadError::Incomplete };
+                return helper::unexpected<ReadError>{
+                    {ReadErrorType::Incomplete, "failed to read data from file"}
+                };
             }
 
             return utils::from_little_endian(little_endian_data);
@@ -48,8 +55,9 @@ namespace helper {
         template<typename Type, usize Size>
         [[nodiscard]] ReadResult<std::array<Type, Size>> read_array_from_file(std::ifstream& file) {
             if (not file) {
-                spdlog::error("failed to read data from file");
-                return helper::unexpected<ReadError>{ ReadError::InvalidStream };
+                return helper::unexpected<ReadError>{
+                    {ReadErrorType::InvalidStream, "failed to read data from file"}
+                };
             }
 
             std::array<Type, Size> result{};
@@ -62,7 +70,9 @@ namespace helper {
             }
 
             if (not file) {
-                return helper::unexpected<ReadError>{ ReadError::Incomplete };
+                return helper::unexpected<ReadError>{
+                    {ReadErrorType::Incomplete, "failed to read data from file"}
+                };
             }
 
             return result;
@@ -114,10 +124,9 @@ namespace helper {
     namespace writer {
 
         template<utils::integral Integral>
-        void write_integral_to_file(std::ofstream& file, const Integral data) {
+        helper::expected<bool, std::string> write_integral_to_file(std::ofstream& file, const Integral data) {
             if (not file) {
-                spdlog::error("failed to write data \"{}\"", data);
-                return;
+                return helper::unexpected<std::string>{ fmt::format("failed to write data \"{}\"", data) };
             }
 
             const auto little_endian_data = utils::to_little_endian(data);
@@ -127,6 +136,8 @@ namespace helper {
                     ),
                     sizeof(little_endian_data)
             );
+
+            return true;
         }
 
         template<typename T>

@@ -1,7 +1,9 @@
 #include "application.hpp"
 #include "helper/command_line_arguments.hpp"
 #include "helper/utils.hpp"
+
 #include <filesystem>
+#include <fmt/format.h>
 
 #if defined(__ANDROID__)
 #include <spdlog/sinks/android_sink.h>
@@ -16,11 +18,10 @@
 #include <string.h>
 #endif
 
-#include <fmt/format.h>
 
 int main(int argc, char** argv) {
     const auto logs_path = utils::get_root_folder() / "logs";
-    if (not exists(logs_path)) {
+    if (not std::filesystem::exists(logs_path)) {
         std::filesystem::create_directory(logs_path);
     }
 

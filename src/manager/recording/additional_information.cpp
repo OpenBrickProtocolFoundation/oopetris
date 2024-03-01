@@ -3,6 +3,8 @@
 #include "additional_information.hpp"
 #include "helper.hpp"
 
+#include <functional>
+
 helper::expected<std::pair<std::string, recorder::InformationValue>, std::string>
 recorder::InformationValue::read_from_istream(std::istream& istream) {
 
@@ -31,8 +33,6 @@ recorder::InformationValue::read_from_istream(std::istream& istream) {
     }
 
     if (is<float>()) {
-        //TODO: validate that the float and double conversion works!
-
         helper::writer::append_value<std::underlying_type_t<ValueType>>(bytes, std::to_underlying(ValueType::Float));
         static_assert(sizeof(float) == 4 && sizeof(u32) == 4);
 
@@ -161,26 +161,29 @@ helper::expected<std::string, std::string> recorder::InformationValue::read_stri
         return helper::unexpected<std::string>{ "unable to read string size" };
     }
 
-    char* raw_chars = new char[string_size.value()];
-    for (u32 i = 0; i < string_size.value(); ++i) {
+    const auto size = string_size.value();
+
+    std::unique_ptr<char, std::function<void(char* const)>> raw_chars{ new char[size], [size](char* const char_value) {
+                                                                          operator delete[](char_value, size);
+                                                                      } };
+    for (u32 i = 0; i < size; ++i) {
 
         const auto local_value = helper::reader::read_from_istream<u8>(istream);
         if (not local_value.has_value()) {
             return helper::unexpected<std::string>{ fmt::format("unable to read char in string at index {}", i) };
         }
 
-        raw_chars[i] = local_value.value();
+        raw_chars.get()[i] = local_value.value();
     }
 
-    std::string result{ raw_chars, string_size.value() };
-
-    delete[] raw_chars;
+    std::string result{ raw_chars.get(), size };
 
     return result;
 }
 
 
-helper::expected<recorder::InformationValue, std::string> recorder::InformationValue::read_value_from_istream(
+helper::expected<recorder::InformationValue, std::string>
+recorder::InformationValue::read_value_from_istream( // NOLINT(readability-function-cognitive-complexity)
         std::istream& istream
 ) {
     const auto magic_byte = helper::reader::read_from_istream<std::underlying_type_t<ValueType>>(istream);
@@ -196,9 +199,9 @@ helper::expected<recorder::InformationValue, std::string> recorder::InformationV
             return helper::unexpected<std::string>{ value.error() };
         }
         return recorder::InformationValue{ value.value() };
-    } else if (magic_byte_value == utils::to_underlying(ValueType::Float)) {
-        //TODO: validate that the float and double conversion works!
+    }
 
+    if (magic_byte_value == utils::to_underlying(ValueType::Float)) {
         static_assert(sizeof(float) == 4 && sizeof(u32) == 4);
         const auto raw_float = helper::reader::read_from_istream<u32>(istream);
         if (not raw_float.has_value()) {
@@ -313,29 +316,37 @@ helper::expected<recorder::InformationValue, std::string> recorder::InformationV
     }
 }
 
+recorder::AdditionalInformation::AdditionalInformation(std::unordered_map<std::string, InformationValue>&& values)
+    : m_values{ std::move(values) } { }
 
-recorder::AdditionalInformation::AdditionalInformation(std::istream& istream) {
+recorder::AdditionalInformation::AdditionalInformation() : m_values{} { }
+
+helper::expected<recorder::AdditionalInformation, std::string> recorder::AdditionalInformation::from_istream(
+        std::istream& istream
+) {
 
     const auto magic_bytes =
             helper::reader::read_from_istream<decltype(AdditionalInformation::magic_start_byte)>(istream);
     if (not magic_bytes.has_value()) {
-        throw std::runtime_error{ "unable to read magic file bytes from recorded game" };
+        return helper::unexpected<std::string>{ "unable to read magic file bytes from recorded game" };
     }
     if (magic_bytes.value() != AdditionalInformation::magic_start_byte) {
-        throw std::runtime_error{ "magic start bytes are not correct, the data is probably corrupted" };
+        return helper::unexpected<std::string>{ "magic start bytes are not correct, the data is probably corrupted" };
     }
 
     const auto num_pairs = helper::reader::read_from_istream<u32>(istream);
     static_assert(sizeof(decltype(num_pairs.value())) == 4);
     if (not num_pairs.has_value()) {
-        throw std::runtime_error{ "unable to read number of pairs" };
+        return helper::unexpected<std::string>{ "unable to read number of pairs" };
     }
+
+    std::unordered_map<std::string, InformationValue> values{};
 
     values.reserve(num_pairs.value());
     for (u32 i = 0; i < num_pairs.value(); ++i) {
         auto value_result = InformationValue::read_from_istream(istream);
         if (not value_result.has_value()) {
-            throw std::runtime_error{
+            return helper::unexpected<std::string>{
                 fmt::format("failed to read value from AdditionalInformation: {}", value_result.error())
             };
         }
@@ -343,54 +354,48 @@ recorder::AdditionalInformation::AdditionalInformation(std::istream& istream) {
         const auto& [key, value] = value_result.value();
 
         if (values.contains(key)) {
-            throw std::runtime_error{ fmt::format("AdditionalInformation already contains key '{}'", key) };
+            return helper::unexpected<std::string>{
+                fmt::format("AdditionalInformation already contains key '{}'", key)
+            };
         }
 
         values.insert_or_assign(key, value);
     }
 
+    auto information = AdditionalInformation{ std::move(values) };
 
-    const auto calculated_checksum = get_checksum();
+    const auto calculated_checksum = information.get_checksum();
 
     const auto read_checksum = helper::reader::read_array_from_istream<
             decltype(calculated_checksum)::value_type, Sha256Stream::ChecksumSize>(istream);
     if (not read_checksum.has_value()) {
-        throw std::runtime_error{ "unable to read value checksum from AdditionalInformation" };
+        return helper::unexpected<std::string>{ "unable to read value checksum from AdditionalInformation" };
     }
     if (read_checksum.value() != calculated_checksum) {
-        throw std::runtime_error{ fmt::format(
+        return helper::unexpected<std::string>{ fmt::format(
                 "value checksum mismatch, the AdditionalInformation was altered: expected {:x} but got {:x}",
                 fmt::join(calculated_checksum, ""), fmt::join(read_checksum.value(), "")
         ) };
     }
-}
 
-
-helper::optional<recorder::AdditionalInformation> recorder::AdditionalInformation::from_istream(std::istream& istream) {
-    try {
-        auto result = recorder::AdditionalInformation{ istream };
-        return result;
-    } catch (const std::exception& error) {
-        spdlog::error(error.what());
-        return helper::nullopt;
-    }
+    return information;
 }
 
 void recorder::AdditionalInformation::add_value(const std::string& key, const InformationValue& value, bool overwrite) {
-    if (values.contains(key) and not overwrite) {
+    if (m_values.contains(key) and not overwrite) {
         throw std::runtime_error("Can't overwrite already existing key");
     }
 
-    values.insert_or_assign(key, value);
+    m_values.insert_or_assign(key, value);
 }
 
 helper::optional<recorder::InformationValue> recorder::AdditionalInformation::get(const std::string& key) const {
 
-    if (not values.contains(key)) {
+    if (not m_values.contains(key)) {
         return helper::nullopt;
     }
 
-    return values.at(key);
+    return m_values.at(key);
 }
 
 [[nodiscard]] std::vector<char> recorder::AdditionalInformation::to_bytes() const {
@@ -400,9 +405,9 @@ helper::optional<recorder::InformationValue> recorder::AdditionalInformation::ge
     helper::writer::append_value(bytes, AdditionalInformation::magic_start_byte);
 
     static_assert(sizeof(u32) == 4);
-    helper::writer::append_value(bytes, static_cast<u32>(values.size()));
+    helper::writer::append_value(bytes, static_cast<u32>(m_values.size()));
 
-    for (const auto& [key, value] : values) {
+    for (const auto& [key, value] : m_values) {
 
         const auto key_bytes = InformationValue::string_to_bytes(key);
         helper::writer::append_bytes(bytes, key_bytes);
@@ -425,11 +430,11 @@ helper::optional<recorder::InformationValue> recorder::AdditionalInformation::ge
     Sha256Stream sha256_creator{};
 
     static_assert(sizeof(u32) == 4);
-    sha256_creator << static_cast<u32>(values.size());
+    sha256_creator << static_cast<u32>(m_values.size());
 
     std::vector<std::string> keys{};
-    keys.reserve(values.size());
-    for (const auto& [key, _] : values) {
+    keys.reserve(m_values.size());
+    for (const auto& [key, _] : m_values) {
 
         keys.push_back(key);
     }
@@ -438,7 +443,7 @@ helper::optional<recorder::InformationValue> recorder::AdditionalInformation::ge
 
     for (const auto& key : keys) {
         sha256_creator << InformationValue::string_to_bytes(key);
-        sha256_creator << values.at(key).to_bytes();
+        sha256_creator << m_values.at(key).to_bytes();
     }
 
     return sha256_creator.get_hash();

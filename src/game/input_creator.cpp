@@ -88,7 +88,18 @@ namespace input {
         if (const auto recording_path = service_provider->command_line_arguments().recording_path;
             recording_path.has_value()) {
 
-            const auto recording_reader = std::make_shared<recorder::RecordingReader>(recording_path.value());
+            auto maybe_recording_reader = recorder::RecordingReader::from_path(recording_path.value());
+
+            if (not maybe_recording_reader.has_value()) {
+                throw std::runtime_error(
+                        fmt::format("an error occurred while reading recording: {}", maybe_recording_reader.error())
+                );
+            }
+
+            const auto recording_reader =
+                    std::make_shared<recorder::RecordingReader>(std::move(maybe_recording_reader.value()));
+
+
             const auto tetrion_headers = recording_reader->tetrion_headers();
 
             if (tetrion_headers.size() != amount) {

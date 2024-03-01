@@ -41,8 +41,7 @@ namespace recorder {
     protected:
         std::vector<TetrionHeader> m_tetrion_headers;
 
-        Recording() = default;
-        explicit Recording(std::vector<TetrionHeader> tetrion_headers)
+        explicit Recording(std::vector<TetrionHeader>&& tetrion_headers)
             : m_tetrion_headers{ std::move(tetrion_headers) } { }
 
     public:
@@ -54,7 +53,8 @@ namespace recorder {
 
         [[nodiscard]] const std::vector<TetrionHeader>& tetrion_headers() const;
 
-        [[nodiscard]] Sha256Stream::Checksum get_header_checksum(u8 version_number);
+        [[nodiscard]] static Sha256Stream::Checksum
+        get_header_checksum(u8 version_number, const std::vector<TetrionHeader>& tetrion_headers);
     };
 
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "game/mino_stack.hpp"
+#include "helper/expected.hpp"
 #include "helper/utils.hpp"
 #include "tetrion_core_information.hpp"
 
@@ -39,7 +40,7 @@ public:
             const MinoStack& mino_stack
     );
 
-    static helper::optional<TetrionSnapshot> from_istream(std::istream& istream);
+    static helper::expected<TetrionSnapshot, std::string> from_istream(std::istream& istream);
 
     TetrionSnapshot(std::unique_ptr<TetrionCoreInformation> information, SimulationStep simulation_step_index);
 

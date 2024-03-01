@@ -153,14 +153,15 @@ namespace recorder {
     struct AdditionalInformation {
     private:
         static constexpr u32 magic_start_byte = 0xABCDEF01;
-        std::unordered_map<std::string, InformationValue> values{};
+        std::unordered_map<std::string, InformationValue> m_values;
 
-        explicit AdditionalInformation(std::istream& istream);
+        AdditionalInformation(std::unordered_map<std::string, InformationValue>&& values);
 
     public:
-        static helper::optional<AdditionalInformation> from_istream(std::istream& istream);
+        explicit AdditionalInformation();
 
-        explicit AdditionalInformation() = default;
+        static helper::expected<AdditionalInformation, std::string> from_istream(std::istream& istream);
+
 
         void add_value(const std::string& key, const InformationValue& value, bool overwrite = false);
 
@@ -175,11 +176,11 @@ namespace recorder {
         template<typename T>
         [[nodiscard]] const helper::optional<T>& get_if(const std::string& key) const {
 
-            if (not values.contains(key)) {
+            if (not m_values.contains(key)) {
                 return helper::nullopt;
             }
 
-            const auto& value = values.at(key);
+            const auto& value = m_values.at(key);
 
             if (not value.is<T>()) {
                 return helper::nullopt;

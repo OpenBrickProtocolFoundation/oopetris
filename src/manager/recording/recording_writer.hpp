@@ -5,8 +5,6 @@
 #include "tetrion_snapshot.hpp"
 
 #include <filesystem>
-#include <spdlog/spdlog.h>
-
 
 namespace recorder {
 

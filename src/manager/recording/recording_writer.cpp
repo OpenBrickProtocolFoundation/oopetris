@@ -74,7 +74,7 @@ void recorder::RecordingWriter::write_tetrion_header_to_file(std::ofstream& file
 void recorder::RecordingWriter::write_checksum_to_file(std::ofstream& file) {
 
 
-    const auto checksum = Recording::get_header_checksum(RecordingWriter::version_number);
+    const auto checksum = Recording::get_header_checksum(RecordingWriter::version_number, m_tetrion_headers);
     static_assert(sizeof(decltype(checksum)) == 32);
 
     for (const auto& checksum_byte : checksum) {

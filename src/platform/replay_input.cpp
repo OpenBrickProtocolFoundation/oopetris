@@ -40,11 +40,11 @@ void ReplayInput::late_update(const SimulationStep simulation_step_index) {
     Input::late_update(simulation_step_index);
 
     while (true) {
-        if (m_next_snapshot_index >= m_recording_reader->m_snapshots.size()) {
+        if (m_next_snapshot_index >= m_recording_reader->snapshots().size()) {
             break;
         }
 
-        const auto& snapshot = m_recording_reader->m_snapshots.at(m_next_snapshot_index);
+        const auto& snapshot = m_recording_reader->snapshots().at(m_next_snapshot_index);
         if (snapshot.tetrion_index() != m_target_tetrion->tetrion_index()) {
             ++m_next_snapshot_index;
             continue;

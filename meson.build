@@ -195,19 +195,19 @@ else
 
 endif
 
-spdlog_dep = dependency(
+deps += dependency(
     'spdlog',
     required: true,
     default_options: {'tests': 'disabled'},
 )
-recording_dependencies += spdlog_dep
-deps += spdlog_dep
 
-
-deps += dependency(
+nlohmann_json_dep = dependency(
     'nlohmann_json',
     required: true,
 )
+
+recording_dependencies += nlohmann_json_dep
+deps += nlohmann_json_dep
 
 # check std::expected support
 have_std_expected = cpp.compiles(
@@ -584,7 +584,7 @@ else
         recording_src_files,
         dependencies: recording_dependencies,
         include_directories: recording_inc_dirs,
-        cpp_args: [compile_args, '-D_NO_SDL'],
+        cpp_args: [compile_args, '-D_NO_SDL', '-D_NO_SPDLOG'],
         link_args: link_args,
         override_options: {
             'warning_level': '3',
