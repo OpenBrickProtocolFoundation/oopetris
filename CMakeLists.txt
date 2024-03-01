@@ -64,6 +64,7 @@ add_executable(oopetris
     src/helper/parse_json.hpp
     src/helper/random.cpp
     src/helper/random.hpp
+    src/helper/sleep.cpp
     src/helper/static_string.hpp
     src/helper/timer.hpp
     src/helper/types.hpp
