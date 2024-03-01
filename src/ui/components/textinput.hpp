@@ -13,7 +13,15 @@
 
 namespace ui {
 
+
+// MSVC Is stupid and the bug isn't fixes yet :( -> https://developercommunity.visualstudio.com/t/warning-c4455-issued-when-using-standardized-liter/270349
+#if defined(_MSC_VER)
+#pragma warning(disable : 4455)
+#endif
     using std::chrono_literals::operator""ms;
+#if defined(_MSC_VER)
+#pragma warning(default : 4455)
+#endif
 
     struct TextInput final : public Widget, public Focusable, public Hoverable {
     private:

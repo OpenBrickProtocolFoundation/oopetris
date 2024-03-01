@@ -51,7 +51,16 @@ void Application::run() {
     u64 frame_counter = 0;
 #endif
 
+// MSVC Is stupid and the bug isn't fixes yet :( -> https://developercommunity.visualstudio.com/t/warning-c4455-issued-when-using-standardized-liter/270349
+#if defined(_MSC_VER)
+#pragma warning(disable : 4455)
+#endif
     using std::chrono_literals::operator""s;
+#if defined(_MSC_VER)
+#pragma warning(default : 4455)
+#endif
+
+
     const auto sleep_time = m_target_framerate.has_value() ? std::chrono::duration_cast<std::chrono::nanoseconds>(1s)
                                                                      / m_target_framerate.value()
                                                            : 0s;
