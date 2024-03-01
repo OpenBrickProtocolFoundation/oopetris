@@ -122,8 +122,10 @@ jobs:
           echo "$(brew --prefix)/opt/llvm/bin" >> $GITHUB_PATH
           echo "LDFLAGS=-L$(brew --prefix)/opt/llvm/lib -L$(brew --prefix)/opt/llvm/lib/c++ -Wl,-rpath,$(brew --prefix)/opt/llvm/lib/c++" >> "$GITHUB_ENV"
           echo "CPPFLAGS=-I$(brew --prefix)/opt/llvm/include" >> "$GITHUB_ENV"
-          echo "CC=clang-17" >> "$GITHUB_ENV"
-          echo "CXX=clang-17" >> "$GITHUB_ENV"
+          echo "CC=clang" >> "$GITHUB_ENV"
+          echo "CXX=clang++" >> "$GITHUB_ENV"
+          echo "CC_LD=lld" >> "$GITHUB_ENV"
+          echo "CXX_LD=lld" >> "$GITHUB_ENV"
 
       - name: Install python and meson (MacOS ARM64)
         if: matrix.config.os == 'macos' && matrix.config.arm
