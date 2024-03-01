@@ -29,7 +29,7 @@ enum class InputType : u8 { Touch, Keyboard, Controller, Recording };
 
 struct Input {
 public:
-    using OnEventCallback = std::function<void(InputEvent)>;
+    using OnEventCallback = std::function<void(InputEvent, SimulationStep)>;
 
 private:
     enum class HoldableKey : u8 {

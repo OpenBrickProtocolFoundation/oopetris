@@ -2,7 +2,7 @@
 #include "game.hpp"
 #include "manager/event_dispatcher.hpp"
 #include "platform/capabilities.hpp"
-
+#include "platform/replay_input.hpp"
 
 Game::Game(
         ServiceProvider* const service_provider,
@@ -29,8 +29,8 @@ Game::Game(
     if (starting_parameters.recording_writer.has_value()) {
         const auto recording_writer = starting_parameters.recording_writer.value();
         const auto tetrion_index = starting_parameters.tetrion_index;
-        m_input->set_event_callback([this, recording_writer, tetrion_index](InputEvent event) {
-            const auto simulation_step_index = m_clock_source->simulation_step_index();
+        m_input->set_event_callback([this, recording_writer,
+                                     tetrion_index](InputEvent event, SimulationStep simulation_step_index) {
             spdlog::debug("event: {} (step {})", magic_enum::enum_name(event), simulation_step_index);
 
             recording_writer->add_event(tetrion_index, simulation_step_index, event);
@@ -39,7 +39,7 @@ Game::Game(
 }
 
 void Game::update() {
-    if (is_game_over()) {
+    if (is_game_finished()) {
         return;
     }
 
@@ -87,6 +87,15 @@ void Game::set_paused(bool paused) {
 }
 
 
-[[nodiscard]] bool Game::is_game_over() const {
-    return m_tetrion->is_game_over();
+[[nodiscard]] bool Game::is_game_finished() const {
+    if (m_tetrion->is_game_over()) {
+        return true;
+    };
+
+    const auto input_as_replay = dynamic_cast<ReplayInput*>(m_input.get());
+    if (input_as_replay != nullptr) {
+        return input_as_replay->is_end_of_recording();
+    }
+
+    return false;
 }

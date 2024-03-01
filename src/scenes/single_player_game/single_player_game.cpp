@@ -28,7 +28,7 @@ namespace scenes {
 
 
     [[nodiscard]] Scene::UpdateResult SinglePlayerGame::update() {
-        if (m_game->is_game_over()) {
+        if (m_game->is_game_finished()) {
             return UpdateResult{
                 SceneUpdate::StopUpdating,
                 Scene::Push{SceneId::GameOver, ui::FullScreenLayout{ m_service_provider->window() }}
@@ -67,7 +67,7 @@ namespace scenes {
 
     [[nodiscard]] bool SinglePlayerGame::handle_event(const SDL_Event& event, const Window*) {
 
-        if (utils::event_is_action(event, utils::CrossPlatformAction::PAUSE) and not m_game->is_game_over()) {
+        if (utils::event_is_action(event, utils::CrossPlatformAction::PAUSE) and not m_game->is_game_finished()) {
             m_next_scene = NextScene::Pause;
             m_game->set_paused(true);
             return true;

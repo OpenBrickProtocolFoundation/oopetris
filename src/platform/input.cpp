@@ -8,7 +8,7 @@
 
 void Input::handle_event(const InputEvent event, const SimulationStep simulation_step_index) {
     if (m_on_event_callback) {
-        m_on_event_callback(event);
+        m_on_event_callback(event, simulation_step_index);
     }
 
     switch (event) {

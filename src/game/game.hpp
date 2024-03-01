@@ -31,5 +31,5 @@ public:
     void set_paused(bool paused);
     [[nodiscard]] bool is_paused() const;
 
-    [[nodiscard]] bool is_game_over() const;
+    [[nodiscard]] bool is_game_finished() const;
 };

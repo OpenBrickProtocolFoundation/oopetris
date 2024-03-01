@@ -17,6 +17,5 @@ public:
     void update(SimulationStep simulation_step_index) override;
     void late_update(SimulationStep simulation_step_index) override;
 
-private:
     [[nodiscard]] bool is_end_of_recording() const;
 };

@@ -64,7 +64,7 @@ void ReplayInput::late_update(const SimulationStep simulation_step_index) {
         static constexpr auto verbose_logging = false;
 #endif
         if constexpr (verbose_logging) {
-            spdlog::info("comparing tetrion snapshots");
+            spdlog::info("comparing tetrion snapshots at simulation_step {}", simulation_step_index);
         }
         const auto snapshots_are_equal = current_snapshot.compare_to(snapshot, verbose_logging);
         if (snapshots_are_equal) {
