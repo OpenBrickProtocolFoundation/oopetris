@@ -226,6 +226,8 @@ if not have_std_expected
     )
     recording_dependencies += tl_exp_dep
     deps += tl_exp_dep
+else
+    message('Compiler support std::expected, using that')
 endif
 
 # check std::optional support
@@ -250,6 +252,8 @@ if not have_std_optional
     )
     recording_dependencies += tl_opt_dep
     deps += tl_opt_dep
+else
+    message('Compiler support std::optional, using that')
 endif
 
 
