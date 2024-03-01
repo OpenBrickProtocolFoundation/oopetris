@@ -52,7 +52,9 @@ void Application::run() {
 #endif
 
     using std::chrono_literals::operator""s;
-    const auto sleep_time = std::chrono::duration_cast<std::chrono::nanoseconds>(1s) / m_target_framerate.value();
+    const auto sleep_time = m_target_framerate.has_value() ? std::chrono::duration_cast<std::chrono::nanoseconds>(1s)
+                                                                     / m_target_framerate.value()
+                                                           : 0s;
     auto start_execution_time = std::chrono::steady_clock::now();
 
     while (m_is_running
