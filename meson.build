@@ -150,7 +150,7 @@ else
         required: true,
     )
 
-    recording_dependencies + fmt_dep
+    recording_dependencies += fmt_dep
     deps += fmt_dep
 
 endif

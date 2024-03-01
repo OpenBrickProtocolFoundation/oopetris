@@ -30,7 +30,7 @@ Game::Game(
     if (starting_parameters.recording_writer.has_value()) {
         const auto recording_writer = starting_parameters.recording_writer.value();
         const auto tetrion_index = starting_parameters.tetrion_index;
-        m_input->set_event_callback([this, recording_writer,
+        m_input->set_event_callback([recording_writer,
                                      tetrion_index](InputEvent event, SimulationStep simulation_step_index) {
             spdlog::debug("event: {} (step {})", magic_enum::enum_name(event), simulation_step_index);
 
