@@ -13,6 +13,8 @@ src_files += files(
     'parse_json.hpp',
     'random.cpp',
     'random.hpp',
+    'sleep.cpp',
+    'sleep.hpp',
     'static_string.hpp',
     'timer.hpp',
     'types.hpp',

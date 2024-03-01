@@ -75,13 +75,11 @@ public:
 
     static Texture get_for_render_target(SDL_Renderer* renderer, const shapes::UPoint& size) {
 
-
         SDL_DisplayMode mode{};
         const int result = SDL_GetCurrentDisplayMode(0, &mode);
         if (result != 0) {
             throw std::runtime_error{ "failed in getting display mode: " + std::string{ SDL_GetError() } };
         }
-
 
         auto* const texture = SDL_CreateTexture(renderer, mode.format, SDL_TEXTUREACCESS_TARGET, size.x, size.y);
         if (texture == nullptr) {

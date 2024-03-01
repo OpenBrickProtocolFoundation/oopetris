@@ -68,7 +68,21 @@ namespace input {
 
         std::vector<AdditionalInfo> result{};
 
-        const auto target_fps = service_provider->command_line_arguments().target_fps;
+        u32 target_fps = 60;
+
+        if (service_provider->command_line_arguments().target_fps.has_value()) {
+            target_fps = service_provider->command_line_arguments().target_fps.value();
+        } else {
+            SDL_DisplayMode mode{};
+            const int result = SDL_GetCurrentDisplayMode(0, &mode);
+            if (result != 0) {
+                throw std::runtime_error{ "failed in getting display mode: " + std::string{ SDL_GetError() } };
+            }
+            if (mode.refresh_rate != 0) {
+                target_fps = static_cast<u32>(mode.refresh_rate);
+            }
+        }
+
 
         if (const auto recording_path = service_provider->command_line_arguments().recording_path;
             recording_path.has_value()) {

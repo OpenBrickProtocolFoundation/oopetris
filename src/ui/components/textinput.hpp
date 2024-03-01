@@ -12,6 +12,9 @@
 #include <utf8.h>
 
 namespace ui {
+
+    using std::chrono_literals::operator""ms;
+
     struct TextInput final : public Widget, public Focusable, public Hoverable {
     private:
         std::string m_text{};
@@ -46,7 +49,7 @@ namespace ui {
                       shapes::UPoint(1, 1) // this is a dummy point!
               ) },
               scaled_text_size{ 0 },
-              timer{ [this]() { this->cursor_shown = !this->cursor_shown; }, std::chrono::milliseconds(500) } {
+              timer{ [this]() { this->cursor_shown = !this->cursor_shown; }, 500ms } {
             recalculate_textures(false);
         }
 

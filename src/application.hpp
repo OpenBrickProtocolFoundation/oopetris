@@ -32,6 +32,8 @@ private:
     static constexpr auto settings_filename = "settings.json";
     Settings m_settings;
     FontManager m_font_manager;
+    helper::optional<u32> m_target_framerate;
+
 #ifdef DEBUG_BUILD
     std::unique_ptr<Text> m_fps_text{ nullptr };
 #endif

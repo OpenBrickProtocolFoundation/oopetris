@@ -1,4 +1,5 @@
 #include "application.hpp"
+#include "helper/sleep.hpp"
 #include "platform/capabilities.hpp"
 #include "scenes/scene.hpp"
 
@@ -20,8 +21,10 @@ Application::Application(
 )
     : m_command_line_arguments{ argc, argv },
       m_window{ title, position, width, height },
-      m_renderer{ m_window, Renderer::VSync::Enabled }, //TODO: enabled conditionally
+      m_renderer{ m_window, m_command_line_arguments.target_fps.has_value() ? Renderer::VSync::Disabled
+                                                                            : Renderer::VSync::Enabled },
       m_music_manager{ this, num_audio_channels },
+      m_target_framerate{ m_command_line_arguments.target_fps },
       m_event_dispatcher{ &m_window } {
     initialize();
 }
@@ -29,8 +32,11 @@ Application::Application(
 Application::Application(int argc, char** argv, const std::string& title, WindowPosition position)
     : m_command_line_arguments{ argc, argv },
       m_window{ title, position },
-      m_renderer{ m_window, Renderer::VSync::Enabled },
+      m_renderer{ m_window, m_command_line_arguments.target_fps.has_value() ? Renderer::VSync::Disabled
+                                                                            : Renderer::VSync::Enabled },
+
       m_music_manager{ this, num_audio_channels },
+      m_target_framerate{ m_command_line_arguments.target_fps },
       m_event_dispatcher{ &m_window } {
     initialize();
 }
@@ -44,6 +50,10 @@ void Application::run() {
     const double count_per_s = static_cast<double>(SDL_GetPerformanceFrequency());
     u64 frame_counter = 0;
 #endif
+
+    using std::chrono_literals::operator""s;
+    const auto sleep_time = std::chrono::duration_cast<std::chrono::nanoseconds>(1s) / m_target_framerate.value();
+    auto start_execution_time = std::chrono::steady_clock::now();
 
     while (m_is_running
 #if defined(__SWITCH__)
@@ -73,8 +83,18 @@ void Application::run() {
         }
 #endif
 
-        //TODO: if VSync is disabled, use better function than SDL_Delay, which is inaccurate for high frame rates
-        //  SDL_Delay();
+        if (m_target_framerate.has_value()) {
+
+            const auto now = std::chrono::steady_clock::now();
+            const auto runtime = (now - start_execution_time);
+            if (runtime < sleep_time) {
+                //TODO: use SDL_DelayNS in sdl >= 3.0
+                helper::sleep_nanoseconds(sleep_time - runtime);
+                start_execution_time = std::chrono::steady_clock::now();
+            } else {
+                start_execution_time = now;
+            }
+        }
     }
 }
 
