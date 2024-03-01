@@ -74,8 +74,8 @@ namespace input {
             target_fps = service_provider->command_line_arguments().target_fps.value();
         } else {
             SDL_DisplayMode mode{};
-            const int result = SDL_GetCurrentDisplayMode(0, &mode);
-            if (result != 0) {
+            const int mode_result = SDL_GetCurrentDisplayMode(0, &mode);
+            if (mode_result != 0) {
                 throw std::runtime_error{ "failed in getting display mode: " + std::string{ SDL_GetError() } };
             }
             if (mode.refresh_rate != 0) {
