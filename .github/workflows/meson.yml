@@ -40,7 +40,7 @@ jobs:
             library_type: shared
             shell: bash
 
-          - name: Linux Clang Release (libstc++)
+          - name: Linux Clang Release (libstdc++)
             os: ubuntu
             os-version: 22.04
             buildtype: release
@@ -125,7 +125,7 @@ jobs:
           echo "CC=clang-17" >> "$GITHUB_ENV"
           echo "CXX=clang-17" >> "$GITHUB_ENV"
 
-      - name: Install python (If needed)
+      - name: Install python and meson (MacOS ARM64)
         if: matrix.config.os == 'macos' && matrix.config.arm
         run: |
           brew update 
@@ -133,7 +133,7 @@ jobs:
             brew install meson
             echo "/opt/homebrew/opt/python@3.12/libexec/bin" >> $GITHUB_PATH
   
-      - name: Setup Meson
+      - name: Setup meson
         if: matrix.config.os != 'macos' || (! matrix.config.arm)
         run: |
           python -m pip install --upgrade pip
@@ -149,7 +149,7 @@ jobs:
         if: matrix.config.os == 'macos'
         run: |
           brew update
-          brew install ninja sdl2 sdl2_ttf sdl2_mixer sdl2_image fmt
+          brew install ninja sdl2 sdl2_ttf sdl2_mixer sdl2_image
 
       - name: Configure
         run: meson setup build -Dbuildtype=${{ matrix.config.buildtype }} -Ddefault_library=${{ matrix.config.library_type }} -Dclang_libcpp=${{ ( ( matrix.config.os == 'ubuntu' && matrix.config.use-clang == true && matrix.config.use-clang_stdlib ) || matrix.config.os == 'macos' )  && 'enabled' || 'disabled' }} 
