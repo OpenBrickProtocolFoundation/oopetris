@@ -182,14 +182,13 @@ else
             allow_fallback: true,
             default_options: {'default_library': 'static'},
         )
+        meson.override_dependency('fmt', fmt_dep)
     else
         fmt_dep = dependency(
             'fmt',
             required: true,
         )
     endif
-
-    meson.override_dependency('fmt', fmt_dep)
 
     recording_dependencies += fmt_dep
     deps += fmt_dep
