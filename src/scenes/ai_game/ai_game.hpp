@@ -11,7 +11,7 @@ namespace scenes {
     struct AIGame : public Scene {
     private:
         bool m_should_exit = false;
-
+        ui::GridLayout m_main_grid;
 
     public:
         explicit AIGame(ServiceProvider* service_provider, const ui::Layout& layout);

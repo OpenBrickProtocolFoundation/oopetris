@@ -79,9 +79,11 @@ namespace scenes {
                         Scene::Push{SceneId::OnlineLobby, ui::FullScreenLayout{ m_service_provider->window() }}
                     };
                 case Command::AIMultiPlayer:
+                    // TODO: once we have a real scene here, make it correct
+                    m_next_command = helper::nullopt;
                     return UpdateResult{
-                        SceneUpdate::StopUpdating, Scene::Switch{SceneId::AIMultiPlayerGame,
-                                                                 ui::FullScreenLayout{ m_service_provider->window() }}
+                        SceneUpdate::StopUpdating,
+                        Scene::Push{SceneId::AIMultiPlayerGame, ui::FullScreenLayout{ m_service_provider->window() }}
                     };
                 case Command::Return:
                     return UpdateResult{ SceneUpdate::StopUpdating, Scene::Pop{} };

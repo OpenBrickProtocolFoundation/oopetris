@@ -8,6 +8,11 @@
 
 namespace external {
 
-    helper::expected<bool, std::string> load_file(const std::filesystem::path& file);
+    struct LUAHandler {
+        //TODO
+    };
+
+
+    [[nodiscard]] helper::expected<LUAHandler, std::string> load_from_file(const std::filesystem::path& file);
 
 } // namespace external

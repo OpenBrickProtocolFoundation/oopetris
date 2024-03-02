@@ -11,3 +11,17 @@ option(
     value: 'auto',
     description: 'if using clang, build with libc++ instead of libstdc++ (gcc stdlib)',
 )
+
+option(
+    'sol2_build_shared_lib',
+    type: 'feature',
+    value: 'auto',
+    description: 'build a shared library (.so, .dll) for the sol2 moudle "oopetris"',
+)
+option(
+    'lua_version',
+    type: 'combo',
+    value: 'auto',
+    choices: ['lua 5.1', 'lua 5.2', 'lua 5.3', 'lua 5.4', 'luajit', 'auto'],
+    description: 'determine the needed lua version, can be luajit or lua 5.1 to 5.4',
+)

@@ -57,8 +57,11 @@ elif cpp.get_id() == 'clang'
 
 endif
 
+is_debug = false
+
 if get_option('buildtype') == 'debug' or get_option('buildtype') == 'debugoptimized'
     compile_args += ['-DDEBUG_BUILD']
+    is_debug = true
 endif
 
 
@@ -292,28 +295,139 @@ deps += dependency(
 )
 
 lua_deps = []
-lua_version = '5.1'
 
-luajit_dep = dependency(
-    'luajit',
-    required: true,
-    version: '>=2.0.5',
-    default_options: {
-            'cpp-httplib_openssl': 'enabled',
-            'cpp-httplib_zlib': 'enabled',
-    },
-)
-lua_deps+=luajit_dep
-meson.override_dependency('lua', luajit_dep)
 
-lua_deps = dependency(
+## TODO: handle luarocks and "tl" installation too!
+
+lua_version_option = get_option('lua_version')
+
+lua_version = ''
+is_luajit = false
+
+
+if lua_version_option == 'auto'
+
+    ## prefer luajit, than any lua version, if non is found use fallback luajit
+
+    luajit_dep = dependency(
+        'luajit',
+        required: false,
+        version: '>=2.0.5',
+        allow_fallback: false,
+    )
+
+    if luajit_dep.found()
+
+        lua_dep = luajit_dep
+        meson.override_dependency('lua', lua_dep)
+
+        lua_version_define = cpp.get_define(
+            'LUA_VERSION',
+            prefix: '#include <lua.h>',
+            dependencies: lua_dep,
+        ).strip('"')
+        assert(lua_version_define != '', 'failed to get luajit compatibility version')
+
+        lua_version = lua_version_define.split(' ')[1]
+        is_luajit = true
+
+
+    else
+
+
+        lua_single_dep = dependency(
+            'lua',
+            required: false,
+            version: '>=5.1',
+            allow_fallback: false,
+        )
+
+        if lua_single_dep.found()
+
+            lua_dep = lua_single_dep
+
+            lua_split_version = lua_dep.version().split('.')
+            lua_version = lua_split_version[0] + '.' + lua_split_version[1]
+
+        else
+
+            lua_dep = dependency(
+                'luajit',
+                required: true,
+                version: '>=2.0.5',
+            )
+
+            meson.override_dependency('lua', lua_dep)
+
+            lua_version_define = cpp.get_define(
+                'LUA_VERSION',
+                prefix: '#include <lua.h>',
+                dependencies: lua_dep,
+            ).strip('"')
+            assert(lua_version_define != '', 'failed to get luajit compatibility version')
+
+            lua_version = lua_version_define.split(' ')[1]
+            is_luajit = true
+
+
+        endif
+
+
+    endif
+elif lua_version_option == 'luajit'
+
+    lua_dep = dependency(
+        'luajit',
+        required: true,
+        version: '>=2.0.5',
+    )
+    meson.override_dependency('lua', lua_dep)
+
+
+    lua_version_define = cpp.get_define(
+        'LUA_VERSION',
+        prefix: '#include <lua.h>',
+        dependencies: lua_dep,
+    ).strip('"')
+    assert(lua_version_define != '', 'failed to get luajit compatibility version')
+
+    lua_version = lua_version_define.split(' ')[1]
+    is_luajit = true
+else
+
+    lua_split_string = lua_version_option.split(' ')
+
+    lua_version = lua_split_string[1]
+
+    lua_dep = dependency(
+        'lua',
+        required: true,
+        version: '=' + lua_version,
+    )
+endif
+
+
+if not (['5.1', '5.2', '5.3', '5.4'].contains(lua_version))
+    error('unsopported lua version detected: ' + lua_version)
+endif
+
+if is_luajit
+    message('Using luajit with compatibility version: ' + lua_version)
+else
+    message('Using lua ' + lua_version)
+endif
+
+lua_deps += lua_dep
+
+sol2_dep = dependency(
     'sol2',
     required: true,
     version: '>=3.3.1',
 )
+lua_deps += sol2_dep
+
+
 deps += lua_deps
-
-
 
 if (meson.is_cross_build() and host_machine.system() == 'switch')
 
@@ -351,12 +465,6 @@ if (meson.is_cross_build() and host_machine.system() == 'switch')
 
 endif
 
-
-
-src_files = []
-recording_src_files = []
-
-subdir('src')
 
 ## TODO: only istall needed ones, since sometimes we only need e.g. flacs or mp3 and no icons etc.
 ## install assets
@@ -444,6 +552,11 @@ foreach logo : logos
     )
 endforeach
 
+
+src_files = []
+recording_src_files = []
+
+subdir('src')
 
 if meson.is_cross_build() and host_machine.system() == 'android'
 

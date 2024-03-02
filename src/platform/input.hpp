@@ -25,7 +25,7 @@ enum class InputCommand : u8 {
     ReleaseMoveDown,
 };
 
-enum class InputType : u8 { Touch, Keyboard, Controller, Recording };
+enum class InputType : u8 { Touch, Keyboard, Controller, Recording, AI };
 
 struct Input {
 public:

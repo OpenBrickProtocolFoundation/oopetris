@@ -1,11 +1,14 @@
 
-#include "load_file.hpp"
+#include "lua_handler.hpp"
+
+#include "module/oopetris.hpp"
+
 
 #include <fmt/format.h>
 #include <fstream>
 #include <iostream>
 
-helper::expected<bool, std::string> external::load_file(const std::filesystem::path& file) {
+helper::expected<external::LUAHandler, std::string> external::load_from_file(const std::filesystem::path& file) {
 
     if (not std::filesystem::exists(file)) {
         return helper::unexpected<std::string>{ "File does not exist" };
@@ -28,15 +31,42 @@ helper::expected<bool, std::string> external::load_file(const std::filesystem::p
         ) };
     }
 
+    std::vector<sol::lib> libraries{ sol::lib::base, sol::lib::package, sol::lib::string, sol::lib::math,
+                                     sol::lib::table };
+
+
+    // TODO: check if using luajit
+    libraries.push_back(sol::lib::jit);
+#ifdef DEBUG_BUILD
+    libraries.push_back(sol::lib::debug);
+#endif
+
     sol::state lua{};
-    lua.open_libraries(sol::lib::package, sol::lib::base);
 
     if (use_typed_lua) {
+        libraries.push_back(sol::lib::io);
+        libraries.push_back(sol::lib::os);
+    }
+
+    for (const auto lib : libraries) {
+        lua.open_libraries(lib);
+    }
+
+    if (use_typed_lua) {
+        //TODO: generate lua file from tl file, after checking types
         lua.safe_script(
-                R"--(local tl = require("tl")
+                R"--(
+local tl = require("tl")
 tl.loader())--"
         );
     }
+
+#if !defined(SOL2_LUA_SHARED_MODULE)
+
+
+    lua.require("oopetris", sol::c_call<decltype(&lua_integration::open_oopetris), &lua_integration::open_oopetris>);
+
+#endif
 
 
     //TODO: use thread, environment etc.
@@ -44,11 +74,12 @@ tl.loader())--"
     try {
 
         const auto result = lua.safe_script_file(file.string());
+
     } catch (const sol::error& e) {
         std::cout << "an expected error has occurred: " << e.what() << "\n";
     }
 
-    return true;
+    return external::LUAHandler{};
 
     //
 }

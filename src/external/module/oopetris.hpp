@@ -1,6 +1,6 @@
 #pragma once
 
-#include "./oopetris_api.hpp"
+#include "../sol_include.hpp"
 
 // forward declare as a C struct
 // so a pointer to lua_State can be part of a signature
@@ -12,17 +12,36 @@ struct lua_State;
 
 namespace oopetris {
 
-    struct test {
-        int value;
+    namespace types {
 
-        test() = default;
-        test(int val) : value(val) { }
-    };
+        struct test {
+            int value;
+
+            test() = default;
+            test(int val) : value(val) { }
+        };
+
+    } // namespace types
 
 } // namespace oopetris
 
-// this function needs to be exported from your
-// dll. "extern 'C'" should do the trick, but
-// we're including platform-specific stuff here to help
-// see my_object_api.hpp for details
-extern "C" OOPETRIS_API int luaopen_oopetri(lua_State* L);
+
+#if defined(SOL2_LUA_SHARED_MODULE)
+
+#if defined(_MSC_VER)
+#define OOPETRIS_API __declspec(dllexport)
+#else
+#define OOPETRIS_API __attribute__((visibility("default")))
+#endif
+
+
+extern "C" OOPETRIS_API int luaopen_oopetris(lua_State* state);
+
+#endif
+namespace lua_integration {
+
+    sol::table open_oopetris(sol::this_state L);
+
+}
+
+
