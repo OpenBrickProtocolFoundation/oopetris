@@ -15,12 +15,13 @@ recorder::RecordingReader::RecordingReader(
       m_snapshots{ std::move(snapshots) } { }
 
 
-recorder::RecordingReader::RecordingReader(RecordingReader&& old)
+recorder::RecordingReader::RecordingReader(RecordingReader&& old) noexcept
     : recorder::RecordingReader{ std::move(old.m_tetrion_headers), std::move(old.m_records),
                                  std::move(old.m_snapshots) } { }
 
 
-helper::expected<recorder::RecordingReader, std::string> recorder::RecordingReader::from_path(
+helper::expected<recorder::RecordingReader, std::string>
+recorder::RecordingReader::from_path( // NOLINT(readability-function-cognitive-complexity)
         const std::filesystem::path& path
 ) {
 
@@ -62,7 +63,7 @@ helper::expected<recorder::RecordingReader, std::string> recorder::RecordingRead
     for (u8 i = 0; i < num_tetrions.value(); ++i) {
         auto header = read_tetrion_header_from_file(file);
         if (not header.has_value()) {
-            throw RecordingError{ "failed to read tetrion header from recorded game" };
+            return helper::unexpected<std::string>{ "failed to read tetrion header from recorded game" };
         }
         tetrion_headers.push_back(header.value());
     }

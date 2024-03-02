@@ -12,12 +12,6 @@
 
 namespace recorder {
 
-    struct RecordingError : public std::runtime_error {
-
-        template<typename T>
-        RecordingError(const T& text) : std::runtime_error{ text } { }
-    };
-
     struct Record final {
         u8 tetrion_index;
         u64 simulation_step_index;

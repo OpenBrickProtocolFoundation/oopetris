@@ -39,7 +39,7 @@ MusicManager::MusicManager(ServiceProvider* service_provider, u8 channel_size)
     set_volume(volume, true);
 }
 
-MusicManager::~MusicManager() {
+MusicManager::~MusicManager() noexcept {
     if (not validate_instance()) {
         return;
     }

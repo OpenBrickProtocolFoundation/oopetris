@@ -21,7 +21,7 @@ namespace recorder {
         );
 
     public:
-        RecordingReader(RecordingReader&& old);
+        RecordingReader(RecordingReader&& old) noexcept;
 
         static helper::expected<RecordingReader, std::string> from_path(const std::filesystem::path& path);
 

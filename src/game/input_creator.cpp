@@ -155,6 +155,11 @@ namespace input {
             const auto recording_writer =
                     std::make_shared<recorder::RecordingWriter>(file_path, std::move(tetrion_headers));
 
+            const auto write_result = recording_writer->write_tetrion_headers();
+            if (not write_result.has_value()) {
+                throw std::runtime_error(write_result.error());
+            }
+
             for (auto& res : result) {
                 std::get<1>(res).recording_writer = recording_writer;
             }

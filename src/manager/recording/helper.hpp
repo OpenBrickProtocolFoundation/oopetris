@@ -141,10 +141,16 @@ namespace helper {
         }
 
         template<typename T>
-        void write_vector_to_file(std::ofstream& file, const std::vector<T>& values) {
+        helper::expected<bool, std::string> write_vector_to_file(std::ofstream& file, const std::vector<T>& values) {
+            helper::expected<bool, std::string> result{ true };
             for (const auto& value : values) {
-                write_integral_to_file<T>(file, value);
+                result = write_integral_to_file<T>(file, value);
+                if (not result.has_value()) {
+                    return helper::unexpected<std::string>{ result.error() };
+                }
             }
+
+            return result;
         }
 
 

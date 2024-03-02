@@ -5,7 +5,7 @@
 #include <filesystem>
 #include <iostream>
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv) noexcept {
 
     const auto arguments = CommandLineArguments(argc, argv);
 

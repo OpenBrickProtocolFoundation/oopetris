@@ -38,7 +38,7 @@ public:
     MusicManager& operator=(const MusicManager&) = delete;
     MusicManager(const MusicManager&&) = delete;
     MusicManager& operator=(MusicManager&&) = delete;
-    ~MusicManager();
+    ~MusicManager() noexcept;
 
     helper::optional<std::string>
     load_and_play_music(const std::filesystem::path& location, usize delay = MusicManager::fade_ms);

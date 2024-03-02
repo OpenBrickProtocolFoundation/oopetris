@@ -2,12 +2,14 @@
 #pragma once
 
 #include "checksum_helper.hpp"
+#include "helper.hpp"
 #include "helper/expected.hpp"
 #include "helper/optional.hpp"
 #include "helper/types.hpp"
 
 #include <fmt/format.h>
 #include <fmt/ranges.h>
+#include <iostream>
 #include <istream>
 #include <string>
 #include <unordered_map>
@@ -15,9 +17,7 @@
 #include <variant>
 #include <vector>
 
-
 namespace recorder {
-
 
     struct InformationValue {
     private:
@@ -136,7 +136,7 @@ namespace recorder {
                 std::istream& istream
         );
 
-        [[nodiscard]] std::vector<char> to_bytes(u32 recursion_depth = 0) const;
+        [[nodiscard]] helper::expected<std::vector<char>, std::string> to_bytes(u32 recursion_depth = 0) const;
 
         [[nodiscard]] static std::vector<char> string_to_bytes(const std::string& value);
 
@@ -186,10 +186,10 @@ namespace recorder {
             return value.as<T>();
         }
 
-        [[nodiscard]] std::vector<char> to_bytes() const;
+        [[nodiscard]] helper::expected<std::vector<char>, std::string> to_bytes() const;
 
     private:
-        [[nodiscard]] Sha256Stream::Checksum get_checksum() const;
+        [[nodiscard]] helper::expected<Sha256Stream::Checksum, std::string> get_checksum() const;
     };
 
 

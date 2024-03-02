@@ -21,7 +21,8 @@ recorder::InformationValue::read_from_istream(std::istream& istream) {
     return std::pair<std::string, recorder::InformationValue>{ key.value(), value.value() };
 }
 
-[[nodiscard]] std::vector<char> recorder::InformationValue::to_bytes(u32 recursion_depth // NOLINT(misc-no-recursion)
+[[nodiscard]] helper::expected<std::vector<char>, std::string> recorder::InformationValue::to_bytes(
+        u32 recursion_depth // NOLINT(misc-no-recursion)
 ) const {
     auto bytes = std::vector<char>{};
 
@@ -118,9 +119,9 @@ recorder::InformationValue::read_from_istream(std::istream& istream) {
 
     if (is<std::vector<InformationValue>>()) {
         if (recursion_depth >= max_recursion_depth) {
-            throw std::runtime_error(
-                    fmt::format("Reached maximum recursion depth of {} while serializing vectors!", max_recursion_depth)
-            );
+            return helper::unexpected<std::string>{
+                fmt::format("Reached maximum recursion depth of {} while serializing vectors!", max_recursion_depth)
+            };
         }
 
         helper::writer::append_value<std::underlying_type_t<ValueType>>(bytes, std::to_underlying(ValueType::Vector));
@@ -131,7 +132,13 @@ recorder::InformationValue::read_from_istream(std::istream& istream) {
 
         for (const auto& value : vector_value) {
             const auto value_bytes = value.to_bytes(recursion_depth + 1);
-            helper::writer::append_bytes(bytes, value_bytes);
+            if (not value_bytes.has_value()) {
+                return helper::unexpected<std::string>{
+                    fmt::format("Error while converting to bytes: {}", value_bytes.error())
+                };
+            }
+
+            helper::writer::append_bytes(bytes, value_bytes.value());
         }
         return bytes;
     }
@@ -365,16 +372,21 @@ helper::expected<recorder::AdditionalInformation, std::string> recorder::Additio
     auto information = AdditionalInformation{ std::move(values) };
 
     const auto calculated_checksum = information.get_checksum();
-
-    const auto read_checksum = helper::reader::read_array_from_istream<
-            decltype(calculated_checksum)::value_type, Sha256Stream::ChecksumSize>(istream);
-    if (not read_checksum.has_value()) {
-        return helper::unexpected<std::string>{ "unable to read value checksum from AdditionalInformation" };
+    if (not calculated_checksum.has_value()) {
+        return helper::unexpected<std::string>{ "unable to calculate the checksum from AdditionalInformation" };
     }
-    if (read_checksum.value() != calculated_checksum) {
+
+    const auto read_checksum =
+            helper::reader::read_array_from_istream<Sha256Stream::Checksum::value_type, Sha256Stream::ChecksumSize>(
+                    istream
+            );
+    if (not read_checksum.has_value()) {
+        return helper::unexpected<std::string>{ "unable to read the checksum from AdditionalInformation" };
+    }
+    if (read_checksum.value() != calculated_checksum.value()) {
         return helper::unexpected<std::string>{ fmt::format(
                 "value checksum mismatch, the AdditionalInformation was altered: expected {:x} but got {:x}",
-                fmt::join(calculated_checksum, ""), fmt::join(read_checksum.value(), "")
+                fmt::join(calculated_checksum.value(), ""), fmt::join(read_checksum.value(), "")
         ) };
     }
 
@@ -398,7 +410,7 @@ helper::optional<recorder::InformationValue> recorder::AdditionalInformation::ge
     return m_values.at(key);
 }
 
-[[nodiscard]] std::vector<char> recorder::AdditionalInformation::to_bytes() const {
+[[nodiscard]] helper::expected<std::vector<char>, std::string> recorder::AdditionalInformation::to_bytes() const {
     auto bytes = std::vector<char>{};
 
     static_assert(sizeof(decltype(AdditionalInformation::magic_start_byte)) == 4);
@@ -413,20 +425,31 @@ helper::optional<recorder::InformationValue> recorder::AdditionalInformation::ge
         helper::writer::append_bytes(bytes, key_bytes);
 
         const auto value_bytes = value.to_bytes();
-        helper::writer::append_bytes(bytes, value_bytes);
+        if (not value_bytes.has_value()) {
+            return helper::unexpected<std::string>{
+                fmt::format("Error while getting bytes for value: {}", value_bytes.error())
+            };
+        }
+
+        helper::writer::append_bytes(bytes, value_bytes.value());
     }
 
     const auto checksum = get_checksum();
-    static_assert(sizeof(decltype(checksum)) == 32);
+    if (not checksum.has_value()) {
+        return helper::unexpected<std::string>{ fmt::format("Error while getting checksum: {}", checksum.error()) };
+    }
 
-    for (const auto& checksum_byte : checksum) {
+    static_assert(sizeof(decltype(checksum.value())) == 32);
+
+    for (const auto& checksum_byte : checksum.value()) {
         helper::writer::append_value<u8>(bytes, checksum_byte);
     }
 
     return bytes;
 }
 
-[[nodiscard]] Sha256Stream::Checksum recorder::AdditionalInformation::get_checksum() const {
+[[nodiscard]] helper::expected<Sha256Stream::Checksum, std::string> recorder::AdditionalInformation::get_checksum(
+) const {
     Sha256Stream sha256_creator{};
 
     static_assert(sizeof(u32) == 4);
@@ -435,7 +458,6 @@ helper::optional<recorder::InformationValue> recorder::AdditionalInformation::ge
     std::vector<std::string> keys{};
     keys.reserve(m_values.size());
     for (const auto& [key, _] : m_values) {
-
         keys.push_back(key);
     }
 
@@ -443,7 +465,12 @@ helper::optional<recorder::InformationValue> recorder::AdditionalInformation::ge
 
     for (const auto& key : keys) {
         sha256_creator << InformationValue::string_to_bytes(key);
-        sha256_creator << m_values.at(key).to_bytes();
+        const auto bytes = m_values.at(key).to_bytes();
+        if (not bytes.has_value()) {
+            return helper::unexpected<std::string>{ bytes.error() };
+        }
+
+        sha256_creator << bytes.value();
     }
 
     return sha256_creator.get_hash();
