@@ -5,6 +5,40 @@
 
 #include <functional>
 
+[[nodiscard]] std::string recorder::InformationValue::to_string(u32 recursion_depth // NOLINT(misc-no-recursion)
+) const {
+    return std::visit(
+            helper::overloaded{ [](const std::string& value) { return value; },
+                                [](const float& value) { return std::to_string(value); },
+                                [](const double& value) { return std::to_string(value); },
+                                [](const bool& value) { return std::string{ value ? "true" : "false" }; },
+                                [](const u8& value) { return std::to_string(static_cast<int>(value)); },
+                                [](const i8& value) { return std::to_string(static_cast<int>(value)); },
+                                [](const u32& value) { return std::to_string(value); },
+                                [](const i32& value) { return std::to_string(value); },
+                                [](const u64& value) { return std::to_string(value); },
+                                [](const i64& value) { return std::to_string(value); },
+                                [recursion_depth](const std::vector<recorder::InformationValue>& value) {
+                                    if (recursion_depth >= max_recursion_depth) {
+                                        throw std::runtime_error{ fmt::format(
+                                                "Reached maximum recursion depth of {} while printing vectors!",
+                                                max_recursion_depth
+                                        ) };
+                                    }
+
+                                    std::vector<std::string> strings{};
+                                    strings.reserve(value.size());
+                                    for (const auto& element : value) {
+                                        strings.push_back(element.to_string(recursion_depth + 1));
+                                    }
+
+                                    return fmt::format("{{ {} }}", fmt::join(strings, ", "));
+                                } },
+            m_value
+    );
+}
+
+
 helper::expected<std::pair<std::string, recorder::InformationValue>, std::string>
 recorder::InformationValue::read_from_istream(std::istream& istream) {
 
