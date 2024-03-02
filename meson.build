@@ -90,7 +90,6 @@ else
     deps += dependency(
         'sdl2',
         required: true,
-        fallback: 'sdl2',
         default_options: {'test': 'false'},
     )
     deps += dependency(
@@ -224,11 +223,7 @@ int main() {
 if not have_std_expected
     message('Compiler doesn\'t support std::expected, using fallback')
     compile_args += ['-D_USE_TL_EXPECTED']
-    tl_exp_dep = dependency(
-        'tl-expected',
-        required: true,
-        fallback: ['tl-expected'],
-    )
+    tl_exp_dep = dependency('tl-expected', required: true)
     recording_dependencies += tl_exp_dep
     deps += tl_exp_dep
 else
@@ -250,11 +245,7 @@ int main() {
 if not have_std_optional
     message('Compiler doesn\'t support std::optional, using fallback')
     compile_args += ['-D_USE_TL_OPTIONAL']
-    tl_opt_dep = dependency(
-        'tl-optional',
-        required: true,
-        fallback: ['tl-optional'],
-    )
+    tl_opt_dep = dependency('tl-optional', required: true)
     recording_dependencies += tl_opt_dep
     deps += tl_opt_dep
 else
@@ -266,7 +257,6 @@ endif
 magic_enum_dep = dependency(
     'magic_enum',
     required: true,
-    fallback: ['magic_enum'],
     default_options: {'test': 'false'},
 )
 recording_dependencies += magic_enum_dep
@@ -275,7 +265,6 @@ deps += magic_enum_dep
 argparse_dep = dependency(
     'argparse',
     required: true,
-    fallback: ['argparse'],
 )
 recording_dependencies += argparse_dep
 deps += argparse_dep
@@ -289,7 +278,6 @@ else
     deps += dependency(
         'cpp-httplib',
         required: true,
-        fallback: ['cpp-httplib'],
         default_options: {
             'cpp-httplib_openssl': 'enabled',
             'cpp-httplib_zlib': 'enabled',
@@ -300,10 +288,14 @@ endif
 deps += dependency(
     'utf8cpp',
     required: true,
-    fallback: ['utfcpp'],
     version: '>=4.0.0',
 )
 
+deps += dependency(
+    'sol2',
+    required: true,
+    version: '>=3.0.0',
+)
 
 if (meson.is_cross_build() and host_machine.system() == 'switch')
 
