@@ -170,9 +170,8 @@ helper::expected<std::string, std::string> recorder::InformationValue::read_stri
 
     const auto size = string_size.value();
 
-    std::unique_ptr<char, std::function<void(char* const)>> raw_chars{ new char[size], [size](char* const char_value) {
-                                                                          operator delete[](char_value, size);
-                                                                      } };
+    std::unique_ptr<char, std::function<void(char*)>> raw_chars{ new char[size],
+                                                                 [](char* char_value) { delete[] char_value; } };
     for (u32 i = 0; i < size; ++i) {
 
         const auto local_value = helper::reader::read_from_istream<u8>(istream);
