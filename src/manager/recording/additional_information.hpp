@@ -74,37 +74,38 @@ namespace recorder {
             return *retrieved == other;
         }
 
-        [[nodiscard]] bool operator==(const InformationValue& other) const {
+        [[nodiscard]] bool operator==(const InformationValue& other) const { // NOLINT(misc-no-recursion)
             return std::visit(
-                    helper::overloaded{ [this](const std::string& value) { return *this == value; },
-                                        [this](const float& value) { return *this == value; },
-                                        [this](const double& value) { return *this == value; },
-                                        [this](const bool& value) { return *this == value; },
-                                        [this](const u8& value) { return *this == value; },
-                                        [this](const i8& value) { return *this == value; },
-                                        [this](const u32& value) { return *this == value; },
-                                        [this](const i32& value) { return *this == value; },
-                                        [this](const u64& value) { return *this == value; },
-                                        [this](const i64& value) { return *this == value; },
-                                        [this](const std::vector<InformationValue>& value) {
-                                            if (not this->is<std::vector<InformationValue>>()) {
-                                                return false;
-                                            }
+                    helper::overloaded{
+                            [this](const std::string& value) { return *this == value; },
+                            [this](const float& value) { return *this == value; },
+                            [this](const double& value) { return *this == value; },
+                            [this](const bool& value) { return *this == value; },
+                            [this](const u8& value) { return *this == value; },
+                            [this](const i8& value) { return *this == value; },
+                            [this](const u32& value) { return *this == value; },
+                            [this](const i32& value) { return *this == value; },
+                            [this](const u64& value) { return *this == value; },
+                            [this](const i64& value) { return *this == value; },
+                            [this](const std::vector<InformationValue>& value) { // NOLINT(misc-no-recursion)
+                                if (not this->is<std::vector<InformationValue>>()) {
+                                    return false;
+                                }
 
-                                            const auto& other = this->as<std::vector<InformationValue>>();
+                                const auto& other = this->as<std::vector<InformationValue>>();
 
-                                            if (other.size() != value.size()) {
-                                                return false;
-                                            }
+                                if (other.size() != value.size()) {
+                                    return false;
+                                }
 
-                                            for (decltype(other.size()) i = 0; i < other.size(); ++i) {
-                                                if (other.at(i) != value.at(i)) {
-                                                    return false;
-                                                }
-                                            }
+                                for (decltype(other.size()) i = 0; i < other.size(); ++i) {
+                                    if (other.at(i) != value.at(i)) {
+                                        return false;
+                                    }
+                                }
 
-                                            return true;
-                                        } },
+                                return true;
+                            } },
                     other.m_value
             );
         }
