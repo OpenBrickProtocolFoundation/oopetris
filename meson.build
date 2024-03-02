@@ -90,7 +90,6 @@ else
     deps += dependency(
         'sdl2',
         required: true,
-        fallback: 'sdl2',
         default_options: {'test': 'false'},
     )
     deps += dependency(
@@ -266,7 +265,6 @@ endif
 magic_enum_dep = dependency(
     'magic_enum',
     required: true,
-    fallback: ['magic_enum'],
     default_options: {'test': 'false'},
 )
 recording_dependencies += magic_enum_dep
@@ -289,7 +287,6 @@ else
     deps += dependency(
         'cpp-httplib',
         required: true,
-        fallback: ['cpp-httplib'],
         default_options: {
             'cpp-httplib_openssl': 'enabled',
             'cpp-httplib_zlib': 'enabled',
@@ -300,7 +297,6 @@ endif
 deps += dependency(
     'utf8cpp',
     required: true,
-    fallback: ['utfcpp'],
     version: '>=4.0.0',
 )
 
@@ -358,7 +354,8 @@ install_subdir(
 )
 
 app_name = 'oopetris'
-if get_option('flatpak_build')
+is_flatpak_build = get_option('flatpak_build')
+if is_flatpak_build
     app_name = 'com.github.mgerhold.OOPetris'
     compile_args += ['-DFLATPAK_BUILD', '-DBUILD_INSTALLER']
 endif
@@ -433,6 +430,18 @@ foreach logo : logos
         rename: [app_name + '.' + ext],
     )
 endforeach
+
+
+nfde_dep = dependency(
+    'nativefiledialog-extended',
+    required: true,
+    default_options: {'xdg-desktop-portal': is_flatpak_build ? 'enabled' : 'auto'},
+)
+if nfde_dep.found()
+    deps += nfde_dep
+    compile_args += '-D_HAVE_FILE_DIALOGS'
+endif
+
 
 
 if meson.is_cross_build() and host_machine.system() == 'android'
