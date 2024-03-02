@@ -41,12 +41,12 @@ bool helper::sleep_nanoseconds(std::chrono::nanoseconds ns) {
 
 #else
     int result{};
-    std::timespec remaining{};
-    std::timespec current{
+    struct timespec remaining { };
+    struct timespec current {
         static_cast<decltype(remaining.tv_sec)>(std::chrono::duration_cast<std::chrono::seconds>(ns).count()),
-        static_cast<decltype(remaining.tv_nsec)>(
-                ns.count() % std::chrono::duration_cast<std::chrono::nanoseconds>(1s).count()
-        ),
+                static_cast<decltype(remaining.tv_nsec)>(
+                        ns.count() % std::chrono::duration_cast<std::chrono::nanoseconds>(1s).count()
+                ),
     };
 
     do { // NOLINT(cppcoreguidelines-avoid-do-while)
