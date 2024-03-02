@@ -70,7 +70,7 @@ public:
         }
 
         if (rect.has_value()) {
-            const SDL_Rect sdl_rect = rect.value().to_sdl_rect();
+            SDL_Rect sdl_rect = rect.value().to_sdl_rect();
             SDL_SetTextInputRect(&sdl_rect);
         }
 
