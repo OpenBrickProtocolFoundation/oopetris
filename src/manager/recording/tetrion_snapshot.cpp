@@ -19,14 +19,14 @@ TetrionSnapshot::TetrionSnapshot(
         Score score,
         LineCount lines_cleared,
         SimulationStep simulation_step_index,
-        const MinoStack& mino_stack
+        MinoStack mino_stack
 )
     : m_tetrion_index{ tetrion_index },
       m_level{ level },
       m_score{ score },
       m_lines_cleared{ lines_cleared },
       m_simulation_step_index{ simulation_step_index },
-      m_mino_stack{ mino_stack } { }
+      m_mino_stack{ std::move(mino_stack) } { }
 
 
 helper::expected<TetrionSnapshot, std::string> TetrionSnapshot::from_istream(std::istream& istream) {

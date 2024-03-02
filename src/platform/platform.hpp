@@ -7,7 +7,7 @@
 enum class Platform : u8 { PC, Android, Console };
 
 
-NLOHMANN_JSON_SERIALIZE_ENUM(
+NLOHMANN_JSON_SERIALIZE_ENUM( // NOLINT(modernize-type-traits,cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
         Platform,
         {
                 {     Platform::PC,      "pc"},

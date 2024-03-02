@@ -143,14 +143,15 @@ namespace recorder {
     private:
         static helper::expected<std::string, std::string> read_string_from_istream(std::istream& istream);
 
-        static helper::expected<InformationValue, std::string> read_value_from_istream(std::istream& istream);
+        static helper::expected<InformationValue, std::string>
+        read_value_from_istream(std::istream& istream, u32 recursion_depth = 0);
     };
 
 
     struct AdditionalInformation {
     private:
         static constexpr u32 magic_start_byte = 0xABCDEF01;
-        std::unordered_map<std::string, InformationValue> m_values;
+        std::unordered_map<std::string, InformationValue> m_values{};
 
         AdditionalInformation(std::unordered_map<std::string, InformationValue>&& values);
 

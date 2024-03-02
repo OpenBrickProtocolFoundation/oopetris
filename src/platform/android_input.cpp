@@ -1,5 +1,7 @@
 
 
+#if defined(__ANDROID__)
+
 
 #include "android_input.hpp"
 
@@ -23,7 +25,9 @@ void TouchInput::update(SimulationStep simulation_step_index) {
     Input::update(simulation_step_index);
 }
 
-helper::optional<InputEvent> TouchInput::sdl_event_to_input_event(const SDL_Event& event) {
+helper::optional<InputEvent> TouchInput::sdl_event_to_input_event( // NOLINT(readability-function-cognitive-complexity)
+        const SDL_Event& event
+) {
     //TODO to handle those things better, holding has to be supported
 
     // also take into accounts fingerId, since there may be multiple fingers, each finger has it's own saved state
@@ -121,3 +125,6 @@ helper::optional<InputEvent> TouchInput::sdl_event_to_input_event(const SDL_Even
 
     return helper::nullopt;
 }
+
+
+#endif

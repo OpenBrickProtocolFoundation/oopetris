@@ -37,7 +37,7 @@ public:
             Score score,
             LineCount lines_cleared,
             SimulationStep simulation_step_index,
-            const MinoStack& mino_stack
+            MinoStack mino_stack
     );
 
     static helper::expected<TetrionSnapshot, std::string> from_istream(std::istream& istream);

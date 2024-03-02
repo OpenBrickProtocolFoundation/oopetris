@@ -1,8 +1,7 @@
 #pragma once
 
-#if not defined(__ANDROID__)
-#error "this header is android only"
-#endif
+#if defined(__ANDROID__)
+
 
 #include "input.hpp"
 #include "manager/event_dispatcher.hpp"
@@ -38,3 +37,5 @@ public:
 private:
     [[nodiscard]] helper::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event);
 };
+
+#endif

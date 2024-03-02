@@ -55,11 +55,11 @@ public:
     virtual void update(SimulationStep simulation_step_index);
     virtual void late_update(SimulationStep){};
 
-    InputType input_type() const {
+    [[nodiscard]] InputType input_type() const {
         return m_input_type;
     }
 
-    bool supports_das() const {
+    [[nodiscard]] bool supports_das() const {
         return m_input_type != InputType::Touch;
     }
 
@@ -68,7 +68,7 @@ public:
     }
 
     void set_event_callback(OnEventCallback on_event_callback) {
-        m_on_event_callback = on_event_callback;
+        m_on_event_callback = std::move(on_event_callback);
     }
 
     Input(const Input&) = delete;

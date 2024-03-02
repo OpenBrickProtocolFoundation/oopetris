@@ -25,7 +25,7 @@ namespace recorder {
 
         static helper::expected<RecordingReader, std::string> from_path(const std::filesystem::path& path);
 
-        [[nodiscard]] const Record& at(const usize index) const;
+        [[nodiscard]] const Record& at(usize index) const;
 
         [[nodiscard]] usize num_records() const;
         [[nodiscard]] auto begin() const;

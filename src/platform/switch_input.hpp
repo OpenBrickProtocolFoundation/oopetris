@@ -2,9 +2,7 @@
 
 #pragma once
 
-#if not defined(__SWITCH__)
-#error "this header is switch only"
-#endif
+#if defined(__SWITCH__)
 
 #include "input.hpp"
 #include "manager/event_dispatcher.hpp"
@@ -33,3 +31,4 @@ public:
 private:
     [[nodiscard]] helper::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event) const;
 };
+#endif

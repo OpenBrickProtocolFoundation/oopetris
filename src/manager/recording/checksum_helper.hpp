@@ -14,18 +14,24 @@ struct Sha256Stream {
 
     SHA256 library_object;
 
-    Sha256Stream() : library_object{} {};
+    Sha256Stream() = default;
 
     template<utils::integral Integral>
     Sha256Stream& operator<<(const Integral value) {
 
-        library_object.add(reinterpret_cast<const void*>(&value), static_cast<usize>(sizeof(value)));
+        library_object.add(
+                reinterpret_cast<const void*>(&value), // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+                static_cast<usize>(sizeof(value))
+        );
         return *this;
     }
 
     Sha256Stream& operator<<(const std::string& value) {
 
-        library_object.add(reinterpret_cast<const void*>(value.c_str()), static_cast<usize>(value.size()));
+        library_object.add(
+                reinterpret_cast<const void*>(value.c_str()), // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+                static_cast<usize>(value.size())
+        );
         return *this;
     }
 

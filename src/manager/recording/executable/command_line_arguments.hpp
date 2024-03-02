@@ -18,8 +18,9 @@ public:
     Command command{ Command::Info };
 
     CommandLineArguments(int argc, char** argv) {
-        argparse::ArgumentParser parser{ argc >= 1 ? argv[0] : "oopetris_recording_utility", "0.0.1",
-                                         argparse::default_arguments::all };
+        argparse::ArgumentParser parser{ argc >= 1 ? argv[0] //NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+                                                   : "oopetris_recording_utility",
+                                         "0.0.1", argparse::default_arguments::all };
 
         parser.add_argument("command")
                 .help("specify the command")

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "helper/types.hpp"
+
 enum class SceneId : u8 {
     AboutPage,
     AchievementsPage,

@@ -49,7 +49,7 @@ namespace {
             const auto& info = std::get<1>(infos.at(tetrion_index));
             auto information = additional_info.size() > tetrion_index ? additional_info.at(tetrion_index)
                                                                       : recorder::AdditionalInformation{};
-            headers.push_back(recorder::TetrionHeader{ info.seed, info.starting_level, std::move(information) });
+            headers.emplace_back(info.seed, info.starting_level, std::move(information));
         }
         return headers;
     }

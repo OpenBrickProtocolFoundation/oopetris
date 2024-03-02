@@ -1,5 +1,5 @@
 
-
+#if defined(__SWITCH__)
 #include "switch_input.hpp"
 
 
@@ -69,3 +69,5 @@ helper::optional<InputEvent> JoystickInput::sdl_event_to_input_event(const SDL_E
     }
     return helper::nullopt;
 }
+
+#endif

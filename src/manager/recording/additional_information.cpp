@@ -21,8 +21,9 @@ recorder::InformationValue::read_from_istream(std::istream& istream) {
     return std::pair<std::string, recorder::InformationValue>{ key.value(), value.value() };
 }
 
-[[nodiscard]] helper::expected<std::vector<char>, std::string> recorder::InformationValue::to_bytes(
-        u32 recursion_depth // NOLINT(misc-no-recursion)
+[[nodiscard]] helper::expected<std::vector<char>, std::string>
+recorder::InformationValue::to_bytes( // NOLINT(misc-no-recursion)
+        u32 recursion_depth
 ) const {
     auto bytes = std::vector<char>{};
 
@@ -170,8 +171,10 @@ helper::expected<std::string, std::string> recorder::InformationValue::read_stri
 
     const auto size = string_size.value();
 
-    std::unique_ptr<char, std::function<void(char*)>> raw_chars{ new char[size],
-                                                                 [](char* char_value) { delete[] char_value; } };
+    const std::unique_ptr<char, std::function<void(const char* const)>> raw_chars{
+        new char[size],
+        [](const char* const char_value) { delete[] char_value; } // NOLINT(cppcoreguidelines-owning-memory)
+    };
     for (u32 i = 0; i < size; ++i) {
 
         const auto local_value = helper::reader::read_from_istream<u8>(istream);
@@ -179,7 +182,7 @@ helper::expected<std::string, std::string> recorder::InformationValue::read_stri
             return helper::unexpected<std::string>{ fmt::format("unable to read char in string at index {}", i) };
         }
 
-        raw_chars.get()[i] = local_value.value();
+        raw_chars.get()[i] = static_cast<char>(local_value.value());
     }
 
     std::string result{ raw_chars.get(), size };
@@ -188,10 +191,11 @@ helper::expected<std::string, std::string> recorder::InformationValue::read_stri
 }
 
 
-helper::expected<recorder::InformationValue, std::string>
-recorder::InformationValue::read_value_from_istream( // NOLINT(readability-function-cognitive-complexity)
-        std::istream& istream
-) {
+helper::expected<recorder::InformationValue, std::string> recorder::InformationValue::
+        read_value_from_istream( // NOLINT(readability-function-cognitive-complexity,misc-no-recursion)
+                std::istream& istream,
+                u32 recursion_depth
+        ) {
     const auto magic_byte = helper::reader::read_from_istream<std::underlying_type_t<ValueType>>(istream);
     if (not magic_byte.has_value()) {
         return helper::unexpected<std::string>{ "unable to read magic byte" };
@@ -221,8 +225,9 @@ recorder::InformationValue::read_value_from_istream( // NOLINT(readability-funct
 
         const float_conversion raw_float_value{ .original_value = raw_float.value() };
         return recorder::InformationValue{ raw_float_value.value };
-    } else if (magic_byte_value == utils::to_underlying(ValueType::Double)) {
+    }
 
+    if (magic_byte_value == utils::to_underlying(ValueType::Double)) {
         static_assert(sizeof(double) == 8 && sizeof(u64) == 8);
         const auto raw_double = helper::reader::read_from_istream<u64>(istream);
         if (not raw_double.has_value()) {
@@ -236,7 +241,9 @@ recorder::InformationValue::read_value_from_istream( // NOLINT(readability-funct
 
         const double_conversion raw_double_value{ .original_value = raw_double.value() };
         return recorder::InformationValue{ raw_double_value.value };
-    } else if (magic_byte_value == utils::to_underlying(ValueType::Bool)) {
+    }
+
+    if (magic_byte_value == utils::to_underlying(ValueType::Bool)) {
 
         static_assert(sizeof(bool) == 1 && sizeof(u8) == 1);
         const auto raw_value = helper::reader::read_from_istream<u8>(istream);
@@ -244,7 +251,9 @@ recorder::InformationValue::read_value_from_istream( // NOLINT(readability-funct
             return helper::unexpected<std::string>{ "unable to read bool value" };
         }
         return recorder::InformationValue{ raw_value.value() != 0 };
-    } else if (magic_byte_value == utils::to_underlying(ValueType::U8)) {
+    }
+
+    if (magic_byte_value == utils::to_underlying(ValueType::U8)) {
 
         static_assert(sizeof(u8) == 1);
         const auto raw_value = helper::reader::read_from_istream<u8>(istream);
@@ -252,7 +261,9 @@ recorder::InformationValue::read_value_from_istream( // NOLINT(readability-funct
             return helper::unexpected<std::string>{ "unable to read u8 value" };
         }
         return recorder::InformationValue{ raw_value.value() };
-    } else if (magic_byte_value == utils::to_underlying(ValueType::I8)) {
+    }
+
+    if (magic_byte_value == utils::to_underlying(ValueType::I8)) {
 
         static_assert(sizeof(i8) == 1);
         const auto raw_value = helper::reader::read_from_istream<i8>(istream);
@@ -260,7 +271,9 @@ recorder::InformationValue::read_value_from_istream( // NOLINT(readability-funct
             return helper::unexpected<std::string>{ "unable to read i8 value" };
         }
         return recorder::InformationValue{ raw_value.value() };
-    } else if (magic_byte_value == utils::to_underlying(ValueType::U32)) {
+    }
+
+    if (magic_byte_value == utils::to_underlying(ValueType::U32)) {
 
         static_assert(sizeof(u32) == 4);
         const auto raw_value = helper::reader::read_from_istream<u32>(istream);
@@ -268,7 +281,9 @@ recorder::InformationValue::read_value_from_istream( // NOLINT(readability-funct
             return helper::unexpected<std::string>{ "unable to read u32 value" };
         }
         return recorder::InformationValue{ raw_value.value() };
-    } else if (magic_byte_value == utils::to_underlying(ValueType::I32)) {
+    }
+
+    if (magic_byte_value == utils::to_underlying(ValueType::I32)) {
 
         static_assert(sizeof(i32) == 4);
         const auto raw_value = helper::reader::read_from_istream<i32>(istream);
@@ -276,7 +291,9 @@ recorder::InformationValue::read_value_from_istream( // NOLINT(readability-funct
             return helper::unexpected<std::string>{ "unable to read i32 value" };
         }
         return recorder::InformationValue{ raw_value.value() };
-    } else if (magic_byte_value == utils::to_underlying(ValueType::U64)) {
+    }
+
+    if (magic_byte_value == utils::to_underlying(ValueType::U64)) {
 
         static_assert(sizeof(u64) == 8);
         const auto raw_value = helper::reader::read_from_istream<u64>(istream);
@@ -284,7 +301,9 @@ recorder::InformationValue::read_value_from_istream( // NOLINT(readability-funct
             return helper::unexpected<std::string>{ "unable to read u64 value" };
         }
         return recorder::InformationValue{ raw_value.value() };
-    } else if (magic_byte_value == utils::to_underlying(ValueType::I64)) {
+    }
+
+    if (magic_byte_value == utils::to_underlying(ValueType::I64)) {
 
         static_assert(sizeof(i64) == 8);
         const auto raw_value = helper::reader::read_from_istream<i64>(istream);
@@ -292,7 +311,14 @@ recorder::InformationValue::read_value_from_istream( // NOLINT(readability-funct
             return helper::unexpected<std::string>{ "unable to read i64 value" };
         }
         return recorder::InformationValue{ raw_value.value() };
-    } else if (magic_byte_value == utils::to_underlying(ValueType::Vector)) {
+    }
+
+    if (magic_byte_value == utils::to_underlying(ValueType::Vector)) {
+        if (recursion_depth >= max_recursion_depth) {
+            return helper::unexpected<std::string>{
+                fmt::format("Reached maximum recursion depth of {} while de-serializing vectors!", max_recursion_depth)
+            };
+        }
 
         static_assert(sizeof(u32) == 4);
         const auto vector_size = helper::reader::read_from_istream<u32>(istream);
@@ -304,7 +330,7 @@ recorder::InformationValue::read_value_from_istream( // NOLINT(readability-funct
         result.reserve(vector_size.value());
         for (u32 i = 0; i < vector_size.value(); ++i) {
 
-            const auto local_value = read_value_from_istream(istream);
+            const auto local_value = read_value_from_istream(istream, recursion_depth + 1);
             if (not local_value.has_value()) {
                 return helper::unexpected<std::string>{
                     fmt::format("unable to read value in vector at index {}: {}", i, local_value.error())
@@ -315,17 +341,18 @@ recorder::InformationValue::read_value_from_istream( // NOLINT(readability-funct
         }
 
         return recorder::InformationValue{ result };
-    } else {
-        return helper::unexpected<std::string>{
-            fmt::format("invalid magic byte: {}", static_cast<int>(magic_byte.value()))
-        };
     }
+
+
+    return helper::unexpected<std::string>{
+        fmt::format("invalid magic byte: {}", static_cast<int>(magic_byte.value()))
+    };
 }
 
 recorder::AdditionalInformation::AdditionalInformation(std::unordered_map<std::string, InformationValue>&& values)
     : m_values{ std::move(values) } { }
 
-recorder::AdditionalInformation::AdditionalInformation() : m_values{} { }
+recorder::AdditionalInformation::AdditionalInformation() = default;
 
 helper::expected<recorder::AdditionalInformation, std::string> recorder::AdditionalInformation::from_istream(
         std::istream& istream

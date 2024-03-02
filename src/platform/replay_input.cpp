@@ -4,7 +4,7 @@
 
 ReplayInput::ReplayInput(std::shared_ptr<recorder::RecordingReader> recording_reader)
     : Input{ InputType::Recording },
-      m_recording_reader{ recording_reader } { }
+      m_recording_reader{ std::move(recording_reader) } { }
 
 void ReplayInput::update(const SimulationStep simulation_step_index) {
     while (true) {
