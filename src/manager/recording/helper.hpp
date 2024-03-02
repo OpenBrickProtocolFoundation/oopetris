@@ -85,8 +85,8 @@ namespace helper {
             }
             auto value = Integral{};
             istream.read(
-                    reinterpret_cast<char*>(&value),
-                    sizeof(Integral) // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+                    reinterpret_cast<char*>(&value), // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+                    sizeof(Integral)
             );
 
             if (not istream) {
@@ -131,8 +131,8 @@ namespace helper {
 
             const auto little_endian_data = utils::to_little_endian(data);
             file.write(
-                    reinterpret_cast<const char*>(
-                            &little_endian_data // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+                    reinterpret_cast<const char*>( // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+                            &little_endian_data
                     ),
                     sizeof(little_endian_data)
             );

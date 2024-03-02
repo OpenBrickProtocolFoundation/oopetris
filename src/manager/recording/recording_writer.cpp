@@ -10,13 +10,24 @@ recorder::RecordingWriter::RecordingWriter(
         throw RecordingError{ fmt::format("failed to open output file \"{}\"", path.string()) };
     }
 
+    helper::expected<bool, std::string> result{ true };
+
     static_assert(sizeof(Recording::magic_file_byte) == 4);
-    helper::writer::write_integral_to_file(m_output_file, Recording::magic_file_byte);
+    result = helper::writer::write_integral_to_file(m_output_file, Recording::magic_file_byte);
+    if (not result.has_value()) {
+        throw RecordingError{ fmt::format("error while writing: {}", result.error()) };
+    }
 
     static_assert(sizeof(RecordingWriter::version_number) == 1);
-    helper::writer::write_integral_to_file(m_output_file, RecordingWriter::version_number);
+    result = helper::writer::write_integral_to_file(m_output_file, RecordingWriter::version_number);
+    if (not result.has_value()) {
+        throw RecordingError{ fmt::format("error while writing: {}", result.error()) };
+    }
 
-    helper::writer::write_integral_to_file<u8>(m_output_file, static_cast<u8>(m_tetrion_headers.size()));
+    result = helper::writer::write_integral_to_file<u8>(m_output_file, static_cast<u8>(m_tetrion_headers.size()));
+    if (not result.has_value()) {
+        throw RecordingError{ fmt::format("error while writing: {}", result.error()) };
+    }
 
     for (const auto& header : m_tetrion_headers) {
         write_tetrion_header_to_file(m_output_file, header);

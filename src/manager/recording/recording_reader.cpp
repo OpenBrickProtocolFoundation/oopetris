@@ -173,16 +173,14 @@ recorder::RecordingReader::read_tetrion_header_from_file(std::ifstream& file) {
         };
     }
 
-    const auto information = AdditionalInformation::from_istream(file);
+    auto information = AdditionalInformation::from_istream(file);
     if (not information.has_value()) {
         return helper::unexpected<helper::reader::ReadError>{
             {helper::reader::ReadErrorType::Incomplete, "field 'information' has no value"}
         };
     }
 
-    return TetrionHeader{ .seed = seed.value(),
-                          .starting_level = starting_level.value(),
-                          .information = information.value() };
+    return TetrionHeader{ seed.value(), starting_level.value(), std::move(information.value()) };
 }
 
 [[nodiscard]] helper::reader::ReadResult<recorder::Record> recorder::RecordingReader::read_record_from_file(

@@ -47,11 +47,9 @@ namespace {
         headers.reserve(num_tetrions);
         for (u8 tetrion_index = 0; tetrion_index < num_tetrions; ++tetrion_index) {
             const auto& info = std::get<1>(infos.at(tetrion_index));
-            const auto information = additional_info.size() > tetrion_index ? additional_info.at(tetrion_index)
-                                                                            : recorder::AdditionalInformation{};
-            headers.push_back(recorder::TetrionHeader{ .seed = info.seed,
-                                                       .starting_level = info.starting_level,
-                                                       .information = information });
+            auto information = additional_info.size() > tetrion_index ? additional_info.at(tetrion_index)
+                                                                      : recorder::AdditionalInformation{};
+            headers.push_back(recorder::TetrionHeader{ info.seed, info.starting_level, std::move(information) });
         }
         return headers;
     }

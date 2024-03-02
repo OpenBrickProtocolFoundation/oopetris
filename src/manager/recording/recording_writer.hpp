@@ -32,7 +32,10 @@ namespace recorder {
 
         template<utils::integral Integral>
         void write(Integral data) {
-            helper::writer::write_integral_to_file(m_output_file, data);
+            const auto result = helper::writer::write_integral_to_file(m_output_file, data);
+            if (not result.has_value()) {
+                throw RecordingError{ fmt::format("error while writing: {}", result.error()) };
+            }
         }
     };
 

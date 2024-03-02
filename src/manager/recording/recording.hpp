@@ -33,6 +33,8 @@ namespace recorder {
         Random::Seed seed;
         u32 starting_level;
         AdditionalInformation information;
+
+        TetrionHeader(Random::Seed seed, u32 starting_level, AdditionalInformation&& information);
     };
 
     struct Recording {

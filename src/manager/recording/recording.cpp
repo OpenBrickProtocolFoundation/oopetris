@@ -2,6 +2,12 @@
 #include "recording.hpp"
 
 
+recorder::TetrionHeader::TetrionHeader(Random::Seed seed, u32 starting_level, AdditionalInformation&& information)
+    : seed{ seed },
+      starting_level{ starting_level },
+      information{ std::move(information) } { }
+
+
 [[nodiscard]] const std::vector<recorder::TetrionHeader>& recorder::Recording::tetrion_headers() const {
     return m_tetrion_headers;
 }

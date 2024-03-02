@@ -35,14 +35,10 @@ namespace recorder {
 
 
         template<typename T>
-        bool is() const {
+        [[nodiscard]] bool is() const {
             const T* retrieved = std::get_if<T>(&m_value);
 
-            if (retrieved == nullptr) {
-                return false;
-            }
-
-            return true;
+            return retrieved != nullptr;
         }
 
         template<typename T>
@@ -78,8 +74,9 @@ namespace recorder {
                                         [](const i64& value) { return std::to_string(value); },
                                         [](const std::vector<InformationValue>& value) {
                                             std::vector<std::string> strings{};
+                                            strings.reserve(value.size());
                                             for (const auto& element : value) {
-                                                strings.emplace_back(element.to_string());
+                                                strings.push_back(element.to_string());
                                             }
 
                                             return fmt::format("{{ {} }}", fmt::join(strings, ", "));
