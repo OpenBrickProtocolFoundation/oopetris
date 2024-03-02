@@ -1,13 +1,11 @@
 
 #include "load_file.hpp"
 
-#include <assert.hpp>
-#include <filesystem>
 #include <fmt/format.h>
 #include <fstream>
 #include <iostream>
 
-void external::load_file(const std::filesystem::path& file) {
+helper::expected<bool, std::string> external::load_file(const std::filesystem::path& file) {
 
     if (not std::filesystem::exists(file)) {
         return helper::unexpected<std::string>{ "File does not exist" };
@@ -16,9 +14,9 @@ void external::load_file(const std::filesystem::path& file) {
     const auto teal_extension = ".tl";
     const auto lua_extension = ".lua";
 
-    const auto file_extension = file.extension;
+    const auto file_extension = file.extension().string();
 
-    bool use_typed_lua { }
+    bool use_typed_lua{};
     if (file_extension == teal_extension) {
         use_typed_lua = true;
     } else if (file_extension == lua_extension) {
@@ -31,7 +29,7 @@ void external::load_file(const std::filesystem::path& file) {
     }
 
     sol::state lua{};
-    lua.open_libraries(sol::lib::base);
+    lua.open_libraries(sol::lib::package, sol::lib::base);
 
     if (use_typed_lua) {
         lua.safe_script(
@@ -39,14 +37,6 @@ void external::load_file(const std::filesystem::path& file) {
 tl.loader())--"
         );
     }
-
-    lua.safe_script(R"--(
-
-
-print("This should go to stdout")
-
-
-    )--");
 
 
     //TODO: use thread, environment etc.
@@ -58,6 +48,7 @@ print("This should go to stdout")
         std::cout << "an expected error has occurred: " << e.what() << "\n";
     }
 
+    return true;
 
     //
 }

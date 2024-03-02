@@ -70,6 +70,17 @@
 			"name": "utfcpp",
 			"version>=": "4.0.5",
 			"platform": "(x64 & static)"
+		},
+		{
+			"name": "sol2",
+			"version>=": "3.3.1",
+			"platform": "(x64 & static)"
+		},
+		{
+			"name": "luajit",
+			"version>=": "2.0.5#8",
+			"platform": "(x64 & static)"
 		}
-	]
+	],
+	"overrides": [{ "name": "luajit", "version": "2.0.5#8" }]
 }

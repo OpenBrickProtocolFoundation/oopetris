@@ -4,7 +4,7 @@ index bbda2be..da72dc7 100644
 +++ b/meson.build
 @@ -1,4 +1,4 @@
 -project('sol2', 'cpp')
-+project('sol2', 'cpp', version: '3.3.0')
++project('sol2', 'cpp', version: '3.3.1')
  
  # Find lua dependency
  if get_option('lua_cpp')

@@ -1,6 +1,7 @@
 src_files += files('scene.cpp', 'scene.hpp', 'scene_id.hpp')
 
 subdir('about_page')
+subdir('ai_game')
 subdir('game_over')
 subdir('main_menu')
 subdir('multiplayer_menu')

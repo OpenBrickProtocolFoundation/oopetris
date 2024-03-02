@@ -1,10 +1,13 @@
 #pragma once
 
-#define SOL_ALL_SAFETIES_ON 1
-#include <sol/sol.hpp>
+#include "helper/expected.hpp"
+#include "sol_include.hpp"
+
+#include <filesystem>
+#include <string>
 
 namespace external {
 
-    void load_file(const std::filesystem::path& file);
+    helper::expected<bool, std::string> load_file(const std::filesystem::path& file);
 
-}
+} // namespace external

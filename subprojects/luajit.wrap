@@ -1,0 +1,9 @@
+[wrap-file]
+directory = luajit-2.0.5-franko
+source_url = https://github.com/franko/luajit/archive/refs/tags/2.0.5-franko.tar.gz
+source_filename = luajit-2.0.5-franko.tar.gz
+source_hash = 26e06aec0ac8e910b836d5a80d9c8c2bd76ff2a814d5bec3515fab3f6dc899d8
+
+
+[provide]
+luajit = lua_dep

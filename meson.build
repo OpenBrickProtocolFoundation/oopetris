@@ -291,11 +291,29 @@ deps += dependency(
     version: '>=4.0.0',
 )
 
-deps += dependency(
+lua_deps = []
+lua_version = '5.1'
+
+luajit_dep = dependency(
+    'luajit',
+    required: true,
+    version: '>=2.0.5',
+    default_options: {
+            'cpp-httplib_openssl': 'enabled',
+            'cpp-httplib_zlib': 'enabled',
+    },
+)
+lua_deps+=luajit_dep
+meson.override_dependency('lua', luajit_dep)
+
+lua_deps = dependency(
     'sol2',
     required: true,
-    version: '>=3.0.0',
+    version: '>=3.3.1',
 )
+deps += lua_deps
+
+
 
 if (meson.is_cross_build() and host_machine.system() == 'switch')
 

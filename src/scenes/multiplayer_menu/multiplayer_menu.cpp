@@ -48,12 +48,11 @@ namespace scenes {
         UNUSED(online_button_id);
 #endif
 
-        const auto ai_button_id = m_main_grid.add<ui::Button>(
+        m_main_grid.add<ui::Button>(
                 service_provider, "vs AI", service_provider->fonts().get(FontId::Default), Color::white(),
                 id_helper.focus_id(), [this](const ui::Button&) { m_next_command = Command::AIMultiPlayer; },
                 button_size, button_alignment, button_margins
         );
-        m_main_grid.get<ui::Button>(ai_button_id)->disable();
 
         m_main_grid.add<ui::Button>(
                 service_provider, "Return", service_provider->fonts().get(FontId::Default), Color::white(),

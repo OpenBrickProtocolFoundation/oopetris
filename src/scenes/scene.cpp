@@ -1,5 +1,6 @@
 #include "scenes/scene.hpp"
 #include "about_page/about_page.hpp"
+#include "ai_game/ai_game.hpp"
 #include "game_over/game_over.hpp"
 #include "main_menu/main_menu.hpp"
 #include "multiplayer_menu/multiplayer_menu.hpp"
@@ -41,11 +42,11 @@ namespace scenes {
             case SceneId::OnlineLobby:
                 return std::make_unique<OnlineLobby>(&service_provider, layout);
 #endif
+            case SceneId::AIMultiPlayerGame:
+                return std::make_unique<AIGame>(&service_provider, layout);
             //TODO
             /*      
             case SceneId::LocalMultiPlayerGame:
-                return std::make_unique<TODO>(&service_provider, layout);
-            case SceneId::AIMultiPlayerGame:
                 return std::make_unique<TODO>(&service_provider, layout);
             case SceneId::OnlineMultiplayerGame:
                 return std::make_unique<TODO>(&service_provider, layout);
