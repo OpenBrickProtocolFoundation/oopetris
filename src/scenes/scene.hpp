@@ -1,7 +1,7 @@
 #pragma once
 
 #include "helper/command_line_arguments.hpp"
-#include "input/event_listener.hpp"
+#include "manager/event_listener.hpp"
 #include "manager/service_provider.hpp"
 #include "manager/settings.hpp"
 #include "scene_id.hpp"
@@ -11,7 +11,7 @@
 
 
 namespace scenes {
-    enum class SceneUpdate {
+    enum class SceneUpdate : u8 {
         ContinueUpdating,
         StopUpdating,
     };

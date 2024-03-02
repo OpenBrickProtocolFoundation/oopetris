@@ -9,7 +9,7 @@ namespace scenes {
 
     struct MainMenu : public Scene {
     private:
-        enum class Command {
+        enum class Command : u8 {
             OpenPlaySelection,
             OpenSettingsMenu,
             OpenAboutPage,

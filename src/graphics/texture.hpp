@@ -14,7 +14,7 @@
 #include <spdlog/spdlog.h>
 #include <string>
 
-enum class RenderType { Solid, Blended, Shaded };
+enum class RenderType : u8 { Solid, Blended, Shaded };
 
 struct Texture {
 private:
@@ -73,8 +73,7 @@ public:
     }
 
 
-    static Texture get_for_render_target(SDL_Renderer* renderer, const shapes::Point& size) {
-
+    static Texture get_for_render_target(SDL_Renderer* renderer, const shapes::UPoint& size) {
 
         SDL_DisplayMode mode{};
         const int result = SDL_GetCurrentDisplayMode(0, &mode);
@@ -82,8 +81,9 @@ public:
             throw std::runtime_error{ "failed in getting display mode: " + std::string{ SDL_GetError() } };
         }
 
-
-        auto* const texture = SDL_CreateTexture(renderer, mode.format, SDL_TEXTUREACCESS_TARGET, size.x, size.y);
+        auto* const texture = SDL_CreateTexture(
+                renderer, mode.format, SDL_TEXTUREACCESS_TARGET, static_cast<int>(size.x), static_cast<int>(size.y)
+        );
         if (texture == nullptr) {
             throw std::runtime_error(fmt::format("Failed to create texture with error: {}", SDL_GetError()));
         }
@@ -122,26 +122,28 @@ public:
         }
     }
 
-    void render(SDL_Renderer* renderer, const shapes::Rect& rect) const {
+    template<typename T>
+    void render(SDL_Renderer* renderer, const shapes::AbstractRect<T>& rect) const {
         const SDL_Rect rect_sdl = rect.to_sdl_rect();
         SDL_RenderCopy(renderer, m_raw_texture, nullptr, &rect_sdl);
     }
 
-    void render(SDL_Renderer* renderer, const shapes::Rect& from, const shapes::Rect& to) const {
+    template<typename T>
+    void render(SDL_Renderer* renderer, const shapes::AbstractRect<T>& from, const shapes::URect& to) const {
         const SDL_Rect from_rect_sdl = from.to_sdl_rect();
         const SDL_Rect to_rect_sdl = to.to_sdl_rect();
         SDL_RenderCopy(renderer, m_raw_texture, &from_rect_sdl, &to_rect_sdl);
     }
 
-    [[nodiscard]] shapes::Point size() const {
-        shapes::Point size;
+    [[nodiscard]] shapes::UPoint size() const {
+        shapes::IPoint size;
         const auto result = SDL_QueryTexture(m_raw_texture, nullptr, nullptr, &size.x, &size.y);
 
         if (result < 0) {
             spdlog::error("Failed to get texture size with error: {}", SDL_GetError());
             return { 0, 0 };
         }
-        return size;
+        return size.cast<u32>();
     }
 
 

@@ -3,54 +3,39 @@
 #include "helper/types.hpp"
 #include "manager/service_provider.hpp"
 #include "mino.hpp"
+
 #include <algorithm>
 #include <magic_enum.hpp>
 #include <vector>
 
-struct Grid;
-
 struct MinoStack final {
 private:
+    using GridPoint = shapes::AbstractPoint<u8>;
+    using ScreenCordsFunction = std::function<shapes::UPoint(const GridPoint&)>;
+
     std::vector<Mino> m_minos;
 
 public:
-    void clear_row_and_let_sink(int row);
-    [[nodiscard]] bool is_empty(shapes::Point coordinates) const;
-    void set(shapes::Point coordinates, TetrominoType type);
-    void draw_minos(const ServiceProvider& service_provider, const Grid* grid) const;
+    void clear_row_and_let_sink(u8 row);
+    [[nodiscard]] bool is_empty(GridPoint coordinates) const;
+    void set(GridPoint coordinates, TetrominoType type);
 
-    [[nodiscard]] usize num_minos() const {
-        return m_minos.size();
-    }
+#if !defined(_NO_SDL)
+    void draw_minos(
+            const ServiceProvider& service_provider,
+            double original_scale,
+            const ScreenCordsFunction& to_screen_coords,
+            const shapes::UPoint& tile_size
+    ) const;
+#endif
 
-    [[nodiscard]] const std::vector<Mino>& minos() const {
-        return m_minos;
-    }
+    [[nodiscard]] u32 num_minos() const;
 
-    [[nodiscard]] bool operator==(const MinoStack& other) const {
-        if (m_minos.size() != other.m_minos.size()) {
-            return false;
-        }
+    [[nodiscard]] const std::vector<Mino>& minos() const;
 
-        const auto all_of_this_in_other = std::all_of(m_minos.cbegin(), m_minos.cend(), [&](const auto& mino) {
-            return std::find(other.m_minos.cbegin(), other.m_minos.cend(), mino) != end(other.m_minos);
-        });
+    [[nodiscard]] bool operator==(const MinoStack& other) const;
 
-        if (not all_of_this_in_other) {
-            return false;
-        }
-
-        const auto all_of_other_in_this =
-                std::all_of(other.m_minos.cbegin(), other.m_minos.cend(), [this](const auto& mino) {
-                    return std::find(m_minos.cbegin(), m_minos.cend(), mino) != end(m_minos);
-                });
-
-        return all_of_other_in_this;
-    }
-
-    [[nodiscard]] bool operator!=(const MinoStack& other) const {
-        return not(*this == other);
-    }
+    [[nodiscard]] bool operator!=(const MinoStack& other) const;
 };
 
 std::ostream& operator<<(std::ostream& ostream, const MinoStack& mino_stack);

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "helper/music_utils.hpp"
 #include "helper/optional.hpp"
 #include "helper/types.hpp"
 #include "manager/service_provider.hpp"
@@ -37,7 +38,7 @@ public:
     MusicManager& operator=(const MusicManager&) = delete;
     MusicManager(const MusicManager&&) = delete;
     MusicManager& operator=(MusicManager&&) = delete;
-    ~MusicManager();
+    ~MusicManager() noexcept;
 
     helper::optional<std::string>
     load_and_play_music(const std::filesystem::path& location, usize delay = MusicManager::fade_ms);

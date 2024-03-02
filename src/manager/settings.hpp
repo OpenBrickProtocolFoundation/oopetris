@@ -2,14 +2,13 @@
 
 #include "helper/magic_enum_wrapper.hpp"
 #include "helper/parse_json.hpp"
-#include "input/controls.hpp"
-#include <array>
+#include "manager/controls.hpp"
+#include "platform/platform.hpp"
 
+#include <array>
 #include <fmt/format.h>
 #include <string>
 #include <variant>
-
-inline constexpr auto max_num_players = 4;
 
 inline void to_json(nlohmann::json& j, const KeyboardControls& controls) {
     j = nlohmann::json{
@@ -83,7 +82,9 @@ inline void from_json(const nlohmann::json& j, Controls& controls) {
 }
 
 struct Settings {
-    std::array<Controls, max_num_players> controls;
+    Platform platform;
+    Controls controls;
+    float volume;
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Settings, controls)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Settings, platform, controls, volume)

@@ -290,7 +290,7 @@ namespace {
 #endif
 }
 
-[[nodiscard]] std::pair<int, int> utils::get_raw_coordinates(const Window* window, const SDL_Event& event) {
+[[nodiscard]] std::pair<u32, u32> utils::get_raw_coordinates(const Window* window, const SDL_Event& event) {
 
     assert(utils::event_is_click_event(event, utils::CrossPlatformClickEvent::Any) && "expected a click event");
 
@@ -299,8 +299,8 @@ namespace {
     const double x_percent = event.tfinger.x;
     const double y_percent = event.tfinger.y;
     const auto window_size = window->size();
-    const auto x = static_cast<Sint32>(std::round(x_percent * window_size.x));
-    const auto y = static_cast<Sint32>(std::round(y_percent * window_size.y));
+    const auto x = static_cast<u32>(std::round(x_percent * window_size.x));
+    const auto y = static_cast<u32>(std::round(y_percent * window_size.y));
 
 
 #elif defined(__SWITCH__)
@@ -330,11 +330,11 @@ namespace {
 #endif
 
 
-    return { x, y };
+    return { static_cast<u32>(x), static_cast<u32>(y) };
 }
 
 
-[[nodiscard]] bool utils::is_event_in(const Window* window, const SDL_Event& event, const shapes::Rect& rect) {
+[[nodiscard]] bool utils::is_event_in(const Window* window, const SDL_Event& event, const shapes::URect& rect) {
 
     const auto& [x, y] = get_raw_coordinates(window, event);
 
@@ -350,7 +350,7 @@ namespace {
 }
 
 
-[[nodiscard]] SDL_Event utils::offset_event(const Window* window, const SDL_Event& event, const shapes::Point& point) {
+[[nodiscard]] SDL_Event utils::offset_event(const Window* window, const SDL_Event& event, const shapes::IPoint& point) {
 
 
     assert(utils::event_is_click_event(event, utils::CrossPlatformClickEvent::Any) && "expected a click event");

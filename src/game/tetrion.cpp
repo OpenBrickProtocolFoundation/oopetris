@@ -1,7 +1,8 @@
-#include "game/tetrion.hpp"
+#include "tetrion.hpp"
 #include "helper/constants.hpp"
+#include "helper/music_utils.hpp"
 #include "helper/utils.hpp"
-#include "manager/recording.hpp"
+#include "manager/recording/recording_writer.hpp"
 #include "manager/resource_manager.hpp"
 
 #include <cassert>
@@ -13,15 +14,15 @@ Tetrion::Tetrion(
         const u8 tetrion_index,
         const Random::Seed random_seed,
         const u32 starting_level,
-        ServiceProvider* service_provider,
-        helper::optional<RecordingWriter*> recording_writer,
+        ServiceProvider* const service_provider,
+        helper::optional<std::shared_ptr<recorder::RecordingWriter>> recording_writer,
         const ui::Layout& layout
 )
     : ui::Widget{ layout },
       m_next_gravity_simulation_step_index{ get_gravity_delay_frames() },
       m_lock_delay_step_index{ lock_delay },
       m_service_provider{ service_provider },
-      m_recording_writer{ recording_writer },
+      m_recording_writer{ std::move(recording_writer) },
       m_random{ random_seed },
       m_level{ starting_level },
       m_tetrion_index{ tetrion_index },
@@ -99,15 +100,25 @@ void Tetrion::render(const ServiceProvider& service_provider) const {
 
     main_layout.render(service_provider);
 
-    //TODO: move the rendering into the grid, this here is ugly
     const auto* grid = get_grid();
+    const double original_scale = grid->scale_to_original();
+    const ScreenCordsFunction to_screen_coords = [grid](const GridPoint& point) {
+        return grid->to_screen_coords(point);
+    };
+    const shapes::UPoint& tile_size = grid->tile_size();
 
-    m_mino_stack.draw_minos(service_provider, grid);
+    m_mino_stack.draw_minos(service_provider, original_scale, to_screen_coords, tile_size);
     if (m_active_tetromino) {
-        m_active_tetromino->render(service_provider, grid, MinoTransparency::Solid, Grid::grid_position);
+        m_active_tetromino->render(
+                service_provider, MinoTransparency::Solid, original_scale, to_screen_coords, tile_size,
+                grid::grid_position
+        );
     }
     if (m_ghost_tetromino) {
-        m_ghost_tetromino->render(service_provider, grid, MinoTransparency::Ghost, Grid::grid_position);
+        m_ghost_tetromino->render(
+                service_provider, MinoTransparency::Ghost, original_scale, to_screen_coords, tile_size,
+                grid::grid_position
+        );
     }
     for (std::underlying_type_t<MinoTransparency> i = 0; i < static_cast<decltype(i)>(m_preview_tetrominos.size());
          ++i) {
@@ -117,11 +128,15 @@ void Tetrion::render(const ServiceProvider& service_provider) const {
             const auto transparency = magic_enum::enum_value<MinoTransparency>(
                     enum_index.value() + i // NOLINT(bugprone-unchecked-optional-access)
             );
-            current_preview_tetromino->render(service_provider, grid, transparency);
+            current_preview_tetromino->render(
+                    service_provider, transparency, original_scale, to_screen_coords, tile_size
+            );
         }
     }
     if (m_tetromino_on_hold) {
-        m_tetromino_on_hold->render(service_provider, grid, MinoTransparency::Solid);
+        m_tetromino_on_hold->render(
+                service_provider, MinoTransparency::Solid, original_scale, to_screen_coords, tile_size
+        );
     }
 }
 
@@ -156,6 +171,7 @@ bool Tetrion::handle_input_command(const InputCommand command, const SimulationS
             }
             return false;
         case InputCommand::MoveDown:
+            //TODO: use input_type() != InputType:Touch
 #if not defined(__ANDROID__)
             m_down_key_pressed = true;
             m_is_accelerated_down_movement = true;
@@ -192,28 +208,48 @@ void Tetrion::spawn_next_tetromino(const SimulationStep simulation_step_index) {
 }
 
 void Tetrion::spawn_next_tetromino(const TetrominoType type, const SimulationStep simulation_step_index) {
-    static constexpr shapes::Point spawn_position{ 3, 0 };
+    constexpr GridPoint spawn_position{ 3, 0 };
     m_active_tetromino = Tetromino{ spawn_position, type };
     refresh_previews();
     if (not is_active_tetromino_position_valid()) {
         m_game_state = GameState::GameOver;
 
+        auto current_pieces = m_active_tetromino.value().minos();
+
+        bool all_valid{ false };
+        u8 move_up = 0;
+        while (not all_valid) {
+            all_valid = true;
+            for (auto& mino : current_pieces) {
+                if (mino.position().y != 0) {
+                    mino.position() = mino.position() - GridPoint{ 0, 1 };
+                    if (not is_valid_mino_position(mino.position())) {
+                        all_valid = false;
+                    }
+                }
+            }
+
+            ++move_up;
+        }
+
+        for (const Mino& mino : m_active_tetromino->minos()) {
+            auto position = mino.position();
+            if (mino.position().y >= move_up && move_up != 0) {
+                position -= GridPoint{ 0, move_up };
+                m_mino_stack.set(position, mino.type());
+            }
+        }
+
         spdlog::info("game over");
         if (m_recording_writer.has_value()) {
             spdlog::info("writing snapshot");
-            (*m_recording_writer)->add_snapshot(m_tetrion_index, simulation_step_index, *this);
+            m_recording_writer.value()->add_snapshot(m_tetrion_index, simulation_step_index, core_information());
         }
         m_active_tetromino = {};
         m_ghost_tetromino = {};
         return;
     }
-    for (usize i = 0; not is_active_tetromino_completely_visible() and i < Grid::invisible_rows; ++i) {
-        m_active_tetromino->move_down();
-        if (not is_active_tetromino_position_valid()) {
-            m_active_tetromino->move_up();
-            break;
-        }
-    }
+
     m_next_gravity_simulation_step_index = simulation_step_index + get_gravity_delay_frames();
     refresh_ghost_tetromino();
 }
@@ -227,27 +263,28 @@ bool Tetrion::rotate_tetromino_left() {
 }
 
 bool Tetrion::move_tetromino_down(MovementType movement_type, const SimulationStep simulation_step_index) {
-    if (not m_active_tetromino) {
+    if (not m_active_tetromino.has_value()) {
         return false;
     }
     if (movement_type == MovementType::Forced) {
         m_score += 4;
     }
 
-    m_active_tetromino->move_down();
-    if (not is_active_tetromino_position_valid()) {
-        m_is_in_lock_delay = true;
-        m_active_tetromino->move_up();
-        if ((m_is_in_lock_delay and m_num_executed_lock_delays >= num_lock_delays)
-            or simulation_step_index >= m_lock_delay_step_index) {
-            lock_active_tetromino(simulation_step_index);
-            reset_lock_delay(simulation_step_index);
-        } else {
-            m_next_gravity_simulation_step_index = simulation_step_index + 1;
-        }
-        return false;
+
+    if (tetromino_can_move_down(m_active_tetromino.value())) {
+        m_active_tetromino->move_down();
+        return true;
     }
-    return true;
+
+    m_is_in_lock_delay = true;
+    if ((m_is_in_lock_delay and m_num_executed_lock_delays >= num_lock_delays)
+        or simulation_step_index >= m_lock_delay_step_index) {
+        lock_active_tetromino(simulation_step_index);
+        reset_lock_delay(simulation_step_index);
+    } else {
+        m_next_gravity_simulation_step_index = simulation_step_index + 1;
+    }
+    return false;
 }
 
 bool Tetrion::move_tetromino_left() {
@@ -259,16 +296,16 @@ bool Tetrion::move_tetromino_right() {
 }
 
 bool Tetrion::drop_tetromino(const SimulationStep simulation_step_index) {
-    if (not m_active_tetromino) {
+    if (not m_active_tetromino.has_value()) {
         return false;
     }
-    int num_movements = 0;
-    while (is_active_tetromino_position_valid()) {
+    u64 num_movements = 0;
+    while (tetromino_can_move_down(m_active_tetromino.value())) {
         ++num_movements;
         m_active_tetromino->move_down();
     }
-    m_active_tetromino->move_up();
-    m_score += 4 * num_movements;
+
+    m_score += static_cast<u64>(4) * num_movements;
     lock_active_tetromino(simulation_step_index);
     return num_movements > 0;
 }
@@ -279,13 +316,58 @@ void Tetrion::hold_tetromino(const SimulationStep simulation_step_index) {
     }
 
     if (not m_tetromino_on_hold.has_value()) {
-        m_tetromino_on_hold = Tetromino{ Grid::hold_tetromino_position, m_active_tetromino->type() };
+        m_tetromino_on_hold = Tetromino{ grid::hold_tetromino_position, m_active_tetromino->type() };
         spawn_next_tetromino(simulation_step_index);
     } else {
         const auto on_hold = m_tetromino_on_hold->type();
-        m_tetromino_on_hold = Tetromino{ Grid::hold_tetromino_position, m_active_tetromino->type() };
+        m_tetromino_on_hold = Tetromino{ grid::hold_tetromino_position, m_active_tetromino->type() };
         spawn_next_tetromino(on_hold, simulation_step_index);
     }
+}
+
+[[nodiscard]] Grid* Tetrion::get_grid() {
+    return main_layout.get<Grid>(0);
+}
+
+[[nodiscard]] const Grid* Tetrion::get_grid() const {
+    return main_layout.get<Grid>(0);
+}
+
+[[nodiscard]] ui::GridLayout* Tetrion::get_texts() {
+    return main_layout.get<ui::GridLayout>(1);
+}
+
+[[nodiscard]] const ui::GridLayout* Tetrion::get_texts() const {
+    return main_layout.get<ui::GridLayout>(1);
+}
+
+[[nodiscard]] u8 Tetrion::tetrion_index() const {
+    return m_tetrion_index;
+}
+
+[[nodiscard]] u32 Tetrion::level() const {
+    return m_level;
+}
+
+[[nodiscard]] u64 Tetrion::score() const {
+    return m_score;
+}
+
+[[nodiscard]] u32 Tetrion::lines_cleared() const {
+    return m_lines_cleared;
+}
+
+[[nodiscard]] const MinoStack& Tetrion::mino_stack() const {
+    return m_mino_stack;
+}
+
+[[nodiscard]] std::unique_ptr<TetrionCoreInformation> Tetrion::core_information() const {
+
+    return std::make_unique<TetrionCoreInformation>(m_tetrion_index, m_level, m_score, m_lines_cleared, m_mino_stack);
+}
+
+[[nodiscard]] bool Tetrion::is_game_over() const {
+    return m_game_state == GameState::GameOver;
 }
 
 void Tetrion::reset_lock_delay(const SimulationStep simulation_step_index) {
@@ -314,10 +396,10 @@ void Tetrion::clear_fully_occupied_lines() {
     const u32 lines_cleared_before = m_lines_cleared;
     do { // NOLINT(cppcoreguidelines-avoid-do-while)
         cleared = false;
-        for (usize row = 0; row < Grid::height_in_tiles; ++row) {
+        for (u8 row = 0; row < grid::height_in_tiles; ++row) {
             bool fully_occupied = true;
-            for (usize column = 0; column < Grid::width_in_tiles; ++column) {
-                if (m_mino_stack.is_empty(shapes::Point{ static_cast<int>(column), static_cast<int>(row) })) {
+            for (u8 column = 0; column < grid::width_in_tiles; ++column) {
+                if (m_mino_stack.is_empty(GridPoint{ column, row })) {
                     fully_occupied = false;
                     break;
                 }
@@ -345,8 +427,8 @@ void Tetrion::clear_fully_occupied_lines() {
         }
     } while (cleared);
     const u32 num_lines_cleared = m_lines_cleared - lines_cleared_before;
-    static constexpr std::array<int, 5> score_per_line_multiplier{ 0, 40, 100, 300, 1200 };
-    m_score += score_per_line_multiplier.at(num_lines_cleared) * (m_level + 1);
+    static constexpr std::array<u32, 5> score_per_line_multiplier{ 0, 40, 100, 300, 1200 };
+    m_score += static_cast<u64>(score_per_line_multiplier.at(num_lines_cleared)) * static_cast<u64>(m_level + 1);
 }
 
 void Tetrion::lock_active_tetromino(const SimulationStep simulation_step_index) {
@@ -366,7 +448,7 @@ void Tetrion::lock_active_tetromino(const SimulationStep simulation_step_index) 
 #ifdef DEBUG_BUILD
     if (m_recording_writer) {
         spdlog::debug("adding snapshot at step {}", simulation_step_index);
-        (*m_recording_writer)->add_snapshot(m_tetrion_index, simulation_step_index, *this);
+        (*m_recording_writer)->add_snapshot(m_tetrion_index, simulation_step_index, core_information());
     }
 #endif
 }
@@ -375,36 +457,31 @@ bool Tetrion::is_active_tetromino_position_valid() const {
     if (not m_active_tetromino) {
         return false;
     }
-    return is_tetromino_position_valid(*m_active_tetromino);
+    return is_tetromino_position_valid(m_active_tetromino.value());
 }
 
-bool Tetrion::is_valid_mino_position(shapes::Point position) const {
-    return position.x >= 0 and position.x < static_cast<int>(Grid::width_in_tiles) and position.y >= 0
-           and position.y < static_cast<int>(Grid::height_in_tiles) and m_mino_stack.is_empty(position);
+bool Tetrion::is_valid_mino_position(GridPoint position) const {
+    return position.x < grid::width_in_tiles and position.y < grid::height_in_tiles and m_mino_stack.is_empty(position);
 }
 
-bool Tetrion::is_active_tetromino_completely_visible() const {
-    if (not m_active_tetromino) {
+bool Tetrion::mino_can_move_down(GridPoint position) const {
+    if (position.y == (grid::height_in_tiles - 1)) {
         return false;
     }
-    for (const Mino& mino : m_active_tetromino->minos()) { // NOLINT(readability-use-anyofallof)
-        if (mino.position().y < static_cast<int>(Grid::invisible_rows)) {
-            return false;
-        }
-    }
-    return true;
+
+    return is_valid_mino_position(position + GridPoint{ 0, 1 });
 }
+
 
 void Tetrion::refresh_ghost_tetromino() {
     if (not m_active_tetromino.has_value()) {
         m_ghost_tetromino = {};
         return;
     }
-    m_ghost_tetromino = *m_active_tetromino;
-    while (is_tetromino_position_valid(*m_ghost_tetromino)) {
+    m_ghost_tetromino = m_active_tetromino.value();
+    while (tetromino_can_move_down(m_ghost_tetromino.value())) {
         m_ghost_tetromino->move_down();
     }
-    m_ghost_tetromino->move_up();
 }
 
 void Tetrion::refresh_previews() {
@@ -412,7 +489,7 @@ void Tetrion::refresh_previews() {
     auto bag_index = usize{ 0 };
     for (std::remove_cvref_t<decltype(num_preview_tetrominos)> i = 0; i < num_preview_tetrominos; ++i) {
         m_preview_tetrominos.at(static_cast<usize>(i)) = Tetromino{
-            Grid::preview_tetromino_position + shapes::Point{0, static_cast<int>(Grid::preview_padding * i)},
+            grid::preview_tetromino_position + shapes::UPoint{0, static_cast<u32>(grid::preview_padding * i)},
             m_sequence_bags.at(bag_index)[sequence_index]
         };
         ++sequence_index;
@@ -437,6 +514,52 @@ TetrominoType Tetrion::get_next_tetromino_type() {
     return next_type;
 }
 
+bool Tetrion::tetromino_can_move_down(const Tetromino& tetromino) const {
+    for (const Mino& mino : tetromino.minos()) { // NOLINT(readability-use-anyofallof)
+        if (not mino_can_move_down(mino.position())) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+[[nodiscard]] u64 Tetrion::get_gravity_delay_frames() const {
+    const auto frames = (m_level >= frames_per_tile.size() ? frames_per_tile.back() : frames_per_tile.at(m_level));
+    if (m_is_accelerated_down_movement) {
+        return std::max(u64{ 1 }, static_cast<u64>(std::round(static_cast<double>(frames) / 20.0)));
+    }
+    return frames;
+}
+
+u8 Tetrion::rotation_to_index(const Rotation from, const Rotation to) {
+    if (from == Rotation::North and to == Rotation::East) {
+        return 0;
+    }
+    if (from == Rotation::East and to == Rotation::North) {
+        return 1;
+    }
+    if (from == Rotation::East and to == Rotation::South) {
+        return 2;
+    }
+    if (from == Rotation::South and to == Rotation::East) {
+        return 3;
+    }
+    if (from == Rotation::South and to == Rotation::West) {
+        return 4;
+    }
+    if (from == Rotation::West and to == Rotation::South) {
+        return 5;
+    }
+    if (from == Rotation::West and to == Rotation::North) {
+        return 6;
+    }
+    if (from == Rotation::North and to == Rotation::West) {
+        return 7;
+    }
+    utils::unreachable();
+}
+
 bool Tetrion::is_tetromino_position_valid(const Tetromino& tetromino) const {
     for (const Mino& mino : tetromino.minos()) { // NOLINT(readability-use-anyofallof)
         if (not is_valid_mino_position(mino.position())) {
@@ -457,7 +580,7 @@ bool Tetrion::rotate(Tetrion::RotationDirection rotation_direction) {
     }
 
     const auto from_rotation = m_active_tetromino->rotation();
-    const auto to_rotation = from_rotation + (rotation_direction == RotationDirection::Left ? -1 : 1);
+    const auto to_rotation = from_rotation + static_cast<i8>(rotation_direction == RotationDirection::Left ? -1 : 1);
     const auto table_index = rotation_to_index(from_rotation, to_rotation);
 
     if (rotation_direction == RotationDirection::Left) {

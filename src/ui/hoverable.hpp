@@ -8,17 +8,17 @@
 
 namespace ui {
 
-    enum class ActionType { Hover, Clicked };
+    enum class ActionType : u8 { Hover, Clicked };
 
     struct Hoverable {
 
     private:
         bool m_is_hovered{ false };
-        shapes::Rect m_fill_rect;
+        shapes::URect m_fill_rect;
 
 
     public:
-        explicit Hoverable(const shapes::Rect& fill_rect)
+        explicit Hoverable(const shapes::URect& fill_rect)
             : m_fill_rect{ fill_rect } {
 
               };

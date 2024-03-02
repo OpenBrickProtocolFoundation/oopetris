@@ -12,7 +12,7 @@ namespace scenes {
 
     struct OnlineLobby : public Scene {
     private:
-        enum class Command { Play, Return };
+        enum class Command : u8 { Play, Return };
 
         ui::TileLayout m_main_layout;
         helper::optional<Command> m_next_command;

@@ -3,6 +3,7 @@
 #include "manager/music_manager.hpp"
 #include "manager/resource_manager.hpp"
 #include "platform/capabilities.hpp"
+
 #include <fmt/format.h>
 
 namespace scenes {
@@ -33,11 +34,11 @@ namespace scenes {
     [[nodiscard]] Scene::UpdateResult GameOver::update() {
         if (m_should_exit) {
             return UpdateResult{
-                SceneUpdate::ContinueUpdating,
+                SceneUpdate::StopUpdating,
                 Scene::Switch{SceneId::MainMenu, ui::FullScreenLayout{ m_service_provider->window() }}
             };
         }
-        return UpdateResult{ SceneUpdate::ContinueUpdating, helper::nullopt };
+        return UpdateResult{ SceneUpdate::StopUpdating, helper::nullopt };
     }
 
     void GameOver::render(const ServiceProvider& service_provider) {

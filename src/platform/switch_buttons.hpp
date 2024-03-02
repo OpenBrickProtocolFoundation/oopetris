@@ -2,9 +2,8 @@
 
 #pragma once
 
-#if not defined(__SWITCH__)
-// this header is switch only
-#else
+#if defined(__SWITCH__)
+
 
 #include "switch.h"
 

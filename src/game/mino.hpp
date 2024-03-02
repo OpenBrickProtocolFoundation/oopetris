@@ -4,9 +4,9 @@
 #include "helper/types.hpp"
 #include "manager/service_provider.hpp"
 #include "tetromino_type.hpp"
-#include <array>
 
-struct Grid;
+#include <array>
+#include <functional>
 
 enum class MinoTransparency : u8 {
     // here the enum value is used as index into the preview alpha array
@@ -23,37 +23,33 @@ enum class MinoTransparency : u8 {
 
 struct Mino final {
 private:
-    shapes::Point m_position;
+    using GridPoint = shapes::AbstractPoint<u8>;
+    using ScreenCordsFunction = std::function<shapes::UPoint(const GridPoint&)>;
+    GridPoint m_position;
     TetrominoType m_type;
     static constexpr int original_inset = 3;
 
 public:
-    explicit constexpr Mino(shapes::Point coords, TetrominoType type) : m_position{ coords }, m_type{ type } { }
+    explicit constexpr Mino(GridPoint position, TetrominoType type) : m_position{ position }, m_type{ type } { }
 
+#if !defined(_NO_SDL)
     void render(
             const ServiceProvider& service_provider,
-            const Grid* grid,
             MinoTransparency transparency,
-            const shapes::Point& offset = shapes::Point::zero()
+             double original_scale,
+            const ScreenCordsFunction& to_screen_coords,
+            const shapes::UPoint& tile_size,
+            const GridPoint& offset = GridPoint::zero()
     ) const;
+#endif
 
-    [[nodiscard]] TetrominoType type() const {
-        return m_type;
-    }
+    [[nodiscard]] TetrominoType type() const;
 
-    [[nodiscard]] shapes::Point position() const {
-        return m_position;
-    }
+    [[nodiscard]] const GridPoint& position() const;
 
-    [[nodiscard]] shapes::Point& position() {
-        return m_position;
-    }
+    [[nodiscard]] GridPoint& position();
 
-    [[nodiscard]] bool operator==(const Mino& other) const {
-        return m_position == other.m_position and m_type == other.m_type;
-    }
+    [[nodiscard]] bool operator==(const Mino& other) const;
 
-    [[nodiscard]] bool operator!=(const Mino& other) const {
-        return not(*this == other);
-    }
+    [[nodiscard]] bool operator!=(const Mino& other) const;
 };

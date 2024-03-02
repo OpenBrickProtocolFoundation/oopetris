@@ -2,6 +2,8 @@
 
 #include <SDL.h>
 
+//TODO: remove this, SDL has it's own conversion function!
+
 enum class KeyCode {
     Unknown,
     Return,

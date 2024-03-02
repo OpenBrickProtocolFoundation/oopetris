@@ -14,12 +14,11 @@
 
 struct CommandLineArguments final {
 private:
-    static inline constexpr auto default_target_fps = u64{ 60 };
-    static inline constexpr auto default_starting_level = i32{ 0 };
+    static inline constexpr auto default_starting_level = u32{ 0 };
 
 public:
     helper::optional<std::filesystem::path> recording_path{};
-    std::remove_cvref_t<decltype(default_target_fps)> target_fps{ default_target_fps };
+    helper::optional<u32> target_fps{};
     std::remove_cvref_t<decltype(default_starting_level)> starting_level{ default_starting_level };
     bool silent{ false };
 
@@ -27,10 +26,7 @@ public:
         argparse::ArgumentParser parser{ constants::program_name, constants::version,
                                          argparse::default_arguments::all };
         parser.add_argument("-r", "--recording").help("the path of a recorded game used for replay");
-        parser.add_argument("-f", "--target-fps")
-                .help("the number of simulation steps per second")
-                .scan<'i', decltype(target_fps)>()
-                .default_value(default_target_fps);
+        parser.add_argument("-f", "--target-fps").help("the number of simulation steps per second").scan<'i', u32>();
         parser.add_argument("-l", "--level")
                 .help("the starting level of the game")
                 .scan<'i', decltype(starting_level)>()
@@ -44,15 +40,19 @@ public:
                 recording_path = utils::get_root_folder() / *path;
             }
 
-            const auto fps = parser.get<decltype(target_fps)>("--target-fps");
-            if (fps >= 1) {
-                target_fps = fps;
-            } else {
-                spdlog::error("invalid value for target fps ({}), using default value instead ({})", fps, target_fps);
+            const auto fps = parser.present<u32>("--target-fps");
+            if (fps.has_value()) {
+                if (fps.value() >= 1) {
+                    target_fps = fps.value();
+                } else {
+                    spdlog::error(
+                            "invalid value for target fps ({}), using default value instead (VSYNC)", fps.value()
+                    );
+                }
             }
 
             const auto level = parser.get<decltype(starting_level)>("--level");
-            if (level >= 0 and level <= 30) {
+            if (level <= 30) {
                 starting_level = level;
             } else {
                 spdlog::error(

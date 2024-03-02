@@ -1,6 +1,8 @@
 #pragma once
 
-enum class InputEvent {
+#include "helper/types.hpp"
+
+enum class InputEvent : u8 {
     RotateLeftPressed,
     RotateRightPressed,
     MoveLeftPressed,

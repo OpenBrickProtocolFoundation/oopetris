@@ -40,11 +40,21 @@ jobs:
             library_type: shared
             shell: bash
 
-          - name: Linux Clang Release
+          - name: Linux Clang Release (libstdc++)
             os: ubuntu
             os-version: 22.04
             buildtype: release
             use-clang: true
+            use-clang_stdlib: false
+            library_type: shared
+            shell: bash
+
+          - name: Linux Clang Release (libc++)
+            os: ubuntu
+            os-version: 22.04
+            buildtype: release
+            use-clang: true
+            use-clang_stdlib: true
             library_type: shared
             shell: bash
 
@@ -88,10 +98,14 @@ jobs:
 
       - name: Setup Clang (Linux)
         if: matrix.config.os == 'ubuntu' && matrix.config.use-clang == true
-        uses: egor-tensin/setup-clang@v1
-        with:
-          version: 17
-          platform: x64
+        run: |
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh 17
+          sudo apt-get install libc++-17* libc++abi*17* -y
+          echo "CC=clang-17" >> "$GITHUB_ENV"
+          echo "CXX=clang++-17" >> "$GITHUB_ENV"
+
 
       - name: Setup GCC (Linux)
         if: matrix.config.os == 'ubuntu' && matrix.config.use-clang == false
@@ -108,10 +122,12 @@ jobs:
           echo "$(brew --prefix)/opt/llvm/bin" >> $GITHUB_PATH
           echo "LDFLAGS=-L$(brew --prefix)/opt/llvm/lib -L$(brew --prefix)/opt/llvm/lib/c++ -Wl,-rpath,$(brew --prefix)/opt/llvm/lib/c++" >> "$GITHUB_ENV"
           echo "CPPFLAGS=-I$(brew --prefix)/opt/llvm/include" >> "$GITHUB_ENV"
-          echo "CC=clang-17" >> "$GITHUB_ENV"
-          echo "CXX=clang-17" >> "$GITHUB_ENV"
+          echo "CC=clang" >> "$GITHUB_ENV"
+          echo "CXX=clang++" >> "$GITHUB_ENV"
+          echo "CC_LD=lld" >> "$GITHUB_ENV"
+          echo "CXX_LD=lld" >> "$GITHUB_ENV"
 
-      - name: Install python (If needed)
+      - name: Install python and meson (MacOS ARM64)
         if: matrix.config.os == 'macos' && matrix.config.arm
         run: |
           brew update 
@@ -119,7 +135,7 @@ jobs:
             brew install meson
             echo "/opt/homebrew/opt/python@3.12/libexec/bin" >> $GITHUB_PATH
   
-      - name: Setup Meson
+      - name: Setup meson
         if: matrix.config.os != 'macos' || (! matrix.config.arm)
         run: |
           python -m pip install --upgrade pip
@@ -135,13 +151,13 @@ jobs:
         if: matrix.config.os == 'macos'
         run: |
           brew update
-          brew install ninja sdl2 sdl2_ttf sdl2_mixer sdl2_image fmt
+          brew install ninja sdl2 sdl2_ttf sdl2_mixer sdl2_image
 
       - name: Configure
-        run: meson setup build -Dbuildtype=${{ matrix.config.buildtype }} -Ddefault_library=${{ matrix.config.library_type }}
+        run: meson setup build -Dbuildtype=${{ matrix.config.buildtype }} -Ddefault_library=${{ matrix.config.library_type }} -Dclang_libcpp=${{ ( ( matrix.config.os == 'ubuntu' && matrix.config.use-clang == true && matrix.config.use-clang_stdlib ) || matrix.config.os == 'macos' )  && 'enabled' || 'disabled' }} 
 
       - name: Build
-        run: meson compile -C build
+        run: meson compile -C build 
 
       - name: Upload artifacts - Linux
         uses: actions/upload-artifact@v4

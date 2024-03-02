@@ -11,7 +11,7 @@ namespace ui {
     struct ImageView final : public Widget {
     private:
         Texture m_image;
-        shapes::Rect m_fill_rect;
+        shapes::URect m_fill_rect;
 
     public:
         explicit ImageView(

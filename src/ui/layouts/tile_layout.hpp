@@ -19,7 +19,7 @@ namespace ui {
 
     struct TileLayout : public Widget, public Hoverable {
     private:
-        enum class FocusChangeDirection {
+        enum class FocusChangeDirection : u8 {
             Forward,
             Backward,
         };

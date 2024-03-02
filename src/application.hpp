@@ -5,12 +5,17 @@
 #include "graphics/window.hpp"
 #include "helper/command_line_arguments.hpp"
 #include "helper/types.hpp"
-#include "input/event_dispatcher.hpp"
-#include "input/event_listener.hpp"
+#include "manager/event_dispatcher.hpp"
+#include "manager/event_listener.hpp"
 #include "manager/music_manager.hpp"
 #include "manager/resource_manager.hpp"
 #include "manager/service_provider.hpp"
 #include "scenes/scene.hpp"
+
+#ifdef DEBUG_BUILD
+#include "graphics/text.hpp"
+#endif
+
 #include <memory>
 #include <vector>
 
@@ -27,6 +32,11 @@ private:
     static constexpr auto settings_filename = "settings.json";
     Settings m_settings;
     FontManager m_font_manager;
+    helper::optional<u32> m_target_framerate;
+
+#ifdef DEBUG_BUILD
+    std::unique_ptr<Text> m_fps_text{ nullptr };
+#endif
 
 protected:
     EventDispatcher m_event_dispatcher;
@@ -35,16 +45,12 @@ private:
     std::vector<std::unique_ptr<scenes::Scene>> m_scene_stack;
 
 public:
-    Application(int argc, char** argv, const std::string& title, WindowPosition position, int width, int height);
+    Application(int argc, char** argv, const std::string& title, WindowPosition position, u32 width, u32 height);
     Application(int argc, char** argv, const std::string& title, WindowPosition position);
     Application(const Application&) = delete;
     Application& operator=(const Application&) = delete;
 
     void run();
-
-    [[nodiscard]] static double elapsed_time() {
-        return static_cast<double>(SDL_GetTicks()) / 1000.0;
-    }
 
     void handle_event(const SDL_Event& event, const Window* window) override;
 
@@ -101,8 +107,6 @@ public:
     [[nodiscard]] Window& window() override {
         return m_window;
     }
-
-    [[nodiscard]] std::vector<scenes::Scene*> active_scenes() const override;
 
 private:
     void initialize();

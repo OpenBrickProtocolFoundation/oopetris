@@ -2,7 +2,7 @@
 
 #include "graphics/rect.hpp"
 #include "helper/optional.hpp"
-#include "input/event_listener.hpp"
+#include "manager/event_listener.hpp"
 
 #include <SDL.h>
 #include <algorithm>
@@ -55,12 +55,16 @@ public:
             }
 
             for (const auto& listener : m_listeners) {
+                if (listener->is_paused()) {
+                    continue;
+                }
+
                 listener->handle_event(event, m_window);
             }
         }
     }
 
-    void start_text_input(const helper::optional<shapes::Rect>& rect) {
+    void start_text_input(const helper::optional<shapes::URect>& rect) {
         if (m_input_activated) {
             return;
         }

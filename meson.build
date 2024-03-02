@@ -15,7 +15,9 @@ project(
 )
 
 compile_args = []
+link_args = []
 deps = []
+recording_dependencies = []
 
 cpp = meson.get_compiler('cpp')
 
@@ -23,11 +25,36 @@ cpp = meson.get_compiler('cpp')
 if cpp.get_id() == 'gcc'
     compile_args += ['-Wold-style-cast']
 elif cpp.get_id() == 'clang'
-    if host_machine.system() == 'darwin'
+
+    build_with_libcpp_option = get_option('clang_libcpp')
+
+    build_with_libcpp = build_with_libcpp_option.enabled()
+
+    if build_with_libcpp_option.auto()
+        if host_machine.system() == 'darwin'
+            build_with_libcpp = true
+        else
+
+            cpp_lib = cpp.find_library('c++', required: false)
+            cppabi_lib = cpp.find_library('c++abi', required: false)
+
+            if cpp_lib.found() and cppabi_lib.found()
+                build_with_libcpp = true
+            else
+                build_with_libcpp = false
+            endif
+        endif
+    endif
+
+    if build_with_libcpp
         compile_args += '-stdlib=libc++'
+        link_args += '-stdlib=libc++'
         deps += cpp.find_library('c++')
         deps += cpp.find_library('c++abi')
     endif
+
+
+
 endif
 
 if get_option('buildtype') == 'debug' or get_option('buildtype') == 'debugoptimized'
@@ -37,7 +64,7 @@ endif
 
 
 inc_dirs = []
-
+recording_inc_dirs = []
 
 only_allow_native_libs = false
 if (meson.is_cross_build())
@@ -138,29 +165,49 @@ if (meson.is_cross_build() and host_machine.system() == 'switch')
             allow_fallback: true,
             default_options: {'default_library': 'static'},
         )
+
+        meson.override_dependency('fmt', fmt_header_only_dep)
+
         deps += fmt_header_only_dep
 
     endif
 
-
 else
 
-    deps += dependency(
-        'fmt',
-        required: true,
-    )
+    # clang with libc++ creates some really long and confusing linker errors, so just use the header only library
+    if cpp.get_id() == 'clang' and compile_args.contains('-stdlib=libc++')
+        fmt_dep = dependency(
+            'fmt_header_only',
+            required: true,
+            allow_fallback: true,
+            default_options: {'default_library': 'static'},
+        )
+        meson.override_dependency('fmt', fmt_dep)
+    else
+        fmt_dep = dependency(
+            'fmt',
+            required: true,
+        )
+    endif
+
+    recording_dependencies += fmt_dep
+    deps += fmt_dep
+
 endif
 
 deps += dependency(
     'spdlog',
     required: true,
-    default_options: {'tests': 'false'},
+    default_options: {'tests': 'disabled'},
 )
 
-deps += dependency(
+nlohmann_json_dep = dependency(
     'nlohmann_json',
     required: true,
 )
+
+recording_dependencies += nlohmann_json_dep
+deps += nlohmann_json_dep
 
 # check std::expected support
 have_std_expected = cpp.compiles(
@@ -171,16 +218,21 @@ int main() {
     return 0;
 }
 ''',
+    args: compile_args,
 )
 
 if not have_std_expected
     message('Compiler doesn\'t support std::expected, using fallback')
     compile_args += ['-D_USE_TL_EXPECTED']
-    deps += dependency(
+    tl_exp_dep = dependency(
         'tl-expected',
         required: true,
         fallback: ['tl-expected'],
     )
+    recording_dependencies += tl_exp_dep
+    deps += tl_exp_dep
+else
+    message('Compiler support std::expected, using that')
 endif
 
 # check std::optional support
@@ -192,31 +244,41 @@ int main() {
     return 0;
 }
 ''',
+    args: compile_args,
 )
 
 if not have_std_optional
     message('Compiler doesn\'t support std::optional, using fallback')
     compile_args += ['-D_USE_TL_OPTIONAL']
-    deps += dependency(
+    tl_opt_dep = dependency(
         'tl-optional',
         required: true,
         fallback: ['tl-optional'],
     )
+    recording_dependencies += tl_opt_dep
+    deps += tl_opt_dep
+else
+    message('Compiler support std::optional, using that')
 endif
 
 
 
-deps += dependency(
+magic_enum_dep = dependency(
     'magic_enum',
     required: true,
     fallback: ['magic_enum'],
     default_options: {'test': 'false'},
 )
-deps += dependency(
+recording_dependencies += magic_enum_dep
+deps += magic_enum_dep
+
+argparse_dep = dependency(
     'argparse',
     required: true,
     fallback: ['argparse'],
 )
+recording_dependencies += argparse_dep
+deps += argparse_dep
 
 online_multiplayer_not_supported = true
 
@@ -282,6 +344,7 @@ endif
 
 
 src_files = []
+recording_src_files = []
 
 subdir('src')
 
@@ -290,7 +353,7 @@ subdir('src')
 install_subdir(
     'assets',
     install_dir: 'share/oopetris',
-    exclude_files: ['oopetris.desktop.in', 'OOPetris.svg'],
+    exclude_files: ['oopetris.desktop.in', 'OOPetris.svg', 'recordings.magic'],
     exclude_directories: ['icon'],
 )
 
@@ -304,6 +367,39 @@ conf = configuration_data()
 conf.set('APP_NAME', app_name)
 
 datadir = get_option('prefix') / get_option('datadir')
+
+
+if host_machine.system() == 'linux'
+
+    fs = import('fs')
+
+    magic_dir = datadir / 'misc'
+    magic_file = magic_dir / 'magic'
+    oopetris_magic_file = 'assets' / 'recordings.magic'
+
+    if fs.exists(magic_file)
+
+        cat_prog = find_program('cat')
+
+        custom_target(
+            'magic_file_append',
+            command: [cat_prog, '@INPUT@'],
+            capture: true,
+            input: [oopetris_magic_file, magic_file],
+            output: 'magic',
+            install_dir: magic_dir,
+        )
+
+    else
+
+        install_data(
+            oopetris_magic_file,
+            install_dir: magic_dir,
+            rename: ['magic'],
+        )
+
+    endif
+endif
 
 desktop_file = configure_file(
     input: 'assets/oopetris.desktop.in',
@@ -475,6 +571,7 @@ else
         dependencies: deps,
         c_args: sdl2_mixer_defines,
         cpp_args: compile_args + sdl2_mixer_defines,
+        link_args: link_args,
         override_options: {
             'warning_level': '3',
             'werror': true,
@@ -482,7 +579,19 @@ else
         install: true,
     )
 
-
+    executable(
+        'oopetris_recording_utility',
+        recording_src_files,
+        dependencies: recording_dependencies,
+        include_directories: recording_inc_dirs,
+        cpp_args: [compile_args, '-D_NO_SDL', '-D_NO_SPDLOG'],
+        link_args: link_args,
+        override_options: {
+            'warning_level': '3',
+            'werror': true,
+        },
+        install: true,
+    )
 
 
 

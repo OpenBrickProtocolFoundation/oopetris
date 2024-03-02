@@ -1,4 +1,5 @@
 #include "application.hpp"
+#include "helper/sleep.hpp"
 #include "platform/capabilities.hpp"
 #include "scenes/scene.hpp"
 
@@ -15,13 +16,15 @@ Application::Application(
         char** argv,
         const std::string& title,
         WindowPosition position,
-        int width,
-        int height
+        u32 width,
+        u32 height
 )
     : m_command_line_arguments{ argc, argv },
       m_window{ title, position, width, height },
-      m_renderer{ m_window, Renderer::VSync::Enabled },
+      m_renderer{ m_window, m_command_line_arguments.target_fps.has_value() ? Renderer::VSync::Disabled
+                                                                            : Renderer::VSync::Enabled },
       m_music_manager{ this, num_audio_channels },
+      m_target_framerate{ m_command_line_arguments.target_fps },
       m_event_dispatcher{ &m_window } {
     initialize();
 }
@@ -29,14 +32,40 @@ Application::Application(
 Application::Application(int argc, char** argv, const std::string& title, WindowPosition position)
     : m_command_line_arguments{ argc, argv },
       m_window{ title, position },
-      m_renderer{ m_window, Renderer::VSync::Enabled },
+      m_renderer{ m_window, m_command_line_arguments.target_fps.has_value() ? Renderer::VSync::Disabled
+                                                                            : Renderer::VSync::Enabled },
+
       m_music_manager{ this, num_audio_channels },
+      m_target_framerate{ m_command_line_arguments.target_fps },
       m_event_dispatcher{ &m_window } {
     initialize();
 }
 
 void Application::run() {
     m_event_dispatcher.register_listener(this);
+
+#ifdef DEBUG_BUILD
+    auto start_time = SDL_GetPerformanceCounter();
+    const auto update_time = SDL_GetPerformanceFrequency() / 2; //0.5 s
+    const double count_per_s = static_cast<double>(SDL_GetPerformanceFrequency());
+    u64 frame_counter = 0;
+#endif
+
+// MSVC Is stupid and the bug isn't fixes yet :( -> https://developercommunity.visualstudio.com/t/warning-c4455-issued-when-using-standardized-liter/270349
+#if defined(_MSC_VER)
+#pragma warning(disable : 4455)
+#endif
+    using std::chrono_literals::operator""s;
+#if defined(_MSC_VER)
+#pragma warning(default : 4455)
+#endif
+
+
+    const auto sleep_time = m_target_framerate.has_value() ? std::chrono::duration_cast<std::chrono::nanoseconds>(1s)
+                                                                     / m_target_framerate.value()
+                                                           : 0s;
+    auto start_execution_time = std::chrono::steady_clock::now();
+
     while (m_is_running
 #if defined(__SWITCH__)
            // see https://switchbrew.github.io/libnx/applet_8h.html#a7ed640e5f4a81ed3960c763fdc1521c5
@@ -45,10 +74,38 @@ void Application::run() {
 #endif
 
     ) {
+
+
         m_event_dispatcher.dispatch_pending_events();
         update();
         render();
         m_renderer.present();
+
+#ifdef DEBUG_BUILD
+        ++frame_counter;
+
+        const Uint64 current_time = SDL_GetPerformanceCounter();
+
+        if (current_time - start_time >= update_time) {
+            double elapsed = static_cast<double>(current_time - start_time) / count_per_s;
+            m_fps_text->set_text(*this, fmt::format("FPS: {:.2f}", static_cast<double>(frame_counter) / elapsed));
+            start_time = current_time;
+            frame_counter = 0;
+        }
+#endif
+
+        if (m_target_framerate.has_value()) {
+
+            const auto now = std::chrono::steady_clock::now();
+            const auto runtime = (now - start_execution_time);
+            if (runtime < sleep_time) {
+                //TODO: use SDL_DelayNS in sdl >= 3.0
+                helper::sleep_nanoseconds(sleep_time - runtime);
+                start_execution_time = std::chrono::steady_clock::now();
+            } else {
+                start_execution_time = now;
+            }
+        }
     }
 }
 
@@ -154,12 +211,22 @@ void Application::render() const {
     for (const auto& scene : m_scene_stack) {
         scene->render(*this);
     }
+#ifdef DEBUG_BUILD
+    m_fps_text->render(*this);
+#endif
 }
 
 void Application::initialize() {
     try_load_settings();
     load_resources();
     push_scene(scenes::create_scene(*this, SceneId::MainMenu, ui::FullScreenLayout{ m_window }));
+
+#ifdef DEBUG_BUILD
+    m_fps_text = std::make_unique<Text>(
+            this, "FPS: ?", fonts().get(FontId::Default), Color::white(),
+            ui::RelativeLayout(window(), 0.01, 0.01, 0.1, 0.05).get_rect()
+    );
+#endif
 }
 
 void Application::try_load_settings() {
@@ -187,12 +254,4 @@ void Application::load_resources() {
         const auto font_path = utils::get_assets_folder() / "fonts" / path;
         m_font_manager.load(font_id, font_path, fonts_size);
     }
-}
-
-[[nodiscard]] std::vector<scenes::Scene*> Application::active_scenes() const {
-    auto result = std::vector<scenes::Scene*>{};
-    for (const auto& scene : m_scene_stack) {
-        result.push_back(scene.get());
-    }
-    return result;
 }
