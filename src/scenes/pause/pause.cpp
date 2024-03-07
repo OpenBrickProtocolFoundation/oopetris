@@ -22,7 +22,8 @@ namespace scenes {
                                        ? std::pair<double, double>{ 0.7, 0.07 }
                                        : std::pair<double, double>{ 0.95, 0.07  },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
-               layout
+               layout,
+               true
     }
     { }
 

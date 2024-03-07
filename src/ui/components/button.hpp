@@ -34,9 +34,10 @@ namespace ui {
                 const Color& text_color,
                 const shapes::URect& fill_rect,
                 std::pair<u32, u32> margin,
-                const Layout& layout
+                const Layout& layout,
+                bool is_top_level
         )
-            : Widget(layout),
+            : Widget{ layout, WidgetType::Component, is_top_level },
               Focusable{
                   focus_id
         },
@@ -64,7 +65,8 @@ namespace ui {
                 std::pair<double, double> size,
                 Alignment alignment,
                 std::pair<double, double> margin,
-                const Layout& layout
+                const Layout& layout,
+                bool is_top_level
         )
             : Button{
                   service_provider,
@@ -81,7 +83,8 @@ namespace ui {
                   ),
                   {static_cast<u32>(margin.first * size.first * layout.get_rect().width()),
                             static_cast<u32>(margin.second * size.second * layout.get_rect().height())},
-                  layout
+                  layout,
+                  is_top_level
         } { }
 
 

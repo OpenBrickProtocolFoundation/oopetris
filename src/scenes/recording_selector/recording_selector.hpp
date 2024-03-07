@@ -1,21 +1,25 @@
 #pragma once
 
+#include "lobby/api.hpp"
 #include "scenes/scene.hpp"
 #include "ui/components/button.hpp"
 #include "ui/components/label.hpp"
-#include "ui/layouts/grid_layout.hpp"
+#include "ui/layouts/tile_layout.hpp"
+
+#include <memory>
 
 namespace scenes {
 
-    struct PlaySelectMenu : public Scene {
+    struct RecordingSelector : public Scene {
     private:
-        enum class Command : u8 { SinglePlayer, MultiPlayer, RecordingSelector, Return };
+        enum class Command : u8 { Play, Return };
 
-        ui::GridLayout m_main_grid;
+        ui::TileLayout m_main_layout;
         helper::optional<Command> m_next_command;
+        std::unique_ptr<lobby::Client> client{ nullptr };
 
     public:
-        explicit PlaySelectMenu(ServiceProvider* service_provider, const ui::Layout& layout);
+        explicit RecordingSelector(ServiceProvider* service_provider, const ui::Layout& layout);
 
         [[nodiscard]] UpdateResult update() override;
         void render(const ServiceProvider& service_provider) override;

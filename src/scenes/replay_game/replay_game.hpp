@@ -6,16 +6,20 @@
 
 namespace scenes {
 
-    struct SinglePlayerGame : public Scene {
+    struct ReplayGame : public Scene {
     private:
         enum class NextScene : u8 { Pause, Settings };
 
 
         helper::optional<NextScene> m_next_scene{};
-        std::unique_ptr<Game> m_game;
+        std::vector<std::unique_ptr<Game>> m_games;
 
     public:
-        explicit SinglePlayerGame(ServiceProvider* service_provider, const ui::Layout& layout);
+        explicit ReplayGame(
+                ServiceProvider* service_provider,
+                const ui::Layout& layout,
+                const std::filesystem::path& recording_path
+        );
 
         [[nodiscard]] UpdateResult update() override;
         void render(const ServiceProvider& service_provider) override;

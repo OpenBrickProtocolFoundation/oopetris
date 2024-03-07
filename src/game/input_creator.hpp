@@ -36,11 +36,12 @@ namespace input {
 
     using AdditionalInfo = std::tuple<std::unique_ptr<Input>, tetrion::StartingParameters>;
 
-    [[nodiscard]] std::vector<AdditionalInfo> get_game_parameters(
+    [[nodiscard]] std::vector<input::AdditionalInfo>
+    get_game_parameters_for_replay(ServiceProvider* service_provider, const std::filesystem::path& recording_path);
+
+    [[nodiscard]] AdditionalInfo get_single_player_game_parameters(
             ServiceProvider* service_provider,
-            u8 amount,
-            const std::vector<recorder::AdditionalInformation>& additional_info =
-                    std::vector<recorder::AdditionalInformation>{}
+            recorder::AdditionalInformation&& additional_info
     );
 
 } // namespace input

@@ -16,4 +16,5 @@ enum class SceneId : u8 {
     PlaySelectMenu,
     SettingsMenu,
     SinglePlayerGame,
+    RecordingSelectorMenu
 };

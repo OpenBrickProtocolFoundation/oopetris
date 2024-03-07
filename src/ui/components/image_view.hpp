@@ -20,9 +20,10 @@ namespace ui {
                 std::pair<double, double> size,
                 bool respect_ratio,
                 Alignment alignment,
-                const Layout& layout
+                const Layout& layout,
+                bool is_top_level
         )
-            : Widget{ layout },
+            : Widget{ layout, WidgetType::Component, is_top_level },
               m_image{ service_provider->renderer().load_image(image_path) },
               m_fill_rect{ ui::get_rectangle_aligned(
                       layout,

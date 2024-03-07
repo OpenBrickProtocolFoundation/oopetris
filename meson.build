@@ -67,7 +67,7 @@ inc_dirs = []
 recording_inc_dirs = []
 
 only_allow_native_libs = false
-if (meson.is_cross_build())
+if meson.is_cross_build()
     if host_machine.system() == 'switch'
         # we do not link to code that was compiled with gcc 10.1, the code we link with is all compiled with gcc 13.2
         compile_args += ['-Wno-psabi']
@@ -223,11 +223,7 @@ int main() {
 if not have_std_expected
     message('Compiler doesn\'t support std::expected, using fallback')
     compile_args += ['-D_USE_TL_EXPECTED']
-    tl_exp_dep = dependency(
-        'tl-expected',
-        required: true,
-        fallback: ['tl-expected'],
-    )
+    tl_exp_dep = dependency('tl-expected', required: true)
     recording_dependencies += tl_exp_dep
     deps += tl_exp_dep
 else
@@ -249,11 +245,7 @@ int main() {
 if not have_std_optional
     message('Compiler doesn\'t support std::optional, using fallback')
     compile_args += ['-D_USE_TL_OPTIONAL']
-    tl_opt_dep = dependency(
-        'tl-optional',
-        required: true,
-        fallback: ['tl-optional'],
-    )
+    tl_opt_dep = dependency('tl-optional', required: true)
     recording_dependencies += tl_opt_dep
     deps += tl_opt_dep
 else
@@ -270,11 +262,7 @@ magic_enum_dep = dependency(
 recording_dependencies += magic_enum_dep
 deps += magic_enum_dep
 
-argparse_dep = dependency(
-    'argparse',
-    required: true,
-    fallback: ['argparse'],
-)
+argparse_dep = dependency('argparse', required: true)
 recording_dependencies += argparse_dep
 deps += argparse_dep
 
@@ -337,6 +325,18 @@ if (meson.is_cross_build() and host_machine.system() == 'switch')
 
 endif
 
+is_flatpak_build = get_option('flatpak_build')
+
+nfde_dep = dependency(
+    'nativefiledialog-extended',
+    required: not meson.is_cross_build(),
+    default_options: {'xdg-desktop-portal': is_flatpak_build ? 'enabled' : 'auto'},
+)
+if nfde_dep.found()
+    deps += nfde_dep
+    compile_args += '-D_HAVE_FILE_DIALOGS'
+endif
+
 
 
 src_files = []
@@ -354,7 +354,6 @@ install_subdir(
 )
 
 app_name = 'oopetris'
-is_flatpak_build = get_option('flatpak_build')
 if is_flatpak_build
     app_name = 'com.github.mgerhold.OOPetris'
     compile_args += ['-DFLATPAK_BUILD', '-DBUILD_INSTALLER']
@@ -430,19 +429,6 @@ foreach logo : logos
         rename: [app_name + '.' + ext],
     )
 endforeach
-
-
-nfde_dep = dependency(
-    'nativefiledialog-extended',
-    required: true,
-    default_options: {'xdg-desktop-portal': is_flatpak_build ? 'enabled' : 'auto'},
-)
-if nfde_dep.found()
-    deps += nfde_dep
-    compile_args += '-D_HAVE_FILE_DIALOGS'
-endif
-
-
 
 if meson.is_cross_build() and host_machine.system() == 'android'
 

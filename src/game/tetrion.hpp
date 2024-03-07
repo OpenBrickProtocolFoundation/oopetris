@@ -90,7 +90,8 @@ public:
             u32 starting_level,
             ServiceProvider* service_provider,
             helper::optional<std::shared_ptr<recorder::RecordingWriter>> recording_writer,
-            const ui::Layout& layout);
+            const ui::Layout& layout,
+            bool is_top_level);
     void update_step(SimulationStep simulation_step_index);
     void render(const ServiceProvider& service_provider) const override;
     [[nodiscard]] helper::BoolWrapper<ui::EventHandleType> handle_event(const SDL_Event& event, const Window* window)
@@ -110,8 +111,8 @@ public:
 
     [[nodiscard]] Grid* get_grid();
     [[nodiscard]] const Grid* get_grid() const;
-    [[nodiscard]] ui::GridLayout* get_texts();
-    [[nodiscard]] const ui::GridLayout* get_texts() const;
+    [[nodiscard]] ui::GridLayout* get_text_layout();
+    [[nodiscard]] const ui::GridLayout* get_text_layout() const;
 
     [[nodiscard]] u8 tetrion_index() const;
     [[nodiscard]] u32 level() const;

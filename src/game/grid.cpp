@@ -3,7 +3,8 @@
 
 #include <spdlog/spdlog.h>
 
-Grid::Grid(const ui::Layout& layout) : ui::Widget{ layout } {
+Grid::Grid(const ui::Layout& layout, bool is_top_level)
+    : ui::Widget{ layout, ui::WidgetType::Component, is_top_level } {
 
     const u32 total_x_tiles = grid::preview_extends.x * 2 + 2 + grid::width_in_tiles;
     constexpr u32 total_y_tiles = grid::height_in_tiles;

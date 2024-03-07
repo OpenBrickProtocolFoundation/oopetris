@@ -16,8 +16,9 @@ namespace ui {
               const Color& color,
               std::pair<double, double> size,
               Alignment alignment,
-              Layout layout)
-            : Widget{ layout },
+              Layout layout,
+              bool is_top_level)
+            : Widget{ layout, WidgetType::Component, is_top_level },
               m_text{ service_provider, text, font, color,
                       ui::get_rectangle_aligned(
                               layout,

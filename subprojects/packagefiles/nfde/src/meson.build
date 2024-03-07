@@ -72,17 +72,21 @@ elif host_machine.system() == 'linux'
 
         if gtk3_dep.found()
             deps += gtk3_dep
+            src_files += files('nfd_gtk.cpp')
         else
             deps += dependency('dbus-1', required: true)
+            src_files += files('nfd_portal.cpp')
         endif
 
     elif use_xdg_portal_feature.disabled()
         deps += dependency('gtk+-3.0', required: true)
+        src_files += files('nfd_gtk.cpp')
     else
         deps += dependency('dbus-1', required: true)
+        src_files += files('nfd_portal.cpp')
     endif
 
-    src_files += files('nfd_gtk.cpp')
+
 
 
     if get_option('append_extension_linux')
@@ -101,7 +105,7 @@ nfde_lib = library(
     src_files,
     include_directories: inc_dirs,
     dependencies: deps,
-    cpp_args: [compile_args, '-nostdlib', '-fno-exceptions', '-fno-rtti'],
+    cpp_args: compile_args,
 )
 
 

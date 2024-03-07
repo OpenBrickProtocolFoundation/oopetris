@@ -1,4 +1,4 @@
-#include "online_lobby.hpp"
+#include "recording_selector.hpp"
 #include "graphics/window.hpp"
 #include "helper/constants.hpp"
 #include "manager/music_manager.hpp"
@@ -9,7 +9,7 @@
 
 namespace scenes {
 
-    OnlineLobby::OnlineLobby(ServiceProvider* service_provider, const ui::Layout& layout)
+    RecordingSelector::RecordingSelector(ServiceProvider* service_provider, const ui::Layout& layout)
         : Scene{ service_provider, layout },
           m_main_layout{ 
                 utils::size_t_identity<3>(),
@@ -21,18 +21,10 @@ namespace scenes {
                 layout
           } {
 
-        //TODO: after the settings have been reworked, make this url changeable!
-        auto maybe_client = lobby::Client::get_client("http://127.0.0.1:5000");
-        if (maybe_client.has_value()) {
-            client = std::make_unique<lobby::Client>(std::move(maybe_client.value()));
-        } else {
-            spdlog::error("Error in connecting to lobby client: {}", maybe_client.error());
-        }
-
         auto focus_helper = ui::FocusHelper{ 1 };
 
         m_main_layout.add<ui::Label>(
-                service_provider, "Select Lobby to play in", service_provider->fonts().get(FontId::Default),
+                service_provider, "Select Recording to replay", service_provider->fonts().get(FontId::Default),
                 Color::white(), std::pair<double, double>{ 0.5, 1.0 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
         );
@@ -81,7 +73,7 @@ namespace scenes {
         );
     }
 
-    [[nodiscard]] Scene::UpdateResult OnlineLobby::update() {
+    [[nodiscard]] Scene::UpdateResult RecordingSelector::update() {
         m_main_layout.update();
 
         if (m_next_command.has_value()) {
@@ -100,15 +92,28 @@ namespace scenes {
         return UpdateResult{ SceneUpdate::StopUpdating, helper::nullopt };
     }
 
-    void OnlineLobby::render(const ServiceProvider& service_provider) {
+    void RecordingSelector::render(const ServiceProvider& service_provider) {
         service_provider.renderer().draw_rect_filled(get_layout().get_rect(), Color::black());
 
         m_main_layout.render(service_provider);
     }
 
-    bool OnlineLobby::handle_event(const SDL_Event& event, const Window* window) {
+    bool RecordingSelector::handle_event(const SDL_Event& event, const Window* window) {
         // description of intentional behaviour of this scene, even if it seems off:
         // the return button or the scroll layout can have the focus, if the scroll_layout has the focus, it can be scrolled by the scroll wheel and you can move around the focused item of the scroll_layout with up and down, but not with TAB, with tab you can change the focus to the return button, where you can't use the scroll wheel or up / down to change the scroll items, but you still can use click events, they are not affected by focus
+
+        //TODO: make this simpler and refactor scroll_layout, since it's not a full layout but a hybrid!
+        auto* const scroll_layout = m_main_layout.get<ui::ScrollLayout>(1);
+        if (scroll_layout->has_focus()) {
+            if (const auto event_result = scroll_layout->handle_event(event, window); event_result) {
+                if (event_result.has_additional()) {
+                    //TODO: urgent
+                    // std::ignore = m_main_layout.handle_event_result(event_result.get_additional(), scroll_layout);
+                }
+
+                return true;
+            }
+        }
 
         if (m_main_layout.handle_event(event, window)) {
             return true;

@@ -61,9 +61,10 @@ namespace ui {
                 float step,
                 std::pair<double, double> size,
                 Alignment alignment,
-                const Layout& layout
+                const Layout& layout,
+                bool is_top_level
         )
-            : Widget(layout),
+            : Widget{ layout, WidgetType::Component, is_top_level },
               Focusable{ focus_id },
               m_range{ std::move(range) },
               m_getter{ std::move(getter) },

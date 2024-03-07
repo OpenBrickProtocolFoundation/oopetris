@@ -44,9 +44,10 @@ namespace ui {
                 const Color& color,
                 usize focus_id,
                 const shapes::URect& fill_rect,
-                Layout layout
+                const Layout& layout,
+                bool is_top_level
         )
-            : Widget{ layout },
+            : Widget{ layout, WidgetType::Component, is_top_level },
               Focusable{ focus_id },
               Hoverable{ fill_rect },
               m_service_provider{ service_provider },
@@ -69,7 +70,8 @@ namespace ui {
                 usize focus_id,
                 std::pair<double, double> size,
                 Alignment alignment,
-                Layout layout
+                const Layout& layout,
+                bool is_top_level
         )
             : TextInput{ service_provider,
                          std::move(font),
@@ -81,7 +83,8 @@ namespace ui {
                                    static_cast<u32>(size.second * layout.get_rect().height()) },
                                  alignment
                          ),
-                         layout } { }
+                         layout,
+                         is_top_level } { }
 
         ~TextInput() override {
             on_unfocus();

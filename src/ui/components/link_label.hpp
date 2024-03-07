@@ -23,9 +23,10 @@ namespace ui {
                 const Color& color, // NOLINT(bugprone-easily-swappable-parameters)
                 const Color& hover_color,
                 const shapes::URect& fill_rect,
-                const Layout& layout
+                const Layout& layout,
+                bool is_top_level
         )
-            : Widget{ layout },
+            : Widget{ layout, WidgetType::Component, is_top_level },
               Hoverable{ fill_rect },
               m_text{ service_provider, text, font, color, fill_rect },
               m_hover_text{ service_provider, text, font, hover_color, fill_rect },
@@ -42,7 +43,8 @@ namespace ui {
                 const Color& hover_color,
                 std::pair<double, double> size,
                 Alignment alignment,
-                const Layout& layout
+                const Layout& layout,
+                bool is_top_level
         )
             : LinkLabel{ service_provider,
                          text,
@@ -56,7 +58,8 @@ namespace ui {
                                    static_cast<u32>(size.second * layout.get_rect().height()) },
                                  alignment
                          ),
-                         layout } { }
+                         layout,
+                         is_top_level } { }
 
         void render(const ServiceProvider& service_provider) const override {
             if (is_hovered()) {

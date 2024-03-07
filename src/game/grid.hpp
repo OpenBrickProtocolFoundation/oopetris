@@ -26,7 +26,7 @@ private:
     u32 m_tile_size;
 
 public:
-    Grid(const ui::Layout& layout);
+    Grid(const ui::Layout& layout, bool is_top_level);
     [[nodiscard]] shapes::UPoint tile_size() const;
     [[nodiscard]] double scale_to_original() const;
     [[nodiscard]] shapes::UPoint to_screen_coords(GridPoint grid_coords) const;

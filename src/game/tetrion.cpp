@@ -16,9 +16,10 @@ Tetrion::Tetrion(
         const u32 starting_level,
         ServiceProvider* const service_provider,
         helper::optional<std::shared_ptr<recorder::RecordingWriter>> recording_writer,
-        const ui::Layout& layout
+        const ui::Layout& layout,
+        bool is_top_level
 )
-    : ui::Widget{ layout },
+    : ui::Widget{ layout , ui::WidgetType::Component ,is_top_level},
       m_next_gravity_simulation_step_index{ get_gravity_delay_frames() },
       m_lock_delay_step_index{ lock_delay },
       m_service_provider{ service_provider },
@@ -26,40 +27,41 @@ Tetrion::Tetrion(
       m_random{ random_seed },
       m_level{ starting_level },
       m_tetrion_index{ tetrion_index },
-      main_layout{ 
-            utils::size_t_identity<2>(),
-              ui::Direction::Vertical,
-              { 0.85 },
-              ui::AbsolutMargin{ 0 },
-              std::pair<double, double>{ 0.05, 0.03 },
-              layout
+      main_layout{
+                utils::size_t_identity<2>(),
+                0,
+                ui::Direction::Vertical,
+                { 0.85 },
+                ui::AbsolutMargin{ 0 },
+                std::pair<double, double>{ 0.05, 0.03 },
+                layout
        } {
 
     main_layout.add<Grid>();
 
     main_layout.add<ui::GridLayout>(
-            3, ui::Direction::Vertical, ui::AbsolutMargin{ 0 }, std::pair<double, double>{ 0.0, 0.1 }
+            1, 3, ui::Direction::Vertical, ui::AbsolutMargin{ 0 }, std::pair<double, double>{ 0.0, 0.1 }
     );
 
 
-    auto* texts = get_texts();
+    auto* text_layout = get_text_layout();
 
     constexpr auto text_size = utils::device_orientation() == utils::Orientation::Landscape
                                        ? std::pair<double, double>{ 0.2, 0.8 }
                                        : std::pair<double, double>{ 0.6, 0.8 };
 
-    texts->add<ui::Label>(
+    text_layout->add<ui::Label>(
             service_provider, "score: 0", service_provider->fonts().get(FontId::Default), Color::white(), text_size,
             ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
     );
 
 
-    texts->add<ui::Label>(
+    text_layout->add<ui::Label>(
             service_provider, "lines: 0", service_provider->fonts().get(FontId::Default), Color::white(), text_size,
             ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
     );
 
-    texts->add<ui::Label>(
+    text_layout->add<ui::Label>(
             service_provider, "lines: 0", service_provider->fonts().get(FontId::Default), Color::white(), text_size,
             ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
     );
@@ -333,11 +335,11 @@ void Tetrion::hold_tetromino(const SimulationStep simulation_step_index) {
     return main_layout.get<Grid>(0);
 }
 
-[[nodiscard]] ui::GridLayout* Tetrion::get_texts() {
+[[nodiscard]] ui::GridLayout* Tetrion::get_text_layout() {
     return main_layout.get<ui::GridLayout>(1);
 }
 
-[[nodiscard]] const ui::GridLayout* Tetrion::get_texts() const {
+[[nodiscard]] const ui::GridLayout* Tetrion::get_text_layout() const {
     return main_layout.get<ui::GridLayout>(1);
 }
 
@@ -375,20 +377,19 @@ void Tetrion::reset_lock_delay(const SimulationStep simulation_step_index) {
 }
 
 void Tetrion::refresh_texts() {
-    auto id_helper = ui::IDHelper{};
-    auto* texts = get_texts();
+    auto* text_layout = get_text_layout();
 
     std::stringstream stream;
     stream << "score: " << m_score;
-    texts->get<ui::Label>(id_helper.index())->set_text(*m_service_provider, stream.str());
+    text_layout->get<ui::Label>(0)->set_text(*m_service_provider, stream.str());
 
     stream = std::stringstream{};
     stream << "level: " << m_level;
-    texts->get<ui::Label>(id_helper.index())->set_text(*m_service_provider, stream.str());
+    text_layout->get<ui::Label>(1)->set_text(*m_service_provider, stream.str());
 
     stream = std::stringstream{};
     stream << "lines: " << m_lines_cleared;
-    texts->get<ui::Label>(id_helper.index())->set_text(*m_service_provider, stream.str());
+    text_layout->get<ui::Label>(2)->set_text(*m_service_provider, stream.str());
 }
 
 void Tetrion::clear_fully_occupied_lines() {

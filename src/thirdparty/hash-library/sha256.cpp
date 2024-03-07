@@ -30,13 +30,13 @@
 
 
 /// same as reset()
-SHA256::SHA256() {
+hash_library::SHA256::SHA256() {
     reset();
 }
 
 
 /// restart
-void SHA256::reset() {
+void hash_library::SHA256::reset() {
     m_numBytes = 0;
     m_bufferSize = 0;
 
@@ -98,7 +98,7 @@ namespace {
 
 
 /// process 64 bytes
-void SHA256::processBlock(const void* data) {
+void hash_library::SHA256::processBlock(const void* data) {
     // get last hash
     uint32_t a = m_hash[0];
     uint32_t b = m_hash[1];
@@ -438,7 +438,7 @@ void SHA256::processBlock(const void* data) {
 
 
 /// add arbitrary number of bytes
-void SHA256::add(const void* data, size_t numBytes) {
+void hash_library::SHA256::add(const void* data, size_t numBytes) {
     const uint8_t* current = static_cast<const uint8_t*>(data);
 
     if (m_bufferSize > 0) {
@@ -476,7 +476,7 @@ void SHA256::add(const void* data, size_t numBytes) {
 
 
 /// process final block, less than 64 bytes
-void SHA256::processBuffer() {
+void hash_library::SHA256::processBuffer() {
     // the input bytes are considered as bits strings, where the first bit is the most significant bit of the byte
 
     // - append "1" bit to message
@@ -541,7 +541,7 @@ void SHA256::processBuffer() {
 
 
 /// return latest hash as 64 hex characters
-std::string SHA256::getHash() {
+std::string hash_library::SHA256::getHash() {
     // compute hash (as raw bytes)
     unsigned char rawHash[HashBytes];
     getHash(rawHash);
@@ -560,7 +560,7 @@ std::string SHA256::getHash() {
 
 
 /// return latest hash as bytes
-void SHA256::getHash(unsigned char buffer[SHA256::HashBytes]) {
+void hash_library::SHA256::getHash(unsigned char buffer[SHA256::HashBytes]) {
     // save old hash if buffer is partially filled
     uint32_t oldHash[HashValues];
     for (int i = 0; i < HashValues; i++)
@@ -583,7 +583,7 @@ void SHA256::getHash(unsigned char buffer[SHA256::HashBytes]) {
 
 
 /// compute SHA256 of a memory block
-std::string SHA256::operator()(const void* data, size_t numBytes) {
+std::string hash_library::SHA256::operator()(const void* data, size_t numBytes) {
     reset();
     add(data, numBytes);
     return getHash();
@@ -591,7 +591,7 @@ std::string SHA256::operator()(const void* data, size_t numBytes) {
 
 
 /// compute SHA256 of a string, excluding final zero
-std::string SHA256::operator()(const std::string& text) {
+std::string hash_library::SHA256::operator()(const std::string& text) {
     reset();
     add(text.c_str(), text.size());
     return getHash();

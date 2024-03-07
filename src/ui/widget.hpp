@@ -13,12 +13,19 @@ namespace ui {
 
     enum class EventHandleType : u8 { RequestFocus, RequestUnFocus };
 
+    enum class WidgetType : u8 { Component, Container };
+
     struct Widget {
     private:
         Layout m_layout;
+        WidgetType m_type;
+        bool m_top_level;
 
     public:
-        explicit Widget(const Layout& layout) : m_layout{ layout } { }
+        explicit Widget(const Layout& layout, WidgetType type, bool is_top_level)
+            : m_layout{ layout },
+              m_type{ type },
+              m_top_level{ is_top_level } { }
 
         Widget(const Widget&) = delete;
         Widget(Widget&&) = delete;
@@ -30,6 +37,15 @@ namespace ui {
         [[nodiscard]] const Layout& layout() const {
             return m_layout;
         }
+
+        [[nodiscard]] WidgetType type() const {
+            return m_type;
+        }
+
+        [[nodiscard]] bool is_top_level() {
+            return m_top_level;
+        };
+
 
         virtual void update() {
             // do nothing
