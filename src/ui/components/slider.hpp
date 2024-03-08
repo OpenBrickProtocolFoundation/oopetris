@@ -37,7 +37,7 @@ namespace ui {
 
     public:
         explicit Slider(
-                usize focus_id,
+                u32 focus_id,
                 Range range,
                 Getter getter,
                 Setter setter,

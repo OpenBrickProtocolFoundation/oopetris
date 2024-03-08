@@ -19,11 +19,11 @@ namespace ui {
 
     struct Focusable {
     private:
-        usize m_focus_id;
+        u32 m_focus_id;
         bool m_has_focus{ false };
 
     public:
-        explicit Focusable(usize focus_id) : m_focus_id{ focus_id } { }
+        explicit Focusable(u32 focus_id) : m_focus_id{ focus_id } { }
         Focusable(const Focusable&) = delete;
         Focusable(Focusable&&) = delete;
         Focusable& operator=(const Focusable&) = delete;

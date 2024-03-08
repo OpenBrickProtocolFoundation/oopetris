@@ -5,7 +5,7 @@
 ui::Button::Button(
                 ServiceProvider* service_provider,
                 const std::string& text,
-                usize focus_id,
+                u32 focus_id,
                 Callback callback,
                 const Font& font,
                 const Color& text_color,
@@ -43,7 +43,7 @@ ui::Button::Button(
         const std::string& text,
         const Font& font,
         const Color& text_color,
-        usize focus_id,
+        u32 focus_id,
         Callback callback,
         std::pair<double, double> size,
         Alignment alignment,

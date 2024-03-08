@@ -77,6 +77,8 @@ add_executable(oopetris
     src/manager/font.hpp
     src/manager/music_manager.cpp
     src/manager/music_manager.hpp
+    src/manager/recording/additional_information.cpp
+    src/manager/recording/checksum_helper.cpp
     src/manager/recording/recording_reader.cpp
     src/manager/recording/recording_reader.hpp
     src/manager/recording/recording_writer.cpp
@@ -85,7 +87,6 @@ add_executable(oopetris
     src/manager/recording/recording.hpp
     src/manager/recording/tetrion_snapshot.cpp
     src/manager/recording/tetrion_snapshot.hpp
-    src/manager/recording/additional_information.cpp
     src/manager/resource_manager.hpp
     src/manager/service_provider.hpp
     src/manager/settings.hpp
@@ -109,6 +110,7 @@ add_executable(oopetris
     src/scenes/pause/pause.hpp
     src/scenes/play_select_menu/play_select_menu.cpp
     src/scenes/play_select_menu/play_select_menu.hpp
+    src/scenes/recording_selector/recording_selector.cpp
     src/scenes/scene_id.hpp
     src/scenes/scene.cpp
     src/scenes/scene.hpp
@@ -117,20 +119,31 @@ add_executable(oopetris
     src/scenes/single_player_game/single_player_game.cpp
     src/scenes/single_player_game/single_player_game.hpp
     src/thirdparty/hash-library/sha256.cpp
+    src/ui/components/button.cpp
     src/ui/components/button.hpp
+    src/ui/components/image_view.cpp
     src/ui/components/image_view.hpp
+    src/ui/components/label.cpp
     src/ui/components/label.hpp
+    src/ui/components/link_label.cpp
     src/ui/components/link_label.hpp
+    src/ui/components/slider.cpp
     src/ui/components/slider.hpp
+    src/ui/components/textinput.cpp
     src/ui/components/textinput.hpp
     src/ui/focusable.hpp
     src/ui/hoverable.hpp
     src/ui/layout.cpp
+    src/ui/layout.cpp
+    src/ui/layout.cpp
     src/ui/layout.hpp
+    src/ui/layouts/focus_layout.cpp
+    src/ui/layouts/grid_layout.cpp
     src/ui/layouts/grid_layout.hpp
+    src/ui/layouts/scroll_layout.cpp
     src/ui/layouts/scroll_layout.hpp
+    src/ui/layouts/tile_layout.cpp
     src/ui/layouts/tile_layout.hpp
-    src/ui/widget.cpp
     src/ui/widget.cpp
     src/ui/widget.hpp
 )
