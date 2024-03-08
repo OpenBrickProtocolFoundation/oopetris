@@ -17,26 +17,12 @@ namespace ui {
               std::pair<double, double> size,
               Alignment alignment,
               Layout layout,
-              bool is_top_level)
-            : Widget{ layout, WidgetType::Component, is_top_level },
-              m_text{ service_provider, text, font, color,
-                      ui::get_rectangle_aligned(
-                              layout,
-                              { static_cast<u32>(size.first * layout.get_rect().width()),
-                                static_cast<u32>(size.second * layout.get_rect().height()) },
-                              alignment
-                      ) } { }
+              bool is_top_level);
 
-        void render(const ServiceProvider& service_provider) const override {
-            m_text.render(service_provider);
-        }
+        void render(const ServiceProvider& service_provider) const override;
 
-        helper::BoolWrapper<ui::EventHandleType> handle_event(const SDL_Event&, const Window*) override {
-            return false;
-        }
+        helper::BoolWrapper<ui::EventHandleType> handle_event(const SDL_Event&, const Window*) override;
 
-        void set_text(const ServiceProvider& service_provider, const std::string& text) {
-            m_text.set_text(service_provider, text);
-        }
+        void set_text(const ServiceProvider& service_provider, const std::string& text);
     };
 } // namespace ui

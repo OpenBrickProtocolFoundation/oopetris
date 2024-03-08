@@ -25,12 +25,7 @@ namespace ui {
                 const shapes::URect& fill_rect,
                 const Layout& layout,
                 bool is_top_level
-        )
-            : Widget{ layout, WidgetType::Component, is_top_level },
-              Hoverable{ fill_rect },
-              m_text{ service_provider, text, font, color, fill_rect },
-              m_hover_text{ service_provider, text, font, hover_color, fill_rect },
-              m_url{ std::move(url) } { }
+        );
 
 
     public:
@@ -45,51 +40,14 @@ namespace ui {
                 Alignment alignment,
                 const Layout& layout,
                 bool is_top_level
-        )
-            : LinkLabel{ service_provider,
-                         text,
-                         url,
-                         font,
-                         color,
-                         hover_color,
-                         ui::get_rectangle_aligned(
-                                 layout,
-                                 { static_cast<u32>(size.first * layout.get_rect().width()),
-                                   static_cast<u32>(size.second * layout.get_rect().height()) },
-                                 alignment
-                         ),
-                         layout,
-                         is_top_level } { }
+        );
 
-        void render(const ServiceProvider& service_provider) const override {
-            if (is_hovered()) {
-                m_hover_text.render(service_provider);
-            } else {
-                m_text.render(service_provider);
-            }
-        }
+        void render(const ServiceProvider& service_provider) const override;
 
-        helper::BoolWrapper<ui::EventHandleType> handle_event(const SDL_Event& event, const Window* window) override {
-            if (const auto hover_result = detect_hover(event, window); hover_result) {
-                if (hover_result.is(ActionType::Clicked)) {
-                    on_clicked();
-                }
-                return true;
-            }
+        helper::BoolWrapper<ui::EventHandleType> handle_event(const SDL_Event& event, const Window* window) override;
 
-            return false;
-        }
+        void on_clicked();
 
-        void on_clicked() {
-            const auto result = utils::open_url(m_url);
-            if (not result) {
-                spdlog::error("Couldn't open link label");
-            }
-        }
-
-        void set_text(const ServiceProvider& service_provider, const std::string& text) {
-            m_text.set_text(service_provider, text);
-            m_hover_text.set_text(service_provider, text);
-        }
+        void set_text(const ServiceProvider& service_provider, const std::string& text);
     };
 } // namespace ui

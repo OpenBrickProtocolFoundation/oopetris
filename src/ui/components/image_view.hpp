@@ -22,28 +22,10 @@ namespace ui {
                 Alignment alignment,
                 const Layout& layout,
                 bool is_top_level
-        )
-            : Widget{ layout, WidgetType::Component, is_top_level },
-              m_image{ service_provider->renderer().load_image(image_path) },
-              m_fill_rect{ ui::get_rectangle_aligned(
-                      layout,
-                      ui::ratio_helper(
-                              { static_cast<u32>(size.first * layout.get_rect().width()),
-                                static_cast<u32>(size.second * layout.get_rect().height()) },
-                              respect_ratio,
-                              m_image.size()
-                      ),
-                      alignment
-              ) } { }
+        );
 
-        void render(const ServiceProvider& service_provider) const override {
+        void render(const ServiceProvider& service_provider) const override;
 
-            service_provider.renderer().draw_texture(m_image, m_fill_rect);
-        }
-
-        helper::BoolWrapper<ui::EventHandleType> handle_event(const SDL_Event&, const Window*) override {
-
-            return false;
-        }
+        helper::BoolWrapper<ui::EventHandleType> handle_event(const SDL_Event&, const Window*) override;
     };
 } // namespace ui
