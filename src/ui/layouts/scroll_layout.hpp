@@ -71,10 +71,6 @@ namespace ui {
         helper::BoolWrapper<ui::EventHandleType>
         handle_event(const SDL_Event& event, const Window* window) // NOLINT(readability-function-cognitive-complexity)
                 override;
-
-        // see TODO comment below
-        [[nodiscard]] Layout get_layout_for_index(u32) override;
-
         //TODO: with some template paramater and magic make this an option in the base class, so that only get_layout_for_new needs to be overwritten!
         template<typename T, typename... Args>
         void add(ItemSize size, Args... args) {
@@ -93,8 +89,13 @@ namespace ui {
             recalculate_sizes(0);
         }
 
+        void clear_widgets();
+
 
     private:
+        [[nodiscard]] Layout get_layout_for_index(u32) override;
+
+
         [[nodiscard]] Layout get_layout_for_new(ItemSize size);
 
         void auto_move_after_focus_change();

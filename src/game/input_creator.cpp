@@ -134,8 +134,7 @@ namespace {
     auto tetrion_header = create_tetrion_headers_for_one(result, std::move(additional_info));
     std::vector<recorder::TetrionHeader> tetrion_headers{ tetrion_header };
 
-    static constexpr auto recordings_directory = "recordings";
-    const auto recording_directory_path = utils::get_root_folder() / recordings_directory;
+    const auto recording_directory_path = utils::get_root_folder() / constants::recordings_directory;
 
     if (not std::filesystem::exists(recording_directory_path)) {
         std::filesystem::create_directory(recording_directory_path);

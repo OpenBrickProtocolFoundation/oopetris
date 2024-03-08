@@ -227,8 +227,15 @@ helper::BoolWrapper<ui::EventHandleType> ui::ScrollLayout::handle_event(
     return handled;
 }
 
+void ui::ScrollLayout::clear_widgets() {
+
+    m_widgets.clear();
+
+    recalculate_sizes(0);
+}
+
 [[nodiscard]] ui::Layout ui::ScrollLayout::get_layout_for_index(u32) {
-    // see TODO comment below (in header file)
+    // see TODO comment over handle_event in header file
     throw std::runtime_error("NOT SUPPORTED");
 }
 

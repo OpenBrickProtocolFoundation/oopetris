@@ -34,28 +34,7 @@ namespace scenes {
                 std::pair<double, double>{ 0.05, 0.03 }
         );
 
-        auto* scroll_layout = m_main_layout.get<ui::ScrollLayout>(scroll_layout_index);
-
-        for (auto i = 0; i < 3; ++i) {
-            if (i == 2) {
-                scroll_layout->add<ui::TextInput>(
-                        ui::RelativeItemSize{ scroll_layout->layout(), 0.2 }, service_provider,
-                        service_provider->fonts().get(FontId::Symbola), Color::white(), focus_helper.focus_id(),
-                        std::pair<double, double>{ 0.9, 0.9 },
-                        ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
-                );
-            } else {
-                scroll_layout->add<ui::Button>(
-                        ui::RelativeItemSize{ scroll_layout->layout(), 0.2 }, service_provider,
-                        fmt::format("Button Nr.: {}", i), service_provider->fonts().get(FontId::Default),
-                        Color::white(), focus_helper.focus_id(),
-                        [i](const ui::Button&) { std::cout << "Pressed button: " << i << "\n"; },
-                        std::pair<double, double>{ 0.8, 1.0 },
-                        ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
-                        std::pair<double, double>{ 0.1, 0.2 }
-                );
-            }
-        }
+        add_all_recordings();
 
         constexpr auto button_size = utils::device_orientation() == utils::Orientation::Landscape
                                              ? std::pair<double, double>{ 0.15, 0.85 }
@@ -99,21 +78,7 @@ namespace scenes {
     }
 
     bool RecordingSelector::handle_event(const SDL_Event& event, const Window* window) {
-        // description of intentional behaviour of this scene, even if it seems off:
-        // the return button or the scroll layout can have the focus, if the scroll_layout has the focus, it can be scrolled by the scroll wheel and you can move around the focused item of the scroll_layout with up and down, but not with TAB, with tab you can change the focus to the return button, where you can't use the scroll wheel or up / down to change the scroll items, but you still can use click events, they are not affected by focus
 
-        //TODO: make this simpler and refactor scroll_layout, since it's not a full layout but a hybrid!
-        auto* const scroll_layout = m_main_layout.get<ui::ScrollLayout>(1);
-        if (scroll_layout->has_focus()) {
-            if (const auto event_result = scroll_layout->handle_event(event, window); event_result) {
-                if (event_result.has_additional()) {
-                    //TODO: urgent
-                    // std::ignore = m_main_layout.handle_event_result(event_result.get_additional(), scroll_layout);
-                }
-
-                return true;
-            }
-        }
 
         if (m_main_layout.handle_event(event, window)) {
             return true;
@@ -124,6 +89,47 @@ namespace scenes {
             return true;
         }
         return false;
+    }
+
+    void RecordingSelector::add_all_recordings() {
+
+        std::vector<data::RecordingMetadata> metadata_vector{};
+
+        const auto recording_directory_path = utils::get_root_folder() / constants::recordings_directory;
+
+        for (const auto& file : std::filesystem::recursive_directory_iterator(recording_directory_path)) {
+            if (recorder::RecordingReader::is_header_valid(file.path())) {
+                metadata_vector.emplace_back(file.path(), data::RecordingSource::Folder);
+            } else {
+                spdlog::info("While scanning recordings folder: file {} is not a recording", file.path().string());
+            }
+        }
+
+        if (const auto recording_path = m_service_provider->command_line_arguments().recording_path;
+            recording_path.has_value()) {
+
+            const auto recording_path_cl = std::filesystem::path(recording_path.value());
+
+            if (recorder::RecordingReader::is_header_valid(recording_path_cl)) {
+                metadata_vector.emplace_back(recording_path_cl, data::RecordingSource::Commandline);
+            } else {
+                spdlog::error(
+                        "Recording file specified by the commandline is not a recording", recording_path_cl.string()
+                );
+            }
+        }
+
+        auto* scroll_layout = m_main_layout.get<ui::ScrollLayout>(1);
+
+        if (scroll_layout->widget_count() != 0) {
+            scroll_layout->clear();
+        }
+
+        auto focus_helper = ui::FocusHelper{ 3 };
+
+        for (const auto& metadata : metadata_vector) {
+            //TODO: add custom widget that renders those metadatas
+        }
     }
 
 } // namespace scenes
