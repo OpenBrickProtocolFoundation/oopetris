@@ -78,6 +78,11 @@ namespace ui {
               ) } {
             assert(m_range.first <= m_range.second && "Range has to be in correct order!");
             current_value = m_getter();
+
+            // if on top. we give us focus automatically
+            if (is_top_level) {
+                focus();
+            }
         }
 
 

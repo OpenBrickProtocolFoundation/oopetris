@@ -31,7 +31,13 @@ namespace ui {
               Focusable{ focus_id },
               Hoverable{ layout.get_rect() },
 
-              m_options{ options } { }
+              m_options{ options } {
+
+            // if on top. we give us focus automatically
+            if (is_top_level) {
+                focus();
+            }
+        }
 
 
         void update() override {
@@ -113,7 +119,7 @@ namespace ui {
         handle_focus_change_events(const SDL_Event& event, const Window* window) {
 
 
-            if (not has_focus() and not is_top_level()) {
+            if (not has_focus()) {
                 return false;
             }
 

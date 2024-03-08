@@ -38,7 +38,7 @@ namespace ui {
                 const Layout& layout,
                 bool is_top_level = true
         )
-            : FocusLayout{ layout, focus_id,FocusOptions{ true, true }, is_top_level },
+            : FocusLayout{ layout, focus_id,FocusOptions{ is_top_level, is_top_level }, is_top_level },
               size{ S },
               direction{ direction },
               steps{ steps.cbegin(), steps.cend() },

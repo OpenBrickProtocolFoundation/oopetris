@@ -60,6 +60,11 @@ namespace ui {
               scaled_text_size{ 0 },
               timer{ [this]() { this->cursor_shown = !this->cursor_shown; }, 500ms } {
             recalculate_textures(false);
+
+            // if on top. we give us focus automatically
+            if (is_top_level) {
+                focus();
+            }
         }
 
     public:

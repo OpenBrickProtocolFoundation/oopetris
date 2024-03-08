@@ -52,7 +52,13 @@ namespace ui {
                         fill_rect.height() - 2 * static_cast<int>(margin.second) } },
               m_callback{ std::move(callback) },
               m_fill_rect{ fill_rect },
-              m_enabled{ true } { }
+              m_enabled{ true } {
+
+            // if on top. we give us focus automatically
+            if (is_top_level) {
+                focus();
+            }
+        }
 
     public:
         explicit Button(

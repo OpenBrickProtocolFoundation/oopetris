@@ -76,7 +76,7 @@ namespace ui {
                 bool is_top_level = true
         )
             : FocusLayout{
-                  layout, focus_id, FocusOptions{ false, false }, is_top_level},
+                  layout, focus_id, FocusOptions{ is_top_level, is_top_level }, is_top_level}, // if on top, we support tab and wrap around, otherwise not
                   gap{ gap },
                   m_texture{ service_provider->renderer().get_texture_for_render_target(
                           shapes::UPoint(1, 1) // this is a dummy point!

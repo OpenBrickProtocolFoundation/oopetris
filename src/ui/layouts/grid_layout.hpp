@@ -29,12 +29,13 @@ namespace ui {
                 const Layout& layout,
                 bool is_top_level = true
         )
-            : FocusLayout{ layout, focus_id, FocusOptions{ true, true }, is_top_level },
+            : FocusLayout{ layout, focus_id, FocusOptions{ is_top_level, is_top_level }, is_top_level },
               size{ size },
               direction{ direction },
               gap{ gap },
               margin{ static_cast<u32>(margin.first * layout.get_rect().width()),
-                      static_cast<u32>(margin.second * layout.get_rect().height()) } { }
+                      static_cast<u32>(margin.second * layout.get_rect().height()) } {
+        }
 
         [[nodiscard]] u32 total_size() const {
             return size;
