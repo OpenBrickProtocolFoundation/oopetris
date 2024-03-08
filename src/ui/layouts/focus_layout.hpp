@@ -184,9 +184,19 @@ namespace ui {
                     focusable.value()->focus();           // NOLINT(bugprone-unchecked-optional-access)
                     m_focus_id = widget_focus_id;
 
+                    // if the layout itself has not focus, it needs focus itself too
+                    if (not has_focus()) {
+                        return ui::EventHandleType::RequestFocus;
+                    }
+
+
                     return helper::nullopt;
                 }
                 case ui::EventHandleType::RequestUnFocus: {
+                    if (not has_focus()) {
+                        return helper::nullopt;
+                    }
+
                     const auto focusable = as_focusable(widget);
                     if (not focusable.has_value()) {
                         throw std::runtime_error("Only Focusables can request un-focus!");
