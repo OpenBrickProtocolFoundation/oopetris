@@ -36,6 +36,13 @@ namespace recorder {
 
         [[nodiscard]] const std::vector<TetrionSnapshot>& snapshots() const;
 
+        [[nodiscard]] static std::pair<bool, std::string> is_header_valid(const std::filesystem::path& path);
+
+    private:
+        [[nodiscard]] static helper::expected<std::pair<std::ifstream, std::vector<TetrionHeader>>, std::string>
+        get_header_from_path(const std::filesystem::path& path);
+
+
         [[nodiscard]] static helper::reader::ReadResult<TetrionHeader> read_tetrion_header_from_file(std::ifstream& file
         );
 

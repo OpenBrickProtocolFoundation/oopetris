@@ -222,9 +222,10 @@ void Application::initialize() {
     push_scene(scenes::create_scene(*this, SceneId::MainMenu, ui::FullScreenLayout{ m_window }));
 
 #ifdef DEBUG_BUILD
-    m_fps_text = std::make_unique<Text>(
-            this, "FPS: ?", fonts().get(FontId::Default), Color::white(),
-            ui::RelativeLayout(window(), 0.01, 0.01, 0.1, 0.05).get_rect()
+    m_fps_text = std::make_unique<ui::Label>(
+            this, "FPS: ?", fonts().get(FontId::Default), Color::white(), std::pair<double, double>{ 0.95, 0.95 },
+            ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
+            ui::RelativeLayout{ window(), 0.0, 0.0, 0.1, 0.05 }, false
     );
 #endif
 }

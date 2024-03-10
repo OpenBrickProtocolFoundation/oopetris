@@ -1,5 +1,7 @@
 #include "renderer.hpp"
 
+//TODO: assert return values of all sdl functions
+
 Renderer::Renderer(Window& window, const VSync v_sync)
     : m_renderer{ SDL_CreateRenderer(
             window.get_sdl_window(),
@@ -20,7 +22,8 @@ void Renderer::set_draw_color(const Color& color) const {
 
 void Renderer::clear(const Color& clear_color) const {
     set_draw_color(clear_color);
-    SDL_RenderClear(m_renderer);
+    int result = SDL_RenderClear(m_renderer);
+    assert(result == 0 && "render clear was executed without error");
 }
 
 void Renderer::present() const {

@@ -40,9 +40,7 @@ ui::ScrollLayout::ScrollLayout(
             : FocusLayout{
                   layout, focus_id, FocusOptions{ is_top_level, is_top_level }, is_top_level}, // if on top, we support tab and wrap around, otherwise not
                   gap{ gap },
-                  m_texture{ service_provider->renderer().get_texture_for_render_target(
-                          shapes::UPoint(1, 1) // this is a dummy point!
-                  ) },
+                  m_texture{ helper::nullopt },
                   m_service_provider{ service_provider },
                   m_step_size{ static_cast<u32>(layout.get_rect().height() * 0.05) } {
 
@@ -71,12 +69,11 @@ void ui::ScrollLayout::render(const ServiceProvider& service_provider) const {
 
     const auto& renderer = service_provider.renderer();
 
-    const auto total_widgets_height = m_widgets.back()->layout().get_rect().bottom_right.y;
+    const auto total_widgets_height = m_widgets.size() == 0 ? 0 : m_widgets.back()->layout().get_rect().bottom_right.y;
 
-    // at widget_count == 0, the texture is a dummy, so don't use it!
-    if (widget_count() > 0) {
+    if (m_texture.has_value()) {
 
-        renderer.set_render_target(m_texture);
+        renderer.set_render_target(m_texture.value());
         renderer.clear();
         for (const auto& widget : m_widgets) {
             // smart rendering, only render, when viewport needs this widget
@@ -101,7 +98,7 @@ void ui::ScrollLayout::render(const ServiceProvider& service_provider) const {
                                      total_widgets_height };
         }
 
-        renderer.draw_texture(m_texture, m_viewport, to_rect);
+        renderer.draw_texture(m_texture.value(), m_viewport, to_rect);
     }
 
     // render the scrollbar when it makes sense
@@ -128,7 +125,8 @@ helper::BoolWrapper<ui::EventHandleType> ui::ScrollLayout::handle_event(
 
     if (utils::device_supports_clicks()) {
 
-        const auto total_widgets_height = m_widgets.back()->layout().get_rect().bottom_right.y;
+        const auto total_widgets_height =
+                m_widgets.size() == 0 ? 0 : m_widgets.back()->layout().get_rect().bottom_right.y;
 
         const auto change_value_on_scroll = [&window, &event, total_widgets_height, this]() {
             const auto& [_, y] = utils::get_raw_coordinates(window, event);
@@ -230,6 +228,7 @@ helper::BoolWrapper<ui::EventHandleType> ui::ScrollLayout::handle_event(
 void ui::ScrollLayout::clear_widgets() {
 
     m_widgets.clear();
+    m_texture = helper::nullopt;
 
     recalculate_sizes(0);
 }
@@ -266,7 +265,7 @@ void ui::ScrollLayout::auto_move_after_focus_change() {
         return;
     }
 
-    const auto total_widgets_height = m_widgets.back()->layout().get_rect().bottom_right.y;
+    const auto total_widgets_height = m_widgets.size() == 0 ? 0 : m_widgets.back()->layout().get_rect().bottom_right.y;
 
     // if we don't need to fill-up the whole main_rect, we need a special viewport, but top position is always 0
     if (total_widgets_height < scrollbar_rect.height()) {
@@ -299,7 +298,7 @@ void ui::ScrollLayout::auto_move_after_focus_change() {
 // it's called desired, since it might not be entirely valid
 void ui::ScrollLayout::recalculate_sizes(i32 desired_scroll_height) {
 
-    const auto total_widgets_height = m_widgets.back()->layout().get_rect().bottom_right.y;
+    const auto total_widgets_height = m_widgets.size() == 0 ? 0 : m_widgets.back()->layout().get_rect().bottom_right.y;
 
     // if we don't need to fill-up the whole main_rect, we need a special viewport
     if (total_widgets_height < scrollbar_rect.height()) {

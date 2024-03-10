@@ -11,13 +11,15 @@ namespace recorder {
     struct RecordingWriter : public Recording {
     private:
         std::ofstream m_output_file;
-        std::filesystem::path m_path;
         constexpr static u8 version_number = 1;
 
-    public:
-        explicit RecordingWriter(const std::filesystem::path& path, std::vector<TetrionHeader>&& tetrion_headers);
+        explicit RecordingWriter(std::ofstream&& output_file, std::vector<TetrionHeader>&& tetrion_headers);
 
-        helper::expected<bool, std::string> write_tetrion_headers();
+    public:
+        RecordingWriter(RecordingWriter&& old) noexcept;
+
+        static helper::expected<RecordingWriter, std::string>
+        get_writer(const std::filesystem::path& path, std::vector<TetrionHeader>&& tetrion_headers);
 
         helper::expected<bool, std::string> add_event(
                 u8 tetrion_index, // NOLINT(bugprone-easily-swappable-parameters)
@@ -31,7 +33,8 @@ namespace recorder {
         static helper::expected<bool, std::string>
         write_tetrion_header_to_file(std::ofstream& file, const TetrionHeader& header);
 
-        helper::expected<bool, std::string> write_checksum_to_file(std::ofstream& file);
+        static helper::expected<bool, std::string>
+        write_checksum_to_file(std::ofstream& file, const std::vector<TetrionHeader>& tetrion_headers);
 
         template<utils::integral Integral>
         helper::expected<bool, std::string> write(Integral data) {

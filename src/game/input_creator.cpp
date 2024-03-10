@@ -143,12 +143,14 @@ namespace {
     const auto filename = fmt::format("{}.rec", utils::current_date_time_iso8601());
     const auto file_path = recording_directory_path / filename;
 
-    const auto recording_writer = std::make_shared<recorder::RecordingWriter>(file_path, std::move(tetrion_headers));
 
-    const auto write_result = recording_writer->write_tetrion_headers();
-    if (not write_result.has_value()) {
-        throw std::runtime_error(write_result.error());
+    auto recording_writer_create_result = recorder::RecordingWriter::get_writer(file_path, std::move(tetrion_headers));
+    if (not recording_writer_create_result.has_value()) {
+        throw std::runtime_error(recording_writer_create_result.error());
     }
+
+    const auto recording_writer =
+            std::make_shared<recorder::RecordingWriter>(std::move(recording_writer_create_result.value()));
 
 
     std::get<1>(result).recording_writer = recording_writer;

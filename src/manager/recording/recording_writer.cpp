@@ -1,48 +1,55 @@
 #include "recording_writer.hpp"
 
-recorder::RecordingWriter::RecordingWriter(
-        const std::filesystem::path& path,
-        std::vector<TetrionHeader>&& tetrion_headers
-)
+recorder::RecordingWriter::RecordingWriter(std::ofstream&& output_file, std::vector<TetrionHeader>&& tetrion_headers)
     : Recording{ std::move(tetrion_headers) },
-      m_output_file{ path, std::ios::out | std::ios::binary },
-      m_path{ path } { }
+      m_output_file{ std::move(output_file) } { }
 
 
-helper::expected<bool, std::string> recorder::RecordingWriter::write_tetrion_headers() {
-    if (not m_output_file) {
-        return helper::unexpected<std::string>{ fmt::format("failed to open output file \"{}\"", m_path.string()) };
+recorder::RecordingWriter::RecordingWriter(RecordingWriter&& old) noexcept
+    : recorder::RecordingWriter{ std::move(old.m_output_file), std::move(old.m_tetrion_headers) } { }
+
+
+helper::expected<recorder::RecordingWriter, std::string>
+recorder::RecordingWriter::get_writer(const std::filesystem::path& path, std::vector<TetrionHeader>&& tetrion_headers) {
+
+    auto output_file = std::ofstream{ path, std::ios::out | std::ios::binary };
+
+    if (not output_file) {
+        return helper::unexpected<std::string>{ fmt::format("failed to open output file \"{}\"", path.string()) };
     }
 
     helper::expected<bool, std::string> result{ true };
 
     static_assert(sizeof(Recording::magic_file_byte) == 4);
-    result = helper::writer::write_integral_to_file(m_output_file, Recording::magic_file_byte);
+    result = helper::writer::write_integral_to_file(output_file, Recording::magic_file_byte);
     if (not result.has_value()) {
         return helper::unexpected<std::string>{ fmt::format("error while writing: {}", result.error()) };
     }
 
     static_assert(sizeof(RecordingWriter::version_number) == 1);
-    result = helper::writer::write_integral_to_file(m_output_file, RecordingWriter::version_number);
+    result = helper::writer::write_integral_to_file(output_file, RecordingWriter::version_number);
     if (not result.has_value()) {
         return helper::unexpected<std::string>{ fmt::format("error while writing: {}", result.error()) };
     }
 
-    result = helper::writer::write_integral_to_file<u8>(m_output_file, static_cast<u8>(m_tetrion_headers.size()));
+    result = helper::writer::write_integral_to_file<u8>(output_file, static_cast<u8>(tetrion_headers.size()));
     if (not result.has_value()) {
         return helper::unexpected<std::string>{ fmt::format("error while writing: {}", result.error()) };
     }
 
-    for (const auto& header : m_tetrion_headers) {
-        result = write_tetrion_header_to_file(m_output_file, header);
+    for (const auto& header : tetrion_headers) {
+        result = write_tetrion_header_to_file(output_file, header);
         if (not result.has_value()) {
             return helper::unexpected<std::string>{ result.error() };
         }
     }
 
-    result = write_checksum_to_file(m_output_file);
+    result = write_checksum_to_file(output_file, tetrion_headers);
+    if (not result.has_value()) {
+        return helper::unexpected<std::string>{ fmt::format("error while writing: {}", result.error()) };
+    }
 
-    return result;
+    return RecordingWriter{ std::move(output_file), std::move(tetrion_headers) };
 }
 
 helper::expected<bool, std::string> recorder::RecordingWriter::add_event(
@@ -129,10 +136,12 @@ recorder::RecordingWriter::write_tetrion_header_to_file(std::ofstream& file, con
     return result;
 }
 
-helper::expected<bool, std::string> recorder::RecordingWriter::write_checksum_to_file(std::ofstream& file) {
+helper::expected<bool, std::string> recorder::RecordingWriter::write_checksum_to_file(
+        std::ofstream& file,
+        const std::vector<TetrionHeader>& tetrion_headers
+) {
 
-
-    const auto checksum = Recording::get_header_checksum(RecordingWriter::version_number, m_tetrion_headers);
+    const auto checksum = Recording::get_header_checksum(RecordingWriter::version_number, tetrion_headers);
     static_assert(sizeof(decltype(checksum)) == 32);
 
     helper::expected<bool, std::string> result{ true };

@@ -2,10 +2,12 @@
 #include "graphics/window.hpp"
 #include "helper/constants.hpp"
 #include "manager/music_manager.hpp"
+#include "manager/recording/recording_reader.hpp"
 #include "manager/resource_manager.hpp"
 #include "ui/components/textinput.hpp"
 #include "ui/layout.hpp"
 #include "ui/layouts/scroll_layout.hpp"
+
 
 namespace scenes {
 
@@ -29,7 +31,7 @@ namespace scenes {
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
         );
 
-        const auto scroll_layout_index = m_main_layout.add<ui::ScrollLayout>(
+        m_main_layout.add<ui::ScrollLayout>(
                 service_provider, focus_helper.focus_id(), ui::AbsolutMargin{ 10 },
                 std::pair<double, double>{ 0.05, 0.03 }
         );
@@ -72,6 +74,7 @@ namespace scenes {
     }
 
     void RecordingSelector::render(const ServiceProvider& service_provider) {
+
         service_provider.renderer().draw_rect_filled(get_layout().get_rect(), Color::black());
 
         m_main_layout.render(service_provider);
@@ -98,10 +101,14 @@ namespace scenes {
         const auto recording_directory_path = utils::get_root_folder() / constants::recordings_directory;
 
         for (const auto& file : std::filesystem::recursive_directory_iterator(recording_directory_path)) {
-            if (recorder::RecordingReader::is_header_valid(file.path())) {
+            const auto [is_header_valid, error] = recorder::RecordingReader::is_header_valid(file.path());
+            if (is_header_valid) {
                 metadata_vector.emplace_back(file.path(), data::RecordingSource::Folder);
             } else {
-                spdlog::info("While scanning recordings folder: file {} is not a recording", file.path().string());
+                spdlog::info(
+                        "While scanning recordings folder: file {} is not a recording, reason: {}",
+                        file.path().string(), error
+                );
             }
         }
 
@@ -109,12 +116,13 @@ namespace scenes {
             recording_path.has_value()) {
 
             const auto recording_path_cl = std::filesystem::path(recording_path.value());
-
-            if (recorder::RecordingReader::is_header_valid(recording_path_cl)) {
+            const auto [is_header_valid, error] = recorder::RecordingReader::is_header_valid(recording_path_cl);
+            if (is_header_valid) {
                 metadata_vector.emplace_back(recording_path_cl, data::RecordingSource::Commandline);
             } else {
                 spdlog::error(
-                        "Recording file specified by the commandline is not a recording", recording_path_cl.string()
+                        "Recording file specified by the commandline is not a recording, reason: {}",
+                        recording_path_cl.string(), error
                 );
             }
         }
@@ -122,13 +130,16 @@ namespace scenes {
         auto* scroll_layout = m_main_layout.get<ui::ScrollLayout>(1);
 
         if (scroll_layout->widget_count() != 0) {
-            scroll_layout->clear();
+            scroll_layout->clear_widgets();
         }
 
         auto focus_helper = ui::FocusHelper{ 3 };
 
         for (const auto& metadata : metadata_vector) {
-            //TODO: add custom widget that renders those metadatas
+            scroll_layout->add<custom_ui::RecordingComponent>(
+                    ui::RelativeItemSize{ scroll_layout->layout(), 0.2 }, m_service_provider, std::ref(focus_helper),
+                    metadata
+            );
         }
     }
 

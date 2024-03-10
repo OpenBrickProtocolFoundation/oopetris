@@ -47,7 +47,7 @@ namespace ui {
     struct ScrollLayout : public FocusLayout {
     private:
         Margin gap;
-        Texture m_texture;
+        helper::optional<Texture> m_texture;
         ServiceProvider* m_service_provider;
         shapes::URect main_rect;
         shapes::URect scrollbar_rect;

@@ -20,10 +20,8 @@ recorder::RecordingReader::RecordingReader(RecordingReader&& old) noexcept
                                  std::move(old.m_snapshots) } { }
 
 
-helper::expected<recorder::RecordingReader, std::string>
-recorder::RecordingReader::from_path( // NOLINT(readability-function-cognitive-complexity)
-        const std::filesystem::path& path
-) {
+helper::expected<std::pair<std::ifstream, std::vector<recorder::TetrionHeader>>, std::string>
+recorder::RecordingReader::get_header_from_path(const std::filesystem::path& path) {
 
     std::ifstream file{ path, std::ios::in | std::ios::binary };
     if (not file) {
@@ -84,14 +82,32 @@ recorder::RecordingReader::from_path( // NOLINT(readability-function-cognitive-c
         ) };
     }
 
+    return std::make_pair<std::ifstream, std::vector<TetrionHeader>>(std::move(file), std::move(tetrion_headers));
+}
+
+helper::expected<recorder::RecordingReader, std::string>
+recorder::RecordingReader::from_path( // NOLINT(readability-function-cognitive-complexity)
+        const std::filesystem::path& path
+) {
+
+    auto header = get_header_from_path(path);
+    if (not header.has_value()) {
+        return helper::unexpected<std::string>{ header.error() };
+    }
+
+
+    auto [file, tetrion_headers] = std::move(header.value());
+
 
     std::vector<Record> records{};
     std::vector<TetrionSnapshot> snapshots{};
-
+    //TODO: when using larger files and recordings, we should stream the data and discard used, to far away data, to not load everything into memory at once
 
     while (true) {
+
         const auto magic_byte = helper::reader::read_integral_from_file<std::underlying_type_t<MagicByte>>(file);
         if (not magic_byte.has_value()) {
+            // we have finished and it's not an error, if we detect an end here (due to the lazy nature of filestreams, the end is only detected after trying to read, and not earlier  after the whole record is read)
             if (magic_byte.error().first == helper::reader::ReadErrorType::Incomplete) {
                 break;
             }
@@ -150,6 +166,20 @@ recorder::RecordingReader::from_path( // NOLINT(readability-function-cognitive-c
 [[nodiscard]] const std::vector<TetrionSnapshot>& recorder::RecordingReader::snapshots() const {
     return m_snapshots;
 }
+
+
+[[nodiscard]] std::pair<bool, std::string> recorder::RecordingReader::is_header_valid(const std::filesystem::path& path
+) {
+
+    auto header = get_header_from_path(path);
+
+    if (header.has_value()) {
+        return { true, "" };
+    }
+
+    return { false, header.error() };
+}
+
 
 [[nodiscard]] helper::reader::ReadResult<recorder::TetrionHeader>
 recorder::RecordingReader::read_tetrion_header_from_file(std::ifstream& file) {

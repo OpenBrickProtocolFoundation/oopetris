@@ -2,6 +2,7 @@
 
 #include "graphics/text.hpp"
 #include "ui/widget.hpp"
+
 #include <string>
 
 namespace ui {
