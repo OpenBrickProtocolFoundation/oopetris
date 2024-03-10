@@ -33,9 +33,9 @@ namespace scenes {
         for (decltype(parameters.size()) i = 0; i < parameters.size(); ++i) {
             auto [input, starting_parameters] = std::move(parameters.at(i));
 
-            m_games.emplace_back(std::move(std::make_unique<Game>(
+            m_games.emplace_back(std::make_unique<Game>(
                     service_provider, std::move(input), starting_parameters, layouts.at(i), false
-            )));
+            ));
         }
 
 

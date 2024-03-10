@@ -23,7 +23,7 @@ void Renderer::set_draw_color(const Color& color) const {
 void Renderer::clear(const Color& clear_color) const {
     set_draw_color(clear_color);
     int result = SDL_RenderClear(m_renderer);
-    assert(result == 0 && "render clear was executed without error");
+    ASSERT(result == 0 && "render clear was executed without error");
 }
 
 void Renderer::present() const {

@@ -3,6 +3,7 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
 #include <stdexcept>
+#include <string>
 
 #if defined(__SWITCH__)
 #include "switch.h"

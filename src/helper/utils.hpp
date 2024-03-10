@@ -70,7 +70,6 @@ namespace utils {
 
     [[noreturn]] inline void unreachable() {
         assert(false and "unreachable");
-        // TODO: throw exception in android build
         std::terminate();
     }
 
@@ -84,3 +83,9 @@ namespace utils {
 
 
 #define UNUSED(x) (void(x)) // NOLINT(cppcoreguidelines-macro-usage)
+
+#if defined(NDEBUG)
+#define ASSERT(x) (UNUSED(x)) // NOLINT(cppcoreguidelines-macro-usage)
+#else
+#define ASSERT(x) assert(x)
+#endif

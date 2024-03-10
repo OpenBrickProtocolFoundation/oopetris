@@ -111,6 +111,7 @@ add_executable(oopetris
     src/scenes/play_select_menu/play_select_menu.cpp
     src/scenes/play_select_menu/play_select_menu.hpp
     src/scenes/recording_selector/recording_selector.cpp
+    src/scenes/recording_selector/recording_component.cpp
     src/scenes/scene_id.hpp
     src/scenes/scene.cpp
     src/scenes/scene.hpp

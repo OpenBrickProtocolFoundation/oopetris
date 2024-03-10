@@ -1,6 +1,7 @@
 #pragma once
 
 #include "helper/types.hpp"
+#include "helper/utils.hpp"
 
 #if !defined(_NO_SDL)
 #include <SDL.h>
@@ -8,6 +9,7 @@
 
 #include <iomanip>
 #include <ostream>
+#include <sstream>
 
 struct Color {
     u8 r;
@@ -53,7 +55,7 @@ struct Color {
 
 
     // helper to display values
-    constexpr std::ostream& operator<<(std::ostream& os) const {
+    inline std::ostream& operator<<(std::ostream& os) const {
         std::ostringstream oss;
         oss << std::hex << std::setfill('0') << '#' << std::setw(2) << static_cast<int>(r) << std::setw(2)
             << static_cast<int>(g) << std::setw(2) << static_cast<int>(b) << std::setw(2) << static_cast<int>(a) << ';';
@@ -77,18 +79,19 @@ namespace {
     // decode a single_hex_number
     consteval u8 single_hex_number(char n) {
         if (n >= '0' && n <= '9') {
-            return n - '0';
+            return static_cast<u8>(n - '0');
         }
 
         if (n >= 'A' && n <= 'F') {
-            return n - 'A' + 10;
+            return static_cast<u8>(n - 'A' + 10);
         }
 
         if (n >= 'a' && n <= 'f') {
-            return n - 'a' + 10;
+            return static_cast<u8>(n - 'a' + 10);
         }
 
         CONSTEVAL_STATIC_ASSERT(false, "the input must be a valid hex character");
+        utils::unreachable();
     }
 
     // decode a single color value
