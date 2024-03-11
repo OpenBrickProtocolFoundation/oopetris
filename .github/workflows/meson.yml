@@ -125,8 +125,10 @@ jobs:
           echo "CPPFLAGS=-I$(brew --prefix)/opt/llvm/include" >> "$GITHUB_ENV"
           echo "CC=clang" >> "$GITHUB_ENV"
           echo "CXX=clang++" >> "$GITHUB_ENV"
+          echo "OBJC=clang" >> "$GITHUB_ENV"
           echo "CC_LD=lld" >> "$GITHUB_ENV"
           echo "CXX_LD=lld" >> "$GITHUB_ENV"
+          echo "OBJC_LD=lld" >> "$GITHUB_ENV"
 
       - name: Unbreak Python in GHA for 3.11 (MacOS 13 image)
         if: matrix.config.os == 'macos'  &&  matrix.config.os-version == 13

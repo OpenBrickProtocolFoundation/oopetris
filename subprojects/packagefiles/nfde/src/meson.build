@@ -57,7 +57,7 @@ elif host_machine.system() == 'darwin'
         '-DNFD_MACOS_ALLOWEDCONTENTTYPES=' + (use_allowed_content_types_result ? '1' : '0')
     )
 
-    add_languages('objc', native: true)
+    add_languages('objc', native: false)
 
     src_files += files('nfd_cocoa.m')
 
