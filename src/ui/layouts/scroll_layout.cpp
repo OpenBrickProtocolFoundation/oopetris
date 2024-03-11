@@ -69,7 +69,7 @@ void ui::ScrollLayout::render(const ServiceProvider& service_provider) const {
 
     const auto& renderer = service_provider.renderer();
 
-    const auto total_widgets_height = m_widgets.size() == 0 ? 0 : m_widgets.back()->layout().get_rect().bottom_right.y;
+    const auto total_widgets_height = m_widgets.empty() ? 0 : m_widgets.back()->layout().get_rect().bottom_right.y;
 
     if (m_texture.has_value()) {
 
@@ -110,11 +110,11 @@ void ui::ScrollLayout::render(const ServiceProvider& service_provider) const {
     }
 }
 
-helper::BoolWrapper<ui::EventHandleType> ui::ScrollLayout::handle_event(
+helper::BoolWrapper<ui::EventHandleType>
+ui::ScrollLayout::handle_event( // NOLINT(readability-function-cognitive-complexity)
         const SDL_Event& event,
         const Window* window
-) // NOLINT(readability-function-cognitive-complexity)
-{
+) {
 
     helper::BoolWrapper<ui::EventHandleType> handled = handle_focus_change_events(event, window);
 
@@ -125,8 +125,7 @@ helper::BoolWrapper<ui::EventHandleType> ui::ScrollLayout::handle_event(
 
     if (utils::device_supports_clicks()) {
 
-        const auto total_widgets_height =
-                m_widgets.size() == 0 ? 0 : m_widgets.back()->layout().get_rect().bottom_right.y;
+        const u32 total_widgets_height = m_widgets.empty() ? 0 : m_widgets.back()->layout().get_rect().bottom_right.y;
 
         const auto change_value_on_scroll = [&window, &event, total_widgets_height, this]() {
             const auto& [_, y] = utils::get_raw_coordinates(window, event);
@@ -138,15 +137,16 @@ helper::BoolWrapper<ui::EventHandleType> ui::ScrollLayout::handle_event(
                 desired_scroll_height = 0;
             } else if (y >= scrollbar_rect.bottom_right.y) {
                 // this is to high, but recalculate_sizes reset it to the highest possible value!
-                desired_scroll_height = total_widgets_height;
+                desired_scroll_height = static_cast<int>(total_widgets_height);
             } else {
 
                 const double percentage = static_cast<double>(y - scrollbar_rect.top_left.y)
                                           / static_cast<double>(scrollbar_rect.height());
 
                 // we want the final point to be in the middle, but desired_scroll_height expects the top position.
-                desired_scroll_height =
-                        static_cast<int>(percentage * total_widgets_height) - scrollbar_rect.height() / 2;
+                desired_scroll_height = static_cast<int>(
+                        static_cast<int>(percentage * total_widgets_height) - scrollbar_rect.height() / 2
+                );
                 is_dragging = true;
             }
 
@@ -187,9 +187,9 @@ helper::BoolWrapper<ui::EventHandleType> ui::ScrollLayout::handle_event(
             auto desired_scroll_height = 0;
 
             if (direction_is_down) {
-                desired_scroll_height = m_viewport.top_left.y + static_cast<int>(m_step_size);
+                desired_scroll_height = static_cast<int>(m_viewport.top_left.y + m_step_size);
             } else {
-                desired_scroll_height = m_viewport.top_left.y - static_cast<int>(m_step_size);
+                desired_scroll_height = static_cast<int>(m_viewport.top_left.y - m_step_size);
             }
 
             recalculate_sizes(desired_scroll_height);
@@ -265,7 +265,7 @@ void ui::ScrollLayout::auto_move_after_focus_change() {
         return;
     }
 
-    const auto total_widgets_height = m_widgets.size() == 0 ? 0 : m_widgets.back()->layout().get_rect().bottom_right.y;
+    const auto total_widgets_height = m_widgets.empty() ? 0 : m_widgets.back()->layout().get_rect().bottom_right.y;
 
     // if we don't need to fill-up the whole main_rect, we need a special viewport, but top position is always 0
     if (total_widgets_height < scrollbar_rect.height()) {
@@ -292,13 +292,13 @@ void ui::ScrollLayout::auto_move_after_focus_change() {
         return;
     }
 
-    recalculate_sizes(middle_of_rect_y - (m_viewport.height() / 2));
+    recalculate_sizes(static_cast<i32>(middle_of_rect_y - (m_viewport.height() / 2)));
 }
 
 // it's called desired, since it might not be entirely valid
 void ui::ScrollLayout::recalculate_sizes(i32 desired_scroll_height) {
 
-    const auto total_widgets_height = m_widgets.size() == 0 ? 0 : m_widgets.back()->layout().get_rect().bottom_right.y;
+    const auto total_widgets_height = m_widgets.empty() ? 0 : m_widgets.back()->layout().get_rect().bottom_right.y;
 
     // if we don't need to fill-up the whole main_rect, we need a special viewport
     if (total_widgets_height < scrollbar_rect.height()) {
@@ -310,7 +310,7 @@ void ui::ScrollLayout::recalculate_sizes(i32 desired_scroll_height) {
         if (desired_scroll_height < 0) {
             scroll_height = 0;
         } else if (desired_scroll_height + main_rect.height() > total_widgets_height) {
-            scroll_height = total_widgets_height - main_rect.height();
+            scroll_height = static_cast<i32>(total_widgets_height - main_rect.height());
         }
 
         m_viewport = shapes::URect{ 0, static_cast<u32>(scroll_height), main_rect.width(), main_rect.height() };

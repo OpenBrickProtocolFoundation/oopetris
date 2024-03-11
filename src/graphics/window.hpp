@@ -2,6 +2,7 @@
 
 #include "graphics/point.hpp"
 #include "graphics/rect.hpp"
+
 #include <SDL.h>
 #include <string>
 

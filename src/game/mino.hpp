@@ -5,7 +5,6 @@
 #include "manager/service_provider.hpp"
 #include "tetromino_type.hpp"
 
-#include <array>
 #include <functional>
 
 enum class MinoTransparency : u8 {
@@ -26,11 +25,11 @@ private:
     using GridPoint = shapes::AbstractPoint<u8>;
     using ScreenCordsFunction = std::function<shapes::UPoint(const GridPoint&)>;
     GridPoint m_position;
-    TetrominoType m_type;
+    helper::TetrominoType m_type;
     static constexpr int original_inset = 3;
 
 public:
-    explicit constexpr Mino(GridPoint position, TetrominoType type) : m_position{ position }, m_type{ type } { }
+    explicit constexpr Mino(GridPoint position, helper::TetrominoType type) : m_position{ position }, m_type{ type } { }
 
 #if !defined(_NO_SDL)
     void render(
@@ -43,7 +42,7 @@ public:
     ) const;
 #endif
 
-    [[nodiscard]] TetrominoType type() const;
+    [[nodiscard]] helper::TetrominoType type() const;
 
     [[nodiscard]] const GridPoint& position() const;
 

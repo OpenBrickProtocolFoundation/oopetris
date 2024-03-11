@@ -36,6 +36,7 @@ add_executable(oopetris
     src/game/rotation.hpp
     src/game/tetrion.cpp
     src/game/tetrion.hpp
+    src/game/tetromino_type.cpp
     src/game/tetromino_type.hpp
     src/game/tetromino.cpp
     src/game/tetromino.hpp
@@ -47,6 +48,7 @@ add_executable(oopetris
     src/graphics/sdl_context.hpp
     src/graphics/text.cpp
     src/graphics/text.hpp
+    src/graphics/texture.cpp
     src/graphics/texture.hpp
     src/graphics/window.cpp
     src/graphics/window.hpp
@@ -110,8 +112,8 @@ add_executable(oopetris
     src/scenes/pause/pause.hpp
     src/scenes/play_select_menu/play_select_menu.cpp
     src/scenes/play_select_menu/play_select_menu.hpp
-    src/scenes/recording_selector/recording_selector.cpp
     src/scenes/recording_selector/recording_component.cpp
+    src/scenes/recording_selector/recording_selector.cpp
     src/scenes/scene_id.hpp
     src/scenes/scene.cpp
     src/scenes/scene.hpp
@@ -155,9 +157,9 @@ foreach(target ${TARGET_LIST})
         message("MSVC build")
 
         if(CMAKE_BUILD_TYPE STREQUAL "Release")
-            target_compile_options(${target} INTERFACE /W4 /WX /permissive-)
+            target_compile_options(${target} INTERFACE /W4 /WX /permissive- /wd7595)
         else()
-            target_compile_options(${target} INTERFACE /W4 /WX /permissive-)
+            target_compile_options(${target} INTERFACE /W4 /WX /permissive- /wd7595)
         endif()
     elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         message("GCC build")

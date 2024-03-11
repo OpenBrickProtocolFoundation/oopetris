@@ -2,8 +2,8 @@
 
 Bag::Bag(Random& random) : m_tetromino_sequence{} {
     // initialize array with invalid tetromino type
-    for (TetrominoType& type : m_tetromino_sequence) {
-        type = static_cast<TetrominoType>(static_cast<int>(TetrominoType::LastType) + 1);
+    for (helper::TetrominoType& type : m_tetromino_sequence) {
+        type = static_cast<helper::TetrominoType>(static_cast<int>(helper::TetrominoType::LastType) + 1);
     }
 
     // fill in the sequence with random order
@@ -24,11 +24,11 @@ Bag::Bag(Random& random) : m_tetromino_sequence{} {
     }
 }
 
-const TetrominoType& Bag::operator[](int index) const {
+const helper::TetrominoType& Bag::operator[](int index) const {
     return m_tetromino_sequence.at(static_cast<usize>(index));
 }
 
 
-TetrominoType Bag::get_random_tetromino_type(Random& random) {
-    return static_cast<TetrominoType>(random.random(static_cast<int>(TetrominoType::LastType) + 1));
+helper::TetrominoType Bag::get_random_tetromino_type(Random& random) {
+    return static_cast<helper::TetrominoType>(random.random(static_cast<int>(helper::TetrominoType::LastType) + 1));
 }

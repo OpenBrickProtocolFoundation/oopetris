@@ -24,6 +24,7 @@ src_files += files(
     'tetrion.hpp',
     'tetromino.cpp',
     'tetromino.hpp',
+    'tetromino_type.cpp',
     'tetromino_type.hpp',
 )
 

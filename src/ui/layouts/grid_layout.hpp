@@ -2,14 +2,7 @@
 
 
 #include "focus_layout.hpp"
-#include "graphics/rect.hpp"
-#include "helper/optional.hpp"
 #include "helper/types.hpp"
-#include "platform/capabilities.hpp"
-#include "ui/focusable.hpp"
-#include "ui/hoverable.hpp"
-
-#include <vector>
 
 namespace ui {
     struct GridLayout : public FocusLayout {

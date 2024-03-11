@@ -15,19 +15,19 @@ private:
 
     GridPoint m_position;
     Rotation m_rotation{ Rotation::North };
-    TetrominoType m_type;
+    helper::TetrominoType m_type;
     std::array<Mino, 4> m_minos;
 
 public:
     using TetrominoPoint = shapes::AbstractPoint<u8>;
     using Pattern = std::array<TetrominoPoint, 4>;
 
-    Tetromino(GridPoint position, TetrominoType type)
+    Tetromino(GridPoint position, helper::TetrominoType type)
         : m_position{ position },
           m_type{ type },
           m_minos{ create_minos(position, m_rotation, type) } { }
 
-    [[nodiscard]] TetrominoType type() const;
+    [[nodiscard]] helper::TetrominoType type() const;
     [[nodiscard]] Rotation rotation() const;
 
     void render(
@@ -53,9 +53,9 @@ public:
 private:
     void refresh_minos();
 
-    static Pattern get_pattern(TetrominoType type, Rotation rotation);
+    static Pattern get_pattern(helper::TetrominoType type, Rotation rotation);
 
-    static std::array<Mino, 4> create_minos(GridPoint position, Rotation rotation, TetrominoType type);
+    static std::array<Mino, 4> create_minos(GridPoint position, Rotation rotation, helper::TetrominoType type);
 
     using TetrominoPatterns = std::array<Pattern, 4>; // one pattern per rotation
 

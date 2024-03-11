@@ -1,9 +1,10 @@
 
 
 #include "textinput.hpp"
+#include "graphics/renderer.hpp"
+#include "manager/event_dispatcher.hpp"
 
-
-// MSVC Is stupid and the bug isn't fixes yet :( -> https://developercommunity.visualstudio.com/t/warning-c4455-issued-when-using-standardized-liter/270349
+// MSVC Is stupid and the bug isn't fixed yet :( -> https://developercommunity.visualstudio.com/t/warning-c4455-issued-when-using-standardized-liter/270349
 #if defined(_MSC_VER)
 #pragma warning(disable : 4455)
 #endif
@@ -107,11 +108,11 @@ void ui::TextInput::render(const ServiceProvider& service_provider) const {
     }
 }
 
-helper::BoolWrapper<ui::EventHandleType> ui::TextInput::handle_event(
+helper::BoolWrapper<ui::EventHandleType>
+ui::TextInput::handle_event( // NOLINT(readability-function-cognitive-complexity)
         const SDL_Event& event,
         const Window* window
-) // NOLINT(readability-function-cognitive-complexity)
-{
+) {
     if (const auto hover_result = detect_hover(event, window); hover_result) {
         if (hover_result.is(ActionType::Clicked)) {
             return { true, EventHandleType::RequestFocus };

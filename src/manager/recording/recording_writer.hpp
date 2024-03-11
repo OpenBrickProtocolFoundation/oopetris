@@ -1,8 +1,9 @@
 #pragma once
 
 #include "helper.hpp"
+#include "helper/expected.hpp"
 #include "recording.hpp"
-#include "tetrion_snapshot.hpp"
+#include "tetrion_core_information.hpp"
 
 #include <filesystem>
 

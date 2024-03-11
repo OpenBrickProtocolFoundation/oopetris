@@ -1,4 +1,5 @@
 #include "recording_writer.hpp"
+#include "tetrion_snapshot.hpp"
 
 recorder::RecordingWriter::RecordingWriter(std::ofstream&& output_file, std::vector<TetrionHeader>&& tetrion_headers)
     : Recording{ std::move(tetrion_headers) },

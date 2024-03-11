@@ -79,7 +79,7 @@ void Mino::render(
 }
 #endif
 
-[[nodiscard]] TetrominoType Mino::type() const {
+[[nodiscard]] helper::TetrominoType Mino::type() const {
     return m_type;
 }
 

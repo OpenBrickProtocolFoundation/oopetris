@@ -3,6 +3,7 @@
 #include "additional_information.hpp"
 #include "helper.hpp"
 
+#include <algorithm>
 #include <functional>
 
 [[nodiscard]] std::string recorder::InformationValue::to_string(u32 recursion_depth // NOLINT(misc-no-recursion)

@@ -3,9 +3,7 @@
 #include "platform/capabilities.hpp"
 #include "scenes/scene.hpp"
 
-#include <fstream>
 #include <ranges>
-#include <stdexcept>
 
 #if defined(__SWITCH__)
 #include "switch.h"
@@ -51,7 +49,7 @@ void Application::run() {
     u64 frame_counter = 0;
 #endif
 
-// MSVC Is stupid and the bug isn't fixes yet :( -> https://developercommunity.visualstudio.com/t/warning-c4455-issued-when-using-standardized-liter/270349
+// MSVC Is stupid and the bug isn't fixed yet :( -> https://developercommunity.visualstudio.com/t/warning-c4455-issued-when-using-standardized-liter/270349
 #if defined(_MSC_VER)
 #pragma warning(disable : 4455)
 #endif

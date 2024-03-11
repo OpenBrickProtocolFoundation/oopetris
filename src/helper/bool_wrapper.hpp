@@ -2,7 +2,6 @@
 
 #include "helper/optional.hpp"
 
-
 namespace helper {
 
     template<typename T>

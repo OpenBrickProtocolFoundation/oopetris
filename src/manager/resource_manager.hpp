@@ -5,9 +5,6 @@
 
 #include <SDL_ttf.h>
 #include <filesystem>
-#include <memory>
-#include <string>
-#include <string_view>
 #include <unordered_map>
 
 enum class FontId : u8 { Default, Arial, NotoColorEmoji, Symbola };

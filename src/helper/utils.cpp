@@ -1,8 +1,8 @@
 #include "helper/utils.hpp"
+
 #include <SDL.h>
 #include <array>
 #include <chrono>
-#include <cstdlib>
 #include <ctime>
 #include <filesystem>
 #include <spdlog/spdlog.h>

@@ -1,9 +1,8 @@
 #pragma once
 
-#include "graphics/renderer.hpp"
-#include "graphics/text.hpp"
+#include "graphics/texture.hpp"
+#include "helper/color.hpp"
 #include "helper/timer.hpp"
-#include "manager/event_dispatcher.hpp"
 #include "ui/focusable.hpp"
 #include "ui/hoverable.hpp"
 #include "ui/widget.hpp"

@@ -1,6 +1,9 @@
 #include "replay_game.hpp"
-#include "game/input_creator.hpp"
+#include "helper/music_utils.hpp"
+#include "manager/music_manager.hpp"
 #include "scenes/scene.hpp"
+
+#include <vector>
 
 namespace scenes {
 
@@ -17,7 +20,7 @@ namespace scenes {
         std::vector<ui::Layout> layouts{};
         layouts.reserve(parameters.size());
 
-        if (parameters.size() == 0) {
+        if (parameters.empty()) {
             throw std::runtime_error("An empty recording file isn't supported");
         } else if (parameters.size() == 1) {
             layouts.push_back(ui::RelativeLayout{ layout, 0.02, 0.01, 0.96, 0.98 });

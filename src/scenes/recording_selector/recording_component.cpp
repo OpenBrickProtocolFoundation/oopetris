@@ -8,7 +8,7 @@
 custom_ui::RecordingComponent::RecordingComponent(
                 ServiceProvider* service_provider,
                 ui::FocusHelper& focus_helper,
-                const data::RecordingMetadata& metadata,
+                data::RecordingMetadata metadata,
                 const ui::Layout& layout,
                 bool is_top_level
         ):ui::Widget{layout, ui::WidgetType::Component, is_top_level},
@@ -18,9 +18,7 @@ custom_ui::RecordingComponent::RecordingComponent(
         ui::Direction::Vertical,
                     std::array<double, 1>{ 0.6 }, ui::RelativeMargin{layout.get_rect(), ui::Direction::Vertical,0.05}, std::pair<double, double>{ 0.05, 0.03 },
                     layout,false
-       },m_metadata{metadata}{
-
-    //TODO: allow empty string in label!
+       },m_metadata{std::move(metadata)}{
 
     m_main_layout.add<ui::Label>(
             service_provider, "name: ?", service_provider->fonts().get(FontId::Default), Color::white(),
@@ -33,7 +31,7 @@ custom_ui::RecordingComponent::RecordingComponent(
             std::array<double, 2>{ 0.33, 0.66 }, ui::AbsolutMargin{ 10 }, std::pair<double, double>{ 0.05, 0.03 }
     );
 
-    const auto information_layout = m_main_layout.get<ui::TileLayout>(information_layout_index);
+    auto* const information_layout = m_main_layout.get<ui::TileLayout>(information_layout_index);
 
 
     information_layout->add<ui::Label>(
@@ -80,13 +78,13 @@ custom_ui::RecordingComponent::handle_event(const SDL_Event& event, const Window
 
 [[nodiscard]] std::tuple<ui::Label*, ui::Label*, ui::Label*, ui::Label*> custom_ui::RecordingComponent::get_texts() {
 
-    auto name_text = m_main_layout.get<ui::Label>(0);
+    auto* name_text = m_main_layout.get<ui::Label>(0);
 
-    auto information_layout = m_main_layout.get<ui::TileLayout>(1);
+    auto* information_layout = m_main_layout.get<ui::TileLayout>(1);
 
-    auto source_text = information_layout->get<ui::Label>(0);
-    auto date_text = information_layout->get<ui::Label>(1);
-    auto playmode_text = information_layout->get<ui::Label>(2);
+    auto* source_text = information_layout->get<ui::Label>(0);
+    auto* date_text = information_layout->get<ui::Label>(1);
+    auto* playmode_text = information_layout->get<ui::Label>(2);
 
     return { name_text, source_text, date_text, playmode_text };
 }

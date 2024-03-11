@@ -2,11 +2,12 @@
 #include "helper/constants.hpp"
 #include "helper/music_utils.hpp"
 #include "helper/utils.hpp"
+#include "manager/music_manager.hpp"
 #include "manager/recording/recording_writer.hpp"
 #include "manager/resource_manager.hpp"
+#include "ui/components/label.hpp"
 
 #include <cassert>
-#include <fstream>
 #include <spdlog/spdlog.h>
 #include <sstream>
 
@@ -209,7 +210,7 @@ void Tetrion::spawn_next_tetromino(const SimulationStep simulation_step_index) {
     spawn_next_tetromino(get_next_tetromino_type(), simulation_step_index);
 }
 
-void Tetrion::spawn_next_tetromino(const TetrominoType type, const SimulationStep simulation_step_index) {
+void Tetrion::spawn_next_tetromino(const helper::TetrominoType type, const SimulationStep simulation_step_index) {
     constexpr GridPoint spawn_position{ 3, 0 };
     m_active_tetromino = Tetromino{ spawn_position, type };
     refresh_previews();
@@ -504,8 +505,8 @@ void Tetrion::refresh_previews() {
     }
 }
 
-TetrominoType Tetrion::get_next_tetromino_type() {
-    const TetrominoType next_type = m_sequence_bags[0][m_sequence_index];
+helper::TetrominoType Tetrion::get_next_tetromino_type() {
+    const helper::TetrominoType next_type = m_sequence_bags[0][m_sequence_index];
     m_sequence_index = (m_sequence_index + 1) % Bag::size();
     if (m_sequence_index == 0) {
         // we had a wrap-around
@@ -635,15 +636,15 @@ helper::optional<const Tetrion::WallKickTable*> Tetrion::get_wall_kick_table() c
     assert(m_active_tetromino.has_value() and "no active tetromino");
     const auto type = m_active_tetromino->type(); // NOLINT(bugprone-unchecked-optional-access)
     switch (type) {
-        case TetrominoType::J:
-        case TetrominoType::L:
-        case TetrominoType::T:
-        case TetrominoType::S:
-        case TetrominoType::Z:
+        case helper::TetrominoType::J:
+        case helper::TetrominoType::L:
+        case helper::TetrominoType::T:
+        case helper::TetrominoType::S:
+        case helper::TetrominoType::Z:
             return &wall_kick_data_jltsz;
-        case TetrominoType::I:
+        case helper::TetrominoType::I:
             return &wall_kick_data_i;
-        case TetrominoType::O:
+        case helper::TetrominoType::O:
             return {};
         default:
             utils::unreachable();

@@ -1,17 +1,14 @@
 #pragma once
 
 #include "helper/optional.hpp"
-#include "helper/static_string.hpp"
 #include "helper/types.hpp"
 
-#include <algorithm>
-#include <array>
 #include <bit>
 #include <cassert>
 #include <climits>
+#include <exception>
 #include <filesystem>
 #include <string>
-#include <string_view>
 #include <type_traits>
 
 namespace helper {
@@ -87,5 +84,5 @@ namespace utils {
 #if defined(NDEBUG)
 #define ASSERT(x) (UNUSED(x)) // NOLINT(cppcoreguidelines-macro-usage)
 #else
-#define ASSERT(x) assert(x)
+#define ASSERT(x) assert(x) // NOLINT(cppcoreguidelines-macro-usage)
 #endif

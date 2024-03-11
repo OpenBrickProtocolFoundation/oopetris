@@ -89,13 +89,13 @@ namespace ui {
         [[nodiscard]] helper::optional<ui::EventHandleType>
         handle_event_result(const helper::optional<ui::EventHandleType>& result, Widget* widget);
 
-        [[nodiscard]] u32 focusable_index_by_id(const u32 id);
+        [[nodiscard]] u32 focusable_index_by_id(u32 id);
 
         [[nodiscard]] std::vector<u32> focusable_ids_sorted() const;
 
-        [[nodiscard]] static u32 index_of(const std::vector<u32>& ids, const u32 needle);
+        [[nodiscard]] static u32 index_of(const std::vector<u32>& ids, u32 needle);
 
-        [[nodiscard]] bool try_set_next_focus(const FocusChangeDirection focus_direction);
+        [[nodiscard]] bool try_set_next_focus(FocusChangeDirection focus_direction);
 
         void give_focus(Focusable* focusable);
     };

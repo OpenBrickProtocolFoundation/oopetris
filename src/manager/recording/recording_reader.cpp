@@ -1,9 +1,9 @@
 
 #include "recording_reader.hpp"
+#include "helper/magic_enum_wrapper.hpp"
 
 #include <fmt/format.h>
 #include <fmt/ranges.h>
-#include <magic_enum.hpp>
 
 recorder::RecordingReader::RecordingReader(
         std::vector<TetrionHeader>&& tetrion_headers,

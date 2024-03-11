@@ -83,7 +83,10 @@ ui::FocusLayout::handle_focus_change_events(const SDL_Event& event, const Window
 }
 
 [[nodiscard]] helper::optional<ui::EventHandleType>
-ui::FocusLayout::handle_event_result(const helper::optional<ui::EventHandleType>& result, Widget* widget) {
+ui::FocusLayout::handle_event_result( // NOLINT(readability-function-cognitive-complexity)
+        const helper::optional<ui::EventHandleType>& result,
+        Widget* widget
+) {
 
     if (not result.has_value()) {
         return helper::nullopt;

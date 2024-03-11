@@ -1,6 +1,5 @@
 #pragma once
 
-#include "graphics/rect.hpp"
 #include "helper/bool_wrapper.hpp"
 #include "helper/optional.hpp"
 #include "manager/service_provider.hpp"
@@ -42,7 +41,7 @@ namespace ui {
             return m_type;
         }
 
-        [[nodiscard]] bool is_top_level() {
+        [[nodiscard]] bool is_top_level() const {
             return m_top_level;
         };
 

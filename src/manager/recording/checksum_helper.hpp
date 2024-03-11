@@ -4,6 +4,7 @@
 
 #include "helper/utils.hpp"
 
+#include <array>
 #include <sha256.h>
 #include <string>
 #include <vector>

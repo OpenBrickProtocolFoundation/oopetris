@@ -35,7 +35,7 @@ namespace custom_ui {
         explicit RecordingComponent(
                 ServiceProvider* service_provider,
                 ui::FocusHelper& focus_helper,
-                const data::RecordingMetadata& metadata,
+                data::RecordingMetadata metadata,
                 const ui::Layout& layout,
                 bool is_top_level
         );

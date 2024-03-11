@@ -69,10 +69,10 @@ struct Color {
 namespace {
 // define a consteval assert, it isn't a pretty error message, but there's nothing we can do against that atm :(
 // this https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2024/p2758r2.html tries to fix it
-#define CONSTEVAL_STATIC_ASSERT(CHECK, MSG)                                                                                                     \
+#define CONSTEVAL_STATIC_ASSERT(CHECK, MSG) /*NOLINT(cppcoreguidelines-macro-usage)*/                                                           \
     ((CHECK) ? void(0) : [] {                                                                                                                   \
         /* If you see this really bad c++ error message, follow the origin of MSG, to see the real error message, c++ error messages suck xD */ \
-        throw MSG;                                                                                                                              \
+        throw(MSG);                                                                                                                             \
     }())
 
 
@@ -96,10 +96,12 @@ namespace {
 
     // decode a single color value
     consteval u8 single_color_value(const char* b) {
-        return single_hex_number(b[0]) << 4 | single_hex_number(b[1]);
+        return single_hex_number(b[0]) << 4 //NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+               | single_hex_number(b[1]);   //NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     }
 
-    constexpr int red_offset = 1; // offsets in C strings
+    // offsets in C strings
+    constexpr int red_offset = 1;
     constexpr int green_offset = 3;
     constexpr int blue_offset = 5;
     constexpr int alpha_offset = 7;
@@ -108,14 +110,21 @@ namespace {
 
 consteval Color operator""_rgb(const char* s, std::size_t size) {
     CONSTEVAL_STATIC_ASSERT(size == alpha_offset, "RGB literals must be of size 7");
-    CONSTEVAL_STATIC_ASSERT(s[0] == '#', "RGB literals must start with '#'");
-    return { single_color_value(s + red_offset), single_color_value(s + green_offset),
-             single_color_value(s + blue_offset) };
+    CONSTEVAL_STATIC_ASSERT(
+            s[0] == '#', "RGB literals must start with '#'" //NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    );
+    return { single_color_value(s + red_offset),    //NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+             single_color_value(s + green_offset),  //NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+             single_color_value(s + blue_offset) }; //NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 }
 
 consteval Color operator""_rgba(const char* s, std::size_t size) {
     CONSTEVAL_STATIC_ASSERT(size == final_size, "RGBA literals must be of size 9");
-    CONSTEVAL_STATIC_ASSERT(s[0] == '#', "RGBA literals must start with '#'");
-    return { single_color_value(s + red_offset), single_color_value(s + green_offset),
-             single_color_value(s + blue_offset), single_color_value(s + alpha_offset) };
+    CONSTEVAL_STATIC_ASSERT(
+            s[0] == '#', "RGBA literals must start with '#'" //NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    );
+    return { single_color_value(s + red_offset),     //NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+             single_color_value(s + green_offset),   //NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+             single_color_value(s + blue_offset),    //NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+             single_color_value(s + alpha_offset) }; //NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 }

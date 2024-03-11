@@ -1,7 +1,6 @@
 #pragma once
 
 #include "game/game.hpp"
-#include "game/tetrion.hpp"
 #include "scenes/scene.hpp"
 
 namespace scenes {

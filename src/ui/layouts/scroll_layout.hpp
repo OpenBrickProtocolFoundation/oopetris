@@ -7,9 +7,6 @@
 #include "graphics/texture.hpp"
 #include "helper/optional.hpp"
 #include "helper/types.hpp"
-#include "platform/capabilities.hpp"
-#include "ui/focusable.hpp"
-#include "ui/hoverable.hpp"
 
 #include <vector>
 
@@ -23,7 +20,7 @@ namespace ui {
         ItemSizeType type;
 
     protected:
-        ItemSize(const u32 height, ItemSizeType type);
+        ItemSize(u32 height, ItemSizeType type);
 
     public:
         [[nodiscard]] u32 get_height() const;
@@ -32,15 +29,15 @@ namespace ui {
     };
 
     struct AbsolutItemSize : public ItemSize {
-        AbsolutItemSize(const u32 height);
+        AbsolutItemSize(u32 height);
     };
 
 
     struct RelativeItemSize : public ItemSize {
-        RelativeItemSize(const shapes::URect& rect, const double height);
-        RelativeItemSize(const Window* window, const double height);
-        RelativeItemSize(const Window& window, const double height);
-        RelativeItemSize(const Layout& layout, const double height);
+        RelativeItemSize(const shapes::URect& rect, double height);
+        RelativeItemSize(const Window* window, double height);
+        RelativeItemSize(const Window& window, double height);
+        RelativeItemSize(const Layout& layout, double height);
     };
 
 

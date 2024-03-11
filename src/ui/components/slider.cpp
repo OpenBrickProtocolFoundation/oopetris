@@ -1,6 +1,8 @@
 
 #include "slider.hpp"
-
+#include "graphics/renderer.hpp"
+#include "helper/color.hpp"
+#include "platform/capabilities.hpp"
 
 [[nodiscard]] std::pair<shapes::URect, shapes::URect> ui::Slider::get_rectangles() const {
 
@@ -70,11 +72,10 @@ void ui::Slider::render(const ServiceProvider& service_provider) const {
     service_provider.renderer().draw_rect_filled(slider_rect, slider_color);
 }
 
-helper::BoolWrapper<ui::EventHandleType> ui::Slider::handle_event(
+helper::BoolWrapper<ui::EventHandleType> ui::Slider::handle_event( // NOLINT(readability-function-cognitive-complexity)
         const SDL_Event& event,
         const Window* window
-) // NOLINT(readability-function-cognitive-complexity)
-{
+) {
 
     helper::BoolWrapper<ui::EventHandleType> handled = false;
 

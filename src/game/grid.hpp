@@ -3,13 +3,10 @@
 #include "graphics/point.hpp"
 #include "graphics/rect.hpp"
 #include "grid_properties.hpp"
+#include "helper/color.hpp"
 #include "manager/service_provider.hpp"
-#include "mino.hpp"
 #include "ui/layout.hpp"
 #include "ui/widget.hpp"
-
-#include <algorithm>
-#include <vector>
 
 struct Grid final : public ui::Widget {
 public:

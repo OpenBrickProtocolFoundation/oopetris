@@ -3,7 +3,7 @@
 
 
 ui::GridLayout::GridLayout(
-                u32 focus_id,
+                u32 focus_id, // NOLINT(bugprone-easily-swappable-parameters)
                 u32 size,
                 Direction direction,
                 Margin gap,

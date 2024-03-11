@@ -22,7 +22,7 @@ void Renderer::set_draw_color(const Color& color) const {
 
 void Renderer::clear(const Color& clear_color) const {
     set_draw_color(clear_color);
-    int result = SDL_RenderClear(m_renderer);
+    const int result = SDL_RenderClear(m_renderer);
     ASSERT(result == 0 && "render clear was executed without error");
 }
 

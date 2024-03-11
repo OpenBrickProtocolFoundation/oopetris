@@ -1,6 +1,7 @@
 #include "single_player_game.hpp"
-#include "game/input_creator.hpp"
+#include "manager/music_manager.hpp"
 #include "scenes/scene.hpp"
+
 namespace scenes {
 
     SinglePlayerGame::SinglePlayerGame(ServiceProvider* service_provider, const ui::Layout& layout)

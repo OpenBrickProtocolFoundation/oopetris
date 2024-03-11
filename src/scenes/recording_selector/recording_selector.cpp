@@ -1,13 +1,13 @@
+
 #include "recording_selector.hpp"
 #include "graphics/window.hpp"
 #include "helper/constants.hpp"
-#include "manager/music_manager.hpp"
 #include "manager/recording/recording_reader.hpp"
 #include "manager/resource_manager.hpp"
-#include "ui/components/textinput.hpp"
+#include "recording_component.hpp"
+#include "ui/components/button.hpp"
 #include "ui/layout.hpp"
 #include "ui/layouts/scroll_layout.hpp"
-
 
 namespace scenes {
 
