@@ -44,13 +44,11 @@ namespace scenes {
 
         auto* scroll_layout = m_main_layout.get<ui::ScrollLayout>(scroll_layout_index);
 
-        for (auto i = 0; i < 3; ++i) {
+        for (auto i = 0; i < 7; ++i) {
             if (i == 2) {
                 scroll_layout->add<ui::TextInput>(
                         ui::RelativeItemSize{ scroll_layout->layout(), 0.2 }, service_provider,
-                        service_provider->fonts().get(FontId::Symbola), Color::white(), focus_helper.focus_id(),
-                        std::pair<double, double>{ 0.9, 0.9 },
-                        ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
+                        service_provider->fonts().get(FontId::Symbola), Color::white(), focus_helper.focus_id()
                 );
             } else {
                 scroll_layout->add<ui::Button>(

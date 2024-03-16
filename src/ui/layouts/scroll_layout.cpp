@@ -1,7 +1,6 @@
 
 #include "scroll_layout.hpp"
 
-
 ui::ItemSize::ItemSize(const u32 height, ItemSizeType type) : height{ height }, type{ type } { }
 
 
@@ -198,14 +197,14 @@ ui::ScrollLayout::handle_event( // NOLINT(readability-function-cognitive-complex
 
         if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::Any)) {
 
-            const auto offset_distance = main_rect.top_left - m_viewport.top_left;
+            const auto offset_distance = main_rect.top_left.cast<i32>() - m_viewport.top_left.cast<i32>();
             for (auto& widget : m_widgets) {
                 const auto& layout_rect = widget->layout().get_rect();
-                const auto& offset_rect = layout_rect >> offset_distance;
+                const auto& offset_rect = (layout_rect.cast<i32>()) >> offset_distance;
 
                 if (not handled and utils::is_event_in(window, event, main_rect)
-                    and utils::is_event_in(window, event, offset_rect)) {
-                    const auto offset_event = utils::offset_event(window, event, -(offset_distance.cast<i32>()));
+                    and utils::is_event_in(window, event, offset_rect.cast<u32>())) {
+                    const auto offset_event = utils::offset_event(window, event, -offset_distance);
                     if (const auto event_result = widget->handle_event(offset_event, window); event_result) {
                         handled = { true, handle_event_result(event_result.get_additional(), widget.get()) };
                         continue;

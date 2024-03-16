@@ -19,13 +19,12 @@ ui::TextInput::TextInput(
         Font font,
         const Color& color,
         u32 focus_id,
-        const shapes::URect& fill_rect,
         const Layout& layout,
         bool is_top_level
 )
     : Widget{ layout, WidgetType::Component, is_top_level },
       Focusable{ focus_id },
-      Hoverable{ fill_rect },
+      Hoverable{ layout.get_rect() },
       m_service_provider{ service_provider },
       m_font{ std::move(font) },
       m_color{ color },
@@ -42,30 +41,6 @@ ui::TextInput::TextInput(
         focus();
     }
 }
-
-
-ui::TextInput::TextInput(
-        ServiceProvider* service_provider,
-        Font font,
-        const Color& color,
-        u32 focus_id,
-        std::pair<double, double> size,
-        Alignment alignment,
-        const Layout& layout,
-        bool is_top_level
-)
-    : TextInput{ service_provider,
-                 std::move(font),
-                 color,
-                 focus_id,
-                 ui::get_rectangle_aligned(
-                         layout,
-                         { static_cast<u32>(size.first * layout.get_rect().width()),
-                           static_cast<u32>(size.second * layout.get_rect().height()) },
-                         alignment
-                 ),
-                 layout,
-                 is_top_level } { }
 
 ui::TextInput::~TextInput() {
     on_unfocus();

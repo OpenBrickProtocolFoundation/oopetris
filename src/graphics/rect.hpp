@@ -32,8 +32,14 @@ namespace shapes {
             return { static_cast<int>(top_left.x), static_cast<int>(top_left.y), static_cast<int>(width()),
                      static_cast<int>(height()) };
         }
+
+        template<typename S>
+        constexpr AbstractRect<S> cast() const {
+            return AbstractRect<S>{ top_left.template cast<S>(), bottom_right.template cast<S>() };
+        }
     };
 
+    // move the rectangle by distance
     template<typename S, typename T>
     [[nodiscard]] constexpr AbstractRect<S> operator>>(const AbstractRect<S>& rect, AbstractPoint<T> distance) {
         return AbstractRect<S>{ rect.top_left + (distance.template cast<S>()),
