@@ -209,7 +209,13 @@ helper::expected<std::string, std::string> recorder::InformationValue::read_stri
 
     const std::unique_ptr<char, std::function<void(const char* const)>> raw_chars{
         new char[size],
-        [](const char* const char_value) { delete[] char_value; } // NOLINT(cppcoreguidelines-owning-memory)
+        [](const char* const char_value) {
+            if (char_value == nullptr) {
+                return;
+            }
+
+            delete[] char_value; // NOLINT(cppcoreguidelines-owning-memory)
+        }
     };
     for (u32 i = 0; i < size; ++i) {
 
