@@ -58,6 +58,7 @@ add_executable(oopetris
     src/helper/color.hpp
     src/helper/command_line_arguments.hpp
     src/helper/constants.hpp
+    src/helper/date.cpp
     src/helper/expected.hpp
     src/helper/git_helper.hpp
     src/helper/magic_enum_wrapper.hpp
@@ -114,6 +115,7 @@ add_executable(oopetris
     src/scenes/play_select_menu/play_select_menu.hpp
     src/scenes/recording_selector/recording_component.cpp
     src/scenes/recording_selector/recording_selector.cpp
+    src/scenes/replay_game/replay_game.cpp
     src/scenes/scene_id.hpp
     src/scenes/scene.cpp
     src/scenes/scene.hpp
