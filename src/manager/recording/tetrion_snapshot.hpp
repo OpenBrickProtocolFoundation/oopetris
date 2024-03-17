@@ -10,7 +10,6 @@
 #include <span>
 #include <vector>
 
-//TODO: this needs versioning, since now we changed some sizes of some types!!
 struct TetrionSnapshot final {
 public:
     using Level = u32;

@@ -10,7 +10,7 @@ date::ISO8601Date::ISO8601Date(u64 value) : m_value{ value } { }
 
 date::ISO8601Date::ISO8601Date(std::tm tm) {
 
-    std::time_t time = std::mktime(&tm);
+    const std::time_t time = std::mktime(&tm);
 
     if (time < 0) {
         throw std::runtime_error("Couldn't convert std::tm to std::time_t");

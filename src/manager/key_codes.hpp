@@ -2,7 +2,9 @@
 
 #include <SDL.h>
 
-//TODO: remove this, SDL has it's own conversion function!
+//TODO: remove this, SDL has it's own conversion function:
+// https://wiki.libsdl.org/SDL2/SDL_GetKeyFromName
+// https://wiki.libsdl.org/SDL2/SDL_GetKeyName
 
 enum class KeyCode {
     Unknown,

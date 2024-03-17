@@ -207,16 +207,15 @@ helper::expected<std::string, std::string> recorder::InformationValue::read_stri
 
     const auto size = string_size.value();
 
-    const std::unique_ptr<char, std::function<void(const char* const)>> raw_chars{
-        new char[size],
-        [](const char* const char_value) {
-            if (char_value == nullptr) {
-                return;
-            }
+    using UniqueCharArray = std::unique_ptr<char, std::function<void(const char* const)>>;
 
-            delete[] char_value; // NOLINT(cppcoreguidelines-owning-memory)
-        }
-    };
+    const UniqueCharArray raw_chars{ new char[size], [](const char* const char_value) {
+                                        if (char_value == nullptr) {
+                                            return;
+                                        }
+
+                                        delete[] char_value; // NOLINT(cppcoreguidelines-owning-memory)
+                                    } };
     for (u32 i = 0; i < size; ++i) {
 
         const auto local_value = helper::reader::read_from_istream<u8>(istream);

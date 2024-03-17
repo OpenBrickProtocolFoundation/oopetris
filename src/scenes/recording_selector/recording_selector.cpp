@@ -107,8 +107,8 @@ namespace scenes {
 
 
         if (const auto event_result = m_main_layout.handle_event(event, window); event_result) {
-            if (event_result.has_additional()
-                and event_result.get_additional().value() == ui::EventHandleType::RequestAction) {
+            if (const auto additional = event_result.get_additional();
+                additional.has_value() and additional.value() == ui::EventHandleType::RequestAction) {
                 spdlog::info("got action request!");
                 m_next_command = Command::Play;
             }
