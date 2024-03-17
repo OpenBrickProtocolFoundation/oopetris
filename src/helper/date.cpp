@@ -45,11 +45,13 @@ helper::expected<date::ISO8601Date, std::string> date::ISO8601Date::from_string(
     }
 
 #else
-    const auto result = strptime(input.c_str(), ISO8601Date::iso_8601_format_string, &tm);
+    auto* const result = strptime(input.c_str(), ISO8601Date::iso_8601_format_string, &tm);
 
     if (result == nullptr) {
         return helper::unexpected<std::string>{ fmt::format("error calling strptime: {}", std::strerror(errno)) };
-    } else if (*result != '\0') {
+    }
+
+    if (*result != '\0') {
         return helper::unexpected<std::string>{ "error getting date from string: didn't consume the whole input" };
     }
 
@@ -62,7 +64,7 @@ helper::expected<date::ISO8601Date, std::string> date::ISO8601Date::from_string(
 }
 
 
-[[nodiscard]] helper::expected<std::tm, std::string> date::ISO8601Date::get_tm_struct(std::time_t value) const {
+[[nodiscard]] helper::expected<std::tm, std::string> date::ISO8601Date::get_tm_struct(std::time_t value) {
 
     std::tm tm{};
 #if defined(_MSC_VER) || defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
@@ -80,7 +82,7 @@ helper::expected<date::ISO8601Date, std::string> date::ISO8601Date::from_string(
 
 
 [[nodiscard]] helper::expected<std::string, std::string>
-date::ISO8601Date::format_tm_struct(std::tm tm, const char* format_string) const {
+date::ISO8601Date::format_tm_struct(std::tm tm, const char* format_string) {
     static constexpr auto buffer_size = usize{ 100 };
     std::array<char, buffer_size> buffer{};
 

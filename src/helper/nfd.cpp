@@ -29,6 +29,7 @@ namespace {
                                    } };
 
         std::vector<NFD::string> extensions_composed{};
+        extensions_composed.reserve(allowed_files.size());
         for (const auto& allowed_file : allowed_files) {
             extensions_composed.emplace_back(fmt::format("{}", fmt::join(allowed_file.extension_list, ",")));
         }
@@ -64,14 +65,17 @@ std::future<helper::expected<std::filesystem::path, NFD::string>> helper::openFi
                     default_path_C = default_path.value().string().c_str();
                 }
 
-                nfdresult_t result = NFD::OpenDialog(outPath, filterItem.get(), allowed_files.size(), default_path_C);
+                const nfdresult_t result =
+                        NFD::OpenDialog(outPath, filterItem.get(), allowed_files.size(), default_path_C);
                 if (result == NFD_OKAY) {
                     return std::filesystem::path{ outPath.get() };
-                } else if (result == NFD_CANCEL) {
-                    return helper::unexpected<NFD::string>{ "The user pressed cancel." };
-                } else {
-                    return helper::unexpected<NFD::string>{ "Error: " + NFD::string{ NFD::GetError() } };
                 }
+
+                if (result == NFD_CANCEL) {
+                    return helper::unexpected<NFD::string>{ "The user pressed cancel." };
+                }
+
+                return helper::unexpected<NFD::string>{ "Error: " + NFD::string{ NFD::GetError() } };
             }
     );
 }
@@ -94,7 +98,7 @@ helper::openMultipleFilesDialog(
                     default_path_C = default_path.value().string().c_str();
                 }
 
-                nfdresult_t result =
+                const nfdresult_t result =
                         NFD::OpenDialogMultiple(outPaths, filterItem.get(), allowed_files.size(), default_path_C);
                 if (result == NFD_OKAY) {
                     std::vector<std::filesystem::path> result_vector{};
@@ -111,11 +115,13 @@ helper::openMultipleFilesDialog(
                     }
 
                     return result_vector;
-                } else if (result == NFD_CANCEL) {
-                    return helper::unexpected<NFD::string>{ "The user pressed cancel." };
-                } else {
-                    return helper::unexpected<NFD::string>{ "Error: " + NFD::string{ NFD::GetError() } };
                 }
+
+                if (result == NFD_CANCEL) {
+                    return helper::unexpected<NFD::string>{ "The user pressed cancel." };
+                }
+
+                return helper::unexpected<NFD::string>{ "Error: " + NFD::string{ NFD::GetError() } };
             }
     );
 }
@@ -132,14 +138,16 @@ helper::openMultipleFilesDialog(
             default_path_C = default_path.value().string().c_str();
         }
 
-        nfdresult_t result = NFD::PickFolder(outPath, default_path_C);
+        const nfdresult_t result = NFD::PickFolder(outPath, default_path_C);
         if (result == NFD_OKAY) {
             return std::filesystem::path{ outPath.get() };
-        } else if (result == NFD_CANCEL) {
-            return helper::unexpected<NFD::string>{ "The user pressed cancel." };
-        } else {
-            return helper::unexpected<NFD::string>{ "Error: " + NFD::string{ NFD::GetError() } };
         }
+
+        if (result == NFD_CANCEL) {
+            return helper::unexpected<NFD::string>{ "The user pressed cancel." };
+        }
+
+        return helper::unexpected<NFD::string>{ "Error: " + NFD::string{ NFD::GetError() } };
     });
 }
 

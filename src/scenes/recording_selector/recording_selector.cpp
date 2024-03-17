@@ -70,7 +70,7 @@ namespace scenes {
                 case Command::Play: {
                     m_next_command = helper::nullopt;
                     auto* scroll_layout = m_main_layout.get<ui::ScrollLayout>(1);
-                    auto focused_element = scroll_layout->get_currently_focused<custom_ui::RecordingComponent>();
+                    auto* focused_element = scroll_layout->get_currently_focused<custom_ui::RecordingComponent>();
                     //  we could have no focused element
                     // this branch is never taken, if we have another widget then "custom_ui::RecordingComponent" at the focus, since only that requests action and trigger the play command
                     if (focused_element == nullptr) {

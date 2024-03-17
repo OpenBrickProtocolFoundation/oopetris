@@ -39,7 +39,7 @@ namespace recorder {
 
         explicit Recording(std::vector<TetrionHeader>&& tetrion_headers, AdditionalInformation&& information)
             : m_tetrion_headers{ std::move(tetrion_headers) },
-              m_information{ information } { }
+              m_information{ std::move(information) } { }
 
     public:
         Recording(const Recording&) = delete;
