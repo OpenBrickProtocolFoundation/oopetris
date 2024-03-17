@@ -22,16 +22,21 @@ namespace helper {
     };
 
     [[nodiscard]] std::future<helper::expected<std::filesystem::path, std::string>> openFileDialog(
-            std::vector<AllowedFile> allowed_files = {},
+            const std::vector<AllowedFile>& allowed_files = {},
             helper::optional<std::filesystem::path> default_path = helper::nullopt
     );
 
-    //TODO: BEFORE PR
-    /*    [[nodiscard]] std::future<helper::expected<std::filesystem::path, std::string>> openMultipleFilesDialog(
-            std::vector<AllowedFile> allowed_files = {},
+
+    [[nodiscard]] std::future<helper::expected<std::vector<std::filesystem::path>, std::string>>
+    openMultipleFilesDialog(
+            const std::vector<AllowedFile>& allowed_files = {},
             helper::optional<std::filesystem::path> default_path = helper::nullopt
     );
- */
+
+    [[nodiscard]] std::future<helper::expected<std::filesystem::path, std::string>> openFoldersDialog(
+            helper::optional<std::filesystem::path> default_path = helper::nullopt
+    );
+
 } // namespace helper
 
 
