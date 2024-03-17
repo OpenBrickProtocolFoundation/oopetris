@@ -58,7 +58,8 @@ elif cpp.get_id() == 'msvc'
     # https://developercommunity.visualstudio.com/t/C7595-error-on-valid-code/10150938
     # https://developercommunity.visualstudio.com/t/User-defined-literals-not-constant-expre/10108165
     # https://developercommunity.visualstudio.com/t/10514467
-    compile_args += ['/wd7595']
+    # https://learn.microsoft.com/en-us/cpp/error-messages/tool-errors/command-line-warning-d9041?view=msvc-170
+    compile_args += ['/wd7595', '/analyze']
 
 endif
 
