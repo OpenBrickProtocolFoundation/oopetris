@@ -172,7 +172,7 @@ void Application::update() {
 
     for (usize i = 0; i < num_scenes; ++i) {
         const auto index = num_scenes - i - 1;
-        const auto [scene_update, scene_change] = m_scene_stack.at(index)->update();
+        auto [scene_update, scene_change] = m_scene_stack.at(index)->update();
         if (scene_change) {
             std::visit(
                     helper::overloaded{
@@ -192,6 +192,11 @@ void Application::update() {
                                 m_scene_stack.push_back(
                                         scenes::create_scene(*this, switch_.target_scene, switch_.layout)
                                 );
+                            },
+                            [this](scenes::Scene::RawSwitch& raw_switch) {
+                                spdlog::info("switching to scene {}", raw_switch.name);
+                                m_scene_stack.clear();
+                                m_scene_stack.push_back(std::move(raw_switch.scene));
                             },
                             [this](const scenes::Scene::Exit&) { m_is_running = false; },
                     },

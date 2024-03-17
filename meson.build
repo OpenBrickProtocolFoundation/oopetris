@@ -54,10 +54,10 @@ elif cpp.get_id() == 'clang'
     endif
 
 elif cpp.get_id() == 'msvc'
-# see:
-# https://developercommunity.visualstudio.com/t/C7595-error-on-valid-code/10150938
-# https://developercommunity.visualstudio.com/t/User-defined-literals-not-constant-expre/10108165
-# https://developercommunity.visualstudio.com/t/10514467
+    # see:
+    # https://developercommunity.visualstudio.com/t/C7595-error-on-valid-code/10150938
+    # https://developercommunity.visualstudio.com/t/User-defined-literals-not-constant-expre/10108165
+    # https://developercommunity.visualstudio.com/t/10514467
     compile_args += ['/wd7595']
 
 endif
@@ -332,12 +332,15 @@ endif
 
 is_flatpak_build = get_option('flatpak_build')
 
+have_file_dialogs = false
+
 nfde_dep = dependency(
     'nativefiledialog-extended',
     required: not meson.is_cross_build(),
     default_options: {'xdg-desktop-portal': is_flatpak_build ? 'enabled' : 'auto'},
 )
 if nfde_dep.found()
+    have_file_dialogs = true
     deps += nfde_dep
     compile_args += '-D_HAVE_FILE_DIALOGS'
 endif

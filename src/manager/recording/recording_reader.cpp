@@ -1,26 +1,31 @@
 
 #include "recording_reader.hpp"
 #include "helper/magic_enum_wrapper.hpp"
+#include "manager/recording/additional_information.hpp"
 
 #include <fmt/format.h>
 #include <fmt/ranges.h>
+#include <tuple>
 
 recorder::RecordingReader::RecordingReader(
         std::vector<TetrionHeader>&& tetrion_headers,
+        AdditionalInformation&& information,
         std::vector<Record>&& records,
         std::vector<TetrionSnapshot>&& snapshots
 )
-    : Recording{ std::move(tetrion_headers) },
+    : Recording{ std::move(tetrion_headers), std::move(information) },
       m_records{ std::move(records) },
       m_snapshots{ std::move(snapshots) } { }
 
 
 recorder::RecordingReader::RecordingReader(RecordingReader&& old) noexcept
-    : recorder::RecordingReader{ std::move(old.m_tetrion_headers), std::move(old.m_records),
-                                 std::move(old.m_snapshots) } { }
+    : recorder::RecordingReader{ std::move(old.m_tetrion_headers), std::move(old.m_information),
+                                 std::move(old.m_records), std::move(old.m_snapshots) } { }
 
 
-helper::expected<std::pair<std::ifstream, std::vector<recorder::TetrionHeader>>, std::string>
+helper::expected<
+        std::tuple<std::ifstream, std::vector<recorder::TetrionHeader>, recorder::AdditionalInformation>,
+        std::string>
 recorder::RecordingReader::get_header_from_path(const std::filesystem::path& path) {
 
     std::ifstream file{ path, std::ios::in | std::ios::binary };
@@ -66,7 +71,15 @@ recorder::RecordingReader::get_header_from_path(const std::filesystem::path& pat
         tetrion_headers.push_back(header.value());
     }
 
-    const auto calculated_checksum = Recording::get_header_checksum(version_number.value(), tetrion_headers);
+
+    auto information = AdditionalInformation::from_istream(file);
+    if (not information.has_value()) {
+        return helper::unexpected<std::string>{ { "failed to read AdditionalInformation from recorded game" } };
+    }
+
+
+    const auto calculated_checksum =
+            Recording::get_header_checksum(version_number.value(), tetrion_headers, information.value());
 
     const auto read_checksum =
             helper::reader::read_array_from_file<decltype(calculated_checksum)::value_type, Sha256Stream::ChecksumSize>(
@@ -82,7 +95,9 @@ recorder::RecordingReader::get_header_from_path(const std::filesystem::path& pat
         ) };
     }
 
-    return std::make_pair<std::ifstream, std::vector<TetrionHeader>>(std::move(file), std::move(tetrion_headers));
+    return std::make_tuple<std::ifstream, std::vector<TetrionHeader>, AdditionalInformation>(
+            std::move(file), std::move(tetrion_headers), std::move(information.value())
+    );
 }
 
 helper::expected<recorder::RecordingReader, std::string>
@@ -96,7 +111,7 @@ recorder::RecordingReader::from_path( // NOLINT(readability-function-cognitive-c
     }
 
 
-    auto [file, tetrion_headers] = std::move(header.value());
+    auto [file, tetrion_headers, information] = std::move(header.value());
 
 
     std::vector<Record> records{};
@@ -137,7 +152,8 @@ recorder::RecordingReader::from_path( // NOLINT(readability-function-cognitive-c
         }
     }
 
-    return RecordingReader{ std::move(tetrion_headers), std::move(records), std::move(snapshots) };
+    return RecordingReader{ std::move(tetrion_headers), std::move(information), std::move(records),
+                            std::move(snapshots) };
 }
 
 [[nodiscard]] const recorder::Record& recorder::RecordingReader::at(const usize index) const {
@@ -168,16 +184,20 @@ recorder::RecordingReader::from_path( // NOLINT(readability-function-cognitive-c
 }
 
 
-[[nodiscard]] std::pair<bool, std::string> recorder::RecordingReader::is_header_valid(const std::filesystem::path& path
-) {
+[[nodiscard]] helper::
+        expected<std::pair<recorder::AdditionalInformation, std::vector<recorder::TetrionHeader>>, std::string>
+        recorder::RecordingReader::is_header_valid(const std::filesystem::path& path) {
 
     auto header = get_header_from_path(path);
 
     if (header.has_value()) {
-        return { true, "" };
+        auto [_, headers, information] = std::move(header.value());
+        return std::make_pair<recorder::AdditionalInformation, std::vector<recorder::TetrionHeader>>(
+                std::move(information), std::move(headers)
+        );
     }
 
-    return { false, header.error() };
+    return helper::unexpected<std::string>{ header.error() };
 }
 
 
@@ -204,14 +224,7 @@ recorder::RecordingReader::read_tetrion_header_from_file(std::ifstream& file) {
         };
     }
 
-    auto information = AdditionalInformation::from_istream(file);
-    if (not information.has_value()) {
-        return helper::unexpected<helper::reader::ReadError>{
-            {helper::reader::ReadErrorType::Incomplete, "field 'information' has no value"}
-        };
-    }
-
-    return TetrionHeader{ seed.value(), starting_level.value(), std::move(information.value()) };
+    return TetrionHeader{ seed.value(), starting_level.value() };
 }
 
 [[nodiscard]] helper::reader::ReadResult<recorder::Record> recorder::RecordingReader::read_record_from_file(

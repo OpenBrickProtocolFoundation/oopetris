@@ -10,7 +10,7 @@
 #include <SDL.h>
 namespace ui {
 
-    enum class EventHandleType : u8 { RequestFocus, RequestUnFocus };
+    enum class EventHandleType : u8 { RequestFocus, RequestUnFocus, RequestAction };
 
     enum class WidgetType : u8 { Component, Container };
 

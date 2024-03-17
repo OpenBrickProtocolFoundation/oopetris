@@ -1,17 +1,25 @@
 #include "recording_writer.hpp"
 #include "tetrion_snapshot.hpp"
 
-recorder::RecordingWriter::RecordingWriter(std::ofstream&& output_file, std::vector<TetrionHeader>&& tetrion_headers)
-    : Recording{ std::move(tetrion_headers) },
+recorder::RecordingWriter::RecordingWriter(
+        std::ofstream&& output_file,
+        std::vector<TetrionHeader>&& tetrion_headers,
+        AdditionalInformation&& information
+)
+    : Recording{ std::move(tetrion_headers), std::move(information) },
       m_output_file{ std::move(output_file) } { }
 
 
 recorder::RecordingWriter::RecordingWriter(RecordingWriter&& old) noexcept
-    : recorder::RecordingWriter{ std::move(old.m_output_file), std::move(old.m_tetrion_headers) } { }
+    : recorder::RecordingWriter{ std::move(old.m_output_file), std::move(old.m_tetrion_headers),
+                                 std::move(old.m_information) } { }
 
 
-helper::expected<recorder::RecordingWriter, std::string>
-recorder::RecordingWriter::get_writer(const std::filesystem::path& path, std::vector<TetrionHeader>&& tetrion_headers) {
+helper::expected<recorder::RecordingWriter, std::string> recorder::RecordingWriter::get_writer(
+        const std::filesystem::path& path,
+        std::vector<TetrionHeader>&& tetrion_headers,
+        AdditionalInformation&& information
+) {
 
     auto output_file = std::ofstream{ path, std::ios::out | std::ios::binary };
 
@@ -45,12 +53,24 @@ recorder::RecordingWriter::get_writer(const std::filesystem::path& path, std::ve
         }
     }
 
-    result = write_checksum_to_file(output_file, tetrion_headers);
+
+    const auto information_bytes = information.to_bytes();
+    if (not information_bytes.has_value()) {
+        return helper::unexpected<std::string>{ information_bytes.error() };
+    }
+
+    result = helper::writer::write_vector_to_file(output_file, information_bytes.value());
+
     if (not result.has_value()) {
         return helper::unexpected<std::string>{ fmt::format("error while writing: {}", result.error()) };
     }
 
-    return RecordingWriter{ std::move(output_file), std::move(tetrion_headers) };
+    result = write_checksum_to_file(output_file, tetrion_headers, information);
+    if (not result.has_value()) {
+        return helper::unexpected<std::string>{ fmt::format("error while writing: {}", result.error()) };
+    }
+
+    return RecordingWriter{ std::move(output_file), std::move(tetrion_headers), std::move(information) };
 }
 
 helper::expected<bool, std::string> recorder::RecordingWriter::add_event(
@@ -127,22 +147,16 @@ recorder::RecordingWriter::write_tetrion_header_to_file(std::ofstream& file, con
         return helper::unexpected<std::string>{ result.error() };
     }
 
-    const auto information_bytes = header.information.to_bytes();
-    if (not information_bytes.has_value()) {
-        return helper::unexpected<std::string>{ information_bytes.error() };
-    }
-
-    result = helper::writer::write_vector_to_file(file, information_bytes.value());
-
     return result;
 }
 
 helper::expected<bool, std::string> recorder::RecordingWriter::write_checksum_to_file(
         std::ofstream& file,
-        const std::vector<TetrionHeader>& tetrion_headers
+        const std::vector<TetrionHeader>& tetrion_headers,
+        const AdditionalInformation& information
 ) {
 
-    const auto checksum = Recording::get_header_checksum(RecordingWriter::version_number, tetrion_headers);
+    const auto checksum = Recording::get_header_checksum(RecordingWriter::version_number, tetrion_headers, information);
     static_assert(sizeof(decltype(checksum)) == 32);
 
     helper::expected<bool, std::string> result{ true };

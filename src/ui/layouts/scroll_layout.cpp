@@ -119,7 +119,7 @@ ui::ScrollLayout::handle_event( // NOLINT(readability-function-cognitive-complex
 
     if (handled) {
         auto_move_after_focus_change();
-        return true;
+        return handled;
     }
 
     if (utils::device_supports_clicks()) {

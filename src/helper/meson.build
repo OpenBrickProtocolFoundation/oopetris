@@ -5,6 +5,8 @@ src_files += files(
     'color.hpp',
     'command_line_arguments.hpp',
     'constants.hpp',
+    'date.cpp',
+    'date.hpp',
     'expected.hpp',
     'git_helper.hpp',
     'magic_enum_wrapper.hpp',
@@ -24,6 +26,11 @@ src_files += files(
 )
 
 
+if have_file_dialogs
+    src_files += files('nfd.cpp', 'nfd_include.hpp')
+
+endif
+
 git = find_program('git', required: false)
 
 if git.found()
@@ -39,3 +46,4 @@ if git.found()
     compile_args += ['-D_HAS_GIT_COMMIT_INFORMATION']
 
 endif
+

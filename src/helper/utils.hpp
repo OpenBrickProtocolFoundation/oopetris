@@ -28,8 +28,6 @@ namespace utils {
     template<class T>
     concept integral = std::is_integral_v<T>;
 
-    [[nodiscard]] std::string current_date_time_iso8601();
-
     template<integral Integral>
     [[nodiscard]] constexpr Integral byte_swap(Integral value) noexcept {
         // based on source: slartibartswift

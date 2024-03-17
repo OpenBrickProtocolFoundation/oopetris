@@ -37,7 +37,7 @@ helper::BoolWrapper<ui::EventHandleType> ui::GridLayout::handle_event(
     helper::BoolWrapper<ui::EventHandleType> handled = handle_focus_change_events(event, window);
 
     if (handled) {
-        return true;
+        return handled;
     }
 
     if (utils::device_supports_clicks()) {

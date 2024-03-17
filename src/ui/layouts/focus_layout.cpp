@@ -1,5 +1,6 @@
 
 #include "focus_layout.hpp"
+#include "ui/widget.hpp"
 
 
 ui::FocusLayout::FocusLayout(const Layout& layout, u32 focus_id, FocusOptions options, bool is_top_level)
@@ -159,12 +160,16 @@ ui::FocusLayout::handle_event_result( // NOLINT(readability-function-cognitive-c
 
             return helper::nullopt;
         }
+        case ui::EventHandleType::RequestAction: {
+            // just forward it
+            return ui::EventHandleType::RequestAction;
+        }
         default:
             std::unreachable();
     }
 }
 
-[[nodiscard]] u32 ui::FocusLayout::focusable_index_by_id(const u32 id) {
+[[nodiscard]] u32 ui::FocusLayout::focusable_index_by_id(const u32 id) const {
     const auto find_iterator =
             std::find_if(m_widgets.begin(), m_widgets.end(), [id](const std::unique_ptr<Widget>& widget) {
                 const auto focusable = as_focusable(widget.get());

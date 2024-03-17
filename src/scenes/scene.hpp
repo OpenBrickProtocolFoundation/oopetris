@@ -27,6 +27,15 @@ namespace scenes {
                   layout{ layout } { }
         };
 
+        struct RawSwitch {
+            std::string name;
+            std::unique_ptr<Scene> scene;
+
+            RawSwitch(std::string name, std::unique_ptr<Scene>&& scene)
+                : name{ std::move(name) },
+                  scene{ std::move(scene) } { }
+        };
+
         struct Push {
             SceneId target_scene;
             ui::Layout layout;
@@ -40,7 +49,7 @@ namespace scenes {
 
         struct Exit { };
 
-        using Change = std::variant<Pop, Push, Switch, Exit>;
+        using Change = std::variant<Pop, Push, Switch, RawSwitch, Exit>;
         using UpdateResult = std::pair<SceneUpdate, helper::optional<Change>>;
 
     protected:

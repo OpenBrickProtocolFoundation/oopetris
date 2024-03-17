@@ -38,5 +38,14 @@ struct Sha256Stream {
         return *this;
     }
 
+    template<typename T, std::size_t S>
+    Sha256Stream& operator<<(const std::array<T, S>& values) {
+
+        for (const auto& value : values) {
+            *this << value;
+        }
+        return *this;
+    }
+
     [[nodiscard]] Checksum get_hash();
 };

@@ -77,6 +77,31 @@ namespace ui {
             return item;
         }
 
+        // can return nullptr, if no widget is focused!
+        template<typename T>
+        T* get_currently_focused() {
+            if (not m_focus_id.has_value()) {
+                return nullptr;
+            }
+
+            const auto index = focusable_index_by_id(m_focus_id.value());
+
+            return get<T>(index);
+        }
+
+        // can return nullptr, if no widget is focused!
+        template<typename T>
+        const T* get_currently_focused() const {
+            if (not m_focus_id.has_value()) {
+                return nullptr;
+            }
+
+            const auto index = focusable_index_by_id(m_focus_id.value());
+
+            return get<T>(index);
+        }
+
+
     private:
         helper::BoolWrapper<ui::EventHandleType> handle_focus_change_button_events(const SDL_Event& event);
 
@@ -89,7 +114,7 @@ namespace ui {
         [[nodiscard]] helper::optional<ui::EventHandleType>
         handle_event_result(const helper::optional<ui::EventHandleType>& result, Widget* widget);
 
-        [[nodiscard]] u32 focusable_index_by_id(u32 id);
+        [[nodiscard]] u32 focusable_index_by_id(u32 id) const;
 
         [[nodiscard]] std::vector<u32> focusable_ids_sorted() const;
 

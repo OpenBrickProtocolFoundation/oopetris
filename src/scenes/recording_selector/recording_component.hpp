@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "manager/recording/recording.hpp"
 #include "ui/components/label.hpp"
 #include "ui/focusable.hpp"
 #include "ui/hoverable.hpp"
@@ -13,18 +14,19 @@
 
 namespace data {
 
-    enum class RecordingSource : u8 { Commandline, Folder, Manual, Online };
+    enum class RecordingSource : u8 { CommandLine, Folder, Manual, Online };
 
     struct RecordingMetadata {
         std::filesystem::path path;
         RecordingSource source;
+        std::vector<recorder::TetrionHeader> headers;
+        recorder::AdditionalInformation information;
     };
 
 } // namespace data
 
 
 namespace custom_ui {
-
 
     struct RecordingComponent final : public ui::Widget, public ui::Focusable, public ui::Hoverable {
     private:
@@ -44,10 +46,12 @@ namespace custom_ui {
 
         helper::BoolWrapper<ui::EventHandleType> handle_event(const SDL_Event& event, const Window* window) override;
 
+        [[nodiscard]] data::RecordingMetadata metadata() const;
+
     private:
         [[nodiscard]] std::tuple<ui::Label*, ui::Label*, ui::Label*, ui::Label*> get_texts();
 
-        void populate_texts();
+        void populate_texts(ServiceProvider* service_provider);
     };
 
 

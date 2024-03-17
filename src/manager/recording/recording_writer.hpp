@@ -2,6 +2,7 @@
 
 #include "helper.hpp"
 #include "helper/expected.hpp"
+#include "manager/recording/additional_information.hpp"
 #include "recording.hpp"
 #include "tetrion_core_information.hpp"
 
@@ -14,13 +15,20 @@ namespace recorder {
         std::ofstream m_output_file;
         constexpr static u8 version_number = 1;
 
-        explicit RecordingWriter(std::ofstream&& output_file, std::vector<TetrionHeader>&& tetrion_headers);
+        explicit RecordingWriter(
+                std::ofstream&& output_file,
+                std::vector<TetrionHeader>&& tetrion_headers,
+                AdditionalInformation&& information
+        );
 
     public:
         RecordingWriter(RecordingWriter&& old) noexcept;
 
-        static helper::expected<RecordingWriter, std::string>
-        get_writer(const std::filesystem::path& path, std::vector<TetrionHeader>&& tetrion_headers);
+        static helper::expected<RecordingWriter, std::string> get_writer(
+                const std::filesystem::path& path,
+                std::vector<TetrionHeader>&& tetrion_headers,
+                AdditionalInformation&& information
+        );
 
         helper::expected<bool, std::string> add_event(
                 u8 tetrion_index, // NOLINT(bugprone-easily-swappable-parameters)
@@ -34,8 +42,11 @@ namespace recorder {
         static helper::expected<bool, std::string>
         write_tetrion_header_to_file(std::ofstream& file, const TetrionHeader& header);
 
-        static helper::expected<bool, std::string>
-        write_checksum_to_file(std::ofstream& file, const std::vector<TetrionHeader>& tetrion_headers);
+        static helper::expected<bool, std::string> write_checksum_to_file(
+                std::ofstream& file,
+                const std::vector<TetrionHeader>& tetrion_headers,
+                const AdditionalInformation& information
+        );
 
         template<utils::integral Integral>
         helper::expected<bool, std::string> write(Integral data) {

@@ -1,9 +1,6 @@
 #include "helper/utils.hpp"
 
 #include <SDL.h>
-#include <array>
-#include <chrono>
-#include <ctime>
 #include <filesystem>
 #include <spdlog/spdlog.h>
 #include <string>
@@ -13,30 +10,6 @@
 #include "helper/optional.hpp"
 #endif
 namespace utils {
-    [[nodiscard]] std::string current_date_time_iso8601() {
-        auto now = std::chrono::system_clock::now();
-
-        const std::time_t time = std::chrono::system_clock::to_time_t(now);
-
-        static constexpr auto buffer_size = usize{ 16 };
-        std::array<char, buffer_size> buffer{};
-
-        std::tm tm{};
-#if defined(_MSC_VER) || defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
-        if (gmtime_s(&tm, &time) != 0) {
-            spdlog::error("error calling gmtime_s");
-            return "error";
-        }
-#else
-        if (gmtime_r(&time, &tm) == nullptr) {
-            spdlog::error("error calling gmtime_r");
-            return "error";
-        }
-#endif
-        std::strftime(buffer.data(), buffer.size(), "%Y%m%dT%H%M%S", &tm);
-
-        return std::string{ buffer.data() };
-    }
 
     [[nodiscard]] std::filesystem::path get_root_folder() {
 #if defined(__ANDROID__) or defined(BUILD_INSTALLER)

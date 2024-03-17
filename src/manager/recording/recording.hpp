@@ -26,9 +26,8 @@ namespace recorder {
     struct TetrionHeader final {
         Random::Seed seed;
         u32 starting_level;
-        AdditionalInformation information;
 
-        TetrionHeader(Random::Seed seed, u32 starting_level, AdditionalInformation&& information);
+        TetrionHeader(Random::Seed seed, u32 starting_level);
     };
 
     struct Recording {
@@ -36,9 +35,11 @@ namespace recorder {
 
     protected:
         std::vector<TetrionHeader> m_tetrion_headers;
+        AdditionalInformation m_information;
 
-        explicit Recording(std::vector<TetrionHeader>&& tetrion_headers)
-            : m_tetrion_headers{ std::move(tetrion_headers) } { }
+        explicit Recording(std::vector<TetrionHeader>&& tetrion_headers, AdditionalInformation&& information)
+            : m_tetrion_headers{ std::move(tetrion_headers) },
+              m_information{ information } { }
 
     public:
         Recording(const Recording&) = delete;
@@ -49,8 +50,13 @@ namespace recorder {
 
         [[nodiscard]] const std::vector<TetrionHeader>& tetrion_headers() const;
 
-        [[nodiscard]] static Sha256Stream::Checksum
-        get_header_checksum(u8 version_number, const std::vector<TetrionHeader>& tetrion_headers);
+        [[nodiscard]] const AdditionalInformation& information() const;
+
+        [[nodiscard]] static Sha256Stream::Checksum get_header_checksum(
+                u8 version_number,
+                const std::vector<TetrionHeader>& tetrion_headers,
+                const AdditionalInformation& information
+        );
     };
 
 

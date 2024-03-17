@@ -2,7 +2,6 @@
 
 #include "checksum_helper.hpp"
 
-
 Sha256Stream::Sha256Stream() = default;
 
 Sha256Stream& Sha256Stream::operator<<(const std::string& value) {

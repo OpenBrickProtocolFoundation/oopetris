@@ -2,7 +2,9 @@
 
 #include "input_creator.hpp"
 #include "helper/command_line_arguments.hpp"
+#include "helper/date.hpp"
 #include "platform/replay_input.hpp"
+#include <stdexcept>
 
 #if defined(__ANDROID__)
 #include "platform/android_input.hpp"
@@ -36,12 +38,9 @@ namespace {
         );
     }
 
-    [[nodiscard]] recorder::TetrionHeader create_tetrion_headers_for_one(
-            const input::AdditionalInfo& info,
-            recorder::AdditionalInformation&& additional_info
-    ) {
+    [[nodiscard]] recorder::TetrionHeader create_tetrion_headers_for_one(const input::AdditionalInfo& info) {
         const auto& needed_info = std::get<1>(info);
-        return recorder::TetrionHeader{ needed_info.seed, needed_info.starting_level, std::move(additional_info) };
+        return recorder::TetrionHeader{ needed_info.seed, needed_info.starting_level };
     }
 
     [[nodiscard]] u32 get_target_fps(ServiceProvider* const service_provider) {
@@ -115,7 +114,8 @@ namespace {
 
 [[nodiscard]] input::AdditionalInfo input::get_single_player_game_parameters(
         ServiceProvider* const service_provider,
-        recorder::AdditionalInformation&& additional_info
+        recorder::AdditionalInformation&& information,
+        const date::ISO8601Date& date
 ) {
 
     auto input = create_input(service_provider);
@@ -131,7 +131,7 @@ namespace {
     AdditionalInfo result{ std::move(input), starting_parameters };
 
 
-    auto tetrion_header = create_tetrion_headers_for_one(result, std::move(additional_info));
+    auto tetrion_header = create_tetrion_headers_for_one(result);
     std::vector<recorder::TetrionHeader> tetrion_headers{ tetrion_header };
 
     const auto recording_directory_path = utils::get_root_folder() / constants::recordings_directory;
@@ -140,11 +140,18 @@ namespace {
         std::filesystem::create_directory(recording_directory_path);
     }
 
-    const auto filename = fmt::format("{}.rec", utils::current_date_time_iso8601());
+    const auto date_time_str = date.to_string();
+
+    if (not date_time_str.has_value()) {
+        throw std::runtime_error{ fmt::format("Erro in date to string conversion: {}", date_time_str.error()) };
+    }
+
+    const auto filename = fmt::format("{}.rec", date_time_str.value());
     const auto file_path = recording_directory_path / filename;
 
 
-    auto recording_writer_create_result = recorder::RecordingWriter::get_writer(file_path, std::move(tetrion_headers));
+    auto recording_writer_create_result =
+            recorder::RecordingWriter::get_writer(file_path, std::move(tetrion_headers), std::move(information));
     if (not recording_writer_create_result.has_value()) {
         throw std::runtime_error(recording_writer_create_result.error());
     }

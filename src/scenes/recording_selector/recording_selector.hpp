@@ -3,6 +3,8 @@
 #include "scenes/scene.hpp"
 #include "ui/layouts/tile_layout.hpp"
 
+#include <filesystem>
+
 namespace scenes {
 
     struct RecordingSelector : public Scene {
@@ -10,7 +12,8 @@ namespace scenes {
         enum class Command : u8 { Play, Return };
 
         ui::TileLayout m_main_layout;
-        helper::optional<Command> m_next_command;
+        helper::optional<Command> m_next_command{ helper::nullopt };
+        std::vector<std::filesystem::path> m_selected_paths{};
 
     public:
         explicit RecordingSelector(ServiceProvider* service_provider, const ui::Layout& layout);

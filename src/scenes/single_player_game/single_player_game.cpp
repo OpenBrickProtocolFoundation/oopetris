@@ -1,4 +1,5 @@
 #include "single_player_game.hpp"
+#include "helper/date.hpp"
 #include "manager/music_manager.hpp"
 #include "scenes/scene.hpp"
 
@@ -7,14 +8,17 @@ namespace scenes {
     SinglePlayerGame::SinglePlayerGame(ServiceProvider* service_provider, const ui::Layout& layout)
         : Scene{ service_provider, layout } {
 
+        const auto date = date::ISO8601Date::now();
+
         recorder::AdditionalInformation additional_information{};
         additional_information.add("mode", "single_player");
         additional_information.add("platform", utils::get_platform());
+        additional_information.add("date", date.value());
         //TODO: add more information, if logged in
 
 
         auto [input, starting_parameters] =
-                input::get_single_player_game_parameters(service_provider, std::move(additional_information));
+                input::get_single_player_game_parameters(service_provider, std::move(additional_information), date);
 
         m_game = std::make_unique<Game>(service_provider, std::move(input), starting_parameters, layout, true);
 

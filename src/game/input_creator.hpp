@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include "helper/date.hpp"
 #include "helper/optional.hpp"
 #include "manager/recording/recording_writer.hpp"
 #include "manager/service_provider.hpp"
@@ -41,7 +42,8 @@ namespace input {
 
     [[nodiscard]] AdditionalInfo get_single_player_game_parameters(
             ServiceProvider* service_provider,
-            recorder::AdditionalInformation&& additional_info
+            recorder::AdditionalInformation&& information,
+            const date::ISO8601Date& date
     );
 
 } // namespace input

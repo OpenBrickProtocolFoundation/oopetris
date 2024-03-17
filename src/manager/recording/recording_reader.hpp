@@ -16,6 +16,7 @@ namespace recorder {
 
         explicit RecordingReader(
                 std::vector<TetrionHeader>&& tetrion_headers,
+                AdditionalInformation&& information,
                 std::vector<Record>&& records,
                 std::vector<TetrionSnapshot>&& snapshots
         );
@@ -36,10 +37,14 @@ namespace recorder {
 
         [[nodiscard]] const std::vector<TetrionSnapshot>& snapshots() const;
 
-        [[nodiscard]] static std::pair<bool, std::string> is_header_valid(const std::filesystem::path& path);
+        [[nodiscard]] static helper::
+                expected<std::pair<recorder::AdditionalInformation, std::vector<recorder::TetrionHeader>>, std::string>
+                is_header_valid(const std::filesystem::path& path);
 
     private:
-        [[nodiscard]] static helper::expected<std::pair<std::ifstream, std::vector<TetrionHeader>>, std::string>
+        [[nodiscard]] static helper::expected<
+                std::tuple<std::ifstream, std::vector<TetrionHeader>, recorder::AdditionalInformation>,
+                std::string>
         get_header_from_path(const std::filesystem::path& path);
 
 

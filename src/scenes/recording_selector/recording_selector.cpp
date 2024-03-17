@@ -2,12 +2,17 @@
 #include "recording_selector.hpp"
 #include "graphics/window.hpp"
 #include "helper/constants.hpp"
+#include "helper/optional.hpp"
 #include "manager/recording/recording_reader.hpp"
 #include "manager/resource_manager.hpp"
+#include "recording_chooser.hpp"
 #include "recording_component.hpp"
+#include "scenes/replay_game/replay_game.hpp"
 #include "ui/components/button.hpp"
 #include "ui/layout.hpp"
 #include "ui/layouts/scroll_layout.hpp"
+#include "ui/widget.hpp"
+#include <filesystem>
 
 namespace scenes {
 
@@ -59,17 +64,32 @@ namespace scenes {
 
         if (m_next_command.has_value()) {
             switch (m_next_command.value()) {
-                case Command::Play:
+                case Command::Play: {
+                    m_next_command = helper::nullopt;
+                    auto* scroll_layout = m_main_layout.get<ui::ScrollLayout>(1);
+                    auto focused_element = scroll_layout->get_currently_focused<custom_ui::RecordingComponent>();
+                    //  we could have no focused element
+                    // this branch is never taken, if we have another widget then "custom_ui::RecordingComponent" at the focus, since only that requests action and trigger the play command
+                    if (focused_element == nullptr) {
+                        return UpdateResult{ SceneUpdate::StopUpdating, helper::nullopt };
+                    }
+
+                    const auto recording_path = focused_element->metadata().path;
+
                     return UpdateResult{
-                        SceneUpdate::StopUpdating, Scene::Switch{SceneId::OnlineMultiplayerGame,
-                                                                 ui::FullScreenLayout{ m_service_provider->window() }}
+                        SceneUpdate::StopUpdating,
+                        Scene::RawSwitch{"ReplayGame",
+                                         std::make_unique<ReplayGame>(
+                                         m_service_provider, ui::FullScreenLayout{ m_service_provider->window() }, recording_path
+ )}
                     };
+                }
                 case Command::Return:
                     return UpdateResult{ SceneUpdate::StopUpdating, Scene::Pop{} };
                 default:
                     utils::unreachable();
             }
-        }
+        } // namespace scenes
         return UpdateResult{ SceneUpdate::StopUpdating, helper::nullopt };
     }
 
@@ -83,7 +103,13 @@ namespace scenes {
     bool RecordingSelector::handle_event(const SDL_Event& event, const Window* window) {
 
 
-        if (m_main_layout.handle_event(event, window)) {
+        if (const auto event_result = m_main_layout.handle_event(event, window); event_result) {
+            if (event_result.has_additional()
+                and event_result.get_additional().value() == ui::EventHandleType::RequestAction) {
+                spdlog::info("got action request!");
+                m_next_command = Command::Play;
+            }
+
             return true;
         }
 
@@ -100,15 +126,18 @@ namespace scenes {
 
         const auto recording_directory_path = utils::get_root_folder() / constants::recordings_directory;
 
-        for (const auto& file : std::filesystem::recursive_directory_iterator(recording_directory_path)) {
-            const auto [is_header_valid, error] = recorder::RecordingReader::is_header_valid(file.path());
-            if (is_header_valid) {
-                metadata_vector.emplace_back(file.path(), data::RecordingSource::Folder);
-            } else {
-                spdlog::info(
-                        "While scanning recordings folder: file {} is not a recording, reason: {}",
-                        file.path().string(), error
-                );
+        if (std::filesystem::exists(recording_directory_path)) {
+            for (const auto& file : std::filesystem::recursive_directory_iterator(recording_directory_path)) {
+                auto header_value = recorder::RecordingReader::is_header_valid(file.path());
+                if (header_value.has_value()) {
+                    auto [information, headers] = std::move(header_value.value());
+                    metadata_vector.emplace_back(file.path(), data::RecordingSource::Folder, headers, information);
+                } else {
+                    spdlog::info(
+                            "While scanning recordings folder: file {} is not a recording, reason: {}",
+                            file.path().string(), header_value.error()
+                    );
+                }
             }
         }
 
@@ -116,16 +145,34 @@ namespace scenes {
             recording_path.has_value()) {
 
             const auto recording_path_cl = std::filesystem::path(recording_path.value());
-            const auto [is_header_valid, error] = recorder::RecordingReader::is_header_valid(recording_path_cl);
-            if (is_header_valid) {
-                metadata_vector.emplace_back(recording_path_cl, data::RecordingSource::Commandline);
+            auto header_value = recorder::RecordingReader::is_header_valid(recording_path_cl);
+            if (header_value.has_value()) {
+                auto [information, headers] = std::move(header_value.value());
+                metadata_vector.emplace_back(
+                        recording_path_cl, data::RecordingSource::CommandLine, headers, information
+                );
             } else {
                 spdlog::error(
                         "Recording file specified by the commandline is not a recording, reason: {}",
-                        recording_path_cl.string(), error
+                        recording_path_cl.string(), header_value.error()
                 );
             }
         }
+
+
+        for (const auto& selected_path : m_selected_paths) {
+            auto header_value = recorder::RecordingReader::is_header_valid(selected_path);
+            if (header_value.has_value()) {
+                auto [information, headers] = std::move(header_value.value());
+                metadata_vector.emplace_back(selected_path, data::RecordingSource::Manual, headers, information);
+            } else {
+                spdlog::error(
+                        "Recording file specified by the selecting it manually is not a recording, reason: {}",
+                        selected_path.string(), header_value.error()
+                );
+            }
+        }
+
 
         auto* scroll_layout = m_main_layout.get<ui::ScrollLayout>(1);
 
@@ -141,6 +188,11 @@ namespace scenes {
                     metadata
             );
         }
+
+
+        scroll_layout->add<custom_ui::RecordingFileChooser>(
+                ui::RelativeItemSize{ scroll_layout->layout(), 0.2 }, m_service_provider, std::ref(focus_helper)
+        );
     }
 
 } // namespace scenes
