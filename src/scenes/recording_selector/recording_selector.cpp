@@ -1,17 +1,20 @@
+#if defined(_HAVE_FILE_DIALOGS)
+#include "recording_chooser.hpp"
+#endif
 
-#include "recording_selector.hpp"
 #include "graphics/window.hpp"
 #include "helper/constants.hpp"
 #include "helper/optional.hpp"
 #include "manager/recording/recording_reader.hpp"
 #include "manager/resource_manager.hpp"
-#include "recording_chooser.hpp"
 #include "recording_component.hpp"
+#include "recording_selector.hpp"
 #include "scenes/replay_game/replay_game.hpp"
 #include "ui/components/button.hpp"
 #include "ui/layout.hpp"
 #include "ui/layouts/scroll_layout.hpp"
 #include "ui/widget.hpp"
+
 #include <filesystem>
 
 namespace scenes {
@@ -189,10 +192,11 @@ namespace scenes {
             );
         }
 
-
+#if defined(_HAVE_FILE_DIALOGS)
         scroll_layout->add<custom_ui::RecordingFileChooser>(
                 ui::RelativeItemSize{ scroll_layout->layout(), 0.2 }, m_service_provider, std::ref(focus_helper)
         );
+#endif
     }
 
 } // namespace scenes

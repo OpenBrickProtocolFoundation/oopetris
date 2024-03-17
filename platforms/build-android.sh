@@ -343,7 +343,7 @@ EOF
 
     meson compile -C "$BUILD_DIR"
 
-    echo -e "Sucesfully build for andropid platform ${ARCH}\n"
+    echo -e "Sucesfully build for android platform ${ARCH}\n"
 
 done
 

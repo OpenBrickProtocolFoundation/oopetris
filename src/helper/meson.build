@@ -28,7 +28,6 @@ src_files += files(
 
 if have_file_dialogs
     src_files += files('nfd.cpp', 'nfd_include.hpp')
-
 endif
 
 git = find_program('git', required: false)
