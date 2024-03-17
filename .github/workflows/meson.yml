@@ -86,6 +86,9 @@ jobs:
       - name: Setup MSVC (Windows)
         if: matrix.config.os == 'windows' && matrix.config.msvc == true
         uses: TheMrMilchmann/setup-msvc-dev@v3
+        with:
+          arch: x64
+
 
       - name: Setup MinGW (Windows)
         if: matrix.config.os == 'windows' && matrix.config.msvc == false
