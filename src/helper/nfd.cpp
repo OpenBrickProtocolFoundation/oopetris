@@ -28,7 +28,7 @@ namespace {
                                        delete[] value; // NOLINT(cppcoreguidelines-owning-memory)
                                    } };
 
-        std::vector<std::string> extensions_composed{};
+        std::vector<NFD::string> extensions_composed{};
         for (const auto& allowed_file : allowed_files) {
             extensions_composed.emplace_back(fmt::format("{}", fmt::join(allowed_file.extension_list, ",")));
         }
@@ -48,14 +48,14 @@ namespace {
 } // namespace
 
 
-std::future<helper::expected<std::filesystem::path, std::string>> helper::openFileDialog(
+std::future<helper::expected<std::filesystem::path, NFD::string>> helper::openFileDialog(
         const std::vector<AllowedFile>& allowed_files,
         helper::optional<std::filesystem::path> default_path
 ) {
 
     return std::async(
             std::launch::async,
-            [&allowed_files, &default_path] -> helper::expected<std::filesystem::path, std::string> {
+            [&allowed_files, &default_path] -> helper::expected<std::filesystem::path, NFD::string> {
                 NFD::UniquePath outPath{};
                 auto filterItem = get_filter_items(allowed_files);
 
@@ -68,16 +68,16 @@ std::future<helper::expected<std::filesystem::path, std::string>> helper::openFi
                 if (result == NFD_OKAY) {
                     return std::filesystem::path{ outPath.get() };
                 } else if (result == NFD_CANCEL) {
-                    return helper::unexpected<std::string>{ "The user pressed cancel." };
+                    return helper::unexpected<NFD::string>{ "The user pressed cancel." };
                 } else {
-                    return helper::unexpected<std::string>{ "Error: " + std::string{ NFD::GetError() } };
+                    return helper::unexpected<NFD::string>{ "Error: " + NFD::string{ NFD::GetError() } };
                 }
             }
     );
 }
 
 
-[[nodiscard]] std::future<helper::expected<std::vector<std::filesystem::path>, std::string>>
+[[nodiscard]] std::future<helper::expected<std::vector<std::filesystem::path>, NFD::string>>
 helper::openMultipleFilesDialog(
         const std::vector<AllowedFile>& allowed_files,
         helper::optional<std::filesystem::path> default_path
@@ -85,7 +85,7 @@ helper::openMultipleFilesDialog(
 
     return std::async(
             std::launch::async,
-            [&allowed_files, &default_path] -> helper::expected<std::vector<std::filesystem::path>, std::string> {
+            [&allowed_files, &default_path] -> helper::expected<std::vector<std::filesystem::path>, NFD::string> {
                 NFD::UniquePathSet outPaths{};
                 auto filterItem = get_filter_items(allowed_files);
 
@@ -112,19 +112,19 @@ helper::openMultipleFilesDialog(
 
                     return result_vector;
                 } else if (result == NFD_CANCEL) {
-                    return helper::unexpected<std::string>{ "The user pressed cancel." };
+                    return helper::unexpected<NFD::string>{ "The user pressed cancel." };
                 } else {
-                    return helper::unexpected<std::string>{ "Error: " + std::string{ NFD::GetError() } };
+                    return helper::unexpected<NFD::string>{ "Error: " + NFD::string{ NFD::GetError() } };
                 }
             }
     );
 }
 
-[[nodiscard]] std::future<helper::expected<std::filesystem::path, std::string>> helper::openFoldersDialog(
+[[nodiscard]] std::future<helper::expected<std::filesystem::path, NFD::string>> helper::openFoldersDialog(
         helper::optional<std::filesystem::path> default_path
 ) {
 
-    return std::async(std::launch::async, [&default_path] -> helper::expected<std::filesystem::path, std::string> {
+    return std::async(std::launch::async, [&default_path] -> helper::expected<std::filesystem::path, NFD::string> {
         NFD::UniquePath outPath{};
 
         const nfdnchar_t* default_path_C = nullptr;
@@ -136,9 +136,9 @@ helper::openMultipleFilesDialog(
         if (result == NFD_OKAY) {
             return std::filesystem::path{ outPath.get() };
         } else if (result == NFD_CANCEL) {
-            return helper::unexpected<std::string>{ "The user pressed cancel." };
+            return helper::unexpected<NFD::string>{ "The user pressed cancel." };
         } else {
-            return helper::unexpected<std::string>{ "Error: " + std::string{ NFD::GetError() } };
+            return helper::unexpected<NFD::string>{ "Error: " + NFD::string{ NFD::GetError() } };
         }
     });
 }
