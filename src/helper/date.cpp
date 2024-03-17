@@ -38,9 +38,9 @@ helper::expected<date::ISO8601Date, std::string> date::ISO8601Date::from_string(
     std::istringstream input_stream{ input };
     input_stream >> std::get_time(&tm, ISO8601Date::iso_8601_format_string);
 
-    if (ss.fail()) {
+    if (input_stream.fail()) {
         return helper::unexpected<std::string>{ "error calling std::get_time(): unable to convert input" };
-    } else if (not ss.eof()) {
+    } else if (not input_stream.eof()) {
         return helper::unexpected<std::string>{ "error calling std::get_time(): didn't consume the whole input" };
     }
 
