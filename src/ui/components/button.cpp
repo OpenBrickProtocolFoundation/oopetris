@@ -72,9 +72,9 @@ ui::Button::Button(
 
 
 void ui::Button ::render(const ServiceProvider& service_provider) const {
-    const auto color = not m_enabled ? (has_focus() ? Color(0xA3, 0x6A, 0x6A) : Color(0x91, 0x91, 0x91))
-                                     : (has_focus()    ? is_hovered() ? Color(0xFF, 0x6A, 0x00) : Color::red()
-                                           : is_hovered() ? Color(0x00, 0xBB, 0xFF)
+    const auto color = not m_enabled ? (has_focus() ? "#A36A6A"_rgb : "#919191"_rgb)
+                                     : (has_focus()    ? is_hovered() ? "#FF6A00"_rgb : Color::red()
+                                           : is_hovered() ? "#00BBFF"_rgb
                                                        : Color::blue());
     service_provider.renderer().draw_rect_filled(m_fill_rect, color);
 

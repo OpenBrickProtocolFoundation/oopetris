@@ -65,10 +65,7 @@ void ui::Slider::render(const ServiceProvider& service_provider) const {
     service_provider.renderer().draw_rect_filled(bar_rect, color);
 
     //orange or cyan
-    const auto slider_color =
-            (is_dragging   ? Color(0xFF, 0xCC, 0x00)
-             : has_focus() ? Color(255, 111, 0)
-                           : Color(0, 204, 255));
+    const auto slider_color = (is_dragging ? "#FFCC00"_rgb : has_focus() ? "#ff6f00"_rgb : "#00ccff"_rgb);
     service_provider.renderer().draw_rect_filled(slider_rect, slider_color);
 }
 

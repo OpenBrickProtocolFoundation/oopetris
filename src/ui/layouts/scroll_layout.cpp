@@ -102,10 +102,8 @@ void ui::ScrollLayout::render(const ServiceProvider& service_provider) const {
 
     // render the scrollbar when it makes sense
     if (total_widgets_height > scrollbar_rect.height()) {
-        renderer.draw_rect_filled(scrollbar_rect, Color(0xA1, 0X97, 0x97));
-        renderer.draw_rect_filled(
-                scrollbar_mover_rect, is_dragging ? Color(0x66, 0x61, 0x61) : Color(0x52, 0x4F, 0x4F)
-        );
+        renderer.draw_rect_filled(scrollbar_rect, "#A19797"_rgb);
+        renderer.draw_rect_filled(scrollbar_mover_rect, is_dragging ? "#666161"_rgb : "#524F4F"_rgb);
     }
 }
 

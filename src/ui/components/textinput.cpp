@@ -56,9 +56,7 @@ void ui::TextInput::update() {
 
 //TODO: how to handle text limits (since texture for texts on the gpu can't get unlimitedly big, maybe use software texture?)
 void ui::TextInput::render(const ServiceProvider& service_provider) const {
-    const auto background_color = has_focus()    ? Color(0x6D, 0x6E, 0x6D)
-                                  : is_hovered() ? Color(0x47, 0x47, 0x47)
-                                                 : Color(0x3A, 0x3B, 0x39);
+    const auto background_color = has_focus() ? "#6D6E6D"_rgb : is_hovered() ? "#474747"_rgb : "#3A3B39"_rgb;
 
     const auto& renderer = service_provider.renderer();
     const auto& layout_rect = layout().get_rect();
