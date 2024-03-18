@@ -14,15 +14,14 @@
 
 namespace {
 
-    using FilterItemType = std::unique_ptr<nfdfilteritem_t, std::function<void(const nfdfilteritem_t* const)>>;
+    using FilterItemType = std::unique_ptr<nfdu8filteritem_t, std::function<void(const nfdu8filteritem_t* const)>>;
     template<typename T>
     using UniquePtr = std::unique_ptr<T, std::function<void(const T* const)>>;
 
-
     [[nodiscard]] FilterItemType get_filter_items(const std::vector<helper::AllowedFile>& allowed_files) {
-        const auto size = allowed_files.size();
-        FilterItemType filterItem{ allowed_files.empty() ? nullptr : new nfdfilteritem_t[size],
-                                   [size](const nfdfilteritem_t* const value) {
+        const auto size = static_cast<nfdfiltersize_t>(allowed_files.size());
+        FilterItemType filterItem{ allowed_files.empty() ? nullptr : new nfdu8filteritem_t[size],
+                                   [size](const nfdu8filteritem_t* const value) {
                                        if (value == nullptr) {
                                            return;
                                        }
@@ -41,22 +40,20 @@ namespace {
 
         if (not allowed_files.empty()) {
 
-            for (usize i = 0; i < allowed_files.size(); ++i) {
+            for (usize i = 0; i < static_cast<nfdfiltersize_t>(allowed_files.size()); ++i) {
                 const auto& allowed_file = allowed_files.at(i);
 
                 const auto& filter_name = allowed_file.name;
                 const auto filter_name_size = filter_name.size() + 1;
 
-                auto* name = new nfdnchar_t[filter_name_size];
-                std::memcpy(name, filter_name.c_str(), filter_name_size * sizeof(nfdnchar_t));
+                auto* name = new nfdu8char_t[filter_name_size];
+                std::memcpy(name, filter_name.c_str(), filter_name_size * sizeof(nfdu8char_t));
 
-
-                const NFD::string& extension_list =
-                        fmt::format(NFD_CHAR("{}"), fmt::join(allowed_file.extension_list, NFD_CHAR(",")));
+                const std::string extension_list = fmt::format("{}", fmt::join(allowed_file.extension_list, ","));
                 const auto extension_list_size = extension_list.size() + 1;
 
-                auto* extensions = new nfdnchar_t[extension_list_size];
-                std::memcpy(extensions, extension_list.c_str(), extension_list_size * sizeof(nfdnchar_t));
+                auto* extensions = new nfdu8char_t[extension_list_size];
+                std::memcpy(extensions, extension_list.c_str(), extension_list_size * sizeof(nfdu8char_t));
 
                 filterItem.get()[i] = { name, extensions };
             }
@@ -70,15 +67,15 @@ namespace {
 } // namespace
 
 
-helper::expected<std::filesystem::path, NFD::string> helper::openFileDialog(
+helper::expected<std::filesystem::path, std::string> helper::openFileDialog(
         const std::vector<AllowedFile>& allowed_files,
         helper::optional<std::filesystem::path> default_path
 ) {
 
-    NFD::UniquePath outPath{};
+    NFD::UniquePathU8 outPath{};
     auto filterItem = get_filter_items(allowed_files);
 
-    const auto path_deallocator = [](const nfdnchar_t* const char_value) {
+    const auto path_deallocator = [](const nfdu8char_t* const char_value) {
         if (char_value == nullptr) {
             return;
         }
@@ -86,30 +83,31 @@ helper::expected<std::filesystem::path, NFD::string> helper::openFileDialog(
         delete[] char_value; // NOLINT(cppcoreguidelines-owning-memory)
     };
 
-    UniquePtr<nfdnchar_t> default_path_value{ nullptr, path_deallocator };
+    UniquePtr<nfdu8char_t> default_path_value{ nullptr, path_deallocator };
 
     if (default_path.has_value()) {
         const auto& str = default_path.value().string();
         const auto str_size = str.size() + 1;
-        default_path_value = UniquePtr<nfdnchar_t>{ new nfdnchar_t[str_size], path_deallocator };
-        std::memcpy(default_path_value.get(), str.c_str(), str_size * sizeof(nfdnchar_t));
+        default_path_value = UniquePtr<nfdu8char_t>{ new nfdu8char_t[str_size], path_deallocator };
+        std::memcpy(default_path_value.get(), str.c_str(), str_size * sizeof(nfdu8char_t));
     }
 
-    const nfdresult_t result =
-            NFD::OpenDialog(outPath, filterItem.get(), allowed_files.size(), default_path_value.get());
+    const nfdresult_t result = NFD::OpenDialog(
+            outPath, filterItem.get(), static_cast<nfdfiltersize_t>(allowed_files.size()), default_path_value.get()
+    );
     if (result == NFD_OKAY) {
         return std::filesystem::path{ outPath.get() };
     }
 
     if (result == NFD_CANCEL) {
-        return helper::unexpected<NFD::string>{ "The user pressed cancel." };
+        return helper::unexpected<std::string>{ "The user pressed cancel." };
     }
 
-    return helper::unexpected<NFD::string>{ "Error: " + NFD::string{ NFD::GetError() } };
+    return helper::unexpected<std::string>{ "Error: " + std::string{ NFD::GetError() } };
 }
 
 
-[[nodiscard]] helper::expected<std::vector<std::filesystem::path>, NFD::string> helper::openMultipleFilesDialog(
+[[nodiscard]] helper::expected<std::vector<std::filesystem::path>, std::string> helper::openMultipleFilesDialog(
         const std::vector<AllowedFile>& allowed_files,
         helper::optional<std::filesystem::path> default_path
 ) {
@@ -117,7 +115,7 @@ helper::expected<std::filesystem::path, NFD::string> helper::openFileDialog(
     NFD::UniquePathSet outPaths{};
     auto filterItem = get_filter_items(allowed_files);
 
-    const auto path_deallocator = [](const nfdnchar_t* const char_value) {
+    const auto path_deallocator = [](const nfdu8char_t* const char_value) {
         if (char_value == nullptr) {
             return;
         }
@@ -125,17 +123,18 @@ helper::expected<std::filesystem::path, NFD::string> helper::openFileDialog(
         delete[] char_value; // NOLINT(cppcoreguidelines-owning-memory)
     };
 
-    UniquePtr<nfdnchar_t> default_path_value{ nullptr, path_deallocator };
+    UniquePtr<nfdu8char_t> default_path_value{ nullptr, path_deallocator };
 
     if (default_path.has_value()) {
         const auto& str = default_path.value().string();
         const auto str_size = str.size() + 1;
-        default_path_value = UniquePtr<nfdnchar_t>{ new nfdnchar_t[str_size], path_deallocator };
-        std::memcpy(default_path_value.get(), str.c_str(), str_size * sizeof(nfdnchar_t));
+        default_path_value = UniquePtr<nfdu8char_t>{ new nfdu8char_t[str_size], path_deallocator };
+        std::memcpy(default_path_value.get(), str.c_str(), str_size * sizeof(nfdu8char_t));
     }
 
-    const nfdresult_t result =
-            NFD::OpenDialogMultiple(outPaths, filterItem.get(), allowed_files.size(), default_path_value.get());
+    const nfdresult_t result = NFD::OpenDialogMultiple(
+            outPaths, filterItem.get(), static_cast<nfdfiltersize_t>(allowed_files.size()), default_path_value.get()
+    );
     if (result == NFD_OKAY) {
         std::vector<std::filesystem::path> result_vector{};
 
@@ -144,7 +143,7 @@ helper::expected<std::filesystem::path, NFD::string> helper::openFileDialog(
         ASSERT(temp_result == NFD_OKAY && "PathSet get count is successful");
 
         for (nfdpathsetsize_t i = 0; i < count_paths; ++i) {
-            NFD::UniquePathSetPath outPath{};
+            NFD::UniquePathSetPathU8 outPath{};
             const auto temp_result2 = NFD::PathSet::GetPath(outPaths, i, outPath);
             ASSERT(temp_result2 == NFD_OKAY && "PathSet get path is successful");
             result_vector.emplace_back(outPath.get());
@@ -154,19 +153,19 @@ helper::expected<std::filesystem::path, NFD::string> helper::openFileDialog(
     }
 
     if (result == NFD_CANCEL) {
-        return helper::unexpected<NFD::string>{ "The user pressed cancel." };
+        return helper::unexpected<std::string>{ "The user pressed cancel." };
     }
 
-    return helper::unexpected<NFD::string>{ "Error: " + NFD::string{ NFD::GetError() } };
+    return helper::unexpected<std::string>{ "Error: " + std::string{ NFD::GetError() } };
 }
 
-[[nodiscard]] helper::expected<std::filesystem::path, NFD::string> helper::openFolderDialog(
+[[nodiscard]] helper::expected<std::filesystem::path, std::string> helper::openFolderDialog(
         helper::optional<std::filesystem::path> default_path
 ) {
 
-    NFD::UniquePath outPath{};
+    NFD::UniquePathU8 outPath{};
 
-    const auto path_deallocator = [](const nfdnchar_t* const char_value) {
+    const auto path_deallocator = [](const nfdu8char_t* const char_value) {
         if (char_value == nullptr) {
             return;
         }
@@ -175,13 +174,13 @@ helper::expected<std::filesystem::path, NFD::string> helper::openFileDialog(
     };
 
 
-    UniquePtr<nfdnchar_t> default_path_value{ nullptr, path_deallocator };
+    UniquePtr<nfdu8char_t> default_path_value{ nullptr, path_deallocator };
 
     if (default_path.has_value()) {
         const auto& str = default_path.value().string();
         const auto str_size = str.size() + 1;
-        default_path_value = UniquePtr<nfdnchar_t>{ new nfdnchar_t[str_size], path_deallocator };
-        std::memcpy(default_path_value.get(), str.c_str(), str_size * sizeof(nfdnchar_t));
+        default_path_value = UniquePtr<nfdu8char_t>{ new nfdu8char_t[str_size], path_deallocator };
+        std::memcpy(default_path_value.get(), str.c_str(), str_size * sizeof(nfdu8char_t));
     }
 
     const nfdresult_t result = NFD::PickFolder(outPath, default_path_value.get());
@@ -190,10 +189,10 @@ helper::expected<std::filesystem::path, NFD::string> helper::openFileDialog(
     }
 
     if (result == NFD_CANCEL) {
-        return helper::unexpected<NFD::string>{ "The user pressed cancel." };
+        return helper::unexpected<std::string>{ "The user pressed cancel." };
     }
 
-    return helper::unexpected<NFD::string>{ "Error: " + NFD::string{ NFD::GetError() } };
+    return helper::unexpected<std::string>{ "Error: " + std::string{ NFD::GetError() } };
 }
 
 

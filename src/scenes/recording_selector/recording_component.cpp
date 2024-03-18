@@ -119,7 +119,7 @@ void custom_ui::RecordingComponent::populate_texts(ServiceProvider* service_prov
     if (const auto name_info = info.get_if<std::string>("name"); name_info.has_value()) {
         name_text_value = name_info.value();
     } else {
-        name_text_value = m_metadata.path.filename();
+        name_text_value = m_metadata.path.filename().string();
     }
     name_text->set_text(*service_provider, fmt::format("name: {}", name_text_value));
 
@@ -135,7 +135,7 @@ void custom_ui::RecordingComponent::populate_texts(ServiceProvider* service_prov
             date_text_value = formatted_date_value.value();
         }
     } else {
-        if (const auto date_iso8601_value = date::ISO8601Date::from_string(m_metadata.path.stem());
+        if (const auto date_iso8601_value = date::ISO8601Date::from_string(m_metadata.path.stem().string());
             date_iso8601_value.has_value()) {
             const auto formatted_date_value = date_iso8601_value.value().to_string();
             if (formatted_date_value.has_value()) {
