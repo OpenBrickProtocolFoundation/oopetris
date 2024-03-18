@@ -7,7 +7,9 @@
 #include "helper/optional.hpp"
 
 #define NFD_THROWS_EXCEPTIONS
+#ifdef _WIN32
 #define NFD_DIFFERENT_NATIVE_FUNCTIONS
+#endif
 #include <nfd.hpp>
 
 #include <filesystem>

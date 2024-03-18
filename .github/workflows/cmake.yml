@@ -36,7 +36,7 @@ jobs:
         uses: TheMrMilchmann/setup-msvc-dev@v3
         with:
           arch: x64
-          toolset: 17.9
+          toolset: 17
 
       - name: Install dependencies (Linux)
         if: matrix.config.os == 'ubuntu'
