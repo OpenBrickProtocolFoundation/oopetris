@@ -98,7 +98,7 @@ namespace scenes {
                                              )}
                         };
                     }
-
+#if defined(_HAVE_FILE_DIALOGS)
                     if (scroll_layout->is<custom_ui::RecordingFileChooser>(focused_element_index.value())) {
 
                         const auto* focused_element =
@@ -110,6 +110,8 @@ namespace scenes {
 
                         return UpdateResult{ SceneUpdate::StopUpdating, helper::nullopt };
                     }
+
+#endif
 
 
                     throw std::runtime_error("Requested action on unknown layout, this is a fatal error");
