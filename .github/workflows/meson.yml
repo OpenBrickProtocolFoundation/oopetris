@@ -88,7 +88,7 @@ jobs:
         uses: TheMrMilchmann/setup-msvc-dev@v3
         with:
           arch: x64
-          toolset: 17
+          toolset: 14.39
 
 
       - name: Setup MinGW (Windows)
