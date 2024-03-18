@@ -126,7 +126,9 @@ void custom_ui::RecordingFileChooser::prepare_dialog(ServiceProvider* service_pr
     service_provider->event_dispatcher().disable();
 }
 
-void custom_ui::RecordingFileChooser::cleanup_dialog(ServiceProvider* service_provider) {
+void custom_ui::RecordingFileChooser::cleanup_dialog( //NOLINT(readability-convert-member-functions-to-static)
+        ServiceProvider* service_provider
+) {
 
     //TODO: remove hint scene on top
     service_provider->event_dispatcher().enable();

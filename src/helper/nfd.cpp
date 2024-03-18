@@ -46,13 +46,13 @@ namespace {
                 const auto& filter_name = allowed_file.name;
                 const auto filter_name_size = filter_name.size() + 1;
 
-                auto* name = new nfdu8char_t[filter_name_size];
+                auto* name = new nfdu8char_t[filter_name_size]; // NOLINT(cppcoreguidelines-owning-memory)
                 std::memcpy(name, filter_name.c_str(), filter_name_size * sizeof(nfdu8char_t));
 
                 const std::string extension_list = fmt::format("{}", fmt::join(allowed_file.extension_list, ","));
                 const auto extension_list_size = extension_list.size() + 1;
 
-                auto* extensions = new nfdu8char_t[extension_list_size];
+                auto* extensions = new nfdu8char_t[extension_list_size]; // NOLINT(cppcoreguidelines-owning-memory)
                 std::memcpy(extensions, extension_list.c_str(), extension_list_size * sizeof(nfdu8char_t));
 
                 filterItem.get()[i] = { name, extensions };
