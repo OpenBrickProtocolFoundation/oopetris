@@ -32,14 +32,22 @@ namespace scenes {
 
         const auto local_button_id = m_main_grid.add<ui::Button>(
                 service_provider, "Local", service_provider->fonts().get(FontId::Default), Color::white(),
-                focus_helper.focus_id(), [this](const ui::Button&) { m_next_command = Command::LocalMultiPlayer; },
+                focus_helper.focus_id(),
+                [this](const ui::Button&) -> bool {
+                    m_next_command = Command::LocalMultiPlayer;
+                    return false;
+                },
                 button_size, button_alignment, button_margins
         );
         m_main_grid.get<ui::Button>(local_button_id)->disable();
 
         const auto online_button_id = m_main_grid.add<ui::Button>(
                 service_provider, "Online", service_provider->fonts().get(FontId::Default), Color::white(),
-                focus_helper.focus_id(), [this](const ui::Button&) { m_next_command = Command::OnlineMultiPlayer; },
+                focus_helper.focus_id(),
+                [this](const ui::Button&) -> bool {
+                    m_next_command = Command::OnlineMultiPlayer;
+                    return false;
+                },
                 button_size, button_alignment, button_margins
         );
 #ifdef _ONLINE_MULTIPLAYER_NOT_SUPPORTED
@@ -50,15 +58,23 @@ namespace scenes {
 
         const auto ai_button_id = m_main_grid.add<ui::Button>(
                 service_provider, "vs AI", service_provider->fonts().get(FontId::Default), Color::white(),
-                focus_helper.focus_id(), [this](const ui::Button&) { m_next_command = Command::AIMultiPlayer; },
+                focus_helper.focus_id(),
+                [this](const ui::Button&) -> bool {
+                    m_next_command = Command::AIMultiPlayer;
+                    return false;
+                },
                 button_size, button_alignment, button_margins
         );
         m_main_grid.get<ui::Button>(ai_button_id)->disable();
 
         m_main_grid.add<ui::Button>(
                 service_provider, "Return", service_provider->fonts().get(FontId::Default), Color::white(),
-                focus_helper.focus_id(), [this](const ui::Button&) { m_next_command = Command::Return; }, button_size,
-                button_alignment, button_margins
+                focus_helper.focus_id(),
+                [this](const ui::Button&) -> bool {
+                    m_next_command = Command::Return;
+                    return false;
+                },
+                button_size, button_alignment, button_margins
         );
     }
 

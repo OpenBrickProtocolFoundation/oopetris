@@ -10,6 +10,15 @@
 #include <stdexcept>
 #include <vector>
 
+
+namespace constants::recording {
+
+    constexpr const char* extension = "rec";
+    constexpr static u32 magic_file_byte = 0x504F4FFF; // 0xFF and than OOP in ascii (in little endian)
+
+} // namespace constants::recording
+
+
 namespace recorder {
 
     struct Record final {
@@ -31,7 +40,6 @@ namespace recorder {
     };
 
     struct Recording {
-        constexpr static u32 magic_file_byte = 0x504F4FFF; // 0xFF and than OOP in ascii (in little endian)
 
     protected:
         std::vector<TetrionHeader> m_tetrion_headers;

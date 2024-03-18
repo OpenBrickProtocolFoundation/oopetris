@@ -16,6 +16,7 @@
 #include "ui/widget.hpp"
 
 #include <filesystem>
+#include <stdexcept>
 
 namespace scenes {
 
@@ -57,8 +58,12 @@ namespace scenes {
 
         m_main_layout.add<ui::Button>(
                 service_provider, "Return", service_provider->fonts().get(FontId::Default), Color::white(),
-                focus_helper.focus_id(), [this](const ui::Button&) { m_next_command = Command::Return; }, button_size,
-                button_alignment, button_margins
+                focus_helper.focus_id(),
+                [this](const ui::Button&) -> bool {
+                    m_next_command = Command::Return;
+                    return false;
+                },
+                button_size, button_alignment, button_margins
         );
     }
 
@@ -67,25 +72,47 @@ namespace scenes {
 
         if (m_next_command.has_value()) {
             switch (m_next_command.value()) {
-                case Command::Play: {
+                case Command::Action: {
                     m_next_command = helper::nullopt;
                     auto* scroll_layout = m_main_layout.get<ui::ScrollLayout>(1);
-                    auto* focused_element = scroll_layout->get_currently_focused<custom_ui::RecordingComponent>();
+                    auto focused_element_index = scroll_layout->get_current_focused_index();
                     //  we could have no focused element
                     // this branch is never taken, if we have another widget then "custom_ui::RecordingComponent" at the focus, since only that requests action and trigger the play command
-                    if (focused_element == nullptr) {
+                    if (not focused_element_index.has_value()) {
                         return UpdateResult{ SceneUpdate::StopUpdating, helper::nullopt };
                     }
 
-                    const auto recording_path = focused_element->metadata().path;
+                    if (scroll_layout->is<custom_ui::RecordingComponent>(focused_element_index.value())) {
 
-                    return UpdateResult{
-                        SceneUpdate::StopUpdating,
-                        Scene::RawSwitch{"ReplayGame",
-                                         std::make_unique<ReplayGame>(
-                                         m_service_provider, ui::FullScreenLayout{ m_service_provider->window() }, recording_path
- )}
-                    };
+                        const auto* focused_element =
+                                scroll_layout->get<custom_ui::RecordingComponent>(focused_element_index.value());
+
+                        const auto recording_path = focused_element->metadata().path;
+
+                        return UpdateResult{
+                            SceneUpdate::StopUpdating,
+                            Scene::RawSwitch{"ReplayGame",
+                                             std::make_unique<ReplayGame>(
+                                             m_service_provider, ui::FullScreenLayout{ m_service_provider->window() },
+                                             recording_path
+                                             )}
+                        };
+                    }
+
+                    if (scroll_layout->is<custom_ui::RecordingFileChooser>(focused_element_index.value())) {
+
+                        const auto* focused_element =
+                                scroll_layout->get<custom_ui::RecordingFileChooser>(focused_element_index.value());
+
+                        for (const auto& path : focused_element->get_currently_chosen_files()) {
+                            m_chosen_paths.push_back(path);
+                        }
+
+                        return UpdateResult{ SceneUpdate::StopUpdating, helper::nullopt };
+                    }
+
+
+                    throw std::runtime_error("Requested action on unknown layout, this is a fatal error");
                 }
                 case Command::Return:
                     return UpdateResult{ SceneUpdate::StopUpdating, Scene::Pop{} };
@@ -109,8 +136,7 @@ namespace scenes {
         if (const auto event_result = m_main_layout.handle_event(event, window); event_result) {
             if (const auto additional = event_result.get_additional();
                 additional.has_value() and additional.value() == ui::EventHandleType::RequestAction) {
-                spdlog::info("got action request!");
-                m_next_command = Command::Play;
+                m_next_command = Command::Action;
             }
 
             return true;
@@ -163,7 +189,7 @@ namespace scenes {
         }
 
 
-        for (const auto& selected_path : m_selected_paths) {
+        for (const auto& selected_path : m_chosen_paths) {
             auto header_value = recorder::RecordingReader::is_header_valid(selected_path);
             if (header_value.has_value()) {
                 auto [information, headers] = std::move(header_value.value());

@@ -55,7 +55,10 @@ namespace scenes {
                         ui::RelativeItemSize{ scroll_layout->layout(), 0.2 }, service_provider,
                         fmt::format("Button Nr.: {}", i), service_provider->fonts().get(FontId::Default),
                         Color::white(), focus_helper.focus_id(),
-                        [i](const ui::Button&) { std::cout << "Pressed button: " << i << "\n"; },
+                        [i](const ui::Button&) -> bool {
+                            std::cout << "Pressed button: " << i << "\n";
+                            return false;
+                        },
                         std::pair<double, double>{ 0.8, 1.0 },
                         ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
                         std::pair<double, double>{ 0.1, 0.2 }
@@ -74,8 +77,12 @@ namespace scenes {
 
         m_main_layout.add<ui::Button>(
                 service_provider, "Return", service_provider->fonts().get(FontId::Default), Color::white(),
-                focus_helper.focus_id(), [this](const ui::Button&) { m_next_command = Command::Return; }, button_size,
-                button_alignment, button_margins
+                focus_helper.focus_id(),
+                [this](const ui::Button&) -> bool {
+                    m_next_command = Command::Return;
+                    return false;
+                },
+                button_size, button_alignment, button_margins
         );
     }
 

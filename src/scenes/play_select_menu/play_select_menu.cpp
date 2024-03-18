@@ -32,26 +32,42 @@ namespace scenes {
 
         m_main_grid.add<ui::Button>(
                 service_provider, "Single Player", service_provider->fonts().get(FontId::Default), Color::white(),
-                focus_helper.focus_id(), [this](const ui::Button&) { m_next_command = Command::SinglePlayer; },
+                focus_helper.focus_id(),
+                [this](const ui::Button&) -> bool {
+                    m_next_command = Command::SinglePlayer;
+                    return false;
+                },
                 button_size, button_alignment, button_margins
         );
 
         m_main_grid.add<ui::Button>(
                 service_provider, "Multi Player", service_provider->fonts().get(FontId::Default), Color::white(),
-                focus_helper.focus_id(), [this](const ui::Button&) { m_next_command = Command::MultiPlayer; },
+                focus_helper.focus_id(),
+                [this](const ui::Button&) -> bool {
+                    m_next_command = Command::MultiPlayer;
+                    return false;
+                },
                 button_size, button_alignment, button_margins
         );
 
         m_main_grid.add<ui::Button>(
                 service_provider, "Replay Recordings", service_provider->fonts().get(FontId::Default), Color::white(),
-                focus_helper.focus_id(), [this](const ui::Button&) { m_next_command = Command::RecordingSelector; },
+                focus_helper.focus_id(),
+                [this](const ui::Button&) -> bool {
+                    m_next_command = Command::RecordingSelector;
+                    return false;
+                },
                 button_size, button_alignment, button_margins
         );
 
         m_main_grid.add<ui::Button>(
                 service_provider, "Return", service_provider->fonts().get(FontId::Default), Color::white(),
-                focus_helper.focus_id(), [this](const ui::Button&) { m_next_command = Command::Return; }, button_size,
-                button_alignment, button_margins
+                focus_helper.focus_id(),
+                [this](const ui::Button&) -> bool {
+                    m_next_command = Command::Return;
+                    return false;
+                },
+                button_size, button_alignment, button_margins
         );
     }
 

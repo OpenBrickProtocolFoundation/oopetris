@@ -146,7 +146,7 @@ namespace {
         throw std::runtime_error{ fmt::format("Erro in date to string conversion: {}", date_time_str.error()) };
     }
 
-    const auto filename = fmt::format("{}.rec", date_time_str.value());
+    const auto filename = fmt::format("{}.{}", date_time_str.value(), constants::recording::extension);
     const auto file_path = recording_directory_path / filename;
 
 

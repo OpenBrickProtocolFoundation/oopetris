@@ -9,11 +9,11 @@ namespace scenes {
 
     struct RecordingSelector : public Scene {
     private:
-        enum class Command : u8 { Play, Return };
+        enum class Command : u8 { Action, Return };
 
         ui::TileLayout m_main_layout;
         helper::optional<Command> m_next_command{ helper::nullopt };
-        std::vector<std::filesystem::path> m_selected_paths{};
+        std::vector<std::filesystem::path> m_chosen_paths{};
 
     public:
         explicit RecordingSelector(ServiceProvider* service_provider, const ui::Layout& layout);

@@ -35,11 +35,12 @@ recorder::RecordingReader::get_header_from_path(const std::filesystem::path& pat
         };
     }
 
-    const auto magic_bytes = helper::reader::read_integral_from_file<decltype(Recording::magic_file_byte)>(file);
+    const auto magic_bytes =
+            helper::reader::read_integral_from_file<decltype(constants::recording::magic_file_byte)>(file);
     if (not magic_bytes.has_value()) {
         return helper::unexpected<std::string>{ "unable to read magic file bytes from recorded game" };
     }
-    if (magic_bytes.value() != Recording::magic_file_byte) {
+    if (magic_bytes.value() != constants::recording::magic_file_byte) {
         return helper::unexpected<std::string>{
             "magic file bytes are not correct, this is either an old format or no recording at all"
         };

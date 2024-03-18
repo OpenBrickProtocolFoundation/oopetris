@@ -14,7 +14,8 @@
 
 namespace data {
 
-    enum class RecordingSource : u8 { CommandLine, Folder, Manual, Online };
+    //TODO: add drop support
+    enum class RecordingSource : u8 { CommandLine, Folder, Manual, Online, Drop };
 
     struct RecordingMetadata {
         std::filesystem::path path;

@@ -48,9 +48,19 @@ namespace ui {
             return static_cast<u32>(index);
         }
 
+        template<typename T>
+        [[nodiscard]] bool is(const u32 index) {
+            if (index >= m_widgets.size()) {
+                throw std::runtime_error("Invalid get of FocusLayout item: index out of bound!");
+            }
+
+            auto item = dynamic_cast<T*>(m_widgets.at(index).get());
+            return item != nullptr;
+        }
+
 
         template<typename T>
-        T* get(const u32 index) {
+        [[nodiscard]] T* get(const u32 index) {
             if (index >= m_widgets.size()) {
                 throw std::runtime_error("Invalid get of FocusLayout item: index out of bound!");
             }
@@ -64,7 +74,7 @@ namespace ui {
         }
 
         template<typename T>
-        const T* get(const u32 index) const {
+        [[nodiscard]] const T* get(const u32 index) const {
             if (index >= m_widgets.size()) {
                 throw std::runtime_error("Invalid get of FocusLayout item: index out of bound!");
             }
@@ -77,30 +87,8 @@ namespace ui {
             return item;
         }
 
-        // can return nullptr, if no widget is focused!
-        template<typename T>
-        T* get_currently_focused() {
-            if (not m_focus_id.has_value()) {
-                return nullptr;
-            }
 
-            const auto index = focusable_index_by_id(m_focus_id.value());
-
-            return get<T>(index);
-        }
-
-        // can return nullptr, if no widget is focused!
-        template<typename T>
-        const T* get_currently_focused() const {
-            if (not m_focus_id.has_value()) {
-                return nullptr;
-            }
-
-            const auto index = focusable_index_by_id(m_focus_id.value());
-
-            return get<T>(index);
-        }
-
+        [[nodiscard]] helper::optional<u32> get_current_focused_index() const;
 
     private:
         helper::BoolWrapper<ui::EventHandleType> handle_focus_change_button_events(const SDL_Event& event);

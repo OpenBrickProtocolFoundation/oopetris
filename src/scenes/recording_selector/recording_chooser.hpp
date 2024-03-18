@@ -15,6 +15,7 @@ namespace custom_ui {
     struct RecordingFileChooser final : public ui::Widget, public ui::Focusable, public ui::Hoverable {
     private:
         ui::GridLayout m_main_grid;
+        std::vector<std::filesystem::path> currently_chosen_files{};
 
     public:
         explicit RecordingFileChooser(
@@ -28,10 +29,15 @@ namespace custom_ui {
 
         helper::BoolWrapper<ui::EventHandleType> handle_event(const SDL_Event& event, const Window* window) override;
 
+        [[nodiscard]] const std::vector<std::filesystem::path>& get_currently_chosen_files() const;
+
     private:
         [[nodiscard]] std::tuple<ui::Label*, ui::Label*, ui::Label*, ui::Label*> get_texts();
 
         void populate_texts();
+
+        void prepare_dialog(ServiceProvider* service_provider);
+        void cleanup_dialog(ServiceProvider* service_provider);
     };
 
 

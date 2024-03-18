@@ -17,7 +17,7 @@
 namespace ui {
     struct Button : public Widget, public Focusable, public Hoverable {
     public:
-        using Callback = std::function<void(const Button&)>;
+        using Callback = std::function<bool(const Button&)>;
 
     private:
         Text m_text;
@@ -58,7 +58,7 @@ namespace ui {
 
         helper::BoolWrapper<ui::EventHandleType> handle_event(const SDL_Event& event, const Window* window) override;
 
-        void on_clicked();
+        [[nodiscard]] bool on_clicked();
 
         void disable();
 

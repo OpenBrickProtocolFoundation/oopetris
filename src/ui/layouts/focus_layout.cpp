@@ -1,5 +1,6 @@
 
 #include "focus_layout.hpp"
+#include "helper/optional.hpp"
 #include "ui/widget.hpp"
 
 
@@ -27,6 +28,14 @@ void ui::FocusLayout::update() {
     return static_cast<u32>(m_widgets.size());
 }
 
+
+[[nodiscard]] helper::optional<u32> ui::FocusLayout::get_current_focused_index() const {
+    if (not m_focus_id.has_value()) {
+        return helper::nullopt;
+    }
+
+    return focusable_index_by_id(m_focus_id.value());
+}
 
 helper::BoolWrapper<ui::EventHandleType> ui::FocusLayout::handle_focus_change_button_events(const SDL_Event& event) {
 

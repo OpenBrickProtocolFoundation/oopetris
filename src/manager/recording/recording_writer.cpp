@@ -29,8 +29,8 @@ helper::expected<recorder::RecordingWriter, std::string> recorder::RecordingWrit
 
     helper::expected<bool, std::string> result{ true };
 
-    static_assert(sizeof(Recording::magic_file_byte) == 4);
-    result = helper::writer::write_integral_to_file(output_file, Recording::magic_file_byte);
+    static_assert(sizeof(constants::recording::magic_file_byte) == 4);
+    result = helper::writer::write_integral_to_file(output_file, constants::recording::magic_file_byte);
     if (not result.has_value()) {
         return helper::unexpected<std::string>{ fmt::format("error while writing: {}", result.error()) };
     }

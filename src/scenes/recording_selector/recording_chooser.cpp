@@ -3,7 +3,10 @@
 
 
 #include "helper/nfd_include.hpp"
+#include "manager/event_dispatcher.hpp"
 #include "manager/font.hpp"
+#include "manager/recording/recording.hpp"
+#include "manager/recording/recording_reader.hpp"
 #include "manager/resource_manager.hpp"
 #include "ui/components/button.hpp"
 
@@ -26,17 +29,58 @@ custom_ui::RecordingFileChooser::RecordingFileChooser(
     m_main_grid.add<ui::Button>(
             service_provider, "Select Recording", service_provider->fonts().get(FontId::Default), Color::white(),
             focus_helper.focus_id(),
-            [](const ui::Button&) {
-                //TODO BEFORE PR
-                const auto result = helper::openFileDialog({
-                        {"OOPetris Recording", { "rec" }}
+            [service_provider, this](const ui::Button&) -> bool {
+                this->prepare_dialog(service_provider);
+
+                const auto result = helper::openMultipleFilesDialog({
+                        {"OOPetris Recording", { constants::recording::extension }}
                 });
 
-                result.wait();
+                if (result.has_value()) {
+                    for (const auto& path : result.value()) {
+                        this->currently_chosen_files.push_back(path);
+                    }
+                } else {
+                    spdlog::warn("error in dialog: {}", result.error());
+                }
 
-                spdlog::info("RESULT: {}", "TODO");
+                this->cleanup_dialog(service_provider);
+                return result.has_value();
             },
-            std::pair<double, double>{ 0.15, 0.85 },
+            std::pair<double, double>{ 0.9, 0.85 },
+            ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
+            std::pair<double, double>{ 0.1, 0.1 }
+    );
+
+
+    m_main_grid.add<ui::Button>(
+            service_provider, "Select Recording Folder", service_provider->fonts().get(FontId::Default), Color::white(),
+            focus_helper.focus_id(),
+            [this, service_provider](const ui::Button&) -> bool {
+                this->prepare_dialog(service_provider);
+
+                const auto result = helper::openFolderDialog();
+
+                if (result.has_value()) {
+
+                    if (std::filesystem::exists(result.value())) {
+                        for (const auto& file : std::filesystem::recursive_directory_iterator(result.value())) {
+                            auto header_value = recorder::RecordingReader::is_header_valid(file.path());
+                            if (header_value.has_value()) {
+                                this->currently_chosen_files.push_back(file);
+                            }
+                        }
+                    }
+
+                } else {
+                    spdlog::warn("error in dialog: {}", result.error());
+                }
+
+                this->cleanup_dialog(service_provider);
+
+                return result.has_value();
+            },
+            std::pair<double, double>{ 0.9, 0.85 },
             ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
             std::pair<double, double>{ 0.1, 0.1 }
     );
@@ -55,8 +99,34 @@ void custom_ui::RecordingFileChooser::render(const ServiceProvider& service_prov
 helper::BoolWrapper<ui::EventHandleType>
 custom_ui::RecordingFileChooser::handle_event(const SDL_Event& event, const Window* window) {
 
-    //TODO BEFORE PR
-    UNUSED(event);
-    UNUSED(window);
+    if (m_main_grid.handle_event(event, window)) {
+        return true;
+    }
+
+
+    if (detect_hover(event, window)) {
+        return true;
+    }
+
     return false;
+}
+
+
+[[nodiscard]] const std::vector<std::filesystem::path>& custom_ui::RecordingFileChooser::get_currently_chosen_files(
+) const {
+    return currently_chosen_files;
+}
+
+//TODO: solve in another way, that is better
+void custom_ui::RecordingFileChooser::prepare_dialog(ServiceProvider* service_provider) {
+
+    //TODO: show scene on top, that hints of the dialog
+    this->currently_chosen_files.clear();
+    service_provider->event_dispatcher().disable();
+}
+
+void custom_ui::RecordingFileChooser::cleanup_dialog(ServiceProvider* service_provider) {
+
+    //TODO: remove hint scene on top
+    service_provider->event_dispatcher().enable();
 }

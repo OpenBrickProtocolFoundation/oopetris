@@ -1,5 +1,6 @@
 
 #include "button.hpp"
+#include "ui/widget.hpp"
 
 
 ui::Button::Button(
@@ -89,14 +90,18 @@ helper::BoolWrapper<ui::EventHandleType> ui::Button::handle_event(const SDL_Even
     if (utils::device_supports_keys()) {
         if (has_focus() and utils::event_is_action(event, utils::CrossPlatformAction::OK)) {
             spdlog::info("button pressed");
-            on_clicked();
+            if (on_clicked()) {
+                return { true, ui::EventHandleType::RequestAction };
+            }
             return true;
         }
     }
 
     if (const auto hover_result = detect_hover(event, window); hover_result) {
         if (hover_result.is(ActionType::Clicked)) {
-            on_clicked();
+            if (on_clicked()) {
+                return { true, ui::EventHandleType::RequestAction };
+            }
         }
         return true;
     }
@@ -105,8 +110,8 @@ helper::BoolWrapper<ui::EventHandleType> ui::Button::handle_event(const SDL_Even
 }
 
 
-void ui::Button::on_clicked() {
-    m_callback(*this);
+bool ui::Button::on_clicked() {
+    return m_callback(*this);
 }
 
 void ui::Button::disable() {

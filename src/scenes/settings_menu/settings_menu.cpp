@@ -54,7 +54,11 @@ namespace scenes {
 
         m_main_grid.add<ui::Button>(
                 service_provider, "Return", service_provider->fonts().get(FontId::Default), Color::white(),
-                focus_helper.focus_id(), [this](const ui::Button&) { m_should_exit = true; },
+                focus_helper.focus_id(),
+                [this](const ui::Button&) -> bool {
+                    m_should_exit = true;
+                    return false;
+                },
                 std::pair<double, double>{ 0.15, 0.85 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
                 std::pair<double, double>{ 0.1, 0.1 }
