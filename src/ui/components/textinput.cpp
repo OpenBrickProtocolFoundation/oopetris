@@ -4,14 +4,8 @@
 #include "graphics/renderer.hpp"
 #include "manager/event_dispatcher.hpp"
 
-// MSVC Is stupid and the bug isn't fixed yet :( -> https://developercommunity.visualstudio.com/t/warning-c4455-issued-when-using-standardized-liter/270349
-#if defined(_MSC_VER)
-#pragma warning(disable : 4455)
-#endif
-using std::chrono_literals::operator""ms;
-#if defined(_MSC_VER)
-#pragma warning(default : 4455)
-#endif
+
+using namespace std::chrono_literals;
 
 
 ui::TextInput::TextInput(
