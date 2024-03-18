@@ -226,6 +226,7 @@ void ui::ScrollLayout::clear_widgets() {
 
     m_widgets.clear();
     m_texture = helper::nullopt;
+    m_focus_id = helper::nullopt;
 
     recalculate_sizes(0);
 }

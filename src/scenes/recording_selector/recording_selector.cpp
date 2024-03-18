@@ -108,6 +108,8 @@ namespace scenes {
                             m_chosen_paths.push_back(path);
                         }
 
+                        add_all_recordings();
+
                         return UpdateResult{ SceneUpdate::StopUpdating, helper::nullopt };
                     }
 

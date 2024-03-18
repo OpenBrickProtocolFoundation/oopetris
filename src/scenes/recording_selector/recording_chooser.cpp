@@ -67,7 +67,7 @@ custom_ui::RecordingFileChooser::RecordingFileChooser(
                         for (const auto& file : std::filesystem::recursive_directory_iterator(result.value())) {
                             auto header_value = recorder::RecordingReader::is_header_valid(file.path());
                             if (header_value.has_value()) {
-                                this->currently_chosen_files.push_back(file);
+                                this->currently_chosen_files.push_back(file.path());
                             }
                         }
                     }
@@ -98,9 +98,10 @@ void custom_ui::RecordingFileChooser::render(const ServiceProvider& service_prov
 
 helper::BoolWrapper<ui::EventHandleType>
 custom_ui::RecordingFileChooser::handle_event(const SDL_Event& event, const Window* window) {
-
-    if (m_main_grid.handle_event(event, window)) {
-        return true;
+    //TODO: this double nested component can't correctly detect focus changes (since the checking for a focus change only occurs at one level deep)
+    //TODO: allow horizontal RIGHT <-> LEFT focus change on horizontal focus_layouts
+    if (const auto handled = m_main_grid.handle_event(event, window); handled) {
+        return handled;
     }
 
 
