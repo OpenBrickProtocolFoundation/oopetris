@@ -4,19 +4,13 @@
 
 namespace ui {
 
-    struct IDHelper {
+    //TODO: replace this by a focus helper per scene!
+    struct FocusHelper {
     private:
-        u32 m_index;
         u32 m_focus_id;
 
     public:
-        IDHelper(u32 start_index = 0, u32 start_focus_id = 0) // NOLINT(bugprone-easily-swappable-parameters)
-            : m_index{ start_index },
-              m_focus_id{ start_focus_id } {};
-
-        u32 index() {
-            return m_index++;
-        }
+        FocusHelper(u32 start_focus_id = 0) : m_focus_id{ start_focus_id } {};
 
         u32 focus_id() {
             return m_focus_id++;
@@ -25,11 +19,11 @@ namespace ui {
 
     struct Focusable {
     private:
-        usize m_focus_id;
+        u32 m_focus_id;
         bool m_has_focus{ false };
 
     public:
-        explicit Focusable(usize focus_id) : m_focus_id{ focus_id } { }
+        explicit Focusable(u32 focus_id) : m_focus_id{ focus_id } { }
         Focusable(const Focusable&) = delete;
         Focusable(Focusable&&) = delete;
         Focusable& operator=(const Focusable&) = delete;

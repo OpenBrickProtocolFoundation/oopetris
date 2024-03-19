@@ -19,9 +19,10 @@ private:
 public:
     explicit Game(
             ServiceProvider* service_provider,
-            const ui::Layout& layout,
             std::unique_ptr<Input>&& input,
-            const tetrion::StartingParameters& starting_parameters
+            const tetrion::StartingParameters& starting_parameters,
+            const ui::Layout& layout,
+            bool is_top_level
     );
 
     void update() override;

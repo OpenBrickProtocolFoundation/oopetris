@@ -1,6 +1,6 @@
 #pragma once
 
-#include "utils.hpp"
+#include "static_string.hpp"
 
 namespace utils {
 

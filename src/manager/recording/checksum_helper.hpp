@@ -4,17 +4,18 @@
 
 #include "helper/utils.hpp"
 
+#include <array>
 #include <sha256.h>
 #include <string>
 #include <vector>
 
 struct Sha256Stream {
-    static constexpr auto ChecksumSize = SHA256::HashBytes;
+    static constexpr auto ChecksumSize = hash_library::SHA256::HashBytes;
     using Checksum = std::array<unsigned char, ChecksumSize>;
 
-    SHA256 library_object;
+    hash_library::SHA256 library_object;
 
-    Sha256Stream() = default;
+    Sha256Stream();
 
     template<utils::integral Integral>
     Sha256Stream& operator<<(const Integral value) {
@@ -26,14 +27,7 @@ struct Sha256Stream {
         return *this;
     }
 
-    Sha256Stream& operator<<(const std::string& value) {
-
-        library_object.add(
-                reinterpret_cast<const void*>(value.c_str()), // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
-                static_cast<usize>(value.size())
-        );
-        return *this;
-    }
+    Sha256Stream& operator<<(const std::string& value);
 
     template<typename T>
     Sha256Stream& operator<<(const std::vector<T>& values) {
@@ -44,12 +38,14 @@ struct Sha256Stream {
         return *this;
     }
 
+    template<typename T, std::size_t S>
+    Sha256Stream& operator<<(const std::array<T, S>& values) {
 
-    [[nodiscard]] Checksum get_hash() {
-        Checksum buffer{};
-
-        library_object.getHash(buffer.data());
-
-        return buffer;
+        for (const auto& value : values) {
+            *this << value;
+        }
+        return *this;
     }
+
+    [[nodiscard]] Checksum get_hash();
 };

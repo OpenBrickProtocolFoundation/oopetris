@@ -1,6 +1,5 @@
 #include "settings_menu.hpp"
 #include "graphics/window.hpp"
-#include "helper/constants.hpp"
 #include "manager/music_manager.hpp"
 #include "manager/resource_manager.hpp"
 
@@ -9,14 +8,15 @@
 namespace scenes {
 
     SettingsMenu::SettingsMenu(ServiceProvider* service_provider, const  ui::Layout& layout) : Scene{service_provider, layout}
-, m_main_grid{4,
+, m_main_grid{ 0,
+    4,
     ui::Direction::Vertical,
     ui::RelativeMargin{ layout, ui::Direction::Vertical, 0.05 },
     std::pair<double, double>{ 0.05, 0.05 } ,
     ui::RelativeLayout{layout, 0.0, 0.2, 1.0, 0.5  }
 } 
 {
-        auto id_helper = ui::IDHelper{};
+        auto focus_helper = ui::FocusHelper{ 1 };
 
         m_main_grid.add<ui::Label>(
                 service_provider, "Settings", service_provider->fonts().get(FontId::Default), Color::white(),
@@ -32,7 +32,7 @@ namespace scenes {
         );
 
         const auto slider_index = m_main_grid.add<ui::Slider>(
-                id_helper.focus_id(), ui::Slider::Range{ 0.0F, 1.0F },
+                focus_helper.focus_id(), ui::Slider::Range{ 0.0F, 1.0F },
                 [service_provider]() {
                     const auto value = service_provider->music_manager().get_volume();
                     return value.has_value() ? value.value() : 0.0F;
@@ -54,7 +54,11 @@ namespace scenes {
 
         m_main_grid.add<ui::Button>(
                 service_provider, "Return", service_provider->fonts().get(FontId::Default), Color::white(),
-                id_helper.focus_id(), [this](const ui::Button&) { m_should_exit = true; },
+                focus_helper.focus_id(),
+                [this](const ui::Button&) -> bool {
+                    m_should_exit = true;
+                    return false;
+                },
                 std::pair<double, double>{ 0.15, 0.85 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
                 std::pair<double, double>{ 0.1, 0.1 }

@@ -1,17 +1,15 @@
 
 #include "game.hpp"
-#include "manager/event_dispatcher.hpp"
-#include "platform/capabilities.hpp"
 #include "platform/replay_input.hpp"
-#include "tetrion.hpp"
 
 Game::Game(
         ServiceProvider* const service_provider,
-        const ui::Layout& layout,
         std::unique_ptr<Input>&& input,
-        const tetrion::StartingParameters& starting_parameters
+        const tetrion::StartingParameters& starting_parameters,
+        const ui::Layout& layout,
+        bool is_top_level
 )
-    : ui::Widget{ layout },
+    : ui::Widget{ layout, ui::WidgetType::Component, is_top_level },
       m_clock_source{ std::make_unique<LocalClock>(starting_parameters.target_fps) },
       m_input{ std::move(input) } {
 
@@ -20,7 +18,7 @@ Game::Game(
 
     m_tetrion = std::make_unique<Tetrion>(
             starting_parameters.tetrion_index, starting_parameters.seed, starting_parameters.starting_level,
-            service_provider, starting_parameters.recording_writer, layout
+            service_provider, starting_parameters.recording_writer, layout, false
     );
 
     m_tetrion->spawn_next_tetromino(0);

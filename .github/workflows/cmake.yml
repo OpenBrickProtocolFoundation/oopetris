@@ -33,7 +33,10 @@ jobs:
 
       - name: Setup MSVC
         if: matrix.config.os == 'windows' && matrix.config.msvc == true
-        uses: ilammy/msvc-dev-cmd@v1
+        uses: TheMrMilchmann/setup-msvc-dev@v3
+        with:
+          arch: x64
+          toolset: 14.39
 
       - name: Install dependencies (Linux)
         if: matrix.config.os == 'ubuntu'

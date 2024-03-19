@@ -3,9 +3,7 @@
 #include "platform/capabilities.hpp"
 #include "scenes/scene.hpp"
 
-#include <fstream>
 #include <ranges>
-#include <stdexcept>
 
 #if defined(__SWITCH__)
 #include "switch.h"
@@ -51,15 +49,7 @@ void Application::run() {
     u64 frame_counter = 0;
 #endif
 
-// MSVC Is stupid and the bug isn't fixes yet :( -> https://developercommunity.visualstudio.com/t/warning-c4455-issued-when-using-standardized-liter/270349
-#if defined(_MSC_VER)
-#pragma warning(disable : 4455)
-#endif
-    using std::chrono_literals::operator""s;
-#if defined(_MSC_VER)
-#pragma warning(default : 4455)
-#endif
-
+    using namespace std::chrono_literals;
 
     const auto sleep_time = m_target_framerate.has_value() ? std::chrono::duration_cast<std::chrono::nanoseconds>(1s)
                                                                      / m_target_framerate.value()
@@ -174,7 +164,7 @@ void Application::update() {
 
     for (usize i = 0; i < num_scenes; ++i) {
         const auto index = num_scenes - i - 1;
-        const auto [scene_update, scene_change] = m_scene_stack.at(index)->update();
+        auto [scene_update, scene_change] = m_scene_stack.at(index)->update();
         if (scene_change) {
             std::visit(
                     helper::overloaded{
@@ -194,6 +184,11 @@ void Application::update() {
                                 m_scene_stack.push_back(
                                         scenes::create_scene(*this, switch_.target_scene, switch_.layout)
                                 );
+                            },
+                            [this](scenes::Scene::RawSwitch& raw_switch) {
+                                spdlog::info("switching to scene {}", raw_switch.name);
+                                m_scene_stack.clear();
+                                m_scene_stack.push_back(std::move(raw_switch.scene));
                             },
                             [this](const scenes::Scene::Exit&) { m_is_running = false; },
                     },
@@ -222,9 +217,10 @@ void Application::initialize() {
     push_scene(scenes::create_scene(*this, SceneId::MainMenu, ui::FullScreenLayout{ m_window }));
 
 #ifdef DEBUG_BUILD
-    m_fps_text = std::make_unique<Text>(
-            this, "FPS: ?", fonts().get(FontId::Default), Color::white(),
-            ui::RelativeLayout(window(), 0.01, 0.01, 0.1, 0.05).get_rect()
+    m_fps_text = std::make_unique<ui::Label>(
+            this, "FPS: ?", fonts().get(FontId::Default), Color::white(), std::pair<double, double>{ 0.95, 0.95 },
+            ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
+            ui::RelativeLayout{ window(), 0.0, 0.0, 0.1, 0.05 }, false
     );
 #endif
 }

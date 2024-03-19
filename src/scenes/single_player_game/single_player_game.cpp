@@ -1,23 +1,26 @@
 #include "single_player_game.hpp"
-#include "game/input_creator.hpp"
+#include "helper/date.hpp"
+#include "manager/music_manager.hpp"
 #include "scenes/scene.hpp"
+
 namespace scenes {
 
     SinglePlayerGame::SinglePlayerGame(ServiceProvider* service_provider, const ui::Layout& layout)
         : Scene{ service_provider, layout } {
 
-        recorder::AdditionalInformation additional_info{};
-        additional_info.add("mode", "single_player");
-        additional_info.add("platform", utils::get_platform());
+        const auto date = date::ISO8601Date::now();
+
+        recorder::AdditionalInformation additional_information{};
+        additional_information.add("mode", "single_player");
+        additional_information.add("platform", utils::get_platform());
+        additional_information.add("date", date.value());
         //TODO: add more information, if logged in
 
-        const std::vector<recorder::AdditionalInformation> additional_information = { additional_info };
 
-        auto parameters = input::get_game_parameters(service_provider, 1, additional_information);
+        auto [input, starting_parameters] =
+                input::get_single_player_game_parameters(service_provider, std::move(additional_information), date);
 
-        auto [input, starting_parameters] = std::move(parameters.at(0));
-
-        m_game = std::make_unique<Game>(service_provider, layout, std::move(input), starting_parameters);
+        m_game = std::make_unique<Game>(service_provider, std::move(input), starting_parameters, layout, true);
 
         m_service_provider->music_manager()
                 .load_and_play_music(

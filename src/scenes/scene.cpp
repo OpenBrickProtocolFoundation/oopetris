@@ -5,6 +5,8 @@
 #include "multiplayer_menu/multiplayer_menu.hpp"
 #include "pause/pause.hpp"
 #include "play_select_menu/play_select_menu.hpp"
+#include "recording_selector/recording_selector.hpp"
+#include "replay_game/replay_game.hpp"
 #include "settings_menu/settings_menu.hpp"
 #include "single_player_game/single_player_game.hpp"
 
@@ -37,6 +39,8 @@ namespace scenes {
                 return std::make_unique<PlaySelectMenu>(&service_provider, layout);
             case SceneId::MultiPlayerModeSelectMenu:
                 return std::make_unique<MultiPlayerMenu>(&service_provider, layout);
+            case SceneId::RecordingSelectorMenu:
+                return std::make_unique<RecordingSelector>(&service_provider, layout);
 #if !defined(_ONLINE_MULTIPLAYER_NOT_SUPPORTED)
             case SceneId::OnlineLobby:
                 return std::make_unique<OnlineLobby>(&service_provider, layout);
@@ -52,7 +56,7 @@ namespace scenes {
             case SceneId::AchievementsPage:
                 return std::make_unique<TODO>(&service_provider, layout); */
             default:
-                utils::unreachable();
+                throw std::runtime_error("Not implemented ID");
         }
     }
 

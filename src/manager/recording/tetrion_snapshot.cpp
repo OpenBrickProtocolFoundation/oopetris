@@ -1,9 +1,9 @@
 #include "tetrion_snapshot.hpp"
 #include "helper.hpp"
+#include "helper/magic_enum_wrapper.hpp"
 #include "tetrion_core_information.hpp"
 
 #include <fmt/format.h>
-#include <magic_enum.hpp>
 #include <sstream>
 #include <string_view>
 
@@ -73,12 +73,12 @@ helper::expected<TetrionSnapshot, std::string> TetrionSnapshot::from_istream(std
             return helper::unexpected<std::string>{ "unable to read y coordinate of mino from snapshot" };
         }
 
-        const auto type = helper::reader::read_from_istream<std::underlying_type_t<TetrominoType>>(istream);
+        const auto type = helper::reader::read_from_istream<std::underlying_type_t<helper::TetrominoType>>(istream);
         if (not type.has_value()) {
             return helper::unexpected<std::string>{ "unable to read tetromino type of mino from snapshot" };
         }
 
-        const auto maybe_type = magic_enum::enum_cast<TetrominoType>(type.value());
+        const auto maybe_type = magic_enum::enum_cast<helper::TetrominoType>(type.value());
         if (not maybe_type.has_value()) {
             return helper::unexpected<std::string>{
                 fmt::format("got invalid enum value for TetrominoType: {}", type.value())
@@ -142,7 +142,7 @@ TetrionSnapshot::TetrionSnapshot(
         static_assert(sizeof(decltype(mino.position().y)) == 1);
         helper::writer::append_value(bytes, mino.position().y);
 
-        static_assert(sizeof(std::underlying_type_t<TetrominoType>) == 1);
+        static_assert(sizeof(std::underlying_type_t<helper::TetrominoType>) == 1);
         helper::writer::append_value(bytes, std::to_underlying(mino.type()));
     }
     return bytes;

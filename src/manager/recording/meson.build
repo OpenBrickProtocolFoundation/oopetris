@@ -1,6 +1,7 @@
 shared_files = files(
     'additional_information.cpp',
     'additional_information.hpp',
+    'checksum_helper.cpp',
     'checksum_helper.hpp',
     'recording.cpp',
     'recording.hpp',

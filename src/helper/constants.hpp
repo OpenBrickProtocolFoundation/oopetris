@@ -5,10 +5,11 @@
 namespace constants {
 
 
-    inline constexpr auto program_name = StaticString{ "oopetris" };
-    inline constexpr auto author = StaticString{ "coder2k" };
-    inline constexpr auto version = StaticString{ "0.0.1" };
-    inline constexpr auto music_change_level = 30;
+    constexpr auto program_name = StaticString{ "oopetris" };
+    constexpr auto author = StaticString{ "coder2k" };
+    constexpr auto version = StaticString{ "0.0.1" };
+    constexpr auto music_change_level = 30;
+    constexpr auto recordings_directory = "recordings";
 
 #if not defined(AUDIO_QUALITY)
 #define AUDIO_QUALITY 0 // NOLINT(cppcoreguidelines-macro-usage)

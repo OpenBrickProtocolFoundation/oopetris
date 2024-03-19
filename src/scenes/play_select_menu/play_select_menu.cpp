@@ -9,10 +9,10 @@ namespace scenes {
 
     PlaySelectMenu::PlaySelectMenu(ServiceProvider* service_provider, const  ui::Layout& layout)
         : Scene{service_provider, layout},
-          m_main_grid{ 4,ui::Direction::Vertical, ui::RelativeMargin{layout,ui::Direction::Vertical, 0.05}, std::pair<double, double>{ 0.05, 0.05 
-            } ,ui::RelativeLayout{ layout, 0.0, 0.25, 1.0, 0.5 }} {
+          m_main_grid{ 0,5,ui::Direction::Vertical, ui::RelativeMargin{layout,ui::Direction::Vertical, 0.05}, std::pair<double, double>{ 0.05, 0.05 
+            } ,ui::RelativeLayout{ layout, 0.0, 0.15, 1.0, 0.7 }} {
 
-        auto id_helper = ui::IDHelper{};
+        auto focus_helper = ui::FocusHelper{ 1 };
 
         m_main_grid.add<ui::Label>(
                 service_provider, "Select Play Mode", service_provider->fonts().get(FontId::Default), Color::white(),
@@ -32,20 +32,42 @@ namespace scenes {
 
         m_main_grid.add<ui::Button>(
                 service_provider, "Single Player", service_provider->fonts().get(FontId::Default), Color::white(),
-                id_helper.focus_id(), [this](const ui::Button&) { m_next_command = Command::SinglePlayer; },
+                focus_helper.focus_id(),
+                [this](const ui::Button&) -> bool {
+                    m_next_command = Command::SinglePlayer;
+                    return false;
+                },
                 button_size, button_alignment, button_margins
         );
 
         m_main_grid.add<ui::Button>(
                 service_provider, "Multi Player", service_provider->fonts().get(FontId::Default), Color::white(),
-                id_helper.focus_id(), [this](const ui::Button&) { m_next_command = Command::MultiPlayer; }, button_size,
-                button_alignment, button_margins
+                focus_helper.focus_id(),
+                [this](const ui::Button&) -> bool {
+                    m_next_command = Command::MultiPlayer;
+                    return false;
+                },
+                button_size, button_alignment, button_margins
+        );
+
+        m_main_grid.add<ui::Button>(
+                service_provider, "Replay Recordings", service_provider->fonts().get(FontId::Default), Color::white(),
+                focus_helper.focus_id(),
+                [this](const ui::Button&) -> bool {
+                    m_next_command = Command::RecordingSelector;
+                    return false;
+                },
+                button_size, button_alignment, button_margins
         );
 
         m_main_grid.add<ui::Button>(
                 service_provider, "Return", service_provider->fonts().get(FontId::Default), Color::white(),
-                id_helper.focus_id(), [this](const ui::Button&) { m_next_command = Command::Return; }, button_size,
-                button_alignment, button_margins
+                focus_helper.focus_id(),
+                [this](const ui::Button&) -> bool {
+                    m_next_command = Command::Return;
+                    return false;
+                },
+                button_size, button_alignment, button_margins
         );
     }
 
@@ -64,6 +86,13 @@ namespace scenes {
                     m_next_command = helper::nullopt;
                     return UpdateResult{
                         SceneUpdate::StopUpdating, Scene::Push{SceneId::MultiPlayerModeSelectMenu,
+                                                               ui::FullScreenLayout{ m_service_provider->window() }}
+                    };
+                case Command::RecordingSelector:
+                    // perform a push and reset the command, so that the music keeps playing the entire time
+                    m_next_command = helper::nullopt;
+                    return UpdateResult{
+                        SceneUpdate::StopUpdating, Scene::Push{SceneId::RecordingSelectorMenu,
                                                                ui::FullScreenLayout{ m_service_provider->window() }}
                     };
                 case Command::Return:

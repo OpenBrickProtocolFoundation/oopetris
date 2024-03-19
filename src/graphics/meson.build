@@ -7,6 +7,7 @@ src_files += files(
     'sdl_context.hpp',
     'text.cpp',
     'text.hpp',
+    'texture.cpp',
     'texture.hpp',
     'window.cpp',
     'window.hpp',

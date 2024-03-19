@@ -150,7 +150,7 @@ namespace recorder {
         [[nodiscard]] helper::optional<InformationValue> get(const std::string& key) const;
 
         template<typename T>
-        [[nodiscard]] const helper::optional<T>& get_if(const std::string& key) const {
+        [[nodiscard]] helper::optional<T> get_if(const std::string& key) const {
 
             if (not m_values.contains(key)) {
                 return helper::nullopt;
@@ -167,7 +167,6 @@ namespace recorder {
 
         [[nodiscard]] helper::expected<std::vector<char>, std::string> to_bytes() const;
 
-    private:
         [[nodiscard]] helper::expected<Sha256Stream::Checksum, std::string> get_checksum() const;
     };
 

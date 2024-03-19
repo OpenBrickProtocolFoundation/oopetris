@@ -4,8 +4,6 @@
 #include "manager/service_provider.hpp"
 #include "mino.hpp"
 
-#include <algorithm>
-#include <magic_enum.hpp>
 #include <vector>
 
 struct MinoStack final {
@@ -18,7 +16,7 @@ private:
 public:
     void clear_row_and_let_sink(u8 row);
     [[nodiscard]] bool is_empty(GridPoint coordinates) const;
-    void set(GridPoint coordinates, TetrominoType type);
+    void set(GridPoint coordinates, helper::TetrominoType type);
 
 #if !defined(_NO_SDL)
     void draw_minos(

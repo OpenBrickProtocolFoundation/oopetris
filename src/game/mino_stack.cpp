@@ -1,6 +1,8 @@
 #include "mino_stack.hpp"
 
 #include "grid_properties.hpp"
+#include "helper/magic_enum_wrapper.hpp"
+#include <algorithm>
 
 void MinoStack::clear_row_and_let_sink(u8 row) {
     m_minos.erase(
@@ -23,7 +25,7 @@ void MinoStack::clear_row_and_let_sink(u8 row) {
     return true;
 }
 
-void MinoStack::set(GridPoint coordinates, TetrominoType type) {
+void MinoStack::set(GridPoint coordinates, helper::TetrominoType type) {
     const Mino to_insert = Mino{ coordinates, type };
     for (Mino& current : m_minos) {
         if (current.position() == coordinates) {

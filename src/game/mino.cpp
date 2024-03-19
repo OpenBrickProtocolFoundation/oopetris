@@ -5,7 +5,7 @@
 #include "graphics/renderer.hpp"
 #endif
 
-#include <cassert>
+#include <array>
 
 #if !defined(_NO_SDL)
 static constexpr std::array<u8, 6> transparency_values = { 255, 173, 118, 80, 55, 37 };
@@ -79,7 +79,7 @@ void Mino::render(
 }
 #endif
 
-[[nodiscard]] TetrominoType Mino::type() const {
+[[nodiscard]] helper::TetrominoType Mino::type() const {
     return m_type;
 }
 

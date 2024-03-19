@@ -1,7 +1,5 @@
 #pragma once
 
-#include <vector>
-
 struct CommandLineArguments;
 struct Settings;
 struct MusicManager;

@@ -10,6 +10,15 @@
 #include <stdexcept>
 #include <vector>
 
+
+namespace constants::recording {
+
+    constexpr const char* extension = "rec";
+    constexpr static u32 magic_file_byte = 0x504F4FFF; // 0xFF and than OOP in ascii (in little endian)
+
+} // namespace constants::recording
+
+
 namespace recorder {
 
     struct Record final {
@@ -26,19 +35,19 @@ namespace recorder {
     struct TetrionHeader final {
         Random::Seed seed;
         u32 starting_level;
-        AdditionalInformation information;
 
-        TetrionHeader(Random::Seed seed, u32 starting_level, AdditionalInformation&& information);
+        TetrionHeader(Random::Seed seed, u32 starting_level);
     };
 
     struct Recording {
-        constexpr static u32 magic_file_byte = 0x504F4FFF; // 0xFF and than OOP in ascii (in little endian)
 
     protected:
         std::vector<TetrionHeader> m_tetrion_headers;
+        AdditionalInformation m_information;
 
-        explicit Recording(std::vector<TetrionHeader>&& tetrion_headers)
-            : m_tetrion_headers{ std::move(tetrion_headers) } { }
+        explicit Recording(std::vector<TetrionHeader>&& tetrion_headers, AdditionalInformation&& information)
+            : m_tetrion_headers{ std::move(tetrion_headers) },
+              m_information{ std::move(information) } { }
 
     public:
         Recording(const Recording&) = delete;
@@ -49,8 +58,13 @@ namespace recorder {
 
         [[nodiscard]] const std::vector<TetrionHeader>& tetrion_headers() const;
 
-        [[nodiscard]] static Sha256Stream::Checksum
-        get_header_checksum(u8 version_number, const std::vector<TetrionHeader>& tetrion_headers);
+        [[nodiscard]] const AdditionalInformation& information() const;
+
+        [[nodiscard]] static Sha256Stream::Checksum get_header_checksum(
+                u8 version_number,
+                const std::vector<TetrionHeader>& tetrion_headers,
+                const AdditionalInformation& information
+        );
     };
 
 

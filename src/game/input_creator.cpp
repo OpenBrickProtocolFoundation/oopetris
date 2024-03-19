@@ -2,7 +2,9 @@
 
 #include "input_creator.hpp"
 #include "helper/command_line_arguments.hpp"
+#include "helper/date.hpp"
 #include "platform/replay_input.hpp"
+#include <stdexcept>
 
 #if defined(__ANDROID__)
 #include "platform/android_input.hpp"
@@ -36,36 +38,12 @@ namespace {
         );
     }
 
-
-    [[nodiscard]] std::vector<recorder::TetrionHeader> create_tetrion_headers(
-            const std::vector<input::AdditionalInfo>& infos,
-            const std::vector<recorder::AdditionalInformation>& additional_info
-    ) {
-        const auto num_tetrions = infos.size();
-        std::vector<recorder::TetrionHeader> headers{};
-
-        headers.reserve(num_tetrions);
-        for (u8 tetrion_index = 0; tetrion_index < num_tetrions; ++tetrion_index) {
-            const auto& info = std::get<1>(infos.at(tetrion_index));
-            auto information = additional_info.size() > tetrion_index ? additional_info.at(tetrion_index)
-                                                                      : recorder::AdditionalInformation{};
-            headers.emplace_back(info.seed, info.starting_level, std::move(information));
-        }
-        return headers;
+    [[nodiscard]] recorder::TetrionHeader create_tetrion_headers_for_one(const input::AdditionalInfo& info) {
+        const auto& needed_info = std::get<1>(info);
+        return recorder::TetrionHeader{ needed_info.seed, needed_info.starting_level };
     }
 
-} // namespace
-
-
-namespace input {
-    [[nodiscard]] std::vector<AdditionalInfo> get_game_parameters(
-            ServiceProvider* service_provider,
-            u8 amount,
-            const std::vector<recorder::AdditionalInformation>& additional_info
-    ) {
-
-        std::vector<AdditionalInfo> result{};
-
+    [[nodiscard]] u32 get_target_fps(ServiceProvider* const service_provider) {
         u32 target_fps = 60;
 
         if (const auto optional_target_fps = service_provider->command_line_arguments().target_fps;
@@ -82,90 +60,108 @@ namespace input {
             }
         }
 
-
-        if (const auto recording_path = service_provider->command_line_arguments().recording_path;
-            recording_path.has_value()) {
-
-            auto maybe_recording_reader = recorder::RecordingReader::from_path(recording_path.value());
-
-            if (not maybe_recording_reader.has_value()) {
-                throw std::runtime_error(
-                        fmt::format("an error occurred while reading recording: {}", maybe_recording_reader.error())
-                );
-            }
-
-            const auto recording_reader =
-                    std::make_shared<recorder::RecordingReader>(std::move(maybe_recording_reader.value()));
-
-
-            const auto tetrion_headers = recording_reader->tetrion_headers();
-
-            if (tetrion_headers.size() != amount) {
-                throw std::runtime_error(fmt::format(
-                        "Can't load recording with different player amount than expected: the recording has {} but "
-                        "expected {}",
-                        tetrion_headers.size(), amount
-                ));
-            }
-
-            for (u8 tetrion_index = 0; tetrion_index < amount; ++tetrion_index) {
-
-                auto input = std::make_unique<ReplayInput>(recording_reader);
-
-
-                const auto seed = tetrion_headers.at(tetrion_index).seed;
-                const auto starting_level = tetrion_headers.at(tetrion_index).starting_level;
-
-                const tetrion::StartingParameters starting_parameters = { target_fps, seed, starting_level,
-                                                                          tetrion_index, helper::nullopt };
-
-                result.emplace_back(std::move(input), starting_parameters);
-            }
-
-
-        } else {
-
-            for (u8 tetrion_index = 0; tetrion_index < amount; ++tetrion_index) {
-
-                //TODO: here we have to create different inputs, since the same won't work e.g. in local multiplayer etc.
-                auto input = create_input(service_provider);
-
-                const auto starting_level = service_provider->command_line_arguments().starting_level;
-
-                const auto seed = Random::generate_seed();
-
-                const tetrion::StartingParameters starting_parameters = { target_fps, seed, starting_level,
-                                                                          tetrion_index };
-
-                result.emplace_back(std::move(input), starting_parameters);
-            }
-
-            auto tetrion_headers = create_tetrion_headers(result, additional_info);
-
-            static constexpr auto recordings_directory = "recordings";
-            const auto recording_directory_path = utils::get_root_folder() / recordings_directory;
-
-            if (not std::filesystem::exists(recording_directory_path)) {
-                std::filesystem::create_directory(recording_directory_path);
-            }
-
-            const auto filename = fmt::format("{}.rec", utils::current_date_time_iso8601());
-            const auto file_path = recording_directory_path / filename;
-
-            const auto recording_writer =
-                    std::make_shared<recorder::RecordingWriter>(file_path, std::move(tetrion_headers));
-
-            const auto write_result = recording_writer->write_tetrion_headers();
-            if (not write_result.has_value()) {
-                throw std::runtime_error(write_result.error());
-            }
-
-            for (auto& res : result) {
-                std::get<1>(res).recording_writer = recording_writer;
-            }
-        }
-
-        return result;
+        return target_fps;
     }
 
-} // namespace input
+
+} // namespace
+
+
+[[nodiscard]] std::vector<input::AdditionalInfo> input::get_game_parameters_for_replay(
+        ServiceProvider* const service_provider,
+        const std::filesystem::path& recording_path
+) {
+
+    std::vector<input::AdditionalInfo> result{};
+
+    const auto target_fps = get_target_fps(service_provider);
+
+    auto maybe_recording_reader = recorder::RecordingReader::from_path(recording_path);
+
+    if (not maybe_recording_reader.has_value()) {
+        throw std::runtime_error(
+                fmt::format("an error occurred while reading recording: {}", maybe_recording_reader.error())
+        );
+    }
+
+    const auto recording_reader =
+            std::make_shared<recorder::RecordingReader>(std::move(maybe_recording_reader.value()));
+
+
+    const auto tetrion_headers = recording_reader->tetrion_headers();
+
+    result.reserve(tetrion_headers.size());
+
+    for (u8 tetrion_index = 0; tetrion_index < static_cast<u8>(tetrion_headers.size()); ++tetrion_index) {
+
+        auto input = std::make_unique<ReplayInput>(recording_reader);
+
+        const auto& header = tetrion_headers.at(tetrion_index);
+
+        const auto seed = header.seed;
+        const auto starting_level = header.starting_level;
+
+        const tetrion::StartingParameters starting_parameters = { target_fps, seed, starting_level, tetrion_index,
+                                                                  helper::nullopt };
+
+        result.emplace_back(std::move(input), starting_parameters);
+    }
+
+
+    return result;
+}
+
+
+[[nodiscard]] input::AdditionalInfo input::get_single_player_game_parameters(
+        ServiceProvider* const service_provider,
+        recorder::AdditionalInformation&& information,
+        const date::ISO8601Date& date
+) {
+
+    auto input = create_input(service_provider);
+
+    const auto starting_level = service_provider->command_line_arguments().starting_level;
+
+    const auto seed = Random::generate_seed();
+
+    const auto target_fps = get_target_fps(service_provider);
+
+    const tetrion::StartingParameters starting_parameters = { target_fps, seed, starting_level, 0 };
+
+    AdditionalInfo result{ std::move(input), starting_parameters };
+
+
+    auto tetrion_header = create_tetrion_headers_for_one(result);
+    std::vector<recorder::TetrionHeader> tetrion_headers{ tetrion_header };
+
+    const auto recording_directory_path = utils::get_root_folder() / constants::recordings_directory;
+
+    if (not std::filesystem::exists(recording_directory_path)) {
+        std::filesystem::create_directory(recording_directory_path);
+    }
+
+    const auto date_time_str = date.to_string();
+
+    if (not date_time_str.has_value()) {
+        throw std::runtime_error{ fmt::format("Erro in date to string conversion: {}", date_time_str.error()) };
+    }
+
+    const auto filename = fmt::format("{}.{}", date_time_str.value(), constants::recording::extension);
+    const auto file_path = recording_directory_path / filename;
+
+
+    auto recording_writer_create_result =
+            recorder::RecordingWriter::get_writer(file_path, std::move(tetrion_headers), std::move(information));
+    if (not recording_writer_create_result.has_value()) {
+        throw std::runtime_error(recording_writer_create_result.error());
+    }
+
+    const auto recording_writer =
+            std::make_shared<recorder::RecordingWriter>(std::move(recording_writer_create_result.value()));
+
+
+    std::get<1>(result).recording_writer = recording_writer;
+
+
+    return result;
+}

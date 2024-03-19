@@ -85,7 +85,11 @@ jobs:
 
       - name: Setup MSVC (Windows)
         if: matrix.config.os == 'windows' && matrix.config.msvc == true
-        uses: ilammy/msvc-dev-cmd@v1
+        uses: TheMrMilchmann/setup-msvc-dev@v3
+        with:
+          arch: x64
+          toolset: 14.39
+
 
       - name: Setup MinGW (Windows)
         if: matrix.config.os == 'windows' && matrix.config.msvc == false
@@ -105,6 +109,7 @@ jobs:
           sudo apt-get install libc++-17* libc++abi*17* -y
           echo "CC=clang-17" >> "$GITHUB_ENV"
           echo "CXX=clang++-17" >> "$GITHUB_ENV"
+          echo "OBJC=clang-17" >> "$GITHUB_ENV"
 
 
       - name: Setup GCC (Linux)
@@ -124,8 +129,10 @@ jobs:
           echo "CPPFLAGS=-I$(brew --prefix)/opt/llvm/include" >> "$GITHUB_ENV"
           echo "CC=clang" >> "$GITHUB_ENV"
           echo "CXX=clang++" >> "$GITHUB_ENV"
+          echo "OBJC=clang" >> "$GITHUB_ENV"
           echo "CC_LD=lld" >> "$GITHUB_ENV"
           echo "CXX_LD=lld" >> "$GITHUB_ENV"
+          echo "OBJC_LD=lld" >> "$GITHUB_ENV"
 
       - name: Unbreak Python in GHA for 3.11 (MacOS 13 image)
         if: matrix.config.os == 'macos'  &&  matrix.config.os-version == 13

@@ -9,7 +9,7 @@ namespace scenes {
 
     struct PlaySelectMenu : public Scene {
     private:
-        enum class Command : u8 { SinglePlayer, MultiPlayer, Return };
+        enum class Command : u8 { SinglePlayer, MultiPlayer, RecordingSelector, Return };
 
         ui::GridLayout m_main_grid;
         helper::optional<Command> m_next_command;

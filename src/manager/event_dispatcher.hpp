@@ -7,7 +7,6 @@
 #include <SDL.h>
 #include <algorithm>
 #include <cassert>
-#include <memory>
 #include <vector>
 
 struct EventDispatcher final {
@@ -15,6 +14,7 @@ private:
     std::vector<EventListener*> m_listeners;
     Window* m_window;
     bool m_input_activated{ false };
+    bool m_enabled{ true };
     std::vector<SDL_Keycode> allowed_input_keys{ SDLK_RETURN, SDLK_BACKSPACE, SDLK_DOWN,   SDLK_UP,
                                                  SDLK_LEFT,   SDLK_RIGHT,     SDLK_ESCAPE, SDLK_TAB };
 
@@ -32,6 +32,10 @@ public:
     }
 
     void dispatch_pending_events() const {
+        if (not m_enabled) {
+            return;
+        }
+
         SDL_Event event;
         while (SDL_PollEvent(&event) != 0) {
 
@@ -87,5 +91,27 @@ public:
         SDL_StopTextInput();
 
         m_input_activated = false;
+    }
+
+    void disable() {
+        m_enabled = false;
+    }
+
+    static void clear_all_events() {
+        SDL_PumpEvents();
+        SDL_FlushEvents(SDL_USEREVENT, SDL_LASTEVENT);
+    }
+
+    void enable() {
+        if (not m_enabled) {
+            // clear events received in the phase after disabling it
+            clear_all_events();
+        }
+
+        m_enabled = true;
+    }
+
+    [[nodiscard]] bool is_enabled() const {
+        return m_enabled;
     }
 };

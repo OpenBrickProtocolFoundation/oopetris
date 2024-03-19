@@ -11,6 +11,7 @@
 #include "manager/resource_manager.hpp"
 #include "manager/service_provider.hpp"
 #include "scenes/scene.hpp"
+#include "ui/components/label.hpp"
 
 #ifdef DEBUG_BUILD
 #include "graphics/text.hpp"
@@ -35,7 +36,7 @@ private:
     helper::optional<u32> m_target_framerate;
 
 #ifdef DEBUG_BUILD
-    std::unique_ptr<Text> m_fps_text{ nullptr };
+    std::unique_ptr<ui::Label> m_fps_text{ nullptr };
 #endif
 
 protected:

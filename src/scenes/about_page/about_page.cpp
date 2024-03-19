@@ -15,12 +15,16 @@ namespace scenes {
 
     AboutPage::AboutPage(ServiceProvider* service_provider, const  ui::Layout& layout) : Scene{service_provider, layout}
 , m_main_grid{
+    0,
     3 + static_cast<u32>(authors.size()),
     ui::Direction::Vertical,
     ui::RelativeMargin{ layout, ui::Direction::Vertical, 0.05 },
     std::pair<double, double>{ 0.05, 0.05 } ,
     ui::RelativeLayout{layout, 0.0, 0.05, 1.0, 0.9  }
 } {
+
+        auto focus_helper = ui::FocusHelper{ 1 };
+
         m_main_grid.add<ui::Label>(
                 service_provider, fmt::format("Git Commit: {}", utils::git_commit()),
                 service_provider->fonts().get(FontId::Default), Color::white(), std::pair<double, double>{ 0.3, 0.5 },
@@ -43,8 +47,8 @@ namespace scenes {
 
 
             const auto tile_layout_index = m_main_grid.add<ui::TileLayout>(
-                    utils::size_t_identity<2>(), ui::Direction::Horizontal, std::array<double, 1>{ 0.85 },
-                    ui::AbsolutMargin{ 0 }, std::pair<double, double>{ 0.05, 0.03 }
+                    utils::size_t_identity<2>(), focus_helper.focus_id(), ui::Direction::Horizontal,
+                    std::array<double, 1>{ 0.85 }, ui::AbsolutMargin{ 0 }, std::pair<double, double>{ 0.05, 0.03 }
             );
 
             auto* tile_layout = m_main_grid.get<ui::TileLayout>(tile_layout_index);

@@ -3,13 +3,10 @@
 #include "graphics/point.hpp"
 #include "graphics/rect.hpp"
 #include "grid_properties.hpp"
+#include "helper/color.hpp"
 #include "manager/service_provider.hpp"
-#include "mino.hpp"
 #include "ui/layout.hpp"
 #include "ui/widget.hpp"
-
-#include <algorithm>
-#include <vector>
 
 struct Grid final : public ui::Widget {
 public:
@@ -26,7 +23,7 @@ private:
     u32 m_tile_size;
 
 public:
-    Grid(const ui::Layout& layout);
+    Grid(const ui::Layout& layout, bool is_top_level);
     [[nodiscard]] shapes::UPoint tile_size() const;
     [[nodiscard]] double scale_to_original() const;
     [[nodiscard]] shapes::UPoint to_screen_coords(GridPoint grid_coords) const;

@@ -3,10 +3,8 @@
 #include "helper/color.hpp"
 #include "manager/font.hpp"
 #include "manager/service_provider.hpp"
-#include "point.hpp"
 #include "rect.hpp"
-#include "renderer.hpp"
-#include <memory>
+#include "texture.hpp"
 
 struct Text final {
 private:

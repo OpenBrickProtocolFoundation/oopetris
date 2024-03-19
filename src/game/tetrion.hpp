@@ -1,27 +1,21 @@
 #pragma once
 
 #include "bag.hpp"
-#include "graphics/text.hpp"
 #include "grid.hpp"
 #include "helper/optional.hpp"
 #include "helper/random.hpp"
 #include "helper/types.hpp"
-#include "helper/utils.hpp"
-#include "manager/music_manager.hpp"
 #include "manager/recording/tetrion_core_information.hpp"
 #include "manager/service_provider.hpp"
 #include "mino_stack.hpp"
 #include "platform/input.hpp"
 #include "tetromino.hpp"
-#include "ui/components/label.hpp"
 #include "ui/layout.hpp"
 #include "ui/layouts/grid_layout.hpp"
 #include "ui/layouts/tile_layout.hpp"
 #include "ui/widget.hpp"
 
 #include <array>
-#include <cmath>
-#include <vector>
 
 namespace recorder {
     struct RecordingWriter;
@@ -90,7 +84,8 @@ public:
             u32 starting_level,
             ServiceProvider* service_provider,
             helper::optional<std::shared_ptr<recorder::RecordingWriter>> recording_writer,
-            const ui::Layout& layout);
+            const ui::Layout& layout,
+            bool is_top_level);
     void update_step(SimulationStep simulation_step_index);
     void render(const ServiceProvider& service_provider) const override;
     [[nodiscard]] helper::BoolWrapper<ui::EventHandleType> handle_event(const SDL_Event& event, const Window* window)
@@ -99,7 +94,7 @@ public:
     // returns if the input event lead to a movement
     bool handle_input_command(InputCommand command, SimulationStep simulation_step_index);
     void spawn_next_tetromino(SimulationStep simulation_step_index);
-    void spawn_next_tetromino(TetrominoType type, SimulationStep simulation_step_index);
+    void spawn_next_tetromino(helper::TetrominoType type, SimulationStep simulation_step_index);
     bool rotate_tetromino_right();
     bool rotate_tetromino_left();
     bool move_tetromino_down(MovementType movement_type, SimulationStep simulation_step_index);
@@ -110,8 +105,8 @@ public:
 
     [[nodiscard]] Grid* get_grid();
     [[nodiscard]] const Grid* get_grid() const;
-    [[nodiscard]] ui::GridLayout* get_texts();
-    [[nodiscard]] const ui::GridLayout* get_texts() const;
+    [[nodiscard]] ui::GridLayout* get_text_layout();
+    [[nodiscard]] const ui::GridLayout* get_text_layout() const;
 
     [[nodiscard]] u8 tetrion_index() const;
     [[nodiscard]] u32 level() const;
@@ -145,7 +140,7 @@ private:
 
     void refresh_ghost_tetromino();
     void refresh_previews();
-    TetrominoType get_next_tetromino_type();
+    helper::TetrominoType get_next_tetromino_type();
 
     [[nodiscard]] bool is_tetromino_position_valid(const Tetromino& tetromino) const;
     [[nodiscard]] bool tetromino_can_move_down(const Tetromino& tetromino) const;
