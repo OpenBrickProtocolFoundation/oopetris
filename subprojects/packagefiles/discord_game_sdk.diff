@@ -1,0 +1,12 @@
+diff --git a/cpp/types.h b/cpp/types.h
+index 76c4311..57399d3 100644
+--- a/cpp/types.h
++++ b/cpp/types.h
+@@ -2,6 +2,7 @@
+ 
+ #include "ffi.h"
+ #include "event.h"
++#include <cstdint>
+ #ifdef _WIN32
+ #include <Windows.h>
+ #include <dxgi.h>

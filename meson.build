@@ -326,6 +326,8 @@ endif
 is_flatpak_build = get_option('flatpak_build')
 
 have_file_dialogs = false
+have_discord_sdk = false
+
 
 nfde_dep = dependency(
     'nativefiledialog-extended',
@@ -338,6 +340,15 @@ if nfde_dep.found()
     compile_args += '-D_HAVE_FILE_DIALOGS'
 endif
 
+discord_sdk_dep = dependency(
+    'discord-game-sdk',
+    required: not meson.is_cross_build(),
+)
+if discord_sdk_dep.found()
+    have_discord_sdk = true
+    deps += discord_sdk_dep
+    compile_args += '-D_HAVE_DISCORD_SDK'
+endif
 
 
 src_files = []

@@ -1,0 +1,9 @@
+
+
+option(
+    'examples',
+    type: 'boolean',
+    value: false,
+    description: 'whether to built the examples',
+)
+
