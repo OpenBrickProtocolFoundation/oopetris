@@ -49,6 +49,18 @@ void Application::run() {
     u64 frame_counter = 0;
 #endif
 
+
+#if defined(_HAVE_DISCORD_SDK)
+    auto discord_instance = DiscordInstance::initialize();
+    if (not discord_instance.has_value()) {
+        spdlog::warn("Error initializing the discord instance, it might not be running: {}", discord_instance.error());
+    } else {
+        m_discord_instance = std::move(discord_instance.value());
+    }
+
+#endif
+
+
     using namespace std::chrono_literals;
 
     const auto sleep_time = m_target_framerate.has_value() ? std::chrono::duration_cast<std::chrono::nanoseconds>(1s)
@@ -251,3 +263,16 @@ void Application::load_resources() {
         m_font_manager.load(font_id, font_path, fonts_size);
     }
 }
+
+#if defined(_HAVE_DISCORD_SDK)
+
+[[nodiscard]] helper::optional<DiscordInstance>& Application::discord_instance() {
+    return m_discord_instance;
+}
+
+[[nodiscard]] const helper::optional<DiscordInstance>& Application::discord_instance() const {
+    return m_discord_instance;
+}
+
+
+#endif

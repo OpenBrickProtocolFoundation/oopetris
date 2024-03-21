@@ -1,5 +1,13 @@
 #pragma once
 
+#if defined(_HAVE_DISCORD_SDK) && ! defined(_OOPETRIS_RECORDING_UTILITY)
+
+#include "discord/core.hpp"
+#include "helper/optional.hpp"
+
+#endif
+
+
 struct CommandLineArguments;
 struct Settings;
 struct MusicManager;
@@ -33,4 +41,11 @@ struct ServiceProvider {
     [[nodiscard]] virtual const EventDispatcher& event_dispatcher() const = 0;
     [[nodiscard]] virtual const Window& window() const = 0;
     [[nodiscard]] virtual Window& window() = 0;
+
+#if defined(_HAVE_DISCORD_SDK) && !defined(_OOPETRIS_RECORDING_UTILITY)
+
+    [[nodiscard]] virtual helper::optional<DiscordInstance>& discord_instance() = 0;
+    [[nodiscard]] virtual const helper::optional<DiscordInstance>& discord_instance() const = 0;
+
+#endif
 };

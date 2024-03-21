@@ -590,7 +590,7 @@ else
         recording_src_files,
         dependencies: recording_dependencies,
         include_directories: recording_inc_dirs,
-        cpp_args: [compile_args, '-D_NO_SDL', '-D_NO_SPDLOG'],
+        cpp_args: [compile_args, '-D_NO_SDL', '-D_NO_SPDLOG', '-D_OOPETRIS_RECORDING_UTILITY'],
         override_options: {
             'warning_level': '3',
             'werror': true,
