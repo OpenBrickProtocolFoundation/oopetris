@@ -186,6 +186,7 @@ jobs:
         with:
           name: ${{ matrix.config.name }} Executable
           path: build/oopetris
+          # TODO: create a proper installer: https://mesonbuild.com/Creating-OSX-packages.html
 
       - name: Upload artifacts - Windows
         uses: actions/upload-artifact@v4

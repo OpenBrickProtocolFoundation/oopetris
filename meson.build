@@ -15,7 +15,6 @@ project(
 )
 
 compile_args = []
-link_args = []
 deps = []
 recording_dependencies = []
 
@@ -47,8 +46,8 @@ elif cpp.get_id() == 'clang'
     endif
 
     if build_with_libcpp
-        compile_args += '-stdlib=libc++'
-        link_args += '-stdlib=libc++'
+        add_global_link_arguments('-stdlib=libc++', language:['cpp'])
+        add_global_arguments('-stdlib=libc++', language:['cpp'])
         deps += cpp.find_library('c++')
         deps += cpp.find_library('c++abi')
     endif
@@ -343,6 +342,7 @@ endif
 discord_sdk_dep = dependency(
     'discord-game-sdk',
     required: not meson.is_cross_build(),
+    default_options: {'clang_libcpp': 'disabled'},
 )
 if discord_sdk_dep.found()
     have_discord_sdk = true
@@ -578,7 +578,6 @@ else
         dependencies: deps,
         c_args: sdl2_mixer_defines,
         cpp_args: compile_args + sdl2_mixer_defines,
-        link_args: link_args,
         override_options: {
             'warning_level': '3',
             'werror': true,
@@ -592,7 +591,6 @@ else
         dependencies: recording_dependencies,
         include_directories: recording_inc_dirs,
         cpp_args: [compile_args, '-D_NO_SDL', '-D_NO_SPDLOG'],
-        link_args: link_args,
         override_options: {
             'warning_level': '3',
             'werror': true,

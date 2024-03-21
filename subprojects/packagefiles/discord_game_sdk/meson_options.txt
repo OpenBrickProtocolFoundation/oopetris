@@ -7,3 +7,9 @@ option(
     description: 'whether to built the examples',
 )
 
+option(
+    'clang_libcpp',
+    type: 'feature',
+    value: 'auto',
+    description: 'if using clang, build with libc++ instead of libstdc++ (gcc stdlib)',
+)
