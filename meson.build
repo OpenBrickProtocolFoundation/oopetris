@@ -264,11 +264,11 @@ argparse_dep = dependency('argparse', required: true)
 recording_dependencies += argparse_dep
 deps += argparse_dep
 
-online_multiplayer_not_supported = true
+online_multiplayer_supported = true
 
 if meson.is_cross_build() and host_machine.system() == 'switch'
     compile_args += ['-D_ONLINE_MULTIPLAYER_NOT_SUPPORTED']
-    online_multiplayer_not_supported = false
+    online_multiplayer_supported = false
 else
     deps += dependency(
         'cpp-httplib',

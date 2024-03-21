@@ -15,7 +15,7 @@ subdir('scenes')
 subdir('ui')
 subdir('thirdparty')
 
-if online_multiplayer_not_supported
+if online_multiplayer_supported
     subdir('lobby')
 endif
 
