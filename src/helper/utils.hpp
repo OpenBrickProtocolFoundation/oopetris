@@ -74,6 +74,9 @@ namespace utils {
     };
 
 
+    [[nodiscard]] std::vector<std::string> supported_features();
+
+
 } // namespace utils
 
 

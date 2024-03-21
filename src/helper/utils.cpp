@@ -65,4 +65,23 @@ namespace utils {
         return helper::nullopt;
     }
 
+    std::vector<std::string> supported_features() {
+
+        std::vector<std::string> features{};
+
+#if !defined(_ONLINE_MULTIPLAYER_NOT_SUPPORTED)
+        features.emplace_back("online multiplayer");
+#endif
+
+#if defined(_HAVE_FILE_DIALOGS)
+        features.emplace_back("file dialogs");
+#endif
+
+#if defined(_HAVE_DISCORD_SDK)
+        features.emplace_back("discord integration");
+#endif
+
+        return features;
+    }
+
 } // namespace utils
