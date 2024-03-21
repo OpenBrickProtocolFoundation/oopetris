@@ -22,7 +22,7 @@ DiscordInstance::DiscordInstance(discord::Core* core) : m_core{ core }, m_curren
 [[nodiscard]] helper::expected<DiscordInstance, std::string> DiscordInstance::initialize() {
 
     discord::Core* core{};
-    auto result = discord::Core::Create(constants::discord::client_id, DiscordCreateFlags_Default, &core);
+    auto result = discord::Core::Create(constants::discord::client_id, DiscordCreateFlags_NoRequireDiscord, &core);
     if (core == nullptr) {
         return helper::unexpected<std::string>{
             fmt::format("Failed to instantiate discord core: {}", magic_enum::enum_name(result))
