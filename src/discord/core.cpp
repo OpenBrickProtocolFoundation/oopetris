@@ -124,10 +124,21 @@ void DiscordInstance::clear_activity(bool wait) {
         received_callback = true;
     });
 
+    using namespace std::chrono_literals;
+
     if (wait) {
+
+        constexpr auto max_waittime = 1s;
+
+        const auto start_time = std::chrono::steady_clock::now();
+
         while (not received_callback) {
             this->update();
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            std::this_thread::sleep_for(1ms);
+            const auto now = std::chrono::steady_clock::now();
+            if (now - start_time >= max_waittime) {
+                break;
+            }
         }
     }
 }
