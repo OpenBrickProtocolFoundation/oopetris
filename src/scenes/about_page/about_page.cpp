@@ -10,13 +10,13 @@
 #include "ui/layouts/tile_layout.hpp"
 
 #include <fmt/format.h>
-
+#include <fmt/ranges.h>
 namespace scenes {
 
     AboutPage::AboutPage(ServiceProvider* service_provider, const  ui::Layout& layout) : Scene{service_provider, layout}
 , m_main_grid{
     0,
-    3 + static_cast<u32>(authors.size()),
+    4 + static_cast<u32>(authors.size()),
     ui::Direction::Vertical,
     ui::RelativeMargin{ layout, ui::Direction::Vertical, 0.05 },
     std::pair<double, double>{ 0.05, 0.05 } ,
@@ -34,6 +34,12 @@ namespace scenes {
         m_main_grid.add<ui::Label>(
                 service_provider, fmt::format("Build for: {}", utils::built_for_platform()),
                 service_provider->fonts().get(FontId::Default), Color::white(), std::pair<double, double>{ 0.3, 0.5 },
+                ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
+        );
+
+        m_main_grid.add<ui::Label>(
+                service_provider, fmt::format("Features: {}", fmt::join(utils::supported_features(), ", ")),
+                service_provider->fonts().get(FontId::Default), Color::white(), std::pair<double, double>{ 0.95, 0.5 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
         );
 

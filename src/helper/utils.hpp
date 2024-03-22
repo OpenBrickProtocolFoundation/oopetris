@@ -10,6 +10,7 @@
 #include <filesystem>
 #include <string>
 #include <type_traits>
+#include <vector>
 
 namespace helper {
 
@@ -72,6 +73,9 @@ namespace utils {
     struct size_t_identity {
         //using type = T;
     };
+
+
+    [[nodiscard]] std::vector<std::string> supported_features();
 
 
 } // namespace utils

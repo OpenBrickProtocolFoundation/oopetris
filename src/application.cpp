@@ -3,11 +3,13 @@
 #include "platform/capabilities.hpp"
 #include "scenes/scene.hpp"
 
+#include <chrono>
 #include <ranges>
 
 #if defined(__SWITCH__)
 #include "switch.h"
 #endif
+
 
 Application::Application(
         int argc,
@@ -48,7 +50,6 @@ void Application::run() {
     const double count_per_s = static_cast<double>(SDL_GetPerformanceFrequency());
     u64 frame_counter = 0;
 #endif
-
     using namespace std::chrono_literals;
 
     const auto sleep_time = m_target_framerate.has_value() ? std::chrono::duration_cast<std::chrono::nanoseconds>(1s)
@@ -199,6 +200,14 @@ void Application::update() {
             break;
         }
     }
+
+#if defined(_HAVE_DISCORD_SDK)
+
+    if (m_discord_instance.has_value()) {
+        m_discord_instance->update();
+    }
+
+#endif
 }
 
 void Application::render() const {
@@ -212,6 +221,18 @@ void Application::render() const {
 }
 
 void Application::initialize() {
+
+#if defined(_HAVE_DISCORD_SDK)
+    auto discord_instance = DiscordInstance::initialize();
+    if (not discord_instance.has_value()) {
+        spdlog::warn("Error initializing the discord instance, it might not be running: {}", discord_instance.error());
+    } else {
+        m_discord_instance = std::move(discord_instance.value());
+        m_discord_instance->after_setup();
+    }
+
+#endif
+
     try_load_settings();
     load_resources();
     push_scene(scenes::create_scene(*this, SceneId::MainMenu, ui::FullScreenLayout{ m_window }));
@@ -251,3 +272,16 @@ void Application::load_resources() {
         m_font_manager.load(font_id, font_path, fonts_size);
     }
 }
+
+#if defined(_HAVE_DISCORD_SDK)
+
+[[nodiscard]] helper::optional<DiscordInstance>& Application::discord_instance() {
+    return m_discord_instance;
+}
+
+[[nodiscard]] const helper::optional<DiscordInstance>& Application::discord_instance() const {
+    return m_discord_instance;
+}
+
+
+#endif

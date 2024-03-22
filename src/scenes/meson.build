@@ -11,6 +11,6 @@ subdir('replay_game')
 subdir('settings_menu')
 subdir('single_player_game')
 
-if online_multiplayer_not_supported
+if online_multiplayer_supported
     subdir('online_lobby')
 endif

@@ -35,8 +35,13 @@ private:
     FontManager m_font_manager;
     helper::optional<u32> m_target_framerate;
 
+
 #ifdef DEBUG_BUILD
     std::unique_ptr<ui::Label> m_fps_text{ nullptr };
+#endif
+
+#if defined(_HAVE_DISCORD_SDK)
+    helper::optional<DiscordInstance> m_discord_instance{ helper::nullopt };
 #endif
 
 protected:
@@ -108,6 +113,16 @@ public:
     [[nodiscard]] Window& window() override {
         return m_window;
     }
+
+
+#if defined(_HAVE_DISCORD_SDK)
+
+    [[nodiscard]] helper::optional<DiscordInstance>& discord_instance() override;
+    [[nodiscard]] const helper::optional<DiscordInstance>& discord_instance() const override;
+
+
+#endif
+
 
 private:
     void initialize();

@@ -42,6 +42,19 @@ namespace scenes {
         }
 
 
+#if defined(_HAVE_DISCORD_SDK)
+        if (auto& discord_instance = service_provider->discord_instance(); discord_instance.has_value()) {
+
+            discord_instance->set_activity(
+                    DiscordActivityWrapper("Replaying a game", discord::ActivityType::Playing)
+                            .set_large_image("Playing OOPetris", constants::discord::ArtAsset::logo)
+                            .set_start_timestamp(std::chrono::system_clock::now())
+            );
+        }
+
+#endif
+
+
         m_service_provider->music_manager()
                 .load_and_play_music(
                         utils::get_assets_folder() / "music" / utils::get_supported_music_extension("02. Game Theme")

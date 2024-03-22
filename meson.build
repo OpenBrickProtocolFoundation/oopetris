@@ -15,7 +15,6 @@ project(
 )
 
 compile_args = []
-link_args = []
 deps = []
 recording_dependencies = []
 
@@ -47,8 +46,8 @@ elif cpp.get_id() == 'clang'
     endif
 
     if build_with_libcpp
-        compile_args += '-stdlib=libc++'
-        link_args += '-stdlib=libc++'
+        add_global_link_arguments('-stdlib=libc++', language:['cpp'])
+        add_global_arguments('-stdlib=libc++', language:['cpp'])
         deps += cpp.find_library('c++')
         deps += cpp.find_library('c++abi')
     endif
@@ -264,11 +263,11 @@ argparse_dep = dependency('argparse', required: true)
 recording_dependencies += argparse_dep
 deps += argparse_dep
 
-online_multiplayer_not_supported = true
+online_multiplayer_supported = true
 
 if meson.is_cross_build() and host_machine.system() == 'switch'
     compile_args += ['-D_ONLINE_MULTIPLAYER_NOT_SUPPORTED']
-    online_multiplayer_not_supported = false
+    online_multiplayer_supported = false
 else
     deps += dependency(
         'cpp-httplib',
@@ -326,6 +325,8 @@ endif
 is_flatpak_build = get_option('flatpak_build')
 
 have_file_dialogs = false
+have_discord_sdk = false
+
 
 nfde_dep = dependency(
     'nativefiledialog-extended',
@@ -338,6 +339,16 @@ if nfde_dep.found()
     compile_args += '-D_HAVE_FILE_DIALOGS'
 endif
 
+discord_sdk_dep = dependency(
+    'discord-game-sdk',
+    required: not meson.is_cross_build(),
+    default_options: {'clang_libcpp': 'disabled'},
+)
+if discord_sdk_dep.found()
+    have_discord_sdk = true
+    deps += discord_sdk_dep
+    compile_args += '-D_HAVE_DISCORD_SDK'
+endif
 
 
 src_files = []
@@ -567,7 +578,6 @@ else
         dependencies: deps,
         c_args: sdl2_mixer_defines,
         cpp_args: compile_args + sdl2_mixer_defines,
-        link_args: link_args,
         override_options: {
             'warning_level': '3',
             'werror': true,
@@ -580,8 +590,7 @@ else
         recording_src_files,
         dependencies: recording_dependencies,
         include_directories: recording_inc_dirs,
-        cpp_args: [compile_args, '-D_NO_SDL', '-D_NO_SPDLOG'],
-        link_args: link_args,
+        cpp_args: [compile_args, '-D_NO_SDL', '-D_NO_SPDLOG', '-D_OOPETRIS_RECORDING_UTILITY'],
         override_options: {
             'warning_level': '3',
             'werror': true,

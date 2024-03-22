@@ -15,6 +15,11 @@ subdir('scenes')
 subdir('ui')
 subdir('thirdparty')
 
-if online_multiplayer_not_supported
+if online_multiplayer_supported
     subdir('lobby')
+endif
+
+
+if have_discord_sdk
+    subdir('discord')
 endif
