@@ -1,5 +1,4 @@
 #include "application.hpp"
-#include "discord/core.hpp"
 #include "helper/sleep.hpp"
 #include "platform/capabilities.hpp"
 #include "scenes/scene.hpp"
@@ -10,6 +9,7 @@
 #if defined(__SWITCH__)
 #include "switch.h"
 #endif
+
 
 Application::Application(
         int argc,
