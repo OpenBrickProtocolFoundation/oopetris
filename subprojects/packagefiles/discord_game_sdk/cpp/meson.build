@@ -89,10 +89,30 @@ discord_lib_c = c.find_library(
 if discord_lib_c.found()
     lib_deps += discord_lib_c
 else
-    lib_deps += c.find_library(
-        'discord_game_sdk',
-        dirs: [meson.project_source_root() / lib_dir],
-    )
+
+    if host_machine.system() == 'windows'
+
+        discord_lib_c = c.find_library(
+            'discord_game_sdk',
+            dirs: [meson.project_source_root() / lib_dir],
+            required: false,
+        )
+
+        if discord_lib_c.found()
+            lib_deps += discord_lib_c
+        else
+            lib_deps += c.find_library(
+                'discord_game_sdk.dll',
+                dirs: [meson.project_source_root() / lib_dir],
+            )
+        endif
+    else
+        lib_deps += c.find_library(
+            'discord_game_sdk',
+            dirs: [meson.project_source_root() / lib_dir],
+        )
+
+    endif
 
     dynamic_lib_rename = dynamic_lib
 
@@ -113,7 +133,7 @@ else
 
         else
             message('discord game sdk has no SONAME')
-    
+
             patchelf = find_program('patchelf')
 
             #TODO: file issue to discord, to set SONAME 
@@ -126,7 +146,7 @@ else
             )
 
             run_command(
-                find_program('cp'),
+                'cp',
                 meson.project_source_root() / lib_dir / dynamic_lib,
                 meson.project_source_root() / lib_dir / dynamic_lib_rename,
                 check: true,
