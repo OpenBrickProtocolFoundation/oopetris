@@ -3,8 +3,8 @@
 #include "helper/sleep.hpp"
 #include "platform/capabilities.hpp"
 #include "scenes/scene.hpp"
-#include "types.h"
 
+#include <chrono>
 #include <ranges>
 
 #if defined(__SWITCH__)
@@ -50,25 +50,6 @@ void Application::run() {
     const double count_per_s = static_cast<double>(SDL_GetPerformanceFrequency());
     u64 frame_counter = 0;
 #endif
-
-
-#if defined(_HAVE_DISCORD_SDK)
-    auto discord_instance = DiscordInstance::initialize();
-    if (not discord_instance.has_value()) {
-        spdlog::warn("Error initializing the discord instance, it might not be running: {}", discord_instance.error());
-    } else {
-        m_discord_instance = std::move(discord_instance.value());
-        m_discord_instance->after_setup();
-
-        m_discord_instance->set_activity(
-                DiscordActivityWrapper("Selecting playmode", discord::ActivityType::Playing)
-                        .add_large_image("Playing OOPetris", constants::discord::ArtAsset::logo)
-        );
-    }
-
-#endif
-
-
     using namespace std::chrono_literals;
 
     const auto sleep_time = m_target_framerate.has_value() ? std::chrono::duration_cast<std::chrono::nanoseconds>(1s)
@@ -240,6 +221,18 @@ void Application::render() const {
 }
 
 void Application::initialize() {
+
+#if defined(_HAVE_DISCORD_SDK)
+    auto discord_instance = DiscordInstance::initialize();
+    if (not discord_instance.has_value()) {
+        spdlog::warn("Error initializing the discord instance, it might not be running: {}", discord_instance.error());
+    } else {
+        m_discord_instance = std::move(discord_instance.value());
+        m_discord_instance->after_setup();
+    }
+
+#endif
+
     try_load_settings();
     load_resources();
     push_scene(scenes::create_scene(*this, SceneId::MainMenu, ui::FullScreenLayout{ m_window }));

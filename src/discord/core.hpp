@@ -4,6 +4,7 @@
 
 #include "helper/expected.hpp"
 
+#include <chrono>
 #include <discord.h>
 #include <memory>
 #include <string>
@@ -46,9 +47,34 @@ public:
 
     DiscordActivityWrapper(const std::string& details, discord::ActivityType type);
 
-    DiscordActivityWrapper& add_large_image(const std::string& text, constants::discord::ArtAsset asset);
-    DiscordActivityWrapper& add_small_image(const std::string& text, constants::discord::ArtAsset asset);
+    DiscordActivityWrapper& set_large_image(const std::string& text, constants::discord::ArtAsset asset);
+    DiscordActivityWrapper& set_small_image(const std::string& text, constants::discord::ArtAsset asset);
     DiscordActivityWrapper& set_details(const std::string& text);
+
+    template<typename T>
+    DiscordActivityWrapper& set_start_timestamp(const std::chrono::time_point<T>& point) {
+
+        const auto seconds_since_epoch = static_cast<discord::Timestamp>(
+                std::chrono::duration_cast<std::chrono::seconds>(point.time_since_epoch()).count()
+        );
+
+        m_activity.GetTimestamps().SetStart(seconds_since_epoch);
+
+        return *this;
+    }
+
+    template<typename T>
+    DiscordActivityWrapper& set_end_timestamp(const std::chrono::time_point<T>& point) {
+
+        const auto seconds_since_epoch = static_cast<discord::Timestamp>(
+                std::chrono::duration_cast<std::chrono::seconds>(point.time_since_epoch()).count()
+        );
+
+        m_activity.GetTimestamps().SetEnd(seconds_since_epoch);
+
+        return *this;
+    }
+
 
     [[nodiscard]] const discord::Activity& get_raw() const;
 };

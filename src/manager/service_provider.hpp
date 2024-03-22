@@ -1,6 +1,6 @@
 #pragma once
 
-#if defined(_HAVE_DISCORD_SDK) && ! defined(_OOPETRIS_RECORDING_UTILITY)
+#if defined(_HAVE_DISCORD_SDK) && !defined(_OOPETRIS_RECORDING_UTILITY)
 
 #include "discord/core.hpp"
 #include "helper/optional.hpp"

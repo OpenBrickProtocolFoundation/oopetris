@@ -81,6 +81,20 @@ namespace scenes {
                 button_size, button_alignment, button_margins
         );
 
+
+#if defined(_HAVE_DISCORD_SDK)
+        if (auto& discord_instance = service_provider->discord_instance(); discord_instance.has_value()) {
+
+            discord_instance->set_activity(
+                    DiscordActivityWrapper("Selecting playmode", discord::ActivityType::Playing)
+                            .set_large_image("Playing OOPetris", constants::discord::ArtAsset::logo)
+                            .set_start_timestamp(std::chrono::system_clock::now())
+            );
+        }
+
+#endif
+
+
         service_provider->music_manager()
                 .load_and_play_music(
                         utils::get_assets_folder() / "music" / utils::get_supported_music_extension("01. Main Menu")

@@ -153,7 +153,7 @@ DiscordActivityWrapper::DiscordActivityWrapper(const std::string& details, disco
 
 
 DiscordActivityWrapper&
-DiscordActivityWrapper::add_large_image(const std::string& text, constants::discord::ArtAsset asset) {
+DiscordActivityWrapper::set_large_image(const std::string& text, constants::discord::ArtAsset asset) {
     m_activity.GetAssets().SetLargeText(text.c_str());
 
     const auto asset_key = constants::discord::get_asset_key(asset);
@@ -164,7 +164,7 @@ DiscordActivityWrapper::add_large_image(const std::string& text, constants::disc
 
 
 DiscordActivityWrapper&
-DiscordActivityWrapper::add_small_image(const std::string& text, constants::discord::ArtAsset asset) {
+DiscordActivityWrapper::set_small_image(const std::string& text, constants::discord::ArtAsset asset) {
     m_activity.GetAssets().SetSmallText(text.c_str());
 
     const auto asset_key = constants::discord::get_asset_key(asset);
