@@ -28,7 +28,30 @@ namespace constants::discord {
 #error "Unsupported platform"
 #endif
 
+    // manually synchronized to https://discord.com/developers/applications/1220147916371394650/rich-presence/assets
+    enum class ArtAsset { logo };
+
+    [[nodiscard]] std::string get_asset_key(ArtAsset asset);
+
+
 } // namespace constants::discord
+
+
+struct DiscordActivityWrapper {
+private:
+    discord::Activity m_activity{};
+
+public:
+    //TODO: Add support for party and invites / join / invitations / spectate
+
+    DiscordActivityWrapper(const std::string& details, discord::ActivityType type);
+
+    DiscordActivityWrapper& add_large_image(const std::string& text, constants::discord::ArtAsset asset);
+    DiscordActivityWrapper& add_small_image(const std::string& text, constants::discord::ArtAsset asset);
+    DiscordActivityWrapper& set_details(const std::string& text);
+
+    [[nodiscard]] const discord::Activity& get_raw() const;
+};
 
 struct DiscordInstance {
 private:
@@ -40,5 +63,16 @@ private:
 public:
     [[nodiscard]] static helper::expected<DiscordInstance, std::string> initialize();
 
+    void after_setup();
+
+    DiscordInstance(DiscordInstance&& old) noexcept;
+    DiscordInstance& operator=(DiscordInstance&& other) noexcept;
+
+    ~DiscordInstance();
+
     void update();
+    void set_activity(const DiscordActivityWrapper& activity);
+
+private:
+    void clear_activity(bool wait = true);
 };

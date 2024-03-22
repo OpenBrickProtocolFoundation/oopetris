@@ -1,7 +1,9 @@
 #include "application.hpp"
+#include "discord/core.hpp"
 #include "helper/sleep.hpp"
 #include "platform/capabilities.hpp"
 #include "scenes/scene.hpp"
+#include "types.h"
 
 #include <ranges>
 
@@ -56,6 +58,12 @@ void Application::run() {
         spdlog::warn("Error initializing the discord instance, it might not be running: {}", discord_instance.error());
     } else {
         m_discord_instance = std::move(discord_instance.value());
+        m_discord_instance->after_setup();
+
+        m_discord_instance->set_activity(
+                DiscordActivityWrapper("Selecting playmode", discord::ActivityType::Playing)
+                        .add_large_image("Playing OOPetris", constants::discord::ArtAsset::logo)
+        );
     }
 
 #endif
@@ -211,6 +219,14 @@ void Application::update() {
             break;
         }
     }
+
+#if defined(_HAVE_DISCORD_SDK)
+
+    if (m_discord_instance.has_value()) {
+        m_discord_instance->update();
+    }
+
+#endif
 }
 
 void Application::render() const {
