@@ -6,7 +6,9 @@
 
 #include <chrono>
 #ifdef _WIN32
+#ifndef NOMINMAX
 #define NOMINMAX
+#endif
 #endif
 
 #include <discord.h>
