@@ -4,6 +4,7 @@
 #include "sleep.hpp"
 
 #if defined(_MSC_VER)
+#define NOMINMAX
 #include <windows.h>
 #else
 #include <cerrno>

@@ -5,6 +5,10 @@
 #include "helper/expected.hpp"
 
 #include <chrono>
+#ifdef _WIN32
+#define NOMINMAX
+#endif
+
 #include <discord.h>
 #include <memory>
 #include <string>
