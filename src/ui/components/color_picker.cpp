@@ -26,6 +26,8 @@ detail::ColorSlider::ColorSlider(
                               is_top_level },
       m_texture{ service_provider->renderer().get_texture_for_render_target(bar_rect().to_dimension_point()) } {
 
+    change_layout();
+
     service_provider->renderer().set_render_target(m_texture);
 
     const auto w = bar_rect().width();

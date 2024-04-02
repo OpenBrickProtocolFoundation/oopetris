@@ -22,7 +22,9 @@ ui::Slider::Slider(
               { static_cast<u32>(size.first * layout.get_rect().width()),
                 static_cast<u32>(size.second * layout.get_rect().height()) },
               alignment
-      ) } { }
+      ) } {
+    change_layout();
+}
 
 
 [[nodiscard]] std::pair<shapes::URect, shapes::URect> ui::Slider::get_rectangles() const {
