@@ -30,15 +30,15 @@ namespace ui {
 
         [[nodiscard]] virtual std::pair<shapes::URect, shapes::URect> get_rectangles() const = 0;
 
+    protected:
         void change_layout() {
 
-            const auto& [bar_rect, slider_rect] = get_rectangles();
+            const auto& [bar_rect, slider_rect] = this->get_rectangles();
 
             m_bar_rect = bar_rect;
             m_slider_rect = slider_rect;
         }
 
-    protected:
         [[nodiscard]] const Range& range() const {
             return m_range;
         }
@@ -77,7 +77,6 @@ namespace ui {
               m_step{ step } {
             assert(m_range.first <= m_range.second && "Range has to be in correct order!");
             m_current_value = m_getter();
-            change_layout();
 
             // if on top. we give us focus automatically
             if (is_top_level) {
@@ -117,7 +116,7 @@ namespace ui {
             if (not handled and utils::device_supports_clicks()) {
 
                 const auto change_value_on_scroll = [&window, &event, this]() {
-                    const auto& [bar_rect, slider_rect] = get_rectangles();
+                    const auto& [bar_rect, slider_rect] = this->get_rectangles();
 
                     const auto& [x, _] = utils::get_raw_coordinates(window, event);
 
