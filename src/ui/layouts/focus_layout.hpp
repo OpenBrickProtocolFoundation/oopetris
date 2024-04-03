@@ -4,6 +4,8 @@
 #include "ui/focusable.hpp"
 #include "ui/widget.hpp"
 
+#include <fmt/format.h>
+
 namespace ui {
 
     struct FocusOptions final {
@@ -51,7 +53,10 @@ namespace ui {
         template<typename T>
         [[nodiscard]] bool is(const u32 index) {
             if (index >= m_widgets.size()) {
-                throw std::runtime_error("Invalid get of FocusLayout item: index out of bound!");
+                throw std::runtime_error{ fmt::format(
+                        "Invalid get of FocusLayout item: index out of bound: {} is not in range [{} - {})", index, 0,
+                        m_widgets.size()
+                ) };
             }
 
             auto item = dynamic_cast<T*>(m_widgets.at(index).get());
@@ -62,7 +67,10 @@ namespace ui {
         template<typename T>
         [[nodiscard]] T* get(const u32 index) {
             if (index >= m_widgets.size()) {
-                throw std::runtime_error("Invalid get of FocusLayout item: index out of bound!");
+                throw std::runtime_error{ fmt::format(
+                        "Invalid get of FocusLayout item: index out of bound: {} is not in range [{} - {})", index, 0,
+                        m_widgets.size()
+                ) };
             }
 
             auto item = dynamic_cast<T*>(m_widgets.at(index).get());

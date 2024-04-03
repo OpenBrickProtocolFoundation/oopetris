@@ -116,6 +116,7 @@ namespace scenes {
                             },
                             [this](const Action& action) {
                                 m_next_command = helper::nullopt;
+
                                 if (auto* settings_details = dynamic_cast<settings::SettingsDetails*>(action.widget);
                                     settings_details != nullptr) {
 
