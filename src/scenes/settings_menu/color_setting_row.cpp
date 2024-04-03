@@ -87,10 +87,9 @@ detail::ColorPickerScene::ColorPickerScene(
 
 [[nodiscard]] scenes::Scene::UpdateResult detail::ColorPickerScene::update() {
     if (m_should_exit) {
-        return UpdateResult{
-            scenes::SceneUpdate::StopUpdating,
-            Scene::Switch{SceneId::MainMenu, ui::RelativeLayout{ m_service_provider->window(), 0.1, 0.2, 0.8, 0.6 }}
-        };
+        if (m_should_exit) {
+            return UpdateResult{ scenes::SceneUpdate::StopUpdating, Scene::Pop{} };
+        }
     }
     return UpdateResult{ scenes::SceneUpdate::StopUpdating, helper::nullopt };
 }
@@ -160,11 +159,12 @@ custom_ui::ColorSettingRow::handle_event(const SDL_Event& event, const Window* w
 }
 
 [[nodiscard]] scenes::Scene::Change custom_ui::ColorSettingRow::get_details_scene() {
-    return scenes::Scene::RawSwitch{
-        "ColorPicker", std::make_unique<detail::ColorPickerScene>(
-                               m_service_provider, ui::FullScreenLayout{ m_service_provider->window() },
-                               color_rect()->color(), [this](const Color& color) { this->inner_callback(color); }
-                       )
+    return scenes::Scene::RawPush{
+        "ColorPicker",
+        std::make_unique<detail::ColorPickerScene>(
+                m_service_provider, ui::RelativeLayout{ m_service_provider->window(), 0.1, 0.2, 0.8, 0.6 },
+                color_rect()->color(), [this](const Color& color) { this->inner_callback(color); }
+        )
     };
 }
 
