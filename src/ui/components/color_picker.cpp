@@ -138,11 +138,11 @@ void detail::ColorCanvas::draw_pseudo_circle(const ServiceProvider& service_prov
     renderer.draw_self_computed_circle(center, diameter, circle_color);
 }
 
-helper::BoolWrapper<ui::EventHandleType>
+helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
 detail::ColorCanvas::handle_event(const SDL_Event& event, const Window* window) {
 
 
-    helper::BoolWrapper<ui::EventHandleType> handled = false;
+    Widget::EventHandleResult handled = false;
 
     const auto fill_rect = layout().get_rect();
 
@@ -153,7 +153,10 @@ detail::ColorCanvas::handle_event(const SDL_Event& event, const Window* window) 
 
                 m_is_dragging = true;
                 SDL_CaptureMouse(SDL_TRUE);
-                handled = { true, ui::EventHandleType::RequestFocus };
+                handled = {
+                    true,
+                    {ui::EventHandleType::RequestFocus, this}
+                };
             }
         } else if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::ButtonUp)) {
 
@@ -396,7 +399,8 @@ void ui::ColorPicker::render(const ServiceProvider& service_provider) const {
     UNUSED(service_provider);
 }
 
-helper::BoolWrapper<ui::EventHandleType> ui::ColorPicker::handle_event(const SDL_Event& event, const Window* window) {
+helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
+ui::ColorPicker::handle_event(const SDL_Event& event, const Window* window) {
     //TODO
     UNUSED(event);
     UNUSED(window);

@@ -87,20 +87,16 @@ namespace ui {
             return item;
         }
 
-
-        [[nodiscard]] helper::optional<u32> get_current_focused_index() const;
-
     private:
-        helper::BoolWrapper<ui::EventHandleType> handle_focus_change_button_events(const SDL_Event& event);
+        Widget::EventHandleResult handle_focus_change_button_events(const SDL_Event& event);
 
     protected:
         [[nodiscard]] virtual Layout get_layout_for_index(u32 index) = 0;
 
-        helper::BoolWrapper<ui::EventHandleType>
-        handle_focus_change_events(const SDL_Event& event, const Window* window);
+        Widget::EventHandleResult handle_focus_change_events(const SDL_Event& event, const Window* window);
 
-        [[nodiscard]] helper::optional<ui::EventHandleType>
-        handle_event_result(const helper::optional<ui::EventHandleType>& result, Widget* widget);
+        [[nodiscard]] helper::optional<ui::Widget::InnerState>
+        handle_event_result(const helper::optional<ui::Widget::InnerState>& result, Widget* widget);
 
         [[nodiscard]] u32 focusable_index_by_id(u32 id) const;
 

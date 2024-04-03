@@ -97,7 +97,7 @@ void ui::TextInput::render(const ServiceProvider& service_provider) const {
     }
 }
 
-helper::BoolWrapper<ui::EventHandleType>
+helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
 ui::TextInput::handle_event( // NOLINT(readability-function-cognitive-complexity)
         const SDL_Event& event,
         const Window* window
@@ -106,8 +106,10 @@ ui::TextInput::handle_event( // NOLINT(readability-function-cognitive-complexity
     //TODO: if already has focus, position cursor there, where we clicked
     if (const auto hover_result = detect_hover(event, window); hover_result) {
         if (hover_result.is(ActionType::Clicked)) {
-            return { true, EventHandleType::RequestFocus };
-            return true;
+            return {
+                true,
+                {EventHandleType::RequestFocus, this}
+            };
         }
 
         return true;
@@ -118,7 +120,10 @@ ui::TextInput::handle_event( // NOLINT(readability-function-cognitive-complexity
             switch (event.key.keysym.sym) {
                 case SDLK_RETURN: {
                     on_unfocus();
-                    return { true, EventHandleType::RequestUnFocus };
+                    return {
+                        true,
+                        {EventHandleType::RequestUnFocus, this}
+                    };
                 }
                 case SDLK_BACKSPACE: {
                     const auto remove_all = (event.key.keysym.mod & KMOD_CTRL) != 0;

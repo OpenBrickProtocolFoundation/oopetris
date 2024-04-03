@@ -90,10 +90,10 @@ namespace ui {
         }
 
 
-        helper::BoolWrapper<ui::EventHandleType>
+        Widget::EventHandleResult
         handle_event(const SDL_Event& event, const Window* window) // NOLINT(readability-function-cognitive-complexity)
                 override {
-            helper::BoolWrapper<ui::EventHandleType> handled = false;
+            Widget::EventHandleResult handled = false;
 
             if (utils::device_supports_keys() and has_focus()) {
                 if (utils::event_is_action(event, utils::CrossPlatformAction::RIGHT)) {
@@ -140,12 +140,18 @@ namespace ui {
                         change_value_on_scroll();
                         m_is_dragging = true;
                         SDL_CaptureMouse(SDL_TRUE);
-                        handled = { true, ui::EventHandleType::RequestFocus };
+                        handled = {
+                            true,
+                            {ui::EventHandleType::RequestFocus, this}
+                        };
 
                     } else if (utils::is_event_in(window, event, m_slider_rect)) {
                         m_is_dragging = true;
                         SDL_CaptureMouse(SDL_TRUE);
-                        handled = { true, ui::EventHandleType::RequestFocus };
+                        handled = {
+                            true,
+                            {ui::EventHandleType::RequestFocus, this}
+                        };
                     }
 
                 } else if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::ButtonUp)) {

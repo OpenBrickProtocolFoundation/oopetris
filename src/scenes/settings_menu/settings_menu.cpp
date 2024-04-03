@@ -14,6 +14,8 @@
 
 namespace scenes {
 
+    using namespace details::settings::menu;
+
     SettingsMenu::SettingsMenu(ServiceProvider* service_provider, const  ui::Layout& layout) : Scene{service_provider, layout}
     , m_main_layout{    utils::size_t_identity<3>(),
     0,
@@ -23,7 +25,7 @@ namespace scenes {
                     std::pair<double, double>{ 0.05, 0.03 },
                     layout
     },
-    m_colors{"#FF33FF"_c,"hsv(120, 0.07, 0.93)"_c,"hsv(140, 0.07, 0.93)"_c,"rgb(246, 255, 61)"_c,}
+    m_colors{"#FF33FF"_c, "hsv(120, 0.07, 0.93)"_c, "hsv(140, 0.07, 0.93)"_c, "rgb(246, 255, 61)"_c}
 {
         auto focus_helper = ui::FocusHelper{ 1 };
 
@@ -93,7 +95,7 @@ namespace scenes {
                 service_provider, "Return", service_provider->fonts().get(FontId::Default), Color::white(),
                 focus_helper.focus_id(),
                 [this](const ui::TextButton&) -> bool {
-                    m_next_command = Command::Return;
+                    m_next_command = Command{ Return{} };
                     return false;
                 },
                 std::pair<double, double>{ 0.15, 0.85 },
@@ -105,37 +107,28 @@ namespace scenes {
     [[nodiscard]] Scene::UpdateResult SettingsMenu::update() {
         m_main_layout.update();
 
-
         if (m_next_command.has_value()) {
-            switch (m_next_command.value()) {
-                case Command::Action: {
-                    m_next_command = helper::nullopt;
-                    auto* scroll_layout = m_main_layout.get<ui::ScrollLayout>(1);
-                    auto focused_element_index = scroll_layout->get_current_focused_index();
-                    //  we could have no focused element
+            return std::visit(
+                    helper::overloaded{
+                            [this](const Return&) {
+                                m_service_provider->music_manager().remove_volume_listener(listener_name);
+                                return UpdateResult{ SceneUpdate::StopUpdating, Scene::Pop{} };
+                            },
+                            [this](const Action& action) {
+                                m_next_command = helper::nullopt;
+                                if (auto* settings_details = dynamic_cast<settings::SettingsDetails*>(action.widget);
+                                    settings_details != nullptr) {
 
-                    if (not focused_element_index.has_value()) {
-                        return UpdateResult{ SceneUpdate::StopUpdating, helper::nullopt };
-                    }
+                                    auto change_scene = settings_details->get_details_scene();
 
-                    if (scroll_layout->is<settings::SettingsDetails>(focused_element_index.value())) {
+                                    return UpdateResult{ SceneUpdate::StopUpdating, std::move(change_scene) };
+                                }
 
-                        auto* focused_element =
-                                scroll_layout->get<settings::SettingsDetails>(focused_element_index.value());
 
-                        auto change_scene = focused_element->get_details_scene();
-
-                        return UpdateResult{ SceneUpdate::StopUpdating, std::move(change_scene) };
-                    }
-
-                    throw std::runtime_error("Requested action on unknown widget, this is a fatal error");
-                }
-                case Command::Return:
-                    m_service_provider->music_manager().remove_volume_listener(listener_name);
-                    return UpdateResult{ SceneUpdate::StopUpdating, Scene::Pop{} };
-                default:
-                    utils::unreachable();
-            }
+                                throw std::runtime_error("Requested action on unknown widget, this is a fatal error");
+                            } },
+                    m_next_command.value().m_value
+            );
         }
 
         return UpdateResult{ SceneUpdate::StopUpdating, helper::nullopt };
@@ -156,22 +149,22 @@ namespace scenes {
     bool SettingsMenu::handle_event(const SDL_Event& event, const Window* window) {
         if (const auto event_result = m_main_layout.handle_event(event, window); event_result) {
             if (const auto additional = event_result.get_additional();
-                additional.has_value() and additional.value() == ui::EventHandleType::RequestAction) {
-                m_next_command = Command::Action;
+                additional.has_value() and additional.value().first == ui::EventHandleType::RequestAction) {
+                m_next_command = Command{ Action(additional.value().second) };
             }
 
             return true;
         }
 
         if (utils::event_is_action(event, utils::CrossPlatformAction::CLOSE)) {
-            m_next_command = Command::Return;
+            m_next_command = Command{ Return{} };
             return true;
         }
 
         if (utils::device_supports_keys()) {
 
             if (utils::event_is_action(event, utils::CrossPlatformAction::OPEN_SETTINGS)) {
-                m_next_command = Command::Return;
+                m_next_command = Command{ Return{} };
                 return true;
             }
         }

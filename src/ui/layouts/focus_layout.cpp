@@ -28,18 +28,9 @@ void ui::FocusLayout::update() {
     return static_cast<u32>(m_widgets.size());
 }
 
+ui::Widget::EventHandleResult ui::FocusLayout::handle_focus_change_button_events(const SDL_Event& event) {
 
-[[nodiscard]] helper::optional<u32> ui::FocusLayout::get_current_focused_index() const {
-    if (not m_focus_id.has_value()) {
-        return helper::nullopt;
-    }
-
-    return focusable_index_by_id(m_focus_id.value());
-}
-
-helper::BoolWrapper<ui::EventHandleType> ui::FocusLayout::handle_focus_change_button_events(const SDL_Event& event) {
-
-    helper::BoolWrapper<ui::EventHandleType> handled = false;
+    Widget::EventHandleResult handled = false;
 
     if (utils::device_supports_keys()) {
         if (utils::event_is_action(event, utils::CrossPlatformAction::DOWN)
@@ -54,7 +45,7 @@ helper::BoolWrapper<ui::EventHandleType> ui::FocusLayout::handle_focus_change_bu
 }
 
 
-helper::BoolWrapper<ui::EventHandleType>
+ui::Widget::EventHandleResult
 ui::FocusLayout::handle_focus_change_events(const SDL_Event& event, const Window* window) {
 
 
@@ -62,7 +53,7 @@ ui::FocusLayout::handle_focus_change_events(const SDL_Event& event, const Window
         return false;
     }
 
-    helper::BoolWrapper<ui::EventHandleType> handled = false;
+    Widget::EventHandleResult handled = false;
 
 
     if (m_focus_id.has_value()) {
@@ -92,9 +83,9 @@ ui::FocusLayout::handle_focus_change_events(const SDL_Event& event, const Window
     return handled;
 }
 
-[[nodiscard]] helper::optional<ui::EventHandleType>
+[[nodiscard]] helper::optional<ui::Widget::InnerState>
 ui::FocusLayout::handle_event_result( // NOLINT(readability-function-cognitive-complexity)
-        const helper::optional<ui::EventHandleType>& result,
+        const helper::optional<ui::Widget::InnerState>& result,
         Widget* widget
 ) {
 
@@ -102,7 +93,9 @@ ui::FocusLayout::handle_event_result( // NOLINT(readability-function-cognitive-c
         return helper::nullopt;
     }
 
-    switch (result.value()) {
+    auto value = result.value();
+
+    switch (value.first) {
         case ui::EventHandleType::RequestFocus: {
             const auto focusable = as_focusable(widget);
             if (not focusable.has_value()) {
@@ -127,7 +120,7 @@ ui::FocusLayout::handle_event_result( // NOLINT(readability-function-cognitive-c
 
             // if the layout itself has not focus, it needs focus itself too
             if (not has_focus()) {
-                return ui::EventHandleType::RequestFocus;
+                return ui::Widget::InnerState{ ui::EventHandleType::RequestFocus, value.second };
             }
 
 
@@ -158,12 +151,12 @@ ui::FocusLayout::handle_event_result( // NOLINT(readability-function-cognitive-c
             const auto test_forward = try_set_next_focus(FocusChangeDirection::Forward);
             if (not test_forward) {
                 if (m_options.wrap_around) {
-                    return ui::EventHandleType::RequestUnFocus;
+                    return ui::Widget::InnerState{ ui::EventHandleType::RequestUnFocus, value.second };
                 }
 
                 const auto test_backwards = try_set_next_focus(FocusChangeDirection::Backward);
                 if (not test_backwards) {
-                    return ui::EventHandleType::RequestUnFocus;
+                    return ui::Widget::InnerState{ ui::EventHandleType::RequestUnFocus, value.second };
                 }
             }
 
@@ -171,7 +164,7 @@ ui::FocusLayout::handle_event_result( // NOLINT(readability-function-cognitive-c
         }
         case ui::EventHandleType::RequestAction: {
             // just forward it
-            return ui::EventHandleType::RequestAction;
+            return ui::Widget::InnerState{ ui::EventHandleType::RequestAction, value.second };
         }
         default:
             std::unreachable();

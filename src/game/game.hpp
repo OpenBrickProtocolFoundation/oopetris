@@ -27,7 +27,7 @@ public:
 
     void update() override;
     void render(const ServiceProvider& service_provider) const override;
-    [[nodiscard]] helper::BoolWrapper<ui::EventHandleType> handle_event(const SDL_Event& event, const Window* window)
+    [[nodiscard]] Widget::EventHandleResult handle_event(const SDL_Event& event, const Window* window)
             override;
 
     void set_paused(bool paused);
