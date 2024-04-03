@@ -88,8 +88,7 @@ public:
             bool is_top_level);
     void update_step(SimulationStep simulation_step_index);
     void render(const ServiceProvider& service_provider) const override;
-    [[nodiscard]] Widget::EventHandleResult handle_event(const SDL_Event& event, const Window* window)
-            override;
+    [[nodiscard]] Widget::EventHandleResult handle_event(const SDL_Event& event, const Window* window) override;
 
     // returns if the input event lead to a movement
     bool handle_input_command(InputCommand command, SimulationStep simulation_step_index);

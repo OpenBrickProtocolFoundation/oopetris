@@ -106,8 +106,7 @@ void ui::ScrollLayout::render(const ServiceProvider& service_provider) const {
     }
 }
 
-ui::Widget::EventHandleResult
-ui::ScrollLayout::handle_event( // NOLINT(readability-function-cognitive-complexity)
+ui::Widget::EventHandleResult ui::ScrollLayout::handle_event( // NOLINT(readability-function-cognitive-complexity)
         const SDL_Event& event,
         const Window* window
 ) {
