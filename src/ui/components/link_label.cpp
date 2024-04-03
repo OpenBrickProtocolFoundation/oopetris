@@ -55,7 +55,8 @@ void ui::LinkLabel::render(const ServiceProvider& service_provider) const {
     }
 }
 
-helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>> ui::LinkLabel::handle_event(const SDL_Event& event, const Window* window) {
+helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
+ui::LinkLabel::handle_event(const SDL_Event& event, const Window* window) {
     if (const auto hover_result = detect_hover(event, window); hover_result) {
         if (hover_result.is(ActionType::Clicked)) {
             on_clicked();

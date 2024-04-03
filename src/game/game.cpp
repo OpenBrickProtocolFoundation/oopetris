@@ -59,7 +59,8 @@ void Game::render(const ServiceProvider& service_provider) const {
     m_tetrion->render(service_provider);
 }
 
-[[nodiscard]] helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>> Game::handle_event(const SDL_Event&, const Window*) {
+[[nodiscard]] helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
+Game::handle_event(const SDL_Event&, const Window*) {
     return false;
 }
 

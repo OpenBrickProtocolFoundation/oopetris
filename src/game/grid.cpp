@@ -41,7 +41,8 @@ void Grid::render(const ServiceProvider& service_provider) const {
     draw_playing_field_background(service_provider);
 }
 
-[[nodiscard]] helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>> Grid::handle_event(const SDL_Event&, const Window*) {
+[[nodiscard]] helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
+Grid::handle_event(const SDL_Event&, const Window*) {
     return false;
 }
 
