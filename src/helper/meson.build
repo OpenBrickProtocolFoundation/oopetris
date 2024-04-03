@@ -9,6 +9,8 @@ src_files += files(
     'constants.hpp',
     'date.cpp',
     'date.hpp',
+    'errors.cpp',
+    'errors.hpp',
     'expected.hpp',
     'git_helper.hpp',
     'magic_enum_wrapper.hpp',
