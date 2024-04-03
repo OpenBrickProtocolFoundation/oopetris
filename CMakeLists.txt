@@ -60,9 +60,11 @@ add_executable(oopetris
     src/helper/command_line_arguments.hpp
     src/helper/constants.hpp
     src/helper/date.cpp
+    src/helper/errors.cpp
     src/helper/expected.hpp
     src/helper/git_helper.hpp
     src/helper/magic_enum_wrapper.hpp
+    src/helper/message_box.cpp
     src/helper/optional.hpp
     src/helper/parse_json.cpp
     src/helper/parse_json.hpp
@@ -120,12 +122,14 @@ add_executable(oopetris
     src/scenes/scene_id.hpp
     src/scenes/scene.cpp
     src/scenes/scene.hpp
+    src/scenes/settings_menu/color_setting_row.cpp
     src/scenes/settings_menu/settings_menu.cpp
     src/scenes/settings_menu/settings_menu.hpp
     src/scenes/single_player_game/single_player_game.cpp
     src/scenes/single_player_game/single_player_game.hpp
     src/thirdparty/hash-library/sha256.cpp
-    src/ui/components/button.hpp
+    src/ui/components/color_picker.cpp
+    src/ui/components/image_button.cpp
     src/ui/components/image_view.cpp
     src/ui/components/image_view.hpp
     src/ui/components/label.cpp
@@ -134,6 +138,7 @@ add_executable(oopetris
     src/ui/components/link_label.hpp
     src/ui/components/slider.cpp
     src/ui/components/slider.hpp
+    src/ui/components/text_button.cpp
     src/ui/components/text_button.cpp
     src/ui/components/textinput.cpp
     src/ui/components/textinput.hpp
