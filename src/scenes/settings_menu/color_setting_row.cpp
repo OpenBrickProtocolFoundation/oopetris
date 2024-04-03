@@ -47,17 +47,23 @@ void detail::ColorSettingRectangle::render(const ServiceProvider& service_provid
     //TODO: maybe use a dynamic color, to have some contrast?
     service_provider.renderer().draw_rect_outline(m_fill_rect, Color::white());
 }
-helper::BoolWrapper<ui::EventHandleType>
+helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
 detail::ColorSettingRectangle::handle_event(const SDL_Event& event, const Window* window) {
     if (utils::device_supports_keys()) {
         if (has_focus() and utils::event_is_action(event, utils::CrossPlatformAction::OK)) {
-            return { true, ui::EventHandleType::RequestAction };
+            return {
+                true,
+                {ui::EventHandleType::RequestAction, this}
+            };
         }
     }
 
     if (const auto hover_result = detect_hover(event, window); hover_result) {
         if (hover_result.is(ui::ActionType::Clicked)) {
-            return { true, ui::EventHandleType::RequestAction };
+            return {
+                true,
+                {ui::EventHandleType::RequestAction, this}
+            };
         }
         return true;
     }
@@ -132,12 +138,11 @@ custom_ui::ColorSettingRow::ColorSettingRow(
     );
 }
 
-
 void custom_ui::ColorSettingRow::render(const ServiceProvider& service_provider) const {
     m_main_layout.render(service_provider);
 }
 
-helper::BoolWrapper<ui::EventHandleType>
+helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
 custom_ui::ColorSettingRow::handle_event(const SDL_Event& event, const Window* window) {
     return m_main_layout.handle_event(event, window);
 }

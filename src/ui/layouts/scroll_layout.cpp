@@ -106,13 +106,13 @@ void ui::ScrollLayout::render(const ServiceProvider& service_provider) const {
     }
 }
 
-helper::BoolWrapper<ui::EventHandleType>
+ui::Widget::EventHandleResult
 ui::ScrollLayout::handle_event( // NOLINT(readability-function-cognitive-complexity)
         const SDL_Event& event,
         const Window* window
 ) {
 
-    helper::BoolWrapper<ui::EventHandleType> handled = handle_focus_change_events(event, window);
+    Widget::EventHandleResult handled = handle_focus_change_events(event, window);
 
     if (handled) {
         auto_move_after_focus_change();

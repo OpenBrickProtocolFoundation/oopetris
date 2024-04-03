@@ -8,6 +8,8 @@
 #include "ui/layout.hpp"
 
 #include <SDL.h>
+#include <utility>
+
 namespace ui {
 
     enum class EventHandleType : u8 { RequestFocus, RequestUnFocus, RequestAction };
@@ -21,6 +23,9 @@ namespace ui {
         bool m_top_level;
 
     public:
+        using InnerState = std::pair<ui::EventHandleType, Widget*>;
+        using EventHandleResult = helper::BoolWrapper<InnerState>;
+
         explicit Widget(const Layout& layout, WidgetType type, bool is_top_level)
             : m_layout{ layout },
               m_type{ type },
@@ -50,8 +55,7 @@ namespace ui {
             // do nothing
         }
         virtual void render(const ServiceProvider& service_provider) const = 0;
-        [[nodiscard]] virtual helper::BoolWrapper<ui::EventHandleType>
-        handle_event(const SDL_Event& event, const Window* window) = 0;
+        [[nodiscard]] virtual EventHandleResult handle_event(const SDL_Event& event, const Window* window) = 0;
     };
 
     [[nodiscard]] helper::optional<Focusable*> as_focusable(Widget* widget);

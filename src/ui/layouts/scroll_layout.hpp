@@ -65,7 +65,7 @@ namespace ui {
 
         void render(const ServiceProvider& service_provider) const override;
 
-        helper::BoolWrapper<ui::EventHandleType>
+        Widget::EventHandleResult
         handle_event(const SDL_Event& event, const Window* window) // NOLINT(readability-function-cognitive-complexity)
                 override;
         //TODO: with some template paramater and magic make this an option in the base class, so that only get_layout_for_new needs to be overwritten!

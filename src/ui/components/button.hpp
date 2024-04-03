@@ -82,7 +82,8 @@ namespace ui {
             m_content.render(service_provider);
         }
 
-        helper::BoolWrapper<ui::EventHandleType> handle_event(const SDL_Event& event, const Window* window) override {
+        Widget::EventHandleResult
+        handle_event(const SDL_Event& event, const Window* window) override {
             if (not m_enabled) {
                 return false;
             }
@@ -91,7 +92,10 @@ namespace ui {
                 if (has_focus() and utils::event_is_action(event, utils::CrossPlatformAction::OK)) {
                     spdlog::info("Button pressed");
                     if (on_clicked()) {
-                        return { true, ui::EventHandleType::RequestAction };
+                        return {
+                            true,
+                            {ui::EventHandleType::RequestAction, this}
+                        };
                     }
                     return true;
                 }
@@ -100,7 +104,10 @@ namespace ui {
             if (const auto hover_result = detect_hover(event, window); hover_result) {
                 if (hover_result.is(ActionType::Clicked)) {
                     if (on_clicked()) {
-                        return { true, ui::EventHandleType::RequestAction };
+                        return {
+                            true,
+                            {ui::EventHandleType::RequestAction, this}
+                        };
                     }
                 }
                 return true;

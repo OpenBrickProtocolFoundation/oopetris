@@ -20,6 +20,8 @@
 
 namespace scenes {
 
+    using namespace details::recording::selector;
+
     RecordingSelector::RecordingSelector(ServiceProvider* service_provider, const ui::Layout& layout)
         : Scene{ service_provider, layout },
           m_main_layout{ 
@@ -60,7 +62,7 @@ namespace scenes {
                 service_provider, "Return", service_provider->fonts().get(FontId::Default), Color::white(),
                 focus_helper.focus_id(),
                 [this](const ui::TextButton&) -> bool {
-                    m_next_command = Command::Return;
+                    m_next_command = Command{ Return{} };
                     return false;
                 },
                 button_size, button_alignment, button_margins
@@ -71,56 +73,49 @@ namespace scenes {
         m_main_layout.update();
 
         if (m_next_command.has_value()) {
-            switch (m_next_command.value()) {
-                case Command::Action: {
-                    m_next_command = helper::nullopt;
-                    auto* scroll_layout = m_main_layout.get<ui::ScrollLayout>(1);
-                    auto focused_element_index = scroll_layout->get_current_focused_index();
-                    //  we could have no focused element
-                    // this branch is never taken, if we have another widget then "custom_ui::RecordingComponent" at the focus, since only that requests action and trigger the play command
-                    if (not focused_element_index.has_value()) {
-                        return UpdateResult{ SceneUpdate::StopUpdating, helper::nullopt };
-                    }
+            return std::visit(
+                    helper::overloaded{
+                            [](const Return&) {
+                                return UpdateResult{ SceneUpdate::StopUpdating, Scene::Pop{} };
+                            },
+                            [this](const Action& action) {
+                                m_next_command = helper::nullopt;
 
-                    if (scroll_layout->is<custom_ui::RecordingComponent>(focused_element_index.value())) {
+                                if (auto* recording_component =
+                                            dynamic_cast<custom_ui::RecordingComponent*>(action.widget);
+                                    recording_component != nullptr) {
 
-                        const auto* focused_element =
-                                scroll_layout->get<custom_ui::RecordingComponent>(focused_element_index.value());
+                                    const auto recording_path = recording_component->metadata().path;
 
-                        const auto recording_path = focused_element->metadata().path;
-
-                        return UpdateResult{
-                            SceneUpdate::StopUpdating,
-                            Scene::RawSwitch{"ReplayGame",
-                                             std::make_unique<ReplayGame>(
-                                             m_service_provider, ui::FullScreenLayout{ m_service_provider->window() },
-                                             recording_path
-                                             )}
-                        };
-                    }
+                                    return UpdateResult{
+                                        SceneUpdate::StopUpdating,
+                                        Scene::RawSwitch{"ReplayGame",
+                                                         std::make_unique<ReplayGame>(
+                                                         m_service_provider, ui::FullScreenLayout{ m_service_provider->window() },
+                                                         recording_path
+                                                         )}
+                                    };
+                                }
 #if defined(_HAVE_FILE_DIALOGS)
-                    if (scroll_layout->is<custom_ui::RecordingFileChooser>(focused_element_index.value())) {
 
-                        const auto* focused_element =
-                                scroll_layout->get<custom_ui::RecordingFileChooser>(focused_element_index.value());
+                                if (auto* recording_file_chooser =
+                                            dynamic_cast<custom_ui::RecordingFileChooser*>(action.widget);
+                                    recording_file_chooser != nullptr) {
 
-                        for (const auto& path : focused_element->get_currently_chosen_files()) {
-                            m_chosen_paths.push_back(path);
-                        }
+                                    for (const auto& path : recording_file_chooser->get_currently_chosen_files()) {
+                                        m_chosen_paths.push_back(path);
+                                    }
 
-                        add_all_recordings();
+                                    add_all_recordings();
 
-                        return UpdateResult{ SceneUpdate::StopUpdating, helper::nullopt };
-                    }
+                                    return UpdateResult{ SceneUpdate::StopUpdating, helper::nullopt };
+                                }
 
 #endif
-                    throw std::runtime_error("Requested action on unknown widget, this is a fatal error");
-                }
-                case Command::Return:
-                    return UpdateResult{ SceneUpdate::StopUpdating, Scene::Pop{} };
-                default:
-                    utils::unreachable();
-            }
+                                throw std::runtime_error("Requested action on unknown widget, this is a fatal error");
+                            } },
+                    m_next_command.value().m_value
+            );
         }
 
         return UpdateResult{ SceneUpdate::StopUpdating, helper::nullopt };
@@ -138,15 +133,15 @@ namespace scenes {
 
         if (const auto event_result = m_main_layout.handle_event(event, window); event_result) {
             if (const auto additional = event_result.get_additional();
-                additional.has_value() and additional.value() == ui::EventHandleType::RequestAction) {
-                m_next_command = Command::Action;
+                additional.has_value() and additional.value().first == ui::EventHandleType::RequestAction) {
+                m_next_command = Command{ Action(additional.value().second) };
             }
 
             return true;
         }
 
         if (utils::event_is_action(event, utils::CrossPlatformAction::CLOSE)) {
-            m_next_command = Command::Return;
+            m_next_command = Command{ Return{} };
             return true;
         }
         return false;

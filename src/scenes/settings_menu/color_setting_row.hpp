@@ -36,7 +36,7 @@ namespace detail {
 
         void render(const ServiceProvider& service_provider) const override;
 
-        helper::BoolWrapper<ui::EventHandleType> handle_event(const SDL_Event& event, const Window* window) override;
+        Widget::EventHandleResult handle_event(const SDL_Event& event, const Window* window) override;
     };
 
 
@@ -92,7 +92,7 @@ namespace custom_ui {
 
         void render(const ServiceProvider& service_provider) const override;
 
-        helper::BoolWrapper<ui::EventHandleType> handle_event(const SDL_Event& event, const Window* window) override;
+        Widget::EventHandleResult handle_event(const SDL_Event& event, const Window* window) override;
 
         [[nodiscard]] scenes::Scene::Change get_details_scene() override;
 

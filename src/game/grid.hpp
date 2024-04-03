@@ -28,8 +28,8 @@ public:
     [[nodiscard]] double scale_to_original() const;
     [[nodiscard]] shapes::UPoint to_screen_coords(GridPoint grid_coords) const;
     void render(const ServiceProvider& service_provider) const override;
-    [[nodiscard]] helper::BoolWrapper<ui::EventHandleType> handle_event(const SDL_Event& event, const Window* window)
-            override;
+    [[nodiscard]] helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
+    handle_event(const SDL_Event& event, const Window* window) override;
 
 private:
     void draw_preview_background(const ServiceProvider& service_provider) const;

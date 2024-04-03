@@ -8,12 +8,12 @@ void ui::TileLayout::render(const ServiceProvider& service_provider) const {
     }
 }
 
-helper::BoolWrapper<ui::EventHandleType> ui::TileLayout::handle_event(
+ui::Widget::EventHandleResult ui::TileLayout::handle_event(
         const SDL_Event& event,
         const Window* window
 ) // NOLINT(readability-function-cognitive-complexity)
 {
-    helper::BoolWrapper<ui::EventHandleType> handled = handle_focus_change_events(event, window);
+    Widget::EventHandleResult handled = handle_focus_change_events(event, window);
 
     if (handled) {
         return handled;

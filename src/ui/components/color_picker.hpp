@@ -60,7 +60,7 @@ namespace detail {
 
         void render(const ServiceProvider& service_provider) const override;
 
-        helper::BoolWrapper<ui::EventHandleType> handle_event(const SDL_Event& event, const Window* window) override;
+        Widget::EventHandleResult handle_event(const SDL_Event& event, const Window* window) override;
 
         void on_change(const Color& color);
 
@@ -117,7 +117,7 @@ namespace ui {
 
         void render(const ServiceProvider& service_provider) const override;
 
-        helper::BoolWrapper<ui::EventHandleType> handle_event(const SDL_Event& event, const Window* window) override;
+        Widget::EventHandleResult handle_event(const SDL_Event& event, const Window* window) override;
 
         [[nodiscard]] Color get_color() const;
 
