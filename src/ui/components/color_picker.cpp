@@ -140,8 +140,6 @@ void detail::ColorCanvas::draw_pseudo_circle(const ServiceProvider& service_prov
 
 helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
 detail::ColorCanvas::handle_event(const SDL_Event& event, const Window* window) {
-
-
     Widget::EventHandleResult handled = false;
 
     const auto fill_rect = layout().get_rect();
@@ -395,16 +393,33 @@ ui::ColorPicker::ColorPicker(
                    is_top_level } { }
 
 void ui::ColorPicker::render(const ServiceProvider& service_provider) const {
-    //TODO
-    UNUSED(service_provider);
+    const auto& renderer = service_provider.renderer();
+
+    m_color_canvas->render(service_provider);
+
+    renderer.draw_rect_filled(m_color_preview, m_color);
+
+    m_color_slider->render(service_provider);
+
+    if (m_mode == ColorMode::HSV) {
+        m_hsv_button->render(service_provider);
+    } else {
+        m_rgb_button->render(service_provider);
+    }
+
+    m_color_text->render(service_provider);
 }
 
 helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
 ui::ColorPicker::handle_event(const SDL_Event& event, const Window* window) {
-    //TODO
-    UNUSED(event);
-    UNUSED(window);
-    return false;
+
+    auto handled = m_color_slider->handle_event(event, window);
+
+    if (handled) {
+        return handled;
+    }
+
+    return m_color_canvas->handle_event(event, window);
 }
 
 void ui::ColorPicker::after_color_change(ColorChangeType type) {
