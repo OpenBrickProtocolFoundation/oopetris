@@ -9,9 +9,9 @@
 #endif
 
 #include <algorithm>
+#include <fmt/format.h>
 #include <ostream>
 #include <string>
-
 
 struct HSVColor {
     double h;
@@ -27,21 +27,21 @@ struct HSVColor {
 
         if (utils::is_constant_evaluated()) {
 
-            CONSTEVAL_STATIC_ASSERT(h >= 0.0 && h <= 360, "h has to be in range 0.0 - 360.0");
+            CONSTEVAL_STATIC_ASSERT(h >= 0.0 && h <= 360.0, "h has to be in range 0.0 - 360.0");
             CONSTEVAL_STATIC_ASSERT(s >= 0.0 && s <= 1.0, "s has to be in range 0.0 - 1.0");
             CONSTEVAL_STATIC_ASSERT(v >= 0.0 && v <= 1.0, "v has to be in range 0.0 - 1.0");
 
         } else {
 
             if (h < 0.0 || h > 360.0) {
-                throw std::runtime_error{ "h has to be in range 0.0 - 360.0" };
+                throw std::runtime_error{ fmt::format("h has to be in range 0.0 - 360.0 but was: {}", h) };
             }
             if (s < 0.0 || s > 1.0) {
 
-                throw std::runtime_error{ "s has to be in range 0.0 - 1.0" };
+                throw std::runtime_error{ fmt::format("s has to be in range 0.0 - 1.0 but was: {}", s) };
             }
             if (v < 0.0 || v > 1.0) {
-                throw std::runtime_error("v has to be in range 0.0 - 1.0");
+                throw std::runtime_error{ fmt::format("v has to be in range 0.0 - 1.0 but was: {}", v) };
             }
         }
     }
