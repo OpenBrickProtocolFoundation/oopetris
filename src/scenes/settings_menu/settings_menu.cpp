@@ -25,7 +25,7 @@ namespace scenes {
                     std::pair<double, double>{ 0.05, 0.03 },
                     layout
     },
-    m_colors{"#FF33FF"_c, "hsv(120, 0.07, 0.93)"_c, "hsv(140, 0.07, 0.93)"_c, "rgb(246, 255, 61)"_c}
+    m_colors{COLOR_LITERAL("#FF33FF"), COLOR_LITERAL("hsv(120, 0.07, 0.93)"), COLOR_LITERAL("hsv(140, 0.07, 0.93)"), COLOR_LITERAL("rgb(246, 255, 61)")}
 {
         auto focus_helper = ui::FocusHelper{ 1 };
 

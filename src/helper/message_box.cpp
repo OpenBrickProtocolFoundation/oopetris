@@ -10,7 +10,6 @@ void helper::MessageBox::show_simple(
         const std::string& content,
         SDL_Window* window
 ) {
-
     const Uint32 flags = type == Type::Error     ? SDL_MESSAGEBOX_ERROR
                          : type == Type::Warning ? SDL_MESSAGEBOX_WARNING
                                                  : SDL_MESSAGEBOX_INFORMATION;
