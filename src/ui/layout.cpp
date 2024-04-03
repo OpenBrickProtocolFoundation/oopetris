@@ -4,11 +4,11 @@
 
 [[nodiscard]] u32 ui::get_horizontal_alignment_offset(const Layout& layout, AlignmentHorizontal alignment, u32 width) {
     switch (alignment) {
-        case AlignmentHorizontal::Right:
+        case AlignmentHorizontal::Left:
             return layout.get_rect().top_left.x;
         case AlignmentHorizontal::Middle:
             return layout.get_rect().top_left.x + (layout.get_rect().width() / 2) - (width / 2);
-        case AlignmentHorizontal::Left:
+        case AlignmentHorizontal::Right:
             return layout.get_rect().bottom_right.x - width;
         default:
             utils::unreachable();
