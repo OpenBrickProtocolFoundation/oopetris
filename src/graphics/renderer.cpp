@@ -1,15 +1,23 @@
 #include "renderer.hpp"
+#include "helper/errors.hpp"
 
 //TODO: assert return values of all sdl functions
 
-Renderer::Renderer(Window& window, const VSync v_sync)
+Renderer::Renderer(const Window& window, const VSync v_sync)
     : m_renderer{ SDL_CreateRenderer(
             window.get_sdl_window(),
             -1,
             (v_sync == VSync::Enabled ? SDL_RENDERER_PRESENTVSYNC : 0) | SDL_RENDERER_TARGETTEXTURE
                     | SDL_RENDERER_ACCELERATED
     ) } {
-    SDL_SetRenderDrawBlendMode(m_renderer, SDL_BLENDMODE_BLEND);
+    if (m_renderer == nullptr) {
+        throw helper::InitializationError{ fmt::format("Failed creating a SDL Renderer: {}", SDL_GetError()) };
+    }
+
+    auto result = SDL_SetRenderDrawBlendMode(m_renderer, SDL_BLENDMODE_BLEND);
+    if (result < 0) {
+        throw helper::InitializationError{ fmt::format("Failed in setting BlendMode on Renderer: {}", SDL_GetError()) };
+    }
 }
 
 Renderer::~Renderer() {
@@ -50,7 +58,7 @@ Texture Renderer::get_texture_for_render_target(const shapes::UPoint& size) cons
     const auto supported = SDL_RenderTargetSupported(m_renderer);
 
     if (supported == SDL_FALSE) {
-        throw std::runtime_error("SDL does not support a target renderer, but we need one!");
+        throw helper::FatalError{ "SDL does not support a target renderer, but we need one!" };
     }
 
     return Texture::get_for_render_target(m_renderer, size);
@@ -64,7 +72,7 @@ void Renderer::set_render_target(const Texture& texture) const {
 void Renderer::reset_render_target() const {
     const auto result = SDL_SetRenderTarget(m_renderer, nullptr);
     if (result < 0) {
-        throw std::runtime_error(fmt::format("Failed to set render texture target with error: {}", SDL_GetError()));
+        throw helper::FatalError{ fmt::format("Failed to set render texture target with error: {}", SDL_GetError()) };
     }
 }
 

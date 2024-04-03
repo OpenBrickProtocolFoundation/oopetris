@@ -1,6 +1,7 @@
 
 #include "message_box.hpp"
 
+#include <SDL.h>
 #include <fmt/format.h>
 
 void helper::MessageBox::show_simple(

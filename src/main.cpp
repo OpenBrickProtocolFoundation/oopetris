@@ -1,9 +1,11 @@
 #include "application.hpp"
-#include "helper/command_line_arguments.hpp"
+#include "helper/errors.hpp"
+#include "helper/message_box.hpp"
 #include "helper/utils.hpp"
 
 #include <filesystem>
 #include <fmt/format.h>
+#include <memory>
 
 #if defined(__ANDROID__)
 #include <spdlog/sinks/android_sink.h>
@@ -43,28 +45,45 @@ int main(int argc, char** argv) {
     spdlog::set_level(spdlog::level::err);
 #endif
 
-#if defined(__SWITCH__)
-    //The switch doesn't have a first argument, so we need to make one up xD
-    argc = 1;
+    std::vector<std::string> arguments{};
+    arguments.reserve(argc);
+    for (auto i = 0; i < argc; ++i) {
+        arguments.emplace_back(argv[i]); //NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    }
 
-    const char* name = "oopetris";
+    constexpr auto window_name = constants::program_name.c_str();
 
-    argv = reinterpret_cast<char**>(malloc(sizeof(void*)));
-    argv[0] = reinterpret_cast<char*>(malloc(strlen(name) + 1));
-    memcpy(argv[0], name, strlen(name) + 1);
+    std::unique_ptr<Window> window{ nullptr };
 
-#endif
-
+    try {
 #if defined(__ANDROID__) or defined(__SWITCH__)
-    Application app{ argc, argv, "OOPetris", WindowPosition::Centered };
+        window = std::make_unique<Window>(window_name, WindowPosition::Centered);
 #else
-    static constexpr int width = 1280;
-    static constexpr int height = 720;
+        static constexpr int width = 1280;
+        static constexpr int height = 720;
 
-    Application app{ argc, argv, "OOPetris", WindowPosition::Centered, width, height };
+        window = std::make_unique<Window>(window_name, WindowPosition::Centered, width, height);
 #endif
+    } catch (const helper::GeneralError& general_error) {
+        spdlog::error("{}", general_error.message());
+    }
 
-    app.run();
+    if (window == nullptr) {
+        helper::MessageBox::show_simple(
+                helper::MessageBox::Type::Error, "Initialization Error", "failed to create SDL window", nullptr
+        );
+        return EXIT_FAILURE;
+    }
 
-    return 0;
+
+    try {
+        Application app{ std::move(window), arguments };
+
+        app.run();
+        return EXIT_SUCCESS;
+    } catch (const helper::GeneralError& general_error) {
+
+        spdlog::error("{}", general_error.message());
+        return EXIT_FAILURE;
+    }
 }

@@ -21,7 +21,7 @@ private:
     SDL_Renderer* m_renderer;
 
 public:
-    explicit Renderer(Window& window, VSync v_sync);
+    explicit Renderer(const Window& window, VSync v_sync);
     Renderer(const Renderer&) = delete;
     Renderer& operator=(const Renderer&) = delete;
     ~Renderer();

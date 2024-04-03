@@ -1,4 +1,5 @@
 #include "graphics/window.hpp"
+#include "helper/message_box.hpp"
 #include <stdexcept>
 #include <string>
 
@@ -49,4 +50,8 @@ Window::~Window() {
 [[nodiscard]] shapes::URect Window::screen_rect() const {
     const auto window_size = size();
     return shapes::URect{ 0, 0, window_size.x, window_size.y };
+}
+
+void Window::show_simple(helper::MessageBox::Type type, const std::string& title, const std::string& content) const {
+    helper::MessageBox::show_simple(type, title, content, m_window);
 }
