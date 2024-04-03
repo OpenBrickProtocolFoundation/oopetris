@@ -92,7 +92,9 @@ void Renderer::draw_self_computed_circle_impl(const shapes::IPoint& center, i32 
 
     while (x >= y) {
         //  Each of the following renders an octant of the circle
-        SDL_RenderDrawPoint(m_renderer, center_x + x, center_y - y);
+        SDL_RenderDrawPoint(
+                m_renderer, center_x + x, center_y - y // NOLINT(clang-analyzer-core.UndefinedBinaryOperatorResult)
+        );
         SDL_RenderDrawPoint(m_renderer, center_x + x, center_y + y);
         SDL_RenderDrawPoint(m_renderer, center_x - x, center_y - y);
         SDL_RenderDrawPoint(m_renderer, center_x - x, center_y + y);
