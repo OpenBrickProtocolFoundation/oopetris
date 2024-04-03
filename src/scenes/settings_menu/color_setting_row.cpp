@@ -3,7 +3,9 @@
 #include "helper/utils.hpp"
 #include "ui/components/label.hpp"
 #include "ui/focusable.hpp"
+#include "ui/hoverable.hpp"
 #include "ui/layout.hpp"
+#include "ui/widget.hpp"
 #include <functional>
 
 detail::ColorSettingRectangle::ColorSettingRectangle(
@@ -144,7 +146,17 @@ void custom_ui::ColorSettingRow::render(const ServiceProvider& service_provider)
 
 helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
 custom_ui::ColorSettingRow::handle_event(const SDL_Event& event, const Window* window) {
-    return m_main_layout.handle_event(event, window);
+    const auto result = m_main_layout.handle_event(event, window);
+    if (const auto additional = result.get_additional(); additional.has_value()) {
+        if (additional->first == ui::EventHandleType::RequestAction) {
+            return {
+                result,
+                {ui::EventHandleType::RequestAction, this}
+            };
+        }
+    }
+
+    return result;
 }
 
 [[nodiscard]] scenes::Scene::Change custom_ui::ColorSettingRow::get_details_scene() {
@@ -171,9 +183,13 @@ void custom_ui::ColorSettingRow::inner_callback(const Color& color) {
 
 
 void custom_ui::ColorSettingRow::on_focus() {
-    color_rect()->unfocus();
+    if (not color_rect()->has_focus()) {
+        color_rect()->focus();
+    }
 }
 
 void custom_ui::ColorSettingRow::on_unfocus() {
-    color_rect()->focus();
+    if (color_rect()->has_focus()) {
+        color_rect()->unfocus();
+    }
 }
