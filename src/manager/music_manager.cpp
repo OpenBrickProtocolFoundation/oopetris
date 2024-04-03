@@ -26,13 +26,13 @@ MusicManager::MusicManager(ServiceProvider* service_provider, u8 channel_size)
         return;
     }
 
-    const int result = SDL_InitSubSystem(SDL_INIT_AUDIO);
+    const auto result = SDL_InitSubSystem(SDL_INIT_AUDIO);
     if (result != 0) {
         throw helper::InitializationError{ fmt::format("Failed to initialize the audio system: {}", SDL_GetError()) };
     }
 
     //TODO: dynamically handle codecs
-    int initialized_codecs = Mix_Init(MIX_INIT_FLAC | MIX_INIT_MP3);
+    const auto initialized_codecs = Mix_Init(MIX_INIT_FLAC | MIX_INIT_MP3);
     if (initialized_codecs == 0) {
         throw helper::InitializationError{ fmt::format("Failed to initialize any audio codec: {}", SDL_GetError()) };
     }
@@ -48,7 +48,8 @@ MusicManager::MusicManager(ServiceProvider* service_provider, u8 channel_size)
 
     // 2 here means STEREO, note that channels above means tracks, e.g. simultaneous playing source that are mixed,
     // hence the name SDL2_mixer
-    auto audio_result = Mix_OpenAudio(constants::audio_frequency, MIX_DEFAULT_FORMAT, 2, constants::audio_chunk_size);
+    const auto audio_result =
+            Mix_OpenAudio(constants::audio_frequency, MIX_DEFAULT_FORMAT, 2, constants::audio_chunk_size);
 
     if (audio_result != 0) {
         throw helper::InitializationError{ fmt::format("Failed to open an audio device: {}", SDL_GetError()) };
