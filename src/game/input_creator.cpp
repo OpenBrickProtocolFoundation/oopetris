@@ -3,6 +3,7 @@
 #include "input_creator.hpp"
 #include "helper/command_line_arguments.hpp"
 #include "helper/date.hpp"
+#include "helper/errors.hpp"
 #include "platform/replay_input.hpp"
 #include <stdexcept>
 
@@ -53,7 +54,7 @@ namespace {
             SDL_DisplayMode mode{};
             const int mode_result = SDL_GetCurrentDisplayMode(0, &mode);
             if (mode_result != 0) {
-                throw std::runtime_error{ "failed in getting display mode: " + std::string{ SDL_GetError() } };
+                throw helper::FatalError{ fmt::format("failed in getting display mode: {}", SDL_GetError()) };
             }
             if (mode.refresh_rate != 0) {
                 target_fps = static_cast<u32>(mode.refresh_rate);

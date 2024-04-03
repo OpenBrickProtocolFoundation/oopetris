@@ -7,10 +7,21 @@
 
 #include <chrono>
 #include <ranges>
+#include <stdexcept>
 
 #if defined(__SWITCH__)
 #include "switch.h"
 #endif
+
+namespace {
+
+    [[nodiscard]] helper::MessageBox::Type get_notification_level(helper::error::Severity severity) {
+        return severity == helper::error::Severity::Fatal   ? helper::MessageBox::Type::Error
+               : severity == helper::error::Severity::Major ? helper::MessageBox::Type::Warning
+                                                            : helper::MessageBox::Type::Information;
+    }
+
+} // namespace
 
 
 Application::Application(std::unique_ptr<Window>&& window, const std::vector<std::string>& arguments) try
@@ -24,10 +35,7 @@ Application::Application(std::unique_ptr<Window>&& window, const std::vector<std
     initialize();
 } catch (const helper::GeneralError& general_error) {
     const auto severity = general_error.severity();
-    const auto notification_level = severity == helper::error::Severity::Fatal ? helper::MessageBox::Type::Error
-                                    : severity == helper::error::Severity::Major
-                                            ? helper::MessageBox::Type::Warning
-                                            : helper::MessageBox::Type::Information;
+    const auto notification_level = get_notification_level(severity);
 
     window->show_simple(notification_level, "Initialization Error", general_error.message());
 
@@ -162,39 +170,56 @@ void Application::update() {
 
     for (usize i = 0; i < num_scenes; ++i) {
         const auto index = num_scenes - i - 1;
-        auto [scene_update, scene_change] = m_scene_stack.at(index)->update();
-        if (scene_change) {
-            std::visit(
-                    helper::overloaded{
-                            [this, index](const scenes::Scene::Pop&) {
-                                m_scene_stack.erase(
-                                        m_scene_stack.begin()
-                                        + static_cast<decltype(m_scene_stack.begin())::difference_type>(index)
-                                );
-                            },
-                            [this](const scenes::Scene::Push& push) {
-                                spdlog::info("pushing back scene {}", magic_enum::enum_name(push.target_scene));
-                                m_scene_stack.push_back(scenes::create_scene(*this, push.target_scene, push.layout));
-                            },
-                            [this](const scenes::Scene::Switch& switch_) {
-                                spdlog::info("switching to scene {}", magic_enum::enum_name(switch_.target_scene));
-                                m_scene_stack.clear();
-                                m_scene_stack.push_back(
-                                        scenes::create_scene(*this, switch_.target_scene, switch_.layout)
-                                );
-                            },
-                            [this](scenes::Scene::RawSwitch& raw_switch) {
-                                spdlog::info("switching to scene {}", raw_switch.name);
-                                m_scene_stack.clear();
-                                m_scene_stack.push_back(std::move(raw_switch.scene));
-                            },
-                            [this](const scenes::Scene::Exit&) { m_is_running = false; },
-                    },
-                    *scene_change
-            );
-        }
-        if (scene_update == scenes::SceneUpdate::StopUpdating) {
-            break;
+        try {
+            auto [scene_update, scene_change] = m_scene_stack.at(index)->update();
+
+            if (scene_change) {
+
+                std::visit(
+                        helper::overloaded{
+                                [this, index](const scenes::Scene::Pop&) {
+                                    m_scene_stack.erase(
+                                            m_scene_stack.begin()
+                                            + static_cast<decltype(m_scene_stack.begin())::difference_type>(index)
+                                    );
+                                },
+                                [this](const scenes::Scene::Push& push) {
+                                    spdlog::info("pushing back scene {}", magic_enum::enum_name(push.target_scene));
+                                    m_scene_stack.push_back(scenes::create_scene(*this, push.target_scene, push.layout)
+                                    );
+                                },
+                                [this](const scenes::Scene::Switch& switch_) {
+                                    spdlog::info("switching to scene {}", magic_enum::enum_name(switch_.target_scene));
+                                    auto scene = scenes::create_scene(*this, switch_.target_scene, switch_.layout);
+
+                                    // only clear, after the construction was successful
+                                    m_scene_stack.clear();
+                                    m_scene_stack.push_back(std::move(scene));
+                                },
+                                [this](scenes::Scene::RawSwitch& raw_switch) {
+                                    spdlog::info("switching to scene {}", raw_switch.name);
+                                    m_scene_stack.clear();
+                                    m_scene_stack.push_back(std::move(raw_switch.scene));
+                                },
+                                [this](const scenes::Scene::Exit&) { m_is_running = false; },
+                        },
+                        *scene_change
+                );
+            }
+            if (scene_update == scenes::SceneUpdate::StopUpdating) {
+                break;
+            }
+
+            // if an error occurred on:
+            // - creation:  the creation wasn't finished, so just not pushing / switching to the scene
+            // -update: the update failed in the middle, and the scene, that caused the error, has to make sure, that ignoring it, (and not crashing) resets the state, so that this doesn't occur on every frame
+
+        } catch (const std::runtime_error& error) {
+            m_window->show_simple(helper::MessageBox::Type::Error, "Error on Scene Initialization", error.what());
+        } catch (const helper::GeneralError& general_error) {
+            const auto notification_level = get_notification_level(general_error.severity());
+
+            m_window->show_simple(notification_level, "Error on Scene Initialization", general_error.message());
         }
     }
 
