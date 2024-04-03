@@ -46,8 +46,8 @@ elif cpp.get_id() == 'clang'
     endif
 
     if build_with_libcpp
-        add_global_link_arguments('-stdlib=libc++', language:['cpp'])
-        add_global_arguments('-stdlib=libc++', language:['cpp'])
+        add_global_link_arguments('-stdlib=libc++', language: ['cpp'])
+        add_global_arguments('-stdlib=libc++', language: ['cpp'])
         deps += cpp.find_library('c++')
         deps += cpp.find_library('c++abi')
     endif

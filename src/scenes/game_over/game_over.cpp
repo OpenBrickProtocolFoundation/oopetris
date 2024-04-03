@@ -10,7 +10,7 @@ namespace scenes {
 
     GameOver::GameOver(ServiceProvider* service_provider, const ui::Layout& layout)
         : Scene{ service_provider, layout },
-          text{
+          m_text{
             service_provider,
               fmt::format(
                       "Game Over, Press {} to continue",
@@ -44,7 +44,7 @@ namespace scenes {
 
     void GameOver::render(const ServiceProvider& service_provider) {
         service_provider.renderer().draw_rect_filled(get_layout().get_rect(), Color::black(180));
-        text.render(service_provider);
+        m_text.render(service_provider);
     }
 
     bool GameOver::handle_event(const SDL_Event& event, const Window*) {

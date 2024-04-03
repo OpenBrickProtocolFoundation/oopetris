@@ -114,16 +114,15 @@ namespace scenes {
                     }
 
 #endif
-
-
-                    throw std::runtime_error("Requested action on unknown layout, this is a fatal error");
+                    throw std::runtime_error("Requested action on unknown widget, this is a fatal error");
                 }
                 case Command::Return:
                     return UpdateResult{ SceneUpdate::StopUpdating, Scene::Pop{} };
                 default:
                     utils::unreachable();
             }
-        } // namespace scenes
+        }
+
         return UpdateResult{ SceneUpdate::StopUpdating, helper::nullopt };
     }
 

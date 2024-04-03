@@ -19,6 +19,7 @@ namespace ui {
     public:
         using Callback = std::function<bool(const CallBackType&)>;
 
+    protected:
         Content m_content;
         Callback m_callback;
         shapes::URect m_fill_rect;
@@ -46,6 +47,7 @@ namespace ui {
             }
         }
 
+    public:
         explicit Button(
                 Content&& content,
                 u32 focus_id,
@@ -87,7 +89,7 @@ namespace ui {
 
             if (utils::device_supports_keys()) {
                 if (has_focus() and utils::event_is_action(event, utils::CrossPlatformAction::OK)) {
-                    spdlog::info("TextButton pressed");
+                    spdlog::info("Button pressed");
                     if (on_clicked()) {
                         return { true, ui::EventHandleType::RequestAction };
                     }
