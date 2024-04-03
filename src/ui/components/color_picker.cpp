@@ -248,13 +248,15 @@ void detail::ColorCanvas::redraw_texture() {
 ui::ColorPicker::ColorPicker(
         ServiceProvider* service_provider,
         const Color& start_color,
+        Callback callback,
         const shapes::URect& fill_rect,
         const Layout& layout,
         bool is_top_level
 )
     : Widget{ layout, WidgetType::Component, is_top_level },
       m_color{ start_color },
-      m_mode{ ColorMode::RGB } {
+      m_mode{ ColorMode::RGB },
+      m_callback{ std::move(callback) } {
 
     constexpr double main_rect_height = 0.8;
 
@@ -371,19 +373,23 @@ ui::ColorPicker::ColorPicker(
 ui::ColorPicker::ColorPicker(
         ServiceProvider* service_provider,
         const Color& start_color,
+        Callback callback,
         std::pair<double, double> size,
         Alignment alignment,
         const Layout& layout,
         bool is_top_level
 )
-    : ColorPicker{ service_provider, start_color,
+    : ColorPicker{ service_provider,
+                   start_color,
+                   std::move(callback),
                    ui::get_rectangle_aligned(
                            layout,
                            { static_cast<u32>(size.first * layout.get_rect().width()),
                              static_cast<u32>(size.second * layout.get_rect().height()) },
                            alignment
                    ),
-                   layout, is_top_level } { }
+                   layout,
+                   is_top_level } { }
 
 void ui::ColorPicker::render(const ServiceProvider& service_provider) const {
     //TODO
@@ -405,6 +411,8 @@ void ui::ColorPicker::after_color_change(ColorChangeType type) {
     if (type != ColorChangeType::SV) {
         m_color_canvas->on_change(m_color);
     }
+
+    m_callback(m_color);
 
     //TODO: change the text in the textinput!
 }

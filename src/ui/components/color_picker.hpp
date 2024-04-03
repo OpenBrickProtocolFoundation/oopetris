@@ -82,12 +82,15 @@ namespace ui {
 
 
     struct ColorPicker final : public Widget {
+        using Callback = std::function<void(const Color&)>;
+
     private:
         Color m_color;
         std::unique_ptr<detail::ColorCanvas> m_color_canvas;
         shapes::URect m_color_preview;
         std::unique_ptr<detail::ColorSlider> m_color_slider;
         ColorMode m_mode;
+        Callback m_callback;
         std::unique_ptr<ui::ImageButton> m_rgb_button;
         std::unique_ptr<ui::ImageButton> m_hsv_button;
         std::unique_ptr<ui::TextInput> m_color_text;
@@ -95,6 +98,7 @@ namespace ui {
         explicit ColorPicker(
                 ServiceProvider* service_provider,
                 const Color& start_color,
+                Callback callback,
                 const shapes::URect& fill_rect,
                 const Layout& layout,
                 bool is_top_level
@@ -104,6 +108,7 @@ namespace ui {
         explicit ColorPicker(
                 ServiceProvider* service_provider,
                 const Color& start_color,
+                Callback callback,
                 std::pair<double, double> size,
                 Alignment alignment,
                 const Layout& layout,
@@ -120,4 +125,5 @@ namespace ui {
         void after_color_change(ColorChangeType type);
         void after_color_mode_change();
     };
+
 } // namespace ui
