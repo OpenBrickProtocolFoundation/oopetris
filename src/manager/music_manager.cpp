@@ -1,13 +1,15 @@
 #include "manager/music_manager.hpp"
 #include "helper/command_line_arguments.hpp"
 #include "helper/constants.hpp"
+#include "helper/errors.hpp"
 #include "helper/optional.hpp"
 #include "helper/types.hpp"
+#include "platform/capabilities.hpp"
 
 #include <SDL.h>
 #include <SDL_mixer.h>
 #include <filesystem>
-#include <functional>
+#include <fmt/format.h>
 #include <stdexcept>
 #include <string>
 
@@ -24,15 +26,33 @@ MusicManager::MusicManager(ServiceProvider* service_provider, u8 channel_size)
         return;
     }
 
-    Mix_Init(MIX_INIT_FLAC | MIX_INIT_MP3);
     const int result = SDL_InitSubSystem(SDL_INIT_AUDIO);
     if (result != 0) {
-        throw std::runtime_error{ "error on initializing the audio system: " + std::string{ SDL_GetError() } };
+        throw helper::InitializationError{ fmt::format("Failed to initialize the audio system: {}", SDL_GetError()) };
     }
-    Mix_AllocateChannels(channel_size);
+
+    //TODO: dynamically handle codecs
+    int initialized_codecs = Mix_Init(MIX_INIT_FLAC | MIX_INIT_MP3);
+    if (initialized_codecs == 0) {
+        throw helper::InitializationError{ fmt::format("Failed to initialize any audio codec: {}", SDL_GetError()) };
+    }
+
+    // see: https://wiki.libsdl.org/SDL2_mixer/Mix_AllocateChannels
+    auto allocated_channels = Mix_AllocateChannels(channel_size);
+    if (allocated_channels != channel_size) {
+        throw helper::InitializationError{ fmt::format(
+                "Failed to initialize the requested channels, requested {} but only got {}: {}", channel_size,
+                allocated_channels, SDL_GetError()
+        ) };
+    }
+
     // 2 here means STEREO, note that channels above means tracks, e.g. simultaneous playing source that are mixed,
     // hence the name SDL2_mixer
-    Mix_OpenAudio(constants::audio_frequency, MIX_DEFAULT_FORMAT, 2, constants::audio_chunk_size);
+    auto audio_result = Mix_OpenAudio(constants::audio_frequency, MIX_DEFAULT_FORMAT, 2, constants::audio_chunk_size);
+
+    if (audio_result != 0) {
+        throw helper::InitializationError{ fmt::format("Failed to open an audio device: {}", SDL_GetError()) };
+    }
 
     s_instance = this;
 

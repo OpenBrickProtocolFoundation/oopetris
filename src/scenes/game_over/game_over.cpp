@@ -1,5 +1,6 @@
 #include "game_over.hpp"
 #include "graphics/renderer.hpp"
+#include "helper/music_utils.hpp"
 #include "manager/music_manager.hpp"
 #include "manager/resource_manager.hpp"
 #include "platform/capabilities.hpp"

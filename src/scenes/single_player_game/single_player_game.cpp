@@ -1,5 +1,6 @@
 #include "single_player_game.hpp"
 #include "helper/date.hpp"
+#include "helper/music_utils.hpp"
 #include "manager/music_manager.hpp"
 #include "scenes/scene.hpp"
 
@@ -34,7 +35,6 @@ namespace scenes {
         }
 
 #endif
-
 
         m_service_provider->music_manager()
                 .load_and_play_music(

@@ -2,6 +2,7 @@
 
 #include "graphics/point.hpp"
 #include "graphics/rect.hpp"
+#include "helper/message_box.hpp"
 
 #include <SDL.h>
 #include <string>
@@ -31,4 +32,6 @@ public:
     [[nodiscard]] SDL_Window* get_sdl_window() const;
 
     [[nodiscard]] shapes::URect screen_rect() const;
+
+    void show_simple(helper::MessageBox::Type type, const std::string& title, const std::string& content) const;
 };

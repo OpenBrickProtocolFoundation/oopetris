@@ -1,4 +1,6 @@
 #include "application.hpp"
+#include "helper/errors.hpp"
+#include "helper/message_box.hpp"
 #include "helper/sleep.hpp"
 #include "platform/capabilities.hpp"
 #include "scenes/scene.hpp"
@@ -11,35 +13,30 @@
 #endif
 
 
-Application::Application(
-        int argc,
-        char** argv,
-        const std::string& title,
-        WindowPosition position,
-        u32 width,
-        u32 height
-)
-    : m_command_line_arguments{ argc, argv },
-      m_window{ title, position, width, height },
-      m_renderer{ m_window, m_command_line_arguments.target_fps.has_value() ? Renderer::VSync::Disabled
-                                                                            : Renderer::VSync::Enabled },
+Application::Application(std::unique_ptr<Window>&& window, const std::vector<std::string>& arguments) try
+    : m_command_line_arguments{ arguments },
+      m_window{ std::move(window) },
+      m_renderer{ *m_window, m_command_line_arguments.target_fps.has_value() ? Renderer::VSync::Disabled
+                                                                             : Renderer::VSync::Enabled },
       m_music_manager{ this, num_audio_channels },
       m_target_framerate{ m_command_line_arguments.target_fps },
-      m_event_dispatcher{ &m_window } {
+      m_event_dispatcher{ m_window.get() } {
     initialize();
+} catch (const helper::GeneralError& general_error) {
+    const auto severity = general_error.severity();
+    const auto notification_level = severity == helper::error::Severity::Fatal ? helper::MessageBox::Type::Error
+                                    : severity == helper::error::Severity::Major
+                                            ? helper::MessageBox::Type::Warning
+                                            : helper::MessageBox::Type::Information;
+
+    window->show_simple(notification_level, "Initialization Error", general_error.message());
+
+    if (severity == helper::error::Severity::Fatal) {
+        // rethrow the error, so that the caller gets an exception, since this error is fatal!
+        throw general_error;
+    }
 }
 
-Application::Application(int argc, char** argv, const std::string& title, WindowPosition position)
-    : m_command_line_arguments{ argc, argv },
-      m_window{ title, position },
-      m_renderer{ m_window, m_command_line_arguments.target_fps.has_value() ? Renderer::VSync::Disabled
-                                                                            : Renderer::VSync::Enabled },
-
-      m_music_manager{ this, num_audio_channels },
-      m_target_framerate{ m_command_line_arguments.target_fps },
-      m_event_dispatcher{ &m_window } {
-    initialize();
-}
 
 void Application::run() {
     m_event_dispatcher.register_listener(this);
@@ -235,7 +232,7 @@ void Application::initialize() {
 
     try_load_settings();
     load_resources();
-    push_scene(scenes::create_scene(*this, SceneId::MainMenu, ui::FullScreenLayout{ m_window }));
+    push_scene(scenes::create_scene(*this, SceneId::MainMenu, ui::FullScreenLayout{ *m_window }));
 
 #ifdef DEBUG_BUILD
     m_fps_text = std::make_unique<ui::Label>(
