@@ -20,51 +20,33 @@ helper::expected<Color, std::string> Color::from_string(const std::string& value
 
 
 [[nodiscard]] HSVColor Color::to_hsv_color() const {
+    constexpr auto max_d = static_cast<double>(0xFF);
+    const double r_d = static_cast<double>(r) / max_d;
+    const double g_d = static_cast<double>(g) / max_d;
+    const double b_d = static_cast<double>(b) / max_d;
 
-    // taken from https://stackoverflow.com/questions/3018313/algorithm-to-convert-rgb-to-hsv-and-hsv-to-rgb-in-range-0-255-for-both
+    const double min = std::min({ r_d, g_d, b_d });
+    const double max = std::max({ r_d, g_d, b_d });
+    const double delta = max - min;
 
-    HSVColor out{};
-    out.a = a;
-    double min{};
-    double max{};
-    double delta{};
+    double h = 0.0;
 
-    min = r < g ? r : g;
-    min = min < b ? min : b;
-
-    max = r > g ? r : g;
-    max = max > b ? max : b;
-
-    out.v = max; // v
-    delta = max - min;
-    if (delta < 0.00001) {
-        out.s = 0;
-        out.h = 0; // undefined, maybe nan?
-        throw std::runtime_error{ "Undefined conversion, h would be NaN" };
-    }
-    if (max > 0.0) {           // NOTE: if Max is == 0, this divide would cause a crash
-        out.s = (delta / max); // s
-    } else {
-        // if max is 0, then r = g = b = 0
-        // s = 0, h is undefined
-        out.s = 0.0;
-        out.h = NAN; // its now undefined
-        throw std::runtime_error{ "Undefined conversion, h would be NaN" };
-    }
-    if (r >= max) {              // > is bogus, just keeps compilor happy
-        out.h = (g - b) / delta; // between yellow & magenta
+    if (r >= max) {                          // > is bogus, just keeps compiler happy
+        h = std::fmod((g - b) / delta, 6.0); // between yellow & magenta
     } else if (g >= max) {
-        out.h = 2.0 + (b - r) / delta; // between cyan & yellow
+        h = 2.0 + ((b - r) / delta); // between cyan & yellow
     } else {
-        out.h = 4.0 + (r - g) / delta; // between magenta & cyan
-    }
-    out.h *= 60.0; // degrees
-
-    if (out.h < 0.0) {
-        out.h += 360.0;
+        h = 4.0 + ((r - g) / delta); // between magenta & cyan
     }
 
-    return out;
+    //common factor, so just do it at the end
+    h *= 60.0; // degrees
+
+    const double s = max == 0.0 ? 0.0 : delta / max;
+
+    const double v = max;
+
+    return HSVColor{ h, s, v, a };
 }
 
 #if !defined(_NO_SDL)
