@@ -18,7 +18,7 @@ public:
     [[nodiscard]] bool is_empty(GridPoint coordinates) const;
     void set(GridPoint coordinates, helper::TetrominoType type);
 
-#if !defined(_NO_SDL)
+#if defined(_HAVE_SDL)
     void draw_minos(
             const ServiceProvider& service_provider,
             double original_scale,

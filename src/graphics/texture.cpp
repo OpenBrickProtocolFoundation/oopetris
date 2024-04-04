@@ -1,5 +1,6 @@
 
 #include "texture.hpp"
+#include "helper/graphic_utils.hpp"
 
 
 Texture::Texture(SDL_Texture* raw_texture) : m_raw_texture{ raw_texture } { }
@@ -24,14 +25,16 @@ Texture Texture::prerender_text(
         const Color& background_color
 ) {
 
-    const SDL_Color text_color = color.to_sdl_color();
+    const SDL_Color text_color = utils::sdl_color_from_color(color);
     SDL_Surface* surface{ nullptr };
     if (render_type == RenderType::Solid) {
         surface = TTF_RenderUTF8_Solid(font.get(), text.c_str(), text_color);
     } else if (render_type == RenderType::Blended) {
         surface = TTF_RenderUTF8_Blended(font.get(), text.c_str(), text_color);
     } else if (render_type == RenderType::Shaded) {
-        surface = TTF_RenderUTF8_Shaded(font.get(), text.c_str(), text_color, background_color.to_sdl_color());
+        surface = TTF_RenderUTF8_Shaded(
+                font.get(), text.c_str(), text_color, utils::sdl_color_from_color(background_color)
+        );
     } else {
         utils::unreachable();
     }

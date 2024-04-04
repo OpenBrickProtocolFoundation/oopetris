@@ -1,4 +1,4 @@
-src_files += files(
+core_src_files += files(
     'bool_wrapper.hpp',
     'clock_source.cpp',
     'clock_source.hpp',
@@ -16,7 +16,6 @@ src_files += files(
     'magic_enum_wrapper.hpp',
     'message_box.cpp',
     'message_box.hpp',
-    'music_utils.hpp',
     'optional.hpp',
     'parse_json.cpp',
     'parse_json.hpp',
@@ -29,11 +28,17 @@ src_files += files(
     'types.hpp',
     'utils.cpp',
     'utils.hpp',
+
 )
 
+graphics_src_files += files(
+    'graphic_utils.cpp',
+    'graphic_utils.hpp',
+    'music_utils.hpp',
+)
 
 if have_file_dialogs
-    src_files += files('nfd.cpp', 'nfd_include.hpp')
+    graphics_src_files += files('nfd.cpp', 'nfd_include.hpp')
 endif
 
 git = find_program('git', required: false)
@@ -47,8 +52,12 @@ if git.found()
         replace_string: '@GIT_VERSION@',
     )
 
-    src_files += vcs_dep
-    compile_args += ['-D_HAS_GIT_COMMIT_INFORMATION']
-
+    graphics_src_files += vcs_dep
+    graphics_lib += {
+        'compile_args': [
+            graphics_lib.get('compile_args'),
+            '-D_HAS_GIT_COMMIT_INFORMATION',
+        ],
+    }
 endif
 

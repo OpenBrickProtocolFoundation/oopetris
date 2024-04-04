@@ -1,1 +1,1 @@
-src_files += files('api.hpp', 'types.hpp')
+graphics_src_files += files('api.hpp', 'types.hpp')

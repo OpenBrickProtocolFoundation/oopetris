@@ -1,4 +1,4 @@
-src_files += files(
+graphics_src_files += files(
     'controls.hpp',
     'event_dispatcher.hpp',
     'event_listener.hpp',

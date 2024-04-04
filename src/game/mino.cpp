@@ -1,13 +1,13 @@
 #include "mino.hpp"
 #include "helper/utils.hpp"
 
-#if !defined(_NO_SDL)
+#if defined(_HAVE_SDL)
 #include "graphics/renderer.hpp"
 #endif
 
 #include <array>
 
-#if !defined(_NO_SDL)
+#if defined(_HAVE_SDL)
 static constexpr std::array<u8, 6> transparency_values = { 255, 173, 118, 80, 55, 37 };
 
 namespace {

@@ -1,4 +1,4 @@
-src_files += files(
+graphics_src_files += files(
     'abstract_slider.hpp',
     'button.hpp',
     'color_picker.cpp',

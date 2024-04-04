@@ -1,4 +1,4 @@
-src_files += files(
+graphics_src_files += files(
     'recording_component.cpp',
     'recording_component.hpp',
     'recording_selector.cpp',
@@ -6,8 +6,8 @@ src_files += files(
 )
 
 if have_file_dialogs
-    src_files += files(
-    'recording_chooser.cpp',
-    'recording_chooser.hpp',
-)
+    graphics_src_files += files(
+        'recording_chooser.cpp',
+        'recording_chooser.hpp',
+    )
 endif

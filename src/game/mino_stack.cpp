@@ -36,7 +36,7 @@ void MinoStack::set(GridPoint coordinates, helper::TetrominoType type) {
     m_minos.push_back(to_insert);
 }
 
-#if !defined(_NO_SDL)
+#if defined(_HAVE_SDL)
 void MinoStack::draw_minos(
         const ServiceProvider& service_provider,
         const double original_scale,

@@ -31,7 +31,7 @@ private:
 public:
     explicit constexpr Mino(GridPoint position, helper::TetrominoType type) : m_position{ position }, m_type{ type } { }
 
-#if !defined(_NO_SDL)
+#if defined(_HAVE_SDL)
     void render(
             const ServiceProvider& service_provider,
             MinoTransparency transparency,

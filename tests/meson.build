@@ -3,8 +3,7 @@ if meson.is_cross_build()
     error('Tests are not supported for cross builds (atm)')
 endif
 
-test_deps = deps
-test_compile_args = compile_args
+test_deps = [liboopetris_graphics_dep]
 
 test_src = []
 test_inc_dirs = []
@@ -24,7 +23,6 @@ all_tests = executable(
     test_src,
     include_directories: test_inc_dirs,
     dependencies: test_deps,
-    cpp_args: test_compile_args,
     override_options: {
         'warning_level': '3',
         'werror': true,

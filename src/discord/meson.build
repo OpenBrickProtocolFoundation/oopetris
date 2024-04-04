@@ -1,1 +1,1 @@
-src_files += files('core.cpp', 'core.hpp')
+graphics_src_files += files('core.cpp', 'core.hpp')
