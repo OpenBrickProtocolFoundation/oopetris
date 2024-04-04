@@ -49,6 +49,11 @@ struct HSVColor {
     constexpr HSVColor() : HSVColor{ 0.0, 0.0, 0.0, 0 } { }
 
     constexpr HSVColor(double h, double s, double v) : HSVColor{ h, s, v, 0xFF } { }
+
+    [[nodiscard]] constexpr bool operator==(const HSVColor& other) const {
+        return std::tuple<double, double, double, u8>{ h, s, v, a }
+               == std::tuple<double, double, double, u8>{ other.h, other.s, other.v, other.a };
+    }
 };
 
 struct Color {
@@ -153,7 +158,8 @@ struct Color {
     }
 
     [[nodiscard]] constexpr bool operator==(const Color& other) const {
-        return std::tuple<u8, u8, u8, u8>{ r, g, b, a } == std::tuple{ other.r, other.g, other.b, other.a };
+        return std::tuple<u8, u8, u8, u8>{ r, g, b, a }
+               == std::tuple<u8, u8, u8, u8>{ other.r, other.g, other.b, other.a };
     }
 
 

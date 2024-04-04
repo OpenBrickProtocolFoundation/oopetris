@@ -85,10 +85,57 @@ TEST(Color, FromStringInvalid) {
                                                     "#0000001",
                                                     "hsl(0,0,0)",
                                                     "hsva(9,9,9)",
-                                                    "hsva(9,9,9,10212)" };
+                                                    "hsva(9,9,9,10212)",
+                                                    "hsv(-1,0,0)",
+                                                    "hsv(404040,0,0)"
+                                                    "hsv(0,1.4,0)",
+                                                    "hsv(0,0,1.7)" };
 
     for (const auto& invalid_string : invalid_strings) {
         const auto result = Color::from_string(invalid_string);
         EXPECT_THAT(result, ExpectedHasError()) << "Input was: " << invalid_string;
+    }
+}
+
+
+TEST(HSVColor, DefaultConstruction) {
+    const auto c1 = HSVColor{};
+    const auto c2 = HSVColor{ 0, 0, 0, 0 };
+    EXPECT_EQ(c1, c2);
+}
+
+TEST(HSVColor, ConstructorProperties) {
+
+    const std::vector<std::tuple<double, double, double>> values{
+        {  0.0, 0.0, 0.0},
+        {360.0, 0.0, 0.0},
+        {360.0, 1.0, 0.0},
+        {360.0, 1.0, 1.0},
+        { 57.0, 0.6, 0.8}
+    };
+
+    for (const auto& [h, s, v] : values) {
+        const auto c1 = HSVColor{ h, s, v };
+        const auto c2 = HSVColor{ h, s, v, 0xFF };
+        EXPECT_EQ(c1, c2);
+    }
+}
+
+TEST(HSVColor, InvalidConstructors) {
+
+    const std::vector<std::tuple<double, double, double>> invalid_values{
+        { -1.0,  0.0,  0.0},
+        {360.0, -1.0,  0.0},
+        {360.0,  1.0, -1.0},
+        {460.0,  1.0,  1.0},
+        { 57.0,  2.6,  0.8},
+        { 57.0,  1.6,  3.8}
+    };
+
+    for (const auto& [h, s, v] : invalid_values) {
+
+        const auto construct = [h, s, v]() { HSVColor{ h, s, v }; };
+
+        EXPECT_ANY_THROW(construct());
     }
 }
