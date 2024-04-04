@@ -108,10 +108,7 @@ liboopetris_graphics = library(
     graphics_lib.get('src_files'),
     include_directories: graphics_lib.get('inc_dirs'),
     dependencies: graphics_lib.get('deps'),
-    cpp_args: [
-        graphics_lib.get('compile_args'),
-        '-D_HAVE_SPDLOG',
-    ],
+    cpp_args: graphics_lib.get('compile_args'),
     override_options: {
         'warning_level': '3',
         'werror': true,
