@@ -304,8 +304,8 @@ core_lib += {'deps': [core_lib.get('deps'), argparse_dep]}
 
 online_multiplayer_supported = true
 
+
 if meson.is_cross_build() and host_machine.system() == 'switch'
-    compile_args += []
     online_multiplayer_supported = false
     core_lib += {
         'compile_args': [
@@ -525,8 +525,6 @@ elif meson.is_cross_build() and host_machine.system() == 'switch'
         'oopetris.elf',
         main_files,
         dependencies: [liboopetris_graphics_dep, graphic_application_deps],
-        c_args: sdl2_mixer_defines,
-        cpp_args: compile_args + sdl2_mixer_defines,
         override_options: {
             'warning_level': '3',
             'werror': true,

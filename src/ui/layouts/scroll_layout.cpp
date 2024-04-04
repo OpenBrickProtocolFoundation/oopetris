@@ -172,6 +172,8 @@ ui::Widget::EventHandleResult ui::ScrollLayout::handle_event( // NOLINT(readabil
                 change_value_on_scroll();
                 handled = true;
             }
+
+            //TODO: support touch screen scrolling too!
         } else if (event.type == SDL_MOUSEWHEEL) {
 
             // attention the mouse direction changes (it's called natural scrolling on macos/ windows / linux) are not detected by sdl until restart, and here we use the correct scroll behaviour, as the user configured the mouse in it's OS
