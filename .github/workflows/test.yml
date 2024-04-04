@@ -39,7 +39,7 @@ jobs:
         run: meson compile -C build 
 
       - name: Coverage
-        run: ninja coverage -C build
+        run: ninja coverage-xml -C build
 
       - name: Create Coverage Report
         uses: insightsengineering/coverage-action@v2
