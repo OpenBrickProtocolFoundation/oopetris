@@ -87,7 +87,7 @@ TEST(Color, FromStringInvalid) {
                                                     "hsva(9,9,9)",
                                                     "hsva(9,9,9,10212)",
                                                     "hsv(-1,0,0)",
-                                                    "hsv(404040,0,0)"
+                                                    "hsv(404040,0,0)",
                                                     "hsv(0,1.4,0)",
                                                     "hsv(0,0,1.7)" };
 
@@ -134,8 +134,8 @@ TEST(HSVColor, InvalidConstructors) {
 
     for (const auto& [h, s, v] : invalid_values) {
 
-        const auto construct = [h, s, v]() { HSVColor{ h, s, v }; };
+        const auto construct = [h, s, v]() { HSVColor{ h, s, v }; }; //NOLINT(clang-analyzer-core.NullDereference)
 
-        EXPECT_ANY_THROW(construct());
+        EXPECT_ANY_THROW(construct()); //NOLINT(*)
     }
 }

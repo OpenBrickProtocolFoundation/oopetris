@@ -5,9 +5,9 @@
 #include "helper/nfd_include.hpp"
 #include "manager/event_dispatcher.hpp"
 #include "manager/font.hpp"
+#include "manager/resource_manager.hpp"
 #include "recordings/recording.hpp"
 #include "recordings/recording_reader.hpp"
-#include "manager/resource_manager.hpp"
 #include "ui/components/text_button.hpp"
 
 custom_ui::RecordingFileChooser::RecordingFileChooser(
@@ -87,7 +87,9 @@ custom_ui::RecordingFileChooser::RecordingFileChooser(
 }
 
 void custom_ui::RecordingFileChooser::render(const ServiceProvider& service_provider) const {
-    const auto color = has_focus() ? is_hovered() ? "#00f2ff"_c : "#00bbff"_c : is_hovered() ? "#C9C9C9"_c : "#9C9C9C"_c;
+    const auto color = has_focus()    ? is_hovered() ? "#00f2ff"_c : "#00bbff"_c
+                       : is_hovered() ? "#C9C9C9"_c
+                                      : "#9C9C9C"_c;
 
     service_provider.renderer().draw_rect_filled(layout().get_rect(), color);
 

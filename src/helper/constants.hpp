@@ -4,8 +4,8 @@
 
 namespace constants {
 
-#define STRINGIFY(a) STRINGIFY_HELPER_(a)
-#define STRINGIFY_HELPER_(a) #a
+#define STRINGIFY(a) STRINGIFY_HELPER_(a) //NOLINT(cppcoreguidelines-macro-usage)
+#define STRINGIFY_HELPER_(a) #a           //NOLINT(cppcoreguidelines-macro-usage)
 
 #if !defined(OOPETRIS_VERSION)
 #define OOPETRIS_VERSION "Unknown"

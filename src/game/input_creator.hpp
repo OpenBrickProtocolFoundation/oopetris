@@ -3,9 +3,9 @@
 
 #include "helper/date.hpp"
 #include "helper/optional.hpp"
-#include "recordings/recording_writer.hpp"
 #include "manager/service_provider.hpp"
 #include "platform/input.hpp"
+#include "recordings/recording_writer.hpp"
 
 #include <memory>
 #include <vector>
