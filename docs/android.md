@@ -1,12 +1,10 @@
 # Android build
 
 
-You need:
+## Prerequisites
 
 - meson
 - Java JDK >= 17
-
-
 
 ## Compiling
 
@@ -18,7 +16,7 @@ We support all 4 architectures, that the NDK support, namely: `armeabi-v7a, arm6
 
 To build all just don't specify any architecture in the build steps.  
 
-The first step runs a shell script, that downloads the used Android NDK and builds the `.so` (shared library) that we use with and android Java App, it so you just need to run:
+The first step runs a shell script, that downloads the used Android NDK and builds the `.so` (shared library) that we use with and Android Java App, it so you just need to run:
 
 ```bash
 ./platforms/build-android.sh <arch> # one of the 4 mentioned ones, or nothing, to build all 
@@ -28,7 +26,6 @@ The first step runs a shell script, that downloads the used Android NDK and buil
 After that we need to make aan apk that consists of the shared library and the Native Android Java Code. To build this you need a java JDK >= 17.
 
 To built it, run this command:
-
 
 
 ```bash

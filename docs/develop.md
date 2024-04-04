@@ -2,33 +2,26 @@
 
 # Develop OOPetris
 
-We support two different build-tools for C++, [meson](https://mesonbuild.com/) and [CMake](https://cmake.org/).
-
-The builds for Linux and Windows support both CMake and meson as a build tool, all other builds only support meson.
-
+We use [meson](https://mesonbuild.com/) as build tool. So you need that to build support for all platforms
 
 For concrete instructions, see the list below:
-
 
 ## Linux
 
 [linux](linux.md)
 
-
-
 ## Windows
 
 [windows](windows.md)
 
+## MacOS
+
+[MacOS](macos.md)
 
 ## Nintendo Switch
 
-
 [switch](switch.md)
 
-
-
 ## Android
-
 
 [android](android.md)
