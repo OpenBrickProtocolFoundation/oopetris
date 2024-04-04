@@ -3,6 +3,7 @@
 #include "color_picker.hpp"
 #include "graphics/point.hpp"
 #include "graphics/rect.hpp"
+#include "helper/graphic_utils.hpp"
 #include "manager/resource_manager.hpp"
 #include "ui/components/textinput.hpp"
 #include "ui/layout.hpp"

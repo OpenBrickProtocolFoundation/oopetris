@@ -33,7 +33,6 @@ graphics_lib = {
     'src_files': [],
     'inc_dirs': [],
     'compile_args': [],
-    'compile_args_c': [],
     'deps': [],
 }
 
@@ -182,7 +181,7 @@ sdl2_mixer_dep = dependency(
 )
 graphics_lib += {
     'deps': [graphics_lib.get('deps'), sdl2_mixer_dep],
-    'compile_args_c': [graphics_lib.get('compile_args_c'), sdl2_mixer_defines],
+    'compile_args': [graphics_lib.get('compile_args'), sdl2_mixer_defines],
 }
 
 if (meson.is_cross_build() and host_machine.system() == 'switch')

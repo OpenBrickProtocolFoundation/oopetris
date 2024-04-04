@@ -1,9 +1,11 @@
 #include "tetrion.hpp"
 #include "helper/constants.hpp"
+#include "helper/graphic_utils.hpp"
+#include "helper/music_utils.hpp"
 #include "helper/utils.hpp"
 #include "manager/music_manager.hpp"
-#include "recordings/recording_writer.hpp"
 #include "manager/resource_manager.hpp"
+#include "recordings/recording_writer.hpp"
 #include "ui/components/label.hpp"
 
 #include <cassert>
@@ -11,8 +13,6 @@
 #include <sstream>
 
 
-//TODO: URGENT
-// #include "helper/music_utils.hpp"
 Tetrion::Tetrion(
         const u8 tetrion_index,
         const Random::Seed random_seed,
