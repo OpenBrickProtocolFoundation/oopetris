@@ -36,6 +36,8 @@ graphics_lib = {
     'deps': [],
 }
 
+global_deps = []
+
 cpp = meson.get_compiler('cpp')
 
 build_with_libcpp = false
@@ -67,13 +69,7 @@ elif cpp.get_id() == 'clang'
     if build_with_libcpp
         add_global_link_arguments('-stdlib=libc++', language: ['cpp'])
         add_global_arguments('-stdlib=libc++', language: ['cpp'])
-        core_lib += {
-            'deps': [
-                core_lib.get('deps'),
-                cpp.find_library('c++'),
-                cpp.find_library('c++abi'),
-            ],
-        }
+        global_deps += [cpp.find_library('c++'), cpp.find_library('c++abi')]
     endif
 
 endif

@@ -1,46 +1,22 @@
 #pragma once
 
 #include "graphics/point.hpp"
+#include "grid_properties.hpp"
 #include "helper/types.hpp"
-#include "manager/service_provider.hpp"
 #include "tetromino_type.hpp"
 
 #include <functional>
-
-enum class MinoTransparency : u8 {
-    // here the enum value is used as index into the preview alpha array
-    Preview0,
-    Preview1,
-    Preview2,
-    Preview3,
-    Preview4,
-    Preview5,
-    // here the enum value is used as alpha!
-    Ghost = 50,
-    Solid = 255,
-};
-
 struct Mino final {
-private:
-    using GridPoint = shapes::AbstractPoint<u8>;
+public:
+    using GridPoint = grid::GridPoint;
     using ScreenCordsFunction = std::function<shapes::UPoint(const GridPoint&)>;
+
+private:
     GridPoint m_position;
     helper::TetrominoType m_type;
-    static constexpr int original_inset = 3;
 
 public:
     explicit constexpr Mino(GridPoint position, helper::TetrominoType type) : m_position{ position }, m_type{ type } { }
-
-#if defined(_HAVE_SDL)
-    void render(
-            const ServiceProvider& service_provider,
-            MinoTransparency transparency,
-            double original_scale,
-            const ScreenCordsFunction& to_screen_coords,
-            const shapes::UPoint& tile_size,
-            const GridPoint& offset = GridPoint::zero()
-    ) const;
-#endif
 
     [[nodiscard]] helper::TetrominoType type() const;
 

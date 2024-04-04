@@ -112,7 +112,7 @@ void Tetrion::render(const ServiceProvider& service_provider) const {
     };
     const shapes::UPoint& tile_size = grid->tile_size();
 
-    m_mino_stack.draw_minos(service_provider, original_scale, to_screen_coords, tile_size);
+    helper::graphics::render_minos(m_mino_stack, service_provider, original_scale, to_screen_coords, tile_size);
     if (m_active_tetromino) {
         m_active_tetromino->render(
                 service_provider, MinoTransparency::Solid, original_scale, to_screen_coords, tile_size,

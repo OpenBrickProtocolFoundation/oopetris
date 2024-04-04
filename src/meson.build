@@ -45,7 +45,9 @@ graphics_lib += {
     'src_files': [graphics_lib.get('src_files'), graphics_src_files],
 }
 
-
+core_lib += {
+    'deps': [core_lib.get('deps'), global_deps],
+}
 
 liboopetris_core = library(
     'oopetris_core',
@@ -71,7 +73,7 @@ liboopetris_core_dep = declare_dependency(
 
 
 recordings_lib += {
-    'deps': [recordings_lib.get('deps'), liboopetris_core_dep],
+    'deps': [recordings_lib.get('deps'), liboopetris_core_dep, global_deps],
 }
 
 liboopetris_recordings = library(
@@ -97,7 +99,7 @@ liboopetris_recordings_dep = declare_dependency(
 )
 
 graphics_lib += {
-    'deps': [graphics_lib.get('deps'), liboopetris_recordings_dep],
+    'deps': [graphics_lib.get('deps'), liboopetris_recordings_dep, global_deps],
 }
 
 
@@ -108,7 +110,6 @@ liboopetris_graphics = library(
     dependencies: graphics_lib.get('deps'),
     cpp_args: [
         graphics_lib.get('compile_args'),
-        '-D_HAVE_SDL',
         '-D_HAVE_SPDLOG',
     ],
     override_options: {
