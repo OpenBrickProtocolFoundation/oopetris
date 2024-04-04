@@ -36,22 +36,6 @@ void MinoStack::set(GridPoint coordinates, helper::TetrominoType type) {
     m_minos.push_back(to_insert);
 }
 
-#if defined(_HAVE_SDL)
-void MinoStack::draw_minos(
-        const ServiceProvider& service_provider,
-        const double original_scale,
-        const ScreenCordsFunction& to_screen_coords,
-        const shapes::UPoint& tile_size
-) const {
-    for (const auto& mino : m_minos) {
-        mino.render(
-                service_provider, MinoTransparency::Solid, original_scale, to_screen_coords, tile_size,
-                grid::grid_position
-        );
-    }
-}
-#endif
-
 [[nodiscard]] u32 MinoStack::num_minos() const {
     return static_cast<u32>(m_minos.size());
 }

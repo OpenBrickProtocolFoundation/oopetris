@@ -1,5 +1,6 @@
 #pragma once
 
+#include "graphic_helpers.hpp"
 #include "graphics/point.hpp"
 #include "mino.hpp"
 #include "rotation.hpp"
@@ -10,8 +11,8 @@
 
 struct Tetromino final {
 private:
-    using GridPoint = shapes::AbstractPoint<u8>;
-    using ScreenCordsFunction = std::function<shapes::UPoint(const GridPoint&)>;
+    using GridPoint = Mino::GridPoint;
+    using ScreenCordsFunction = Mino::ScreenCordsFunction;
 
     GridPoint m_position;
     Rotation m_rotation{ Rotation::North };

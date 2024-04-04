@@ -10,6 +10,8 @@ graphics_src_files += files(
     'bag.hpp',
     'game.cpp',
     'game.hpp',
+    'graphic_helpers.cpp',
+    'graphic_helpers.hpp',
     'grid.cpp',
     'grid.hpp',
     'grid_properties.hpp',
