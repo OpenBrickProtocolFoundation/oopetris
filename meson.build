@@ -427,7 +427,6 @@ install_subdir(
 app_name = 'oopetris'
 if is_flatpak_build
     app_name = 'com.github.mgerhold.OOPetris'
-    compile_args += []
     core_lib += {
         'compile_args': [
             core_lib.get('compile_args'),
