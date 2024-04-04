@@ -5,7 +5,16 @@
 #include <SDL.h>
 #include <string>
 
+
 namespace helper {
+
+#ifdef _WIN32
+    // "WinUser.h" defines "#define MessageBox  MessageBoxA"
+    // which breaks this valid code, I love windows xD.
+#ifdef MessageBox
+#undef MessageBox
+#endif
+#endif
 
 
     struct MessageBox {
