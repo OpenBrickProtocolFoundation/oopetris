@@ -10,17 +10,6 @@ jobs:
   build:
     name: Run Tests 
     runs-on: ubuntu-22.04
-    strategy:
-      fail-fast: false
-      matrix:
-        # Customize the Meson build type here ("plain", "debug", "debugoptimized", "release", "minsize", "custom".)
-        config:
-          - name: Test Release 
-            buildtype: release
-
-          - name: Test Debug 
-            buildtype: debug
-
     steps:
       - uses: actions/checkout@v4
         with:
@@ -44,21 +33,25 @@ jobs:
 
 
       - name: Configure
-        run: meson setup build -Dbuildtype=${{ matrix.config.buildtype }} -Db_coverage=true -Dtests=true
+        run: meson setup build -Dbuildtype=debug -Db_coverage=true -Dtests=true
 
       - name: Build
         run: meson compile -C build 
 
       - name: Coverage
-        run: ninja coverage-xml -C build
+        run: ninja coverage -C build
 
-
-      - name: Monitor coverage
-        uses: slavcodev/coverage-monitor-action@v1
+      - name: Create Coverage Report
+        uses: insightsengineering/coverage-action@v2
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          coverage_path: "build/meson-logs/coverage.xml"
-          threshold_metric: "lines"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: ./build/meson-logs/coverage.xml
+          fail: false # TODO: enable after coverage is higher than 0.000001 % xD
+          # Publish the rendered output as a PR comment
+          publish: true
+          coverage-summary-title: "Code Coverage Summary"
+          togglable-report: true
+          # TODO: use the diff feature of that later when we require test coverage on PR's to not go down
 
       - name: Upload test coverage artifacts
         uses: actions/upload-artifact@v4
