@@ -9,6 +9,7 @@ extra_src = files('entry.cpp')
 
 test_src = []
 test_inc_dirs = []
+core_test_src = []
 
 test_deps += dependency('gtest')
 test_deps += dependency('gmock')
