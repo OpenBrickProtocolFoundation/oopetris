@@ -10,7 +10,7 @@ test_src = []
 test_inc_dirs = []
 
 test_deps += dependency('gtest')
-
+test_deps += dependency('gmock')
 
 test_src += files('entry.cpp')
 
