@@ -11,10 +11,10 @@ project(
         'b_ndebug': 'if-release',
 
     },
-    version: '1.0.0-alpha',
+    version: '0.5.3',
 )
 
-compile_args = []
+compile_args = ['-DOOPETRIS_VERSION=' + meson.project_version()]
 deps = []
 recording_dependencies = []
 
@@ -288,6 +288,8 @@ deps += dependency(
 
 if (meson.is_cross_build() and host_machine.system() == 'switch')
 
+    ## TODO: use the PR #126 to clean up this config a little bit more
+
     switch_dependencies = [
         'EGL',
         'GLESv2',
@@ -352,6 +354,7 @@ endif
 
 
 src_files = []
+main_files = []
 recording_src_files = []
 
 subdir('src')
@@ -447,6 +450,7 @@ if meson.is_cross_build() and host_machine.system() == 'android'
     library(
         'oopetris',
         src_files,
+        main_files,
         include_directories: inc_dirs,
         dependencies: deps,
         c_args: sdl2_mixer_defines,
@@ -461,6 +465,7 @@ elif meson.is_cross_build() and host_machine.system() == 'switch'
     elf_file = build_target(
         'oopetris.elf',
         src_files,
+        main_files,
         include_directories: inc_dirs,
         dependencies: deps,
         c_args: sdl2_mixer_defines,
@@ -571,10 +576,35 @@ elif meson.is_cross_build() and host_machine.system() == 'switch'
 
 
 else
-    executable(
-        'oopetris',
+
+    # TODO: this is really BAD, since we use code duplicates, since the utility and the main executable will use the same code, once as lib once as static code, but some files need reworking (see usages of '-D_NO_SDL', '-D_NO_SPDLOG', '-D_OOPETRIS_RECORDING_UTILITY') to make it possible to, have two libs, teh core and the graphical lib!
+
+    liboopetris_all = library(
+        'oopetris_all',
         src_files,
         include_directories: inc_dirs,
+        dependencies: deps,
+        c_args: sdl2_mixer_defines,
+        cpp_args: compile_args + sdl2_mixer_defines,
+        override_options: {
+            'warning_level': '3',
+            'werror': true,
+        },
+        version: meson.project_version(),
+        install: true,
+    )
+
+    liboopetris_dep = declare_dependency(
+        link_with: liboopetris_all,
+        include_directories: inc_dirs,
+        version: meson.project_version(),
+    )
+
+    deps += [liboopetris_dep]
+
+    executable(
+        'oopetris',
+        main_files,
         dependencies: deps,
         c_args: sdl2_mixer_defines,
         cpp_args: compile_args + sdl2_mixer_defines,

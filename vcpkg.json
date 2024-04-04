@@ -1,6 +1,6 @@
 {
 	"name": "oopetris",
-	"version-string": "1.0.0",
+	"version-string": "0.5.3",
 	"builtin-baseline": "2ac6ba173be85207a7bac4f0f02f5486f9fd4c0f",
 	"dependencies": [
 		{
@@ -17,13 +17,18 @@
 			"name": "sdl2-mixer",
 			"version>=": "2.6.3#2",
 			"platform": "(x64 & static)",
-			"features": ["libflac", "mpg123"]
+			"features": [
+				"libflac",
+				"mpg123"
+			]
 		},
 		{
 			"name": "sdl2-image",
 			"version>=": "2.6.3#1",
 			"platform": "(x64 & static)",
-			"features": ["libjpeg-turbo"]
+			"features": [
+				"libjpeg-turbo"
+			]
 		},
 		{
 			"name": "tl-optional",
@@ -64,7 +69,10 @@
 			"name": "cpp-httplib",
 			"version>=": "0.15.3",
 			"platform": "(x64 & static)",
-			"features": ["openssl", "zlib"]
+			"features": [
+				"openssl",
+				"zlib"
+			]
 		},
 		{
 			"name": "utfcpp",

@@ -1,6 +1,9 @@
 src_files += files(
     'application.cpp',
     'application.hpp',
+)
+
+main_files += files(
     'main.cpp',
 )
 

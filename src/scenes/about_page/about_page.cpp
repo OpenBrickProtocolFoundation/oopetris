@@ -25,12 +25,19 @@ namespace scenes {
 
         auto focus_helper = ui::FocusHelper{ 1 };
 
+#ifdef DEBUG_BUILD
         m_main_grid.add<ui::Label>(
                 service_provider, fmt::format("Git Commit: {}", utils::git_commit()),
                 service_provider->fonts().get(FontId::Default), Color::white(), std::pair<double, double>{ 0.3, 0.5 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
         );
-
+#else
+        m_main_grid.add<ui::Label>(
+                service_provider, fmt::format("Version: {}", utils::get_version()),
+                service_provider->fonts().get(FontId::Default), Color::white(), std::pair<double, double>{ 0.3, 0.5 },
+                ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
+        );
+#endif
         m_main_grid.add<ui::Label>(
                 service_provider, fmt::format("Build for: {}", utils::built_for_platform()),
                 service_provider->fonts().get(FontId::Default), Color::white(), std::pair<double, double>{ 0.3, 0.5 },

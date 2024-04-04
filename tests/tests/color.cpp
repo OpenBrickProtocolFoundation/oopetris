@@ -30,7 +30,7 @@ void PrintTo(const Color& point, std::ostream* os) {
 
 TEST(Color, DefaultConstruction) {
     const auto c1 = Color{};
-    const auto c2 = Color{ 0, 0, 0, 0xFF };
+    const auto c2 = Color{ 0, 0, 0, 0 };
     EXPECT_EQ(c1, c2);
 }
 
