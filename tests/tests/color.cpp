@@ -1,6 +1,7 @@
 
 #include "helper/color.hpp"
 
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <string>
 #include <vector>
@@ -11,14 +12,15 @@ namespace {
         u8 r{ 0 };
         u8 g{ 0 };
         u8 b{ 0 };
-        do {
-            do {
-                do {
+        do {         // NOLINT(cppcoreguidelines-avoid-do-while)
+            do {     // NOLINT(cppcoreguidelines-avoid-do-while)
+                do { // NOLINT(cppcoreguidelines-avoid-do-while)
                     callback(r, g, b);
                 } while (r++ != 255);
             } while (g++ != 255);
         } while (b++ != 255);
     }
+
 
 } // namespace
 
@@ -27,6 +29,24 @@ void PrintTo(const Color& point, std::ostream* os) {
     *os << point.to_string();
 }
 
+// make helper::expected printable
+template<typename T, typename S>
+void PrintTo(const helper::expected<T, S>& value, std::ostream* os) {
+    if (value.has_value()) {
+        *os << "Value: " << ::testing::PrintToString<T>(value.value());
+    } else {
+        *os << "Error: " << ::testing::PrintToString<S>(value.error());
+    }
+}
+
+
+MATCHER(ExpectedHasValue, "expected has value") {
+    return arg.has_value();
+}
+
+MATCHER(ExpectedHasError, "expected has value") {
+    return not arg.has_value();
+}
 
 TEST(Color, DefaultConstruction) {
     const auto c1 = Color{};
@@ -44,26 +64,31 @@ TEST(Color, ConstructorProperties) {
 
 TEST(Color, FromStringValid) {
 
-    const std::vector<std::string> valid_strings{ "#FFAA33",
-                                                  "#FF00FF00"
-                                                  "rgb(0,0,0)",
-                                                  "rgba(0,0,0,0)"
-                                                  "hsl(0,0,0)",
-                                                  "hsla(9,9,9,10212)" };
+    const std::vector<std::string> valid_strings{ "#FFAA33",       "#FF00FF00",  "rgb(0,0,0)",
+                                                  "rgba(0,0,0,0)", "hsv(0,0,0)", "hsva(340,0,0.5,0)" };
 
     for (const auto& valid_string : valid_strings) {
         const auto result = Color::from_string(valid_string);
-        EXPECT_TRUE(result.has_value());
+        EXPECT_THAT(result, ExpectedHasValue()) << "Input was: " << valid_string;
     }
 }
 
 TEST(Color, FromStringInvalid) {
 
-    const std::vector<std::string> invalid_strings{ "",          "#44",     "#Z",       "#ZZFF",      "u",
-                                                    "#FFFFFFII", "#FFFF4T", "#0000001", "hsla(9,9,9)" };
+    const std::vector<std::string> invalid_strings{ "",
+                                                    "#44",
+                                                    "#Z",
+                                                    "#ZZFF",
+                                                    "u",
+                                                    "#FFFFFFII",
+                                                    "#FFFF4T",
+                                                    "#0000001",
+                                                    "hsl(0,0,0)",
+                                                    "hsva(9,9,9)",
+                                                    "hsva(9,9,9,10212)" };
 
     for (const auto& invalid_string : invalid_strings) {
         const auto result = Color::from_string(invalid_string);
-        EXPECT_FALSE(result.has_value());
+        EXPECT_THAT(result, ExpectedHasError()) << "Input was: " << invalid_string;
     }
 }
