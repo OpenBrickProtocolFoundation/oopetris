@@ -1,6 +1,7 @@
 #pragma once
 
 #include "helper/constants.hpp"
+#include "helper/graphic_utils.hpp"
 #include "helper/optional.hpp"
 #include "helper/types.hpp"
 #include "helper/utils.hpp"
