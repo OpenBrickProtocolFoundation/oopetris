@@ -4,10 +4,17 @@
 
 namespace constants {
 
+#define STRINGIFY(a) STRINGIFY_HELPER_(a)
+#define STRINGIFY_HELPER_(a) #a
+
+#if !defined(OOPETRIS_VERSION)
+#define OOPETRIS_VERSION "Unknown"
+#endif
+
 
     constexpr auto program_name = StaticString{ "oopetris" };
     constexpr auto author = StaticString{ "coder2k" };
-    constexpr auto version = StaticString{ "0.0.1" };
+    constexpr auto version = StaticString{ STRINGIFY(OOPETRIS_VERSION) };
     constexpr auto music_change_level = 30;
     constexpr auto recordings_directory = "recordings";
 

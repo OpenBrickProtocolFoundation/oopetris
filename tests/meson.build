@@ -1,9 +1,13 @@
-test_deps = deps
-test_inc_dirs = inc_dirs
 
+if meson.is_cross_build()
+    error('Tests are not supported for cross builds (atm)')
+endif
+
+test_deps = deps
 test_compile_args = compile_args
 
 test_src = []
+test_inc_dirs = []
 
 test_deps += dependency('gtest')
 
