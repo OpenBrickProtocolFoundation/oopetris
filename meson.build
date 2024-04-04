@@ -653,8 +653,8 @@ else
     )
 
     executable(
-        'oopetris_recording_utility',
-        recording_main_files,
+        'oopetris_recordings_utility',
+        recordings_main_files,
         dependencies: liboopetris_recordings_dep,
         override_options: {
             'warning_level': '3',

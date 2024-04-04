@@ -5,7 +5,7 @@
 #include "graphics/window.hpp"
 #include "helper/constants.hpp"
 #include "helper/optional.hpp"
-#include "manager/recording/recording_reader.hpp"
+#include "recordings/recording_reader.hpp"
 #include "manager/resource_manager.hpp"
 #include "recording_component.hpp"
 #include "recording_selector.hpp"

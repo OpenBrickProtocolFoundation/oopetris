@@ -2,7 +2,7 @@
 #include "helper/constants.hpp"
 #include "helper/utils.hpp"
 #include "manager/music_manager.hpp"
-#include "manager/recording/recording_writer.hpp"
+#include "recordings/recording_writer.hpp"
 #include "manager/resource_manager.hpp"
 #include "ui/components/label.hpp"
 

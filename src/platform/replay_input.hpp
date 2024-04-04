@@ -1,7 +1,7 @@
 #pragma once
 
 #include "input.hpp"
-#include "manager/recording/recording_reader.hpp"
+#include "recordings/recording_reader.hpp"
 
 #include <memory>
 
