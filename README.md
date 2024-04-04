@@ -1,5 +1,7 @@
 # OOPetris
 
+![Code Coverage](https://raw.githubusercontent.com/mgerhold/oopetris/_xml_coverage_reports/data/main/badge.svg)
+
 ## What is this?
 
 This is a cross-platform [Tetris](https://en.wikipedia.org/wiki/Tetris) implementation in C++.
