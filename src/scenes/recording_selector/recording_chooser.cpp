@@ -5,8 +5,8 @@
 #include "helper/nfd_include.hpp"
 #include "manager/event_dispatcher.hpp"
 #include "manager/font.hpp"
-#include "manager/recording/recording.hpp"
-#include "manager/recording/recording_reader.hpp"
+#include "recordings/recording.hpp"
+#include "recordings/recording_reader.hpp"
 #include "manager/resource_manager.hpp"
 #include "ui/components/text_button.hpp"
 

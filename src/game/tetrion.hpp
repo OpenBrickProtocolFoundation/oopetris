@@ -5,7 +5,7 @@
 #include "helper/optional.hpp"
 #include "helper/random.hpp"
 #include "helper/types.hpp"
-#include "manager/recording/tetrion_core_information.hpp"
+#include "recordings/tetrion_core_information.hpp"
 #include "manager/service_provider.hpp"
 #include "mino_stack.hpp"
 #include "platform/input.hpp"

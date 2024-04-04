@@ -16,9 +16,11 @@ subdir('graphics')
 subdir('helper')
 subdir('manager')
 subdir('platform')
+subdir('recordings')
 subdir('scenes')
-subdir('ui')
 subdir('thirdparty')
+subdir('ui')
+
 
 if online_multiplayer_supported
     subdir('lobby')

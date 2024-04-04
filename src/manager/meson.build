@@ -10,5 +10,3 @@ graphics_src_files += files(
     'music_manager.hpp',
     'settings.hpp',
 )
-
-subdir('recording')

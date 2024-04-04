@@ -3,7 +3,7 @@
 
 #include "helper/date.hpp"
 #include "helper/optional.hpp"
-#include "manager/recording/recording_writer.hpp"
+#include "recordings/recording_writer.hpp"
 #include "manager/service_provider.hpp"
 #include "platform/input.hpp"
 
