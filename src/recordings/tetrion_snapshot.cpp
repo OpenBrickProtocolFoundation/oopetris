@@ -1,5 +1,6 @@
 #include "tetrion_snapshot.hpp"
 #include "helper.hpp"
+#include "helper/expected.hpp"
 #include "helper/magic_enum_wrapper.hpp"
 #include "tetrion_core_information.hpp"
 
@@ -7,11 +8,6 @@
 #include <sstream>
 #include <string_view>
 
-#if !defined(_HAVE_SPDLOG)
-#include <iostream>
-#else
-#include <spdlog/spdlog.h>
-#endif
 
 TetrionSnapshot::TetrionSnapshot(
         u8 tetrion_index, // NOLINT(bugprone-easily-swappable-parameters)
@@ -152,56 +148,54 @@ TetrionSnapshot::TetrionSnapshot(
 namespace {
 
     template<typename Value>
-    void compare_values(
-            const std::string_view name,
-            const Value& this_value,
-            const Value& other_value,
-            const bool log_result,
-            bool& result
-    ) {
+    helper::expected<bool, std::string>
+    compare_values(const std::string_view name, const Value& this_value, const Value& other_value) {
         if (this_value != other_value) {
-            if (log_result) {
-#if defined(_HAVE_SPDLOG)
-                spdlog::error("{} do not match:\n {} vs. {}", name, this_value, other_value);
-#else
-                std::cerr << name << " do not match:\n" << this_value << " vs. " << other_value << "\n";
-#endif
-            }
-            result = false;
+            return helper::unexpected<std::string>{
+                fmt::format("{} do not match:\n {} vs. {}", name, this_value, other_value)
+            };
         }
+        return true;
     }
 } // namespace
 
-bool TetrionSnapshot::compare_to(const TetrionSnapshot& other, const bool log_result) const {
-    bool snapshots_are_equal = true;
+helper::expected<bool, std::string> TetrionSnapshot::compare_to(const TetrionSnapshot& other) const {
+    helper::expected<bool, std::string> result{ true };
 
-    compare_values("tetrion indices", m_tetrion_index, other.m_tetrion_index, log_result, snapshots_are_equal);
-    compare_values("levels", m_level, other.m_level, log_result, snapshots_are_equal);
-    compare_values("scores", m_score, other.m_score, log_result, snapshots_are_equal);
-    compare_values("numbers of lines cleared", m_lines_cleared, other.m_lines_cleared, log_result, snapshots_are_equal);
-    compare_values(
-            "simulation step indices", m_simulation_step_index, other.m_simulation_step_index, log_result,
-            snapshots_are_equal
-    );
-
-    const auto mino_stacks_are_equal = (m_mino_stack == other.m_mino_stack);
-    if (mino_stacks_are_equal) {
-        if (log_result) {
-            std::stringstream ss;
-            ss << m_mino_stack;
-        }
-    } else {
-        if (log_result) {
-            std::stringstream ss;
-            ss << m_mino_stack << " vs. " << other.m_mino_stack;
-#if defined(_HAVE_SPDLOG)
-            spdlog::error("mino stacks do not match:\n {}", ss.str());
-#else
-            std::cerr << "mino stacks do not match:\n" << ss.str() << "\n";
-#endif
-        }
-        snapshots_are_equal = false;
+    result = compare_values("tetrion indices", m_tetrion_index, other.m_tetrion_index);
+    if (not result.has_value()) {
+        return helper::unexpected<std::string>{ result.error() };
     }
 
-    return snapshots_are_equal;
+    result = compare_values("levels", m_level, other.m_level);
+    if (not result.has_value()) {
+        return helper::unexpected<std::string>{ result.error() };
+    }
+
+
+    result = compare_values("scores", m_score, other.m_score);
+    if (not result.has_value()) {
+        return helper::unexpected<std::string>{ result.error() };
+    }
+
+
+    result = compare_values("numbers of lines cleared", m_lines_cleared, other.m_lines_cleared);
+    if (not result.has_value()) {
+        return helper::unexpected<std::string>{ result.error() };
+    }
+
+
+    result = compare_values("simulation step indices", m_simulation_step_index, other.m_simulation_step_index);
+    if (not result.has_value()) {
+        return helper::unexpected<std::string>{ result.error() };
+    }
+
+    if (m_mino_stack != other.m_mino_stack) {
+        std::stringstream ss;
+        ss << m_mino_stack << " vs. " << other.m_mino_stack;
+
+        return helper::unexpected<std::string>{ fmt::format("mino stacks do not match:\n {}", ss.str()) };
+    }
+
+    return true;
 }
