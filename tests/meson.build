@@ -5,14 +5,15 @@ endif
 
 test_deps = []
 
-core_test_src = []
+extra_src = files('entry.cpp')
+
 test_src = []
 test_inc_dirs = []
 
 test_deps += dependency('gtest')
 test_deps += dependency('gmock')
 
-core_test_src += files('core_entry.cpp')
+
 
 subdir('core')
 subdir('utils')
@@ -21,6 +22,7 @@ test_inc_dirs += include_directories('.')
 
 core_tests = executable(
     'core_tests',
+    extra_src,
     test_src,
     core_test_src,
     include_directories: test_inc_dirs,
