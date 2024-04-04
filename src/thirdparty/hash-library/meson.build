@@ -1,4 +1,4 @@
-core_src_files = files(
+core_src_files += files(
     'sha256.cpp',
     'sha256.h',
 )
