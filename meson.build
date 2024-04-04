@@ -37,6 +37,7 @@ graphics_lib = {
 }
 
 global_deps = []
+graphic_application_deps = []
 
 cpp = meson.get_compiler('cpp')
 
@@ -120,8 +121,11 @@ else
         required: true,
         fallback: 'sdl2',
     )
+
+    graphic_application_deps += sdl2main_dep
+
     graphics_lib += {
-        'deps': [graphics_lib.get('deps'), sdl2_dep, sdl2main_dep],
+        'deps': [graphics_lib.get('deps'), sdl2_dep],
     }
 endif
 
@@ -508,12 +512,8 @@ if meson.is_cross_build() and host_machine.system() == 'android'
 
     library(
         'oopetris',
-        src_files,
         main_files,
-        include_directories: inc_dirs,
-        dependencies: deps,
-        c_args: sdl2_mixer_defines,
-        cpp_args: compile_args + sdl2_mixer_defines,
+        dependencies: [liboopetris_graphics_dep, graphic_application_deps],
         override_options: {
             'warning_level': '3',
             'werror': true,
@@ -523,10 +523,8 @@ elif meson.is_cross_build() and host_machine.system() == 'switch'
 
     elf_file = build_target(
         'oopetris.elf',
-        src_files,
         main_files,
-        include_directories: inc_dirs,
-        dependencies: deps,
+        dependencies: [liboopetris_graphics_dep, graphic_application_deps],
         c_args: sdl2_mixer_defines,
         cpp_args: compile_args + sdl2_mixer_defines,
         override_options: {
@@ -639,7 +637,7 @@ else
     executable(
         'oopetris',
         main_files,
-        dependencies: liboopetris_graphics_dep,
+        dependencies: [liboopetris_graphics_dep, graphic_application_deps],
         override_options: {
             'warning_level': '3',
             'werror': true,
