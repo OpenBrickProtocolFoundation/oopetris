@@ -1,4 +1,4 @@
-src_files += files(
+graphics_src_files += files(
     'online_lobby.cpp',
     'online_lobby.hpp',
 )

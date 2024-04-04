@@ -7,7 +7,7 @@
 #include <sstream>
 #include <string_view>
 
-#if defined(_NO_SPDLOG)
+#if !defined(_HAVE_SPDLOG)
 #include <iostream>
 #else
 #include <spdlog/spdlog.h>
@@ -161,7 +161,7 @@ namespace {
     ) {
         if (this_value != other_value) {
             if (log_result) {
-#if !defined(_NO_SPDLOG)
+#if defined(_HAVE_SPDLOG)
                 spdlog::error("{} do not match:\n {} vs. {}", name, this_value, other_value);
 #else
                 std::cerr << name << " do not match:\n" << this_value << " vs. " << other_value << "\n";
@@ -194,7 +194,7 @@ bool TetrionSnapshot::compare_to(const TetrionSnapshot& other, const bool log_re
         if (log_result) {
             std::stringstream ss;
             ss << m_mino_stack << " vs. " << other.m_mino_stack;
-#if !defined(_NO_SPDLOG)
+#if defined(_HAVE_SPDLOG)
             spdlog::error("mino stacks do not match:\n {}", ss.str());
 #else
             std::cerr << "mino stacks do not match:\n" << ss.str() << "\n";

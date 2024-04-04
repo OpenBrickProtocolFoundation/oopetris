@@ -49,13 +49,7 @@ helper::expected<Color, std::string> Color::from_string(const std::string& value
     return HSVColor{ h, s, v, a };
 }
 
-#if !defined(_NO_SDL)
-[[nodiscard]] SDL_Color Color::to_sdl_color() const {
-    return SDL_Color{ r, g, b, a };
-}
-#endif
-
-//NOte: this output formats are all deserializable by the from_string method!
+//Note: this output formats are all deserializable by the from_string method!
 [[nodiscard]] std::string Color::to_string(SerializeMode mode) const {
 
     switch (mode) {

@@ -4,10 +4,6 @@
 #include "helper/types.hpp"
 #include "helper/utils.hpp"
 
-#if !defined(_NO_SDL)
-#include <SDL.h>
-#endif
-
 #include <algorithm>
 #include <fmt/format.h>
 #include <ostream>
@@ -182,10 +178,6 @@ struct Color {
     [[nodiscard]] static constexpr Color white(u8 alpha = 0xFF) {
         return Color{ 0xFF, 0xFF, 0xFF, alpha };
     };
-
-#if !defined(_NO_SDL)
-    [[nodiscard]] SDL_Color to_sdl_color() const;
-#endif
 
     enum class SerializeMode : u8 { Hex, RGB, HSV };
 

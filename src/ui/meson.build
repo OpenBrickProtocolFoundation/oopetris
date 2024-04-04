@@ -1,4 +1,4 @@
-src_files += files(
+graphics_src_files += files(
     'focusable.hpp',
     'layout.cpp',
     'layout.hpp',

@@ -1,14 +1,11 @@
-shared_files = files(
+core_src_files += files(
     'mino.cpp',
     'mino.hpp',
     'mino_stack.cpp',
     'mino_stack.hpp',
 )
 
-src_files += shared_files
-recording_src_files += shared_files
-
-src_files += files(
+graphics_src_files += files(
     'bag.cpp',
     'bag.hpp',
     'game.cpp',

@@ -1,4 +1,4 @@
-src_files += files(
+graphics_src_files += files(
     'color_setting_row.cpp',
     'color_setting_row.hpp',
     'settings_details.hpp',

@@ -1,4 +1,4 @@
-shared_files = files(
+recordings_src_files = files(
     'additional_information.cpp',
     'additional_information.hpp',
     'checksum_helper.cpp',
@@ -13,9 +13,9 @@ shared_files = files(
     'tetrion_snapshot.hpp',
 )
 
-src_files += shared_files
-recording_src_files += shared_files
 
 subdir('executable')
 
-recording_inc_dirs += include_directories('.')
+recordings_lib += {
+    'inc_dirs': [recordings_lib.get('inc_dirs'), include_directories('.')],
+}

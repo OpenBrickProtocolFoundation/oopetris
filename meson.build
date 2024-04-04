@@ -14,15 +14,35 @@ project(
     version: '0.5.3',
 )
 
-compile_args = ['-DOOPETRIS_VERSION=' + meson.project_version()]
-deps = []
-recording_dependencies = []
+
+core_lib = {
+    'src_files': [],
+    'inc_dirs': [],
+    'compile_args': ['-DOOPETRIS_VERSION=' + meson.project_version()],
+    'deps': [],
+}
+
+recordings_lib = {
+    'src_files': [],
+    'inc_dirs': [],
+    'compile_args': [],
+    'deps': [],
+}
+
+graphics_lib = {
+    'src_files': [],
+    'inc_dirs': [],
+    'compile_args': [],
+    'compile_args_c': [],
+    'deps': [],
+}
 
 cpp = meson.get_compiler('cpp')
 
+build_with_libcpp = false
 
 if cpp.get_id() == 'gcc'
-    compile_args += ['-Wold-style-cast']
+    add_project_arguments('-Wold-style-cast', language: ['cpp'])
 elif cpp.get_id() == 'clang'
 
     build_with_libcpp_option = get_option('clang_libcpp')
@@ -48,26 +68,35 @@ elif cpp.get_id() == 'clang'
     if build_with_libcpp
         add_global_link_arguments('-stdlib=libc++', language: ['cpp'])
         add_global_arguments('-stdlib=libc++', language: ['cpp'])
-        deps += cpp.find_library('c++')
-        deps += cpp.find_library('c++abi')
+        core_lib += {
+            'deps': [
+                core_lib.get('deps'),
+                cpp.find_library('c++'),
+                cpp.find_library('c++abi'),
+            ],
+        }
     endif
 
 endif
 
-if get_option('buildtype') == 'debug' or get_option('buildtype') == 'debugoptimized'
-    compile_args += ['-DDEBUG_BUILD']
+if (
+    get_option('buildtype') == 'debug'
+    or get_option('buildtype') == 'debugoptimized'
+)
+    core_lib += {
+        'compile_args': [core_lib.get('compile_args'), '-DDEBUG_BUILD'],
+    }
 endif
 
 
-
-inc_dirs = []
-recording_inc_dirs = []
 
 only_allow_native_libs = false
 if meson.is_cross_build()
     if host_machine.system() == 'switch'
         # we do not link to code that was compiled with gcc 10.1, the code we link with is all compiled with gcc 13.2
-        compile_args += ['-Wno-psabi']
+        core_lib += {
+            'compile_args': [core_lib.get('compile_args'), '-Wno-psabi'],
+        }
 
         only_allow_native_libs = true
     endif
@@ -82,35 +111,44 @@ sdl2_dep = dependency(
 )
 
 if sdl2_dep.found()
-    deps += sdl2_dep
+    graphics_lib += {
+        'deps': [graphics_lib.get('deps'), sdl2_dep],
+    }
 else
-    deps += dependency(
+    sdl2_dep = dependency(
         'sdl2',
         required: true,
-        default_options: {'test': 'false'},
+        default_options: {'test': false},
     )
-    deps += dependency(
+    sdl2main_dep = dependency(
         'sdl2main',
         required: true,
         fallback: 'sdl2',
     )
+    graphics_lib += {
+        'deps': [graphics_lib.get('deps'), sdl2_dep, sdl2main_dep],
+    }
 endif
 
-deps += dependency(
+sdl2_ttf_dep = dependency(
     'sdl2_ttf',
     'SDL2_ttf',
     allow_fallback: not only_allow_native_libs,
     required: true,
 )
+graphics_lib += {
+    'deps': [graphics_lib.get('deps'), sdl2_ttf_dep],
+}
 
-
-deps += dependency(
+sdl2_image_dep = dependency(
     'sdl2_image',
     'SDL2_image',
     allow_fallback: not only_allow_native_libs,
     required: true,
 )
-
+graphics_lib += {
+    'deps': [graphics_lib.get('deps'), sdl2_image_dep],
+}
 
 # a dirty thing atm, until mpg123 is ported to meson (maybe never...)
 mpg123_dep = dependency(
@@ -135,13 +173,17 @@ endif
 
 
 
-deps += dependency(
+sdl2_mixer_dep = dependency(
     'sdl2_mixer',
     'SDL2_mixer',
     allow_fallback: not only_allow_native_libs,
     required: true,
     default_options: sdl2_mixer_flags,
 )
+graphics_lib += {
+    'deps': [graphics_lib.get('deps'), sdl2_mixer_dep],
+    'compile_args_c': [graphics_lib.get('compile_args_c'), sdl2_mixer_defines],
+}
 
 if (meson.is_cross_build() and host_machine.system() == 'switch')
 
@@ -152,7 +194,7 @@ if (meson.is_cross_build() and host_machine.system() == 'switch')
     )
 
     if fmt_lib.found()
-        deps += fmt_lib
+        core_lib += {'deps': [core_lib.get('deps'), fmt_lib]}
     else
 
         fmt_header_only_dep = dependency(
@@ -164,14 +206,13 @@ if (meson.is_cross_build() and host_machine.system() == 'switch')
 
         meson.override_dependency('fmt', fmt_header_only_dep)
 
-        deps += fmt_header_only_dep
-
+        core_lib += {'deps': [core_lib.get('deps'), fmt_header_only_dep]}
     endif
 
 else
 
     # clang with libc++ creates some really long and confusing linker errors, so just use the header only library
-    if cpp.get_id() == 'clang' and compile_args.contains('-stdlib=libc++')
+    if cpp.get_id() == 'clang' and build_with_libcpp
         fmt_dep = dependency(
             'fmt_header_only',
             required: true,
@@ -186,24 +227,22 @@ else
         )
     endif
 
-    recording_dependencies += fmt_dep
-    deps += fmt_dep
 
+    core_lib += {'deps': [core_lib.get('deps'), fmt_dep]}
 endif
 
-deps += dependency(
+spdlog_dep = dependency(
     'spdlog',
     required: true,
     default_options: {'tests': 'disabled'},
 )
+graphics_lib += {'deps': [graphics_lib.get('deps'), spdlog_dep]}
 
 nlohmann_json_dep = dependency(
     'nlohmann_json',
     required: true,
 )
-
-recording_dependencies += nlohmann_json_dep
-deps += nlohmann_json_dep
+core_lib += {'deps': [core_lib.get('deps'), nlohmann_json_dep]}
 
 # check std::expected support
 have_std_expected = cpp.compiles(
@@ -214,15 +253,17 @@ int main() {
     return 0;
 }
 ''',
-    args: compile_args,
+    args: core_lib.get('compile_args'),
 )
 
 if not have_std_expected
     message('Compiler doesn\'t support std::expected, using fallback')
-    compile_args += ['-D_USE_TL_EXPECTED']
+
     tl_exp_dep = dependency('tl-expected', required: true)
-    recording_dependencies += tl_exp_dep
-    deps += tl_exp_dep
+    core_lib += {
+        'compile_args': [core_lib.get('compile_args'), '-D_USE_TL_EXPECTED'],
+        'deps': [core_lib.get('deps'), tl_exp_dep],
+    }
 else
     message('Compiler support std::expected, using that')
 endif
@@ -236,15 +277,16 @@ int main() {
     return 0;
 }
 ''',
-    args: compile_args,
+    args: core_lib.get('compile_args'),
 )
 
 if not have_std_optional
     message('Compiler doesn\'t support std::optional, using fallback')
-    compile_args += ['-D_USE_TL_OPTIONAL']
     tl_opt_dep = dependency('tl-optional', required: true)
-    recording_dependencies += tl_opt_dep
-    deps += tl_opt_dep
+    core_lib += {
+        'compile_args': [core_lib.get('compile_args'), '-D_USE_TL_OPTIONAL'],
+        'deps': [core_lib.get('deps'), tl_opt_dep],
+    }
 else
     message('Compiler support std::optional, using that')
 endif
@@ -256,20 +298,24 @@ magic_enum_dep = dependency(
     required: true,
     default_options: {'test': false},
 )
-recording_dependencies += magic_enum_dep
-deps += magic_enum_dep
+core_lib += {'deps': [core_lib.get('deps'), magic_enum_dep]}
 
 argparse_dep = dependency('argparse', required: true)
-recording_dependencies += argparse_dep
-deps += argparse_dep
+core_lib += {'deps': [core_lib.get('deps'), argparse_dep]}
 
 online_multiplayer_supported = true
 
 if meson.is_cross_build() and host_machine.system() == 'switch'
-    compile_args += ['-D_ONLINE_MULTIPLAYER_NOT_SUPPORTED']
+    compile_args += []
     online_multiplayer_supported = false
+    core_lib += {
+        'compile_args': [
+            core_lib.get('compile_args'),
+            '-D_ONLINE_MULTIPLAYER_NOT_SUPPORTED',
+        ],
+    }
 else
-    deps += dependency(
+    cpp_httlib_dep = dependency(
         'cpp-httplib',
         required: true,
         default_options: {
@@ -277,14 +323,15 @@ else
             'cpp-httplib_zlib': 'enabled',
         },
     )
+    core_lib += {'deps': [core_lib.get('deps'), cpp_httlib_dep]}
 endif
 
-deps += dependency(
+utf8cpp_dep = dependency(
     'utf8cpp',
     required: true,
     version: '>=4.0.0',
 )
-
+core_lib += {'deps': [core_lib.get('deps'), utf8cpp_dep]}
 
 if (meson.is_cross_build() and host_machine.system() == 'switch')
 
@@ -314,13 +361,15 @@ if (meson.is_cross_build() and host_machine.system() == 'switch')
 
     library_dirs = meson.get_external_property('library_dirs')
 
+    switch_deps = []
     foreach dep : switch_dependencies
-        deps += cpp.find_library(
+        switch_deps += cpp.find_library(
             dep,
             required: true,
             dirs: library_dirs,
         )
     endforeach
+    graphics_lib += {'deps': [graphics_lib.get('deps'), switch_deps]}
 
 endif
 
@@ -333,12 +382,19 @@ have_discord_sdk = false
 nfde_dep = dependency(
     'nativefiledialog-extended',
     required: not meson.is_cross_build(),
-    default_options: {'xdg-desktop-portal': is_flatpak_build ? 'enabled' : 'auto'},
+    default_options: {
+        'xdg-desktop-portal': is_flatpak_build ? 'enabled' : 'auto',
+    },
 )
 if nfde_dep.found()
     have_file_dialogs = true
-    deps += nfde_dep
-    compile_args += '-D_HAVE_FILE_DIALOGS'
+    graphics_lib += {
+        'compile_args': [
+            graphics_lib.get('compile_args'),
+            '-D_HAVE_FILE_DIALOGS',
+        ],
+        'deps': [graphics_lib.get('deps'), nfde_dep],
+    }
 endif
 
 discord_sdk_dep = dependency(
@@ -348,14 +404,15 @@ discord_sdk_dep = dependency(
 )
 if discord_sdk_dep.found()
     have_discord_sdk = true
-    deps += discord_sdk_dep
-    compile_args += '-D_HAVE_DISCORD_SDK'
+    graphics_lib += {
+        'compile_args': [
+            graphics_lib.get('compile_args'),
+            '-D_HAVE_DISCORD_SDK',
+        ],
+        'deps': [graphics_lib.get('deps'), discord_sdk_dep],
+    }
 endif
 
-
-src_files = []
-main_files = []
-recording_src_files = []
 
 subdir('src')
 
@@ -371,7 +428,14 @@ install_subdir(
 app_name = 'oopetris'
 if is_flatpak_build
     app_name = 'com.github.mgerhold.OOPetris'
-    compile_args += ['-DFLATPAK_BUILD', '-DBUILD_INSTALLER']
+    compile_args += []
+    core_lib += {
+        'compile_args': [
+            core_lib.get('compile_args'),
+            '-DFLATPAK_BUILD',
+            '-DBUILD_INSTALLER',
+        ],
+    }
 endif
 
 conf = configuration_data()
@@ -577,37 +641,10 @@ elif meson.is_cross_build() and host_machine.system() == 'switch'
 
 else
 
-    # TODO: this is really BAD, since we use code duplicates, since the utility and the main executable will use the same code, once as lib once as static code, but some files need reworking (see usages of '-D_NO_SDL', '-D_NO_SPDLOG', '-D_OOPETRIS_RECORDING_UTILITY') to make it possible to, have two libs, teh core and the graphical lib!
-
-    liboopetris_all = library(
-        'oopetris_all',
-        src_files,
-        include_directories: inc_dirs,
-        dependencies: deps,
-        c_args: sdl2_mixer_defines,
-        cpp_args: compile_args + sdl2_mixer_defines,
-        override_options: {
-            'warning_level': '3',
-            'werror': true,
-        },
-        version: meson.project_version(),
-        install: true,
-    )
-
-    liboopetris_dep = declare_dependency(
-        link_with: liboopetris_all,
-        include_directories: inc_dirs,
-        version: meson.project_version(),
-    )
-
-    deps += [liboopetris_dep]
-
     executable(
         'oopetris',
         main_files,
-        dependencies: deps,
-        c_args: sdl2_mixer_defines,
-        cpp_args: compile_args + sdl2_mixer_defines,
+        dependencies: liboopetris_graphics_dep,
         override_options: {
             'warning_level': '3',
             'werror': true,
@@ -617,10 +654,8 @@ else
 
     executable(
         'oopetris_recording_utility',
-        recording_src_files,
-        dependencies: recording_dependencies,
-        include_directories: recording_inc_dirs,
-        cpp_args: [compile_args, '-D_NO_SDL', '-D_NO_SPDLOG', '-D_OOPETRIS_RECORDING_UTILITY'],
+        recording_main_files,
+        dependencies: liboopetris_recordings_dep,
         override_options: {
             'warning_level': '3',
             'werror': true,
