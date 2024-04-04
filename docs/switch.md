@@ -1,12 +1,10 @@
 # Nintendo Switch build
 
-
-You need:
+## Prerequisites
 
 - a C++23 compatible cross compiler, we only support The [devkitpro](https://devkitpro.org/) one
 - meson
 - some portlibs from devkitpro, namely sdl2, sld2_ttf, sdl2_mix.
-
 
 
 ## Compiling
