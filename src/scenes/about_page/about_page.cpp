@@ -33,7 +33,7 @@ namespace scenes {
         );
 #else
         m_main_grid.add<ui::Label>(
-                service_provider, fmt::format("Version: {}", utils::get_version()),
+                service_provider, fmt::format("Version: {}", constants::version.c_str()),
                 service_provider->fonts().get(FontId::Default), Color::white(), std::pair<double, double>{ 0.3, 0.5 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
         );
