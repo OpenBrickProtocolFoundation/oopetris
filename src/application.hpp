@@ -26,7 +26,6 @@ private:
 
     CommandLineArguments m_command_line_arguments;
     std::unique_ptr<Window> m_window;
-    SdlContext context;
     Renderer m_renderer;
     bool m_is_running{ true };
     MusicManager m_music_manager;
