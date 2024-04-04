@@ -58,12 +58,6 @@ namespace utils {
         return static_cast<std::underlying_type_t<Enum>>(enum_);
     }
 
-    [[nodiscard]] std::filesystem::path get_assets_folder();
-
-    [[nodiscard]] std::filesystem::path get_root_folder();
-
-    helper::optional<bool> log_error(const std::string& error);
-
     [[noreturn]] inline void unreachable() {
         assert(false and "unreachable");
         std::terminate();
@@ -74,8 +68,6 @@ namespace utils {
         //using type = T;
     };
 
-
-    [[nodiscard]] std::vector<std::string> supported_features();
 
     [[nodiscard]] constexpr bool is_constant_evaluated() noexcept {
 

@@ -1,7 +1,5 @@
 core_src_files += files(
     'bool_wrapper.hpp',
-    'clock_source.cpp',
-    'clock_source.hpp',
     'color.cpp',
     'color.hpp',
     'color_literals.hpp',
@@ -14,8 +12,6 @@ core_src_files += files(
     'expected.hpp',
     'git_helper.hpp',
     'magic_enum_wrapper.hpp',
-    'message_box.cpp',
-    'message_box.hpp',
     'optional.hpp',
     'parse_json.cpp',
     'parse_json.hpp',
@@ -26,14 +22,17 @@ core_src_files += files(
     'static_string.hpp',
     'timer.hpp',
     'types.hpp',
-    'utils.cpp',
     'utils.hpp',
 
 )
 
 graphics_src_files += files(
+    'clock_source.cpp',
+    'clock_source.hpp',
     'graphic_utils.cpp',
     'graphic_utils.hpp',
+    'message_box.cpp',
+    'message_box.hpp',
     'music_utils.hpp',
 )
 
