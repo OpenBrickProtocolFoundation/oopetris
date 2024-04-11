@@ -7,8 +7,8 @@ export COMPILE_TYPE="smart"
 
 mkdir -p toolchains
 
-export NDK_VER_DOWNLOAD="r26c"
-export NDK_VER_DESC="r26c"
+export NDK_VER_DOWNLOAD="r26d"
+export NDK_VER_DESC="r26d"
 
 export BASE_PATH="$PWD/toolchains/android-ndk-$NDK_VER_DESC"
 export ANDROID_NDK_HOME="$BASE_PATH"
