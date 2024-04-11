@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+
         config:
           - name: Windows MSVC Release
             os: windows
@@ -45,16 +45,10 @@ jobs:
           sudo apt-get update
           sudo apt install curl pkg-config zip unzip tar cmake git -y
 
-      - name: Install cmake >= 3.25 (Linux)
-        if: matrix.config.os == 'ubuntu'
-        shell: bash
-        run: |
-          sudo apt-get update
-          sudo apt-get install gpg wget
-          wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | sudo tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null
-          echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ jammy main' | sudo tee /etc/apt/sources.list.d/kitware.list >/dev/null
-          sudo apt-get update
-          sudo apt-get install cmake -y
+      - name: Install cmake 3.29.0 and ninja
+        uses: lukka/get-cmake@latest
+        with:
+          cmakeVersion: 3.29.0
 
       - name: Setup GCC (Linux)
         if: matrix.config.os == 'ubuntu'
@@ -63,31 +57,12 @@ jobs:
           version: 13
           platform: x64
 
-
-      - name: Install vcpkg
-        shell: bash
-        run: |
-          cd "${{github.workspace}}"
-          git clone https://github.com/Microsoft/vcpkg.git
-          "${{github.workspace}}/vcpkg/bootstrap-vcpkg.sh"
-
-      - uses: abdes/gha-setup-ninja@master
-
-      - name: Configure CMake (Windows only)
-        if: matrix.config.os == 'windows'
-        # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
-        # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{ matrix.config.buildtype }} -DCMAKE_TOOLCHAIN_FILE="${{github.workspace}}/vcpkg/scripts/buildsystems/vcpkg.cmake" ${{github.workspace}} -DVCPKG_TARGET_TRIPLET=x64-windows-static -G Ninja
-
-      - name: Configure CMake (Linux only)
-        if: matrix.config.os == 'ubuntu'
-        # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
-        # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{ matrix.config.buildtype }} -DCMAKE_TOOLCHAIN_FILE="${{github.workspace}}/vcpkg/scripts/buildsystems/vcpkg.cmake" ${{github.workspace}} -G Ninja
+      - name: Configure CMake
+        run: cmake -B ./build -DCMAKE_BUILD_TYPE=${{ matrix.config.buildtype }} -DCMAKE_TOOLCHAIN_FILE="${{matrix.config.os == 'windows' && 'C:/vcpkg' || '/usr/local/share/vcpkg'}}/scripts/buildsystems/vcpkg.cmake" . -DVCPKG_TARGET_TRIPLET="${{ matrix.config.os == 'windows' && 'x64-windows-static' || 'x64-linux' }}" -G Ninja
 
       - name: Build
         # Build your program with the given configuration
-        run: cmake --build ${{github.workspace}}/build -j --config ${{ matrix.config.buildtype }}
+        run: cmake --build ./build -j --config ${{ matrix.config.buildtype }}
 
       - name: Upload artifacts - Linux
         uses: actions/upload-artifact@v4
