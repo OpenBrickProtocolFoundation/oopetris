@@ -45,16 +45,10 @@ jobs:
           sudo apt-get update
           sudo apt install curl pkg-config zip unzip tar cmake git -y
 
-      - name: Install cmake >= 3.25 (Linux)
-        if: matrix.config.os == 'ubuntu'
-        shell: bash
-        run: |
-          sudo apt-get update
-          sudo apt-get install gpg wget
-          wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | sudo tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null
-          echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ jammy main' | sudo tee /etc/apt/sources.list.d/kitware.list >/dev/null
-          sudo apt-get update
-          sudo apt-get install cmake -y
+      - name: Install cmake 3.29.0 and ninja
+        uses: lukka/get-cmake@latest
+        with:
+          cmakeVersion: 3.29.0
 
       - name: Setup GCC (Linux)
         if: matrix.config.os == 'ubuntu'
@@ -70,8 +64,6 @@ jobs:
           cd "${{github.workspace}}"
           git clone https://github.com/Microsoft/vcpkg.git
           "${{github.workspace}}/vcpkg/bootstrap-vcpkg.sh"
-
-      - uses: abdes/gha-setup-ninja@master
 
       - name: Configure CMake (Windows only)
         if: matrix.config.os == 'windows'
