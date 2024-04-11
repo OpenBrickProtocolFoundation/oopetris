@@ -164,14 +164,16 @@ namespace {
         return const_utils::expected<DoubleReturnValue>::error_result("unreachable");
     }
 
-    using AnyColorReturnValue = CharIteratorResult<std::size_t>;
+    using AnySizeType = u32;
+
+    using AnyColorReturnValue = CharIteratorResult<AnySizeType>;
 
     // decode a single_hex_number
     [[nodiscard]] constexpr const_utils::expected<AnyColorReturnValue> single_color_value_any(const char* value) {
 
         bool accept_hex = false;
-        std::size_t start = 0;
-        std::size_t mul_unit = 10;
+        AnySizeType start = 0;
+        AnySizeType mul_unit = 10;
 
         // skip leading white space
         while (value[start] == ' ') {
@@ -185,14 +187,14 @@ namespace {
         }
 
 
-        std::size_t result{ 0 };
+        AnySizeType result{ 0 };
 
         const auto max_value_before_multiplication = (std::numeric_limits<decltype(result)>::max() / mul_unit);
 
         const auto max_value_before_multiplication_rest =
                 std::numeric_limits<decltype(result)>::max() - (max_value_before_multiplication * mul_unit);
 
-        for (std::size_t i = start;; ++i) {
+        for (AnySizeType i = start;; ++i) {
 
             const char current_char = value[i];
 
@@ -335,7 +337,7 @@ namespace {
             if (input[3] == 'a' && input[4] == '(') {
 
 
-                const auto r_result = single_double_color_value(input + 5);
+                const auto r_result = single_color_value_any(input + 5);
 
                 PROPAGATE(r_result, Color);
 
@@ -350,7 +352,7 @@ namespace {
                 }
 
 
-                const auto g_result = single_double_color_value(next_g + 1);
+                const auto g_result = single_color_value_any(next_g + 1);
 
                 PROPAGATE(g_result, Color);
 
@@ -365,7 +367,7 @@ namespace {
                 }
 
 
-                const auto b_result = single_double_color_value(next_b + 1);
+                const auto b_result = single_color_value_any(next_b + 1);
 
                 PROPAGATE(b_result, Color);
 
@@ -405,7 +407,7 @@ namespace {
         }
 
 
-        return const_utils::expected<Color>::error_result("Unrecognized HSV literal");
+        return const_utils::expected<Color>::error_result("Unrecognized RGB literal");
     }
 
     [[nodiscard]] constexpr const_utils::expected<Color>

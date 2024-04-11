@@ -44,7 +44,7 @@ MATCHER(ExpectedHasValue, "expected has value") {
     return arg.has_value();
 }
 
-MATCHER(ExpectedHasError, "expected has value") {
+MATCHER(ExpectedHasError, "expected has error") {
     return not arg.has_value();
 }
 
@@ -64,36 +64,95 @@ TEST(Color, ConstructorProperties) {
 
 TEST(Color, FromStringValid) {
 
-    const std::vector<std::string> valid_strings{ "#FFAA33",       "#FF00FF00",  "rgb(0,0,0)",
-                                                  "rgba(0,0,0,0)", "hsv(0,0,0)", "hsva(340,0,0.5,0)" };
+    const std::vector<std::tuple<std::string, Color>> valid_strings{
+        {                  "#FFAA33",       Color{ 0xFF, 0xAA, 0x33 }},
+        {                "#FF00FF00", Color{ 0xFF, 0x00, 0xFF, 0x00 }},
+        {               "rgb(0,0,0)",                Color{ 0, 0, 0 }},
+        {            "rgba(0,0,0,0)",             Color{ 0, 0, 0, 0 }},
+        {               "hsv(0,0,0)",             HSVColor{ 0, 0, 0 }},
+        {        "hsva(340,0,0.5,0)",      HSVColor{ 340, 0, 0.5, 0 }},
+        {                  "#ffaa33",       Color{ 0xff, 0xaa, 0x33 }},
+        {"hsv(0, 0.00_000_000_1, 0)",   HSVColor{ 0, 0.000000001, 0 }},
+        {      "hsva(0, 0, 0, 0xFF)",       HSVColor{ 0, 0, 0, 0xFF }},
+        {    "rgba(0, 0xFF, 0, 255)",        Color{ 0, 0xFF, 0, 255 }},
+        {  "rgba(0, 0xFF, 0, 1_0_0)",        Color{ 0, 0xFF, 0, 100 }},
+    };
 
-    for (const auto& valid_string : valid_strings) {
+    for (const auto& [valid_string, expected_color] : valid_strings) {
         const auto result = Color::from_string(valid_string);
         EXPECT_THAT(result, ExpectedHasValue()) << "Input was: " << valid_string;
+        if (result.has_value()) {
+            EXPECT_EQ(result.value(), expected_color) << "Input was: " << valid_string;
+        }
     }
 }
 
 TEST(Color, FromStringInvalid) {
 
-    const std::vector<std::string> invalid_strings{ "",
-                                                    "#44",
-                                                    "#Z",
-                                                    "#ZZFF",
-                                                    "u",
-                                                    "#FFFFFFII",
-                                                    "#FFFF4T",
-                                                    "#0000001",
-                                                    "hsl(0,0,0)",
-                                                    "hsva(9,9,9)",
-                                                    "hsva(9,9,9,10212)",
-                                                    "hsv(-1,0,0)",
-                                                    "hsv(404040,0,0)",
-                                                    "hsv(0,1.4,0)",
-                                                    "hsv(0,0,1.7)" };
+    const std::vector<std::tuple<std::string, std::string>> invalid_strings{
+        {                                         "", "not enough data to determine the literal type"},
+        {                                      "#44",                      "Unrecognized HEX literal"},
+        {                                       "#Z",                      "Unrecognized HEX literal"},
+        {                                    "#ZZFF",                      "Unrecognized HEX literal"},
+        {                                        "u",                    "Unrecognized color literal"},
+        {                                "#FFFFFFII",       "the input must be a valid hex character"},
+        {                                  "#FFFF4T",       "the input must be a valid hex character"},
+        {                                 "#0000001",                      "Unrecognized HEX literal"},
+        {                               "hsl(0,0,0)",                      "Unrecognized HSV literal"},
+        {                               "rgg(0,0,0)",                      "Unrecognized RGB literal"},
+        {                              "hsva(9,9,9)",                "s has to be in range 0.0 - 1.0"},
+        {                        "hsva(9,9,9,10212)",                "s has to be in range 0.0 - 1.0"},
+        {                              "hsv(-1,0,0)",   "the input must be a valid decimal character"},
+        {                          "hsv(404040,0,0)",              "h has to be in range 0.0 - 360.0"},
+        {                             "hsv(0,1.4,0)",                "s has to be in range 0.0 - 1.0"},
+        {                             "hsv(0,0,1.7)",                "v has to be in range 0.0 - 1.0"},
+        {                       "hsva(1321.4,0,0,0)",              "h has to be in range 0.0 - 360.0"},
+        {                          "hsva(0,1.4,0,0)",                "s has to be in range 0.0 - 1.0"},
+        {                          "hsva(0,0,1.7,0)",                "v has to be in range 0.0 - 1.0"},
+        {                       "hsva(0, 0, 0, 256)",                  "a has to be in range 0 - 255"},
+        {                           "hsv(0,0,1.7.8)",                        "only one comma allowed"},
+        {                                    "hsv(0",                         "input ended too early"},
+        {                   "rgba(0, 0xFFF, 0, 255)",                  "g has to be in range 0 - 255"},
+        {                         "rgba(0, 0xFF, 0)",                                  "expected ','"},
+        {                     "rgb(0, 0xFF, 0, 255)",                                  "expected ')'"},
+        {                    "rgba(0, 0xFF, 0, 256)",                  "a has to be in range 0 - 255"},
+        {                                   "rgba(0",                         "input ended too early"},
+        {          "rgba(0, 0xFF, 0, 4_294_967_296)",                             "overflow detected"},
+        {          "rgba(0, 0xFF, 0, 4_294_967_300)",                             "overflow detected"},
+        {"rgba(0, 0xFF, 0, 121_123_124_294_967_300)",                             "overflow detected"},
+        {                             "rgb(256,0,0)",                  "r has to be in range 0 - 255"},
+        {                                   "rgb(0)",                                  "expected ','"},
+        {                             "rgb(0,256,0)",                  "g has to be in range 0 - 255"},
+        {                                 "rgb(0,0)",                                  "expected ','"},
+        {                             "rgb(0,0,256)",                  "b has to be in range 0 - 255"},
+        {                               "rgb(0,0,0,",                                  "expected ')'"},
+        {                          "rgb(0,0,255)   ",                        "expected end of string"},
+        {                          "rgba(256,0,0,0)",                  "r has to be in range 0 - 255"},
+        {                                  "rgba(0)",                                  "expected ','"},
+        {                          "rgba(0,256,0,0)",                  "g has to be in range 0 - 255"},
+        {                                "rgba(0,0)",                                  "expected ','"},
+        {                          "rgba(0,0,256,0)",                  "b has to be in range 0 - 255"},
+        {                              "rgba(0,0,0)",                                  "expected ','"},
+        {                          "rgba(0,0,0,256)",                  "a has to be in range 0 - 255"},
+        {                            "rgba(0,0,0,0,",                                  "expected ')'"},
+        {                       "rgba(0,0,0,255)   ",                        "expected end of string"},
+        {                                   "hsv(0)",                                  "expected ','"},
+        {                                 "hsv(0,0)",                                  "expected ','"},
+        {                               "hsv(0,0,0,",                                  "expected ')'"},
+        {                            "hsv(0,0,0)   ",                        "expected end of string"},
+        {                                  "hsva(0)",                                  "expected ','"},
+        {                                "hsva(0,0)",                                  "expected ','"},
+        {                              "hsva(0,0,0)",                                  "expected ','"},
+        {                            "hsva(0,0,0,0,",                                  "expected ')'"},
+        {                       "hsva(0,0,0,255)   ",                        "expected end of string"},
+    };
 
-    for (const auto& invalid_string : invalid_strings) {
+    for (const auto& [invalid_string, error_message] : invalid_strings) {
         const auto result = Color::from_string(invalid_string);
         EXPECT_THAT(result, ExpectedHasError()) << "Input was: " << invalid_string;
+        if (not result.has_value()) {
+            EXPECT_EQ(result.error(), error_message) << "Input was: " << invalid_string;
+        }
     }
 }
 
