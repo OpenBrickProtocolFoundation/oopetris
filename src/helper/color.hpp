@@ -9,6 +9,9 @@
 #include <ostream>
 #include <string>
 
+
+struct Color;
+
 struct HSVColor {
     double h;
     double s;
@@ -46,10 +49,9 @@ struct HSVColor {
 
     constexpr HSVColor(double h, double s, double v) : HSVColor{ h, s, v, 0xFF } { }
 
-    [[nodiscard]] constexpr bool operator==(const HSVColor& other) const {
-        return std::tuple<double, double, double, u8>{ h, s, v, a }
-               == std::tuple<double, double, double, u8>{ other.h, other.s, other.v, other.a };
-    }
+    [[nodiscard]] Color to_rgb_color() const;
+
+    [[nodiscard]] std::string to_string() const;
 };
 
 struct Color {

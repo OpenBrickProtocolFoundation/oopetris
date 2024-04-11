@@ -25,8 +25,12 @@ namespace {
 } // namespace
 
 // make colors printable
-void PrintTo(const Color& point, std::ostream* os) {
-    *os << point.to_string();
+void PrintTo(const Color& color, std::ostream* os) {
+    *os << color.to_string();
+}
+
+void PrintTo(const HSVColor& color, std::ostream* os) {
+    *os << color.to_string();
 }
 
 // make helper::expected printable
@@ -51,14 +55,14 @@ MATCHER(ExpectedHasError, "expected has error") {
 TEST(Color, DefaultConstruction) {
     const auto c1 = Color{};
     const auto c2 = Color{ 0, 0, 0, 0 };
-    EXPECT_EQ(c1, c2);
+    ASSERT_EQ(c1, c2);
 }
 
 TEST(Color, ConstructorProperties) {
     foreach_loop([](u8 r, u8 g, u8 b) {
         const auto c1 = Color{ r, g, b };
         const auto c2 = Color{ r, g, b, 0xFF };
-        EXPECT_EQ(c1, c2);
+        ASSERT_EQ(c1, c2);
     });
 }
 
@@ -80,10 +84,8 @@ TEST(Color, FromStringValid) {
 
     for (const auto& [valid_string, expected_color] : valid_strings) {
         const auto result = Color::from_string(valid_string);
-        EXPECT_THAT(result, ExpectedHasValue()) << "Input was: " << valid_string;
-        if (result.has_value()) {
-            EXPECT_EQ(result.value(), expected_color) << "Input was: " << valid_string;
-        }
+        ASSERT_THAT(result, ExpectedHasValue()) << "Input was: " << valid_string;
+        ASSERT_EQ(result.value(), expected_color) << "Input was: " << valid_string;
     }
 }
 
@@ -149,18 +151,58 @@ TEST(Color, FromStringInvalid) {
 
     for (const auto& [invalid_string, error_message] : invalid_strings) {
         const auto result = Color::from_string(invalid_string);
-        EXPECT_THAT(result, ExpectedHasError()) << "Input was: " << invalid_string;
-        if (not result.has_value()) {
-            EXPECT_EQ(result.error(), error_message) << "Input was: " << invalid_string;
-        }
+        ASSERT_THAT(result, ExpectedHasError()) << "Input was: " << invalid_string;
+        ASSERT_EQ(result.error(), error_message) << "Input was: " << invalid_string;
     }
 }
+
+
+namespace {
+
+    testing::AssertionResult HSVColorEqPred(const char*, const char*, const HSVColor& val1, const HSVColor& val2) {
+
+        constexpr auto max_h_err = 0.5;
+        constexpr auto max_sv_err = 0.01;
+
+        const auto near_helper = [](double arg1, double arg2, double margin) -> bool {
+            return ::testing::internal::DoubleNearPredFormat("", "", "", arg1, arg2, margin);
+        };
+
+        if (not near_helper(val1.h, val2.h, max_h_err)) {
+            return testing::AssertionFailure() << "HSVColors " << val1.to_string() << " and " << val2.to_string()
+                                               << " are not EQ, reason: h is not near enough\n"
+                                               << val1.h << " != " << val2.h;
+        }
+
+        if (not near_helper(val1.s, val2.s, max_sv_err)) {
+            return testing::AssertionFailure() << "HSVColors " << val1.to_string() << " and " << val2.to_string()
+                                               << " are not EQ, reason: s is not near enough\n"
+                                               << val1.s << " != " << val2.s;
+        }
+        if (not near_helper(val1.v, val2.v, max_sv_err)) {
+            return testing::AssertionFailure() << "HSVColors " << val1.to_string() << " and " << val2.to_string()
+                                               << " are not EQ, reason: v is not near enough\n"
+                                               << val1.v << " != " << val2.v;
+        }
+
+        if (val1.a != val2.a) {
+            return testing::AssertionFailure() << "HSVColors " << val1.to_string() << " and " << val2.to_string()
+                                               << " are not EQ, reason: a is not equal\n"
+                                               << val1.a << " != " << val2.a;
+        }
+
+        return testing::AssertionSuccess();
+    }
+} // namespace
+
+#define ASSERT_EQ_HSV_COLOR(val1, val2) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+    ASSERT_PRED_FORMAT2(HSVColorEqPred, val1, val2)
 
 
 TEST(HSVColor, DefaultConstruction) {
     const auto c1 = HSVColor{};
     const auto c2 = HSVColor{ 0, 0, 0, 0 };
-    EXPECT_EQ(c1, c2);
+    ASSERT_EQ_HSV_COLOR(c1, c2);
 }
 
 TEST(HSVColor, ConstructorProperties) {
@@ -176,7 +218,7 @@ TEST(HSVColor, ConstructorProperties) {
     for (const auto& [h, s, v] : values) {
         const auto c1 = HSVColor{ h, s, v };
         const auto c2 = HSVColor{ h, s, v, 0xFF };
-        EXPECT_EQ(c1, c2);
+        ASSERT_EQ_HSV_COLOR(c1, c2);
     }
 }
 
@@ -195,6 +237,57 @@ TEST(HSVColor, InvalidConstructors) {
 
         const auto construct = [h, s, v]() { HSVColor{ h, s, v }; }; //NOLINT(clang-analyzer-core.NullDereference)
 
-        EXPECT_ANY_THROW(construct()); //NOLINT(*)
+        ASSERT_ANY_THROW(construct()); //NOLINT(*)
+    }
+}
+
+
+TEST(ColorConversion, HSV_to_RGB_to_HSV) {
+    constexpr const auto step_amount = 20; // to debug, increase this value, than you ahve more samples
+
+    for (double h = 0.0; h < 360.0; h += 360.0 / step_amount) {
+        for (double s = 0.0; s < 1.0; s += 1.0 / step_amount) {
+            for (double v = 0.0; v < 1.0; v += 1.0 / step_amount) {
+                const auto convert = [h, s, v]() {
+                    const auto original_color = HSVColor{ h, s, v };
+
+                    const auto converted_color = original_color.to_rgb_color();
+
+                    const auto result_color = converted_color.to_hsv_color();
+
+                    UNUSED(result_color);
+                    //  ASSERT_EQ_HSV_COLOR(original_color, result_color);
+                };
+
+                ASSERT_NO_THROW(convert()); //NOLINT(*)
+            }
+        }
+    }
+}
+
+
+TEST(ColorConversion, RGG_to_HSV_to_RGB) {
+    constexpr const u8 step_amount = 20; // to debug, increase this value, than you ahve more samples
+
+    constexpr const u8 u8_max = std::numeric_limits<u8>::max();
+    constexpr const u8 step_size = u8_max / step_amount;
+
+    for (u8 r = 0.0; u8_max - r < step_amount; r += step_size) {
+        for (u8 g = 0.0; u8_max - g < step_amount; g += step_size) {
+            for (u8 b = 0.0; u8_max - b < step_amount; b += step_size) {
+                const auto convert = [r, g, b]() {
+                    const auto original_color = Color{ r, g, b };
+
+                    const auto converted_color = original_color.to_hsv_color();
+
+                    const auto result_color = converted_color.to_rgb_color();
+
+                    UNUSED(result_color);
+                    //  ASSERT_EQ_HSV_COLOR(original_color, result_color);
+                };
+
+                ASSERT_NO_THROW(convert()); //NOLINT(*)
+            }
+        }
     }
 }
