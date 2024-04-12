@@ -168,7 +168,7 @@ namespace ui {
                         handled = true;
                     }
 
-                } else if (event.type == SDL_MOUSEWHEEL) {
+                } else if (event.type == SDL_MOUSEWHEEL && has_focus()) {
 
                     // here we use a reverse scroll behaviour, since moving the mouse up is always considered increasing the volume, regardless of you OS setting about natural scrolling or not
                     const bool direction_is_up =

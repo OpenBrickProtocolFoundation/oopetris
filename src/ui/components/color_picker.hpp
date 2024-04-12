@@ -14,7 +14,6 @@
 namespace detail {
 
     // it is intended, that this never has focus, than the scroll wheel doesn't work, but it shouldn't work, since scrolling a color slider isn't intended behaviour
-    //TODO: it can scroll, fix that !
     struct ColorSlider : public ui::AbstractSlider<double> {
     private:
         Texture m_texture;
