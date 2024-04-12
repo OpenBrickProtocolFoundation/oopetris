@@ -74,24 +74,30 @@ TEST(Color, ConstructorProperties) {
 
 TEST(Color, FromStringValid) {
 
-    const std::vector<std::tuple<std::string, Color>> valid_strings{
-        {                  "#FFAA33",       Color{ 0xFF, 0xAA, 0x33 }},
-        {                "#FF00FF00", Color{ 0xFF, 0x00, 0xFF, 0x00 }},
-        {               "rgb(0,0,0)",                Color{ 0, 0, 0 }},
-        {            "rgba(0,0,0,0)",             Color{ 0, 0, 0, 0 }},
-        {               "hsv(0,0,0)",             HSVColor{ 0, 0, 0 }},
-        {        "hsva(340,0,0.5,0)",      HSVColor{ 340, 0, 0.5, 0 }},
-        {                  "#ffaa33",       Color{ 0xff, 0xaa, 0x33 }},
-        {"hsv(0, 0.00_000_000_1, 0)",   HSVColor{ 0, 0.000000001, 0 }},
-        {      "hsva(0, 0, 0, 0xFF)",       HSVColor{ 0, 0, 0, 0xFF }},
-        {    "rgba(0, 0xFF, 0, 255)",        Color{ 0, 0xFF, 0, 255 }},
-        {  "rgba(0, 0xFF, 0, 1_0_0)",        Color{ 0, 0xFF, 0, 100 }},
+    const std::vector<std::tuple<std::string, Color::InfoType>> valid_values{
+        {                  "#FFAA33",      { Color{ 0xFF, 0xAA, 0x33 }, color::SerializeMode::Hex, false }},
+        {                "#FF00FF00", { Color{ 0xFF, 0x00, 0xFF, 0x00 }, color::SerializeMode::Hex, true }},
+        {               "rgb(0,0,0)",               { Color{ 0, 0, 0 }, color::SerializeMode::RGB, false }},
+        {            "rgba(0,0,0,0)",             { Color{ 0, 0, 0, 0 }, color::SerializeMode::RGB, true }},
+        {               "hsv(0,0,0)",            { HSVColor{ 0, 0, 0 }, color::SerializeMode::HSV, false }},
+        {        "hsva(340,0,0.5,0)",      { HSVColor{ 340, 0, 0.5, 0 }, color::SerializeMode::HSV, true }},
+        {                  "#ffaa33",      { Color{ 0xff, 0xaa, 0x33 }, color::SerializeMode::Hex, false }},
+        {"hsv(0, 0.00_000_000_1, 0)",  { HSVColor{ 0, 0.000000001, 0 }, color::SerializeMode::HSV, false }},
+        {      "hsva(0, 0, 0, 0xFF)",       { HSVColor{ 0, 0, 0, 0xFF }, color::SerializeMode::HSV, true }},
+        {    "rgba(0, 0xFF, 0, 255)",        { Color{ 0, 0xFF, 0, 255 }, color::SerializeMode::RGB, true }},
+        {  "rgba(0, 0xFF, 0, 1_0_0)",        { Color{ 0, 0xFF, 0, 100 }, color::SerializeMode::RGB, true }},
     };
 
-    for (const auto& [valid_string, expected_color] : valid_strings) {
-        const auto result = Color::from_string(valid_string);
+    for (const auto& [valid_string, expected_result] : valid_values) {
+        const auto result = Color::from_string_with_info(valid_string);
         ASSERT_THAT(result, ExpectedHasValue()) << "Input was: " << valid_string;
-        ASSERT_EQ(result.value(), expected_color) << "Input was: " << valid_string;
+        ASSERT_EQ(result.value(), expected_result) << "Input was: " << valid_string;
+
+        const auto color_string = std::get<0>(result.value()).to_string(color::SerializeMode::Hex);
+
+        const auto converted_color = Color::from_string_with_info(color_string);
+        ASSERT_THAT(converted_color, ExpectedHasValue()) << "Input was: " << color_string;
+        ASSERT_EQ(result.value(), expected_result) << "Input was: " << color_string;
     }
 }
 
@@ -103,6 +109,9 @@ TEST(Color, FromStringInvalid) {
         {                                       "#Z",                      "Unrecognized HEX literal"},
         {                                    "#ZZFF",                      "Unrecognized HEX literal"},
         {                                        "u",                    "Unrecognized color literal"},
+        {                                "#IIFFFFFF",       "the input must be a valid hex character"},
+        {                                "#FFIIFFFF",       "the input must be a valid hex character"},
+        {                                "#FFFFIIFF",       "the input must be a valid hex character"},
         {                                "#FFFFFFII",       "the input must be a valid hex character"},
         {                                  "#FFFF4T",       "the input must be a valid hex character"},
         {                                 "#0000001",                      "Unrecognized HEX literal"},

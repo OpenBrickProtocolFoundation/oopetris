@@ -19,9 +19,7 @@ helper::expected<HSVColor, std::string> HSVColor::from_string(const std::string&
     return helper::unexpected<std::string>{ result.error() };
 }
 
-helper::expected<std::tuple<HSVColor, color::SerializeMode, bool>, std::string> HSVColor::from_string_with_info(
-        const std::string& value
-) {
+helper::expected<HSVColor::InfoType, std::string> HSVColor::from_string_with_info(const std::string& value) {
 
     const auto result = detail::get_hsv_color_from_string(value);
 
@@ -66,9 +64,7 @@ helper::expected<Color, std::string> Color::from_string(const std::string& value
     return helper::unexpected<std::string>{ result.error() };
 }
 
-helper::expected<std::tuple<Color, color::SerializeMode, bool>, std::string> Color::from_string_with_info(
-        const std::string& value
-) {
+helper::expected<Color::InfoType, std::string> Color::from_string_with_info(const std::string& value) {
 
     const auto result = detail::get_color_from_string(value);
 

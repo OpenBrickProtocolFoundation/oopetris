@@ -56,8 +56,9 @@ struct HSVColor {
 
     [[nodiscard]] static helper::expected<HSVColor, std::string> from_string(const std::string& value);
 
-    [[nodiscard]] static helper::expected<std::tuple<HSVColor, color::SerializeMode, bool>, std::string>
-    from_string_with_info(const std::string& value);
+    using InfoType = std::tuple<HSVColor, color::SerializeMode, bool>;
+
+    [[nodiscard]] static helper::expected<InfoType, std::string> from_string_with_info(const std::string& value);
 
     [[nodiscard]] Color to_rgb_color() const;
 
@@ -129,8 +130,9 @@ struct Color {
 
     [[nodiscard]] static helper::expected<Color, std::string> from_string(const std::string& value);
 
-    [[nodiscard]] static helper::expected<std::tuple<Color, color::SerializeMode, bool>, std::string>
-    from_string_with_info(const std::string& value);
+    using InfoType = std::tuple<Color, color::SerializeMode, bool>;
+
+    [[nodiscard]] static helper::expected<InfoType, std::string> from_string_with_info(const std::string& value);
 
 
     [[nodiscard]] HSVColor to_hsv_color() const;
