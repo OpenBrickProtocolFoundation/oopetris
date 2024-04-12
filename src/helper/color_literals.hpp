@@ -754,7 +754,7 @@ static_assert("hsv(0, 0, 0.79)"_c == "#C9C9C9"_c);
 // (which has a optional access without check, but the CI detects errors in those strings on other platforms and compilers at compiler time,
 // so that's not that bad)
 #if defined(_MSC_VER)
-#define COLOR_LITERAL(color_string) color::from_string(color_string).value() //NOLINT(cppcoreguidelines-macro-usage)
+#define COLOR_LITERAL(color_string) Color::from_string(color_string).value() //NOLINT(cppcoreguidelines-macro-usage)
 #else
 #define COLOR_LITERAL(color_string) color_string##_c //NOLINT(cppcoreguidelines-macro-usage)
 #endif
