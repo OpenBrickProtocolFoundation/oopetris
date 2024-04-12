@@ -16,7 +16,7 @@ namespace detail {
     // it is intended, that this never has focus, than the scroll wheel doesn't work, but it shouldn't work, since scrolling a color slider isn't intended behaviour
     struct ColorSlider : public ui::AbstractSlider<double> {
     private:
-        Texture m_texture;
+        std::unique_ptr<Texture> m_texture;
 
     public:
         explicit ColorSlider(
@@ -122,7 +122,7 @@ namespace ui {
 
     private:
         void after_color_change(detail::ColorChangeOrigin origin, const HSVColor& color);
-        void after_color_mode_change();
+        void change_text();
     };
 
 } // namespace ui

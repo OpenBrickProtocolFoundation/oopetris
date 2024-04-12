@@ -10,7 +10,8 @@
 #include "ui/components/textinput.hpp"
 #include "ui/layout.hpp"
 #include "ui/widget.hpp"
-#include <stdexcept>
+
+#include <memory>
 
 detail::ColorSlider::ColorSlider(
         ServiceProvider* service_provider,
@@ -28,11 +29,15 @@ detail::ColorSlider::ColorSlider(
                               step,
                               layout,
                               is_top_level },
-      m_texture{ service_provider->renderer().get_texture_for_render_target(bar_rect().to_dimension_point()) } {
+      m_texture{} {
 
     change_layout();
 
-    service_provider->renderer().set_render_target(m_texture);
+    m_texture = std::make_unique<Texture>(
+            service_provider->renderer().get_texture_for_render_target(bar_rect().to_dimension_point())
+    );
+
+    service_provider->renderer().set_render_target(*m_texture);
 
     const auto w = bar_rect().width();
     const auto h = bar_rect().height();
@@ -88,7 +93,7 @@ void detail::ColorSlider::render(const ServiceProvider& service_provider) const 
 
     const auto& renderer = service_provider.renderer();
 
-    renderer.draw_texture(m_texture, bar_rect());
+    renderer.draw_texture(*m_texture, bar_rect());
 
     renderer.draw_rect_filled(slider_rect(), Color::white(0xAA));
 }
@@ -375,7 +380,7 @@ ui::ColorPicker::ColorPicker(
             service_provider, rgb_image_path, true, focus_id_unused,
             [this](const ImageButton&) -> bool {
                 this->m_mode = ColorMode::HSV;
-                this->after_color_mode_change();
+                this->change_text();
                 return false;
             },
             std::pair<double, double>{ 0.95, 0.95 },
@@ -388,7 +393,7 @@ ui::ColorPicker::ColorPicker(
             service_provider, hsv_image_path, true, focus_id_unused,
             [this](const ImageButton&) -> bool {
                 this->m_mode = ColorMode::RGB;
-                this->after_color_mode_change();
+                this->change_text();
                 return false;
             },
             std::pair<double, double>{ 0.95, 0.95 },
@@ -502,6 +507,8 @@ ui::ColorPicker::handle_event(const SDL_Event& event, const Window* window) {
                         //TODO: maybe inform the user, that the input is incorrect?
                         //m_color_text->display_error();
 
+                        // reset the text
+                        change_text();
                         break;
                     }
 
@@ -532,13 +539,13 @@ void ui::ColorPicker::after_color_change(detail::ColorChangeOrigin origin, const
             break;
         }
         case detail::ColorChangeOrigin::Canvas: {
-            after_color_mode_change();
+            change_text();
             break;
         }
         case detail::ColorChangeOrigin::Slider: {
             m_color_canvas->on_change(origin, color);
 
-            after_color_mode_change();
+            change_text();
             break;
         }
         default:
@@ -548,7 +555,7 @@ void ui::ColorPicker::after_color_change(detail::ColorChangeOrigin origin, const
     m_callback(m_color);
 }
 
-void ui::ColorPicker::after_color_mode_change() {
+void ui::ColorPicker::change_text() {
     const std::string text =
             m_color.to_string(m_mode == ColorMode::HSV ? color::SerializeMode::HSV : color::SerializeMode::RGB, false);
 
