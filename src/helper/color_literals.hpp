@@ -238,46 +238,55 @@ namespace {
         return const_utils::expected<AnyColorReturnValue>::error_result("unreachable");
     }
 
+    using ColorFromHexStringReturnType = std::pair<Color, bool>;
 
-    [[nodiscard]] constexpr const_utils::expected<Color>
+    [[nodiscard]] constexpr const_utils::expected<ColorFromHexStringReturnType>
     get_color_from_hex_string(const char* input, std::size_t size) { //NOLINT(readability-function-cognitive-complexity
 
         if (size == const_constants::hex_rgb_size) {
 
             const auto r = single_hex_color_value(input + const_constants::red_offset);
-            PROPAGATE(r, Color);
+            PROPAGATE(r, ColorFromHexStringReturnType);
 
             const auto g = single_hex_color_value(input + const_constants::green_offset);
-            PROPAGATE(g, Color);
+            PROPAGATE(g, ColorFromHexStringReturnType);
 
             const auto b = single_hex_color_value(input + const_constants::blue_offset);
-            PROPAGATE(b, Color);
+            PROPAGATE(b, ColorFromHexStringReturnType);
 
-            return const_utils::expected<Color>::good_result(Color{ r.value(), g.value(), b.value() });
+            return const_utils::expected<ColorFromHexStringReturnType>::good_result({
+                    Color{r.value(), g.value(), b.value()},
+                    false
+            });
         }
 
         if (size == const_constants::hex_rgba_size) {
 
             const auto r = single_hex_color_value(input + const_constants::red_offset);
-            PROPAGATE(r, Color);
+            PROPAGATE(r, ColorFromHexStringReturnType);
 
             const auto g = single_hex_color_value(input + const_constants::green_offset);
-            PROPAGATE(g, Color);
+            PROPAGATE(g, ColorFromHexStringReturnType);
 
             const auto b = single_hex_color_value(input + const_constants::blue_offset);
-            PROPAGATE(b, Color);
+            PROPAGATE(b, ColorFromHexStringReturnType);
 
             const auto a = single_hex_color_value(input + const_constants::alpha_offset);
-            PROPAGATE(a, Color);
+            PROPAGATE(a, ColorFromHexStringReturnType);
 
-            return const_utils::expected<Color>::good_result(Color{ r.value(), g.value(), b.value(), a.value() });
+            return const_utils::expected<ColorFromHexStringReturnType>::good_result({
+                    Color{r.value(), g.value(), b.value(), a.value()},
+                    true
+            });
         }
 
 
-        return const_utils::expected<Color>::error_result("Unrecognized HEX literal");
+        return const_utils::expected<ColorFromHexStringReturnType>::error_result("Unrecognized HEX literal");
     }
 
-    [[nodiscard]] constexpr const_utils::expected<Color>
+    using ColorFromRGBStringReturnType = std::pair<Color, bool>;
+
+    [[nodiscard]] constexpr const_utils::expected<ColorFromRGBStringReturnType>
     get_color_from_rgb_string(const char* input, std::size_t) { //NOLINT(readability-function-cognitive-complexity
 
         if (input[0] == 'r' && input[1] == 'g' && input[2] == 'b') {
@@ -285,135 +294,155 @@ namespace {
 
                 const auto r_result = single_color_value_any(input + 4);
 
-                PROPAGATE(r_result, Color);
+                PROPAGATE(r_result, ColorFromRGBStringReturnType);
 
                 const auto [r, next_g] = r_result.value();
 
                 if (r > std::numeric_limits<u8>::max()) {
-                    return const_utils::expected<Color>::error_result("r has to be in range 0 - 255");
+                    return const_utils::expected<ColorFromRGBStringReturnType>::error_result(
+                            "r has to be in range 0 - 255"
+                    );
                 }
 
                 if (*next_g != ',') {
-                    return const_utils::expected<Color>::error_result("expected ','");
+                    return const_utils::expected<ColorFromRGBStringReturnType>::error_result("expected ','");
                 }
 
 
                 const auto g_result = single_color_value_any(next_g + 1);
 
-                PROPAGATE(g_result, Color);
+                PROPAGATE(g_result, ColorFromRGBStringReturnType);
 
                 const auto [g, next_b] = g_result.value();
 
                 if (g > std::numeric_limits<u8>::max()) {
-                    return const_utils::expected<Color>::error_result("g has to be in range 0 - 255");
+                    return const_utils::expected<ColorFromRGBStringReturnType>::error_result(
+                            "g has to be in range 0 - 255"
+                    );
                 }
 
                 if (*next_b != ',') {
-                    return const_utils::expected<Color>::error_result("expected ','");
+                    return const_utils::expected<ColorFromRGBStringReturnType>::error_result("expected ','");
                 }
 
 
                 const auto b_result = single_color_value_any(next_b + 1);
 
-                PROPAGATE(b_result, Color);
+                PROPAGATE(b_result, ColorFromRGBStringReturnType);
 
                 const auto [b, end] = b_result.value();
 
                 if (b > std::numeric_limits<u8>::max()) {
-                    return const_utils::expected<Color>::error_result("b has to be in range 0 - 255");
+                    return const_utils::expected<ColorFromRGBStringReturnType>::error_result(
+                            "b has to be in range 0 - 255"
+                    );
                 }
 
                 if (*end != ')') {
-                    return const_utils::expected<Color>::error_result("expected ')'");
+                    return const_utils::expected<ColorFromRGBStringReturnType>::error_result("expected ')'");
                 }
 
                 if (*(end + 1) != '\0') {
-                    return const_utils::expected<Color>::error_result("expected end of string");
+                    return const_utils::expected<ColorFromRGBStringReturnType>::error_result("expected end of string");
                 }
 
 
-                return const_utils::expected<Color>::good_result(Color{ static_cast<u8>(r), static_cast<u8>(g),
-                                                                        static_cast<u8>(b) });
+                return const_utils::expected<ColorFromRGBStringReturnType>::good_result({
+                        Color{static_cast<u8>(r), static_cast<u8>(g), static_cast<u8>(b)},
+                        false
+                });
             }
 
 
             if (input[3] == 'a' && input[4] == '(') {
 
-
                 const auto r_result = single_color_value_any(input + 5);
 
-                PROPAGATE(r_result, Color);
+                PROPAGATE(r_result, ColorFromRGBStringReturnType);
 
                 const auto [r, next_g] = r_result.value();
 
                 if (r > std::numeric_limits<u8>::max()) {
-                    return const_utils::expected<Color>::error_result("r has to be in range 0 - 255");
+                    return const_utils::expected<ColorFromRGBStringReturnType>::error_result(
+                            "r has to be in range 0 - 255"
+                    );
                 }
 
                 if (*next_g != ',') {
-                    return const_utils::expected<Color>::error_result("expected ','");
+                    return const_utils::expected<ColorFromRGBStringReturnType>::error_result("expected ','");
                 }
 
 
                 const auto g_result = single_color_value_any(next_g + 1);
 
-                PROPAGATE(g_result, Color);
+                PROPAGATE(g_result, ColorFromRGBStringReturnType);
 
                 const auto [g, next_b] = g_result.value();
 
                 if (g > std::numeric_limits<u8>::max()) {
-                    return const_utils::expected<Color>::error_result("g has to be in range 0 - 255");
+                    return const_utils::expected<ColorFromRGBStringReturnType>::error_result(
+                            "g has to be in range 0 - 255"
+                    );
                 }
 
                 if (*next_b != ',') {
-                    return const_utils::expected<Color>::error_result("expected ','");
+                    return const_utils::expected<ColorFromRGBStringReturnType>::error_result("expected ','");
                 }
 
 
                 const auto b_result = single_color_value_any(next_b + 1);
 
-                PROPAGATE(b_result, Color);
+                PROPAGATE(b_result, ColorFromRGBStringReturnType);
 
                 const auto [b, next_a] = b_result.value();
 
                 if (b > std::numeric_limits<u8>::max()) {
-                    return const_utils::expected<Color>::error_result("b has to be in range 0 - 255");
+                    return const_utils::expected<ColorFromRGBStringReturnType>::error_result(
+                            "b has to be in range 0 - 255"
+                    );
                 }
 
                 if (*next_a != ',') {
-                    return const_utils::expected<Color>::error_result("expected ','");
+                    return const_utils::expected<ColorFromRGBStringReturnType>::error_result("expected ','");
                 }
 
                 const auto a_result = single_color_value_any(next_a + 1);
 
-                PROPAGATE(a_result, Color);
+                PROPAGATE(a_result, ColorFromRGBStringReturnType);
 
                 const auto [a, end] = a_result.value();
 
                 if (a > std::numeric_limits<u8>::max()) {
-                    return const_utils::expected<Color>::error_result("a has to be in range 0 - 255");
+                    return const_utils::expected<ColorFromRGBStringReturnType>::error_result(
+                            "a has to be in range 0 - 255"
+                    );
                 }
 
 
                 if (*end != ')') {
-                    return const_utils::expected<Color>::error_result("expected ')'");
+                    return const_utils::expected<ColorFromRGBStringReturnType>::error_result("expected ')'");
                 }
 
                 if (*(end + 1) != '\0') {
-                    return const_utils::expected<Color>::error_result("expected end of string");
+                    return const_utils::expected<ColorFromRGBStringReturnType>::error_result("expected end of string");
                 }
 
 
-                return const_utils::expected<Color>::good_result(Color{ static_cast<u8>(r), static_cast<u8>(g),
-                                                                        static_cast<u8>(b), static_cast<u8>(a) });
+                return const_utils::expected<ColorFromRGBStringReturnType>::good_result({
+                        Color{static_cast<u8>(r), static_cast<u8>(g), static_cast<u8>(b), static_cast<u8>(a)},
+                        true
+                }
+                );
             }
         }
 
 
-        return const_utils::expected<Color>::error_result("Unrecognized RGB literal");
+        return const_utils::expected<ColorFromRGBStringReturnType>::error_result("Unrecognized RGB literal");
     }
 
-    [[nodiscard]] constexpr const_utils::expected<HSVColor>
+    using ColorFromHSVStringReturnType = std::pair<HSVColor, bool>;
+
+    [[nodiscard]] constexpr const_utils::expected<ColorFromHSVStringReturnType>
     get_color_from_hsv_string(const char* input, std::size_t) { //NOLINT(readability-function-cognitive-complexity
 
         if (input[0] == 'h' && input[1] == 's' && input[2] == 'v') {
@@ -421,133 +450,152 @@ namespace {
 
                 const auto h_result = single_double_color_value(input + 4);
 
-                PROPAGATE(h_result, HSVColor);
+                PROPAGATE(h_result, ColorFromHSVStringReturnType);
 
                 const auto [h, next_s] = h_result.value();
 
                 if (h < 0.0 || h > 360.0) {
-                    return const_utils::expected<HSVColor>::error_result("h has to be in range 0.0 - 360.0");
+                    return const_utils::expected<ColorFromHSVStringReturnType>::error_result(
+                            "h has to be in range 0.0 - 360.0"
+                    );
                 }
 
                 if (*next_s != ',') {
-                    return const_utils::expected<HSVColor>::error_result("expected ','");
+                    return const_utils::expected<ColorFromHSVStringReturnType>::error_result("expected ','");
                 }
 
 
                 const auto s_result = single_double_color_value(next_s + 1);
 
-                PROPAGATE(s_result, HSVColor);
+                PROPAGATE(s_result, ColorFromHSVStringReturnType);
 
                 const auto [s, next_v] = s_result.value();
 
                 if (s < 0.0 || s > 1.0) {
-                    return const_utils::expected<HSVColor>::error_result("s has to be in range 0.0 - 1.0");
+                    return const_utils::expected<ColorFromHSVStringReturnType>::error_result(
+                            "s has to be in range 0.0 - 1.0"
+                    );
                 }
 
                 if (*next_v != ',') {
-                    return const_utils::expected<HSVColor>::error_result("expected ','");
+                    return const_utils::expected<ColorFromHSVStringReturnType>::error_result("expected ','");
                 }
 
 
                 const auto v_result = single_double_color_value(next_v + 1);
 
-                PROPAGATE(v_result, HSVColor);
+                PROPAGATE(v_result, ColorFromHSVStringReturnType);
 
                 const auto [v, end] = v_result.value();
 
                 if (v < 0.0 || v > 1.0) {
-                    return const_utils::expected<HSVColor>::error_result("v has to be in range 0.0 - 1.0");
+                    return const_utils::expected<ColorFromHSVStringReturnType>::error_result(
+                            "v has to be in range 0.0 - 1.0"
+                    );
                 }
 
                 if (*end != ')') {
-                    return const_utils::expected<HSVColor>::error_result("expected ')'");
+                    return const_utils::expected<ColorFromHSVStringReturnType>::error_result("expected ')'");
                 }
 
                 if (*(end + 1) != '\0') {
-                    return const_utils::expected<HSVColor>::error_result("expected end of string");
+                    return const_utils::expected<ColorFromHSVStringReturnType>::error_result("expected end of string");
                 }
 
 
-                return const_utils::expected<HSVColor>::good_result(HSVColor{ h, s, v });
+                return const_utils::expected<ColorFromHSVStringReturnType>::good_result({
+                        HSVColor{h, s, v},
+                        false
+                });
             }
 
 
             if (input[3] == 'a' && input[4] == '(') {
 
-
                 const auto h_result = single_double_color_value(input + 5);
 
-                PROPAGATE(h_result, HSVColor);
+                PROPAGATE(h_result, ColorFromHSVStringReturnType);
 
                 const auto [h, next_s] = h_result.value();
 
                 if (h < 0.0 || h > 360.0) {
-                    return const_utils::expected<HSVColor>::error_result("h has to be in range 0.0 - 360.0");
+                    return const_utils::expected<ColorFromHSVStringReturnType>::error_result(
+                            "h has to be in range 0.0 - 360.0"
+                    );
                 }
 
                 if (*next_s != ',') {
-                    return const_utils::expected<HSVColor>::error_result("expected ','");
+                    return const_utils::expected<ColorFromHSVStringReturnType>::error_result("expected ','");
                 }
 
 
                 const auto s_result = single_double_color_value(next_s + 1);
 
-                PROPAGATE(s_result, HSVColor);
+                PROPAGATE(s_result, ColorFromHSVStringReturnType);
 
                 const auto [s, next_v] = s_result.value();
 
                 if (s < 0.0 || s > 1.0) {
-                    return const_utils::expected<HSVColor>::error_result("s has to be in range 0.0 - 1.0");
+                    return const_utils::expected<ColorFromHSVStringReturnType>::error_result(
+                            "s has to be in range 0.0 - 1.0"
+                    );
                 }
 
                 if (*next_v != ',') {
-                    return const_utils::expected<HSVColor>::error_result("expected ','");
+                    return const_utils::expected<ColorFromHSVStringReturnType>::error_result("expected ','");
                 }
 
 
                 const auto v_result = single_double_color_value(next_v + 1);
 
-                PROPAGATE(v_result, HSVColor);
+                PROPAGATE(v_result, ColorFromHSVStringReturnType);
 
                 const auto [v, next_a] = v_result.value();
 
                 if (v < 0.0 || v > 1.0) {
-                    return const_utils::expected<HSVColor>::error_result("v has to be in range 0.0 - 1.0");
+                    return const_utils::expected<ColorFromHSVStringReturnType>::error_result(
+                            "v has to be in range 0.0 - 1.0"
+                    );
                 }
 
                 if (*next_a != ',') {
-                    return const_utils::expected<HSVColor>::error_result("expected ','");
+                    return const_utils::expected<ColorFromHSVStringReturnType>::error_result("expected ','");
                 }
 
                 const auto a_result = single_color_value_any(next_a + 1);
 
-                PROPAGATE(a_result, HSVColor);
+                PROPAGATE(a_result, ColorFromHSVStringReturnType);
 
                 const auto [a, end] = a_result.value();
 
                 if (a > std::numeric_limits<u8>::max()) {
-                    return const_utils::expected<HSVColor>::error_result("a has to be in range 0 - 255");
+                    return const_utils::expected<ColorFromHSVStringReturnType>::error_result(
+                            "a has to be in range 0 - 255"
+                    );
                 }
 
 
                 if (*end != ')') {
-                    return const_utils::expected<HSVColor>::error_result("expected ')'");
+                    return const_utils::expected<ColorFromHSVStringReturnType>::error_result("expected ')'");
                 }
 
                 if (*(end + 1) != '\0') {
-                    return const_utils::expected<HSVColor>::error_result("expected end of string");
+                    return const_utils::expected<ColorFromHSVStringReturnType>::error_result("expected end of string");
                 }
 
 
-                return const_utils::expected<HSVColor>::good_result(HSVColor{ h, s, v, static_cast<u8>(a) });
+                return const_utils::expected<ColorFromHSVStringReturnType>::good_result({
+                        HSVColor{h, s, v, static_cast<u8>(a)},
+                        true
+                });
             }
         }
 
 
-        return const_utils::expected<HSVColor>::error_result("Unrecognized HSV literal");
+        return const_utils::expected<ColorFromHSVStringReturnType>::error_result("Unrecognized HSV literal");
     }
 
-    using ColorFromStringReturnType = std::pair<Color, color::SerializeMode>;
+    using ColorFromStringReturnType = std::tuple<Color, color::SerializeMode, bool>;
 
     [[nodiscard]] constexpr const_utils::expected<ColorFromStringReturnType>
     get_color_from_string_impl(const char* input, std::size_t size) {
@@ -565,8 +613,12 @@ namespace {
                     return const_utils::expected<ColorFromStringReturnType>::error_result(result.error());
                 }
 
-                return const_utils::expected<ColorFromStringReturnType>::good_result({ result.value(),
-                                                                                       color::SerializeMode::Hex });
+                const auto value = result.value();
+
+
+                return const_utils::expected<ColorFromStringReturnType>::good_result(
+                        { value.first, color::SerializeMode::Hex, value.second }
+                );
             }
             case 'r': {
                 const auto result = get_color_from_rgb_string(input, size);
@@ -574,8 +626,12 @@ namespace {
                     return const_utils::expected<ColorFromStringReturnType>::error_result(result.error());
                 }
 
-                return const_utils::expected<ColorFromStringReturnType>::good_result({ result.value(),
-                                                                                       color::SerializeMode::RGB });
+                const auto value = result.value();
+
+
+                return const_utils::expected<ColorFromStringReturnType>::good_result(
+                        { value.first, color::SerializeMode::RGB, value.second }
+                );
             }
             case 'h': {
                 const auto result = get_color_from_hsv_string(input, size);
@@ -583,15 +639,19 @@ namespace {
                     return const_utils::expected<ColorFromStringReturnType>::error_result(result.error());
                 }
 
-                return const_utils::expected<ColorFromStringReturnType>::good_result({ Color{ result.value() },
-                                                                                       color::SerializeMode::HSV });
+                const auto value = result.value();
+
+
+                return const_utils::expected<ColorFromStringReturnType>::good_result(
+                        { Color{ value.first }, color::SerializeMode::HSV, value.second }
+                );
             }
             default:
                 return const_utils::expected<ColorFromStringReturnType>::error_result("Unrecognized color literal");
         }
     }
 
-    using HSVColorFromStringReturnType = std::pair<HSVColor, color::SerializeMode>;
+    using HSVColorFromStringReturnType = std::tuple<HSVColor, color::SerializeMode, bool>;
 
     [[nodiscard]] constexpr const_utils::expected<HSVColorFromStringReturnType>
     get_hsv_color_from_string_impl(const char* input, std::size_t size) {
@@ -609,8 +669,11 @@ namespace {
                     return const_utils::expected<HSVColorFromStringReturnType>::error_result(result.error());
                 }
 
-                return const_utils::expected<HSVColorFromStringReturnType>::good_result({ result.value().to_hsv_color(),
-                                                                                          color::SerializeMode::Hex });
+                const auto value = result.value();
+
+                return const_utils::expected<HSVColorFromStringReturnType>::good_result(
+                        { value.first.to_hsv_color(), color::SerializeMode::Hex, value.second }
+                );
             }
             case 'r': {
                 const auto result = get_color_from_rgb_string(input, size);
@@ -618,8 +681,11 @@ namespace {
                     return const_utils::expected<HSVColorFromStringReturnType>::error_result(result.error());
                 }
 
-                return const_utils::expected<HSVColorFromStringReturnType>::good_result({ result.value().to_hsv_color(),
-                                                                                          color::SerializeMode::RGB });
+                const auto value = result.value();
+
+                return const_utils::expected<HSVColorFromStringReturnType>::good_result(
+                        { value.first.to_hsv_color(), color::SerializeMode::RGB, value.second }
+                );
             }
             case 'h': {
                 const auto result = get_color_from_hsv_string(input, size);
@@ -627,8 +693,11 @@ namespace {
                     return const_utils::expected<HSVColorFromStringReturnType>::error_result(result.error());
                 }
 
-                return const_utils::expected<HSVColorFromStringReturnType>::good_result({ result.value(),
-                                                                                          color::SerializeMode::HSV });
+                const auto value = result.value();
+
+                return const_utils::expected<HSVColorFromStringReturnType>::good_result(
+                        { value.first, color::SerializeMode::HSV, value.second }
+                );
             }
             default:
                 return const_utils::expected<HSVColorFromStringReturnType>::error_result("Unrecognized color literal");
@@ -660,7 +729,7 @@ consteval Color operator""_c(const char* input, std::size_t size) {
 
     CONSTEVAL_STATIC_ASSERT(result.has_value(), "incorrect color literal");
 
-    return result.value().first;
+    return std::get<0>(result.value());
 }
 
 consteval HSVColor operator""_hsv(const char* input, std::size_t size) {
@@ -668,7 +737,7 @@ consteval HSVColor operator""_hsv(const char* input, std::size_t size) {
 
     CONSTEVAL_STATIC_ASSERT(result.has_value(), "incorrect color literal");
 
-    return result.value().first;
+    return std::get<0>(result.value());
 }
 
 

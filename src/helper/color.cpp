@@ -13,13 +13,13 @@ helper::expected<HSVColor, std::string> HSVColor::from_string(const std::string&
     const auto result = detail::get_hsv_color_from_string(value);
 
     if (result.has_value()) {
-        return result.value().first;
+        return std::get<0>(result.value());
     }
 
     return helper::unexpected<std::string>{ result.error() };
 }
 
-helper::expected<std::pair<HSVColor, color::SerializeMode>, std::string> HSVColor::from_string_with_serialization(
+helper::expected<std::tuple<HSVColor, color::SerializeMode, bool>, std::string> HSVColor::from_string_with_info(
         const std::string& value
 ) {
 
@@ -60,13 +60,13 @@ helper::expected<Color, std::string> Color::from_string(const std::string& value
     const auto result = detail::get_color_from_string(value);
 
     if (result.has_value()) {
-        return result.value().first;
+        return std::get<0>(result.value());
     }
 
     return helper::unexpected<std::string>{ result.error() };
 }
 
-helper::expected<std::pair<Color, color::SerializeMode>, std::string> Color::from_string_with_serialization(
+helper::expected<std::tuple<Color, color::SerializeMode, bool>, std::string> Color::from_string_with_info(
         const std::string& value
 ) {
 
