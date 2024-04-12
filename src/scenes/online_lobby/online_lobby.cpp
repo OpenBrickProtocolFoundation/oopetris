@@ -1,6 +1,7 @@
 #include "online_lobby.hpp"
 #include "graphics/window.hpp"
 #include "helper/constants.hpp"
+#include "helper/errors.hpp"
 #include "manager/music_manager.hpp"
 #include "manager/resource_manager.hpp"
 #include "ui/components/textinput.hpp"
@@ -51,10 +52,7 @@ namespace scenes {
                         service_provider->fonts().get(FontId::Symbola), Color::white(), focus_helper.focus_id(),
                         std::pair<double, double>{ 0.9, 0.9 },
                         ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
-                        ui::TextInputMode::Scroll,
-                        [i](const std::string& value) -> void {
-                            spdlog::info("Pressed Enter on TextInput {}: {}", i, value);
-                        }
+                        ui::TextInputMode::Scroll
                 );
             } else {
                 scroll_layout->add<ui::TextButton>(
@@ -121,7 +119,32 @@ namespace scenes {
         // description of intentional behaviour of this scene, even if it seems off:
         // the return button or the scroll layout can have the focus, if the scroll_layout has the focus, it can be scrolled by the scroll wheel and you can move around the focused item of the scroll_layout with up and down, but not with TAB, with tab you can change the focus to the return button, where you can't use the scroll wheel or up / down to change the scroll items, but you still can use click events, they are not affected by focus
 
-        if (m_main_layout.handle_event(event, window)) {
+        if (const auto event_result = m_main_layout.handle_event(event, window)) {
+
+            if (const auto additional = event_result.get_additional(); additional.has_value()) {
+                const auto value = additional.value();
+
+                if (value.first == ui::EventHandleType::RequestAction) {
+
+
+                    if (auto* text_input = dynamic_cast<ui::TextInput*>(value.second); text_input != nullptr) {
+                        spdlog::info("Pressed Enter on TextInput  {}", text_input->get_text());
+
+                        if (text_input->has_focus()) {
+                            text_input->unfocus();
+                        }
+                        return true;
+                    }
+
+
+                    throw std::runtime_error("Requested action on unknown widget, this is a fatal error");
+                }
+
+                throw helper::FatalError(
+                        fmt::format("Unsupported Handle Type: {}", magic_enum::enum_name(additional->first))
+                );
+            }
+
             return true;
         }
 

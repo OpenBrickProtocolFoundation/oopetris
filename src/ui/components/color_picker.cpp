@@ -403,21 +403,6 @@ ui::ColorPicker::ColorPicker(
             service_provider, service_provider->fonts().get(FontId::Default), Color::white(), focus_id_unused,
             std::pair<double, double>{ 0.9, 0.9 },
             ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }, ui::TextInputMode::Scale,
-            [this](const std::string& value) -> void {
-                const auto maybe_color = HSVColor::from_string(value);
-
-                if (not maybe_color.has_value()) {
-                    //TODO: maybe inform the user, that the input is incorrect?
-                    //m_color_text->display_error();
-
-                    return;
-                }
-
-                const auto color = maybe_color.value();
-                m_color = Color{ color };
-
-                after_color_change(detail::ColorChangeOrigin::TextInput, color);
-            },
             textinput_layout, false
     );
 
@@ -506,9 +491,27 @@ ui::ColorPicker::handle_event(const SDL_Event& event, const Window* window) {
                         m_color_text->unfocus();
                     }
                     break;
-                case ui::EventHandleType::RequestAction:
-                    //TODO use instead of callback
-                    throw std::runtime_error("TODO");
+                case ui::EventHandleType::RequestAction: {
+                    const auto maybe_color = HSVColor::from_string(m_color_text->get_text());
+
+                    if (m_color_text->has_focus()) {
+                        m_color_text->unfocus();
+                    }
+
+                    if (not maybe_color.has_value()) {
+                        //TODO: maybe inform the user, that the input is incorrect?
+                        //m_color_text->display_error();
+
+                        break;
+                    }
+
+                    const auto color = maybe_color.value();
+                    m_color = Color{ color };
+
+                    after_color_change(detail::ColorChangeOrigin::TextInput, color);
+
+                    break;
+                }
                 default:
                     utils::unreachable();
             }

@@ -1,11 +1,13 @@
 
 #include "color_setting_row.hpp"
+#include "helper/errors.hpp"
 #include "helper/utils.hpp"
 #include "ui/components/label.hpp"
 #include "ui/focusable.hpp"
 #include "ui/hoverable.hpp"
 #include "ui/layout.hpp"
 #include "ui/widget.hpp"
+
 #include <functional>
 
 detail::ColorSettingRectangle::ColorSettingRectangle(
@@ -168,6 +170,8 @@ custom_ui::ColorSettingRow::handle_event(const SDL_Event& event, const Window* w
                 {ui::EventHandleType::RequestAction, this}
             };
         }
+
+        throw helper::FatalError(fmt::format("Unsupported Handle Type: {}", magic_enum::enum_name(additional->first)));
     }
 
     return result;

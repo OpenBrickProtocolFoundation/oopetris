@@ -17,7 +17,6 @@ ui::TextInput::TextInput(
         u32 focus_id,
         const shapes::URect& fill_rect,
         TextInputMode mode,
-        EnterCallback enter_callback,
         const Layout& layout,
         bool is_top_level
 )
@@ -33,8 +32,7 @@ ui::TextInput::TextInput(
       ) },
       m_scaled_text_size{ 0 },
       m_timer{ [this]() { this->m_cursor_shown = !this->m_cursor_shown; }, 500ms },
-      m_mode{ mode },
-      m_enter_callback{ std::move(enter_callback) } {
+      m_mode{ mode } {
     recalculate_textures(false);
 
     // if on top. we give us focus automatically
@@ -51,7 +49,6 @@ ui::TextInput::TextInput(
         std::pair<double, double> size,
         Alignment alignment,
         TextInputMode mode,
-        EnterCallback enter_callback,
         const Layout& layout,
         bool is_top_level
 )
@@ -66,7 +63,6 @@ ui::TextInput::TextInput(
                          alignment
                  ),
                  mode,
-                 std::move(enter_callback),
                  layout,
                  is_top_level } { }
 
@@ -127,11 +123,10 @@ ui::TextInput::handle_event( // NOLINT(readability-function-cognitive-complexity
         case SDL_KEYDOWN: {
             switch (event.key.keysym.sym) {
                 case SDLK_RETURN: {
-                    m_enter_callback(m_text);
                     on_unfocus();
                     return {
                         true,
-                        {EventHandleType::RequestUnFocus, this}
+                        {EventHandleType::RequestAction, this}
                     };
                 }
                 case SDLK_BACKSPACE: {
@@ -245,6 +240,10 @@ void ui::TextInput::set_text(const std::string& text) {
     if (has_focus()) {
         unfocus();
     }
+}
+
+[[nodiscard]] const std::string& ui::TextInput::get_text() const {
+    return m_text;
 }
 
 void ui::TextInput::recalculate_textures(bool text_changed) {
