@@ -5,10 +5,10 @@
 #include "helper/utils.hpp"
 
 #include <algorithm>
+#include <cmath>
 #include <fmt/format.h>
 #include <ostream>
 #include <string>
-
 
 struct Color;
 
@@ -56,6 +56,50 @@ struct HSVColor {
     std::ostream& operator<<(std::ostream& os) const;
 };
 
+namespace {
+    //TODO: if everything (also libc++ ) supports c++23 , the std functions are constexpr, so we can use them
+    template<typename T>
+    constexpr T fmod_constexpr(T value, T divisor) {
+        if (not utils::is_constant_evaluated()) {
+            return std::fmod(value, divisor);
+        }
+
+        return value - static_cast<T>(static_cast<u64>(value / divisor)) * divisor;
+    }
+
+    template<typename T>
+    constexpr T fabs_constexpr(T value) {
+        if (not utils::is_constant_evaluated()) {
+            return std::fabs(value);
+        }
+
+        if (value == static_cast<T>(-0.0)) {
+            return static_cast<T>(0.0);
+        }
+
+        if (value < static_cast<T>(0.0)) {
+            return -value;
+        }
+
+        return value;
+    }
+
+    template<typename T>
+    constexpr T round_constexpr(T value) {
+        if (not utils::is_constant_evaluated()) {
+            return std::round(value);
+        }
+
+        T truncated = static_cast<T>(static_cast<i64>(value));
+
+        if (value - truncated >= 0.5) {
+            truncated += static_cast<T>(1.0);
+        }
+
+        return truncated;
+    }
+} // namespace
+
 struct Color {
     u8 r;
     u8 g;
@@ -79,82 +123,85 @@ struct Color {
 
     constexpr Color(const HSVColor& color) {
 
-        const auto set_color = [&color, this](double r, double g, double b) {
-            this->r = static_cast<u8>(std::clamp(r, 0.0, 1.0) * static_cast<double>(0xFF));
-            this->g = static_cast<u8>(std::clamp(g, 0.0, 1.0) * static_cast<double>(0xFF));
-            this->b = static_cast<u8>(std::clamp(b, 0.0, 1.0) * static_cast<double>(0xFF));
-            this->a = color.a;
-        };
+        using FloatType = double; //for more precision use "long double" here
 
-        // taken from https://stackoverflow.com/questions/3018313/algorithm-to-convert-rgb-to-hsv-and-hsv-to-rgb-in-range-0-255-for-both
-        double hh{};
-        double p{};
-        double q{};
-        double t{};
-        double ff{};
+        // taken from https://scratch.mit.edu/discuss/topic/694772/
 
-        long i{};
+        const auto h = static_cast<FloatType>(color.h);
+        const auto s = static_cast<FloatType>(color.s);
+        const auto v = static_cast<FloatType>(color.v);
 
-        double d_r{};
-        double d_g{};
-        double d_b{};
+        FloatType chroma = v * s;
 
-        if (color.s <= 0.0) { // < is bogus, just shuts up warnings
-            d_r = color.v;
-            d_g = color.v;
-            d_b = color.v;
-            set_color(d_r, d_g, d_b);
-            return;
+        FloatType hue = h;
+        if (hue >= static_cast<FloatType>(360.0)) {
+            hue = static_cast<FloatType>(0.0);
         }
 
-        hh = color.h;
-        if (hh >= 360.0) {
-            hh = 0.0;
-        }
 
-        hh /= 60.0;
-        i = static_cast<long>(hh);
-        ff = hh - static_cast<double>(i);
+        FloatType x = chroma
+                      * (static_cast<FloatType>(1.0)
+                         - fabs_constexpr(
+                                 fmod_constexpr(hue / static_cast<FloatType>(60.0), static_cast<FloatType>(2.0))
+                                 - static_cast<FloatType>(1.0)
+                         ));
 
-        p = color.v * (1.0 - color.s);
-        q = color.v * (1.0 - (color.s * ff));
-        t = color.v * (1.0 - (color.s * (1.0 - ff)));
+        u64 index = static_cast<u64>(hue / static_cast<FloatType>(60.0));
 
-        switch (i) {
+        FloatType d_r{};
+        FloatType d_g{};
+        FloatType d_b{};
+
+        switch (index) {
             case 0:
-                d_r = color.v;
-                d_g = t;
-                d_b = p;
+                d_r = chroma;
+                d_g = x;
+                d_b = static_cast<FloatType>(0.0);
                 break;
             case 1:
-                d_r = q;
-                d_g = color.v;
-                d_b = p;
+                d_r = x;
+                d_g = chroma;
+                d_b = static_cast<FloatType>(0.0);
                 break;
             case 2:
-                d_r = p;
-                d_g = color.v;
-                d_b = t;
+                d_r = static_cast<FloatType>(0.0);
+                d_g = chroma;
+                d_b = x;
                 break;
             case 3:
-                d_r = p;
-                d_g = q;
-                d_b = color.v;
+                d_r = static_cast<FloatType>(0.0);
+                d_g = x;
+                d_b = chroma;
                 break;
             case 4:
-                d_r = t;
-                d_g = p;
-                d_b = color.v;
+                d_r = x;
+                d_g = static_cast<FloatType>(0.0);
+                d_b = chroma;
                 break;
             case 5:
-            default:
-                d_r = color.v;
-                d_g = p;
-                d_b = q;
+                d_r = chroma;
+                d_g = static_cast<FloatType>(0.0);
+                d_b = x;
                 break;
+            default:
+                utils::unreachable();
         }
 
-        set_color(d_r, d_g, d_b);
+
+        FloatType m = v - chroma;
+
+        const auto finish_value = [m](FloatType value) -> u8 {
+            const auto result =
+                    std::clamp<FloatType>(value + m, static_cast<FloatType>(0.0), static_cast<FloatType>(1.0))
+                    * static_cast<FloatType>(0xFF);
+
+            return static_cast<u8>(round_constexpr(result));
+        };
+
+        this->r = finish_value(d_r);
+        this->g = finish_value(d_g);
+        this->b = finish_value(d_b);
+        this->a = color.a;
     }
 
     [[nodiscard]] constexpr bool operator==(const Color& other) const {

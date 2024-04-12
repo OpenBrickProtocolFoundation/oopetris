@@ -1,6 +1,8 @@
 
 #include "helper/color.hpp"
 
+
+#include "gtest/gtest.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <string>
@@ -21,8 +23,13 @@ namespace {
         } while (b++ != 255);
     }
 
-
 } // namespace
+
+// helper thought just for the tests
+[[nodiscard]] constexpr bool operator==(const HSVColor& value1, const HSVColor& value2) {
+    return value1.to_rgb_color() == value2.to_rgb_color();
+}
+
 
 // make colors printable
 void PrintTo(const Color& color, std::ostream* os) {
@@ -32,6 +39,7 @@ void PrintTo(const Color& color, std::ostream* os) {
 void PrintTo(const HSVColor& color, std::ostream* os) {
     *os << color.to_string();
 }
+
 
 // make helper::expected printable
 template<typename T, typename S>
@@ -157,52 +165,10 @@ TEST(Color, FromStringInvalid) {
 }
 
 
-namespace {
-
-    testing::AssertionResult HSVColorEqPred(const char*, const char*, const HSVColor& val1, const HSVColor& val2) {
-
-        constexpr auto max_h_err = 0.5;
-        constexpr auto max_sv_err = 0.01;
-
-        const auto near_helper = [](double arg1, double arg2, double margin) -> bool {
-            return ::testing::internal::DoubleNearPredFormat("", "", "", arg1, arg2, margin);
-        };
-
-        if (not near_helper(val1.h, val2.h, max_h_err)) {
-            return testing::AssertionFailure() << "HSVColors " << val1.to_string() << " and " << val2.to_string()
-                                               << " are not EQ, reason: h is not near enough\n"
-                                               << val1.h << " != " << val2.h;
-        }
-
-        if (not near_helper(val1.s, val2.s, max_sv_err)) {
-            return testing::AssertionFailure() << "HSVColors " << val1.to_string() << " and " << val2.to_string()
-                                               << " are not EQ, reason: s is not near enough\n"
-                                               << val1.s << " != " << val2.s;
-        }
-        if (not near_helper(val1.v, val2.v, max_sv_err)) {
-            return testing::AssertionFailure() << "HSVColors " << val1.to_string() << " and " << val2.to_string()
-                                               << " are not EQ, reason: v is not near enough\n"
-                                               << val1.v << " != " << val2.v;
-        }
-
-        if (val1.a != val2.a) {
-            return testing::AssertionFailure() << "HSVColors " << val1.to_string() << " and " << val2.to_string()
-                                               << " are not EQ, reason: a is not equal\n"
-                                               << val1.a << " != " << val2.a;
-        }
-
-        return testing::AssertionSuccess();
-    }
-} // namespace
-
-#define ASSERT_EQ_HSV_COLOR(val1, val2) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
-    ASSERT_PRED_FORMAT2(HSVColorEqPred, val1, val2)
-
-
 TEST(HSVColor, DefaultConstruction) {
     const auto c1 = HSVColor{};
     const auto c2 = HSVColor{ 0, 0, 0, 0 };
-    ASSERT_EQ_HSV_COLOR(c1, c2);
+    ASSERT_EQ(c1, c2);
 }
 
 TEST(HSVColor, ConstructorProperties) {
@@ -218,7 +184,7 @@ TEST(HSVColor, ConstructorProperties) {
     for (const auto& [h, s, v] : values) {
         const auto c1 = HSVColor{ h, s, v };
         const auto c2 = HSVColor{ h, s, v, 0xFF };
-        ASSERT_EQ_HSV_COLOR(c1, c2);
+        ASSERT_EQ(c1, c2);
     }
 }
 
@@ -241,53 +207,101 @@ TEST(HSVColor, InvalidConstructors) {
     }
 }
 
+#ifndef COLOR_TEST_MODE
+#define COLOR_TEST_MODE 0
+#endif
+
 
 TEST(ColorConversion, HSV_to_RGB_to_HSV) {
-    constexpr const auto step_amount = 20; // to debug, increase this value, than you ahve more samples
+
+#if COLOR_TEST_MODE == 0
+    const std::vector<HSVColor> colors{
+        HSVColor{  2, 0.3, 0.6},
+        HSVColor{ 82, 0.3, 0.6},
+        HSVColor{142, 0.3, 0.6},
+        HSVColor{192, 0.3, 0.6},
+        HSVColor{252, 0.3, 0.6},
+        HSVColor{312, 0.3, 0.6},
+    };
+
+    for (const auto& original_color : colors) {
+
+#else
+#if COLOR_TEST_MODE == 1
+    constexpr const auto step_amount = 1000; // arbitrary number, to make it kinda exhaustive
+#else
+    constexpr const auto step_amount = COLOR_TEST_MODE;
+#endif
 
     for (double h = 0.0; h < 360.0; h += 360.0 / step_amount) {
         for (double s = 0.0; s < 1.0; s += 1.0 / step_amount) {
             for (double v = 0.0; v < 1.0; v += 1.0 / step_amount) {
-                const auto convert = [h, s, v]() {
-                    const auto original_color = HSVColor{ h, s, v };
+                const auto original_color = HSVColor{ h, s, v };
 
-                    const auto converted_color = original_color.to_rgb_color();
 
-                    const auto result_color = converted_color.to_hsv_color();
+#endif
+        const auto convert = [&original_color]() {
+            const auto converted_color = original_color.to_rgb_color();
 
-                    UNUSED(result_color);
-                    //  ASSERT_EQ_HSV_COLOR(original_color, result_color);
-                };
+            const auto result_color = converted_color.to_hsv_color();
 
-                ASSERT_NO_THROW(convert()); //NOLINT(*)
-            }
-        }
+            ASSERT_EQ(original_color, result_color) << "Intermediate step: " << converted_color.to_string();
+        };
+
+        ASSERT_NO_THROW(convert()); //NOLINT(*)
+
+#if COLOR_TEST_MODE != 0
     }
+}
+#endif
+}
 }
 
 
 TEST(ColorConversion, RGG_to_HSV_to_RGB) {
-    constexpr const u8 step_amount = 20; // to debug, increase this value, than you ahve more samples
 
-    constexpr const u8 u8_max = std::numeric_limits<u8>::max();
-    constexpr const u8 step_size = u8_max / step_amount;
+#if COLOR_TEST_MODE == 0
+    const std::vector<Color> colors{
+        Color{  0,   0,   0},
+        Color{180, 135, 223},
+        Color{ 12,  34, 130},
+        Color{ 79,  85,  20},
+        Color{155, 174,   2},
+        Color{243,  32,  34},
+    };
 
-    for (u8 r = 0.0; u8_max - r < step_amount; r += step_size) {
-        for (u8 g = 0.0; u8_max - g < step_amount; g += step_size) {
-            for (u8 b = 0.0; u8_max - b < step_amount; b += step_size) {
-                const auto convert = [r, g, b]() {
-                    const auto original_color = Color{ r, g, b };
+    for (const auto& original_color : colors) {
 
-                    const auto converted_color = original_color.to_hsv_color();
+#else
 
-                    const auto result_color = converted_color.to_rgb_color();
+#if COLOR_TEST_MODE == 1
+            constexpr const u8 step_amount = 0xFF; // max u8
+#else
 
-                    UNUSED(result_color);
-                    //  ASSERT_EQ_HSV_COLOR(original_color, result_color);
-                };
+            constexpr const u8 step_amount = COLOR_TEST_MODE;
+#endif
 
-                ASSERT_NO_THROW(convert()); //NOLINT(*)
-            }
-        }
+            constexpr const u8 u8_max = std::numeric_limits<u8>::max();
+            constexpr const u8 step_size = u8_max / step_amount;
+
+
+            for (u8 r = 0.0; u8_max - r < step_amount; r += step_size) {
+                for (u8 g = 0.0; u8_max - g < step_amount; g += step_size) {
+                    for (u8 b = 0.0; u8_max - b < step_amount; b += step_size) {
+                        const auto original_color = Color{ r, g, b };
+#endif
+        const auto convert = [&original_color]() {
+            const auto converted_color = original_color.to_hsv_color();
+
+            const auto result_color = converted_color.to_rgb_color();
+
+            ASSERT_EQ(original_color, result_color) << "Intermediate step: " << converted_color.to_string();
+        };
+
+        ASSERT_NO_THROW(convert()); //NOLINT(*)
+#if COLOR_TEST_MODE != 0
     }
+}
+#endif
+}
 }

@@ -28,6 +28,8 @@ core_tests = executable(
     core_test_src,
     include_directories: test_inc_dirs,
     dependencies: [test_deps, liboopetris_core_dep],
+    ## COLOR_TEST_MODE =  0 (SET_VALUE) | 1 (EXHAUSTIVE) | any other number : use that many steps from exhaustive, see code
+    cpp_args: ['-DCOLOR_TEST_MODE=0'],
     override_options: {
         'warning_level': '3',
         'werror': true,

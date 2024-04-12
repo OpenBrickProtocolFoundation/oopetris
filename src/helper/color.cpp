@@ -53,6 +53,7 @@ namespace {
 // and modified and sped up, by optimizing it manually
 [[nodiscard]] HSVColor Color::to_hsv_color() const {
     using FloatType = double; //for more precision use "long double" here
+
     constexpr auto max_d = static_cast<FloatType>(0xFF);
     const auto r_d = static_cast<FloatType>(r) / max_d;
     const auto g_d = static_cast<FloatType>(g) / max_d;
