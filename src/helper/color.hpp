@@ -52,6 +52,8 @@ struct HSVColor {
     [[nodiscard]] Color to_rgb_color() const;
 
     [[nodiscard]] std::string to_string() const;
+
+    std::ostream& operator<<(std::ostream& os) const;
 };
 
 struct Color {
