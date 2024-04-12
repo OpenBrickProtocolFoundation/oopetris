@@ -2,6 +2,7 @@
 
 #include <functional>
 #include <spdlog/spdlog.h>
+#include <type_traits>
 #include <utility>
 
 #include "graphics/rect.hpp"
@@ -15,8 +16,7 @@ namespace ui {
     public:
         using Range = std::pair<Type, Type>;
         using Getter = std::function<Type()>;
-        using Setter = std::function<void(const Type&)>;
-
+        using Setter = std::function<void(Type)>;
 
     private:
         Range m_range;
@@ -155,10 +155,12 @@ namespace ui {
                     }
 
                 } else if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::ButtonUp)) {
-                    m_is_dragging = false;
-                    SDL_CaptureMouse(SDL_FALSE);
-                    handled = true;
-
+                    // only handle this, if already dragging, otherwise it's a button down from previously or some other widget
+                    if (m_is_dragging) {
+                        m_is_dragging = false;
+                        SDL_CaptureMouse(SDL_FALSE);
+                        handled = true;
+                    }
                 } else if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::Motion)) {
 
                     if (m_is_dragging) {
@@ -201,7 +203,6 @@ namespace ui {
 
         void on_change() {
             m_current_value = m_getter();
-            m_setter(m_current_value);
             change_layout();
         }
     };

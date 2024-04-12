@@ -83,22 +83,37 @@ detail::ColorPickerScene::ColorPickerScene(
     : Scene{
           service_provider, layout
     }, 
-    m_color_picker{ service_provider, starting_color, std::move(callback), std::pair<double, double>{ 0.1, 0.3 }, ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Bottom }, layout, false } { }
+    m_color_picker{ service_provider, starting_color, std::move(callback), std::pair<double, double>{ 0.95, 0.95 }, ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Bottom }, layout, false } { }
 
 [[nodiscard]] scenes::Scene::UpdateResult detail::ColorPickerScene::update() {
     if (m_should_exit) {
-        if (m_should_exit) {
-            return UpdateResult{ scenes::SceneUpdate::StopUpdating, Scene::Pop{} };
-        }
+        return UpdateResult{ scenes::SceneUpdate::StopUpdating, Scene::Pop{} };
     }
     return UpdateResult{ scenes::SceneUpdate::StopUpdating, helper::nullopt };
 }
 
 void detail::ColorPickerScene::render(const ServiceProvider& service_provider) {
+    service_provider.renderer().draw_rect_filled(get_layout().get_rect(), Color::black());
+    if (not get_layout().is_full_screen()) {
+        service_provider.renderer().draw_rect_outline(get_layout().get_rect(), Color::white());
+    }
+
     m_color_picker.render(service_provider);
 }
 bool detail::ColorPickerScene::handle_event(const SDL_Event& event, const Window* window) {
-    return m_color_picker.handle_event(event, window);
+
+    if (utils::event_is_action(event, utils::CrossPlatformAction::CLOSE)) {
+        m_should_exit = true;
+        return true;
+    }
+
+    const auto result = m_color_picker.handle_event(event, window);
+    if (result) {
+        return result;
+    }
+
+    // swallow all events
+    return true;
 }
 
 

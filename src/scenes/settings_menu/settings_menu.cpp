@@ -25,7 +25,7 @@ namespace scenes {
                     std::pair<double, double>{ 0.05, 0.03 },
                     layout
     },
-    m_colors{COLOR_LITERAL("#FF33FF"), COLOR_LITERAL("hsv(120, 0.07, 0.93)"), COLOR_LITERAL("hsv(140, 0.07, 0.93)"), COLOR_LITERAL("rgb(246, 255, 61)")}
+    m_colors{COLOR_LITERAL("#FF33FF"),  COLOR_LITERAL("hsv(281.71, 0.70085, 0.45882)"), COLOR_LITERAL("rgb(246, 255, 61)"),COLOR_LITERAL("hsv(103.12, 0.39024, 0.32157)")}
 {
         auto focus_helper = ui::FocusHelper{ 1 };
 
@@ -56,7 +56,7 @@ namespace scenes {
                     const auto value = service_provider->music_manager().get_volume();
                     return value.has_value() ? value.value() : 0.0F;
                 },
-                [service_provider](const double& amount) {
+                [service_provider](double amount) {
                     const auto mapped_amount = amount <= 0.0F ? helper::nullopt : helper::optional<double>{ amount };
                     return service_provider->music_manager().set_volume(mapped_amount, false, false);
                 },

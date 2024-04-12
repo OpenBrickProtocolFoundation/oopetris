@@ -14,6 +14,7 @@
 namespace detail {
 
     // it is intended, that this never has focus, than the scroll wheel doesn't work, but it shouldn't work, since scrolling a color slider isn't intended behaviour
+    //TODO: it can scroll, fix that !
     struct ColorSlider : public ui::AbstractSlider<double> {
     private:
         Texture m_texture;
@@ -35,6 +36,8 @@ namespace detail {
         [[nodiscard]] std::pair<shapes::URect, shapes::URect> get_rectangles() const override;
     };
 
+
+    enum class ColorChangeOrigin : u8 { TextInput, Canvas, Slider };
 
     struct ColorCanvas : public ui::Widget {
     public:
@@ -62,7 +65,7 @@ namespace detail {
 
         Widget::EventHandleResult handle_event(const SDL_Event& event, const Window* window) override;
 
-        void on_change(const Color& color);
+        void on_change(ColorChangeOrigin origin, const HSVColor& color);
 
         void draw_pseudo_circle(const ServiceProvider& service_provider) const;
 
@@ -77,9 +80,6 @@ namespace detail {
 namespace ui {
 
     enum class ColorMode : u8 { RGB, HSV };
-
-    enum class ColorChangeType : u8 { Both, Hue, SV };
-
 
     struct ColorPicker final : public Widget {
         using Callback = std::function<void(const Color&)>;
@@ -122,7 +122,7 @@ namespace ui {
         [[nodiscard]] Color get_color() const;
 
     private:
-        void after_color_change(ColorChangeType type);
+        void after_color_change(detail::ColorChangeOrigin origin, const HSVColor& color);
         void after_color_mode_change();
     };
 
