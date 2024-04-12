@@ -7,12 +7,45 @@
 
 #include <fmt/format.h>
 
+
+helper::expected<HSVColor, std::string> HSVColor::from_string(const std::string& value) {
+
+    const auto result = detail::get_hsv_color_from_string(value);
+
+    if (result.has_value()) {
+        return result.value().first;
+    }
+
+    return helper::unexpected<std::string>{ result.error() };
+}
+
+helper::expected<std::pair<HSVColor, color::SerializeMode>, std::string> HSVColor::from_string_with_serialization(
+        const std::string& value
+) {
+
+    const auto result = detail::get_hsv_color_from_string(value);
+
+    if (result.has_value()) {
+        return result.value();
+    }
+
+    return helper::unexpected<std::string>{ result.error() };
+}
+
+
 [[nodiscard]] Color HSVColor::to_rgb_color() const {
     return Color{ *this };
 }
 
-[[nodiscard]] std::string HSVColor::to_string() const {
-    return fmt::format("hsva({:.2f}, {:.5f}, {:.5f}, {:#2x})", h, s, v, a);
+[[nodiscard]] std::string HSVColor::to_string(bool force_alpha) const {
+
+    const auto need_alpha = force_alpha || a != 0xFF;
+
+    if (need_alpha) {
+        return fmt::format("hsva({:.2f}, {:.5f}, {:.5f}, {:#2x})", h, s, v, a);
+    }
+
+    return fmt::format("({:.2f}, {:.5f}, {:.5f})", h, s, v);
 }
 
 
@@ -23,6 +56,19 @@ std::ostream& HSVColor::operator<<(std::ostream& os) const {
 
 
 helper::expected<Color, std::string> Color::from_string(const std::string& value) {
+
+    const auto result = detail::get_color_from_string(value);
+
+    if (result.has_value()) {
+        return result.value().first;
+    }
+
+    return helper::unexpected<std::string>{ result.error() };
+}
+
+helper::expected<std::pair<Color, color::SerializeMode>, std::string> Color::from_string_with_serialization(
+        const std::string& value
+) {
 
     const auto result = detail::get_color_from_string(value);
 
@@ -87,18 +133,28 @@ namespace {
 }
 
 //Note: this output formats are all deserializable by the from_string method!
-[[nodiscard]] std::string Color::to_string(SerializeMode mode) const {
+[[nodiscard]] std::string Color::to_string(color::SerializeMode mode, bool force_alpha) const {
+
+    const auto need_alpha = force_alpha || a != 0xFF;
 
     switch (mode) {
-        case SerializeMode::Hex: {
-            return fmt::format("#{:02x}{:02x}{:02x}{:02x}", r, g, b, a);
+        case color::SerializeMode::Hex: {
+            if (need_alpha) {
+                return fmt::format("#{:02x}{:02x}{:02x}{:02x}", r, g, b, a);
+            }
+
+            return fmt::format("#{:02x}{:02x}{:02x}", r, g, b);
         }
-        case SerializeMode::RGB: {
-            return fmt::format("rgba({}, {}, {}, {:#2x})", r, g, b, a);
+        case color::SerializeMode::RGB: {
+            if (need_alpha) {
+                return fmt::format("rgba({}, {}, {}, {:#2x})", r, g, b, a);
+            }
+
+            return fmt::format("rgb({}, {}, {})", r, g, b);
         }
-        case SerializeMode::HSV: {
+        case color::SerializeMode::HSV: {
             const auto color = to_hsv_color();
-            return color.to_string();
+            return color.to_string(force_alpha);
         }
         default:
             utils::unreachable();

@@ -12,6 +12,11 @@
 
 struct Color;
 
+namespace color {
+
+    enum class SerializeMode : u8 { Hex, RGB, HSV };
+}
+
 struct HSVColor {
     double h;
     double s;
@@ -49,9 +54,14 @@ struct HSVColor {
 
     constexpr HSVColor(double h, double s, double v) : HSVColor{ h, s, v, 0xFF } { }
 
+    [[nodiscard]] static helper::expected<HSVColor, std::string> from_string(const std::string& value);
+
+    [[nodiscard]] static helper::expected<std::pair<HSVColor, color::SerializeMode>, std::string>
+    from_string_with_serialization(const std::string& value);
+
     [[nodiscard]] Color to_rgb_color() const;
 
-    [[nodiscard]] std::string to_string() const;
+    [[nodiscard]] std::string to_string(bool force_alpha = false) const;
 
     std::ostream& operator<<(std::ostream& os) const;
 };
@@ -118,6 +128,10 @@ struct Color {
     constexpr Color(u8 r, u8 g, u8 b) : Color{ r, g, b, 0xFF } { }
 
     [[nodiscard]] static helper::expected<Color, std::string> from_string(const std::string& value);
+
+    [[nodiscard]] static helper::expected<std::pair<Color, color::SerializeMode>, std::string>
+    from_string_with_serialization(const std::string& value);
+
 
     [[nodiscard]] HSVColor to_hsv_color() const;
 
@@ -230,9 +244,8 @@ struct Color {
         return Color{ 0xFF, 0xFF, 0xFF, alpha };
     };
 
-    enum class SerializeMode : u8 { Hex, RGB, HSV };
-
-    [[nodiscard]] std::string to_string(SerializeMode mode = SerializeMode::RGB) const;
+    [[nodiscard]] std::string to_string(color::SerializeMode mode = color::SerializeMode::RGB, bool force_alpha = false)
+            const;
 
     std::ostream& operator<<(std::ostream& os) const;
 };
