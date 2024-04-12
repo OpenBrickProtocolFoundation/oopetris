@@ -1,8 +1,6 @@
 
 #include "helper/color.hpp"
 
-
-#include "gtest/gtest.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <string>
@@ -212,7 +210,7 @@ TEST(HSVColor, InvalidConstructors) {
 #endif
 
 
-TEST(ColorConversion, HSV_to_RGB_to_HSV) {
+TEST(ColorConversion, HSV_to_RGB_to_HSV) { //NOLINT(readability-function-cognitive-complexity)
 
 #if COLOR_TEST_MODE == 0
     const std::vector<HSVColor> colors{
@@ -258,7 +256,7 @@ TEST(ColorConversion, HSV_to_RGB_to_HSV) {
 }
 
 
-TEST(ColorConversion, RGG_to_HSV_to_RGB) {
+TEST(ColorConversion, RGG_to_HSV_to_RGB) { //NOLINT(readability-function-cognitive-complexity)
 
 #if COLOR_TEST_MODE == 0
     const std::vector<Color> colors{

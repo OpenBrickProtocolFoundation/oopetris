@@ -131,7 +131,7 @@ struct Color {
         const auto s = static_cast<FloatType>(color.s);
         const auto v = static_cast<FloatType>(color.v);
 
-        FloatType chroma = v * s;
+        const FloatType chroma = v * s;
 
         FloatType hue = h;
         if (hue >= static_cast<FloatType>(360.0)) {
@@ -139,14 +139,14 @@ struct Color {
         }
 
 
-        FloatType x = chroma
-                      * (static_cast<FloatType>(1.0)
-                         - fabs_constexpr(
-                                 fmod_constexpr(hue / static_cast<FloatType>(60.0), static_cast<FloatType>(2.0))
-                                 - static_cast<FloatType>(1.0)
-                         ));
+        const FloatType x = chroma
+                            * (static_cast<FloatType>(1.0)
+                               - fabs_constexpr(
+                                       fmod_constexpr(hue / static_cast<FloatType>(60.0), static_cast<FloatType>(2.0))
+                                       - static_cast<FloatType>(1.0)
+                               ));
 
-        u64 index = static_cast<u64>(hue / static_cast<FloatType>(60.0));
+        const u64 index = static_cast<u64>(hue / static_cast<FloatType>(60.0));
 
         FloatType d_r{};
         FloatType d_g{};
@@ -188,7 +188,7 @@ struct Color {
         }
 
 
-        FloatType m = v - chroma;
+        const FloatType m = v - chroma;
 
         const auto finish_value = [m](FloatType value) -> u8 {
             const auto result =
