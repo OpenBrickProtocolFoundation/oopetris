@@ -10,6 +10,7 @@
 #include "ui/components/textinput.hpp"
 #include "ui/layout.hpp"
 #include "ui/widget.hpp"
+#include <stdexcept>
 
 detail::ColorSlider::ColorSlider(
         ServiceProvider* service_provider,
@@ -284,6 +285,8 @@ ui::ColorPicker::ColorPicker(
       m_mode{ ColorMode::RGB },
       m_callback{ std::move(callback) } {
 
+    //TODO: add alpha slider at the side
+
     constexpr double main_rect_height = 0.8;
 
     const auto main_fill_layout = ui::RelativeLayout{ fill_rect, 0.0, 0.0, 1.0, main_rect_height };
@@ -375,7 +378,7 @@ ui::ColorPicker::ColorPicker(
                 this->after_color_mode_change();
                 return false;
             },
-            std::pair<double, double>{ 1.0, 1.0 },
+            std::pair<double, double>{ 0.95, 0.95 },
             ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }, toggle_button_layout, false
     );
 
@@ -388,7 +391,7 @@ ui::ColorPicker::ColorPicker(
                 this->after_color_mode_change();
                 return false;
             },
-            std::pair<double, double>{ 1.0, 1.0 },
+            std::pair<double, double>{ 0.95, 0.95 },
             ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }, toggle_button_layout, false
     );
 
@@ -399,7 +402,23 @@ ui::ColorPicker::ColorPicker(
     m_color_text = std::make_unique<ui::TextInput>(
             service_provider, service_provider->fonts().get(FontId::Default), Color::white(), focus_id_unused,
             std::pair<double, double>{ 0.9, 0.9 },
-            ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }, textinput_layout, false
+            ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }, ui::TextInputMode::Scale,
+            [this](const std::string& value) -> void {
+                const auto maybe_color = HSVColor::from_string(value);
+
+                if (not maybe_color.has_value()) {
+                    //TODO: maybe inform the user, that the input is incorrect?
+                    //m_color_text->display_error();
+
+                    return;
+                }
+
+                const auto color = maybe_color.value();
+                m_color = Color{ color };
+
+                after_color_change(detail::ColorChangeOrigin::TextInput, color);
+            },
+            textinput_layout, false
     );
 
     // using SLider, that behaviour simulates the one, that I want, since the ColorSlider already gets the change by the getter,
@@ -472,7 +491,33 @@ ui::ColorPicker::handle_event(const SDL_Event& event, const Window* window) {
         return handled;
     }
 
-    return m_color_text->handle_event(event, window);
+    handled = m_color_text->handle_event(event, window);
+
+    if (handled) {
+        if (const auto additional = handled.get_additional(); additional.has_value()) {
+            switch (additional.value().first) {
+                case ui::EventHandleType::RequestFocus:
+                    if (not m_color_text->has_focus()) {
+                        m_color_text->focus();
+                    }
+                    break;
+                case ui::EventHandleType::RequestUnFocus:
+                    if (m_color_text->has_focus()) {
+                        m_color_text->unfocus();
+                    }
+                    break;
+                case ui::EventHandleType::RequestAction:
+                    //TODO use instead of callback
+                    throw std::runtime_error("TODO");
+                default:
+                    utils::unreachable();
+            }
+        }
+
+        return handled;
+    }
+
+    return false;
 }
 
 void ui::ColorPicker::after_color_change(detail::ColorChangeOrigin origin, const HSVColor& color) {
@@ -484,13 +529,13 @@ void ui::ColorPicker::after_color_change(detail::ColorChangeOrigin origin, const
             break;
         }
         case detail::ColorChangeOrigin::Canvas: {
-            //TODO: change the text in the textinput!
+            after_color_mode_change();
             break;
         }
         case detail::ColorChangeOrigin::Slider: {
             m_color_canvas->on_change(origin, color);
 
-            //TODO: change the text in the textinput!
+            after_color_mode_change();
             break;
         }
         default:
@@ -501,6 +546,8 @@ void ui::ColorPicker::after_color_change(detail::ColorChangeOrigin origin, const
 }
 
 void ui::ColorPicker::after_color_mode_change() {
-    //TODO
-    //TODO: handle textinput chnages and events and also change it's value every time the color is changed
+    const std::string text =
+            m_color.to_string(m_mode == ColorMode::HSV ? color::SerializeMode::HSV : color::SerializeMode::RGB, false);
+
+    m_color_text->set_text(text);
 }

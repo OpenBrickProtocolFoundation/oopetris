@@ -12,10 +12,14 @@
 
 namespace ui {
 
+    enum class TextInputMode { Scroll, Scale };
+
     struct TextInput final : public Widget, public Focusable, public Hoverable {
+        using EnterCallback = std::function<void(const std::string& value)>;
+
     private:
         std::string m_text{};
-        u32 cursor_position{ 0 };
+        u32 m_cursor_position{ 0 };
         ServiceProvider* m_service_provider;
         Font m_font;
         Color m_color;
@@ -23,9 +27,11 @@ namespace ui {
         Texture m_text_texture;
         shapes::URect m_viewport;
         shapes::URect m_cursor_rect;
-        u32 scaled_text_size;
-        bool cursor_shown{ true };
-        helper::Timer timer;
+        u32 m_scaled_text_size;
+        bool m_cursor_shown{ true };
+        helper::Timer m_timer;
+        TextInputMode m_mode;
+        EnterCallback m_enter_callback;
 
         explicit TextInput(
                 ServiceProvider* service_provider,
@@ -33,6 +39,8 @@ namespace ui {
                 const Color& color,
                 u32 focus_id,
                 const shapes::URect& fill_rect,
+                TextInputMode mode,
+                EnterCallback enter_callback,
                 const Layout& layout,
                 bool is_top_level
         );
@@ -45,6 +53,8 @@ namespace ui {
                 u32 focus_id,
                 std::pair<double, double> size,
                 Alignment alignment,
+                TextInputMode mode,
+                EnterCallback enter_callback,
                 const Layout& layout,
                 bool is_top_level
         );
@@ -60,6 +70,8 @@ namespace ui {
         Widget::EventHandleResult
         handle_event(const SDL_Event& event, const Window* window) // NOLINT(readability-function-cognitive-complexity)
                 override;
+
+        void set_text(const std::string& text);
 
     private:
         void recalculate_textures(bool text_changed);

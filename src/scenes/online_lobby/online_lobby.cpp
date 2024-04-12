@@ -50,7 +50,11 @@ namespace scenes {
                         ui::RelativeItemSize{ scroll_layout->layout(), 0.2 }, service_provider,
                         service_provider->fonts().get(FontId::Symbola), Color::white(), focus_helper.focus_id(),
                         std::pair<double, double>{ 0.9, 0.9 },
-                        ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
+                        ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
+                        ui::TextInputMode::Scroll,
+                        [i](const std::string& value) -> void {
+                            spdlog::info("Pressed Enter on TextInput {}: {}", i, value);
+                        }
                 );
             } else {
                 scroll_layout->add<ui::TextButton>(
@@ -58,7 +62,7 @@ namespace scenes {
                         fmt::format("Button Nr.: {}", i), service_provider->fonts().get(FontId::Default),
                         Color::white(), focus_helper.focus_id(),
                         [i](const ui::TextButton&) -> bool {
-                            std::cout << "Pressed button: " << i << "\n";
+                            spdlog::info("Pressed button: {}", i);
                             return false;
                         },
                         std::pair<double, double>{ 0.8, 1.0 },

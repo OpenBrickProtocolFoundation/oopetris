@@ -45,7 +45,7 @@ helper::expected<std::pair<HSVColor, color::SerializeMode>, std::string> HSVColo
         return fmt::format("hsva({:.2f}, {:.5f}, {:.5f}, {:#2x})", h, s, v, a);
     }
 
-    return fmt::format("({:.2f}, {:.5f}, {:.5f})", h, s, v);
+    return fmt::format("hsv({:.2f}, {:.5f}, {:.5f})", h, s, v);
 }
 
 

@@ -198,12 +198,20 @@ void custom_ui::ColorSettingRow::inner_callback(const Color& color) {
 
 
 void custom_ui::ColorSettingRow::on_focus() {
+    if (not m_main_layout.has_focus()) {
+        m_main_layout.focus();
+    }
+
     if (not color_rect()->has_focus()) {
         color_rect()->focus();
     }
 }
 
 void custom_ui::ColorSettingRow::on_unfocus() {
+    if (m_main_layout.has_focus()) {
+        m_main_layout.unfocus();
+    }
+
     if (color_rect()->has_focus()) {
         color_rect()->unfocus();
     }
