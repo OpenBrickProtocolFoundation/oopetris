@@ -44,7 +44,7 @@ namespace ui {
 
         void render(const ServiceProvider& service_provider) const override;
 
-        Widget::EventHandleResult handle_event(const SDL_Event& event, const Window* window) override;
+        [[nodiscard]] Widget::EventHandleResult handle_event(const SDL_Event& event, const Window* window) override;
 
         void on_clicked();
 

@@ -82,7 +82,7 @@ namespace ui {
             m_content.render(service_provider);
         }
 
-        Widget::EventHandleResult handle_event(const SDL_Event& event, const Window* window) override {
+        [[nodiscard]] Widget::EventHandleResult handle_event(const SDL_Event& event, const Window* window) override {
             if (not m_enabled) {
                 return false;
             }

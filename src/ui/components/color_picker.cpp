@@ -455,7 +455,24 @@ ui::ColorPicker::handle_event(const SDL_Event& event, const Window* window) {
         return handled;
     }
 
-    return m_color_canvas->handle_event(event, window);
+    handled = m_color_canvas->handle_event(event, window);
+
+    if (handled) {
+        return handled;
+    }
+
+
+    if (m_mode == ColorMode::HSV) {
+        handled = m_hsv_button->handle_event(event, window);
+    } else {
+        handled = m_rgb_button->handle_event(event, window);
+    }
+
+    if (handled) {
+        return handled;
+    }
+
+    return m_color_text->handle_event(event, window);
 }
 
 void ui::ColorPicker::after_color_change(detail::ColorChangeOrigin origin, const HSVColor& color) {
