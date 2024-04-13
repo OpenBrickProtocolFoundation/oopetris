@@ -25,8 +25,7 @@ private:
     static constexpr auto num_audio_channels = u8{ 2 };
 
     CommandLineArguments m_command_line_arguments;
-    SdlContext context;
-    Window m_window;
+    std::unique_ptr<Window> m_window;
     Renderer m_renderer;
     bool m_is_running{ true };
     MusicManager m_music_manager;
@@ -51,8 +50,7 @@ private:
     std::vector<std::unique_ptr<scenes::Scene>> m_scene_stack;
 
 public:
-    Application(int argc, char** argv, const std::string& title, WindowPosition position, u32 width, u32 height);
-    Application(int argc, char** argv, const std::string& title, WindowPosition position);
+    Application(std::unique_ptr<Window>&& window, const std::vector<std::string>& arguments);
     Application(const Application&) = delete;
     Application& operator=(const Application&) = delete;
 
@@ -107,11 +105,11 @@ public:
     }
 
     [[nodiscard]] const Window& window() const override {
-        return m_window;
+        return *m_window;
     }
 
     [[nodiscard]] Window& window() override {
-        return m_window;
+        return *m_window;
     }
 
 

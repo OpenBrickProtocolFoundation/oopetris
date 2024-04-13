@@ -65,14 +65,16 @@ namespace ui {
 
         void render(const ServiceProvider& service_provider) const override;
 
-        helper::BoolWrapper<ui::EventHandleType>
+        Widget::EventHandleResult
         handle_event(const SDL_Event& event, const Window* window) // NOLINT(readability-function-cognitive-complexity)
                 override;
         //TODO: with some template paramater and magic make this an option in the base class, so that only get_layout_for_new needs to be overwritten!
         template<typename T, typename... Args>
-        void add(ItemSize size, Args... args) {
+        u32 add(ItemSize size, Args... args) {
 
             const Layout layout = get_layout_for_new(size);
+
+            const auto index = static_cast<u32>(m_widgets.size());
 
             m_widgets.push_back(std::move(std::make_unique<T>(std::forward<Args>(args)..., layout, false)));
             auto focusable = as_focusable(m_widgets.back().get());
@@ -84,6 +86,8 @@ namespace ui {
 
             m_texture = m_service_provider->renderer().get_texture_for_render_target(total_size);
             recalculate_sizes(0);
+
+            return index;
         }
 
         void clear_widgets();

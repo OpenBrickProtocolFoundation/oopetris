@@ -5,10 +5,10 @@
 #include "helper/optional.hpp"
 #include "helper/random.hpp"
 #include "helper/types.hpp"
-#include "manager/recording/tetrion_core_information.hpp"
 #include "manager/service_provider.hpp"
 #include "mino_stack.hpp"
 #include "platform/input.hpp"
+#include "recordings/tetrion_core_information.hpp"
 #include "tetromino.hpp"
 #include "ui/layout.hpp"
 #include "ui/layouts/grid_layout.hpp"
@@ -35,8 +35,8 @@ struct Tetrion final : public ui::Widget {
 private:
     using WallKickPoint = shapes::AbstractPoint<i8>;
     using WallKickTable = std::array<std::array<WallKickPoint, 5>, 8>;
-    using GridPoint = shapes::AbstractPoint<u8>;
-    using ScreenCordsFunction = std::function<shapes::UPoint(const GridPoint&)>;
+    using GridPoint = Mino::GridPoint;
+    using ScreenCordsFunction = Mino::ScreenCordsFunction;
 
     static constexpr SimulationStep lock_delay = 30;
     static constexpr int num_lock_delays = 30;
@@ -88,8 +88,7 @@ public:
             bool is_top_level);
     void update_step(SimulationStep simulation_step_index);
     void render(const ServiceProvider& service_provider) const override;
-    [[nodiscard]] helper::BoolWrapper<ui::EventHandleType> handle_event(const SDL_Event& event, const Window* window)
-            override;
+    [[nodiscard]] Widget::EventHandleResult handle_event(const SDL_Event& event, const Window* window) override;
 
     // returns if the input event lead to a movement
     bool handle_input_command(InputCommand command, SimulationStep simulation_step_index);

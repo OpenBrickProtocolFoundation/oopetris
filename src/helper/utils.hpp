@@ -58,12 +58,6 @@ namespace utils {
         return static_cast<std::underlying_type_t<Enum>>(enum_);
     }
 
-    [[nodiscard]] std::filesystem::path get_assets_folder();
-
-    [[nodiscard]] std::filesystem::path get_root_folder();
-
-    helper::optional<bool> log_error(const std::string& error);
-
     [[noreturn]] inline void unreachable() {
         assert(false and "unreachable");
         std::terminate();
@@ -75,7 +69,19 @@ namespace utils {
     };
 
 
-    [[nodiscard]] std::vector<std::string> supported_features();
+    [[nodiscard]] constexpr bool is_constant_evaluated() noexcept {
+
+#if defined(__cpp_if_consteval) && __cpp_if_consteval >= 201811L
+
+        if consteval {
+            return true;
+        }
+
+        return false;
+#else
+        return std::is_constant_evaluated();
+#endif
+    }
 
 
 } // namespace utils
@@ -88,3 +94,11 @@ namespace utils {
 #else
 #define ASSERT(x) assert(x) // NOLINT(cppcoreguidelines-macro-usage)
 #endif
+
+// define a consteval assert, it isn't a pretty error message, but there's nothing we can do against that atm :(
+// this https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2024/p2758r2.html tries to fix it
+#define CONSTEVAL_STATIC_ASSERT(CHECK, MSG) /*NOLINT(cppcoreguidelines-macro-usage)*/                                                           \
+    ((CHECK) ? void(0) : [] {                                                                                                                   \
+        /* If you see this really bad c++ error message, follow the origin of MSG, to see the real error message, c++ error messages suck xD */ \
+        throw(MSG);                                                                                                                             \
+    }())

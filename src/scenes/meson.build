@@ -1,4 +1,4 @@
-src_files += files('scene.cpp', 'scene.hpp', 'scene_id.hpp')
+graphics_src_files += files('scene.cpp', 'scene.hpp', 'scene_id.hpp')
 
 subdir('about_page')
 subdir('game_over')

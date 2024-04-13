@@ -2,6 +2,8 @@
 
 #include "graphics/point.hpp"
 #include "graphics/rect.hpp"
+#include "helper/message_box.hpp"
+#include "sdl_context.hpp"
 
 #include <SDL.h>
 #include <string>
@@ -14,6 +16,7 @@ enum class WindowPosition {
 struct Window final {
 private:
     SDL_Window* m_window;
+    SdlContext m_context;
 
 public:
     Window(const std::string& title, WindowPosition position, u32 width, u32 height);
@@ -30,5 +33,9 @@ public:
 
     [[nodiscard]] SDL_Window* get_sdl_window() const;
 
+    [[nodiscard]] const SdlContext& context() const;
+
     [[nodiscard]] shapes::URect screen_rect() const;
+
+    void show_simple(helper::MessageBox::Type type, const std::string& title, const std::string& content) const;
 };

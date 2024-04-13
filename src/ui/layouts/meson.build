@@ -1,4 +1,4 @@
-src_files += files(
+graphics_src_files += files(
     'focus_layout.cpp',
     'focus_layout.hpp',
     'grid_layout.cpp',

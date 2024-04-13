@@ -1,9 +1,9 @@
 #include "graphics/sdl_context.hpp"
+#include "helper/errors.hpp"
 
 #include <SDL.h>
 #include <SDL_ttf.h>
-#include <stdexcept>
-#include <string>
+#include <fmt/format.h>
 
 #if defined(__SWITCH__)
 #include "switch.h"
@@ -17,11 +17,11 @@
 
 SdlContext::SdlContext() {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-        throw std::runtime_error{ "failed in initializing sdl: " + std::string{ SDL_GetError() } };
+        throw helper::InitializationError{ fmt::format("Failed in initializing sdl: {}", SDL_GetError()) };
     }
 
     if (TTF_Init() < 0) {
-        throw std::runtime_error{ "failed in initializing sdl ttf: " + std::string{ TTF_GetError() } };
+        throw helper::InitializationError{ fmt::format("Failed in initializing sdl ttf: {}", TTF_GetError()) };
     }
 
 #if defined(__SWITCH__)
@@ -42,7 +42,9 @@ SdlContext::SdlContext() {
 
 #if defined(_HAVE_FILE_DIALOGS)
     if (NFD::Init() != NFD_OKAY) {
-        throw std::runtime_error{ "failed to initialize the file dialog library: " + std::string{ NFD::GetError() } };
+        throw helper::InitializationError{
+            fmt::format("Failed to initialize the file dialog library: {}", NFD::GetError())
+        };
     }
 
 #endif

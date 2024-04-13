@@ -59,22 +59,18 @@ void ReplayInput::late_update(const SimulationStep simulation_step_index) {
 
         // create a snapshot from the current state of the tetrion and compare it to the loaded snapshot
         const auto current_snapshot = TetrionSnapshot{ m_target_tetrion->core_information(), simulation_step_index };
-#ifdef DEBUG_BUILD
-        static constexpr auto verbose_logging = true;
-#else
-        static constexpr auto verbose_logging = false;
-#endif
-        if constexpr (verbose_logging) {
-            spdlog::info("comparing tetrion snapshots at simulation_step {}", simulation_step_index);
-        }
-        const auto snapshots_are_equal = current_snapshot.compare_to(snapshot, verbose_logging);
-        if (snapshots_are_equal) {
-            if constexpr (verbose_logging) {
-                spdlog::info("snapshots are equal");
-            }
+
+
+        spdlog::info("comparing tetrion snapshots at simulation_step {}", simulation_step_index);
+
+        const auto compare_result = current_snapshot.compare_to(snapshot);
+        if (compare_result.has_value()) {
+            spdlog::info("snapshots are equal");
         } else {
+            spdlog::error("{}", compare_result.error());
             throw std::runtime_error{ "snapshots are not equal" };
         }
+
         ++m_next_snapshot_index;
     }
 }

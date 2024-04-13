@@ -1,15 +1,17 @@
 #include "tetrion.hpp"
 #include "helper/constants.hpp"
+#include "helper/graphic_utils.hpp"
 #include "helper/music_utils.hpp"
 #include "helper/utils.hpp"
 #include "manager/music_manager.hpp"
-#include "manager/recording/recording_writer.hpp"
 #include "manager/resource_manager.hpp"
+#include "recordings/recording_writer.hpp"
 #include "ui/components/label.hpp"
 
 #include <cassert>
 #include <spdlog/spdlog.h>
 #include <sstream>
+
 
 Tetrion::Tetrion(
         const u8 tetrion_index,
@@ -110,7 +112,7 @@ void Tetrion::render(const ServiceProvider& service_provider) const {
     };
     const shapes::UPoint& tile_size = grid->tile_size();
 
-    m_mino_stack.draw_minos(service_provider, original_scale, to_screen_coords, tile_size);
+    helper::graphics::render_minos(m_mino_stack, service_provider, original_scale, to_screen_coords, tile_size);
     if (m_active_tetromino) {
         m_active_tetromino->render(
                 service_provider, MinoTransparency::Solid, original_scale, to_screen_coords, tile_size,
@@ -143,7 +145,8 @@ void Tetrion::render(const ServiceProvider& service_provider) const {
     }
 }
 
-[[nodiscard]] helper::BoolWrapper<ui::EventHandleType> Tetrion::handle_event(const SDL_Event&, const Window*) {
+[[nodiscard]] helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
+Tetrion::handle_event(const SDL_Event&, const Window*) {
     return false;
 }
 

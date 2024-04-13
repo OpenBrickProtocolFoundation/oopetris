@@ -61,28 +61,34 @@ custom_ui::RecordingComponent::RecordingComponent(
 
 void custom_ui::RecordingComponent::render(const ServiceProvider& service_provider) const {
 
-    auto color = has_focus()    ? is_hovered() ? "#00f2ff"_rgb : "#00bbff"_rgb
-                 : is_hovered() ? "#C9C9C9"_rgb
-                                : "#9C9C9C"_rgb;
+    const auto color = has_focus()    ? is_hovered() ? "#00f2ff"_c : "#00bbff"_c
+                       : is_hovered() ? "hsv(0, 0, 0.79)"_c
+                                      : "#9C9C9C"_c;
 
     service_provider.renderer().draw_rect_filled(layout().get_rect(), color);
 
     m_main_layout.render(service_provider);
 }
 
-helper::BoolWrapper<ui::EventHandleType>
+helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
 custom_ui::RecordingComponent::handle_event(const SDL_Event& event, const Window* window) {
 
     if (utils::device_supports_keys()) {
         if (has_focus() and utils::event_is_action(event, utils::CrossPlatformAction::OK)) {
-            return { true, ui::EventHandleType::RequestAction };
+            return {
+                true,
+                {ui::EventHandleType::RequestAction, this}
+            };
         }
     }
 
 
     if (const auto hover_result = detect_hover(event, window); hover_result) {
         if (hover_result.is(ui::ActionType::Clicked)) {
-            return { true, has_focus() ? ui::EventHandleType::RequestAction : ui::EventHandleType::RequestFocus };
+            return {
+                true,
+                {has_focus() ? ui::EventHandleType::RequestAction : ui::EventHandleType::RequestFocus, this}
+            };
         }
         return true;
     }

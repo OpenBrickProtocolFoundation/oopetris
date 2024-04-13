@@ -1,7 +1,7 @@
 
 #include "recording_reader.hpp"
 #include "helper/magic_enum_wrapper.hpp"
-#include "manager/recording/additional_information.hpp"
+#include "recordings/additional_information.hpp"
 
 #include <fmt/format.h>
 #include <fmt/ranges.h>

@@ -12,10 +12,12 @@
 
 namespace ui {
 
+    enum class TextInputMode { Scroll, Scale };
+
     struct TextInput final : public Widget, public Focusable, public Hoverable {
     private:
         std::string m_text{};
-        u32 cursor_position{ 0 };
+        u32 m_cursor_position{ 0 };
         ServiceProvider* m_service_provider;
         Font m_font;
         Color m_color;
@@ -23,9 +25,21 @@ namespace ui {
         Texture m_text_texture;
         shapes::URect m_viewport;
         shapes::URect m_cursor_rect;
-        u32 scaled_text_size;
-        bool cursor_shown{ true };
-        helper::Timer timer;
+        u32 m_scaled_text_size;
+        bool m_cursor_shown{ true };
+        helper::Timer m_timer;
+        TextInputMode m_mode;
+
+        explicit TextInput(
+                ServiceProvider* service_provider,
+                Font font,
+                const Color& color,
+                u32 focus_id,
+                const shapes::URect& fill_rect,
+                TextInputMode mode,
+                const Layout& layout,
+                bool is_top_level
+        );
 
     public:
         explicit TextInput(
@@ -33,6 +47,9 @@ namespace ui {
                 Font font,
                 const Color& color,
                 u32 focus_id,
+                std::pair<double, double> size,
+                Alignment alignment,
+                TextInputMode mode,
                 const Layout& layout,
                 bool is_top_level
         );
@@ -45,9 +62,13 @@ namespace ui {
         //TODO: how to handle text limits (since texture for texts on the gpu can't get unlimitedly big, maybe use software texture?)
         void render(const ServiceProvider& service_provider) const override;
 
-        helper::BoolWrapper<ui::EventHandleType>
+        Widget::EventHandleResult
         handle_event(const SDL_Event& event, const Window* window) // NOLINT(readability-function-cognitive-complexity)
                 override;
+
+        void set_text(const std::string& text);
+
+        [[nodiscard]] const std::string& get_text() const;
 
     private:
         void recalculate_textures(bool text_changed);

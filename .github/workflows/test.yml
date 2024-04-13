@@ -1,0 +1,66 @@
+name: Test CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Run Tests 
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: "0"
+
+      - name: Setup Clang
+        run: |
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh 17
+          sudo apt-get install libc++-17* libc++abi*17* llvm-17 -y
+          echo "CC=clang-17" >> "$GITHUB_ENV"
+          echo "CXX=clang++-17" >> "$GITHUB_ENV"
+            
+      - name: Setup meson
+        run: |
+          python -m pip install --upgrade pip
+          pip install meson
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install ninja-build libsdl2-2.0-0 libsdl2-dev libsdl2-ttf* libsdl2-mixer* libsdl2-image* -y
+          pip install gcovr
+
+      - name: Configure
+        run: meson setup build -Dbuildtype=debug -Db_coverage=true -Dtests=true  -Dclang_libcpp=enabled
+
+      - name: Run tests
+        run: meson test -C build --verbose
+
+      - name: Generate Coverage File
+        run: |
+          ninja coverage -C build
+
+      - name: Create Coverage Report
+        uses: insightsengineering/coverage-action@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: ./build/meson-logs/coverage.xml
+          fail: false # TODO: enable after coverage is higher than 0.000001 % xD
+          # Publish the rendered output as a PR comment
+          publish: true
+          coverage-summary-title: "Code Coverage Summary"
+          togglable-report: true
+          # TODO: use the diff feature of that later when we require test coverage on PR's to not go down
+
+      - name: Upload test coverage artifacts
+        uses: actions/upload-artifact@v4
+        with:
+            name: Tests coverage artifacts
+            path: |
+              ./build/meson-logs/coverage.xml
+              ./build/meson-logs/coveragereport/

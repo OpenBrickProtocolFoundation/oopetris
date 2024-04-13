@@ -1,6 +1,7 @@
 #pragma once
 
 #include "helper/constants.hpp"
+#include "helper/graphic_utils.hpp"
 #include "helper/optional.hpp"
 #include "helper/types.hpp"
 #include "helper/utils.hpp"
@@ -22,7 +23,7 @@ public:
     std::remove_cvref_t<decltype(default_starting_level)> starting_level{ default_starting_level };
     bool silent{ false };
 
-    CommandLineArguments(int argc, char** argv) {
+    CommandLineArguments(const std::vector<std::string>& arguments) {
         argparse::ArgumentParser parser{ constants::program_name, constants::version,
                                          argparse::default_arguments::all };
         parser.add_argument("-r", "--recording").help("the path of a recorded game used for replay");
@@ -33,7 +34,10 @@ public:
                 .default_value(default_starting_level);
         parser.add_argument("-s", "--silent").help("disable audio output").default_value(false).implicit_value(true);
         try {
-            parser.parse_args(argc, argv);
+            if (not arguments.empty()) {
+                parser.parse_args(arguments);
+            }
+
 
             if (auto path = parser.present("--recording")) {
                 spdlog::info("recording is present");

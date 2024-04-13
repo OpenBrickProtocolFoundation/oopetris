@@ -4,6 +4,8 @@
 #include "ui/focusable.hpp"
 #include "ui/widget.hpp"
 
+#include <fmt/format.h>
+
 namespace ui {
 
     struct FocusOptions final {
@@ -51,7 +53,10 @@ namespace ui {
         template<typename T>
         [[nodiscard]] bool is(const u32 index) {
             if (index >= m_widgets.size()) {
-                throw std::runtime_error("Invalid get of FocusLayout item: index out of bound!");
+                throw std::runtime_error{ fmt::format(
+                        "Invalid get of FocusLayout item: index out of bound: {} is not in range [{} - {})", index, 0,
+                        m_widgets.size()
+                ) };
             }
 
             auto item = dynamic_cast<T*>(m_widgets.at(index).get());
@@ -62,7 +67,10 @@ namespace ui {
         template<typename T>
         [[nodiscard]] T* get(const u32 index) {
             if (index >= m_widgets.size()) {
-                throw std::runtime_error("Invalid get of FocusLayout item: index out of bound!");
+                throw std::runtime_error{ fmt::format(
+                        "Invalid get of FocusLayout item: index out of bound: {} is not in range [{} - {})", index, 0,
+                        m_widgets.size()
+                ) };
             }
 
             auto item = dynamic_cast<T*>(m_widgets.at(index).get());
@@ -87,20 +95,16 @@ namespace ui {
             return item;
         }
 
-
-        [[nodiscard]] helper::optional<u32> get_current_focused_index() const;
-
     private:
-        helper::BoolWrapper<ui::EventHandleType> handle_focus_change_button_events(const SDL_Event& event);
+        Widget::EventHandleResult handle_focus_change_button_events(const SDL_Event& event);
 
     protected:
         [[nodiscard]] virtual Layout get_layout_for_index(u32 index) = 0;
 
-        helper::BoolWrapper<ui::EventHandleType>
-        handle_focus_change_events(const SDL_Event& event, const Window* window);
+        Widget::EventHandleResult handle_focus_change_events(const SDL_Event& event, const Window* window);
 
-        [[nodiscard]] helper::optional<ui::EventHandleType>
-        handle_event_result(const helper::optional<ui::EventHandleType>& result, Widget* widget);
+        [[nodiscard]] helper::optional<ui::Widget::InnerState>
+        handle_event_result(const helper::optional<ui::Widget::InnerState>& result, Widget* widget);
 
         [[nodiscard]] u32 focusable_index_by_id(u32 id) const;
 

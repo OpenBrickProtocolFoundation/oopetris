@@ -1,15 +1,14 @@
 #pragma once
 
 #include "helper/types.hpp"
-#include "manager/service_provider.hpp"
 #include "mino.hpp"
 
 #include <vector>
 
 struct MinoStack final {
 private:
-    using GridPoint = shapes::AbstractPoint<u8>;
-    using ScreenCordsFunction = std::function<shapes::UPoint(const GridPoint&)>;
+    using GridPoint = Mino::GridPoint;
+    using ScreenCordsFunction = Mino::ScreenCordsFunction;
 
     std::vector<Mino> m_minos;
 
@@ -17,15 +16,6 @@ public:
     void clear_row_and_let_sink(u8 row);
     [[nodiscard]] bool is_empty(GridPoint coordinates) const;
     void set(GridPoint coordinates, helper::TetrominoType type);
-
-#if !defined(_NO_SDL)
-    void draw_minos(
-            const ServiceProvider& service_provider,
-            double original_scale,
-            const ScreenCordsFunction& to_screen_coords,
-            const shapes::UPoint& tile_size
-    ) const;
-#endif
 
     [[nodiscard]] u32 num_minos() const;
 

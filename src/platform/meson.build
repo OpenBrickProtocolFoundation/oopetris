@@ -1,4 +1,4 @@
-src_files += files(
+graphics_src_files += files(
     'capabilities.cpp',
     'capabilities.hpp',
     'input.cpp',
@@ -9,18 +9,18 @@ src_files += files(
 )
 
 if meson.is_cross_build() and host_machine.system() == 'android'
-    src_files += files(
+    graphics_src_files += files(
         'android_input.cpp',
         'android_input.hpp',
     )
 elif meson.is_cross_build() and host_machine.system() == 'switch'
-    src_files += files(
+    graphics_src_files += files(
         'switch_buttons.hpp',
         'switch_input.cpp',
         'switch_input.hpp',
     )
 else
-    src_files += files(
+    graphics_src_files += files(
         'keyboard_input.cpp',
         'keyboard_input.hpp',
     )

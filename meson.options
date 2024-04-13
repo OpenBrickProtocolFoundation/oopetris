@@ -11,3 +11,10 @@ option(
     value: 'auto',
     description: 'if using clang, build with libc++ instead of libstdc++ (gcc stdlib)',
 )
+
+option(
+    'tests',
+    type: 'boolean',
+    value: false,
+    description: 'whether or not tests should be built',
+)

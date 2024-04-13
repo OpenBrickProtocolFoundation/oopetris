@@ -25,12 +25,19 @@ namespace scenes {
 
         auto focus_helper = ui::FocusHelper{ 1 };
 
+#ifdef DEBUG_BUILD
         m_main_grid.add<ui::Label>(
                 service_provider, fmt::format("Git Commit: {}", utils::git_commit()),
                 service_provider->fonts().get(FontId::Default), Color::white(), std::pair<double, double>{ 0.3, 0.5 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
         );
-
+#else
+        m_main_grid.add<ui::Label>(
+                service_provider, fmt::format("Version: {}", constants::version.c_str()),
+                service_provider->fonts().get(FontId::Default), Color::white(), std::pair<double, double>{ 0.3, 0.5 },
+                ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
+        );
+#endif
         m_main_grid.add<ui::Label>(
                 service_provider, fmt::format("Build for: {}", utils::built_for_platform()),
                 service_provider->fonts().get(FontId::Default), Color::white(), std::pair<double, double>{ 0.3, 0.5 },
@@ -68,7 +75,7 @@ namespace scenes {
             const auto final_path = utils::get_assets_folder() / "authors" / image_name;
 
             tile_layout->add<ui::ImageView>(
-                    service_provider, final_path.string(), std::pair<double, double>{ 1.0, 1.0 }, true,
+                    service_provider, final_path, std::pair<double, double>{ 1.0, 1.0 }, true,
                     ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
             );
         }

@@ -45,11 +45,20 @@ namespace scenes {
                   layout{ layout } { }
         };
 
+        struct RawPush {
+            std::string name;
+            std::unique_ptr<Scene> scene;
+
+            RawPush(std::string name, std::unique_ptr<Scene>&& scene)
+                : name{ std::move(name) },
+                  scene{ std::move(scene) } { }
+        };
+
         struct Pop { };
 
         struct Exit { };
 
-        using Change = std::variant<Pop, Push, Switch, RawSwitch, Exit>;
+        using Change = std::variant<Pop, Push, RawPush, Switch, RawSwitch, Exit>;
         using UpdateResult = std::pair<SceneUpdate, helper::optional<Change>>;
 
     protected:

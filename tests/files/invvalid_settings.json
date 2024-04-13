@@ -1,0 +1,14 @@
+{
+	"platform": "pc",
+	"controls": {
+		"type": "keyboard",
+		"drop": "W",
+		"hold": "E",
+		"move_down": "S",
+		"move_left": "A",
+		"move_right": "D",
+		"rotate_left": "Left",
+		"rotate_right": "Right"
+	},
+	"volume": "TOO LOUD; MY EARS ARE FALLING OFF"
+}

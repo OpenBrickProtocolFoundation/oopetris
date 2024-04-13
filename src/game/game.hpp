@@ -2,7 +2,7 @@
 
 #include "helper/clock_source.hpp"
 #include "input_creator.hpp"
-#include "manager/recording/recording.hpp"
+#include "recordings/recording.hpp"
 #include "tetrion.hpp"
 #include "ui/widget.hpp"
 
@@ -27,8 +27,7 @@ public:
 
     void update() override;
     void render(const ServiceProvider& service_provider) const override;
-    [[nodiscard]] helper::BoolWrapper<ui::EventHandleType> handle_event(const SDL_Event& event, const Window* window)
-            override;
+    [[nodiscard]] Widget::EventHandleResult handle_event(const SDL_Event& event, const Window* window) override;
 
     void set_paused(bool paused);
     [[nodiscard]] bool is_paused() const;

@@ -1,13 +1,15 @@
 #include "manager/music_manager.hpp"
 #include "helper/command_line_arguments.hpp"
 #include "helper/constants.hpp"
+#include "helper/errors.hpp"
 #include "helper/optional.hpp"
 #include "helper/types.hpp"
+#include "platform/capabilities.hpp"
 
 #include <SDL.h>
 #include <SDL_mixer.h>
 #include <filesystem>
-#include <functional>
+#include <fmt/format.h>
 #include <stdexcept>
 #include <string>
 
@@ -24,15 +26,34 @@ MusicManager::MusicManager(ServiceProvider* service_provider, u8 channel_size)
         return;
     }
 
-    Mix_Init(MIX_INIT_FLAC | MIX_INIT_MP3);
-    const int result = SDL_InitSubSystem(SDL_INIT_AUDIO);
+    const auto result = SDL_InitSubSystem(SDL_INIT_AUDIO);
     if (result != 0) {
-        throw std::runtime_error{ "error on initializing the audio system: " + std::string{ SDL_GetError() } };
+        throw helper::InitializationError{ fmt::format("Failed to initialize the audio system: {}", SDL_GetError()) };
     }
-    Mix_AllocateChannels(channel_size);
+
+    //TODO: dynamically handle codecs
+    const auto initialized_codecs = Mix_Init(MIX_INIT_FLAC | MIX_INIT_MP3);
+    if (initialized_codecs == 0) {
+        throw helper::InitializationError{ fmt::format("Failed to initialize any audio codec: {}", SDL_GetError()) };
+    }
+
+    // see: https://wiki.libsdl.org/SDL2_mixer/Mix_AllocateChannels
+    auto allocated_channels = Mix_AllocateChannels(channel_size);
+    if (allocated_channels != channel_size) {
+        throw helper::InitializationError{ fmt::format(
+                "Failed to initialize the requested channels, requested {} but only got {}: {}", channel_size,
+                allocated_channels, SDL_GetError()
+        ) };
+    }
+
     // 2 here means STEREO, note that channels above means tracks, e.g. simultaneous playing source that are mixed,
     // hence the name SDL2_mixer
-    Mix_OpenAudio(constants::audio_frequency, MIX_DEFAULT_FORMAT, 2, constants::audio_chunk_size);
+    const auto audio_result =
+            Mix_OpenAudio(constants::audio_frequency, MIX_DEFAULT_FORMAT, 2, constants::audio_chunk_size);
+
+    if (audio_result != 0) {
+        throw helper::InitializationError{ fmt::format("Failed to open an audio device: {}", SDL_GetError()) };
+    }
 
     s_instance = this;
 
@@ -219,21 +240,21 @@ void MusicManager::hook_music_finished() {
 }
 
 
-[[nodiscard]] helper::optional<float> MusicManager::get_volume() const {
+[[nodiscard]] helper::optional<double> MusicManager::get_volume() const {
 #ifdef DEBUG_BUILD
     int result = Mix_VolumeMusic(-1);
     if (result == 0) {
         return helper::nullopt;
     }
 
-    return static_cast<float>(result) / MIX_MAX_VOLUME;
+    return static_cast<double>(result) / MIX_MAX_VOLUME;
 #else
     return volume;
 #endif
 }
 
 void MusicManager::set_volume(
-        const helper::optional<float> new_volume,
+        const helper::optional<double> new_volume,
         const bool force_update,
         const bool notify_listeners
 ) {
@@ -277,26 +298,26 @@ void MusicManager::set_volume(
     }
 }
 
-helper::optional<float> MusicManager::change_volume(const std::int8_t steps) {
+helper::optional<double> MusicManager::change_volume(const std::int8_t steps) {
     const auto current_volume = get_volume();
 
     if (steps == 0) {
         return current_volume;
     }
 
-    helper::optional<float> new_volume = current_volume;
+    helper::optional<double> new_volume = current_volume;
 
     if (steps > 0) {
 
         if (not current_volume.has_value()) {
-            new_volume = MusicManager::step_width * static_cast<float>(steps);
+            new_volume = MusicManager::step_width * static_cast<double>(steps);
 
         } else {
             if (current_volume >= 1.0F) {
                 return 1.0F;
             }
 
-            new_volume = current_volume.value() + MusicManager::step_width * static_cast<float>(steps);
+            new_volume = current_volume.value() + MusicManager::step_width * static_cast<double>(steps);
         }
 
         if (new_volume >= 1.0F) {
@@ -316,7 +337,7 @@ helper::optional<float> MusicManager::change_volume(const std::int8_t steps) {
             new_volume = helper::nullopt;
         } else {
 
-            new_volume = current_volume.value() + MusicManager::step_width * static_cast<float>(steps);
+            new_volume = current_volume.value() + MusicManager::step_width * static_cast<double>(steps);
 
 
             if (new_volume <= 0.0F) {

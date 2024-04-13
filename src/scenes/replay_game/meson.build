@@ -1,4 +1,4 @@
-src_files += files(
+graphics_src_files += files(
     'replay_game.cpp',
     'replay_game.hpp',
 )

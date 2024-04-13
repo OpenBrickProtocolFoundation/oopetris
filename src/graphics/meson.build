@@ -1,4 +1,4 @@
-src_files += files(
+graphics_src_files += files(
     'point.hpp',
     'rect.hpp',
     'renderer.cpp',

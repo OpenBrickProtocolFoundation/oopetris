@@ -1,5 +1,7 @@
 # OOPetris
 
+![Code Coverage](https://raw.githubusercontent.com/mgerhold/oopetris/_xml_coverage_reports/data/main/badge.svg)
+
 ## What is this?
 
 This is a cross-platform [Tetris](https://en.wikipedia.org/wiki/Tetris) implementation in C++.
@@ -7,7 +9,7 @@ It is written in [OOP](https://en.wikipedia.org/wiki/Object-oriented_programming
 
 ## Platform support
 
-This officially supports Linux, Windows, Android and Nintendo switch.
+This officially supports Linux, Windows, MacOS, Android and Nintendo switch.
 
 Why these? Because it was fun to port the application to those platforms 😋
 
@@ -27,7 +29,7 @@ To download artifacts, click on the newest action and download the artifacts.
 
 [Nintendo Switch](https://github.com/mgerhold/oopetris/actions/workflows/nintendo.yml)
 
-There is no correct WIndows build atm, you have to built it yourself or use the (maybe not published yet) release builds on github.
+There is no correct Windows and MacOS build atm, you have to built it yourself or use the (maybe not published yet) release builds on github.
 
 
 ## Logo

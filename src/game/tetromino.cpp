@@ -1,5 +1,6 @@
 
 #include "tetromino.hpp"
+#include "game/graphic_helpers.hpp"
 
 [[nodiscard]] helper::TetrominoType Tetromino::type() const {
     return m_type;
@@ -18,7 +19,9 @@ void Tetromino::render(
         const GridPoint& offset
 ) const {
     for (const auto& mino : m_minos) {
-        mino.render(service_provider, transparency, original_scale, to_screen_coords, tile_size, offset);
+        helper::graphics::render_mino(
+                mino, service_provider, transparency, original_scale, to_screen_coords, tile_size, offset
+        );
     }
 }
 

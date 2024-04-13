@@ -76,6 +76,34 @@ include $(PREBUILT_SHARED_LIBRARY)
 
 
 include $(CLEAR_VARS)
+LOCAL_MODULE := libfmt
+LIB_PATH := $(SUBPROJECTS_PATH)/fmt-10.2.0
+LOCAL_SRC_FILES :=  $(LIB_PATH)/libfmt.so
+include $(PREBUILT_SHARED_LIBRARY)
+
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := liboopetris_core
+LIB_PATH := $(BUILD_PATH)/src
+LOCAL_SRC_FILES := $(LIB_PATH)/liboopetris_core.so
+include $(PREBUILT_SHARED_LIBRARY)
+
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := liboopetris_recordings
+LIB_PATH := $(BUILD_PATH)/src
+LOCAL_SRC_FILES := $(LIB_PATH)/liboopetris_recordings.so
+include $(PREBUILT_SHARED_LIBRARY)
+
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := liboopetris_graphics
+LIB_PATH := $(BUILD_PATH)/src
+LOCAL_SRC_FILES := $(LIB_PATH)/liboopetris_graphics.so
+include $(PREBUILT_SHARED_LIBRARY)
+
+
+include $(CLEAR_VARS)
 LOCAL_MODULE := liboopetris
 LOCAL_SRC_FILES := $(BUILD_PATH)/liboopetris.so
 include $(PREBUILT_SHARED_LIBRARY)
@@ -84,7 +112,7 @@ include $(PREBUILT_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := main
-LOCAL_SHARED_LIBRARIES := SDL2 SDL2_ttf freetype libpng SDL2_mixer libvorbis libvorbisfile libogg libflac SDL2_image liboopetris
+LOCAL_SHARED_LIBRARIES := SDL2 SDL2_ttf freetype libpng SDL2_mixer libvorbis libvorbisfile libogg libflac SDL2_image libfmt liboopetris_core liboopetris_recordings liboopetris_graphics liboopetris
 LOCAL_LDLIBS := -ldl -lGLESv1_CM -lGLESv2 -lOpenSLES -llog -landroid
 LOCAL_LDFLAGS := -Wl,--no-undefined
 include $(BUILD_SHARED_LIBRARY)

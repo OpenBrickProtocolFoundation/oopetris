@@ -1,6 +1,7 @@
 #include "online_lobby.hpp"
 #include "graphics/window.hpp"
 #include "helper/constants.hpp"
+#include "helper/errors.hpp"
 #include "manager/music_manager.hpp"
 #include "manager/resource_manager.hpp"
 #include "ui/components/textinput.hpp"
@@ -48,15 +49,18 @@ namespace scenes {
             if (i == 2) {
                 scroll_layout->add<ui::TextInput>(
                         ui::RelativeItemSize{ scroll_layout->layout(), 0.2 }, service_provider,
-                        service_provider->fonts().get(FontId::Symbola), Color::white(), focus_helper.focus_id()
+                        service_provider->fonts().get(FontId::Symbola), Color::white(), focus_helper.focus_id(),
+                        std::pair<double, double>{ 0.9, 0.9 },
+                        ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
+                        ui::TextInputMode::Scroll
                 );
             } else {
-                scroll_layout->add<ui::Button>(
+                scroll_layout->add<ui::TextButton>(
                         ui::RelativeItemSize{ scroll_layout->layout(), 0.2 }, service_provider,
                         fmt::format("Button Nr.: {}", i), service_provider->fonts().get(FontId::Default),
                         Color::white(), focus_helper.focus_id(),
-                        [i](const ui::Button&) -> bool {
-                            std::cout << "Pressed button: " << i << "\n";
+                        [i](const ui::TextButton&) -> bool {
+                            spdlog::info("Pressed button: {}", i);
                             return false;
                         },
                         std::pair<double, double>{ 0.8, 1.0 },
@@ -75,10 +79,10 @@ namespace scenes {
                                                 ? std::pair<double, double>{ 0.1, 0.1 }
                                                 : std::pair<double, double>{ 0.2, 0.2 };
 
-        m_main_layout.add<ui::Button>(
+        m_main_layout.add<ui::TextButton>(
                 service_provider, "Return", service_provider->fonts().get(FontId::Default), Color::white(),
                 focus_helper.focus_id(),
-                [this](const ui::Button&) -> bool {
+                [this](const ui::TextButton&) -> bool {
                     m_next_command = Command::Return;
                     return false;
                 },
@@ -115,7 +119,32 @@ namespace scenes {
         // description of intentional behaviour of this scene, even if it seems off:
         // the return button or the scroll layout can have the focus, if the scroll_layout has the focus, it can be scrolled by the scroll wheel and you can move around the focused item of the scroll_layout with up and down, but not with TAB, with tab you can change the focus to the return button, where you can't use the scroll wheel or up / down to change the scroll items, but you still can use click events, they are not affected by focus
 
-        if (m_main_layout.handle_event(event, window)) {
+        if (const auto event_result = m_main_layout.handle_event(event, window)) {
+
+            if (const auto additional = event_result.get_additional(); additional.has_value()) {
+                const auto value = additional.value();
+
+                if (value.first == ui::EventHandleType::RequestAction) {
+
+
+                    if (auto* text_input = dynamic_cast<ui::TextInput*>(value.second); text_input != nullptr) {
+                        spdlog::info("Pressed Enter on TextInput  {}", text_input->get_text());
+
+                        if (text_input->has_focus()) {
+                            text_input->unfocus();
+                        }
+                        return true;
+                    }
+
+
+                    throw std::runtime_error("Requested action on unknown widget, this is a fatal error");
+                }
+
+                throw helper::FatalError(
+                        fmt::format("Unsupported Handle Type: {}", magic_enum::enum_name(additional->first))
+                );
+            }
+
             return true;
         }
 

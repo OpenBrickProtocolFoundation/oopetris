@@ -2,12 +2,12 @@
 
 #pragma once
 
+#include "helper/color_literals.hpp"
 #include "ui/components/label.hpp"
 #include "ui/focusable.hpp"
 #include "ui/hoverable.hpp"
 #include "ui/layouts/grid_layout.hpp"
 #include "ui/widget.hpp"
-
 
 namespace custom_ui {
 
@@ -27,7 +27,7 @@ namespace custom_ui {
 
         void render(const ServiceProvider& service_provider) const override;
 
-        helper::BoolWrapper<ui::EventHandleType> handle_event(const SDL_Event& event, const Window* window) override;
+        [[nodiscard]] Widget::EventHandleResult handle_event(const SDL_Event& event, const Window* window) override;
 
         [[nodiscard]] const std::vector<std::filesystem::path>& get_currently_chosen_files() const;
 

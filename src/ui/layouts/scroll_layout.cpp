@@ -1,5 +1,6 @@
 
 #include "scroll_layout.hpp"
+#include "helper/color_literals.hpp"
 
 ui::ItemSize::ItemSize(const u32 height, ItemSizeType type) : height{ height }, type{ type } { }
 
@@ -12,9 +13,7 @@ ui::ItemSize::ItemSize(const u32 height, ItemSizeType type) : height{ height }, 
     return type;
 }
 
-
 ui::AbsolutItemSize::AbsolutItemSize(const u32 height) : ItemSize{ height, ItemSizeType::Absolut } { }
-
 
 ui::RelativeItemSize::RelativeItemSize(const shapes::URect& rect, const double height)
     : ItemSize{ static_cast<u32>(height * rect.height()), ItemSizeType::Relative } {
@@ -102,18 +101,17 @@ void ui::ScrollLayout::render(const ServiceProvider& service_provider) const {
 
     // render the scrollbar when it makes sense
     if (total_widgets_height > scrollbar_rect.height()) {
-        renderer.draw_rect_filled(scrollbar_rect, "#A19797"_rgb);
-        renderer.draw_rect_filled(scrollbar_mover_rect, is_dragging ? "#666161"_rgb : "#524F4F"_rgb);
+        renderer.draw_rect_filled(scrollbar_rect, "#A19797"_c);
+        renderer.draw_rect_filled(scrollbar_mover_rect, is_dragging ? "#666161"_c : "#524F4F"_c);
     }
 }
 
-helper::BoolWrapper<ui::EventHandleType>
-ui::ScrollLayout::handle_event( // NOLINT(readability-function-cognitive-complexity)
+ui::Widget::EventHandleResult ui::ScrollLayout::handle_event( // NOLINT(readability-function-cognitive-complexity)
         const SDL_Event& event,
         const Window* window
 ) {
 
-    helper::BoolWrapper<ui::EventHandleType> handled = handle_focus_change_events(event, window);
+    Widget::EventHandleResult handled = handle_focus_change_events(event, window);
 
     if (handled) {
         auto_move_after_focus_change();
@@ -130,9 +128,9 @@ ui::ScrollLayout::handle_event( // NOLINT(readability-function-cognitive-complex
             auto desired_scroll_height = 0;
 
 
-            if (y <= scrollbar_rect.top_left.y) {
+            if (y <= static_cast<i32>(scrollbar_rect.top_left.y)) {
                 desired_scroll_height = 0;
-            } else if (y >= scrollbar_rect.bottom_right.y) {
+            } else if (y >= static_cast<i32>(scrollbar_rect.bottom_right.y)) {
                 // this is to high, but recalculate_sizes reset it to the highest possible value!
                 desired_scroll_height = static_cast<int>(total_widgets_height);
             } else {
@@ -174,6 +172,8 @@ ui::ScrollLayout::handle_event( // NOLINT(readability-function-cognitive-complex
                 change_value_on_scroll();
                 handled = true;
             }
+
+            //TODO: support touch screen scrolling too!
         } else if (event.type == SDL_MOUSEWHEEL) {
 
             // attention the mouse direction changes (it's called natural scrolling on macos/ windows / linux) are not detected by sdl until restart, and here we use the correct scroll behaviour, as the user configured the mouse in it's OS

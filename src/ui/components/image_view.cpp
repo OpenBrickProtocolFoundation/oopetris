@@ -4,7 +4,7 @@
 
 ui::ImageView::ImageView(
         ServiceProvider* service_provider,
-        const std::string& image_path,
+        const std::filesystem::path& image_path,
         std::pair<double, double> size,
         bool respect_ratio,
         Alignment alignment,
@@ -29,7 +29,7 @@ void ui::ImageView::render(const ServiceProvider& service_provider) const {
     service_provider.renderer().draw_texture(m_image, m_fill_rect);
 }
 
-helper::BoolWrapper<ui::EventHandleType> ui::ImageView::handle_event(const SDL_Event&, const Window*) {
-
+helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
+ui::ImageView::handle_event(const SDL_Event&, const Window*) {
     return false;
 }

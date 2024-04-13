@@ -1,14 +1,14 @@
 #pragma once
 
-#include "helper/music_utils.hpp"
 #include "helper/optional.hpp"
 #include "helper/types.hpp"
 #include "manager/service_provider.hpp"
-#include "platform/capabilities.hpp"
 
+#include <SDL.h>
 #include <SDL_mixer.h>
 #include <atomic>
 #include <filesystem>
+#include <functional>
 #include <string>
 #include <unordered_map>
 
@@ -18,9 +18,9 @@
 struct MusicManager final {
 private:
     static inline MusicManager* s_instance{ nullptr }; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
-    static const inline float step_width = 0.05F;
+    static const constexpr double step_width = 0.05F;
 
-    using VolumeChangeFunction = std::function<void(helper::optional<float> volume)>;
+    using VolumeChangeFunction = std::function<void(helper::optional<double> volume)>;
 
     Mix_Music* m_music;
     std::atomic<Mix_Music*> m_queued_music;
@@ -29,7 +29,7 @@ private:
     static constexpr unsigned fade_ms = 500;
     usize m_delay = MusicManager::fade_ms;
     ServiceProvider* m_service_provider;
-    helper::optional<float> volume;
+    helper::optional<double> volume;
     std::unordered_map<std::string, VolumeChangeFunction> volume_listeners;
 
 public:
@@ -46,10 +46,11 @@ public:
     helper::optional<std::string> load_effect(const std::string& name, std::filesystem::path& location);
     helper::optional<std::string> play_effect(const std::string& name, u8 channel_num = 1, int loop = 0);
 
-    [[nodiscard]] helper::optional<float> get_volume() const;
-    void set_volume(helper::optional<float> new_volume, bool force_update = false, bool notify_listeners = true);
+    //TODO: atm the volume changers only work on the music channel, when adding more effects, this should support channels via  https://wiki.libsdl.org/SDL2_mixer/Mix_Volume
+    [[nodiscard]] helper::optional<double> get_volume() const;
+    void set_volume(helper::optional<double> new_volume, bool force_update = false, bool notify_listeners = true);
     // no nodiscard, since the return value is only a side effect, that is maybe useful
-    helper::optional<float> change_volume(std::int8_t steps);
+    helper::optional<double> change_volume(std::int8_t steps);
 
     bool handle_event(const SDL_Event& event);
 

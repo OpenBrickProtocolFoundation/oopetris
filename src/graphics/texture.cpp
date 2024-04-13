@@ -1,15 +1,16 @@
 
 #include "texture.hpp"
+#include "helper/graphic_utils.hpp"
 
 
 Texture::Texture(SDL_Texture* raw_texture) : m_raw_texture{ raw_texture } { }
 
-Texture Texture::from_image(SDL_Renderer* renderer, const std::string& image_path) {
-    SDL_Texture* image = IMG_LoadTexture(renderer, image_path.c_str());
+Texture Texture::from_image(SDL_Renderer* renderer, const std::filesystem::path& image_path) {
+    SDL_Texture* image = IMG_LoadTexture(renderer, image_path.string().c_str());
 
     if (image == nullptr) {
         throw std::runtime_error(
-                fmt::format("Failed to load image from path '{}' with error: {}", image_path, SDL_GetError())
+                fmt::format("Failed to load image from path '{}' with error: {}", image_path.string(), SDL_GetError())
         );
     }
     return Texture{ image };
@@ -24,14 +25,16 @@ Texture Texture::prerender_text(
         const Color& background_color
 ) {
 
-    const SDL_Color text_color = color.to_sdl_color();
+    const SDL_Color text_color = utils::sdl_color_from_color(color);
     SDL_Surface* surface{ nullptr };
     if (render_type == RenderType::Solid) {
         surface = TTF_RenderUTF8_Solid(font.get(), text.c_str(), text_color);
     } else if (render_type == RenderType::Blended) {
         surface = TTF_RenderUTF8_Blended(font.get(), text.c_str(), text_color);
     } else if (render_type == RenderType::Shaded) {
-        surface = TTF_RenderUTF8_Shaded(font.get(), text.c_str(), text_color, background_color.to_sdl_color());
+        surface = TTF_RenderUTF8_Shaded(
+                font.get(), text.c_str(), text_color, utils::sdl_color_from_color(background_color)
+        );
     } else {
         utils::unreachable();
     }

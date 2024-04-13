@@ -2,7 +2,8 @@
 
 #pragma once
 
-#include "manager/recording/recording.hpp"
+#include "helper/color_literals.hpp"
+#include "recordings/recording.hpp"
 #include "ui/components/label.hpp"
 #include "ui/focusable.hpp"
 #include "ui/hoverable.hpp"
@@ -45,7 +46,7 @@ namespace custom_ui {
 
         void render(const ServiceProvider& service_provider) const override;
 
-        helper::BoolWrapper<ui::EventHandleType> handle_event(const SDL_Event& event, const Window* window) override;
+        [[nodiscard]] Widget::EventHandleResult handle_event(const SDL_Event& event, const Window* window) override;
 
         [[nodiscard]] data::RecordingMetadata metadata() const;
 

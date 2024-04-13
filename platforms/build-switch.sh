@@ -117,7 +117,8 @@ if [ "$COMPILE_TYPE" == "complete_rebuild" ] || [ ! -e "$BUILD_DIR" ]; then
     meson setup "$BUILD_DIR" \
         "--wipe" \
         --cross-file "./platforms/crossbuild-switch.ini" \
-        -Dbuildtype=release
+        -Dbuildtype=release \
+        -Ddefault_library=static
 
 fi
 

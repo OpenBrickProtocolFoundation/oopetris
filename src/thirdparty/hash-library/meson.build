@@ -1,11 +1,10 @@
-shared_files = files(
+core_src_files += files(
     'sha256.cpp',
     'sha256.h',
 )
 
-src_files += shared_files
-recording_src_files += shared_files
 
+core_lib += {
+    'inc_dirs': [core_lib.get('inc_dirs'), include_directories('.')],
+}
 
-inc_dirs += include_directories('.')
-recording_inc_dirs += include_directories('.')

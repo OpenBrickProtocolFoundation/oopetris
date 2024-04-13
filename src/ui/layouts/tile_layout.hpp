@@ -51,7 +51,7 @@ namespace ui {
 
         void render(const ServiceProvider& service_provider) const override;
 
-        helper::BoolWrapper<ui::EventHandleType>
+        Widget::EventHandleResult
         handle_event(const SDL_Event& event, const Window* window) // NOLINT(readability-function-cognitive-complexity)
                 override;
 
