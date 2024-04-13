@@ -194,7 +194,7 @@ ui::TextInput::handle_event( // NOLINT(readability-function-cognitive-complexity
                 }
                 case SDLK_c: {
                     if ((event.key.keysym.mod & KMOD_CTRL) != 0) {
-                        int result = SDL_SetClipboardText(m_text.c_str());
+                        const int result = SDL_SetClipboardText(m_text.c_str());
                         if (result != 0) {
                             throw helper::MinorError{
                                 fmt::format("failed in setting the clipboard text: {}", SDL_GetError())
@@ -246,7 +246,7 @@ void ui::TextInput::set_text(const std::string& text) {
     return m_text;
 }
 
-void ui::TextInput::recalculate_textures(bool text_changed) {
+void ui::TextInput::recalculate_textures(bool text_changed) { //NOLINT(readability-function-cognitive-complexity)
 
     const auto& renderer = m_service_provider->renderer();
 

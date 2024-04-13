@@ -28,8 +28,7 @@ detail::ColorSlider::ColorSlider(
                               std::move(setter),
                               step,
                               layout,
-                              is_top_level },
-      m_texture{} {
+                              is_top_level } {
 
     change_layout();
 
@@ -149,7 +148,10 @@ void detail::ColorCanvas::draw_pseudo_circle(const ServiceProvider& service_prov
 }
 
 helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
-detail::ColorCanvas::handle_event(const SDL_Event& event, const Window* window) {
+detail::ColorCanvas::handle_event( //NOLINT(readability-function-cognitive-complexity)
+        const SDL_Event& event,
+        const Window* window
+) {
     Widget::EventHandleResult handled = false;
 
     const auto fill_rect = layout().get_rect();
@@ -456,7 +458,10 @@ void ui::ColorPicker::render(const ServiceProvider& service_provider) const {
 }
 
 helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
-ui::ColorPicker::handle_event(const SDL_Event& event, const Window* window) {
+ui::ColorPicker::handle_event( //NOLINT(readability-function-cognitive-complexity)
+        const SDL_Event& event,
+        const Window* window
+) {
 
     auto handled = m_color_slider->handle_event(event, window);
 
