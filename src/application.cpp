@@ -52,7 +52,7 @@ void Application::run() {
 #ifdef DEBUG_BUILD
     auto start_time = SDL_GetPerformanceCounter();
     const auto update_time = SDL_GetPerformanceFrequency() / 2; //0.5 s
-    const double count_per_s = static_cast<double>(SDL_GetPerformanceFrequency());
+    const auto count_per_s = static_cast<double>(SDL_GetPerformanceFrequency());
     u64 frame_counter = 0;
 #endif
     using namespace std::chrono_literals;

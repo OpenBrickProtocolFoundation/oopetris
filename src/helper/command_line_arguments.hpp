@@ -34,9 +34,7 @@ public:
                 .default_value(default_starting_level);
         parser.add_argument("-s", "--silent").help("disable audio output").default_value(false).implicit_value(true);
         try {
-            if (not arguments.empty()) {
-                parser.parse_args(arguments);
-            }
+            parser.parse_args(arguments);
 
 
             if (auto path = parser.present("--recording")) {

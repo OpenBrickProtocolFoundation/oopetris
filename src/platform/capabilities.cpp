@@ -41,6 +41,8 @@ namespace {
     return "Android";
 #elif defined(__SWITCH__)
     return "Nintendo Switch";
+#elif defined(__3DS__)
+    return "Nintendo 3DS";
 #elif defined(FLATPAK_BUILD)
     return "Linux (Flatpak)";
 #elif defined(__linux__)
@@ -63,10 +65,9 @@ namespace {
         return false;
     }
 
-
     return true;
 
-#elif defined(__SWITCH__)
+#elif defined(__SWITCH__) || defined(__3DS__)
     UNUSED(url);
     return false;
 #else

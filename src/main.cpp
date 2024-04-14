@@ -51,6 +51,10 @@ int main(int argc, char** argv) {
         arguments.emplace_back(argv[i]); //NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     }
 
+    if (arguments.empty()) {
+        arguments.emplace_back("oopetris");
+    }
+
     constexpr auto window_name = constants::program_name.c_str();
 
     std::unique_ptr<Window> window{ nullptr };
