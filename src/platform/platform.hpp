@@ -3,6 +3,7 @@
 #pragma once
 
 #include "helper/parse_json.hpp"
+#include "helper/types.hpp"
 
 enum class Platform : u8 { PC, Android, Console };
 

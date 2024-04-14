@@ -7,11 +7,11 @@
 #include "platform/replay_input.hpp"
 #include <stdexcept>
 
-//TODO: support 3ds
+
 #if defined(__ANDROID__)
 #include "platform/android_input.hpp"
-#elif defined(__SWITCH__)
-#include "platform/switch_input.hpp"
+#elif defined(__CONSOLE__)
+#include "platform/console_input.hpp"
 #else
 #include "platform/keyboard_input.hpp"
 #endif
@@ -28,7 +28,7 @@ namespace {
                             auto* const event_dispatcher = &(service_provider->event_dispatcher());
 #if defined(__ANDROID__)
                             auto input = std::make_unique<TouchInput>(event_dispatcher);
-#elif defined(__SWITCH__)
+#elif defined(__CONSOLE__)
                             auto input = std::make_unique<JoystickInput>(event_dispatcher);
 #else
                             auto input = std::make_unique<KeyboardInput>(keyboard_controls, event_dispatcher);

@@ -5,10 +5,8 @@
 #include <SDL_ttf.h>
 #include <fmt/format.h>
 
-#if defined(__SWITCH__)
-#include <switch.h>
-#elif defined(__3DS__)
-#include <3ds.h>
+#if defined(__CONSOLE__)
+#include "helper/console_helpers.hpp"
 #endif
 
 #if defined(_HAVE_FILE_DIALOGS)
@@ -26,11 +24,10 @@ SdlContext::SdlContext() {
         throw helper::InitializationError{ fmt::format("Failed in initializing sdl ttf: {}", TTF_GetError()) };
     }
 
-#if defined(__SWITCH__) or defined(__3DS__)
-    // based on: https://github.com/carstene1ns/switch-sdl2-demo
+#if defined(__CONSOLE__)
+    console::platform_init();
 
-    // mount the romfs in the executable as "romfs:/" (this is fine since only one app can run at the time on the switch)
-    romfsInit();
+    //TODO: factor out
 
     // init joystick and other nintendo switch / 3ds specific things
     SDL_InitSubSystem(SDL_INIT_JOYSTICK);
@@ -58,9 +55,8 @@ SdlContext::~SdlContext() {
     NFD::Quit();
 #endif
 
-#if defined(__SWITCH__)
-    // unmount romfs again
-    romfsExit();
+#if defined(__CONSOLE__)
+    console::platform_exit();
 #endif
 
     TTF_Quit();

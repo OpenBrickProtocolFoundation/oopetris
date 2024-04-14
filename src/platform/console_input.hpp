@@ -2,11 +2,11 @@
 
 #pragma once
 
-#if defined(__SWITCH__)
+#if defined(__CONSOLE__)
 
+#include "console_buttons.hpp"
 #include "input.hpp"
 #include "manager/event_dispatcher.hpp"
-#include "switch_buttons.hpp"
 
 struct JoystickInput : public Input, public EventListener {
 private:

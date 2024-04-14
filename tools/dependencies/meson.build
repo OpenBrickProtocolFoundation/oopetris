@@ -216,6 +216,11 @@ if (
     or host_machine.system() == '3ds')
 )
     online_multiplayer_supported = false
+
+    # TODO: use libcurl and
+    # https://github.com/uctakeoff/uc-curl
+    # or https://github.com/JosephP91/curlcpp
+
     core_lib += {
         'compile_args': [
             core_lib.get('compile_args'),

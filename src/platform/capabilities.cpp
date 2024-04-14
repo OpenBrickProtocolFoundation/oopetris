@@ -5,9 +5,9 @@
 #include "helper/utils.hpp"
 #include "platform/capabilities.hpp"
 
-//TODO: support 3ds too
-#if defined(__SWITCH__)
-#include "platform/switch_buttons.hpp"
+#if defined(__CONSOLE__)
+#include "helper/console_helpers.hpp"
+#include "platform/console_buttons.hpp"
 #endif
 
 
@@ -67,10 +67,12 @@ namespace {
 
     return true;
 
-#elif defined(__SWITCH__) || defined(__3DS__)
-    UNUSED(url);
-    return false;
+#elif defined(__CONSOLE__)
+    auto result = console::open_url(url);
+    spdlog::info("Returned string from url open was: {}", result);
+    return true;
 #else
+    //TODO: this is dangerous, if we supply user input, so use SDL_OpenURL preferably
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
     const std::string shellCommand = "start " + url;

@@ -2,6 +2,8 @@
 
 #pragma once
 
+#if defined(__CONSOLE__)
+
 #if defined(__SWITCH__)
 
 
@@ -46,5 +48,9 @@ enum JOYCON {
 static_assert(BITL(JOYCON_B) == HidNpadButton_B);
 static_assert(BITL(JOYCON_PLUS) == HidNpadButton_Plus);
 
+
+#endif
+
+//TODO: implement for 3ds
 
 #endif

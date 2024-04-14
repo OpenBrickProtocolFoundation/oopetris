@@ -1,6 +1,6 @@
 
-#if defined(__SWITCH__)
-#include "switch_input.hpp"
+#if defined(__CONSOLE__)
+#include "console_input.hpp"
 
 
 void JoystickInput::handle_event(const SDL_Event& event, const Window*) {
@@ -18,6 +18,9 @@ void JoystickInput::update(SimulationStep simulation_step_index) {
 
     Input::update(simulation_step_index);
 }
+
+#if defined(__SWITCH__)
+
 
 helper::optional<InputEvent> JoystickInput::sdl_event_to_input_event(const SDL_Event& event) const {
     if (event.type == SDL_JOYBUTTONDOWN) {
@@ -69,5 +72,14 @@ helper::optional<InputEvent> JoystickInput::sdl_event_to_input_event(const SDL_E
     }
     return helper::nullopt;
 }
+#elif defined(__3DS__)
+
+helper::optional<InputEvent> JoystickInput::sdl_event_to_input_event(const SDL_Event& event) const {
+    return helper::nullopt;
+}
+
+//TODO: implement for 3ds
+#endif
+
 
 #endif

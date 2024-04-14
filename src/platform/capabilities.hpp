@@ -14,11 +14,11 @@
 #include "helper/types.hpp"
 #include "helper/utils.hpp"
 
-#if defined(__SWITCH__)
-#include "platform/switch_buttons.hpp"
+#if defined(__CONSOLE__)
+#include "platform/console_buttons.hpp"
 #endif
 
-//TODO factor this file into mulitple ones, according to logic distribution of what the functions are doing
+//TODO factor this file into mulitple ones, according to logic distribution of what the functions are doing, remove and refacator the input helper functions
 
 namespace utils {
 
@@ -53,7 +53,7 @@ namespace utils {
                 {static_cast<u8>(CrossPlatformAction::OPEN_SETTINGS), { 0 }},
                 {          static_cast<u8>(CrossPlatformAction::TAB), { 0 }}
     };
-#elif defined(__SWITCH__)
+#elif defined(__CONSOLE__)
             {
                 {           static_cast<u8>(CrossPlatformAction::OK),{ JOYCON_A }                                                                     },
                 {        static_cast<u8>(CrossPlatformAction::PAUSE),                                       { JOYCON_PLUS }},
@@ -90,7 +90,7 @@ namespace utils {
     [[nodiscard]] constexpr Capabilities get_capabilities() {
 #if defined(__ANDROID__)
         return Capabilities{ false, true, Orientation::Portrait };
-#elif defined(__SWITCH__)
+#elif defined(__SWITCH__) or defined(__3DS__)
         return Capabilities{ true, false, Orientation::Landscape };
 #else
         return Capabilities{ true, true, Orientation::Landscape };
