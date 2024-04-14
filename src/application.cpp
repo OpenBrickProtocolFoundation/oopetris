@@ -285,11 +285,16 @@ void Application::try_load_settings() {
 
 void Application::load_resources() {
     constexpr auto fonts_size = 128;
-    const std::vector<std::tuple<FontId, std::string>> fonts{
-        {       FontId::Default,   "PressStart2P.ttf"},
-        {         FontId::Arial,          "arial.ttf"},
-        {FontId::NotoColorEmoji, "NotoColorEmoji.ttf"},
-        {       FontId::Symbola,        "Symbola.ttf"}
+    const std::vector<std::tuple<FontId, std::string>> fonts {
+#if defined(__3DS__)
+        //TODO: debug why the other font crashed, not on loading, but on trying to render text!
+        { FontId::Default, "LeroyLetteringLightBeta01.ttf" },
+#else
+        { FontId::Default, "PressStart2P.ttf" },
+#endif
+                { FontId::Arial, "arial.ttf" }, { FontId::NotoColorEmoji, "NotoColorEmoji.ttf" }, {
+            FontId::Symbola, "Symbola.ttf"
+        }
     };
     for (const auto& [font_id, path] : fonts) {
         const auto font_path = utils::get_assets_folder() / "fonts" / path;

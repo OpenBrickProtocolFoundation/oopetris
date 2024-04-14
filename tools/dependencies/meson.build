@@ -9,6 +9,22 @@ if meson.is_cross_build()
         }
 
         only_allow_native_libs = true
+
+        # TODO: debug, if exceptions or rtti work on the 3ds
+
+        # if host_machine.system() == '3ds'
+        #     add_global_link_arguments(
+        #         '-fno-rtti',
+        #         '-fno-exceptions',
+        #         language: ['cpp'],
+        #     )
+        #     add_global_arguments(
+        #         '-fno-rtti',
+        #         '-fno-exceptions',
+        #         language: ['cpp'],
+        #     )
+        # endif
+
     endif
 endif
 

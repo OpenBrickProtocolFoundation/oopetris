@@ -38,7 +38,16 @@ namespace console {
         void sink_it_(const spdlog::details::log_msg& msg) override {
             spdlog::memory_buf_t formatted;
             spdlog::sinks::base_sink<Mutex>::formatter_->format(msg, formatted);
-            debug_write(formatted.data(), static_cast<std::streamsize>(formatted.size()));
+
+            auto size = formatted.size();
+
+            // debug_write already writes an newline at the end!
+            if (size > 0 and formatted.data()[size - 1] == '\n') {
+                formatted.data()[size - 1] = '\0';
+                --size;
+            }
+
+            debug_write(formatted.data(), size);
         }
 
         void flush_() override {

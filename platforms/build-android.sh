@@ -296,7 +296,7 @@ pkg-config = 'false'
 llvm-config = 'llvm-config'
 
 [built-in options]
-c_std = 'c11'
+c_std = 'gnu11'
 cpp_std = 'c++23'
 c_args = ['--sysroot=${SYS_ROOT:?}','-fPIE','-fPIC','--target=$ARM_COMPILER_TRIPLE','-DHAVE_USR_INCLUDE_MALLOC_H','-D_MALLOC_H','-D__BITNESS=$BITNESS']
 cpp_args = ['--sysroot=${SYS_ROOT:?}','-fPIE','-fPIC','--target=$ARM_COMPILER_TRIPLE','-D__BITNESS=$BITNESS']
