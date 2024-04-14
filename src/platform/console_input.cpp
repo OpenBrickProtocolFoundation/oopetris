@@ -74,12 +74,57 @@ helper::optional<InputEvent> JoystickInput::sdl_event_to_input_event(const SDL_E
 }
 #elif defined(__3DS__)
 
-//TODO: implement for 3ds
+
 helper::optional<InputEvent> JoystickInput::sdl_event_to_input_event(const SDL_Event& event) const {
-    UNUSED(event);
+    if (event.type == SDL_JOYBUTTONDOWN) {
+        const auto button = event.jbutton.button;
+        if (button == JOYCON_Y) {
+            return InputEvent::RotateLeftPressed;
+        }
+        if (button == JOYCON_X) {
+            return InputEvent::RotateRightPressed;
+        }
+        if (button == JOYCON_DPAD_DOWN or button == JOYCON_CSTICK_DOWN) {
+            return InputEvent::MoveDownPressed;
+        }
+        if (button == JOYCON_DPAD_LEFT or button == JOYCON_CSTICK_LEFT) {
+            return InputEvent::MoveLeftPressed;
+        }
+        if (button == JOYCON_DPAD_RIGHT or button == JOYCON_CSTICK_RIGHT) {
+            return InputEvent::MoveRightPressed;
+        }
+        if (button == JOYCON_A) {
+            return InputEvent::DropPressed;
+        }
+        if (button == JOYCON_B) {
+            return InputEvent::HoldPressed;
+        }
+    } else if (event.type == SDL_JOYBUTTONUP) {
+        const auto button = event.jbutton.button;
+        if (button == JOYCON_Y) {
+            return InputEvent::RotateLeftReleased;
+        }
+        if (button == JOYCON_X) {
+            return InputEvent::RotateRightReleased;
+        }
+        if (button == JOYCON_DPAD_DOWN or button == JOYCON_CSTICK_DOWN) {
+            return InputEvent::MoveDownReleased;
+        }
+        if (button == JOYCON_DPAD_LEFT or button == JOYCON_CSTICK_LEFT) {
+            return InputEvent::MoveLeftReleased;
+        }
+        if (button == JOYCON_DPAD_RIGHT or button == JOYCON_CSTICK_RIGHT) {
+            return InputEvent::MoveRightReleased;
+        }
+        if (button == JOYCON_A) {
+            return InputEvent::DropReleased;
+        }
+        if (button == JOYCON_B) {
+            return InputEvent::HoldReleased;
+        }
+    }
     return helper::nullopt;
 }
-
 #endif
 
 
