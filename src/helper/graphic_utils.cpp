@@ -55,7 +55,7 @@ std::vector<std::string> utils::supported_features() {
 [[nodiscard]] std::filesystem::path utils::get_assets_folder() {
 #if defined(__ANDROID__)
     return std::filesystem::path{ "" };
-#elif defined(__SWITCH__)
+#elif defined(__SWITCH__) or defined(__3DS__)
     // this is in the internal storage of the nintendo switch, it ios mounted by libnx (runtime switch support library) and filled at compile time with assets (its called ROMFS there)
     return std::filesystem::path{ "romfs:/assets" };
 #elif defined(BUILD_INSTALLER)

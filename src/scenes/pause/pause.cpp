@@ -8,6 +8,7 @@
 #if defined(__SWITCH__)
 #include "platform/switch_buttons.hpp"
 #endif
+
 namespace scenes {
 
     Pause::Pause(ServiceProvider* service_provider, const ui::Layout& layout) : Scene{ service_provider, layout }, m_heading {

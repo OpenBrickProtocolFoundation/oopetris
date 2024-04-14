@@ -15,11 +15,6 @@
 #include <spdlog/sinks/rotating_file_sink.h>
 #include <spdlog/sinks/stdout_sinks.h>
 
-#if defined(__SWITCH__)
-#include "switch.h"
-#include <string.h>
-#endif
-
 
 int main(int argc, char** argv) {
     const auto logs_path = utils::get_root_folder() / "logs";
@@ -60,7 +55,7 @@ int main(int argc, char** argv) {
     std::unique_ptr<Window> window{ nullptr };
 
     try {
-#if defined(__ANDROID__) or defined(__SWITCH__)
+#if defined(__ANDROID__) or defined(__SWITCH__) or defined(__3DS__)
         window = std::make_unique<Window>(window_name, WindowPosition::Centered);
 #else
         static constexpr int width = 1280;

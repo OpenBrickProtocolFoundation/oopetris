@@ -6,7 +6,9 @@
 #include <fmt/format.h>
 
 #if defined(__SWITCH__)
-#include "switch.h"
+#include <switch.h>
+#elif defined(__3DS__)
+#include <3ds.h>
 #endif
 
 #if defined(_HAVE_FILE_DIALOGS)
@@ -24,18 +26,18 @@ SdlContext::SdlContext() {
         throw helper::InitializationError{ fmt::format("Failed in initializing sdl ttf: {}", TTF_GetError()) };
     }
 
-#if defined(__SWITCH__)
+#if defined(__SWITCH__) or defined(__3DS__)
     // based on: https://github.com/carstene1ns/switch-sdl2-demo
 
     // mount the romfs in the executable as "romfs:/" (this is fine since only one app can run at the time on the switch)
     romfsInit();
 
-    // init joystick and other nintendo switch specific things
+    // init joystick and other nintendo switch / 3ds specific things
     SDL_InitSubSystem(SDL_INIT_JOYSTICK);
     SDL_JoystickEventState(SDL_ENABLE);
     // only use the first joystick!
 
-    //TODO, since local multiplayer on a switch is possible, test here if there are more then one joysticks available (e.g. left and right controller) then ask the user if he wants to play local multiplayer, implement that in JoystickInput (in the SDL event the joystick index is present)
+    //TODO, since local multiplayer on a switch / 3ds is possible, test here if there are more then one joysticks available (e.g. left and right controller) then ask the user if he wants to play local multiplayer, implement that in JoystickInput (in the SDL event the joystick index is present)
     SDL_JoystickOpen(0);
 
 #endif

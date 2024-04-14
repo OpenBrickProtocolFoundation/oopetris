@@ -5,7 +5,7 @@
 #if defined(__SWITCH__)
 
 
-#include "switch.h"
+#include <switch.h>
 
 // some switch buttons, from libnx, but since SDL doesn't handle inputs as flags, like libnx, the have to be reversed and reversing 1 << x = log_2(x), this is done constexpr
 

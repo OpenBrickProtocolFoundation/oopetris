@@ -7,6 +7,7 @@
 #include "platform/replay_input.hpp"
 #include <stdexcept>
 
+//TODO: support 3ds
 #if defined(__ANDROID__)
 #include "platform/android_input.hpp"
 #elif defined(__SWITCH__)

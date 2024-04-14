@@ -5,7 +5,7 @@
 #include "helper/utils.hpp"
 #include "platform/capabilities.hpp"
 
-
+//TODO: support 3ds too
 #if defined(__SWITCH__)
 #include "platform/switch_buttons.hpp"
 #endif
