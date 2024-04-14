@@ -2,8 +2,8 @@
 
 only_allow_native_libs = false
 if meson.is_cross_build()
-    if host_machine.system() == 'switch'
-        # we do not link to code that was compiled with gcc 10.1, the code we link with is all compiled with gcc 13.2
+    if host_machine.system() == 'switch' or host_machine.system() == '3ds'
+        # we do not link to code that was compiled with gcc 10.1 / gcc 7.1, the code we link with is all compiled with gcc 13.2
         core_lib += {
             'compile_args': [core_lib.get('compile_args'), '-Wno-psabi'],
         }
@@ -11,7 +11,6 @@ if meson.is_cross_build()
         only_allow_native_libs = true
     endif
 endif
-
 
 
 
@@ -77,7 +76,7 @@ if mpg123_dep.found()
     sdl2_mixer_flags += {'mpg123': 'enabled'}
     sdl2_mixer_defines += '-DAUDIO_WITH_MP3_SUPPORT'
 else
-    mpg123_dep = cpp.find_library('mpg123', required: only_allow_native_libs)
+    mpg123_dep = cpp.find_library('mpg123', required: false)
     if mpg123_dep.found()
         sdl2_mixer_flags += {'mpg123': 'enabled'}
         sdl2_mixer_defines += '-DAUDIO_WITH_MP3_SUPPORT'
@@ -85,7 +84,6 @@ else
         meson.override_dependency('mpg123', mpg123_dep)
     endif
 endif
-
 
 
 sdl2_mixer_dep = dependency(
@@ -100,58 +98,49 @@ graphics_lib += {
     'compile_args': [graphics_lib.get('compile_args'), sdl2_mixer_defines],
 }
 
-if (meson.is_cross_build() and host_machine.system() == 'switch')
+fmt_use_header_only = false
 
-    fmt_lib = dependency(
-        'fmt',
-        required: false,
-        allow_fallback: false,
-    )
-
-    if fmt_lib.found()
-        core_lib += {'deps': [core_lib.get('deps'), fmt_lib]}
-    else
-
-        fmt_header_only_dep = dependency(
-            'fmt_header_only',
-            required: true,
-            allow_fallback: true,
-            default_options: {'default_library': 'static'},
-        )
-
-        meson.override_dependency('fmt', fmt_header_only_dep)
-
-        core_lib += {'deps': [core_lib.get('deps'), fmt_header_only_dep]}
-    endif
-
-else
-
+if (
+    meson.is_cross_build()
+    and (host_machine.system() == 'switch'
+    or host_machine.system() == '3ds')
+)
+    fmt_use_header_only = true
     # clang with libc++ creates some really long and confusing linker errors, so just use the header only library
-    if cpp.get_id() == 'clang' and build_with_libcpp
-        fmt_dep = dependency(
-            'fmt_header_only',
-            required: true,
-            allow_fallback: true,
-            default_options: {'default_library': 'static'},
-        )
-        meson.override_dependency('fmt', fmt_dep)
-    else
-        fmt_dep = dependency(
-            'fmt',
-            required: true,
-        )
-    endif
-
-
-    core_lib += {'deps': [core_lib.get('deps'), fmt_dep]}
+elif cpp.get_id() == 'clang' and build_with_libcpp
+    fmt_use_header_only = true
 endif
+
+
+if fmt_use_header_only
+    fmt_header_only_dep = dependency(
+        'fmt_header_only',
+        required: true,
+        allow_fallback: true,
+    )
+    meson.override_dependency('fmt', fmt_header_only_dep)
+    fmt_dep = fmt_header_only_dep
+else
+    fmt_dep = dependency('fmt', required: true, allow_fallback: true)
+endif
+
+core_lib += {'deps': [core_lib.get('deps'), fmt_dep]}
+
 
 spdlog_dep = dependency(
     'spdlog',
     required: true,
     default_options: {'tests': 'disabled'},
 )
-graphics_lib += {'deps': [graphics_lib.get('deps'), spdlog_dep]}
+graphics_lib += {
+    'deps': [graphics_lib.get('deps'), spdlog_dep],
+}
+
+if (meson.is_cross_build() and host_machine.system() == '3ds')
+    graphics_lib += {
+        'compile_args': [graphics_lib.get('compile_args'), '-DSPDLOG_NO_TLS'],
+    }
+endif
 
 nlohmann_json_dep = dependency(
     'nlohmann_json',
@@ -221,7 +210,11 @@ core_lib += {'deps': [core_lib.get('deps'), argparse_dep]}
 online_multiplayer_supported = true
 
 
-if meson.is_cross_build() and host_machine.system() == 'switch'
+if (
+    meson.is_cross_build()
+    and (host_machine.system() == 'switch'
+    or host_machine.system() == '3ds')
+)
     online_multiplayer_supported = false
     core_lib += {
         'compile_args': [
@@ -275,7 +268,6 @@ endif
 discord_sdk_dep = dependency(
     'discord-game-sdk',
     required: not meson.is_cross_build(),
-    default_options: {'clang_libcpp': 'disabled'},
 )
 if discord_sdk_dep.found()
     have_discord_sdk = true

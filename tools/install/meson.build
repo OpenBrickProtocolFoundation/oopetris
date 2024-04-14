@@ -2,7 +2,7 @@
 ## TODO: only install needed ones, since sometimes we only need e.g. flacs or mp3 and no icons etc.
 ## install assets
 install_subdir(
-    'assets',
+    meson.project_source_root() / 'assets',
     install_dir: 'share/oopetris',
     exclude_files: ['oopetris.desktop.in', 'OOPetris.svg', 'recordings.magic'],
     exclude_directories: ['icon'],

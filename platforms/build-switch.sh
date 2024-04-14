@@ -43,6 +43,9 @@ export ENDIANESS="little"
 
 export COMMON_FLAGS="'-ftls-model=local-exec','-march=armv8-a+crc+crypto','-mtune=cortex-a57','-mtp=soft','-ftls-model=local-exec','-fPIC','-ffunction-sections','-fdata-sections'"
 
+# compat flags for some POSIX functions
+export EXTRA_COMPILE_FLAGS="'-DNOSTYLUS','-D_XOPEN_SOURCE'"
+
 export COMPILE_FLAGS="'-D__SWITCH__','-isystem','$LIBNX/include','-I$PORTLIBS_PATH_SWITCH/include'"
 
 export LINK_FLAGS="'-L$PORTLIBS_LIB','-L$LIBNX_LIB','-fPIE','-specs=$DEVKITPRO/libnx/switch.specs'"
@@ -83,9 +86,9 @@ sdl2-config='$BIN_DIR/sdl2-config'
 
 [built-in options]
 c_std = 'c11'
-cpp_std = 'c++20'
-c_args = [$COMMON_FLAGS, $COMPILE_FLAGS]
-cpp_args = [$COMMON_FLAGS, $COMPILE_FLAGS]
+cpp_std = 'c++23'
+c_args = [$COMMON_FLAGS, $COMPILE_FLAGS, $EXTRA_COMPILE_FLAGS]
+cpp_args = [$COMMON_FLAGS, $COMPILE_FLAGS, $EXTRA_COMPILE_FLAGS]
 c_link_args = [$COMMON_FLAGS, $LINK_FLAGS]
 cpp_link_args = [$COMMON_FLAGS, $LINK_FLAGS]
 
@@ -96,9 +99,9 @@ needs_exe_wrapper = true
 library_dirs= ['$LIBNX_LIB', '$PORTLIBS_LIB']
 libnx='$LIBNX'
 
-APP_NAME	= 'sdl_example'
-APP_AUTHOR 	= 'Totto16'
-APP_VERSION = '1.0'
+APP_NAME	= 'oopetris'
+APP_AUTHOR 	= 'coder2k'
+APP_VERSION = '0.5.3'
 
 USE_NACP    = true
 

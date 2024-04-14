@@ -45,6 +45,9 @@ export ENDIANESS="little"
 
 export COMMON_FLAGS="'-march=armv6k','-mtune=mpcore','-mfloat-abi=hard', '-mtp=soft','-mword-relocations', '-ffunction-sections', '-fdata-sections'"
 
+# compat flags for some POSIX functions
+export EXTRA_COMPILE_FLAGS="'-DNOSTYLUS','-D_XOPEN_SOURCE'"
+
 export COMPILE_FLAGS="'-D_3DS','-D__3DS__', '-isystem', '$LIBCTRU/include', '-I$PORTLIBS_PATH_3DS/include'"
 
 export LINK_FLAGS="'-L$PORTLIBS_LIB','-L$LIBCTRU_LIB','-fPIE','-specs=$ARCH_DEVKIT_FOLDER/$TOOL_PREFIX/lib/3dsx.specs'"
@@ -85,9 +88,9 @@ sdl2-config='$BIN_DIR/bin/sdl2-config'
 
 [built-in options]
 c_std = 'c11'
-cpp_std = 'c++20'
-c_args = [$COMMON_FLAGS, $COMPILE_FLAGS]
-cpp_args = [$COMMON_FLAGS, $COMPILE_FLAGS]
+cpp_std = 'c++23'
+c_args = [$COMMON_FLAGS, $COMPILE_FLAGS, $EXTRA_COMPILE_FLAGS]
+cpp_args = [$COMMON_FLAGS, $COMPILE_FLAGS, $EXTRA_COMPILE_FLAGS]
 c_link_args = [$COMMON_FLAGS, $LINK_FLAGS]
 cpp_link_args = [$COMMON_FLAGS, $LINK_FLAGS]
 
@@ -98,9 +101,9 @@ needs_exe_wrapper = true
 library_dirs= ['$LIBCTRU_LIB', '$PORTLIBS_LIB']
 libctru='$LIBCTRU'
 
-APP_NAME	= 'sdl_example'
-APP_AUTHOR 	= 'Totto16'
-APP_DESC = 'SDL Example'
+APP_NAME	= 'oopetris'
+APP_AUTHOR 	= 'coder2k'
+APP_DESC = 'A Tetris clone in OOP'
 
 USE_SMDH    = true
 

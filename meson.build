@@ -14,7 +14,6 @@ project(
     version: '0.5.3',
 )
 
-
 subdir('tools/options')
 
 subdir('tools/dependencies')
@@ -74,7 +73,6 @@ else
     )
 
 endif
-
 
 if get_option('tests')
     subdir('tests')
