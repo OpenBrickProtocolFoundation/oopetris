@@ -46,7 +46,7 @@ export COMMON_FLAGS="'-ftls-model=local-exec','-march=armv8-a+crc+crypto','-mtun
 # compat flags for some POSIX functions
 export EXTRA_COMPILE_FLAGS="'-DNOSTYLUS','-D_XOPEN_SOURCE'"
 
-export COMPILE_FLAGS="'-D__SWITCH__','-isystem','$LIBNX/include','-I$PORTLIBS_PATH_SWITCH/include'"
+export COMPILE_FLAGS="'-D__SWITCH__','-D__CONSOLE__','-D__NINTENDO_CONSOLE__','-isystem','$LIBNX/include','-I$PORTLIBS_PATH_SWITCH/include'"
 
 export LINK_FLAGS="'-L$PORTLIBS_LIB','-L$LIBNX_LIB','-fPIE','-specs=$DEVKITPRO/libnx/switch.specs'"
 
@@ -96,7 +96,7 @@ cpp_link_args = [$COMMON_FLAGS, $LINK_FLAGS]
 [properties]
 pkg_config_libdir = '$PKG_CONFIG_PATH'
 needs_exe_wrapper = true
-library_dirs= ['$LIBNX_LIB', '$PORTLIBS_LIB']
+library_dirs= ['$LIBNX_LIB','$PORTLIBS_LIB']
 libnx='$LIBNX'
 
 APP_NAME	= 'oopetris'

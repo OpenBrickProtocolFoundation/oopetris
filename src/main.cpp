@@ -25,8 +25,10 @@ int main(int argc, char** argv) {
     std::vector<spdlog::sink_ptr> sinks;
 #if defined(__ANDROID__)
     sinks.push_back(std::make_shared<spdlog::sinks::android_sink_mt>());
+#elif defined(__CONSOLE__)
+    sinks.push_back(std::make_shared<console::debug_sink_mt>());
 #else
-    sinks.push_back(std::make_shared<spdlog::sinks::stdout_sink_st>());
+    sinks.push_back(std::make_shared<spdlog::sinks::stdout_sink_mt>());
 #endif
     sinks.push_back(std::make_shared<spdlog::sinks::rotating_file_sink_mt>(
             fmt::format("{}/oopetris.log", logs_path.string()), 1024 * 1024 * 10, 5, true

@@ -9,10 +9,8 @@
 #include <ranges>
 #include <stdexcept>
 
-#if defined(__SWITCH__)
-#include <switch.h>
-#elif defined(__3DS__)
-#include <3ds.h>
+#if defined(__CONSOLE__)
+#include "helper/console_helpers.hpp"
 #endif
 
 namespace {
@@ -65,19 +63,12 @@ void Application::run() {
     auto start_execution_time = std::chrono::steady_clock::now();
 
     while (m_is_running
-    //TODO factor out
-#if defined(__SWITCH__)
-           // see https://switchbrew.github.io/libnx/applet_8h.html#a7ed640e5f4a81ed3960c763fdc1521c5
-           // this checks for some other reasons why this app should quit, its switch specific
-           and appletMainLoop()
-#elif defined(__3DS__)
-           // see https://libctru.devkitpro.org/apt_8h.html#a84808c36d9a8c389896ecf241c7f89cb
-           // this checks for some other reasons why this app should quit, its 3ds specific
-           and aptMainLoop()
+
+#if defined(__CONSOLE__)
+           and console::inMainLoop()
 #endif
 
     ) {
-
 
         m_event_dispatcher.dispatch_pending_events();
         update();
