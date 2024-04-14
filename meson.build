@@ -11,7 +11,7 @@ project(
         'b_ndebug': 'if-release',
 
     },
-    version: '0.5.3',
+    version: '0.5.4',
 )
 
 subdir('tools/options')
