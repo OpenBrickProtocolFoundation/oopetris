@@ -240,7 +240,7 @@ if [ ! -d "$ROMFS" ]; then
 
     mkdir -p "$ROMFS"
 
-    cp -r assets "$ROMFS"
+    cp -r assets "$ROMFS/"
 
 fi
 

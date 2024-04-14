@@ -38,7 +38,6 @@ public:
 
         SDL_Event event;
         while (SDL_PollEvent(&event) != 0) {
-
             if (m_input_activated) {
                 switch (event.type) {
                     case SDL_KEYDOWN:

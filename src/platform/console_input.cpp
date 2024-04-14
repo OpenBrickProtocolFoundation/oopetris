@@ -78,10 +78,10 @@ helper::optional<InputEvent> JoystickInput::sdl_event_to_input_event(const SDL_E
 helper::optional<InputEvent> JoystickInput::sdl_event_to_input_event(const SDL_Event& event) const {
     if (event.type == SDL_JOYBUTTONDOWN) {
         const auto button = event.jbutton.button;
-        if (button == JOYCON_Y) {
+        if (button == JOYCON_L) {
             return InputEvent::RotateLeftPressed;
         }
-        if (button == JOYCON_X) {
+        if (button == JOYCON_R) {
             return InputEvent::RotateRightPressed;
         }
         if (button == JOYCON_DPAD_DOWN or button == JOYCON_CSTICK_DOWN) {
@@ -101,10 +101,10 @@ helper::optional<InputEvent> JoystickInput::sdl_event_to_input_event(const SDL_E
         }
     } else if (event.type == SDL_JOYBUTTONUP) {
         const auto button = event.jbutton.button;
-        if (button == JOYCON_Y) {
+        if (button == JOYCON_L) {
             return InputEvent::RotateLeftReleased;
         }
-        if (button == JOYCON_X) {
+        if (button == JOYCON_R) {
             return InputEvent::RotateRightReleased;
         }
         if (button == JOYCON_DPAD_DOWN or button == JOYCON_CSTICK_DOWN) {

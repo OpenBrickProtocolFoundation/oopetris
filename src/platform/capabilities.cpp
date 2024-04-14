@@ -127,7 +127,8 @@ namespace {
 
     const std::vector<i64> needed_events = utils::key_map.at(static_cast<u8>(action));
     for (const auto& needed_event : needed_events) { // NOLINT(readability-use-anyofallof)
-#if defined(__SWITCH__)
+#if defined(__SWITCH__) or defined(__3DS__)
+        //TODO: some events use the SDL_JOYAXISMOTION event, but that needs to be done in the next reiteration of these helpers!
         if (event.type == SDL_JOYBUTTONDOWN and event.jbutton.button == needed_event) {
             return true;
         }
@@ -210,6 +211,29 @@ namespace {
             return "Right";
         case CrossPlatformAction::OPEN_SETTINGS:
             return "Y";
+        default:
+            utils::unreachable();
+    }
+#elif defined(__3DS__)
+    switch (action) {
+        case CrossPlatformAction::OK:
+            return "A";
+        case CrossPlatformAction::PAUSE:
+        case CrossPlatformAction::UNPAUSE:
+            return "Y";
+        case CrossPlatformAction::CLOSE:
+        case CrossPlatformAction::EXIT:
+            return "X";
+        case CrossPlatformAction::DOWN:
+            return "Down";
+        case CrossPlatformAction::UP:
+            return "Up";
+        case CrossPlatformAction::LEFT:
+            return "Left";
+        case CrossPlatformAction::RIGHT:
+            return "Right";
+        case CrossPlatformAction::OPEN_SETTINGS:
+            return "Select";
         default:
             utils::unreachable();
     }
