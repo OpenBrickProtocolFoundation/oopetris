@@ -74,11 +74,12 @@ helper::optional<InputEvent> JoystickInput::sdl_event_to_input_event(const SDL_E
 }
 #elif defined(__3DS__)
 
+//TODO: implement for 3ds
 helper::optional<InputEvent> JoystickInput::sdl_event_to_input_event(const SDL_Event& event) const {
+    UNUSED(event);
     return helper::nullopt;
 }
 
-//TODO: implement for 3ds
 #endif
 
 

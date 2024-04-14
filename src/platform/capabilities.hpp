@@ -53,7 +53,7 @@ namespace utils {
                 {static_cast<u8>(CrossPlatformAction::OPEN_SETTINGS), { 0 }},
                 {          static_cast<u8>(CrossPlatformAction::TAB), { 0 }}
     };
-#elif defined(__CONSOLE__)
+#elif defined(__SWITCH__)
             {
                 {           static_cast<u8>(CrossPlatformAction::OK),{ JOYCON_A }                                                                     },
                 {        static_cast<u8>(CrossPlatformAction::PAUSE),                                       { JOYCON_PLUS }},
@@ -70,6 +70,7 @@ namespace utils {
                 {static_cast<u8>(CrossPlatformAction::OPEN_SETTINGS),                                          { JOYCON_Y }},
                 {          static_cast<u8>(CrossPlatformAction::TAB),                                                    {}}, // no tab support
 };
+//TODO: support 3ds
 #else
             {
                 {           static_cast<u8>(CrossPlatformAction::OK), { SDLK_RETURN, SDLK_SPACE }},

@@ -75,16 +75,16 @@ namespace {
     //TODO: this is dangerous, if we supply user input, so use SDL_OpenURL preferably
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
-    const std::string shellCommand = "start " + url;
+    const std::string shell_command = "start " + url;
 #elif defined(__APPLE__)
-    const std::string shellCommand = "open " + url;
+    const std::string shell_command = "open " + url;
 #elif defined(__linux__)
-    const std::string shellCommand = "xdg-open " + url;
+    const std::string shell_command = "xdg-open " + url;
 #else
 #error "Unsupported platform"
 #endif
 
-    const auto result = system(shellCommand.c_str());
+    const auto result = system(shell_command.c_str());
     if (result < 0) {
         spdlog::error("Error in opening url: {}", get_error_from_errno());
         return false;

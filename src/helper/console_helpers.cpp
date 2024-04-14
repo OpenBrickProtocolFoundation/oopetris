@@ -10,6 +10,7 @@
 #include <switch.h>
 #elif defined(__3DS__)
 #include <3ds.h>
+#include <cstdlib>
 #endif
 
 #include <fmt/format.h>
@@ -30,12 +31,12 @@ void console::debug_write(const char* text, size_t size) {
 #if defined(__3DS__)
     const auto size = url.size() >= 0x100 ? url.size() + 1 : 0x100;
 
-    char* buffer = malloc(size);
+    char* buffer = reinterpret_cast<char*>(malloc(size));
 
     memcpy(buffer, url.c_str(), url.size());
     buffer[url.size()] = '\0';
 
-    aptLaunchLibraryApplet(APPID_WEB, buffer, IN_OUT_BUF_SIZE, 0);
+    aptLaunchLibraryApplet(APPID_WEB, buffer, size, 0);
 
     const auto result = std::string{ buffer };
 
