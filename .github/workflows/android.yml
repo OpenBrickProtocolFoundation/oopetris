@@ -50,7 +50,7 @@ jobs:
 
       - name: Build natibe libraries
         run: |
-          bash ./platforms/build-android.sh ${{ matrix.config.arch }}
+          bash ./platforms/build-android.sh ${{ matrix.config.arch }} complete_rebuild release
           cp -r ./assets/ platforms/android/app/src/main
 
       - name: Build APK

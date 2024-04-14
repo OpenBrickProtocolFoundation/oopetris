@@ -112,13 +112,18 @@ EOF
 ## options: "smart, complete_rebuild"
 export COMPILE_TYPE="smart"
 
+export BUILDTYPE="debug"
+
 if [ "$#" -eq 0 ]; then
     # nothing
     echo "Using compile type '$COMPILE_TYPE'"
 elif [ "$#" -eq 1 ]; then
     COMPILE_TYPE="$1"
+elif [ "$#" -eq 2 ]; then
+    COMPILE_TYPE="$1"
+    BUILDTYPE="$2"
 else
-    echo "Too many arguments given, expected at most 1"
+    echo "Too many arguments given, expected 1 or 2"
     exit 1
 fi
 
@@ -144,7 +149,7 @@ if [ "$COMPILE_TYPE" == "complete_rebuild" ] || [ ! -e "$BUILD_DIR" ]; then
     meson setup "$BUILD_DIR" \
         "--wipe" \
         --cross-file "$CROSS_FILE" \
-        -Dbuildtype=release \
+        "-Dbuildtype=$BUILDTYPE" \
         -Ddefault_library=static
 
 fi

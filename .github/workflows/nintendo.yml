@@ -43,7 +43,7 @@ jobs:
 
             - name: Configure and Build
               run: |
-                  bash ./platforms/build-${{ matrix.config.name }}.sh
+                  bash ./platforms/build-${{ matrix.config.name }}.sh complete_rebuild release
 
             - name: Upload artifacts
               uses: actions/upload-artifact@v4
