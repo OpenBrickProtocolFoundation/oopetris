@@ -21,7 +21,7 @@ modules:
     config-opts:
       - -Dbuildtype=release
       - -Ddefault_library=shared
-      - -Dflatpak_build=true
+      - -Dbuild_installer=true
       - --libdir=lib
       - -Dtests=true
     builddir: true

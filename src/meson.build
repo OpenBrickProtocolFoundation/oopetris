@@ -124,3 +124,8 @@ liboopetris_graphics_dep = declare_dependency(
     dependencies: graphics_lib.get('deps'),
     version: meson.project_version(),
 )
+
+# setting this to strings, so += {...} gets detected as an error, if it is done after that
+core_lib = 'undefined'
+recordings_lib = 'undefined'
+graphics_lib = 'undefined'

@@ -67,7 +67,7 @@ std::vector<std::string> utils::supported_features() {
     if (!resource_path) {
         throw std::runtime_error{ "Failed in getting the Pref Path: " + std::string{ SDL_GetError() } };
     }
-// if you build in BUILD_INSTALLER mode, you have to assure that the data is there eg. music  + fonts!
+// if you build in BUILD_INSTALLER mode, you have to assure that the data is there e.g. music  + fonts!
 #endif
     return std::filesystem::path{ std::string{ resource_path } } / "assets";
 #else

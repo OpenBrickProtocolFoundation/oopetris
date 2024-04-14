@@ -1,8 +1,8 @@
 option(
-    'flatpak_build',
+    'build_installer',
     type: 'boolean',
     value: false,
-    description: 'enable flatpak build features',
+    description: 'build the installer, this is either a flatpak or windows exe installer or similar',
 )
 
 option(

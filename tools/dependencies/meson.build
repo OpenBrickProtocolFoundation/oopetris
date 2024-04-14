@@ -262,7 +262,52 @@ utf8cpp_dep = dependency(
 )
 core_lib += {'deps': [core_lib.get('deps'), utf8cpp_dep]}
 
-is_flatpak_build = get_option('flatpak_build')
+
+build_installer = get_option('build_installer')
+
+is_flatpak_build = false
+
+# some sanity checks for the installer
+if build_installer
+    if get_option('buildtype') != 'release'
+        error(
+            'buildtype needs to be \'release\', when building the installer, but was: ' +
+            get_option('buildtype'),
+        )
+    endif
+
+    if host_machine.system() == 'linux'
+        if get_option('prefix') == '/app'
+            is_flatpak_build = true
+        else
+            error(
+                'only support flatpak builds, when  building the installer for linux',
+            )
+        endif
+    elif host_machine.system() == 'windows'
+        error('windows installer is still WIP')
+    else
+        error(
+            'unsuported system for building the installer: ' + host_machine.system(),
+        )
+
+    endif
+
+endif
+
+
+
+if is_flatpak_build
+    app_name = 'com.github.mgerhold.OOPetris'
+    core_lib += {
+        'compile_args': [
+            core_lib.get('compile_args'),
+            '-DFLATPAK_BUILD',
+            '-DBUILD_INSTALLER',
+        ],
+    }
+endif
+
 
 have_file_dialogs = false
 have_discord_sdk = false
