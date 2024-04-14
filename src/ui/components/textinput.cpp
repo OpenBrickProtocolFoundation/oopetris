@@ -335,7 +335,7 @@ void ui::TextInput::recalculate_textures(bool text_changed) { //NOLINT(readabili
         } else if ((m_scaled_text_size - cursor_middle) < static_cast<u32>(fill_rect().width())) {
             final_offset = m_scaled_text_size - static_cast<u32>(fill_rect().width());
 
-            // if we reached the end, we have shift the cursor for some  pixels, so that we can see the bar xD, thsi strectehces it slightly, but it's a simple solution
+            // if we reached the end, we have shift the cursor for some  pixels, so that we can see the bar xD, this stretches it slightly, but it's a simple solution
             if ((m_scaled_text_size - cursor_middle) <= static_cast<u32>(fill_rect().width() / 2)) {
                 final_offset += 2 * cursor_width;
             }
