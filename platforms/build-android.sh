@@ -68,7 +68,7 @@ elif [ "$#" -eq 1 ]; then
 
     ARCH_KEYS_INDEX=("$FOUND")
 else
-    echo "Too many argumetns given, expected at most 1"
+    echo "Too many arguments given, expected at most 1"
     exit 1
 fi
 
