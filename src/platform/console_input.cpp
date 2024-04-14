@@ -25,10 +25,10 @@ void JoystickInput::update(SimulationStep simulation_step_index) {
 helper::optional<InputEvent> JoystickInput::sdl_event_to_input_event(const SDL_Event& event) const {
     if (event.type == SDL_JOYBUTTONDOWN) {
         const auto button = event.jbutton.button;
-        if (button == JOYCON_CROSS_LEFT) {
+        if (button == JOYCON_DPAD_LEFT) {
             return InputEvent::RotateLeftPressed;
         }
-        if (button == JOYCON_CROSS_RIGHT) {
+        if (button == JOYCON_DPAD_RIGHT) {
             return InputEvent::RotateRightPressed;
         }
         if (button == JOYCON_LDPAD_DOWN or button == JOYCON_RDPAD_DOWN) {
@@ -48,10 +48,10 @@ helper::optional<InputEvent> JoystickInput::sdl_event_to_input_event(const SDL_E
         }
     } else if (event.type == SDL_JOYBUTTONUP) {
         const auto button = event.jbutton.button;
-        if (button == JOYCON_CROSS_LEFT) {
+        if (button == JOYCON_DPAD_LEFT) {
             return InputEvent::RotateLeftReleased;
         }
-        if (button == JOYCON_CROSS_RIGHT) {
+        if (button == JOYCON_DPAD_RIGHT) {
             return InputEvent::RotateRightReleased;
         }
         if (button == JOYCON_LDPAD_DOWN or button == JOYCON_RDPAD_DOWN) {

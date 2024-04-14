@@ -45,6 +45,9 @@ export ENDIANESS="little"
 
 export COMMON_FLAGS="'-march=armv6k','-mtune=mpcore','-mfloat-abi=hard','-mtp=soft','-mword-relocations','-ffunction-sections','-fdata-sections'"
 
+# compat flags for some POSIX functions
+export EXTRA_COMPILE_FLAGS="'-D_XOPEN_SOURCE'"
+
 export COMPILE_FLAGS="'-D_3DS','-D__3DS__','-D__CONSOLE__','-D__NINTENDO_CONSOLE__','-isystem','$LIBCTRU/include','-I$PORTLIBS_PATH_3DS/include'"
 
 export LINK_FLAGS="'-L$PORTLIBS_LIB','-L$LIBCTRU_LIB','-fPIE','-specs=$ARCH_DEVKIT_FOLDER/$TOOL_PREFIX/lib/3dsx.specs'"
@@ -86,8 +89,8 @@ sdl2-config='$BIN_DIR/bin/sdl2-config'
 [built-in options]
 c_std = 'gnu11'
 cpp_std = 'c++23'
-c_args = [$COMMON_FLAGS, $COMPILE_FLAGS]
-cpp_args = [$COMMON_FLAGS, $COMPILE_FLAGS]
+c_args = [$COMMON_FLAGS, $COMPILE_FLAGS, $EXTRA_COMPILE_FLAGS]
+cpp_args = [$COMMON_FLAGS, $COMPILE_FLAGS, $EXTRA_COMPILE_FLAGS]
 c_link_args = [$COMMON_FLAGS, $LINK_FLAGS]
 cpp_link_args = [$COMMON_FLAGS, $LINK_FLAGS]
 

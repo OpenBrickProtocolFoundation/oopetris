@@ -30,13 +30,13 @@ enum JOYCON {
     JOYCON_Y = BITL_REVERSE(HidNpadButton_Y), ///< Y button / Left face button
 
     //NOTE: stick buttons are not key events, but can be moved, these need separate handling
-    JOYCON_STICK_L = BITL(HidNpadButton_StickL), ///< Left Stick button
-    JOYCON_STICK_R = BITL(HidNpadButton_StickR), ///< Right Stick button
+    JOYCON_STICK_L = BITL_REVERSE(HidNpadButton_StickL), ///< Left Stick button
+    JOYCON_STICK_R = BITL_REVERSE(HidNpadButton_StickR), ///< Right Stick button
 
     JOYCON_L = BITL_REVERSE(HidNpadButton_L), ///< L button
-    JOYCON_R = BITL(HidNpadButton_R),         ///< R button
-    JOYCON_ZL = BITL(HidNpadButton_ZL),       ///< ZL button
-    JOYCON_ZR = BITL(HidNpadButton_ZR),       ///< ZR button
+    JOYCON_R = BITL_REVERSE(HidNpadButton_R),         ///< R button
+    JOYCON_ZL = BITL_REVERSE(HidNpadButton_ZL),       ///< ZL button
+    JOYCON_ZR = BITL_REVERSE(HidNpadButton_ZR),       ///< ZR button
 
 
     JOYCON_PLUS = BITL_REVERSE(HidNpadButton_Plus),   ///< Plus button
@@ -63,7 +63,7 @@ enum JOYCON {
     JOYCON_JOYCONL_SR = BITL_REVERSE(HidNpadButton_LeftSR), ///< SR button on Left Joy-Con
 
     JOYCON_JOYCONR_SL = BITL_REVERSE(HidNpadButton_RightSL), ///< SL button on Right Joy-Con
-    JOYCON_JOYCONR_SL = BITL_REVERSE(HidNpadButton_RightSR), ///< SR button on Right Joy-Con
+    JOYCON_JOYCONR_SR = BITL_REVERSE(HidNpadButton_RightSR), ///< SR button on Right Joy-Con
 
     JOYCON_VERIFICATION = BITL_REVERSE(HidNpadButton_Verification), ///< Verification
 
