@@ -87,7 +87,7 @@ namespace utils {
 };
 #endif
 
-
+    //TODO: refactor
     [[nodiscard]] constexpr Capabilities get_capabilities() {
 #if defined(__ANDROID__)
         return Capabilities{ false, true, Orientation::Portrait };

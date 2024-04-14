@@ -62,7 +62,7 @@ int main(int argc, char** argv) {
     std::unique_ptr<Window> window{ nullptr };
 
     try {
-#if defined(__ANDROID__) or defined(__SWITCH__) or defined(__3DS__)
+#if defined(__ANDROID__) or defined(__CONSOLE__)
         window = std::make_unique<Window>(window_name, WindowPosition::Centered);
 #else
         static constexpr int width = 1280;

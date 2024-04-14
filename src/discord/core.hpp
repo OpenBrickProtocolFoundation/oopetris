@@ -21,7 +21,7 @@ namespace constants::discord {
     //TODO: this isn't correct for all platforms and needs to be tested
 #if defined(__ANDROID__)
     constexpr const char* platform_dependent_launch_arguments = "";
-#elif defined(__SWITCH__)
+#elif defined(__CONSOLE__)
 #error "Not supported"
 #elif defined(FLATPAK_BUILD)
     constexpr const char* platform_dependent_launch_arguments = "flatpak run com.github.mgerhold.OOPetris --discord";

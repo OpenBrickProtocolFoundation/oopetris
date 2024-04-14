@@ -24,7 +24,7 @@ namespace utils {
 
 #if defined(__ANDROID__)
         return "android";
-#elif defined(__SWITCH__) or defined(__3DS__)
+#elif defined(__CONSOLE__)
         return "console";
 #else
         return "pc";
