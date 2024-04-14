@@ -33,10 +33,10 @@ enum JOYCON {
     JOYCON_STICK_L = BITL_REVERSE(HidNpadButton_StickL), ///< Left Stick button
     JOYCON_STICK_R = BITL_REVERSE(HidNpadButton_StickR), ///< Right Stick button
 
-    JOYCON_L = BITL_REVERSE(HidNpadButton_L), ///< L button
-    JOYCON_R = BITL_REVERSE(HidNpadButton_R),         ///< R button
-    JOYCON_ZL = BITL_REVERSE(HidNpadButton_ZL),       ///< ZL button
-    JOYCON_ZR = BITL_REVERSE(HidNpadButton_ZR),       ///< ZR button
+    JOYCON_L = BITL_REVERSE(HidNpadButton_L),   ///< L button
+    JOYCON_R = BITL_REVERSE(HidNpadButton_R),   ///< R button
+    JOYCON_ZL = BITL_REVERSE(HidNpadButton_ZL), ///< ZL button
+    JOYCON_ZR = BITL_REVERSE(HidNpadButton_ZR), ///< ZR button
 
 
     JOYCON_PLUS = BITL_REVERSE(HidNpadButton_Plus),   ///< Plus button
