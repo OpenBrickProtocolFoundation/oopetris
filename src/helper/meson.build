@@ -29,6 +29,8 @@ core_src_files += files(
 graphics_src_files += files(
     'clock_source.cpp',
     'clock_source.hpp',
+    'console_helpers.cpp',
+    'console_helpers.hpp',
     'graphic_utils.cpp',
     'graphic_utils.hpp',
     'message_box.cpp',

@@ -14,11 +14,11 @@
 #include "helper/types.hpp"
 #include "helper/utils.hpp"
 
-#if defined(__SWITCH__)
-#include "platform/switch_buttons.hpp"
+#if defined(__CONSOLE__)
+#include "platform/console_buttons.hpp"
 #endif
 
-//TODO factor this file into mulitple ones, according to logic distribution of what the functions are doing
+//TODO factor this file into mulitple ones, according to logic distribution of what the functions are doing, remove and refacator the input helper functions
 
 namespace utils {
 
@@ -56,19 +56,36 @@ namespace utils {
 #elif defined(__SWITCH__)
             {
                 {           static_cast<u8>(CrossPlatformAction::OK),{ JOYCON_A }                                                                     },
-                {        static_cast<u8>(CrossPlatformAction::PAUSE),                                       { JOYCON_PLUS }},
-                {      static_cast<u8>(CrossPlatformAction::UNPAUSE),                                       { JOYCON_PLUS }},
-                {         static_cast<u8>(CrossPlatformAction::EXIT),                                      { JOYCON_MINUS }},
+                {        static_cast<u8>(CrossPlatformAction::PAUSE),                                      { JOYCON_PLUS }},
+                {      static_cast<u8>(CrossPlatformAction::UNPAUSE),                                      { JOYCON_PLUS }},
+                {         static_cast<u8>(CrossPlatformAction::EXIT),                                     { JOYCON_MINUS }},
                 {         static_cast<u8>(CrossPlatformAction::DOWN),
-                 { JOYCON_CROSS_DOWN, JOYCON_LDPAD_DOWN, JOYCON_RDPAD_DOWN }                                               },
-                {           static_cast<u8>(CrossPlatformAction::UP), { JOYCON_CROSS_UP, JOYCON_LDPAD_UP, JOYCON_RDPAD_UP }},
+                 { JOYCON_DPAD_DOWN, JOYCON_LDPAD_DOWN, JOYCON_RDPAD_DOWN }                                               },
+                {           static_cast<u8>(CrossPlatformAction::UP), { JOYCON_DPAD_UP, JOYCON_LDPAD_UP, JOYCON_RDPAD_UP }},
                 {         static_cast<u8>(CrossPlatformAction::LEFT),
-                 { JOYCON_CROSS_LEFT, JOYCON_LDPAD_LEFT, JOYCON_RDPAD_LEFT }                                               },
+                 { JOYCON_DPAD_LEFT, JOYCON_LDPAD_LEFT, JOYCON_RDPAD_LEFT }                                               },
                 {        static_cast<u8>(CrossPlatformAction::RIGHT),
-                 { JOYCON_CROSS_RIGHT, JOYCON_LDPAD_RIGHT, JOYCON_RDPAD_RIGHT }                                            },
-                {        static_cast<u8>(CrossPlatformAction::CLOSE),                                      { JOYCON_MINUS }},
-                {static_cast<u8>(CrossPlatformAction::OPEN_SETTINGS),                                          { JOYCON_Y }},
-                {          static_cast<u8>(CrossPlatformAction::TAB),                                                    {}}, // no tab support
+                 { JOYCON_DPAD_RIGHT, JOYCON_LDPAD_RIGHT, JOYCON_RDPAD_RIGHT }                                            },
+                {        static_cast<u8>(CrossPlatformAction::CLOSE),                                     { JOYCON_MINUS }},
+                {static_cast<u8>(CrossPlatformAction::OPEN_SETTINGS),                                         { JOYCON_Y }},
+                {          static_cast<u8>(CrossPlatformAction::TAB),                                                   {}}, // no tab support
+};
+#elif defined(__3DS__)
+            {
+                {           static_cast<u8>(CrossPlatformAction::OK),{ JOYCON_A }                                                                     },
+                {        static_cast<u8>(CrossPlatformAction::PAUSE),                                         { JOYCON_Y }},
+                {      static_cast<u8>(CrossPlatformAction::UNPAUSE),                                         { JOYCON_Y }},
+                {         static_cast<u8>(CrossPlatformAction::EXIT),                                         { JOYCON_X }},
+                {         static_cast<u8>(CrossPlatformAction::DOWN),
+                 { JOYCON_DPAD_DOWN, JOYCON_CSTICK_DOWN, JOYCON_CPAD_DOWN }                                               },
+                {           static_cast<u8>(CrossPlatformAction::UP), { JOYCON_DPAD_UP, JOYCON_CSTICK_UP, JOYCON_CPAD_UP }},
+                {         static_cast<u8>(CrossPlatformAction::LEFT),
+                 { JOYCON_DPAD_LEFT, JOYCON_CSTICK_LEFT, JOYCON_CPAD_LEFT }                                               },
+                {        static_cast<u8>(CrossPlatformAction::RIGHT),
+                 { JOYCON_DPAD_RIGHT, JOYCON_CSTICK_RIGHT, JOYCON_CPAD_RIGHT }                                            },
+                {        static_cast<u8>(CrossPlatformAction::CLOSE),                                         { JOYCON_X }},
+                {static_cast<u8>(CrossPlatformAction::OPEN_SETTINGS),                                    { JOYCON_SELECT }},
+                {          static_cast<u8>(CrossPlatformAction::TAB),                                                   {}}, // no tab support
 };
 #else
             {
@@ -86,11 +103,11 @@ namespace utils {
 };
 #endif
 
-
+    //TODO: refactor
     [[nodiscard]] constexpr Capabilities get_capabilities() {
 #if defined(__ANDROID__)
         return Capabilities{ false, true, Orientation::Portrait };
-#elif defined(__SWITCH__)
+#elif defined(__SWITCH__) or defined(__3DS__)
         return Capabilities{ true, false, Orientation::Landscape };
 #else
         return Capabilities{ true, true, Orientation::Landscape };

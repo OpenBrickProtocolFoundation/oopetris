@@ -93,5 +93,5 @@ public:
     void present() const;
 
 private:
-    void draw_self_computed_circle_impl(const shapes::IPoint& center, int diameter) const;
+    void draw_self_computed_circle_impl(const shapes::IPoint& center, i32 diameter) const;
 };

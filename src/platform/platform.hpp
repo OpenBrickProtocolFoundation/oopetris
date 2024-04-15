@@ -3,6 +3,7 @@
 #pragma once
 
 #include "helper/parse_json.hpp"
+#include "helper/types.hpp"
 
 enum class Platform : u8 { PC, Android, Console };
 
@@ -23,7 +24,7 @@ namespace utils {
 
 #if defined(__ANDROID__)
         return "android";
-#elif defined(__SWITCH__)
+#elif defined(__CONSOLE__)
         return "console";
 #else
         return "pc";

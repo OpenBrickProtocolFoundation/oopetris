@@ -2,9 +2,6 @@
 
 set -e
 
-## options: "smart, complete_rebuild"
-export COMPILE_TYPE="smart"
-
 mkdir -p toolchains
 
 export NDK_VER_DOWNLOAD="r26d"
@@ -47,10 +44,15 @@ mapfile -t ARCH_KEYS < <(jq 'keys' -M -r -c "$BASE_PATH/meta/abis.json" | tr -d 
 
 export ARCH_KEYS_INDEX=("${!ARCH_KEYS[@]}")
 
+## options: "smart, complete_rebuild"
+export COMPILE_TYPE="smart"
+
+export BUILDTYPE="debug"
+
 if [ "$#" -eq 0 ]; then
     # nothing
     echo "Using all architectures"
-elif [ "$#" -eq 1 ]; then
+elif [ "$#" -eq 1 ] || [ "$#" -eq 2 ] || [ "$#" -eq 3 ]; then
     ARCH=$1
 
     FOUND=""
@@ -67,8 +69,16 @@ elif [ "$#" -eq 1 ]; then
     fi
 
     ARCH_KEYS_INDEX=("$FOUND")
+
+    if [ "$#" -eq 2 ]; then
+        COMPILE_TYPE="$2"
+    elif [ "$#" -eq 3 ]; then
+        COMPILE_TYPE="$2"
+        BUILDTYPE="$3"
+    fi
+
 else
-    echo "Too many argumetns given, expected at most 1"
+    echo "Too many arguments given, expected 1 ,2 or 3"
     exit 1
 fi
 
@@ -286,12 +296,12 @@ pkg-config = 'false'
 llvm-config = 'llvm-config'
 
 [built-in options]
-c_std = 'c11'
+c_std = 'gnu11'
 cpp_std = 'c++23'
 c_args = ['--sysroot=${SYS_ROOT:?}','-fPIE','-fPIC','--target=$ARM_COMPILER_TRIPLE','-DHAVE_USR_INCLUDE_MALLOC_H','-D_MALLOC_H','-D__BITNESS=$BITNESS']
 cpp_args = ['--sysroot=${SYS_ROOT:?}','-fPIE','-fPIC','--target=$ARM_COMPILER_TRIPLE','-D__BITNESS=$BITNESS']
-c_link_args = ['-fPIE', '-L$SYS_ROOT/usr/lib']
-cpp_link_args = ['-fPIE', '-L$SYS_ROOT/usr/lib']
+c_link_args = ['-fPIE','-L$SYS_ROOT/usr/lib']
+cpp_link_args = ['-fPIE','-L$SYS_ROOT/usr/lib']
 prefix = '$SYS_ROOT'
 libdir = '$LIB_PATH'
 
@@ -307,7 +317,7 @@ EOF
         ln -s "$BASE_PATH/sources/android/cpufeatures/cpu-features.c" "$PWD/subprojects/cpu-features/src/cpu-features.c"
         ln -s "$BASE_PATH/sources/android/cpufeatures/cpu-features.h" "$PWD/subprojects/cpu-features/include/cpu-features.h"
         cat <<EOF >"$PWD/subprojects/cpu-features/meson.build"
-project('cpu-features', 'c')
+project('cpu-features','c')
 
 meson.override_dependency(
     'cpu-features',
@@ -334,7 +344,7 @@ EOF
             "--includedir=$INC_PATH" \
             "--libdir=usr/lib/$ARM_NAME_TRIPLE/$SDK_VERSION" \
             --cross-file "./platforms/crossbuild-android-$ARM_TARGET_ARCH.ini" \
-            -Dbuildtype=release \
+            "-Dbuildtype=$BUILDTYPE" \
             -Dsdl2:use_hidapi=disabled \
             -Dcpp_args=-DAUDIO_PREFER_MP3 \
             -Dclang_libcpp=disabled

@@ -9,8 +9,8 @@
 #include <ranges>
 #include <stdexcept>
 
-#if defined(__SWITCH__)
-#include "switch.h"
+#if defined(__CONSOLE__)
+#include "helper/console_helpers.hpp"
 #endif
 
 namespace {
@@ -52,7 +52,7 @@ void Application::run() {
 #ifdef DEBUG_BUILD
     auto start_time = SDL_GetPerformanceCounter();
     const auto update_time = SDL_GetPerformanceFrequency() / 2; //0.5 s
-    const double count_per_s = static_cast<double>(SDL_GetPerformanceFrequency());
+    const auto count_per_s = static_cast<double>(SDL_GetPerformanceFrequency());
     u64 frame_counter = 0;
 #endif
     using namespace std::chrono_literals;
@@ -63,14 +63,12 @@ void Application::run() {
     auto start_execution_time = std::chrono::steady_clock::now();
 
     while (m_is_running
-#if defined(__SWITCH__)
-           // see https://switchbrew.github.io/libnx/applet_8h.html#a7ed640e5f4a81ed3960c763fdc1521c5
-           // this checks for some other reasons why this app should quit, its switch specific
-           and appletMainLoop()
+
+#if defined(__CONSOLE__)
+           and console::inMainLoop()
 #endif
 
     ) {
-
 
         m_event_dispatcher.dispatch_pending_events();
         update();
@@ -287,11 +285,16 @@ void Application::try_load_settings() {
 
 void Application::load_resources() {
     constexpr auto fonts_size = 128;
-    const std::vector<std::tuple<FontId, std::string>> fonts{
-        {       FontId::Default,   "PressStart2P.ttf"},
-        {         FontId::Arial,          "arial.ttf"},
-        {FontId::NotoColorEmoji, "NotoColorEmoji.ttf"},
-        {       FontId::Symbola,        "Symbola.ttf"}
+    const std::vector<std::tuple<FontId, std::string>> fonts {
+#if defined(__3DS__)
+        //TODO: debug why the other font crashed, not on loading, but on trying to render text!
+        { FontId::Default, "LeroyLetteringLightBeta01.ttf" },
+#else
+        { FontId::Default, "PressStart2P.ttf" },
+#endif
+                { FontId::Arial, "arial.ttf" }, { FontId::NotoColorEmoji, "NotoColorEmoji.ttf" }, {
+            FontId::Symbola, "Symbola.ttf"
+        }
     };
     for (const auto& [font_id, path] : fonts) {
         const auto font_path = utils::get_assets_folder() / "fonts" / path;

@@ -13,11 +13,15 @@ if meson.is_cross_build() and host_machine.system() == 'android'
         'android_input.cpp',
         'android_input.hpp',
     )
-elif meson.is_cross_build() and host_machine.system() == 'switch'
+elif (
+    meson.is_cross_build()
+    and (host_machine.system() == 'switch'
+    or host_machine.system() == '3ds')
+)
     graphics_src_files += files(
-        'switch_buttons.hpp',
-        'switch_input.cpp',
-        'switch_input.hpp',
+        'console_buttons.hpp',
+        'console_input.cpp',
+        'console_input.hpp',
     )
 else
     graphics_src_files += files(

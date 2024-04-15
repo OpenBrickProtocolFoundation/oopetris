@@ -2,7 +2,7 @@
 Version=1.0
 Type=Application
 Name=OOPetris
-Comment=A tetris clone in OOP
+Comment=A Tetris clone in OOP
 Exec=oopetris
 Icon=@APP_NAME@
 Terminal=false

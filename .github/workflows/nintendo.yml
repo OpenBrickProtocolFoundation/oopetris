@@ -1,4 +1,4 @@
-name: Nintendo Switch CI
+name: Nintendo CI
 
 on:
     push:
@@ -7,10 +7,23 @@ on:
     workflow_dispatch:
 
 jobs:
-    switch-build:
+    build:
+        name: Nintendo ${{ matrix.config.name }} CI
         runs-on: ubuntu-22.04
         container:
-            image: devkitpro/devkita64 ## base on debian:buster-slim
+            image: devkitpro/${{ matrix.config.container }} ## base on debian:buster-slim
+        strategy:
+            fail-fast: false
+            matrix:
+                config:
+                    - name: 3ds
+                      extension: 3dsx
+                      container: devkitarm
+
+                    - name: switch
+                      extension: nro
+                      container: devkita64
+
         steps:
             - uses: actions/checkout@v4
               with:
@@ -30,10 +43,10 @@ jobs:
 
             - name: Configure and Build
               run: |
-                  bash ./platforms/build-switch.sh
+                  bash ./platforms/build-${{ matrix.config.name }}.sh complete_rebuild release
 
             - name: Upload artifacts
               uses: actions/upload-artifact@v4
               with:
-                  name: oopetris.nro
-                  path: build-switch/oopetris.nro
+                  name: ${{ matrix.config.name }} Executable
+                  path: build-${{ matrix.config.name }}/oopetris.${{ matrix.config.extension }}

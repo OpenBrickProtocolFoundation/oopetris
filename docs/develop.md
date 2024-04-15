@@ -22,6 +22,12 @@ For concrete instructions, see the list below:
 
 [switch](switch.md)
 
+
+## Nintendo 3DS
+
+[switch](3ds.md)
+
+
 ## Android
 
 [android](android.md)

@@ -11,14 +11,14 @@
 #include <spdlog/sinks/android_sink.h>
 #endif
 
+#if defined(__CONSOLE__)
+#include "helper/console_helpers.hpp"
+#endif
+
+
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/rotating_file_sink.h>
 #include <spdlog/sinks/stdout_sinks.h>
-
-#if defined(__SWITCH__)
-#include "switch.h"
-#include <string.h>
-#endif
 
 
 int main(int argc, char** argv) {
@@ -30,8 +30,10 @@ int main(int argc, char** argv) {
     std::vector<spdlog::sink_ptr> sinks;
 #if defined(__ANDROID__)
     sinks.push_back(std::make_shared<spdlog::sinks::android_sink_mt>());
+#elif defined(__CONSOLE__)
+    sinks.push_back(std::make_shared<console::debug_sink_mt>());
 #else
-    sinks.push_back(std::make_shared<spdlog::sinks::stdout_sink_st>());
+    sinks.push_back(std::make_shared<spdlog::sinks::stdout_sink_mt>());
 #endif
     sinks.push_back(std::make_shared<spdlog::sinks::rotating_file_sink_mt>(
             fmt::format("{}/oopetris.log", logs_path.string()), 1024 * 1024 * 10, 5, true
@@ -51,12 +53,16 @@ int main(int argc, char** argv) {
         arguments.emplace_back(argv[i]); //NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     }
 
+    if (arguments.empty()) {
+        arguments.emplace_back("oopetris");
+    }
+
     constexpr auto window_name = constants::program_name.c_str();
 
     std::unique_ptr<Window> window{ nullptr };
 
     try {
-#if defined(__ANDROID__) or defined(__SWITCH__)
+#if defined(__ANDROID__) or defined(__CONSOLE__)
         window = std::make_unique<Window>(window_name, WindowPosition::Centered);
 #else
         static constexpr int width = 1280;

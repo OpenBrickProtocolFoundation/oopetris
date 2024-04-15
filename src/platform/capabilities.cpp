@@ -5,9 +5,9 @@
 #include "helper/utils.hpp"
 #include "platform/capabilities.hpp"
 
-
-#if defined(__SWITCH__)
-#include "platform/switch_buttons.hpp"
+#if defined(__CONSOLE__)
+#include "helper/console_helpers.hpp"
+#include "platform/console_buttons.hpp"
 #endif
 
 
@@ -41,6 +41,8 @@ namespace {
     return "Android";
 #elif defined(__SWITCH__)
     return "Nintendo Switch";
+#elif defined(__3DS__)
+    return "Nintendo 3DS";
 #elif defined(FLATPAK_BUILD)
     return "Linux (Flatpak)";
 #elif defined(__linux__)
@@ -63,25 +65,26 @@ namespace {
         return false;
     }
 
-
     return true;
 
-#elif defined(__SWITCH__)
-    UNUSED(url);
-    return false;
+#elif defined(__CONSOLE__)
+    auto result = console::open_url(url);
+    spdlog::info("Returned string from url open was: {}", result);
+    return true;
 #else
+    //TODO: this is dangerous, if we supply user input, so use SDL_OpenURL preferably
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
-    const std::string shellCommand = "start " + url;
+    const std::string shell_command = "start " + url;
 #elif defined(__APPLE__)
-    const std::string shellCommand = "open " + url;
+    const std::string shell_command = "open " + url;
 #elif defined(__linux__)
-    const std::string shellCommand = "xdg-open " + url;
+    const std::string shell_command = "xdg-open " + url;
 #else
 #error "Unsupported platform"
 #endif
 
-    const auto result = system(shellCommand.c_str());
+    const auto result = system(shell_command.c_str());
     if (result < 0) {
         spdlog::error("Error in opening url: {}", get_error_from_errno());
         return false;
@@ -124,7 +127,8 @@ namespace {
 
     const std::vector<i64> needed_events = utils::key_map.at(static_cast<u8>(action));
     for (const auto& needed_event : needed_events) { // NOLINT(readability-use-anyofallof)
-#if defined(__SWITCH__)
+#if defined(__SWITCH__) or defined(__3DS__)
+        //TODO: some events use the SDL_JOYAXISMOTION event, but that needs to be done in the next reiteration of these helpers!
         if (event.type == SDL_JOYBUTTONDOWN and event.jbutton.button == needed_event) {
             return true;
         }
@@ -207,6 +211,29 @@ namespace {
             return "Right";
         case CrossPlatformAction::OPEN_SETTINGS:
             return "Y";
+        default:
+            utils::unreachable();
+    }
+#elif defined(__3DS__)
+    switch (action) {
+        case CrossPlatformAction::OK:
+            return "A";
+        case CrossPlatformAction::PAUSE:
+        case CrossPlatformAction::UNPAUSE:
+            return "Y";
+        case CrossPlatformAction::CLOSE:
+        case CrossPlatformAction::EXIT:
+            return "X";
+        case CrossPlatformAction::DOWN:
+            return "Down";
+        case CrossPlatformAction::UP:
+            return "Up";
+        case CrossPlatformAction::LEFT:
+            return "Left";
+        case CrossPlatformAction::RIGHT:
+            return "Right";
+        case CrossPlatformAction::OPEN_SETTINGS:
+            return "Select";
         default:
             utils::unreachable();
     }

@@ -1,5 +1,6 @@
 
 #include "texture.hpp"
+#include "graphics/point.hpp"
 #include "helper/graphic_utils.hpp"
 
 
@@ -99,7 +100,7 @@ Texture::~Texture() {
 }
 
 [[nodiscard]] shapes::UPoint Texture::size() const {
-    shapes::IPoint size;
+    shapes::AbstractPoint<int> size;
     const auto result = SDL_QueryTexture(m_raw_texture, nullptr, nullptr, &size.x, &size.y);
 
     if (result < 0) {

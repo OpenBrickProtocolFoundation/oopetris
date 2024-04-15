@@ -34,7 +34,7 @@ std::vector<std::string> utils::supported_features() {
         throw std::runtime_error{ "Failed in getting the Pref Path: " + std::string{ SDL_GetError() } };
     }
     return std::filesystem::path{ std::string{ pref_path } };
-#elif defined(__SWITCH__)
+#elif defined(__CONSOLE__)
     // this is in the sdcard of the switch, since internal storage is read-only for applications!
     return std::filesystem::path{ "." };
 
@@ -55,7 +55,7 @@ std::vector<std::string> utils::supported_features() {
 [[nodiscard]] std::filesystem::path utils::get_assets_folder() {
 #if defined(__ANDROID__)
     return std::filesystem::path{ "" };
-#elif defined(__SWITCH__)
+#elif defined(__CONSOLE__)
     // this is in the internal storage of the nintendo switch, it ios mounted by libnx (runtime switch support library) and filled at compile time with assets (its called ROMFS there)
     return std::filesystem::path{ "romfs:/assets" };
 #elif defined(BUILD_INSTALLER)
@@ -67,7 +67,7 @@ std::vector<std::string> utils::supported_features() {
     if (!resource_path) {
         throw std::runtime_error{ "Failed in getting the Pref Path: " + std::string{ SDL_GetError() } };
     }
-// if you build in BUILD_INSTALLER mode, you have to assure that the data is there eg. music  + fonts!
+// if you build in BUILD_INSTALLER mode, you have to assure that the data is there e.g. music  + fonts!
 #endif
     return std::filesystem::path{ std::string{ resource_path } } / "assets";
 #else

@@ -130,7 +130,7 @@ void detail::ColorCanvas::draw_pseudo_circle(const ServiceProvider& service_prov
 
     u32 diameter = 5;
 
-    // width == height here, since we assured that in the construction of the layout fro this component, so instead of taking the min of width and height i just use width, this fact is only used here, since it's not that bad, if it changes sometime in teh future
+    // width == height here, since we assured that in the construction of the layout fro this component, so instead of taking the min of width and height i just use width, this fact is only used here, since it's not that bad, if it changes sometime in the future
     if (const double percentage_diameter = static_cast<double>(layout().get_rect().width()) * 0.03;
         percentage_diameter >= static_cast<double>(diameter)) {
         diameter = static_cast<u32>(percentage_diameter);
@@ -356,7 +356,7 @@ ui::ColorPicker::ColorPicker(
                 this->m_color = Color{ hsv_color };
 
                 // if we hover at e.g. the edges, and don't change anything, we don't need to call after_color_change
-                // this also helps, since the slider reports change on click and on release, even if teh position doesn't change there
+                // this also helps, since the slider reports change on click and on release, even if the position doesn't change there
                 if (previous_color == this->m_color) {
                     return;
                 }
