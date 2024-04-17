@@ -50,7 +50,7 @@ if git.found()
         command: ['git', 'describe', '--tags', '--always', '--abbrev=12'],
         input: 'git_version.hpp.in',
         output: 'git_version.hpp',
-        replace_string: '@GIT_VERSION@',
+        replace_string: '!GIT_VERSION!',
     )
 
     graphics_src_files += vcs_dep

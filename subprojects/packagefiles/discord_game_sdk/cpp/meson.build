@@ -67,7 +67,9 @@ elif host_machine.system() == 'windows'
     elif host_machine.cpu_family() == 'x86_64'
         lib_dir = 'lib' / 'x86_64'
     else
-        error('unsuported architectue for windows: ' + host_machine.cpu_family())
+        error(
+            'unsuported architectue for windows: ' + host_machine.cpu_family(),
+        )
     endif
 else
     error('unsuported system: ' + host_machine.system())
