@@ -22,7 +22,7 @@ jobs:
       - name: Setup Clang
         uses: egor-tensin/setup-clang@v1
         with:
-          version: 17
+          version: 18
           platform: x64
 
       - name: Prepare compile_commands.json
@@ -39,7 +39,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           style: file
-          version: 17
+          version: 18
           database: build
           files-changed-only: ${{ github.event_name != 'workflow_dispatch' }}
           lines-changed-only: ${{ github.event_name != 'workflow_dispatch' }}
