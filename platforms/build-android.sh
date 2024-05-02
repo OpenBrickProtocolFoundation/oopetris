@@ -338,6 +338,7 @@ EOF
 
     if [ "$COMPILE_TYPE" == "complete_rebuild" ] || [ ! -e "$BUILD_DIR" ]; then
 
+        # TODO: enbale hidapi, by not dependening on libusb, that is not availbale on android
         meson setup "$BUILD_DIR" \
             "--prefix=$SYS_ROOT" \
             "--wipe" \

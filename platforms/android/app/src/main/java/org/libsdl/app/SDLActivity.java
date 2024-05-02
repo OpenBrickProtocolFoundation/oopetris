@@ -217,8 +217,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     protected static Hashtable<Integer, PointerIcon> mCursors;
     protected static int mLastCursorID;
     protected static SDLGenericMotionListener_API12 mMotionListener;
-    // UNUSED in oopetris
-    //protected static HIDDeviceManager mHIDDeviceManager;
+    protected static HIDDeviceManager mHIDDeviceManager;
 
     // This is what SDL runs in. It invokes SDL_main(), eventually
     protected static Thread mSDLThread;
@@ -392,8 +391,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
 
         mClipboardHandler = new SDLClipboardHandler();
 
-        // UNUSED in oopetris
-        //mHIDDeviceManager = HIDDeviceManager.acquire(this);
+        mHIDDeviceManager = HIDDeviceManager.acquire(this);
 
         // Set up the surface
         mSurface = createSDLSurface(this);
@@ -460,10 +458,9 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         Log.v(TAG, "onPause()");
         super.onPause();
 
-        // UNUSED in oopetris
-        /* if (mHIDDeviceManager != null) {
+        if (mHIDDeviceManager != null) {
             mHIDDeviceManager.setFrozen(true);
-        } */
+        }
         if (!mHasMultiWindow) {
             pauseNativeThread();
         }
@@ -474,10 +471,9 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         Log.v(TAG, "onResume()");
         super.onResume();
 
-        // UNUSED in oopetris
-        /* if (mHIDDeviceManager != null) {
+        if (mHIDDeviceManager != null) {
             mHIDDeviceManager.setFrozen(false);
-        } */
+        }
         if (!mHasMultiWindow) {
             resumeNativeThread();
         }
@@ -588,11 +584,10 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     protected void onDestroy() {
         Log.v(TAG, "onDestroy()");
 
-        // UNUSED in oopetris
-        /* if (mHIDDeviceManager != null) {
+        if (mHIDDeviceManager != null) {
             HIDDeviceManager.release(mHIDDeviceManager);
             mHIDDeviceManager = null;
-        } */
+        }
 
         SDLAudioManager.release(this);
 
@@ -782,6 +777,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
                                 int flags = View.SYSTEM_UI_FLAG_FULLSCREEN |
                                         View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
                                         View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY |
+                                        
                                         View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
                                         View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
                                         View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.INVISIBLE;
