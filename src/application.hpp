@@ -1,21 +1,18 @@
 #pragma once
 
 #include "graphics/renderer.hpp"
-#include "graphics/sdl_context.hpp"
 #include "graphics/window.hpp"
 #include "helper/command_line_arguments.hpp"
 #include "helper/types.hpp"
+#include "input/input.hpp"
 #include "manager/event_dispatcher.hpp"
 #include "manager/event_listener.hpp"
 #include "manager/music_manager.hpp"
 #include "manager/resource_manager.hpp"
 #include "manager/service_provider.hpp"
+#include "manager/settings_manager.hpp"
 #include "scenes/scene.hpp"
 #include "ui/components/label.hpp"
-
-#ifdef DEBUG_BUILD
-#include "graphics/text.hpp"
-#endif
 
 #include <memory>
 #include <vector>
@@ -25,12 +22,12 @@ private:
     static constexpr auto num_audio_channels = u8{ 2 };
 
     CommandLineArguments m_command_line_arguments;
-    std::unique_ptr<Window> m_window;
+    std::shared_ptr<Window> m_window;
     Renderer m_renderer;
     bool m_is_running{ true };
     MusicManager m_music_manager;
-    static constexpr auto settings_filename = "settings.json";
-    Settings m_settings;
+    std::shared_ptr<input::InputManager> m_input_manager;
+    SettingsManager m_settings_manager;
     FontManager m_font_manager;
     helper::optional<u32> m_target_framerate;
 
@@ -50,16 +47,18 @@ private:
     std::vector<std::unique_ptr<scenes::Scene>> m_scene_stack;
 
 public:
-    Application(std::unique_ptr<Window>&& window, const std::vector<std::string>& arguments);
+    Application(std::shared_ptr<Window>&& window, const std::vector<std::string>& arguments);
     Application(const Application&) = delete;
     Application& operator=(const Application&) = delete;
 
     void run();
 
-    void handle_event(const SDL_Event& event, const Window* window) override;
+    void handle_event(const SDL_Event& event) override;
 
     virtual void update();
     virtual void render() const;
+
+    //TODO: move those functions bodies to the cpp
 
     void push_scene(std::unique_ptr<scenes::Scene> scene) {
         m_scene_stack.push_back(std::move(scene));
@@ -74,10 +73,10 @@ public:
         return m_event_dispatcher;
     }
 
-    FontManager& fonts() override {
+    FontManager& font_manager() override {
         return m_font_manager;
     }
-    const FontManager& fonts() const override {
+    const FontManager& font_manager() const override {
         return m_font_manager;
     }
 
@@ -87,11 +86,11 @@ public:
     const CommandLineArguments& command_line_arguments() const override {
         return m_command_line_arguments;
     }
-    Settings& settings() override {
-        return m_settings;
+    SettingsManager& settings_manager() override {
+        return m_settings_manager;
     }
-    const Settings& settings() const override {
-        return m_settings;
+    const SettingsManager& settings_manager() const override {
+        return m_settings_manager;
     }
     MusicManager& music_manager() override {
         return m_music_manager;
@@ -112,6 +111,14 @@ public:
         return *m_window;
     }
 
+    [[nodiscard]] input::InputManager& input_manager() override {
+        return *m_input_manager;
+    }
+
+    [[nodiscard]] const input::InputManager& input_manager() const override {
+        return *m_input_manager;
+    }
+
 
 #if defined(_HAVE_DISCORD_SDK)
 
@@ -124,6 +131,5 @@ public:
 
 private:
     void initialize();
-    void try_load_settings();
     void load_resources();
 };

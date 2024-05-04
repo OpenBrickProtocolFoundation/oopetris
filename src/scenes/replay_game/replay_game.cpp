@@ -77,7 +77,7 @@ namespace scenes {
         if (all_games_finished) {
             return UpdateResult{
                 SceneUpdate::StopUpdating,
-                Scene::Push{SceneId::GameOver, ui::FullScreenLayout{ m_service_provider->window() }}
+                Scene::Push{ SceneId::GameOver, ui::FullScreenLayout{ m_service_provider->window() } }
             };
         }
 
@@ -89,16 +89,16 @@ namespace scenes {
             }
 
             switch (next_scene) {
-                case NextScene::Pause:
+                    /*    case NextScene::Pause:
                     return UpdateResult{
                         SceneUpdate::StopUpdating,
-                        Scene::Push{SceneId::Pause, ui::FullScreenLayout{ m_service_provider->window() }}
-                    };
+                        Scene::Push{ SceneId::Pause, ui::FullScreenLayout{ m_service_provider->window() } }
+                    }; */
                 case NextScene::Settings:
                     return UpdateResult{
                         SceneUpdate::StopUpdating,
-                        Scene::Push{SceneId::SettingsMenu,
-                                    ui::RelativeLayout{ m_service_provider->window(), 0.15, 0.15, 0.7, 0.7 }}
+                        Scene::Push{ SceneId::SettingsMenu,
+                                    ui::RelativeLayout{ m_service_provider->window(), 0.15, 0.15, 0.7, 0.7 } }
                     };
                 default:
                     utils::unreachable();
@@ -113,9 +113,14 @@ namespace scenes {
         }
     }
 
-    [[nodiscard]] bool ReplayGame::handle_event(const SDL_Event& event, const Window*) {
+    [[nodiscard]] bool
+    ReplayGame::handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) {
 
-        if (utils::event_is_action(event, utils::CrossPlatformAction::PAUSE)) {
+        //TODO: add gameInput to this function
+        //TODO: re-add pause scene
+        UNUSED(input_manager);
+        UNUSED(event);
+        /*   if (utils::event_is_action(event, utils::CrossPlatformAction::PAUSE)) {
 
             for (auto& game : m_games) {
                 if (game->is_game_finished()) {
@@ -128,12 +133,13 @@ namespace scenes {
             return true;
         }
 
-        if (utils::device_supports_keys()) {
-            if (utils::event_is_action(event, utils::CrossPlatformAction::OPEN_SETTINGS)) {
-                m_next_scene = NextScene::Settings;
-                return true;
-            }
-        }
+
+        if (utils::event_is_action(event, utils::CrossPlatformAction::OPEN_SETTINGS)) {
+            m_next_scene = NextScene::Settings;
+            return true;
+        } */
+
+
         return false;
     }
 

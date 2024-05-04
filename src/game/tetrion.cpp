@@ -1,7 +1,9 @@
 #include "tetrion.hpp"
 #include "helper/constants.hpp"
 #include "helper/graphic_utils.hpp"
+#include "helper/magic_enum_wrapper.hpp"
 #include "helper/music_utils.hpp"
+#include "helper/platform.hpp"
 #include "helper/utils.hpp"
 #include "manager/music_manager.hpp"
 #include "manager/resource_manager.hpp"
@@ -49,24 +51,24 @@ Tetrion::Tetrion(
 
     auto* text_layout = get_text_layout();
 
-    constexpr auto text_size = utils::device_orientation() == utils::Orientation::Landscape
+    constexpr auto text_size = utils::get_orientation() == utils::Orientation::Landscape
                                        ? std::pair<double, double>{ 0.2, 0.8 }
                                        : std::pair<double, double>{ 0.6, 0.8 };
 
     text_layout->add<ui::Label>(
-            service_provider, "score: 0", service_provider->fonts().get(FontId::Default), Color::white(), text_size,
-            ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
+            service_provider, "score: 0", service_provider->font_manager().get(FontId::Default), Color::white(),
+            text_size, ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
     );
 
 
     text_layout->add<ui::Label>(
-            service_provider, "lines: 0", service_provider->fonts().get(FontId::Default), Color::white(), text_size,
-            ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
+            service_provider, "lines: 0", service_provider->font_manager().get(FontId::Default), Color::white(),
+            text_size, ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
     );
 
     text_layout->add<ui::Label>(
-            service_provider, "lines: 0", service_provider->fonts().get(FontId::Default), Color::white(), text_size,
-            ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
+            service_provider, "lines: 0", service_provider->font_manager().get(FontId::Default), Color::white(),
+            text_size, ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
     );
 
     refresh_texts();
@@ -146,37 +148,37 @@ void Tetrion::render(const ServiceProvider& service_provider) const {
 }
 
 [[nodiscard]] helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
-Tetrion::handle_event(const SDL_Event&, const Window*) {
+Tetrion::handle_event(const std::shared_ptr<input::InputManager>&, const SDL_Event&) {
     return false;
 }
 
-bool Tetrion::handle_input_command(const InputCommand command, const SimulationStep simulation_step_index) {
+bool Tetrion::handle_input_command(const input::GameInputCommand command, const SimulationStep simulation_step_index) {
     switch (command) {
-        case InputCommand::RotateLeft:
+        case input::GameInputCommand::RotateLeft:
             if (rotate_tetromino_left()) {
                 reset_lock_delay(simulation_step_index);
                 return true;
             }
             return false;
-        case InputCommand::RotateRight:
+        case input::GameInputCommand::RotateRight:
             if (rotate_tetromino_right()) {
                 reset_lock_delay(simulation_step_index);
                 return true;
             }
             return false;
-        case InputCommand::MoveLeft:
+        case input::GameInputCommand::MoveLeft:
             if (move_tetromino_left()) {
                 reset_lock_delay(simulation_step_index);
                 return true;
             }
             return false;
-        case InputCommand::MoveRight:
+        case input::GameInputCommand::MoveRight:
             if (move_tetromino_right()) {
                 reset_lock_delay(simulation_step_index);
                 return true;
             }
             return false;
-        case InputCommand::MoveDown:
+        case input::GameInputCommand::MoveDown:
             //TODO: use input_type() != InputType:Touch
 #if not defined(__ANDROID__)
             m_down_key_pressed = true;
@@ -188,14 +190,14 @@ bool Tetrion::handle_input_command(const InputCommand command, const SimulationS
                 return true;
             }
             return false;
-        case InputCommand::Drop:
+        case input::GameInputCommand::Drop:
             m_lock_delay_step_index = simulation_step_index; // lock instantly
             return drop_tetromino(simulation_step_index);
-        case InputCommand::ReleaseMoveDown: {
+        case input::GameInputCommand::ReleaseMoveDown: {
             m_down_key_pressed = false;
             return false;
         }
-        case InputCommand::Hold:
+        case input::GameInputCommand::Hold:
             if (m_allowed_to_hold) {
                 hold_tetromino(simulation_step_index);
                 reset_lock_delay(simulation_step_index);
@@ -204,7 +206,7 @@ bool Tetrion::handle_input_command(const InputCommand command, const SimulationS
             }
             return false;
         default:
-            assert(false and "unknown event");
+            assert(false and "unknown GameInput");
             return false;
     }
 }

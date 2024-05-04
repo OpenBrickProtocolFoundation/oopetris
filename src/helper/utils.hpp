@@ -8,6 +8,7 @@
 #include <climits>
 #include <exception>
 #include <filesystem>
+#include <memory>
 #include <string>
 #include <type_traits>
 #include <vector>
@@ -81,6 +82,28 @@ namespace utils {
 #else
         return std::is_constant_evaluated();
 #endif
+    }
+
+
+    template<typename T, typename S>
+    constexpr helper::optional<T*> is_child_class(S* parent) {
+        auto* result = dynamic_cast<T*>(parent);
+
+        if (result == nullptr) {
+            return helper::nullopt;
+        }
+
+        return result;
+    }
+
+    template<typename T, typename S>
+    constexpr helper::optional<T*> is_child_class(const std::unique_ptr<S>& parent) {
+        return is_child_class<T, S>(parent.get());
+    }
+
+    template<typename T, typename S>
+    constexpr helper::optional<T*> is_child_class(const std::shared_ptr<S>& parent) {
+        return is_child_class<T, S>(parent.get());
     }
 
 

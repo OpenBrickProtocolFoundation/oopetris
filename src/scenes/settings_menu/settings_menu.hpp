@@ -36,17 +36,29 @@ namespace scenes {
         ui::TileLayout m_main_layout;
         //todo migrate to settings state
         std::vector<Color> m_colors;
+        helper::optional<std::shared_ptr<input::GameInput>> m_game_input;
 
         const std::string listener_name = "settings_menu";
 
+        explicit SettingsMenu(
+                ServiceProvider* service_provider,
+                const ui::Layout& layout,
+                const helper::optional<std::shared_ptr<input::GameInput>>& game_input
+        );
+
     public:
         explicit SettingsMenu(ServiceProvider* service_provider, const ui::Layout& layout);
+        explicit SettingsMenu(
+                ServiceProvider* service_provider,
+                const ui::Layout& layout,
+                const std::shared_ptr<input::GameInput>& game_input
+        );
 
         [[nodiscard]] UpdateResult update() override;
 
         void render(const ServiceProvider& service_provider) override;
 
-        bool handle_event(const SDL_Event& event, const Window* window) override;
+        bool handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override;
 
         void on_unhover() override;
     };

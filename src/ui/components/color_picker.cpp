@@ -6,6 +6,7 @@
 #include "helper/color.hpp"
 #include "helper/graphic_utils.hpp"
 #include "helper/utils.hpp"
+#include "input/input.hpp"
 #include "manager/resource_manager.hpp"
 #include "ui/components/textinput.hpp"
 #include "ui/layout.hpp"
@@ -81,8 +82,8 @@ detail::ColorSlider::ColorSlider(
     }
 
     const auto slider_rect = shapes::URect{
-        shapes::UPoint{slider_start_x,     layout_rect.top_left.y},
-        shapes::UPoint{  slider_end_x, layout_rect.bottom_right.y}
+        shapes::UPoint{ slider_start_x,     layout_rect.top_left.y },
+        shapes::UPoint{   slider_end_x, layout_rect.bottom_right.y }
     };
 
     return { layout_rect, slider_rect };
@@ -149,46 +150,46 @@ void detail::ColorCanvas::draw_pseudo_circle(const ServiceProvider& service_prov
 
 helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
 detail::ColorCanvas::handle_event( //NOLINT(readability-function-cognitive-complexity)
-        const SDL_Event& event,
-        const Window* window
+        const std::shared_ptr<input::InputManager>& input_manager,
+        const SDL_Event& event
 ) {
     Widget::EventHandleResult handled = false;
 
     const auto fill_rect = layout().get_rect();
 
-    if (utils::device_supports_clicks()) {
-        if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::ButtonDown)) {
+    const auto pointer_event = input_manager->get_pointer_event(event);
 
-            if (utils::is_event_in(window, event, fill_rect)) {
+    if (pointer_event.has_value() and pointer_event.value() == input::PointerEvent::PointerDown) {
 
-                m_is_dragging = true;
-                SDL_CaptureMouse(SDL_TRUE);
-                handled = {
-                    true,
-                    {ui::EventHandleType::RequestFocus, this}
-                };
-            }
-        } else if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::ButtonUp)) {
-            // only handle this, if already dragging, otherwise it's a button down from previously or some other widget
-            if (m_is_dragging) {
-                m_is_dragging = false;
-                SDL_CaptureMouse(SDL_FALSE);
-                handled = true;
-            }
-        } else if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::Motion)) {
+        if (pointer_event.value().is_in(fill_rect)) {
 
-            if (m_is_dragging) {
-                handled = true;
-            }
+            m_is_dragging = true;
+            SDL_CaptureMouse(SDL_TRUE);
+            handled = {
+                true,
+                { ui::EventHandleType::RequestFocus, this }
+            };
+        }
+    } else if (pointer_event == input::PointerEvent::PointerUp) {
+        // only handle this, if already dragging, otherwise it's a button down from previously or some other widget
+        if (m_is_dragging) {
+            m_is_dragging = false;
+            SDL_CaptureMouse(SDL_FALSE);
+            handled = true;
+        }
+    } else if (pointer_event.value() == input::PointerEvent::Motion) {
+
+        if (m_is_dragging) {
+            handled = true;
         }
     }
 
 
-    if (handled) {
+    if (handled and pointer_event.has_value()) {
 
         const auto previous_color = m_current_color;
 
-        const auto& [x, y] = utils::get_raw_coordinates(window, event);
+        const auto& [x, y] = pointer_event.value().position();
 
         if (x <= static_cast<i32>(fill_rect.top_left.x)) {
             m_current_color.s = 0.0;
@@ -407,7 +408,7 @@ ui::ColorPicker::ColorPicker(
 
 
     m_color_text = std::make_unique<ui::TextInput>(
-            service_provider, service_provider->fonts().get(FontId::Default), Color::white(), focus_id_unused,
+            service_provider, service_provider->font_manager().get(FontId::Default), Color::white(), focus_id_unused,
             std::pair<double, double>{ 0.9, 0.9 },
             ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }, ui::TextInputMode::Scale,
             textinput_layout, false
@@ -459,17 +460,17 @@ void ui::ColorPicker::render(const ServiceProvider& service_provider) const {
 
 helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
 ui::ColorPicker::handle_event( //NOLINT(readability-function-cognitive-complexity)
-        const SDL_Event& event,
-        const Window* window
+        const std::shared_ptr<input::InputManager>& input_manager,
+        const SDL_Event& event
 ) {
 
-    auto handled = m_color_slider->handle_event(event, window);
+    auto handled = m_color_slider->handle_event(input_manager, event);
 
     if (handled) {
         return handled;
     }
 
-    handled = m_color_canvas->handle_event(event, window);
+    handled = m_color_canvas->handle_event(input_manager, event);
 
     if (handled) {
         return handled;
@@ -477,16 +478,16 @@ ui::ColorPicker::handle_event( //NOLINT(readability-function-cognitive-complexit
 
 
     if (m_mode == ColorMode::HSV) {
-        handled = m_hsv_button->handle_event(event, window);
+        handled = m_hsv_button->handle_event(input_manager, event);
     } else {
-        handled = m_rgb_button->handle_event(event, window);
+        handled = m_rgb_button->handle_event(input_manager, event);
     }
 
     if (handled) {
         return handled;
     }
 
-    handled = m_color_text->handle_event(event, window);
+    handled = m_color_text->handle_event(input_manager, event);
 
     if (handled) {
         if (const auto additional = handled.get_additional(); additional.has_value()) {

@@ -7,7 +7,7 @@
 #include "graphics/rect.hpp"
 #include "graphics/renderer.hpp"
 #include "helper/color_literals.hpp"
-#include "platform/capabilities.hpp"
+#include "input/input.hpp"
 #include "ui/focusable.hpp"
 #include "ui/hoverable.hpp"
 #include "ui/widget.hpp"
@@ -82,30 +82,33 @@ namespace ui {
             m_content.render(service_provider);
         }
 
-        [[nodiscard]] Widget::EventHandleResult handle_event(const SDL_Event& event, const Window* window) override {
+        [[nodiscard]] Widget::EventHandleResult
+        handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override {
             if (not m_enabled) {
                 return false;
             }
 
-            if (utils::device_supports_keys()) {
-                if (has_focus() and utils::event_is_action(event, utils::CrossPlatformAction::OK)) {
-                    spdlog::info("Button pressed");
-                    if (on_clicked()) {
-                        return {
-                            true,
-                            {ui::EventHandleType::RequestAction, this}
-                        };
-                    }
-                    return true;
+
+            const auto navigation_event = input_manager->get_navigation_event(event);
+
+            if (has_focus() and navigation_event == input::NavigationEvent::OK) {
+                spdlog::info("Button pressed");
+                if (on_clicked()) {
+                    return {
+                        true,
+                        { ui::EventHandleType::RequestAction, this }
+                    };
                 }
+                return true;
             }
 
-            if (const auto hover_result = detect_hover(event, window); hover_result) {
+
+            if (const auto hover_result = detect_hover(input_manager, event); hover_result) {
                 if (hover_result.is(ActionType::Clicked)) {
                     if (on_clicked()) {
                         return {
                             true,
-                            {ui::EventHandleType::RequestAction, this}
+                            { ui::EventHandleType::RequestAction, this }
                         };
                     }
                 }

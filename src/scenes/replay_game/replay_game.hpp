@@ -22,7 +22,7 @@ namespace scenes {
 
         [[nodiscard]] UpdateResult update() override;
         void render(const ServiceProvider& service_provider) override;
-        [[nodiscard]] bool handle_event(const SDL_Event& event, const Window* window) override;
+        [[nodiscard]] bool handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override;
     };
 
 

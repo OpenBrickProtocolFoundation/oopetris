@@ -1,12 +1,12 @@
 #include "replay_input.hpp"
 #include "game/tetrion.hpp"
+#include "helper/magic_enum_wrapper.hpp"
 
-
-ReplayInput::ReplayInput(std::shared_ptr<recorder::RecordingReader> recording_reader)
-    : Input{ InputType::Recording },
+input::ReplayGameInput::ReplayGameInput(std::shared_ptr<recorder::RecordingReader> recording_reader)
+    : GameInput{ GameInputType::Recording },
       m_recording_reader{ std::move(recording_reader) } { }
 
-void ReplayInput::update(const SimulationStep simulation_step_index) {
+void input::ReplayGameInput::update(const SimulationStep simulation_step_index) {
     while (true) {
         if (is_end_of_recording()) {
             break;
@@ -28,16 +28,16 @@ void ReplayInput::update(const SimulationStep simulation_step_index) {
 
         spdlog::debug("replaying event {} at step {}", magic_enum::enum_name(record.event), simulation_step_index);
 
-        Input::handle_event(record.event, simulation_step_index);
+        GameInput::handle_event(record.event, simulation_step_index);
 
         ++m_next_record_index;
     }
 
-    Input::update(simulation_step_index);
+    GameInput::update(simulation_step_index);
 }
 
-void ReplayInput::late_update(const SimulationStep simulation_step_index) {
-    Input::late_update(simulation_step_index);
+void input::ReplayGameInput::late_update(const SimulationStep simulation_step_index) {
+    GameInput::late_update(simulation_step_index);
 
     while (true) {
         if (m_next_snapshot_index >= m_recording_reader->snapshots().size()) {
@@ -75,6 +75,6 @@ void ReplayInput::late_update(const SimulationStep simulation_step_index) {
     }
 }
 
-[[nodiscard]] bool ReplayInput::is_end_of_recording() const {
+[[nodiscard]] bool input::ReplayGameInput::is_end_of_recording() const {
     return m_next_record_index >= m_recording_reader->num_records();
 }

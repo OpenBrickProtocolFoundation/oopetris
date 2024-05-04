@@ -1,15 +1,46 @@
 {
-	"platform": "pc",
-	"controls": {
-		"type": "keyboard",
-		"drop": "W",
-		"hold": "E",
-		"move_down": "S",
-		"move_left": "A",
-		"move_right": "D",
-		"rotate_left": "Left",
-		"rotate_right": "Right"
-	},
+	"controls": [
+		{
+			"type": "keyboard",
+			"drop": "W",
+			"hold": "E",
+			"move_down": "S",
+			"move_left": "A",
+			"move_right": "D",
+			"rotate_left": "Left",
+			"rotate_right": "Right",
+			"menu": {
+				"pause": "Esc",
+				"open_settings": "E"
+			}
+		},
+		{
+			"type": "joystick",
+			"identification": {
+				"guid": "GUID1"
+			},
+			"drop": "W",
+			"hold": "E",
+			"move_down": "S",
+			"move_left": "A",
+			"move_right": "D",
+			"rotate_left": "Y",
+			"rotate_right": "X"
+		},
+		{
+			"type": "joystick",
+			"identification": {
+				"guid": "GUID2"
+			},
+			"drop": "W",
+			"hold": "E",
+			"move_down": "S",
+			"move_left": "A",
+			"move_right": "D",
+			"rotate_left": "Y",
+			"rotate_right": "X"
+		}
+	],
 	"volume": 0.2,
 	"discord": false
 }

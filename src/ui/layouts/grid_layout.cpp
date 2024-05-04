@@ -29,38 +29,34 @@ void ui::GridLayout::render(const ServiceProvider& service_provider) const {
     }
 }
 
-ui::Widget::EventHandleResult ui::GridLayout::handle_event(
-        const SDL_Event& event,
-        const Window* window
-) // NOLINT(readability-function-cognitive-complexity)
-{
-    Widget::EventHandleResult handled = handle_focus_change_events(event, window);
+ui::Widget::EventHandleResult
+ui::GridLayout::handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) {
+    Widget::EventHandleResult handled = handle_focus_change_events(input_manager, event);
 
     if (handled) {
         return handled;
     }
 
-    if (utils::device_supports_clicks()) {
 
-        if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::Any)) {
+    if (const auto point_event = input_manager->get_pointer_event(event); point_event.has_value()) {
 
-            for (auto& widget : m_widgets) {
-                const auto layout = widget->layout();
-                if (not handled and utils::is_event_in(window, event, layout.get_rect())) {
-                    if (const auto event_result = widget->handle_event(event, window); event_result) {
-                        handled = { true, handle_event_result(event_result.get_additional(), widget.get()) };
-                        continue;
-                    }
-                } else {
-                    const auto hoverable = as_hoverable(widget.get());
-                    if (hoverable.has_value()) {
-                        hoverable.value()->on_unhover();
-                    }
+        for (auto& widget : m_widgets) {
+            const auto layout = widget->layout();
+            if (not handled and point_event->is_in(layout.get_rect())) {
+                if (const auto event_result = widget->handle_event(input_manager, event); event_result) {
+                    handled = { true, handle_event_result(event_result.get_additional(), widget.get()) };
+                    continue;
+                }
+            } else {
+                const auto hoverable = as_hoverable(widget.get());
+                if (hoverable.has_value()) {
+                    hoverable.value()->on_unhover();
                 }
             }
-            return handled;
         }
+        return handled;
     }
+
 
     return handled;
 }

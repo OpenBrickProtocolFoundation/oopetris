@@ -1,8 +1,13 @@
 #include "single_player_game.hpp"
 #include "helper/date.hpp"
 #include "helper/music_utils.hpp"
+#include "helper/platform.hpp"
+#include "input/game_input.hpp"
+#include "magic_enum.hpp"
 #include "manager/music_manager.hpp"
 #include "scenes/scene.hpp"
+#include "scenes/settings_menu/settings_menu.hpp"
+#include "scenes/single_player_game/pause.hpp"
 
 namespace scenes {
 
@@ -13,7 +18,7 @@ namespace scenes {
 
         recorder::AdditionalInformation additional_information{};
         additional_information.add("mode", "single_player");
-        additional_information.add("platform", utils::get_platform());
+        additional_information.add("platform", std::string{ magic_enum::enum_name(utils::get_platform()) });
         additional_information.add("date", date.value());
         //TODO: add more information, if logged in
 
@@ -48,7 +53,7 @@ namespace scenes {
         if (m_game->is_game_finished()) {
             return UpdateResult{
                 SceneUpdate::StopUpdating,
-                Scene::Push{SceneId::GameOver, ui::FullScreenLayout{ m_service_provider->window() }}
+                Scene::Push{ SceneId::GameOver, ui::FullScreenLayout{ m_service_provider->window() } }
             };
         }
 
@@ -63,13 +68,21 @@ namespace scenes {
                 case NextScene::Pause:
                     return UpdateResult{
                         SceneUpdate::StopUpdating,
-                        Scene::Push{SceneId::Pause, ui::FullScreenLayout{ m_service_provider->window() }}
+                        Scene::RawPush{ "Pause", std::make_unique<scenes::SinglePlayerPause>(
+                                                         m_service_provider, ui::FullScreenLayout{ m_service_provider->window() },
+                                       m_game->game_input()
+                                                 ) }
                     };
                 case NextScene::Settings:
                     return UpdateResult{
                         SceneUpdate::StopUpdating,
-                        Scene::Push{SceneId::SettingsMenu,
-                                    ui::RelativeLayout{ m_service_provider->window(), 0.15, 0.15, 0.7, 0.7 }}
+                        Scene::RawPush{ "SettingsMenu", std::make_unique<SettingsMenu>(
+                                                                m_service_provider, ui::RelativeLayout{ m_service_provider->window(), 0.15,
+                                                                                    0.15, 0.7, 0.7 },
+                                       m_game->game_input()
+                                                        )
+
+                        }
                     };
                 default:
                     utils::unreachable();
@@ -82,20 +95,22 @@ namespace scenes {
         m_game->render(service_provider);
     }
 
-    [[nodiscard]] bool SinglePlayerGame::handle_event(const SDL_Event& event, const Window*) {
+    [[nodiscard]] bool
+    SinglePlayerGame::handle_event(const std::shared_ptr<input::InputManager>&, const SDL_Event& event) {
 
-        if (utils::event_is_action(event, utils::CrossPlatformAction::PAUSE) and not m_game->is_game_finished()) {
+        const auto& game_input = m_game->game_input();
+
+        if (game_input->get_menu_event(event) == input::MenuEvent::PAUSE and not m_game->is_game_finished()) {
             m_next_scene = NextScene::Pause;
             m_game->set_paused(true);
             return true;
         }
 
-        if (utils::device_supports_keys()) {
-            if (utils::event_is_action(event, utils::CrossPlatformAction::OPEN_SETTINGS)) {
-                m_next_scene = NextScene::Settings;
-                return true;
-            }
+        if (game_input->get_menu_event(event) == input::MenuEvent::OPEN_SETTINGS) {
+            m_next_scene = NextScene::Settings;
+            return true;
         }
+
         return false;
     }
 

@@ -1,31 +1,28 @@
 
 
-#if defined(__ANDROID__)
 
-
-#include "android_input.hpp"
+#include "touch_input.hpp"
 
 #include <cmath>
-#include <stdexcept>
 
-
-void TouchInput::handle_event(const SDL_Event& event, const Window*) {
+void input::TouchGameInput::handle_event(const SDL_Event& event) {
     m_event_buffer.push_back(event);
 }
 
-void TouchInput::update(SimulationStep simulation_step_index) {
+void input::TouchGameInput::update(SimulationStep simulation_step_index) {
     for (const auto& event : m_event_buffer) {
         const auto input_event = sdl_event_to_input_event(event);
         if (input_event.has_value()) {
-            Input::handle_event(*input_event, simulation_step_index);
+            GameInput::handle_event(*input_event, simulation_step_index);
         }
     }
     m_event_buffer.clear();
 
-    Input::update(simulation_step_index);
+    GameInput::update(simulation_step_index);
 }
 
-helper::optional<InputEvent> TouchInput::sdl_event_to_input_event( // NOLINT(readability-function-cognitive-complexity)
+helper::optional<InputEvent>
+input::TouchGameInput::sdl_event_to_input_event( // NOLINT(readability-function-cognitive-complexity)
         const SDL_Event& event
 ) {
     //TODO to handle those things better, holding has to be supported
@@ -50,7 +47,7 @@ helper::optional<InputEvent> TouchInput::sdl_event_to_input_event( // NOLINT(rea
         m_finger_state.insert_or_assign(
                 finger_id,
                 helper::optional<PressedState>{
-                        PressedState{timestamp, x, y}
+                        PressedState{ timestamp, x, y }
         }
         );
     }
@@ -126,5 +123,56 @@ helper::optional<InputEvent> TouchInput::sdl_event_to_input_event( // NOLINT(rea
     return helper::nullopt;
 }
 
+//TODO:
+/* 
+[[nodiscard]] bool utils::event_is_action(const SDL_Event& event, const CrossPlatformAction action) {
+    switch (action) {
+        case CrossPlatformAction::OK:
+        case CrossPlatformAction::DOWN:
+        case CrossPlatformAction::UP:
+        case CrossPlatformAction::LEFT:
+        case CrossPlatformAction::RIGHT:
+        case CrossPlatformAction::OPEN_SETTINGS:
+        case CrossPlatformAction::TAB:
+            // this can't be checked here, it has to be checked via collision on buttons etc. event_is_action(..., ...::DOWN, UP ...) can only be used inside device_supports_keys() clauses!
+            throw std::runtime_error("Not supported on android 'event_is_action'");
+        case CrossPlatformAction::PAUSE:
+            return (event.type == SDL_KEYDOWN and event.key.keysym.sym == SDLK_AC_BACK);
 
-#endif
+        case CrossPlatformAction::UNPAUSE:
+            return event.type == SDL_FINGERDOWN;
+
+        case CrossPlatformAction::EXIT:
+        case CrossPlatformAction::CLOSE:
+            return (event.type == SDL_KEYDOWN and event.key.keysym.sym == SDLK_AC_BACK);
+
+        default:
+            utils::unreachable();
+    }
+
+
+    [[nodiscard]] std::string utils::action_description(CrossPlatformAction action) {
+
+
+        switch (action) {
+            case CrossPlatformAction::OK:
+            case CrossPlatformAction::DOWN:
+            case CrossPlatformAction::UP:
+            case CrossPlatformAction::LEFT:
+            case CrossPlatformAction::RIGHT:
+            case CrossPlatformAction::OPEN_SETTINGS:
+            case CrossPlatformAction::TAB:
+                // this can't be checked here, it has to be checked via collision on buttons etc. event_is_action(..., ...::DOWN, UP ...) can only be used inside device_supports_keys() clauses!
+                throw std::runtime_error("Not supported on android 'action_description'");
+            case CrossPlatformAction::UNPAUSE:
+                return "Tap anywhere";
+            case CrossPlatformAction::PAUSE:
+            case CrossPlatformAction::EXIT:
+            case CrossPlatformAction::CLOSE:
+                return "Back";
+
+            default:
+                utils::unreachable();
+        }
+    }
+ */

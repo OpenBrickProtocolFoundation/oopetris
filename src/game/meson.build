@@ -15,8 +15,6 @@ graphics_src_files += files(
     'grid.cpp',
     'grid.hpp',
     'grid_properties.hpp',
-    'input_creator.cpp',
-    'input_creator.hpp',
     'rotation.cpp',
     'rotation.hpp',
     'tetrion.cpp',

@@ -3,6 +3,7 @@
 #include "helper/optional.hpp"
 #include "helper/types.hpp"
 #include "manager/service_provider.hpp"
+#include "input/input.hpp"
 
 #include <SDL.h>
 #include <SDL_mixer.h>
@@ -52,7 +53,7 @@ public:
     // no nodiscard, since the return value is only a side effect, that is maybe useful
     helper::optional<double> change_volume(std::int8_t steps);
 
-    bool handle_event(const SDL_Event& event);
+    bool handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event);
 
     bool add_volume_listener(const std::string& name, VolumeChangeFunction change_function) {
 

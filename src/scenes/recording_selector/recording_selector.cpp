@@ -1,3 +1,7 @@
+#include "helper/platform.hpp"
+#include "helper/utils.hpp"
+
+
 #if defined(_HAVE_FILE_DIALOGS)
 #include "recording_chooser.hpp"
 #endif
@@ -37,7 +41,7 @@ namespace scenes {
         auto focus_helper = ui::FocusHelper{ 1 };
 
         m_main_layout.add<ui::Label>(
-                service_provider, "Select Recording to replay", service_provider->fonts().get(FontId::Default),
+                service_provider, "Select Recording to replay", service_provider->font_manager().get(FontId::Default),
                 Color::white(), std::pair<double, double>{ 0.5, 1.0 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
         );
@@ -49,17 +53,17 @@ namespace scenes {
 
         add_all_recordings();
 
-        constexpr auto button_size = utils::device_orientation() == utils::Orientation::Landscape
+        constexpr auto button_size = utils::get_orientation() == utils::Orientation::Landscape
                                              ? std::pair<double, double>{ 0.15, 0.85 }
                                              : std::pair<double, double>{ 0.5, 0.85 };
         constexpr auto button_alignment =
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center };
-        constexpr auto button_margins = utils::device_orientation() == utils::Orientation::Landscape
+        constexpr auto button_margins = utils::get_orientation() == utils::Orientation::Landscape
                                                 ? std::pair<double, double>{ 0.1, 0.1 }
                                                 : std::pair<double, double>{ 0.2, 0.2 };
 
         m_main_layout.add<ui::TextButton>(
-                service_provider, "Return", service_provider->fonts().get(FontId::Default), Color::white(),
+                service_provider, "Return", service_provider->font_manager().get(FontId::Default), Color::white(),
                 focus_helper.focus_id(),
                 [this](const ui::TextButton&) -> bool {
                     m_next_command = Command{ Return{} };
@@ -77,11 +81,10 @@ namespace scenes {
                     helper::overloaded{
                             [](const Return&) { return UpdateResult{ SceneUpdate::StopUpdating, Scene::Pop{} }; },
                             [this](const Action& action) {
-                                if (auto* recording_component =
-                                            dynamic_cast<custom_ui::RecordingComponent*>(action.widget);
-                                    recording_component != nullptr) {
-
-                                    const auto recording_path = recording_component->metadata().path;
+                                if (auto recording_component =
+                                            utils::is_child_class<custom_ui::RecordingComponent>(action.widget);
+                                    recording_component.has_value()) {
+                                    const auto recording_path = recording_component.value()->metadata().path;
 
                                     // action is a reference to a structure inside m_next_command, so resetting it means, we need to copy everything out of it
                                     m_next_command = helper::nullopt;
@@ -97,11 +100,11 @@ namespace scenes {
                                 }
 #if defined(_HAVE_FILE_DIALOGS)
 
-                                if (auto* recording_file_chooser =
-                                            dynamic_cast<custom_ui::RecordingFileChooser*>(action.widget);
-                                    recording_file_chooser != nullptr) {
-
-                                    for (const auto& path : recording_file_chooser->get_currently_chosen_files()) {
+                                if (auto recording_file_chooser =
+                                            utils::is_child_class<custom_ui::RecordingFileChooser>(action.widget);
+                                    recording_file_chooser.has_value()) {
+                                    for (const auto& path :
+                                         recording_file_chooser.value()->get_currently_chosen_files()) {
                                         m_chosen_paths.push_back(path);
                                     }
 
@@ -130,10 +133,11 @@ namespace scenes {
         m_main_layout.render(service_provider);
     }
 
-    bool RecordingSelector::handle_event(const SDL_Event& event, const Window* window) {
+    bool
+    RecordingSelector::handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) {
 
 
-        if (const auto event_result = m_main_layout.handle_event(event, window); event_result) {
+        if (const auto event_result = m_main_layout.handle_event(input_manager, event); event_result) {
             if (const auto additional = event_result.get_additional();
                 additional.has_value() and additional.value().first == ui::EventHandleType::RequestAction) {
                 m_next_command = Command{ Action(additional.value().second) };
@@ -142,7 +146,9 @@ namespace scenes {
             return true;
         }
 
-        if (utils::event_is_action(event, utils::CrossPlatformAction::CLOSE)) {
+        const auto navigation_event = input_manager->get_navigation_event(event);
+
+        if (navigation_event == input::NavigationEvent::BACK) {
             m_next_command = Command{ Return{} };
             return true;
         }

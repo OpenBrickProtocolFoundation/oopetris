@@ -1,0 +1,109 @@
+
+
+#pragma once
+
+
+#include "SDL_events.h"
+#include "game_input.hpp"
+#include "graphics/point.hpp"
+#include "graphics/rect.hpp"
+#include "graphics/window.hpp"
+#include "helper/bool_wrapper.hpp"
+#include "helper/expected.hpp"
+#include "helper/optional.hpp"
+#include "manager/service_provider.hpp"
+
+
+#include <memory>
+#include <vector>
+
+namespace input {
+
+    enum class InputType : u8 { Keyboard, Pointer, JoyStick };
+
+    enum class NavigationEvent : u8 { OK, DOWN, UP, LEFT, RIGHT, BACK, TAB };
+
+    enum class SpecialRequest : u8 { WindowFocusLost, InputsChanged };
+
+
+    struct Input {
+    private:
+        std::string m_name;
+        InputType m_type;
+
+    public:
+        Input(const std::string& name, InputType type);
+        virtual ~Input();
+
+        [[nodiscard]] const std::string& name() const;
+        [[nodiscard]] InputType type();
+
+        [[nodiscard]] virtual helper::optional<NavigationEvent> get_navigation_event(const SDL_Event& event) const = 0;
+
+        [[nodiscard]] virtual std::string describe_navigation_event(NavigationEvent event) const = 0;
+    };
+
+    enum class PointerEvent : u8 { Motion, PointerDown, PointerUp };
+
+    struct PointerEventHelper {
+    private:
+        shapes::IPoint m_pos;
+        PointerEvent m_event;
+
+    public:
+        PointerEventHelper(shapes::IPoint pos, PointerEvent event);
+
+        [[nodiscard]] PointerEvent event() const;
+
+        [[nodiscard]] shapes::IPoint position() const;
+
+        [[nodiscard]] bool is_in(const shapes::URect& rect) const;
+
+        [[nodiscard]] bool is_in(const shapes::IRect& rect) const;
+
+        [[nodiscard]] SDL_Event offset_raw(const SDL_Event& event, const shapes::IPoint& rect) const;
+
+        [[nodiscard]] bool operator==(PointerEvent event) const;
+    };
+
+
+    struct PointerInput : Input {
+        PointerInput(const std::string& name);
+
+        [[nodiscard]] virtual helper::optional<PointerEventHelper> get_pointer_event(const SDL_Event& event) const = 0;
+    };
+
+    //forward declaration
+    struct JoyStickInputManager;
+
+    struct InputManager {
+    private:
+        std::unique_ptr<JoyStickInputManager> m_joystick_manager;
+
+        std::vector<std::unique_ptr<Input>> m_inputs{};
+
+    public:
+        explicit InputManager(const std::shared_ptr<Window>& window);
+        ~InputManager();
+
+        [[nodiscard]] const std::vector<std::unique_ptr<Input>>& inputs() const;
+
+        [[nodiscard]] helper::optional<NavigationEvent> get_navigation_event(const SDL_Event& event) const;
+
+        [[nodiscard]] helper::optional<PointerEventHelper> get_pointer_event(const SDL_Event& event) const;
+
+        [[nodiscard]] helper::BoolWrapper<SpecialRequest> process_special_inputs(const SDL_Event& event);
+
+        [[nodiscard]] std::unique_ptr<input::GameInput> get_game_input(ServiceProvider* service_provider);
+
+        [[nodiscard]] const std::unique_ptr<input::Input>& get_primary_input();
+    };
+
+
+    struct InputSettings {
+
+        [[nodiscard]] virtual helper::expected<bool, std::string> validate() const;
+    };
+
+
+} // namespace input

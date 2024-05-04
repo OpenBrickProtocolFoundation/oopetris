@@ -27,13 +27,13 @@ custom_ui::RecordingFileChooser::RecordingFileChooser(
 
 
     m_main_grid.add<ui::TextButton>(
-            service_provider, "Select Recording", service_provider->fonts().get(FontId::Default), Color::white(),
+            service_provider, "Select Recording", service_provider->font_manager().get(FontId::Default), Color::white(),
             focus_helper.focus_id(),
             [service_provider, this](const ui::TextButton&) -> bool {
                 this->prepare_dialog(service_provider);
 
                 const auto result = helper::openMultipleFilesDialog({
-                        {"OOPetris Recording", { constants::recording::extension }}
+                        { "OOPetris Recording", { constants::recording::extension } }
                 });
 
                 if (result.has_value()) {
@@ -54,7 +54,7 @@ custom_ui::RecordingFileChooser::RecordingFileChooser(
 
 
     m_main_grid.add<ui::TextButton>(
-            service_provider, "Select Recording Folder", service_provider->fonts().get(FontId::Default), Color::white(),
+            service_provider, "Select Recording Folder", service_provider->font_manager().get(FontId::Default), Color::white(),
             focus_helper.focus_id(),
             [this, service_provider](const ui::TextButton&) -> bool {
                 this->prepare_dialog(service_provider);
@@ -96,16 +96,18 @@ void custom_ui::RecordingFileChooser::render(const ServiceProvider& service_prov
     m_main_grid.render(service_provider);
 }
 
-helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
-custom_ui::RecordingFileChooser::handle_event(const SDL_Event& event, const Window* window) {
+helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>> custom_ui::RecordingFileChooser::handle_event(
+        const std::shared_ptr<input::InputManager>& input_manager,
+        const SDL_Event& event
+) {
     //TODO: this double nested component can't correctly detect focus changes (since the checking for a focus change only occurs at one level deep)
     //TODO: allow horizontal RIGHT <-> LEFT focus change on horizontal focus_layouts
-    if (const auto handled = m_main_grid.handle_event(event, window); handled) {
+    if (const auto handled = m_main_grid.handle_event(input_manager, event); handled) {
         return handled;
     }
 
 
-    if (detect_hover(event, window)) {
+    if (detect_hover(input_manager, event)) {
         return true;
     }
 

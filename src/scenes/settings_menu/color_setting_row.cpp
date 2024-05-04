@@ -1,7 +1,9 @@
 
 #include "color_setting_row.hpp"
 #include "helper/errors.hpp"
+#include "helper/magic_enum_wrapper.hpp"
 #include "helper/utils.hpp"
+#include "input/input.hpp"
 #include "ui/components/label.hpp"
 #include "ui/focusable.hpp"
 #include "ui/hoverable.hpp"
@@ -51,22 +53,26 @@ void detail::ColorSettingRectangle::render(const ServiceProvider& service_provid
     //TODO: maybe use a dynamic color, to have some contrast?
     service_provider.renderer().draw_rect_outline(m_fill_rect, Color::white());
 }
-helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
-detail::ColorSettingRectangle::handle_event(const SDL_Event& event, const Window* window) {
-    if (utils::device_supports_keys()) {
-        if (has_focus() and utils::event_is_action(event, utils::CrossPlatformAction::OK)) {
-            return {
-                true,
-                {ui::EventHandleType::RequestAction, this}
-            };
-        }
+helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>> detail::ColorSettingRectangle::handle_event(
+        const std::shared_ptr<input::InputManager>& input_manager,
+        const SDL_Event& event
+) {
+
+    const auto navigation_event = input_manager->get_navigation_event(event);
+
+    if (has_focus() and navigation_event == input::NavigationEvent::OK) {
+        return {
+            true,
+            { ui::EventHandleType::RequestAction, this }
+        };
     }
 
-    if (const auto hover_result = detect_hover(event, window); hover_result) {
+
+    if (const auto hover_result = detect_hover(input_manager, event); hover_result) {
         if (hover_result.is(ui::ActionType::Clicked)) {
             return {
                 true,
-                {ui::EventHandleType::RequestAction, this}
+                { ui::EventHandleType::RequestAction, this }
             };
         }
         return true;
@@ -102,14 +108,19 @@ void detail::ColorPickerScene::render(const ServiceProvider& service_provider) {
 
     m_color_picker.render(service_provider);
 }
-bool detail::ColorPickerScene::handle_event(const SDL_Event& event, const Window* window) {
+bool detail::ColorPickerScene::handle_event(
+        const std::shared_ptr<input::InputManager>& input_manager,
+        const SDL_Event& event
+) {
 
-    if (utils::event_is_action(event, utils::CrossPlatformAction::CLOSE)) {
+    const auto navigation_event = input_manager->get_navigation_event(event);
+
+    if (navigation_event == input::NavigationEvent::BACK) {
         m_should_exit = true;
         return true;
     }
 
-    const auto result = m_color_picker.handle_event(event, window);
+    const auto result = m_color_picker.handle_event(input_manager, event);
     if (result) {
         return result;
     }
@@ -144,7 +155,7 @@ custom_ui::ColorSettingRow::ColorSettingRow(
 
 
     m_main_layout.add<ui::Label>(
-            service_provider, std::move(name), service_provider->fonts().get(FontId::Default), Color::white(),
+            service_provider, std::move(name), service_provider->font_manager().get(FontId::Default), Color::white(),
             std::pair<double, double>{ 0.5, 0.5 },
             ui::Alignment{ ui::AlignmentHorizontal::Left, ui::AlignmentVertical::Center }
     );
@@ -160,14 +171,16 @@ void custom_ui::ColorSettingRow::render(const ServiceProvider& service_provider)
     m_main_layout.render(service_provider);
 }
 
-helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
-custom_ui::ColorSettingRow::handle_event(const SDL_Event& event, const Window* window) {
-    const auto result = m_main_layout.handle_event(event, window);
+helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>> custom_ui::ColorSettingRow::handle_event(
+        const std::shared_ptr<input::InputManager>& input_manager,
+        const SDL_Event& event
+) {
+    const auto result = m_main_layout.handle_event(input_manager, event);
     if (const auto additional = result.get_additional(); additional.has_value()) {
         if (additional->first == ui::EventHandleType::RequestAction) {
             return {
                 result,
-                {ui::EventHandleType::RequestAction, this}
+                { ui::EventHandleType::RequestAction, this }
             };
         }
 

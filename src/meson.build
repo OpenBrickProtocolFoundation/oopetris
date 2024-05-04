@@ -14,13 +14,12 @@ main_files = files(
 subdir('game')
 subdir('graphics')
 subdir('helper')
+subdir('input')
 subdir('manager')
-subdir('platform')
 subdir('recordings')
 subdir('scenes')
 subdir('thirdparty')
 subdir('ui')
-
 
 if online_multiplayer_supported
     subdir('lobby')

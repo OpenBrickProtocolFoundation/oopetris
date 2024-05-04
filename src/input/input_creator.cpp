@@ -4,41 +4,15 @@
 #include "helper/command_line_arguments.hpp"
 #include "helper/date.hpp"
 #include "helper/errors.hpp"
-#include "platform/replay_input.hpp"
-#include <stdexcept>
+#include "input.hpp"
+#include "input/replay_input.hpp"
 
-
-#if defined(__ANDROID__)
-#include "platform/android_input.hpp"
-#elif defined(__CONSOLE__)
-#include "platform/console_input.hpp"
-#else
-#include "platform/keyboard_input.hpp"
-#endif
 
 #include <fmt/format.h>
+#include <stdexcept>
 
 namespace {
 
-    [[nodiscard]] std::unique_ptr<Input> create_input(ServiceProvider* service_provider) {
-        return std::visit(
-                helper::overloaded{
-                        [service_provider]([[maybe_unused]] KeyboardControls& keyboard_controls
-                        ) mutable -> std::unique_ptr<Input> {
-                            auto* const event_dispatcher = &(service_provider->event_dispatcher());
-#if defined(__ANDROID__)
-                            auto input = std::make_unique<TouchInput>(event_dispatcher);
-#elif defined(__CONSOLE__)
-                            auto input = std::make_unique<JoystickInput>(event_dispatcher);
-#else
-                            auto input = std::make_unique<KeyboardInput>(keyboard_controls, event_dispatcher);
-#endif
-                            return input;
-                        },
-                },
-                service_provider->settings().controls
-        );
-    }
 
     [[nodiscard]] recorder::TetrionHeader create_tetrion_headers_for_one(const input::AdditionalInfo& info) {
         const auto& needed_info = std::get<1>(info);
@@ -96,7 +70,7 @@ namespace {
 
     for (u8 tetrion_index = 0; tetrion_index < static_cast<u8>(tetrion_headers.size()); ++tetrion_index) {
 
-        auto input = std::make_unique<ReplayInput>(recording_reader);
+        auto input = std::make_unique<ReplayGameInput>(recording_reader);
 
         const auto& header = tetrion_headers.at(tetrion_index);
 
@@ -120,7 +94,7 @@ namespace {
         const date::ISO8601Date& date
 ) {
 
-    auto input = create_input(service_provider);
+    auto input = service_provider->input_manager().get_game_input(service_provider);
 
     const auto starting_level = service_provider->command_line_arguments().starting_level;
 

@@ -27,7 +27,7 @@ void ui::Label::render(const ServiceProvider& service_provider) const {
 }
 
 helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
-ui::Label::handle_event(const SDL_Event&, const Window*) {
+ui::Label::handle_event(const std::shared_ptr<input::InputManager>&, const SDL_Event&) {
     return false;
 }
 

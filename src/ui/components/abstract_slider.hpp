@@ -6,6 +6,7 @@
 #include <utility>
 
 #include "graphics/rect.hpp"
+#include "input/input.hpp"
 #include "ui/focusable.hpp"
 #include "ui/widget.hpp"
 
@@ -90,20 +91,24 @@ namespace ui {
         }
 
 
-        Widget::EventHandleResult
-        handle_event(const SDL_Event& event, const Window* window) // NOLINT(readability-function-cognitive-complexity)
+        Widget::EventHandleResult handle_event(
+                const std::shared_ptr<input::InputManager>& input_manager,
+                const SDL_Event& event
+        ) // NOLINT(readability-function-cognitive-complexity)
                 override {
             Widget::EventHandleResult handled = false;
 
-            if (utils::device_supports_keys() and has_focus()) {
-                if (utils::event_is_action(event, utils::CrossPlatformAction::RIGHT)) {
+            const auto navigation_event = input_manager->get_navigation_event(event);
+
+            if (navigation_event.has_value() and has_focus()) {
+                if (navigation_event == input::NavigationEvent::RIGHT) {
                     m_current_value = m_current_value + m_step;
                     if (m_current_value >= m_range.second) {
                         m_current_value = m_range.second;
                     }
 
                     handled = true;
-                } else if (utils::event_is_action(event, utils::CrossPlatformAction::LEFT)) {
+                } else if (navigation_event == input::NavigationEvent::LEFT) {
                     m_current_value = m_current_value - m_step;
                     if (m_current_value <= m_range.first) {
                         m_current_value = m_range.first;
@@ -113,12 +118,15 @@ namespace ui {
                 }
             }
 
-            if (not handled and utils::device_supports_clicks()) {
+            const auto pointer_event = input_manager->get_pointer_event(event);
 
-                const auto change_value_on_scroll = [&window, &event, this]() {
+
+            if (not handled and pointer_event.has_value()) {
+
+                const auto change_value_on_scroll = [&pointer_event, this]() {
                     const auto& [bar_rect, slider_rect] = this->get_rectangles();
 
-                    const auto& [x, _] = utils::get_raw_coordinates(window, event);
+                    const auto& [x, _] = pointer_event->position();
 
                     if (x <= static_cast<i32>(bar_rect.top_left.x)) {
                         m_current_value = m_range.first;
@@ -133,41 +141,42 @@ namespace ui {
                 };
 
 
-                if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::ButtonDown)) {
+                if (pointer_event == input::PointerEvent::PointerDown) {
 
-                    if (utils::is_event_in(window, event, m_bar_rect)) {
+                    if (pointer_event->is_in(m_bar_rect)) {
 
                         change_value_on_scroll();
                         m_is_dragging = true;
                         SDL_CaptureMouse(SDL_TRUE);
                         handled = {
                             true,
-                            {ui::EventHandleType::RequestFocus, this}
+                            { ui::EventHandleType::RequestFocus, this }
                         };
 
-                    } else if (utils::is_event_in(window, event, m_slider_rect)) {
+                    } else if (pointer_event->is_in(m_slider_rect)) {
                         m_is_dragging = true;
                         SDL_CaptureMouse(SDL_TRUE);
                         handled = {
                             true,
-                            {ui::EventHandleType::RequestFocus, this}
+                            { ui::EventHandleType::RequestFocus, this }
                         };
                     }
 
-                } else if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::ButtonUp)) {
+                } else if (pointer_event == input::PointerEvent::PointerUp) {
                     // only handle this, if already dragging, otherwise it's a button down from previously or some other widget
                     if (m_is_dragging) {
                         m_is_dragging = false;
                         SDL_CaptureMouse(SDL_FALSE);
                         handled = true;
                     }
-                } else if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::Motion)) {
+                } else if (pointer_event == input::PointerEvent::Motion) {
 
                     if (m_is_dragging) {
                         change_value_on_scroll();
                         handled = true;
                     }
 
+                    //TODO: this is not working, since pointer_event.has_value() is wrong in this case
                 } else if (event.type == SDL_MOUSEWHEEL && has_focus()) {
 
                     // here we use a reverse scroll behaviour, since moving the mouse up is always considered increasing the volume, regardless of you OS setting about natural scrolling or not

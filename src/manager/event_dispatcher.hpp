@@ -3,8 +3,8 @@
 #include "graphics/rect.hpp"
 #include "helper/optional.hpp"
 #include "manager/event_listener.hpp"
+#include "sdl_key.hpp"
 
-#include <SDL.h>
 #include <algorithm>
 #include <cassert>
 #include <vector>
@@ -12,14 +12,26 @@
 struct EventDispatcher final {
 private:
     std::vector<EventListener*> m_listeners;
-    Window* m_window;
     bool m_input_activated{ false };
     bool m_enabled{ true };
-    std::vector<SDL_Keycode> allowed_input_keys{ SDLK_RETURN, SDLK_BACKSPACE, SDLK_DOWN,   SDLK_UP,
-                                                 SDLK_LEFT,   SDLK_RIGHT,     SDLK_ESCAPE, SDLK_TAB };
+
+    //TODO: factor out to some other place!
+    std::vector<SDL::Key> allowed_input_keys{
+        SDL::Key{ SDLK_RETURN },
+        SDL::Key{ SDLK_BACKSPACE },
+        SDL::Key{ SDLK_BACKSPACE, { SDL::Modifier::CTRL } },
+        SDL::Key{ SDLK_DOWN },
+        SDL::Key{ SDLK_UP },
+        SDL::Key{ SDLK_LEFT },
+        SDL::Key{ SDLK_RIGHT },
+        SDL::Key{ SDLK_ESCAPE },
+        SDL::Key{ SDLK_TAB },
+        SDL::Key{ SDLK_c, { SDL::Modifier::CTRL } },
+        SDL::Key{ SDLK_v, { SDL::Modifier::CTRL } }
+    };
 
 public:
-    EventDispatcher(Window* window) : m_window{ window } {};
+    explicit EventDispatcher() = default;
 
     void register_listener(EventListener* listener) {
         m_listeners.push_back(listener);
@@ -42,10 +54,9 @@ public:
                 switch (event.type) {
                     case SDL_KEYDOWN:
                     case SDL_KEYUP: {
-                        if (event.key.keysym.sym == SDLK_v and (event.key.keysym.mod & KMOD_CTRL) != 0) {
-                            break;
-                        }
-                        if (std::find(allowed_input_keys.cbegin(), allowed_input_keys.cend(), event.key.keysym.sym)
+                        if (std::find(
+                                    allowed_input_keys.cbegin(), allowed_input_keys.cend(), SDL::Key{ event.key.keysym }
+                            )
                             == allowed_input_keys.cend()) {
                             return;
                         }
@@ -62,7 +73,7 @@ public:
                     continue;
                 }
 
-                listener->handle_event(event, m_window);
+                listener->handle_event(event);
             }
         }
     }

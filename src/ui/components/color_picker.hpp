@@ -62,7 +62,7 @@ namespace detail {
 
         void render(const ServiceProvider& service_provider) const override;
 
-        [[nodiscard]] Widget::EventHandleResult handle_event(const SDL_Event& event, const Window* window) override;
+        [[nodiscard]] Widget::EventHandleResult handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override;
 
         void on_change(ColorChangeOrigin origin, const HSVColor& color);
 
@@ -116,7 +116,7 @@ namespace ui {
 
         void render(const ServiceProvider& service_provider) const override;
 
-        [[nodiscard]] Widget::EventHandleResult handle_event(const SDL_Event& event, const Window* window) override;
+        [[nodiscard]] Widget::EventHandleResult handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override;
 
         [[nodiscard]] Color get_color() const;
 

@@ -1,6 +1,7 @@
 
 #include "focus_layout.hpp"
 #include "helper/optional.hpp"
+#include "input/input.hpp"
 #include "ui/widget.hpp"
 
 
@@ -28,25 +29,31 @@ void ui::FocusLayout::update() {
     return static_cast<u32>(m_widgets.size());
 }
 
-ui::Widget::EventHandleResult ui::FocusLayout::handle_focus_change_button_events(const SDL_Event& event) {
+ui::Widget::EventHandleResult ui::FocusLayout::handle_focus_change_button_events(
+        const std::shared_ptr<input::InputManager>& input_manager,
+        const SDL_Event& event
+) {
 
     Widget::EventHandleResult handled = false;
 
-    if (utils::device_supports_keys()) {
-        if (utils::event_is_action(event, utils::CrossPlatformAction::DOWN)
-            or (m_options.allow_tab and utils::event_is_action(event, utils::CrossPlatformAction::TAB))) {
-            handled = try_set_next_focus(FocusChangeDirection::Forward);
-        } else if (utils::event_is_action(event, utils::CrossPlatformAction::UP)) {
-            handled = try_set_next_focus(FocusChangeDirection::Backward);
-        }
+    const auto navigation_action = input_manager->get_navigation_event(event);
+
+    if (navigation_action == input::NavigationEvent::DOWN
+        or (m_options.allow_tab and navigation_action == input::NavigationEvent::TAB)) {
+        handled = try_set_next_focus(FocusChangeDirection::Forward);
+    } else if (navigation_action == input::NavigationEvent::UP) {
+        handled = try_set_next_focus(FocusChangeDirection::Backward);
     }
+
 
     return handled;
 }
 
 
-ui::Widget::EventHandleResult
-ui::FocusLayout::handle_focus_change_events(const SDL_Event& event, const Window* window) {
+ui::Widget::EventHandleResult ui::FocusLayout::handle_focus_change_events(
+        const std::shared_ptr<input::InputManager>& input_manager,
+        const SDL_Event& event
+) {
 
 
     if (not has_focus()) {
@@ -61,7 +68,7 @@ ui::FocusLayout::handle_focus_change_events(const SDL_Event& event, const Window
 
 
         if (widget->type() != WidgetType::Container) {
-            handled = handle_focus_change_button_events(event);
+            handled = handle_focus_change_button_events(input_manager, event);
         }
 
 
@@ -69,13 +76,13 @@ ui::FocusLayout::handle_focus_change_events(const SDL_Event& event, const Window
             return handled;
         }
 
-        if (const auto event_result = widget->handle_event(event, window); event_result) {
+        if (const auto event_result = widget->handle_event(input_manager, event); event_result) {
             return { true, handle_event_result(event_result.get_additional(), widget.get()) };
         }
 
 
         if (widget->type() == WidgetType::Container) {
-            handled = handle_focus_change_button_events(event);
+            handled = handle_focus_change_button_events(input_manager, event);
         }
     }
 

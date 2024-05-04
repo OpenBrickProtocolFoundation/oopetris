@@ -2,15 +2,20 @@
 #include "helper/errors.hpp"
 #include "helper/message_box.hpp"
 #include "helper/sleep.hpp"
-#include "platform/capabilities.hpp"
+#include "input/input.hpp"
 #include "scenes/scene.hpp"
 
 #include <chrono>
+#include <memory>
 #include <ranges>
 #include <stdexcept>
 
 #if defined(__CONSOLE__)
 #include "helper/console_helpers.hpp"
+#endif
+
+#ifdef DEBUG_BUILD
+#include "graphics/text.hpp"
 #endif
 
 namespace {
@@ -24,14 +29,15 @@ namespace {
 } // namespace
 
 
-Application::Application(std::unique_ptr<Window>&& window, const std::vector<std::string>& arguments) try
+Application::Application(std::shared_ptr<Window>&& window, const std::vector<std::string>& arguments) try
     : m_command_line_arguments{ arguments },
       m_window{ std::move(window) },
       m_renderer{ *m_window, m_command_line_arguments.target_fps.has_value() ? Renderer::VSync::Disabled
                                                                              : Renderer::VSync::Enabled },
       m_music_manager{ this, num_audio_channels },
-      m_target_framerate{ m_command_line_arguments.target_fps },
-      m_event_dispatcher{ m_window.get() } {
+      m_input_manager{ std::make_shared<input::InputManager>(m_window) },
+      m_settings_manager{ this },
+      m_target_framerate{ m_command_line_arguments.target_fps } {
     initialize();
 } catch (const helper::GeneralError& general_error) {
     const auto severity = general_error.severity();
@@ -103,7 +109,7 @@ void Application::run() {
     }
 }
 
-void Application::handle_event(const SDL_Event& event, const Window* window) {
+void Application::handle_event(const SDL_Event& event) {
     if (event.type == SDL_QUIT) {
         m_is_running = false;
     }
@@ -111,7 +117,7 @@ void Application::handle_event(const SDL_Event& event, const Window* window) {
     auto handled = false;
 
     for (const auto& scene : std::ranges::views::reverse(m_scene_stack)) {
-        if (not handled and scene->handle_event(event, window)) {
+        if (not handled and scene->handle_event(m_input_manager, event)) {
             handled = true;
         }
 
@@ -122,8 +128,8 @@ void Application::handle_event(const SDL_Event& event, const Window* window) {
         }
 
         // if the scene is not covering the whole screen, it should give scenes in the background mouse events, but keyboard events are still only captured by the scene in focus, we also detect unhovers for whole scenes here
-        if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::Any)) {
-            if (not utils::is_event_in(window, event, scene->get_layout().get_rect())) {
+        if (const auto result = m_input_manager->get_pointer_event(event); result.has_value()) {
+            if (not result->is_in(scene->get_layout().get_rect())) {
                 scene->on_unhover();
             }
         }
@@ -134,29 +140,22 @@ void Application::handle_event(const SDL_Event& event, const Window* window) {
     }
 
     // handle some special events
+    const auto is_special_event = m_input_manager->process_special_inputs(event);
+    if (is_special_event) {
 
-    switch (event.type) {
-        case SDL_WINDOWEVENT:
-            switch (event.window.event) {
-                case SDL_WINDOWEVENT_HIDDEN:
-                case SDL_WINDOWEVENT_MINIMIZED:
-                case SDL_WINDOWEVENT_LEAVE: {
-                    for (const auto& scene : m_scene_stack) {
-                        scene->on_unhover();
-                    }
-                    break;
+        if (const auto special_event = is_special_event.get_additional(); special_event.has_value()) {
+            if (special_event.value() == input::SpecialRequest::WindowFocusLost) {
+                for (const auto& scene : m_scene_stack) {
+                    scene->on_unhover();
                 }
-                default:
-                    break;
             }
-            break;
-        default:
-            break;
+        }
     }
 
-    // this global event handlers (atm only one) are special cases, they receive all inputs if they are not handled by the scenes explicably
 
-    if (m_music_manager.handle_event(event)) {
+    // this global event handlers (atm only one) are special cases, they receive all inputs if they are not handled by the scenes explicitly
+
+    if (m_music_manager.handle_event(m_input_manager, event)) {
         return;
     }
 }
@@ -246,20 +245,20 @@ void Application::render() const {
 
 void Application::initialize() {
 
-    try_load_settings();
     load_resources();
     push_scene(scenes::create_scene(*this, SceneId::MainMenu, ui::FullScreenLayout{ *m_window }));
 
 #ifdef DEBUG_BUILD
     m_fps_text = std::make_unique<ui::Label>(
-            this, "FPS: ?", fonts().get(FontId::Default), Color::white(), std::pair<double, double>{ 0.95, 0.95 },
+            this, "FPS: ?", font_manager().get(FontId::Default), Color::white(),
+            std::pair<double, double>{ 0.95, 0.95 },
             ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
             ui::RelativeLayout{ window(), 0.0, 0.0, 0.1, 0.05 }, false
     );
 #endif
 
 #if defined(_HAVE_DISCORD_SDK)
-    if (m_settings.discord) {
+    if (m_settings_manager.discord()) {
         auto discord_instance = DiscordInstance::initialize();
         if (not discord_instance.has_value()) {
             spdlog::warn(
@@ -272,22 +271,6 @@ void Application::initialize() {
     }
 
 #endif
-}
-
-void Application::try_load_settings() {
-    const std::filesystem::path settings_file = utils::get_root_folder() / settings_filename;
-
-    const auto result = json::try_parse_json_file<Settings>(settings_file);
-
-    if (result.has_value()) {
-        m_settings = result.value();
-    } else {
-        spdlog::error("unable to load settings from \"{}\": {}", settings_filename, result.error());
-        spdlog::warn("applying default settings");
-    }
-
-    // apply settings
-    m_music_manager.set_volume(m_settings.volume);
 }
 
 void Application::load_resources() {

@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include "helper/utils.hpp"
 #include "ui/focusable.hpp"
 #include "ui/widget.hpp"
 
@@ -59,8 +60,8 @@ namespace ui {
                 ) };
             }
 
-            auto item = dynamic_cast<T*>(m_widgets.at(index).get());
-            return item != nullptr;
+            auto item = utils::is_child_class<T>(m_widgets.at(index));
+            return item.has_value();
         }
 
 
@@ -73,12 +74,12 @@ namespace ui {
                 ) };
             }
 
-            auto item = dynamic_cast<T*>(m_widgets.at(index).get());
-            if (item == nullptr) {
+            auto item = utils::is_child_class<T>(m_widgets.at(index));
+            if (not item.has_value()) {
                 throw std::runtime_error("Invalid get of FocusLayout item!");
             }
 
-            return item;
+            return item.value();
         }
 
         template<typename T>
@@ -87,21 +88,25 @@ namespace ui {
                 throw std::runtime_error("Invalid get of FocusLayout item: index out of bound!");
             }
 
-            const auto item = dynamic_cast<T*>(m_widgets.at(index).get());
+            const auto item = utils::is_child_class<T>(m_widgets.at(index).get());
             if (item == nullptr) {
                 throw std::runtime_error("Invalid get of FocusLayout item!");
             }
 
-            return item;
+            return item.value();
         }
 
     private:
-        Widget::EventHandleResult handle_focus_change_button_events(const SDL_Event& event);
+        Widget::EventHandleResult handle_focus_change_button_events(
+                const std::shared_ptr<input::InputManager>& input_manager,
+                const SDL_Event& event
+        );
 
     protected:
         [[nodiscard]] virtual Layout get_layout_for_index(u32 index) = 0;
 
-        Widget::EventHandleResult handle_focus_change_events(const SDL_Event& event, const Window* window);
+        Widget::EventHandleResult
+        handle_focus_change_events(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event);
 
         [[nodiscard]] helper::optional<ui::Widget::InnerState>
         handle_event_result(const helper::optional<ui::Widget::InnerState>& result, Widget* widget);

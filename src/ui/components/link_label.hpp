@@ -1,7 +1,6 @@
 #pragma once
 
 #include "graphics/text.hpp"
-#include "platform/capabilities.hpp"
 #include "ui/hoverable.hpp"
 #include "ui/widget.hpp"
 
@@ -44,7 +43,7 @@ namespace ui {
 
         void render(const ServiceProvider& service_provider) const override;
 
-        [[nodiscard]] Widget::EventHandleResult handle_event(const SDL_Event& event, const Window* window) override;
+        [[nodiscard]] Widget::EventHandleResult handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override;
 
         void on_clicked();
 
