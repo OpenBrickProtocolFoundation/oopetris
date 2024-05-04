@@ -1,6 +1,6 @@
 # taken from https://github.com/cpp-linter/cpp-linter-action/blob/main/demo/.clang-tidy
 ---
-Checks: "clang-diagnostic-*,clang-analyzer-*,bugprone-*,misc-*,performance-*,readability-*,portability-*,modernize-*,cppcoreguidelines-*,-modernize-use-trailing-return-type,-readability-named-parameter,-readability-identifier-length,-misc-include-cleaner,-cppcoreguidelines-avoid-magic-numbers,-readability-magic-numbers,-misc-non-private-member-variables-in-classes,-cppcoreguidelines-non-private-member-variables-in-classes,-cppcoreguidelines-special-member-functions"
+Checks: "clang-diagnostic-*,clang-analyzer-*,bugprone-*,misc-*,performance-*,readability-*,portability-*,modernize-*,cppcoreguidelines-*,-modernize-use-trailing-return-type,-readability-named-parameter,-readability-identifier-length,-misc-include-cleaner,-cppcoreguidelines-avoid-magic-numbers,-readability-magic-numbers,-misc-non-private-member-variables-in-classes,-cppcoreguidelines-non-private-member-variables-in-classes"
 WarningsAsErrors: ""
 HeaderFilterRegex: "oopetris/src/.*"
 AnalyzeTemporaryDtors: false
