@@ -104,7 +104,7 @@ namespace {
 
     const tetrion::StartingParameters starting_parameters = { target_fps, seed, starting_level, 0 };
 
-    AdditionalInfo result{ std::move(input), starting_parameters };
+    AdditionalInfo result{ input, starting_parameters };
 
 
     auto tetrion_header = create_tetrion_headers_for_one(result);

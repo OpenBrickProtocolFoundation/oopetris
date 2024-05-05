@@ -469,3 +469,24 @@ helper::optional<InputEvent> JoystickInput::sdl_event_to_input_event(const SDL_E
 
 
 #endif
+
+
+[[nodiscard]] helper::expected<bool, std::string> input::JoystickSettings::validate() const {
+
+    const std::vector<std::string> to_use{ rotate_left, rotate_right, move_left, move_right,   move_down,
+                                           drop,        hold,         pause,     open_settings };
+
+    return has_unique_members(to_use);
+}
+
+
+std::string json_helper::get_key_from_object(const nlohmann::json& j, const std::string& name) {
+
+    auto context = j.at(name);
+
+    std::string input;
+    context.get_to(input);
+
+
+    return input;
+}

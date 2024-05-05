@@ -121,7 +121,7 @@ input::KeyboardGameInput::sdl_event_to_input_event( // NOLINT(readability-functi
     return helper::nullopt;
 }
 
-input::KeyboardGameInput::KeyboardGameInput(KeyboardSettings settings, EventDispatcher* event_dispatcher)
+input::KeyboardGameInput::KeyboardGameInput(const KeyboardSettings& settings, EventDispatcher* event_dispatcher)
     : GameInput{ GameInputType::Keyboard },
       m_settings{ settings },
       m_event_dispatcher{ event_dispatcher } {
@@ -130,4 +130,31 @@ input::KeyboardGameInput::KeyboardGameInput(KeyboardSettings settings, EventDisp
 
 input::KeyboardGameInput::~KeyboardGameInput() {
     m_event_dispatcher->unregister_listener(this);
+}
+
+
+[[nodiscard]] helper::expected<bool, std::string> input::KeyboardSettings::validate() const {
+
+    const std::vector<SDL::Key> to_use{ rotate_left, rotate_right, move_left, move_right,   move_down,
+                                        drop,        hold,         pause,     open_settings };
+
+    return has_unique_members(to_use);
+}
+
+SDL::Key json_helper::get_key(const nlohmann::json& j, const std::string& name) {
+
+    auto context = j.at(name);
+
+    std::string input;
+    context.get_to(input);
+
+    const auto& value = SDL::Key::from_string(input);
+
+    if (not value.has_value()) {
+        throw nlohmann::json::type_error::create(
+                302, fmt::format("Expected a valid Key for key '{}', but got '{}': {}", name, input, value.error()),
+                &context
+        );
+    }
+    return value.value();
 }

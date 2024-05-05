@@ -4,6 +4,7 @@
 #include "touch_input.hpp"
 
 #include <cmath>
+#include <stdexcept>
 
 void input::TouchGameInput::handle_event(const SDL_Event& event) {
     m_event_buffer.push_back(event);
@@ -30,9 +31,6 @@ input::TouchGameInput::sdl_event_to_input_event( // NOLINT(readability-function-
     // also take into accounts fingerId, since there may be multiple fingers, each finger has it's own saved state
     const SDL_FingerID finger_id = event.tfinger.fingerId;
 
-    // this is used, to get the percentage, since it' all constexpr it's mainly for the developer to not think about percentages but about a pixel range on a certain device, but then it works as expected everywhere
-    constexpr auto screen_h_reference = 2160.0;
-    constexpr auto screen_w_reference = 1080.0;
 
     if (event.type == SDL_FINGERDOWN) {
         if (m_finger_state.contains(finger_id) and m_finger_state.at(finger_id).has_value()) {
@@ -65,10 +63,6 @@ input::TouchGameInput::sdl_event_to_input_event( // NOLINT(readability-function-
         const auto y = event.tfinger.y;
         const auto timestamp = event.tfinger.timestamp;
 
-        constexpr auto threshold_x = 150.0 / screen_w_reference;
-        constexpr auto threshold_y = 400.0 / screen_h_reference;
-        constexpr auto duration_threshold = 500.0;
-        constexpr auto duration_drop_threshold = 200.0;
 
         const auto dx = x - pressed_state.x;
         const auto dy = y - pressed_state.y;
@@ -77,8 +71,11 @@ input::TouchGameInput::sdl_event_to_input_event( // NOLINT(readability-function-
         const auto dx_abs = std::fabs(dx);
         const auto dy_abs = std::fabs(dy);
 
+        const auto threshold_x = m_settings.move_x_threshold;
+        const auto threshold_y = m_settings.move_y_threshold;
+
         m_finger_state.insert_or_assign(finger_id, helper::nullopt);
-        if (duration < duration_threshold) {
+        if (duration < m_settings.rotation_duration_threshold) {
             if (dx_abs < threshold_x and dy_abs < threshold_y) {
                 // tap on the right side of the screen
                 if (x > 0.5) {
@@ -102,7 +99,7 @@ input::TouchGameInput::sdl_event_to_input_event( // NOLINT(readability-function-
         // swipe down
         if (dy > threshold_y and dx_abs < threshold_x) {
             // swipe down to drop
-            if (duration < duration_drop_threshold) {
+            if (duration < m_settings.drop_duration_threshold) {
                 return InputEvent::DropPressed;
             }
             return InputEvent::MoveDownPressed;
@@ -122,6 +119,25 @@ input::TouchGameInput::sdl_event_to_input_event( // NOLINT(readability-function-
 
     return helper::nullopt;
 }
+
+
+[[nodiscard]] helper::expected<bool, std::string> input::TouchSettings::validate() const {
+
+    if (move_x_threshold > 1.0 || move_x_threshold < 0.0) {
+        return helper::unexpected<std::string>{
+            fmt::format("move_x_threshold has to be in range [0,1] but was {}", move_x_threshold)
+        };
+    }
+
+    if (move_y_threshold > 1.0 || move_y_threshold < 0.0) {
+        return helper::unexpected<std::string>{
+            fmt::format("move_y_threshold has to be in range [0,1] but was {}", move_y_threshold)
+        };
+    }
+
+    return true;
+}
+
 
 //TODO:
 /* 

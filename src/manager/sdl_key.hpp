@@ -48,6 +48,7 @@ namespace SDL {
         explicit Key(SDL_KeyCode keycode, const std::vector<Modifier>& modifiers = {});
         explicit Key(const SDL_Keysym& keysym);
 
+        //TODO: also parse modifiers according to some format (E.g "<mod> + <mod> + <key>")
         static helper::expected<Key, std::string>
         from_string(const std::string& value, const std::vector<Modifier>& modifiers = {});
 
@@ -58,7 +59,10 @@ namespace SDL {
 
         [[nodiscard]] bool operator==(const Key& other) const;
 
+        //TODO: also add function, to serialize the modifiers too
         [[nodiscard]] std::string name() const;
+
+        [[nodiscard]] operator std::string() const;
 
     private:
         [[nodiscard]] static helper::expected<SDL_KeyCode, std::string> sdl_keycode_from_string(const std::string& value

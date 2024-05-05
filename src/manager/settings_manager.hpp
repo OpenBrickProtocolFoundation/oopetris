@@ -1,43 +1,39 @@
 #pragma once
 
-
-#include "helper/magic_enum_wrapper.hpp"
-#include "helper/parse_json.hpp"
-#include "helper/platform.hpp"
+#include "input/joystick_input.hpp"
 #include "input/keyboard_input.hpp"
+#include "input/touch_input.hpp"
 #include "manager/service_provider.hpp"
 
 #include <fmt/format.h>
-#include <string>
 #include <variant>
 
+struct Controls {
+private:
+    using Type = std::variant<input::KeyboardSettings, input::JoystickSettings, input::TouchSettings>;
+    Type m_content;
 
-using Controls = std::variant<input::KeyboardSettings>;
-
-inline void to_json(nlohmann::json& j, const Controls& controls) {
-    std::visit(
-            helper::overloaded{
-                    [&](const input::KeyboardSettings& keyboard_controls) {
-                        to_json(j, keyboard_controls);
-                        j["type"] = "keyboard";
-                    },
-            },
-            controls
-    );
-}
-
-inline void from_json(const nlohmann::json& j, Controls& controls) {
-    const auto& type = j.at("type");
-
-    if (type == "keyboard") {
-        input::KeyboardSettings keyboard_controls{};
-        from_json(j, keyboard_controls);
-        controls = keyboard_controls;
-    } else {
-        throw std::runtime_error{ fmt::format("unsupported control type '{}'", to_string(type)) };
+public:
+    // default constructor is need for deserialization
+    Controls() : m_content{} { }
+    template<typename T>
+    explicit Controls(T content) : m_content{ std::move(content) } {
+        //
     }
-}
 
+    template<typename T>
+    Controls& operator=(T&& content) {
+        m_content = std::move(content);
+        return *this;
+    }
+
+    [[nodiscard]] const Type& content() const;
+};
+
+
+void to_json(nlohmann::json& j, const Controls& controls);
+
+void from_json(const nlohmann::json& j, Controls& controls);
 
 namespace detail {
 
@@ -45,13 +41,13 @@ namespace detail {
 
 
     struct Settings {
-        Controls controls;
+        std::vector<Controls> controls;
         float volume{ 0.2f };
         bool discord{ false }; //changing this requires a restart
     };
 
 
-    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Settings, volume, discord)
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Settings, controls, volume, discord)
 
 } // namespace detail
 

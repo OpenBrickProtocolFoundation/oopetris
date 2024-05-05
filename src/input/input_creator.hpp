@@ -34,7 +34,7 @@ namespace tetrion {
 
 namespace input {
 
-    using AdditionalInfo = std::tuple<std::unique_ptr<input::GameInput>, tetrion::StartingParameters>;
+    using AdditionalInfo = std::tuple<std::shared_ptr<input::GameInput>, tetrion::StartingParameters>;
 
     [[nodiscard]] std::vector<input::AdditionalInfo>
     get_game_parameters_for_replay(ServiceProvider* service_provider, const std::filesystem::path& recording_path);

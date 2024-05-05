@@ -1,5 +1,6 @@
 #include "application.hpp"
 #include "helper/errors.hpp"
+#include "helper/magic_enum_wrapper.hpp"
 #include "helper/message_box.hpp"
 #include "helper/sleep.hpp"
 #include "input/input.hpp"

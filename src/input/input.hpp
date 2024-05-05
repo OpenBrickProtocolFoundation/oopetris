@@ -14,6 +14,7 @@
 #include "manager/service_provider.hpp"
 
 
+#include <fmt/format.h>
 #include <memory>
 #include <vector>
 
@@ -94,7 +95,7 @@ namespace input {
 
         [[nodiscard]] helper::BoolWrapper<SpecialRequest> process_special_inputs(const SDL_Event& event);
 
-        [[nodiscard]] std::unique_ptr<input::GameInput> get_game_input(ServiceProvider* service_provider);
+        [[nodiscard]] std::shared_ptr<input::GameInput> get_game_input(ServiceProvider* service_provider);
 
         [[nodiscard]] const std::unique_ptr<input::Input>& get_primary_input();
     };
@@ -103,6 +104,25 @@ namespace input {
     struct InputSettings {
 
         [[nodiscard]] virtual helper::expected<bool, std::string> validate() const;
+
+        template<typename T>
+        [[nodiscard]] helper::expected<bool, std::string> has_unique_members(const std::vector<T>& to_check) const {
+            std::vector<T> already_bound{};
+
+
+            for (const auto single_check : to_check) {
+
+                if (std::find(already_bound.cbegin(), already_bound.cend(), single_check) != already_bound.cend()) {
+                    return helper::unexpected<std::string>{
+                        fmt::format("KeyCode already bound: '{}'", std::string{ single_check })
+                    };
+                }
+
+                already_bound.push_back(single_check);
+            }
+
+            return true;
+        }
     };
 
 
