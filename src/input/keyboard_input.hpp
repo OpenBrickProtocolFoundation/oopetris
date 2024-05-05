@@ -29,20 +29,32 @@ namespace input {
 
 
     //TODO: don't default initialize all settings, but rather provide a static default setting, so that everything has to be set explicitly, or you can use the default explicitly
-    struct KeyboardSettings : InputSettings {
-        SDL::Key rotate_left = SDL::Key{ SDLK_LEFT };
-        SDL::Key rotate_right = SDL::Key{ SDLK_RIGHT };
-        SDL::Key move_left = SDL::Key{ SDLK_a };
-        SDL::Key move_right = SDL::Key{ SDLK_d };
-        SDL::Key move_down = SDL::Key{ SDLK_a };
-        SDL::Key drop = SDL::Key{ SDLK_s };
-        SDL::Key hold = SDL::Key{ SDLK_TAB };
+    struct KeyboardSettings {
+        SDL::Key rotate_left;
+        SDL::Key rotate_right;
+        SDL::Key move_left;
+        SDL::Key move_right;
+        SDL::Key move_down;
+        SDL::Key drop;
+        SDL::Key hold;
 
-        SDL::Key pause = SDL::Key{ SDLK_ESCAPE };
-        SDL::Key open_settings = SDL::Key{ SDLK_e };
+        SDL::Key pause;
+        SDL::Key open_settings;
 
 
-        [[nodiscard]] helper::expected<bool, std::string> validate() const override;
+        [[nodiscard]] helper::expected<bool, std::string> validate() const;
+
+        [[nodiscard]] static KeyboardSettings default_settings() {
+            return KeyboardSettings{ .rotate_left = SDL::Key{ SDLK_LEFT },
+                                     .rotate_right = SDL::Key{ SDLK_RIGHT },
+                                     .move_left = SDL::Key{ SDLK_a },
+                                     .move_right = SDL::Key{ SDLK_d },
+                                     .move_down = SDL::Key{ SDLK_a },
+                                     .drop = SDL::Key{ SDLK_s },
+                                     .hold = SDL::Key{ SDLK_TAB },
+                                     .pause = SDL::Key{ SDLK_ESCAPE },
+                                     .open_settings = SDL::Key{ SDLK_e } };
+        }
     };
 
 
@@ -72,23 +84,6 @@ namespace input {
 } // namespace input
 
 
-inline void to_json(nlohmann::json& j, const input::KeyboardSettings& settings) {
-    j = nlohmann::json{
-        { "rotate_left", settings.rotate_left.name() },
-        { "rotate_right", settings.rotate_right.name() },
-        { "move_left", settings.move_left.name() },
-        { "move_right", settings.move_right.name() },
-        { "move_down", settings.move_down.name() },
-        { "drop", settings.drop.name() },
-        { "hold", settings.hold.name() },
-        {
-         "menu", nlohmann::json{
-                        { "pause", settings.pause.name() },
-                        { "open_settings", settings.open_settings.name() },
-                }, }
-    };
-}
-
 namespace json_helper {
 
 
@@ -96,29 +91,65 @@ namespace json_helper {
 
 } // namespace json_helper
 
-inline void from_json(const nlohmann::json& j, input::KeyboardSettings& settings) {
 
-    json::check_for_no_additional_keys(
-            j, { "type", "rotate_left", "rotate_right", "move_left", "move_right", "move_down", "drop", "hold", "menu" }
-    );
+namespace nlohmann {
+    template<>
+    struct adl_serializer<input::KeyboardSettings> {
+        static input::KeyboardSettings from_json(const json& j) {
 
-    settings.rotate_left = json_helper::get_key(j, "rotate_left");
-    settings.rotate_right = json_helper::get_key(j, "rotate_right");
-    settings.move_left = json_helper::get_key(j, "move_left");
-    settings.move_right = json_helper::get_key(j, "move_right");
-    settings.move_down = json_helper::get_key(j, "move_down");
-    settings.drop = json_helper::get_key(j, "drop");
-    settings.hold = json_helper::get_key(j, "hold");
+            ::json::check_for_no_additional_keys(
+                    j, { "type", "rotate_left", "rotate_right", "move_left", "move_right", "move_down", "drop", "hold",
+                         "menu" }
+            );
 
-    const auto& menu = j.at("menu");
+            const auto rotate_left = json_helper::get_key(j, "rotate_left");
+            const auto rotate_right = json_helper::get_key(j, "rotate_right");
+            const auto move_left = json_helper::get_key(j, "move_left");
+            const auto move_right = json_helper::get_key(j, "move_right");
+            const auto move_down = json_helper::get_key(j, "move_down");
+            const auto drop = json_helper::get_key(j, "drop");
+            const auto hold = json_helper::get_key(j, "hold");
 
-    json::check_for_no_additional_keys(menu, { "pause", "open_settings" });
+            const auto& menu = j.at("menu");
 
-    settings.pause = json_helper::get_key(menu, "pause");
-    settings.open_settings = json_helper::get_key(menu, "open_settings");
+            ::json::check_for_no_additional_keys(menu, { "pause", "open_settings" });
 
-    const auto is_valid = settings.validate();
-    if (not is_valid.has_value()) {
-        throw std::runtime_error(is_valid.error());
-    }
-}
+            const auto pause = json_helper::get_key(menu, "pause");
+            const auto open_settings = json_helper::get_key(menu, "open_settings");
+
+            auto settings = input::KeyboardSettings{ .rotate_left = rotate_left,
+                                                     .rotate_right = rotate_right,
+                                                     .move_left = move_left,
+                                                     .move_right = move_right,
+                                                     .move_down = move_down,
+                                                     .drop = drop,
+                                                     .hold = hold,
+                                                     .pause = pause,
+                                                     .open_settings = open_settings };
+
+            const auto is_valid = settings.validate();
+            if (not is_valid.has_value()) {
+                throw std::runtime_error(is_valid.error());
+            }
+
+            return settings;
+        }
+
+        static void to_json(json& j, const input::KeyboardSettings& settings) {
+            j = nlohmann::json{
+                { "rotate_left", settings.rotate_left.name() },
+                { "rotate_right", settings.rotate_right.name() },
+                { "move_left", settings.move_left.name() },
+                { "move_right", settings.move_right.name() },
+                { "move_down", settings.move_down.name() },
+                { "drop", settings.drop.name() },
+                { "hold", settings.hold.name() },
+                {
+                 "menu", nlohmann::json{
+                                { "pause", settings.pause.name() },
+                                { "open_settings", settings.open_settings.name() },
+                        }, }
+            };
+        }
+    };
+} // namespace nlohmann

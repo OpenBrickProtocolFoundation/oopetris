@@ -26,15 +26,22 @@ namespace input {
     };
 
 
-    struct TouchSettings : InputSettings {
-        double move_x_threshold{ 150.0 / 2160.0 };
-        double move_y_threshold{ 400.0 / 1080.0 };
+    struct TouchSettings {
+        double move_x_threshold;
+        double move_y_threshold;
 
         // in ms
-        u32 rotation_duration_threshold{ 500 };
-        u32 drop_duration_threshold{ 200 };
+        u32 rotation_duration_threshold;
+        u32 drop_duration_threshold;
 
-        [[nodiscard]] helper::expected<bool, std::string> validate() const override;
+        [[nodiscard]] helper::expected<bool, std::string> validate() const;
+
+        [[nodiscard]] static TouchSettings default_settings() {
+            return TouchSettings{ .move_x_threshold = 150.0 / 2160.0,
+                                  .move_y_threshold = 400.0 / 1080.0,
+                                  .rotation_duration_threshold = 500,
+                                  .drop_duration_threshold = 200 };
+        }
     };
 
     struct PressedState {
@@ -78,15 +85,6 @@ namespace input {
 
 } // namespace input
 
-
-inline void to_json(nlohmann::json& j, const input::TouchSettings& settings) {
-    j = nlohmann::json{
-        {            "move_x_threshold",            settings.move_x_threshold },
-        {            "move_y_threshold",            settings.move_y_threshold },
-        { "rotation_duration_threshold", settings.rotation_duration_threshold },
-        {     "drop_duration_threshold",     settings.drop_duration_threshold },
-    };
-}
 
 namespace json_helper {
 
@@ -146,30 +144,55 @@ namespace json_helper {
 
 } // namespace json_helper
 
-inline void from_json(const nlohmann::json& j, input::TouchSettings& settings) {
 
-    json::check_for_no_additional_keys(
-            j,
-            {
-                    "type",
-                    "move_x_threshold",
-                    "move_y_threshold",
-                    "rotation_duration_threshold",
-                    "drop_duration_threshold",
+namespace nlohmann {
+    template<>
+    struct adl_serializer<input::TouchSettings> {
+        static input::TouchSettings from_json(const json& j) {
+
+
+            ::json::check_for_no_additional_keys(
+                    j,
+                    {
+                            "type",
+                            "move_x_threshold",
+                            "move_y_threshold",
+                            "rotation_duration_threshold",
+                            "drop_duration_threshold",
+                    }
+            );
+
+            const auto move_x_threshold = json_helper::get_number<double>(j, "move_x_threshold");
+            const auto move_y_threshold = json_helper::get_number<double>(j, "move_y_threshold");
+
+            const auto rotation_duration_threshold = json_helper::get_number<u32>(j, "rotation_duration_threshold");
+            const auto drop_duration_threshold = json_helper::get_number<u32>(j, "drop_duration_threshold");
+
+            auto settings = input::TouchSettings{ .move_x_threshold = move_x_threshold,
+                                                  .move_y_threshold = move_y_threshold,
+                                                  .rotation_duration_threshold = rotation_duration_threshold,
+                                                  .drop_duration_threshold = drop_duration_threshold };
+
+
+            const auto is_valid = settings.validate();
+            if (not is_valid.has_value()) {
+                throw std::runtime_error(is_valid.error());
             }
-    );
 
-    settings.move_x_threshold = json_helper::get_number<double>(j, "move_x_threshold");
-    settings.move_y_threshold = json_helper::get_number<double>(j, "move_y_threshold");
-    settings.rotation_duration_threshold = json_helper::get_number<u32>(j, "rotation_duration_threshold");
-    settings.drop_duration_threshold = json_helper::get_number<u32>(j, "drop_duration_threshold");
+            return settings;
+        }
 
+        static void to_json(json& j, const input::TouchSettings& settings) {
 
-    const auto is_valid = settings.validate();
-    if (not is_valid.has_value()) {
-        throw std::runtime_error(is_valid.error());
-    }
-}
+            j = nlohmann::json{
+                {            "move_x_threshold",            settings.move_x_threshold },
+                {            "move_y_threshold",            settings.move_y_threshold },
+                { "rotation_duration_threshold", settings.rotation_duration_threshold },
+                {     "drop_duration_threshold",     settings.drop_duration_threshold },
+            };
+        }
+    };
+} // namespace nlohmann
 
 
 //TODO:

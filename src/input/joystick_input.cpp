@@ -6,15 +6,23 @@
 #include "helper/optional.hpp"
 #include "input/input.hpp"
 
+#include <array>
 #include <fmt/format.h>
 #include <fmt/ranges.h>
 #include <spdlog/spdlog.h>
 
 
-joystick::GUID::GUID() : m_guid{} { }
 joystick::GUID::GUID(const SDL_GUID& data) : m_guid{} {
     std::copy(std::begin(data.data), std::end(data.data), std::begin(m_guid));
 }
+
+joystick::GUID::GUID(const ArrayType& data) : m_guid{ data } { }
+
+
+joystick::GUID joystick::GUID::zero() {
+    return joystick::GUID{ joystick::GUID::ArrayType{} };
+}
+
 
 [[nodiscard]] bool joystick::GUID::operator==(const GUID& other) const {
     return this->m_guid == other.m_guid;
@@ -92,7 +100,7 @@ input::JoystickInput::get_by_device_index(int device_index) {
 
     const auto guid = joystick::GUID{ SDL_JoystickGetGUID(joystick) };
 
-    if (guid == joystick::GUID{}) {
+    if (guid == joystick::GUID::zero()) {
         return helper::unexpected<std::string>{ fmt::format("Failed to get joystick GUID: {}", SDL_GetError()) };
     }
 
@@ -476,7 +484,7 @@ helper::optional<InputEvent> JoystickInput::sdl_event_to_input_event(const SDL_E
     const std::vector<std::string> to_use{ rotate_left, rotate_right, move_left, move_right,   move_down,
                                            drop,        hold,         pause,     open_settings };
 
-    return has_unique_members(to_use);
+    return input::InputSettings::has_unique_members(to_use);
 }
 
 

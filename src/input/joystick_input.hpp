@@ -14,13 +14,16 @@
 namespace joystick {
     struct GUID {
     private:
-        std::array<u8, 16> m_guid;
+        using ArrayType = std::array<u8, 16>;
+        ArrayType m_guid;
 
     public:
-        GUID();
         GUID(const SDL_GUID& data);
+        GUID(const ArrayType& data);
 
-        static helper::expected<GUID, std::string> from_string(const std::string& value);
+        [[nodiscard]] static GUID zero();
+
+        [[nodiscard]] static helper::expected<GUID, std::string> from_string(const std::string& value);
 
         [[nodiscard]] bool operator==(const GUID& other) const;
 
@@ -85,22 +88,22 @@ namespace input {
     };
 
     //using std::string in here, since we only know, if these are valid joystick button names, after parsing the GUID and than seeing if we support that joystick and than using the string mappings for that specific joystick
-    struct JoystickSettings : InputSettings {
+    struct JoystickSettings {
         JoystickIdentification identification;
 
-        std::string rotate_left{};
-        std::string rotate_right{};
-        std::string move_left{};
-        std::string move_right{};
-        std::string move_down{};
-        std::string drop{};
-        std::string hold{};
+        std::string rotate_left;
+        std::string rotate_right;
+        std::string move_left;
+        std::string move_right;
+        std::string move_down;
+        std::string drop;
+        std::string hold;
 
-        std::string pause{};
-        std::string open_settings{};
+        std::string pause;
+        std::string open_settings;
 
 
-        [[nodiscard]] helper::expected<bool, std::string> validate() const override;
+        [[nodiscard]] helper::expected<bool, std::string> validate() const;
     };
 
 
@@ -171,36 +174,6 @@ namespace input {
 } // namespace input
 
 
-inline void to_json(nlohmann::json& j, const input::JoystickIdentification& identification) {
-
-    j = nlohmann::json{
-        { "guid", std::string{ identification.guid } },
-    };
-}
-
-
-inline void to_json(nlohmann::json& j, const input::JoystickSettings& settings) {
-
-    auto identification = nlohmann::json{};
-    to_json(identification, settings.identification);
-
-    j = nlohmann::json{
-        { "identification", identification },
-        { "rotate_left", settings.rotate_left },
-        { "rotate_right", settings.rotate_right },
-        { "move_left", settings.move_left },
-        { "move_right", settings.move_right },
-        { "move_down", settings.move_down },
-        { "drop", settings.drop },
-        { "hold", settings.hold },
-        {
-         "menu", nlohmann::json{
-                        { "pause", settings.pause },
-                        { "open_settings", settings.open_settings },
-                }, }
-    };
-}
-
 namespace json_helper {
 
 
@@ -209,59 +182,106 @@ namespace json_helper {
 } // namespace json_helper
 
 
-inline void from_json(const nlohmann::json& j, input::JoystickIdentification& identification) {
+namespace nlohmann {
 
-    json::check_for_no_additional_keys(j, { "guid" });
+    template<>
+    struct adl_serializer<input::JoystickIdentification> {
+        static input::JoystickIdentification from_json(const json& j) {
 
-    auto context = j.at("guid");
+            ::json::check_for_no_additional_keys(j, { "guid" });
 
-    std::string input;
-    context.get_to(input);
+            auto context = j.at("guid");
 
-    const auto& value = joystick::GUID::from_string(input);
+            std::string input;
+            context.get_to(input);
 
-    if (not value.has_value()) {
-        throw nlohmann::json::type_error::create(
-                302, fmt::format("Expected a valid GUID but got '{}': {}", input, value.error()), &context
-        );
-    }
+            const auto& value = joystick::GUID::from_string(input);
 
-    identification.guid = value.value();
-}
+            if (not value.has_value()) {
+                throw nlohmann::json::type_error::create(
+                        302, fmt::format("Expected a valid GUID but got '{}': {}", input, value.error()), &context
+                );
+            }
 
+            return input::JoystickIdentification{ .guid = value.value() };
+        }
 
-inline void from_json(const nlohmann::json& j, input::JoystickSettings& settings) {
+        static void to_json(json& j, const input::JoystickIdentification& identification) {
+            j = nlohmann::json{
+                { "guid", std::string{ identification.guid } },
+            };
+        }
+    };
 
-    json::check_for_no_additional_keys(
-            j, { "type", "identification", "rotate_left", "rotate_right", "move_left", "move_right", "move_down",
-                 "drop", "hold", "menu" }
-    );
+    template<>
+    struct adl_serializer<input::JoystickSettings> {
+        static input::JoystickSettings from_json(const json& j) {
 
-    input::JoystickIdentification identification{ joystick::GUID{} };
+            ::json::check_for_no_additional_keys(
+                    j, { "type", "identification", "rotate_left", "rotate_right", "move_left", "move_right",
+                         "move_down", "drop", "hold", "menu" }
+            );
 
-    from_json(j.at("identification"), identification);
-    settings.identification = std::move(identification);
+            input::JoystickIdentification identification =
+                    adl_serializer<input::JoystickIdentification>::from_json(j.at("identification"));
 
-    settings.rotate_left = json_helper::get_key_from_object(j, "rotate_left");
-    settings.rotate_right = json_helper::get_key_from_object(j, "rotate_right");
-    settings.move_left = json_helper::get_key_from_object(j, "move_left");
-    settings.move_right = json_helper::get_key_from_object(j, "move_right");
-    settings.move_down = json_helper::get_key_from_object(j, "move_down");
-    settings.drop = json_helper::get_key_from_object(j, "drop");
-    settings.hold = json_helper::get_key_from_object(j, "hold");
+            const auto rotate_left = json_helper::get_key_from_object(j, "rotate_left");
+            const auto rotate_right = json_helper::get_key_from_object(j, "rotate_right");
+            const auto move_left = json_helper::get_key_from_object(j, "move_left");
+            const auto move_right = json_helper::get_key_from_object(j, "move_right");
+            const auto move_down = json_helper::get_key_from_object(j, "move_down");
+            const auto drop = json_helper::get_key_from_object(j, "drop");
+            const auto hold = json_helper::get_key_from_object(j, "hold");
 
-    const auto& menu = j.at("menu");
+            const auto& menu = j.at("menu");
 
-    json::check_for_no_additional_keys(menu, { "pause", "open_settings" });
+            ::json::check_for_no_additional_keys(menu, { "pause", "open_settings" });
 
-    settings.pause = json_helper::get_key_from_object(menu, "pause");
-    settings.open_settings = json_helper::get_key_from_object(menu, "open_settings");
+            const auto pause = json_helper::get_key_from_object(menu, "pause");
+            const auto open_settings = json_helper::get_key_from_object(menu, "open_settings");
 
-    const auto is_valid = settings.validate();
-    if (not is_valid.has_value()) {
-        throw std::runtime_error(is_valid.error());
-    }
-}
+            auto settings = input::JoystickSettings{ .identification = identification,
+                                                     .rotate_left = rotate_left,
+                                                     .rotate_right = rotate_right,
+                                                     .move_left = move_left,
+                                                     .move_right = move_right,
+                                                     .move_down = move_down,
+                                                     .drop = drop,
+                                                     .hold = hold,
+                                                     .pause = pause,
+                                                     .open_settings = open_settings };
+
+            const auto is_valid = settings.validate();
+            if (not is_valid.has_value()) {
+                throw std::runtime_error(is_valid.error());
+            }
+
+            return settings;
+        }
+
+        static void to_json(json& j, const input::JoystickSettings& settings) {
+
+            auto identification = nlohmann::json{};
+            adl_serializer<input::JoystickIdentification>::to_json(identification, settings.identification);
+
+            j = nlohmann::json{
+                { "identification", identification },
+                { "rotate_left", settings.rotate_left },
+                { "rotate_right", settings.rotate_right },
+                { "move_left", settings.move_left },
+                { "move_right", settings.move_right },
+                { "move_down", settings.move_down },
+                { "drop", settings.drop },
+                { "hold", settings.hold },
+                {
+                 "menu", nlohmann::json{
+                                { "pause", settings.pause },
+                                { "open_settings", settings.open_settings },
+                        }, }
+            };
+        }
+    };
+} // namespace nlohmann
 
 
 //TODO:

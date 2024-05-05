@@ -8,32 +8,45 @@
 #include <fmt/format.h>
 #include <variant>
 
-struct Controls {
-private:
-    using Type = std::variant<input::KeyboardSettings, input::JoystickSettings, input::TouchSettings>;
-    Type m_content;
+using Controls = std::variant<input::KeyboardSettings, input::JoystickSettings, input::TouchSettings>;
 
-public:
-    // default constructor is need for deserialization
-    Controls() : m_content{} { }
-    template<typename T>
-    explicit Controls(T content) : m_content{ std::move(content) } {
-        //
-    }
+namespace nlohmann {
+    template<>
+    struct adl_serializer<Controls> {
+        static Controls from_json(const json& j) {
+            const auto& type = j.at("type");
 
-    template<typename T>
-    Controls& operator=(T&& content) {
-        m_content = std::move(content);
-        return *this;
-    }
+            if (type == "keyboard") {
+                return Controls{ nlohmann::adl_serializer<input::KeyboardSettings>::from_json(j) };
+            } else if (type == "joystick") {
+                return Controls{ nlohmann::adl_serializer<input::JoystickSettings>::from_json(j) };
+            } else if (type == "touch") {
+                return Controls{ nlohmann::adl_serializer<input::TouchSettings>::from_json(j) };
+            } else {
+                throw std::runtime_error{ fmt::format("unsupported control type '{}'", to_string(type)) };
+            }
+        }
 
-    [[nodiscard]] const Type& content() const;
-};
+        static void to_json(json& j, Controls controls) {
+            std::visit(
+                    helper::overloaded{ [&](const input::KeyboardSettings& keyboard_settings) {
+                                           to_json(j, keyboard_settings);
+                                           j["type"] = "keyboard";
+                                       },
+                                        [&](const input::JoystickSettings& joystick_settings) {
+                                            to_json(j, joystick_settings);
+                                            j["type"] = "joystick";
+                                        },
+                                        [&](const input::TouchSettings& touch_settings) {
+                                            to_json(j, touch_settings);
+                                            j["type"] = "touch";
+                                        } },
+                    controls
+            );
+        }
+    };
+} // namespace nlohmann
 
-
-void to_json(nlohmann::json& j, const Controls& controls);
-
-void from_json(const nlohmann::json& j, Controls& controls);
 
 namespace detail {
 

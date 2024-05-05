@@ -1,5 +1,6 @@
 #include "keyboard_input.hpp"
 #include "SDL_keycode.h"
+#include "input/input.hpp"
 
 
 input::KeyboardInput::KeyboardInput() : input::Input{ "keyboard", InputType::Keyboard } { }
@@ -138,7 +139,7 @@ input::KeyboardGameInput::~KeyboardGameInput() {
     const std::vector<SDL::Key> to_use{ rotate_left, rotate_right, move_left, move_right,   move_down,
                                         drop,        hold,         pause,     open_settings };
 
-    return has_unique_members(to_use);
+    return input::InputSettings::has_unique_members(to_use);
 }
 
 SDL::Key json_helper::get_key(const nlohmann::json& j, const std::string& name) {

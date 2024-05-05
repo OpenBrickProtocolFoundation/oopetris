@@ -103,10 +103,8 @@ namespace input {
 
     struct InputSettings {
 
-        [[nodiscard]] virtual helper::expected<bool, std::string> validate() const;
-
         template<typename T>
-        [[nodiscard]] helper::expected<bool, std::string> has_unique_members(const std::vector<T>& to_check) const {
+        [[nodiscard]] static helper::expected<bool, std::string> has_unique_members(const std::vector<T>& to_check) {
             std::vector<T> already_bound{};
 
 

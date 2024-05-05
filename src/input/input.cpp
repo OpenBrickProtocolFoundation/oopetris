@@ -142,7 +142,7 @@ input::InputManager::~InputManager() = default;
                             auto input = std::make_shared<TouchGameInput>(touch_settings, event_dispatcher);
                             return input;
                         } },
-                control.content()
+                control
         );
     }
 
