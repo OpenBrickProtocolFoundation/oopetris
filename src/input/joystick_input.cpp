@@ -4,6 +4,7 @@
 #include "SDL_stdinc.h"
 #include "helper/expected.hpp"
 #include "helper/optional.hpp"
+#include "helper/utils.hpp"
 #include "input/input.hpp"
 
 #include <array>
@@ -116,7 +117,7 @@ input::JoystickInput::get_by_device_index(int device_index) {
 }
 
 
-input::JoyStickInputManager::JoyStickInputManager() {
+void input::JoyStickInputManager::discover_devices(std::vector<std::unique_ptr<Input>>& inputs) {
 
 
     //initialize joystick input, this needs to call some sdl things
@@ -159,7 +160,7 @@ input::JoyStickInputManager::JoyStickInputManager() {
 
         auto joystick = JoystickInput::get_by_device_index(i);
         if (joystick.has_value()) {
-            m_inputs.push_back(std::move(joystick.value()));
+            inputs.push_back(std::move(joystick.value()));
         } else {
             spdlog::warn("Failed to configure joystick: {}", joystick.error());
         }
@@ -167,46 +168,17 @@ input::JoyStickInputManager::JoyStickInputManager() {
 }
 
 
-[[nodiscard]] const std::vector<std::unique_ptr<input::JoystickInput>>& input::JoyStickInputManager::inputs() const {
-    return m_inputs;
-}
-
-
-[[nodiscard]] helper::optional<input::NavigationEvent> input::JoyStickInputManager::get_navigation_event(
-        const SDL_Event& event
-) const {
-    for (const auto& input : m_inputs) {
-
-        if (const auto navigation_event = input->get_navigation_event(event); navigation_event.has_value()) {
-            return navigation_event;
-        }
-    }
-
-    return helper::nullopt;
-}
-
-[[nodiscard]] helper::optional<input::PointerEventHelper> input::JoyStickInputManager::get_pointer_event(
-        const SDL_Event& event
-) const {
-    for (const auto& input : m_inputs) {
-        if (const auto pointer_input = utils::is_child_class<input::PointerInput>(input); pointer_input.has_value()) {
-            if (const auto pointer_event = pointer_input.value()->get_pointer_event(event); pointer_event.has_value()) {
-                return pointer_event;
-            }
-        }
-    }
-
-    return helper::nullopt;
-}
-
-[[nodiscard]] bool input::JoyStickInputManager::process_special_inputs(const SDL_Event& event) {
+[[nodiscard]] bool input::JoyStickInputManager::process_special_inputs(
+        const SDL_Event& event,
+        std::vector<std::unique_ptr<Input>>& inputs
+) {
 
     switch (event.type) {
         case SDL_JOYDEVICEADDED: {
             const auto device_id = event.jdevice.which;
             auto joystick = JoystickInput::get_by_device_index(device_id);
             if (joystick.has_value()) {
-                m_inputs.push_back(std::move(joystick.value()));
+                inputs.push_back(std::move(joystick.value()));
             } else {
                 spdlog::warn("Failed to add newly added joystick: {}", joystick.error());
             }
@@ -214,11 +186,15 @@ input::JoyStickInputManager::JoyStickInputManager() {
         }
         case SDL_JOYDEVICEREMOVED: {
             const auto instance_id = event.jdevice.which;
-            for (auto it = m_inputs.cbegin(); it != m_inputs.end(); it++) {
+            for (auto it = inputs.cbegin(); it != inputs.end(); it++) {
 
-                if ((*it)->instance_id() == instance_id) {
-                    m_inputs.erase(it);
-                    return true;
+                if (const auto joystick_input = utils::is_child_class<input::JoystickInput>(*it);
+                    joystick_input.has_value()) {
+
+                    if (joystick_input.value()->instance_id() == instance_id) {
+                        inputs.erase(it);
+                        return true;
+                    }
                 }
             }
 

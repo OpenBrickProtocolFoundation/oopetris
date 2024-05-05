@@ -64,18 +64,9 @@ namespace input {
     // see: https://github.com/mdqinc/SDL_GameControllerDB?tab=readme-ov-file
 
     struct JoyStickInputManager {
-    private:
-        std::vector<std::unique_ptr<JoystickInput>> m_inputs{};
-
-    public:
-        explicit JoyStickInputManager();
-        [[nodiscard]] const std::vector<std::unique_ptr<JoystickInput>>& inputs() const;
-
-        [[nodiscard]] helper::optional<NavigationEvent> get_navigation_event(const SDL_Event& event) const;
-
-        [[nodiscard]] helper::optional<PointerEventHelper> get_pointer_event(const SDL_Event& event) const;
-
-        [[nodiscard]] bool process_special_inputs(const SDL_Event& event);
+        static void discover_devices(std::vector<std::unique_ptr<Input>>& inputs);
+        [[nodiscard]] static bool
+        process_special_inputs(const SDL_Event& event, std::vector<std::unique_ptr<Input>>& inputs);
     };
 
 

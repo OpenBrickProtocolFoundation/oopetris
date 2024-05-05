@@ -49,7 +49,7 @@ input::InputManager::InputManager(const std::shared_ptr<Window>& window) {
     m_inputs.push_back(std::make_unique<input::TouchInput>(window));
 
     //initialize joystick input manager
-    m_joystick_manager = std::make_unique<JoyStickInputManager>();
+    input::JoyStickInputManager::discover_devices(m_inputs);
 }
 
 input::InputManager::~InputManager() = default;
@@ -120,7 +120,7 @@ input::InputManager::~InputManager() = default;
     }
 
 
-    const auto is_joystick_special_input = m_joystick_manager->process_special_inputs(event);
+    const auto is_joystick_special_input = input::JoyStickInputManager::process_special_inputs(event, m_inputs);
 
     if (is_joystick_special_input) {
         return { true, SpecialRequest::InputsChanged };

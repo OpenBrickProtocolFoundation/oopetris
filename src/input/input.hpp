@@ -74,13 +74,8 @@ namespace input {
         [[nodiscard]] virtual SDL_Event offset_pointer_event(const SDL_Event& event, const shapes::IPoint& point) const = 0;
     };
 
-    //forward declaration
-    struct JoyStickInputManager;
-
     struct InputManager {
     private:
-        std::unique_ptr<JoyStickInputManager> m_joystick_manager;
-
         std::vector<std::unique_ptr<Input>> m_inputs{};
 
     public:
