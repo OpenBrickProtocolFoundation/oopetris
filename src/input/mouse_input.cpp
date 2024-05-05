@@ -3,6 +3,29 @@
 #include "mouse_input.hpp"
 
 
+[[nodiscard]] SDL_Event input::MouseInput::offset_pointer_event(const SDL_Event& event, const shapes::IPoint& point)
+        const {
+
+    auto new_event = event;
+
+    switch (event.type) {
+        case SDL_MOUSEMOTION:
+            new_event.motion.x = event.motion.x + point.x;
+            new_event.motion.y = event.motion.y + point.y;
+            break;
+        case SDL_MOUSEBUTTONDOWN:
+        case SDL_MOUSEBUTTONUP:
+            new_event.button.x = event.button.x + point.x;
+            new_event.button.y = event.button.y + point.y;
+            break;
+        default:
+            throw std::runtime_error("Tried to offset event, that is no pointer event: in Mouse Input");
+    }
+
+    return new_event;
+}
+
+
 //TODO:
 /* 
 [[nodiscard]] bool utils::event_is_click_event(const SDL_Event& event, CrossPlatformClickEvent click_type) {

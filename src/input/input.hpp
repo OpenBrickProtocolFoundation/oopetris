@@ -62,8 +62,6 @@ namespace input {
 
         [[nodiscard]] bool is_in(const shapes::IRect& rect) const;
 
-        [[nodiscard]] SDL_Event offset_raw(const SDL_Event& event, const shapes::IPoint& rect) const;
-
         [[nodiscard]] bool operator==(PointerEvent event) const;
     };
 
@@ -72,6 +70,8 @@ namespace input {
         PointerInput(const std::string& name);
 
         [[nodiscard]] virtual helper::optional<PointerEventHelper> get_pointer_event(const SDL_Event& event) const = 0;
+
+        [[nodiscard]] virtual SDL_Event offset_pointer_event(const SDL_Event& event, const shapes::IPoint& point) const = 0;
     };
 
     //forward declaration
@@ -92,6 +92,15 @@ namespace input {
         [[nodiscard]] helper::optional<NavigationEvent> get_navigation_event(const SDL_Event& event) const;
 
         [[nodiscard]] helper::optional<PointerEventHelper> get_pointer_event(const SDL_Event& event) const;
+
+        /**
+        * @brief Offsets a pointer event, only safe to call, if get_pointer_event returns a non null optional
+        * 
+        * @param event the original SDL Event
+        * @param point the point to offset it by
+        * @return SDL_Event which has the correct offset
+        */
+        [[nodiscard]] SDL_Event offset_pointer_event(const SDL_Event& event, const shapes::IPoint& point) const;
 
         [[nodiscard]] helper::BoolWrapper<SpecialRequest> process_special_inputs(const SDL_Event& event);
 

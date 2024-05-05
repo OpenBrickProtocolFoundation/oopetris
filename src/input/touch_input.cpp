@@ -139,6 +139,29 @@ input::TouchGameInput::sdl_event_to_input_event( // NOLINT(readability-function-
 }
 
 
+[[nodiscard]] SDL_Event input::TouchInput::offset_pointer_event(const SDL_Event& event, const shapes::IPoint& point)
+        const {
+
+
+    auto new_event = event;
+
+    if (event.type != SDL_FINGERMOTION and event.type != SDL_FINGERDOWN and event.type != SDL_FINGERUP) {
+        throw std::runtime_error("Tried to offset event, that is no pointer event: in Touch Input");
+    }
+
+
+    const double x_percent = event.tfinger.x;
+    const double y_percent = event.tfinger.y;
+
+    const auto window_size = m_window->size();
+
+    new_event.tfinger.x = x_percent + static_cast<double>(point.x) / static_cast<double>(window_size.x);
+    new_event.tfinger.y = y_percent + static_cast<double>(point.y) / static_cast<double>(window_size.y);
+
+    return new_event;
+}
+
+
 //TODO:
 /* 
 [[nodiscard]] bool utils::event_is_action(const SDL_Event& event, const CrossPlatformAction action) {

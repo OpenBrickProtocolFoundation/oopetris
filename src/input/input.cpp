@@ -9,6 +9,7 @@
 #include <limits>
 #include <memory>
 #include <spdlog/spdlog.h>
+#include <stdexcept>
 
 
 [[nodiscard]] bool input::PointerEventHelper::is_in(const shapes::URect& rect) const {
@@ -82,6 +83,20 @@ input::InputManager::~InputManager() = default;
     }
 
     return helper::nullopt;
+}
+
+
+[[nodiscard]] SDL_Event input::InputManager::offset_pointer_event(const SDL_Event& event, const shapes::IPoint& point)
+        const {
+    for (const auto& input : m_inputs) {
+        if (const auto pointer_input = utils::is_child_class<input::PointerInput>(input); pointer_input.has_value()) {
+            if (const auto pointer_event = pointer_input.value()->get_pointer_event(event); pointer_event.has_value()) {
+                return pointer_input.value()->offset_pointer_event(event, point);
+            }
+        }
+    }
+
+    throw std::runtime_error("Tried to offset event, that is no pointer event");
 }
 
 

@@ -201,7 +201,7 @@ ui::Widget::EventHandleResult ui::ScrollLayout::handle_event( // NOLINT(readabil
             const auto& offset_rect = (layout_rect.cast<i32>()) >> offset_distance;
 
             if (not handled and pointer_event->is_in(main_rect) and pointer_event->is_in(offset_rect)) {
-                const auto offset_event = pointer_event.value().offset_raw(event, -offset_distance);
+                const auto offset_event = input_manager->offset_pointer_event(event, -offset_distance);
                 if (const auto event_result = widget->handle_event(input_manager, offset_event); event_result) {
                     handled = { true, handle_event_result(event_result.get_additional(), widget.get()) };
                     continue;
