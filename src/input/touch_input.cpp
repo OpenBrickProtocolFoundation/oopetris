@@ -4,6 +4,8 @@
 #include "touch_input.hpp"
 
 #include <cmath>
+#include <memory>
+#include <spdlog/spdlog.h>
 #include <stdexcept>
 
 void input::TouchGameInput::handle_event(const SDL_Event& event) {
@@ -121,6 +123,36 @@ input::TouchGameInput::sdl_event_to_input_event( // NOLINT(readability-function-
 }
 
 
+input::TouchInput::TouchInput(const std::shared_ptr<Window>& window, SDL_TouchID id, const std::string& name)
+    : PointerInput{ name },
+      m_window{ window },
+      m_id{ id } { }
+
+
+[[nodiscard]] helper::expected<std::unique_ptr<input::TouchInput>, std::string>
+input::TouchInput::get_by_device_index(const std::shared_ptr<Window>& window, int device_index) {
+
+
+    const auto touch_id = SDL_GetTouchDevice(device_index);
+
+    if (touch_id <= 0) {
+        return helper::unexpected<std::string>{
+            fmt::format("Failed to get touch id at device index {}: {}", device_index, SDL_GetError())
+        };
+    }
+
+
+    std::string name = "unknown name";
+    const auto* char_name = SDL_GetTouchName(device_index);
+
+    if (char_name != nullptr) {
+        name = char_name;
+    }
+
+    return std::make_unique<TouchInput>(window, touch_id, name);
+}
+
+
 [[nodiscard]] helper::expected<bool, std::string> input::TouchSettings::validate() const {
 
     if (move_x_threshold > 1.0 || move_x_threshold < 0.0) {
@@ -159,6 +191,31 @@ input::TouchGameInput::sdl_event_to_input_event( // NOLINT(readability-function-
     new_event.tfinger.y = y_percent + static_cast<double>(point.y) / static_cast<double>(window_size.y);
 
     return new_event;
+}
+
+
+void input::TouchInputManager::discover_devices(
+        std::vector<std::unique_ptr<Input>>& inputs,
+        const std::shared_ptr<Window>& window
+) {
+
+
+    const auto num_of_touch_devices = SDL_GetNumTouchDevices();
+
+    if (num_of_touch_devices < 0) {
+        spdlog::warn("Failed to get number of touch devices: {}", SDL_GetError());
+        return;
+    }
+
+    for (auto i = 0; i < num_of_touch_devices; ++i) {
+
+        auto touch_input = TouchInput::get_by_device_index(window, i);
+        if (touch_input.has_value()) {
+            inputs.push_back(std::move(touch_input.value()));
+        } else {
+            spdlog::warn("Failed to get TouchInput: {}", touch_input.error());
+        }
+    }
 }
 
 

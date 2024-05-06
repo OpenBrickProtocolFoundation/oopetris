@@ -65,6 +65,7 @@ namespace input {
 
     struct JoyStickInputManager {
         static void discover_devices(std::vector<std::unique_ptr<Input>>& inputs);
+
         [[nodiscard]] static bool
         process_special_inputs(const SDL_Event& event, std::vector<std::unique_ptr<Input>>& inputs);
     };

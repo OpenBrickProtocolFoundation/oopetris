@@ -45,10 +45,10 @@ input::InputManager::InputManager(const std::shared_ptr<Window>& window) {
     //initialize keyboard input
     m_inputs.push_back(std::make_unique<input::KeyboardInput>());
 
-    //initialize touch input (needs window)
-    m_inputs.push_back(std::make_unique<input::TouchInput>(window));
+    //initialize touch inputs by using the manager(needs window)
+    input::TouchInputManager::discover_devices(m_inputs, window);
 
-    //initialize joystick input manager
+    //initialize joystick inputs by using the manager
     input::JoyStickInputManager::discover_devices(m_inputs);
 }
 

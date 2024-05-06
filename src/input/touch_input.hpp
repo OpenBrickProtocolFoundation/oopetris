@@ -12,10 +12,14 @@ namespace input {
 
     struct TouchInput : PointerInput {
         std::shared_ptr<Window> m_window;
+        SDL_TouchID m_id;
 
     public:
-        TouchInput(const std::shared_ptr<Window>& window);
+        TouchInput(const std::shared_ptr<Window>& window, SDL_TouchID id, const std::string& name);
         virtual ~TouchInput();
+
+        [[nodiscard]] static helper::expected<std::unique_ptr<TouchInput>, std::string>
+        get_by_device_index(const std::shared_ptr<Window>& window, int device_index);
 
 
         [[nodiscard]] helper::optional<NavigationEvent> get_navigation_event(const SDL_Event& event) const override;
@@ -24,7 +28,14 @@ namespace input {
 
         [[nodiscard]] helper::optional<PointerEventHelper> get_pointer_event(const SDL_Event& event) const override;
 
-        [[nodiscard]] SDL_Event offset_pointer_event(const SDL_Event& event, const shapes::IPoint& point) const override;
+        [[nodiscard]] SDL_Event offset_pointer_event(const SDL_Event& event, const shapes::IPoint& point)
+                const override;
+    };
+
+
+    struct TouchInputManager {
+        static void
+        discover_devices(std::vector<std::unique_ptr<Input>>& inputs, const std::shared_ptr<Window>& window);
     };
 
 

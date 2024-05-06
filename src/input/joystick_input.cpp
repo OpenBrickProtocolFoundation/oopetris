@@ -111,9 +111,9 @@ input::JoystickInput::get_by_device_index(int device_index) {
         return std::move(joystick_input.value());
     }
 
-    return helper::unexpected<std::string>{
-        fmt::format("Failed to get joystick model by GUID {} We don't support this joystick yet", guid)
-    };
+    return helper::unexpected<std::string>{ fmt::format(
+            "Failed to get joystick model by GUID {} We don't support this joystick yet: the name was {}", guid, name
+    ) };
 }
 
 
