@@ -15,7 +15,6 @@ core_src_files += files(
     'optional.hpp',
     'parse_json.cpp',
     'parse_json.hpp',
-    'platform.hpp',
     'random.cpp',
     'random.hpp',
     'sleep.cpp',
@@ -36,6 +35,8 @@ graphics_src_files += files(
     'message_box.cpp',
     'message_box.hpp',
     'music_utils.hpp',
+    'platform.cpp',
+    'platform.hpp',
 )
 
 if have_file_dialogs
