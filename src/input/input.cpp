@@ -6,6 +6,7 @@
 #include "mouse_input.hpp"
 #include "touch_input.hpp"
 
+#include <cassert>
 #include <limits>
 #include <memory>
 #include <spdlog/spdlog.h>
@@ -177,4 +178,27 @@ input::InputManager::~InputManager() = default;
     }
 
     return nullptr;
+}
+
+
+[[nodiscard]] const std::unique_ptr<input::Input>& input::InputManager::get_primary_input() {
+
+#if defined(__ANDROID__)
+    using PrimaryType = input::TouchInput;
+#elif defined(__CONSOLE__)
+    using PrimaryType = input::JoystickInput;
+#else
+    using PrimaryType = input::KeyboardInput;
+#endif
+
+
+    for (const auto& input : m_inputs) {
+        if (const auto pointer_input = utils::is_child_class<PrimaryType>(input); pointer_input.has_value()) {
+            return input;
+        }
+    }
+
+    // this should always be true, since in the initialization the first one, that is ALWAYS added is the KeyboardInput
+    assert(not m_inputs.empty() && "at least one input has to be given");
+    return m_inputs.at(0);
 }
