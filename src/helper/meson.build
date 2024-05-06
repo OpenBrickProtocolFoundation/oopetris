@@ -4,6 +4,7 @@ core_src_files += files(
     'color.hpp',
     'color_literals.hpp',
     'command_line_arguments.hpp',
+    'const_utils.hpp',
     'constants.hpp',
     'date.cpp',
     'date.hpp',

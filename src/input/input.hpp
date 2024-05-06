@@ -3,7 +3,6 @@
 #pragma once
 
 
-#include "SDL_events.h"
 #include "game_input.hpp"
 #include "graphics/point.hpp"
 #include "graphics/rect.hpp"

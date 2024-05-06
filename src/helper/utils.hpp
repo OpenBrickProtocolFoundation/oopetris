@@ -7,11 +7,8 @@
 #include <cassert>
 #include <climits>
 #include <exception>
-#include <filesystem>
 #include <memory>
-#include <string>
 #include <type_traits>
-#include <vector>
 
 namespace helper {
 
@@ -117,11 +114,3 @@ namespace utils {
 #else
 #define ASSERT(x) assert(x) // NOLINT(cppcoreguidelines-macro-usage)
 #endif
-
-// define a consteval assert, it isn't a pretty error message, but there's nothing we can do against that atm :(
-// this https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2024/p2758r2.html tries to fix it
-#define CONSTEVAL_STATIC_ASSERT(CHECK, MSG) /*NOLINT(cppcoreguidelines-macro-usage)*/                                                           \
-    ((CHECK) ? void(0) : [] {                                                                                                                   \
-        /* If you see this really bad c++ error message, follow the origin of MSG, to see the real error message, c++ error messages suck xD */ \
-        throw(MSG);                                                                                                                             \
-    }())

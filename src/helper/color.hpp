@@ -1,5 +1,6 @@
 #pragma once
 
+#include "const_utils.hpp"
 #include "helper/expected.hpp"
 #include "helper/types.hpp"
 #include "helper/utils.hpp"
@@ -23,6 +24,7 @@ struct HSVColor {
     double v;
     u8 a;
 
+
     constexpr HSVColor(double h, double s, double v, u8 a) // NOLINT(bugprone-easily-swappable-parameters)
         : h{ h },
           s{ s },
@@ -31,9 +33,9 @@ struct HSVColor {
 
         if (utils::is_constant_evaluated()) {
 
-            CONSTEVAL_STATIC_ASSERT(h >= 0.0 && h <= 360.0, "h has to be in range 0.0 - 360.0");
-            CONSTEVAL_STATIC_ASSERT(s >= 0.0 && s <= 1.0, "s has to be in range 0.0 - 1.0");
-            CONSTEVAL_STATIC_ASSERT(v >= 0.0 && v <= 1.0, "v has to be in range 0.0 - 1.0");
+            CONSTEVAL_ONLY_STATIC_ASSERT(h >= 0.0 && h <= 360.0, "h has to be in range 0.0 - 360.0");
+            CONSTEVAL_ONLY_STATIC_ASSERT(s >= 0.0 && s <= 1.0, "s has to be in range 0.0 - 1.0");
+            CONSTEVAL_ONLY_STATIC_ASSERT(v >= 0.0 && v <= 1.0, "v has to be in range 0.0 - 1.0");
 
         } else {
 
@@ -50,9 +52,9 @@ struct HSVColor {
         }
     }
 
-    constexpr HSVColor() : HSVColor{ 0.0, 0.0, 0.0, 0 } { }
-
     constexpr HSVColor(double h, double s, double v) : HSVColor{ h, s, v, 0xFF } { }
+
+    constexpr HSVColor() : HSVColor{ 0.0, 0.0, 0.0, 0 } { }
 
     [[nodiscard]] static helper::expected<HSVColor, std::string> from_string(const std::string& value);
 

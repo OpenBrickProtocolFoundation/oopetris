@@ -1,37 +1,12 @@
 
 
 #include "joystick_input.hpp"
-#include "SDL_stdinc.h"
 #include "helper/expected.hpp"
 #include "helper/optional.hpp"
 #include "helper/utils.hpp"
 #include "input/input.hpp"
 
-#include <array>
-#include <fmt/format.h>
-#include <fmt/ranges.h>
 #include <spdlog/spdlog.h>
-
-
-joystick::GUID::GUID(const SDL_GUID& data) : m_guid{} {
-    std::copy(std::begin(data.data), std::end(data.data), std::begin(m_guid));
-}
-
-joystick::GUID::GUID(const ArrayType& data) : m_guid{ data } { }
-
-
-joystick::GUID joystick::GUID::zero() {
-    return joystick::GUID{ joystick::GUID::ArrayType{} };
-}
-
-
-[[nodiscard]] bool joystick::GUID::operator==(const GUID& other) const {
-    return this->m_guid == other.m_guid;
-}
-
-[[nodiscard]] joystick::GUID::operator std::string() const {
-    return fmt::format("{}", fmt::join(m_guid, ":"));
-}
 
 
 input::JoystickInput::JoystickInput(SDL_Joystick* joystick, SDL_JoystickID instance_id, const std::string& name)
@@ -46,7 +21,7 @@ input::JoystickInput::~JoystickInput() {
 
 
 [[nodiscard]] helper::optional<std::unique_ptr<input::JoystickInput>> input::JoystickInput::get_joystick_by_guid(
-        const joystick::GUID& guid,
+        const SDL::GUID& guid,
         SDL_Joystick* joystick,
         SDL_JoystickID instance_id,
         const std::string& name
@@ -102,9 +77,9 @@ input::JoystickInput::get_by_device_index(int device_index) {
     }
 
 
-    const auto guid = joystick::GUID{ SDL_JoystickGetGUID(joystick) };
+    const auto guid = SDL::GUID{ SDL_JoystickGetGUID(joystick) };
 
-    if (guid == joystick::GUID::zero()) {
+    if (guid == SDL::GUID::zero()) {
         return helper::unexpected<std::string>{ fmt::format("Failed to get joystick GUID: {}", SDL_GetError()) };
     }
 

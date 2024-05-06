@@ -6,8 +6,8 @@
 #include "platform/console_buttons.hpp"
 #endif
 
-#include <cstdlib>
 #include <cerrno>
+#include <cstdlib>
 #include <spdlog/spdlog.h>
 
 namespace {

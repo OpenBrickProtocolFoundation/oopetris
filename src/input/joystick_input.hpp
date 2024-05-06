@@ -1,43 +1,17 @@
 #pragma once
 
 
-#include "SDL_joystick.h"
+#include "guid.hpp"
 #include "helper/expected.hpp"
 #include "helper/parse_json.hpp"
 #include "input.hpp"
 #include "input/game_input.hpp"
 #include "manager/event_dispatcher.hpp"
 
+#include <SDL.h>
 #include <fmt/format.h>
 #include <string>
 
-namespace joystick {
-    struct GUID {
-    private:
-        using ArrayType = std::array<u8, 16>;
-        ArrayType m_guid;
-
-    public:
-        GUID(const SDL_GUID& data);
-        GUID(const ArrayType& data);
-
-        [[nodiscard]] static GUID zero();
-
-        [[nodiscard]] static helper::expected<GUID, std::string> from_string(const std::string& value);
-
-        [[nodiscard]] bool operator==(const GUID& other) const;
-
-        [[nodiscard]] operator std::string() const;
-    };
-} // namespace joystick
-
-
-template<>
-struct fmt::formatter<joystick::GUID> : formatter<std::string> {
-    auto format(const joystick::GUID& guid, format_context& ctx) {
-        return formatter<std::string>::format(std::string{ guid }, ctx);
-    }
-};
 
 namespace input {
 
@@ -55,7 +29,7 @@ namespace input {
         SDL_JoystickID m_instance_id;
 
         [[nodiscard]] static helper::optional<std::unique_ptr<JoystickInput>> get_joystick_by_guid(
-                const joystick::GUID& guid,
+                const SDL::GUID& guid,
                 SDL_Joystick* joystick,
                 SDL_JoystickID instance_id,
                 const std::string& name
@@ -85,7 +59,7 @@ namespace input {
 
     // essentially a GUID
     struct JoystickIdentification {
-        joystick::GUID guid;
+        SDL::GUID guid;
 
 
         static helper::expected<JoystickIdentification, std::string> from_string(const std::string& value);
@@ -118,7 +92,7 @@ namespace input {
     struct SwitchJoystickInput_Type1 : JoystickInput {
 
         //TODO
-        static joystick::GUID guid{};
+        static SDL::GUID guid{};
 
     public:
         SwitchJoystickInput_Type1(SDL_Joystick* joystick, SDL_JoystickID instance_id, const std::string& name);
@@ -134,7 +108,7 @@ namespace input {
     struct _3DSJoystickInput_Type1 : JoystickInput {
 
         //TODO
-        static joystick::GUID guid{};
+        static SDL::GUID guid{};
 
     public:
         _3DSJoystickInput_Type1(SDL_Joystick* joystick, SDL_JoystickID instance_id, const std::string& name);
@@ -203,7 +177,7 @@ namespace nlohmann {
             std::string input;
             context.get_to(input);
 
-            const auto& value = joystick::GUID::from_string(input);
+            const auto& value = SDL::GUID::from_string(input);
 
             if (not value.has_value()) {
                 throw nlohmann::json::type_error::create(
@@ -216,7 +190,7 @@ namespace nlohmann {
 
         static void to_json(json& j, const input::JoystickIdentification& identification) {
             j = nlohmann::json{
-                { "guid", std::string{ identification.guid } },
+                { "guid", identification.guid.to_string() },
             };
         }
     };
