@@ -41,17 +41,29 @@ struct fmt::formatter<joystick::GUID> : formatter<std::string> {
 
 namespace input {
 
-    struct JoystickInput : Input {
+
+    /**
+ * @brief 
+ *
+ * @note regarding the NOLINT: the destructor just cleans up the SDL_Joystick, it has nothing to do with class members that would need special member functions to be explicitly defined
+ * 
+ */
+    struct JoystickInput //NOLINT(cppcoreguidelines-special-member-functions)
+        : Input {
     private:
         SDL_Joystick* m_joystick;
         SDL_JoystickID m_instance_id;
 
-        [[nodiscard]] static helper::optional<std::unique_ptr<JoystickInput>>
-        get_joystick_by_guid(const joystick::GUID& guid, SDL_Joystick* joystick, SDL_JoystickID instance_id);
+        [[nodiscard]] static helper::optional<std::unique_ptr<JoystickInput>> get_joystick_by_guid(
+                const joystick::GUID& guid,
+                SDL_Joystick* joystick,
+                SDL_JoystickID instance_id,
+                const std::string& name
+        );
 
     public:
         JoystickInput(SDL_Joystick* joystick, SDL_JoystickID instance_id, const std::string& name);
-        virtual ~JoystickInput();
+        ~JoystickInput();
 
         [[nodiscard]] static helper::expected<std::unique_ptr<JoystickInput>, std::string> get_by_device_index(
                 int device_index
@@ -112,6 +124,8 @@ namespace input {
         SwitchJoystickInput_Type1(SDL_Joystick* joystick, SDL_JoystickID instance_id, const std::string& name);
 
         [[nodiscard]] helper::optional<NavigationEvent> get_navigation_event(const SDL_Event& event) const override;
+
+        [[nodiscard]] std::string describe_navigation_event(NavigationEvent event) const override;
     };
 
 
@@ -126,6 +140,8 @@ namespace input {
         _3DSJoystickInput_Type1(SDL_Joystick* joystick, SDL_JoystickID instance_id, const std::string& name);
 
         [[nodiscard]] helper::optional<NavigationEvent> get_navigation_event(const SDL_Event& event) const override;
+
+        [[nodiscard]] std::string describe_navigation_event(NavigationEvent event) const override;
     };
 
 
@@ -274,54 +290,3 @@ namespace nlohmann {
         }
     };
 } // namespace nlohmann
-
-
-//TODO:
-/* 
-#elif defined(__SWITCH__)
-    switch (action) {
-        case CrossPlatformAction::OK:
-            return "A";
-        case CrossPlatformAction::PAUSE:
-        case CrossPlatformAction::UNPAUSE:
-            return "PLUS";
-        case CrossPlatformAction::CLOSE:
-        case CrossPlatformAction::EXIT:
-            return "MINUS";
-        case CrossPlatformAction::DOWN:
-            return "Down";
-        case CrossPlatformAction::UP:
-            return "Up";
-        case CrossPlatformAction::LEFT:
-            return "Left";
-        case CrossPlatformAction::RIGHT:
-            return "Right";
-        case CrossPlatformAction::OPEN_SETTINGS:
-            return "Y";
-        default:
-            utils::unreachable();
-    }
-
-#elif defined(__3DS__)
-    switch (action) {
-        case CrossPlatformAction::OK:
-            return "A";
-        case CrossPlatformAction::PAUSE:
-        case CrossPlatformAction::UNPAUSE:
-            return "Y";
-        case CrossPlatformAction::CLOSE:
-        case CrossPlatformAction::EXIT:
-            return "X";
-        case CrossPlatformAction::DOWN:
-            return "Down";
-        case CrossPlatformAction::UP:
-            return "Up";
-        case CrossPlatformAction::LEFT:
-            return "Left";
-        case CrossPlatformAction::RIGHT:
-            return "Right";
-        case CrossPlatformAction::OPEN_SETTINGS:
-            return "Select";
-        default:
-            utils::unreachable();
-    } */

@@ -48,16 +48,18 @@ input::JoystickInput::~JoystickInput() {
 [[nodiscard]] helper::optional<std::unique_ptr<input::JoystickInput>> input::JoystickInput::get_joystick_by_guid(
         const joystick::GUID& guid,
         SDL_Joystick* joystick,
-        SDL_JoystickID instance_id
+        SDL_JoystickID instance_id,
+        const std::string& name
+
 ) {
 #if defined(__CONSOLE__)
 #if defined(__SWITCH__)
     if (guid == SwitchJoystickInput_Type1::guid) {
-        return std::make_unique<SwitchJoystickInput_Type1>(joystick, instance_id);
+        return std::make_unique<SwitchJoystickInput_Type1>(joystick, instance_id, name);
     }
 #elif defined(__3DS__)
     if (guid == _3DSJoystickInput_Type1::guid) {
-        return std::make_unique<_3DSJoystickInput_Type1>(joystick, instance_id);
+        return std::make_unique<_3DSJoystickInput_Type1>(joystick, instance_id, name);
     }
 
 #endif
@@ -66,6 +68,7 @@ input::JoystickInput::~JoystickInput() {
     UNUSED(guid);
     UNUSED(joystick);
     UNUSED(instance_id);
+    UNUSED(name);
 
     return helper::nullopt;
 }
@@ -105,7 +108,7 @@ input::JoystickInput::get_by_device_index(int device_index) {
         return helper::unexpected<std::string>{ fmt::format("Failed to get joystick GUID: {}", SDL_GetError()) };
     }
 
-    auto joystick_input = JoystickInput::get_joystick_by_guid(guid, joystick, instance_id);
+    auto joystick_input = JoystickInput::get_joystick_by_guid(guid, joystick, instance_id, name);
 
     if (joystick_input.has_value()) {
         return std::move(joystick_input.value());
@@ -226,15 +229,11 @@ input::SwitchJoystickInput_Type1::SwitchJoystickInput_Type1(
         const SDL_Event& event
 ) const {
 
-    //TODO handle SDL_JOYAXISMOTION
-
-
     if (event.type == SDL_JOYBUTTONDOWN) {
 
-        if (event.jbutton.which != m_id) {
+        if (event.jbutton.which != m_instance_id) {
             return helper::nullopt;
         }
-
 
         switch (event.jbutton.button) {
             case JOYCON_A:
@@ -257,7 +256,8 @@ input::SwitchJoystickInput_Type1::SwitchJoystickInput_Type1(
                 return NavigationEvent::RIGHT;
             case JOYCON_MINUS:
                 return NavigationEvent::BACK;
-
+            default:
+                return helper::nullopt;
 
                 //note, that  NavigationEvent::TAB is not supported
         }
@@ -268,6 +268,28 @@ input::SwitchJoystickInput_Type1::SwitchJoystickInput_Type1(
 
     return helper::nullopt;
 }
+
+[[nodiscard]] std::string input::SwitchJoystickInput_Type1::describe_navigation_event(NavigationEvent event) const {
+    switch (event) {
+        case NavigationEvent::OK:
+            return "A";
+        case NavigationEvent::BACK:
+            return "Minus";
+        case NavigationEvent::DOWN:
+            return "Down";
+        case NavigationEvent::UP:
+            return "Up";
+        case NavigationEvent::LEFT:
+            return "Left";
+        case NavigationEvent::RIGHT:
+            return "Right";
+        case NavigationEvent::TAB:
+            return "Unsupported";
+        default:
+            utils::unreachable();
+    }
+}
+
 
 #elif defined(__3DS__)
 
@@ -286,10 +308,9 @@ input::_3DSJoystickInput_Type1::_3DSJoystickInput_Type1(
 
     if (event.type == SDL_JOYBUTTONDOWN) {
 
-        if (event.jbutton.which != m_id) {
+        if (event.jbutton.which != m_instance_id) {
             return helper::nullopt;
         }
-
 
         switch (event.jbutton.button) {
             case JOYCON_A:
@@ -312,6 +333,8 @@ input::_3DSJoystickInput_Type1::_3DSJoystickInput_Type1(
                 return NavigationEvent::RIGHT;
             case JOYCON_X:
                 return NavigationEvent::BACK;
+            default:
+                return helper::nullopt;
 
                 //note, that  NavigationEvent::TAB is not supported
         }
@@ -322,6 +345,28 @@ input::_3DSJoystickInput_Type1::_3DSJoystickInput_Type1(
 
     return helper::nullopt;
 }
+
+[[nodiscard]] std::string input::_3DSJoystickInput_Type1::describe_navigation_event(NavigationEvent event) const {
+    switch (event) {
+        case NavigationEvent::OK:
+            return "A";
+        case NavigationEvent::BACK:
+            return "X";
+        case NavigationEvent::DOWN:
+            return "Down";
+        case NavigationEvent::UP:
+            return "Up";
+        case NavigationEvent::LEFT:
+            return "Left";
+        case NavigationEvent::RIGHT:
+            return "Right";
+        case NavigationEvent::TAB:
+            return "Unsupported";
+        default:
+            utils::unreachable();
+    }
+}
+
 
 #endif
 
@@ -343,8 +388,9 @@ void JoystickGameInput::update(SimulationStep simulation_step_index) {
 
 #if defined(__SWITCH__)
 
-// game_input uses Input to handle events, but stores teh config settings for teh specific button
+// game_input uses Input to handle events, but stores the config settings for the specific button
 
+//TODO: use settings
 helper::optional<InputEvent> JoystickSwitchGameInput_Type1::sdl_event_to_input_event(const SDL_Event& event) const {
     if (event.type == SDL_JOYBUTTONDOWN) {
         //TODO: use switch case
@@ -398,7 +444,7 @@ helper::optional<InputEvent> JoystickSwitchGameInput_Type1::sdl_event_to_input_e
 }
 #elif defined(__3DS__)
 
-
+//TODO: use settings
 helper::optional<InputEvent> JoystickInput::sdl_event_to_input_event(const SDL_Event& event) const {
     if (event.type == SDL_JOYBUTTONDOWN) {
         const auto button = event.jbutton.button;
