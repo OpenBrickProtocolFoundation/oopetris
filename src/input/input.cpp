@@ -12,6 +12,18 @@
 #include <stdexcept>
 
 
+input::PointerEventHelper::PointerEventHelper(shapes::IPoint pos, PointerEvent event)
+    : m_pos{ pos },
+      m_event{ event } { }
+
+[[nodiscard]] input::PointerEvent input::PointerEventHelper::event() const {
+    return m_event;
+}
+
+[[nodiscard]] shapes::IPoint input::PointerEventHelper::position() const {
+    return m_pos;
+}
+
 [[nodiscard]] bool input::PointerEventHelper::is_in(const shapes::URect& rect) const {
     using Type = decltype(m_pos)::Type;
 
@@ -36,6 +48,9 @@
     return is_in;
 }
 
+[[nodiscard]] bool input::PointerEventHelper::operator==(PointerEvent event) const {
+    return m_event == event;
+}
 
 input::InputManager::InputManager(const std::shared_ptr<Window>& window) {
 
