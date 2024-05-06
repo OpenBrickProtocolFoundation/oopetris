@@ -183,28 +183,24 @@ namespace lobby {
 
         explicit Client(const std::string& api_url) : m_client{ api_url } {
 
-
+            // clang-format off
             m_client.set_default_headers({
 #if defined(CPPHTTPLIB_ZLIB_SUPPORT) || defined(CPPHTTPLIB_BROTLI_SUPPORT)
-                {
-                    "Accept-Encoding",
+                    { "Accept-Encoding",
 
 #if defined(CPPHTTPLIB_ZLIB_SUPPORT)
-                            "gzip, deflate"
+                        "gzip, deflate"
 #endif
 #if defined(CPPHTTPLIB_ZLIB_SUPPORT) && defined(CPPHTTPLIB_BROTLI_SUPPORT)
-                            ", "
+                        ", "
 #endif
 #if defined(CPPHTTPLIB_BROTLI_SUPPORT)
-                            "br"
+                        "br"
 #endif
-                }
-                ,
+                        },
 #endif
-                {
-                    "Accept", constants::json_content_type
-                }
-            });
+                    // clang-format on
+                    { "Accept", constants::json_content_type } });
 
 #if defined(CPPHTTPLIB_ZLIB_SUPPORT) || defined(CPPHTTPLIB_BROTLI_SUPPORT)
             m_client.set_compress(true);

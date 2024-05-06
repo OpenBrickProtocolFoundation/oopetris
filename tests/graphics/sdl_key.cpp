@@ -75,17 +75,17 @@ TEST(Color, ConstructorProperties) {
 TEST(Color, FromStringValid) {
 
     const std::vector<std::tuple<std::string, Color::InfoType>> valid_values{
-        {                  "#FFAA33",      { Color{ 0xFF, 0xAA, 0x33 }, color::SerializeMode::Hex, false }},
-        {                "#FF00FF00", { Color{ 0xFF, 0x00, 0xFF, 0x00 }, color::SerializeMode::Hex, true }},
-        {               "rgb(0,0,0)",               { Color{ 0, 0, 0 }, color::SerializeMode::RGB, false }},
-        {            "rgba(0,0,0,0)",             { Color{ 0, 0, 0, 0 }, color::SerializeMode::RGB, true }},
-        {               "hsv(0,0,0)",            { HSVColor{ 0, 0, 0 }, color::SerializeMode::HSV, false }},
-        {        "hsva(340,0,0.5,0)",      { HSVColor{ 340, 0, 0.5, 0 }, color::SerializeMode::HSV, true }},
-        {                  "#ffaa33",      { Color{ 0xff, 0xaa, 0x33 }, color::SerializeMode::Hex, false }},
-        {"hsv(0, 0.00_000_000_1, 0)",  { HSVColor{ 0, 0.000000001, 0 }, color::SerializeMode::HSV, false }},
-        {      "hsva(0, 0, 0, 0xFF)",       { HSVColor{ 0, 0, 0, 0xFF }, color::SerializeMode::HSV, true }},
-        {    "rgba(0, 0xFF, 0, 255)",        { Color{ 0, 0xFF, 0, 255 }, color::SerializeMode::RGB, true }},
-        {  "rgba(0, 0xFF, 0, 1_0_0)",        { Color{ 0, 0xFF, 0, 100 }, color::SerializeMode::RGB, true }},
+        {                   "#FFAA33",      { Color{ 0xFF, 0xAA, 0x33 }, color::SerializeMode::Hex, false } },
+        {                 "#FF00FF00", { Color{ 0xFF, 0x00, 0xFF, 0x00 }, color::SerializeMode::Hex, true } },
+        {                "rgb(0,0,0)",               { Color{ 0, 0, 0 }, color::SerializeMode::RGB, false } },
+        {             "rgba(0,0,0,0)",             { Color{ 0, 0, 0, 0 }, color::SerializeMode::RGB, true } },
+        {                "hsv(0,0,0)",            { HSVColor{ 0, 0, 0 }, color::SerializeMode::HSV, false } },
+        {         "hsva(340,0,0.5,0)",      { HSVColor{ 340, 0, 0.5, 0 }, color::SerializeMode::HSV, true } },
+        {                   "#ffaa33",      { Color{ 0xff, 0xaa, 0x33 }, color::SerializeMode::Hex, false } },
+        { "hsv(0, 0.00_000_000_1, 0)",  { HSVColor{ 0, 0.000000001, 0 }, color::SerializeMode::HSV, false } },
+        {       "hsva(0, 0, 0, 0xFF)",       { HSVColor{ 0, 0, 0, 0xFF }, color::SerializeMode::HSV, true } },
+        {     "rgba(0, 0xFF, 0, 255)",        { Color{ 0, 0xFF, 0, 255 }, color::SerializeMode::RGB, true } },
+        {   "rgba(0, 0xFF, 0, 1_0_0)",        { Color{ 0, 0xFF, 0, 100 }, color::SerializeMode::RGB, true } },
     };
 
     for (const auto& [valid_string, expected_result] : valid_values) {
@@ -104,64 +104,64 @@ TEST(Color, FromStringValid) {
 TEST(Color, FromStringInvalid) {
 
     const std::vector<std::tuple<std::string, std::string>> invalid_strings{
-        {                                         "", "not enough data to determine the literal type"},
-        {                                      "#44",                      "Unrecognized HEX literal"},
-        {                                       "#Z",                      "Unrecognized HEX literal"},
-        {                                    "#ZZFF",                      "Unrecognized HEX literal"},
-        {                                        "u",                    "Unrecognized color literal"},
-        {                                "#IIFFFFFF",       "the input must be a valid hex character"},
-        {                                "#FFIIFFFF",       "the input must be a valid hex character"},
-        {                                "#FFFFIIFF",       "the input must be a valid hex character"},
-        {                                "#FFFFFFII",       "the input must be a valid hex character"},
-        {                                  "#FFFF4T",       "the input must be a valid hex character"},
-        {                                 "#0000001",                      "Unrecognized HEX literal"},
-        {                               "hsl(0,0,0)",                      "Unrecognized HSV literal"},
-        {                               "rgg(0,0,0)",                      "Unrecognized RGB literal"},
-        {                              "hsva(9,9,9)",                "s has to be in range 0.0 - 1.0"},
-        {                        "hsva(9,9,9,10212)",                "s has to be in range 0.0 - 1.0"},
-        {                              "hsv(-1,0,0)",   "the input must be a valid decimal character"},
-        {                          "hsv(404040,0,0)",              "h has to be in range 0.0 - 360.0"},
-        {                             "hsv(0,1.4,0)",                "s has to be in range 0.0 - 1.0"},
-        {                             "hsv(0,0,1.7)",                "v has to be in range 0.0 - 1.0"},
-        {                       "hsva(1321.4,0,0,0)",              "h has to be in range 0.0 - 360.0"},
-        {                          "hsva(0,1.4,0,0)",                "s has to be in range 0.0 - 1.0"},
-        {                          "hsva(0,0,1.7,0)",                "v has to be in range 0.0 - 1.0"},
-        {                       "hsva(0, 0, 0, 256)",                  "a has to be in range 0 - 255"},
-        {                           "hsv(0,0,1.7.8)",                        "only one comma allowed"},
-        {                                    "hsv(0",                         "input ended too early"},
-        {                   "rgba(0, 0xFFF, 0, 255)",                  "g has to be in range 0 - 255"},
-        {                         "rgba(0, 0xFF, 0)",                                  "expected ','"},
-        {                     "rgb(0, 0xFF, 0, 255)",                                  "expected ')'"},
-        {                    "rgba(0, 0xFF, 0, 256)",                  "a has to be in range 0 - 255"},
-        {                                   "rgba(0",                         "input ended too early"},
-        {          "rgba(0, 0xFF, 0, 4_294_967_296)",                             "overflow detected"},
-        {          "rgba(0, 0xFF, 0, 4_294_967_300)",                             "overflow detected"},
-        {"rgba(0, 0xFF, 0, 121_123_124_294_967_300)",                             "overflow detected"},
-        {                             "rgb(256,0,0)",                  "r has to be in range 0 - 255"},
-        {                                   "rgb(0)",                                  "expected ','"},
-        {                             "rgb(0,256,0)",                  "g has to be in range 0 - 255"},
-        {                                 "rgb(0,0)",                                  "expected ','"},
-        {                             "rgb(0,0,256)",                  "b has to be in range 0 - 255"},
-        {                               "rgb(0,0,0,",                                  "expected ')'"},
-        {                          "rgb(0,0,255)   ",                        "expected end of string"},
-        {                          "rgba(256,0,0,0)",                  "r has to be in range 0 - 255"},
-        {                                  "rgba(0)",                                  "expected ','"},
-        {                          "rgba(0,256,0,0)",                  "g has to be in range 0 - 255"},
-        {                                "rgba(0,0)",                                  "expected ','"},
-        {                          "rgba(0,0,256,0)",                  "b has to be in range 0 - 255"},
-        {                              "rgba(0,0,0)",                                  "expected ','"},
-        {                          "rgba(0,0,0,256)",                  "a has to be in range 0 - 255"},
-        {                            "rgba(0,0,0,0,",                                  "expected ')'"},
-        {                       "rgba(0,0,0,255)   ",                        "expected end of string"},
-        {                                   "hsv(0)",                                  "expected ','"},
-        {                                 "hsv(0,0)",                                  "expected ','"},
-        {                               "hsv(0,0,0,",                                  "expected ')'"},
-        {                            "hsv(0,0,0)   ",                        "expected end of string"},
-        {                                  "hsva(0)",                                  "expected ','"},
-        {                                "hsva(0,0)",                                  "expected ','"},
-        {                              "hsva(0,0,0)",                                  "expected ','"},
-        {                            "hsva(0,0,0,0,",                                  "expected ')'"},
-        {                       "hsva(0,0,0,255)   ",                        "expected end of string"},
+        {                                          "", "not enough data to determine the literal type" },
+        {                                       "#44",                      "Unrecognized HEX literal" },
+        {                                        "#Z",                      "Unrecognized HEX literal" },
+        {                                     "#ZZFF",                      "Unrecognized HEX literal" },
+        {                                         "u",                    "Unrecognized color literal" },
+        {                                 "#IIFFFFFF",       "the input must be a valid hex character" },
+        {                                 "#FFIIFFFF",       "the input must be a valid hex character" },
+        {                                 "#FFFFIIFF",       "the input must be a valid hex character" },
+        {                                 "#FFFFFFII",       "the input must be a valid hex character" },
+        {                                   "#FFFF4T",       "the input must be a valid hex character" },
+        {                                  "#0000001",                      "Unrecognized HEX literal" },
+        {                                "hsl(0,0,0)",                      "Unrecognized HSV literal" },
+        {                                "rgg(0,0,0)",                      "Unrecognized RGB literal" },
+        {                               "hsva(9,9,9)",                "s has to be in range 0.0 - 1.0" },
+        {                         "hsva(9,9,9,10212)",                "s has to be in range 0.0 - 1.0" },
+        {                               "hsv(-1,0,0)",   "the input must be a valid decimal character" },
+        {                           "hsv(404040,0,0)",              "h has to be in range 0.0 - 360.0" },
+        {                              "hsv(0,1.4,0)",                "s has to be in range 0.0 - 1.0" },
+        {                              "hsv(0,0,1.7)",                "v has to be in range 0.0 - 1.0" },
+        {                        "hsva(1321.4,0,0,0)",              "h has to be in range 0.0 - 360.0" },
+        {                           "hsva(0,1.4,0,0)",                "s has to be in range 0.0 - 1.0" },
+        {                           "hsva(0,0,1.7,0)",                "v has to be in range 0.0 - 1.0" },
+        {                        "hsva(0, 0, 0, 256)",                  "a has to be in range 0 - 255" },
+        {                            "hsv(0,0,1.7.8)",                        "only one comma allowed" },
+        {                                     "hsv(0",                         "input ended too early" },
+        {                    "rgba(0, 0xFFF, 0, 255)",                  "g has to be in range 0 - 255" },
+        {                          "rgba(0, 0xFF, 0)",                                  "expected ','" },
+        {                      "rgb(0, 0xFF, 0, 255)",                                  "expected ')'" },
+        {                     "rgba(0, 0xFF, 0, 256)",                  "a has to be in range 0 - 255" },
+        {                                    "rgba(0",                         "input ended too early" },
+        {           "rgba(0, 0xFF, 0, 4_294_967_296)",                             "overflow detected" },
+        {           "rgba(0, 0xFF, 0, 4_294_967_300)",                             "overflow detected" },
+        { "rgba(0, 0xFF, 0, 121_123_124_294_967_300)",                             "overflow detected" },
+        {                              "rgb(256,0,0)",                  "r has to be in range 0 - 255" },
+        {                                    "rgb(0)",                                  "expected ','" },
+        {                              "rgb(0,256,0)",                  "g has to be in range 0 - 255" },
+        {                                  "rgb(0,0)",                                  "expected ','" },
+        {                              "rgb(0,0,256)",                  "b has to be in range 0 - 255" },
+        {                                "rgb(0,0,0,",                                  "expected ')'" },
+        {                           "rgb(0,0,255)   ",                        "expected end of string" },
+        {                           "rgba(256,0,0,0)",                  "r has to be in range 0 - 255" },
+        {                                   "rgba(0)",                                  "expected ','" },
+        {                           "rgba(0,256,0,0)",                  "g has to be in range 0 - 255" },
+        {                                 "rgba(0,0)",                                  "expected ','" },
+        {                           "rgba(0,0,256,0)",                  "b has to be in range 0 - 255" },
+        {                               "rgba(0,0,0)",                                  "expected ','" },
+        {                           "rgba(0,0,0,256)",                  "a has to be in range 0 - 255" },
+        {                             "rgba(0,0,0,0,",                                  "expected ')'" },
+        {                        "rgba(0,0,0,255)   ",                        "expected end of string" },
+        {                                    "hsv(0)",                                  "expected ','" },
+        {                                  "hsv(0,0)",                                  "expected ','" },
+        {                                "hsv(0,0,0,",                                  "expected ')'" },
+        {                             "hsv(0,0,0)   ",                        "expected end of string" },
+        {                                   "hsva(0)",                                  "expected ','" },
+        {                                 "hsva(0,0)",                                  "expected ','" },
+        {                               "hsva(0,0,0)",                                  "expected ','" },
+        {                             "hsva(0,0,0,0,",                                  "expected ')'" },
+        {                        "hsva(0,0,0,255)   ",                        "expected end of string" },
     };
 
     for (const auto& [invalid_string, error_message] : invalid_strings) {
@@ -181,11 +181,11 @@ TEST(HSVColor, DefaultConstruction) {
 TEST(HSVColor, ConstructorProperties) {
 
     const std::vector<std::tuple<double, double, double>> values{
-        {  0.0, 0.0, 0.0},
-        {360.0, 0.0, 0.0},
-        {360.0, 1.0, 0.0},
-        {360.0, 1.0, 1.0},
-        { 57.0, 0.6, 0.8}
+        {   0.0, 0.0, 0.0 },
+        { 360.0, 0.0, 0.0 },
+        { 360.0, 1.0, 0.0 },
+        { 360.0, 1.0, 1.0 },
+        {  57.0, 0.6, 0.8 }
     };
 
     for (const auto& [h, s, v] : values) {
@@ -198,12 +198,12 @@ TEST(HSVColor, ConstructorProperties) {
 TEST(HSVColor, InvalidConstructors) {
 
     const std::vector<std::tuple<double, double, double>> invalid_values{
-        { -1.0,  0.0,  0.0},
-        {360.0, -1.0,  0.0},
-        {360.0,  1.0, -1.0},
-        {460.0,  1.0,  1.0},
-        { 57.0,  2.6,  0.8},
-        { 57.0,  1.6,  3.8}
+        {  -1.0,  0.0,  0.0 },
+        { 360.0, -1.0,  0.0 },
+        { 360.0,  1.0, -1.0 },
+        { 460.0,  1.0,  1.0 },
+        {  57.0,  2.6,  0.8 },
+        {  57.0,  1.6,  3.8 }
     };
 
     for (const auto& [h, s, v] : invalid_values) {
@@ -223,12 +223,12 @@ TEST(ColorConversion, HSV_to_RGB_to_HSV) { //NOLINT(readability-function-cogniti
 
 #if COLOR_TEST_MODE == 0
     const std::vector<HSVColor> colors{
-        HSVColor{  2, 0.3, 0.6},
-        HSVColor{ 82, 0.3, 0.6},
-        HSVColor{142, 0.3, 0.6},
-        HSVColor{192, 0.3, 0.6},
-        HSVColor{252, 0.3, 0.6},
-        HSVColor{312, 0.3, 0.6},
+        HSVColor{   2, 0.3, 0.6 },
+        HSVColor{  82, 0.3, 0.6 },
+        HSVColor{ 142, 0.3, 0.6 },
+        HSVColor{ 192, 0.3, 0.6 },
+        HSVColor{ 252, 0.3, 0.6 },
+        HSVColor{ 312, 0.3, 0.6 },
     };
 
     for (const auto& original_color : colors) {
@@ -269,12 +269,12 @@ TEST(ColorConversion, RGG_to_HSV_to_RGB) { //NOLINT(readability-function-cogniti
 
 #if COLOR_TEST_MODE == 0
     const std::vector<Color> colors{
-        Color{  0,   0,   0},
-        Color{180, 135, 223},
-        Color{ 12,  34, 130},
-        Color{ 79,  85,  20},
-        Color{155, 174,   2},
-        Color{243,  32,  34},
+        Color{   0,   0,   0 },
+        Color{ 180, 135, 223 },
+        Color{  12,  34, 130 },
+        Color{  79,  85,  20 },
+        Color{ 155, 174,   2 },
+        Color{ 243,  32,  34 },
     };
 
     for (const auto& original_color : colors) {

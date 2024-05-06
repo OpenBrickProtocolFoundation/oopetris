@@ -254,7 +254,7 @@ namespace {
             PROPAGATE(b, ColorFromHexStringReturnType);
 
             return const_utils::expected<ColorFromHexStringReturnType>::good_result({
-                    Color{r.value(), g.value(), b.value()},
+                    Color{ r.value(), g.value(), b.value() },
                     false
             });
         }
@@ -274,7 +274,7 @@ namespace {
             PROPAGATE(a, ColorFromHexStringReturnType);
 
             return const_utils::expected<ColorFromHexStringReturnType>::good_result({
-                    Color{r.value(), g.value(), b.value(), a.value()},
+                    Color{ r.value(), g.value(), b.value(), a.value() },
                     true
             });
         }
@@ -347,7 +347,7 @@ namespace {
 
 
                 return const_utils::expected<ColorFromRGBStringReturnType>::good_result({
-                        Color{static_cast<u8>(r), static_cast<u8>(g), static_cast<u8>(b)},
+                        Color{ static_cast<u8>(r), static_cast<u8>(g), static_cast<u8>(b) },
                         false
                 });
             }
@@ -428,7 +428,7 @@ namespace {
 
 
                 return const_utils::expected<ColorFromRGBStringReturnType>::good_result({
-                        Color{static_cast<u8>(r), static_cast<u8>(g), static_cast<u8>(b), static_cast<u8>(a)},
+                        Color{ static_cast<u8>(r), static_cast<u8>(g), static_cast<u8>(b), static_cast<u8>(a) },
                         true
                 }
                 );
@@ -503,7 +503,7 @@ namespace {
 
 
                 return const_utils::expected<ColorFromHSVStringReturnType>::good_result({
-                        HSVColor{h, s, v},
+                        HSVColor{ h, s, v },
                         false
                 });
             }
@@ -584,7 +584,7 @@ namespace {
 
 
                 return const_utils::expected<ColorFromHSVStringReturnType>::good_result({
-                        HSVColor{h, s, v, static_cast<u8>(a)},
+                        HSVColor{ h, s, v, static_cast<u8>(a) },
                         true
                 });
             }

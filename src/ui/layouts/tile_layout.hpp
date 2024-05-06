@@ -51,8 +51,10 @@ namespace ui {
 
         void render(const ServiceProvider& service_provider) const override;
 
-        Widget::EventHandleResult
-        handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) // NOLINT(readability-function-cognitive-complexity)
+        Widget::EventHandleResult handle_event(
+                const std::shared_ptr<input::InputManager>& input_manager,
+                const SDL_Event& event
+        ) // NOLINT(readability-function-cognitive-complexity)
                 override;
 
     private:

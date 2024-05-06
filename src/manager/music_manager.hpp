@@ -2,8 +2,8 @@
 
 #include "helper/optional.hpp"
 #include "helper/types.hpp"
-#include "manager/service_provider.hpp"
 #include "input/input.hpp"
+#include "manager/service_provider.hpp"
 
 #include <SDL.h>
 #include <SDL_mixer.h>

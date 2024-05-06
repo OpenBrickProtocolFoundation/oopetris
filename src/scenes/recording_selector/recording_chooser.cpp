@@ -54,8 +54,8 @@ custom_ui::RecordingFileChooser::RecordingFileChooser(
 
 
     m_main_grid.add<ui::TextButton>(
-            service_provider, "Select Recording Folder", service_provider->font_manager().get(FontId::Default), Color::white(),
-            focus_helper.focus_id(),
+            service_provider, "Select Recording Folder", service_provider->font_manager().get(FontId::Default),
+            Color::white(), focus_helper.focus_id(),
             [this, service_provider](const ui::TextButton&) -> bool {
                 this->prepare_dialog(service_provider);
 

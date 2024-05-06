@@ -15,8 +15,8 @@ namespace scenes {
 
         static constexpr std::initializer_list<std::tuple<const char* const, const char* const, const char* const>>
                 authors{
-                    {"mgerhold", "https://github.com/mgerhold", "mgerhold.jpg"},
-                    { "Totto16",  "https://github.com/Totto16",  "Totto16.png"}
+                    { "mgerhold", "https://github.com/mgerhold", "mgerhold.jpg" },
+                    {  "Totto16",  "https://github.com/Totto16",  "Totto16.png" }
         };
 
     public:

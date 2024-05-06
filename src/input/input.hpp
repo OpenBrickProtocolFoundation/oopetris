@@ -71,7 +71,8 @@ namespace input {
 
         [[nodiscard]] virtual helper::optional<PointerEventHelper> get_pointer_event(const SDL_Event& event) const = 0;
 
-        [[nodiscard]] virtual SDL_Event offset_pointer_event(const SDL_Event& event, const shapes::IPoint& point) const = 0;
+        [[nodiscard]] virtual SDL_Event offset_pointer_event(const SDL_Event& event, const shapes::IPoint& point)
+                const = 0;
     };
 
     struct InputManager {

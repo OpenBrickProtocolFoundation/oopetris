@@ -35,7 +35,7 @@ namespace ui {
     struct AbsolutLayout : public Layout {
         AbsolutLayout(const u32 x, const u32 y, const u32 width, const u32 height)
             : Layout{
-                  shapes::URect{x, y, width, height},
+                  shapes::URect{ x, y, width, height },
                   LayoutType::Absolut
         } { }
     };
