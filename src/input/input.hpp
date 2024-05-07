@@ -115,9 +115,7 @@ namespace input {
             for (const auto single_check : to_check) {
 
                 if (std::find(already_bound.cbegin(), already_bound.cend(), single_check) != already_bound.cend()) {
-                    return helper::unexpected<std::string>{
-                        fmt::format("KeyCode already bound: '{}'", std::string{ single_check })
-                    };
+                    return helper::unexpected<std::string>{ fmt::format("KeyCode already bound: '{}'", single_check) };
                 }
 
                 already_bound.push_back(single_check);

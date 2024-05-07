@@ -5,8 +5,8 @@
 #include "helper/types.hpp"
 
 #include <SDL.h>
+#include <fmt/format.h>
 #include <string>
-#include <utility>
 #include <vector>
 
 namespace SDL {
@@ -35,68 +35,63 @@ namespace SDL {
         GUI,
     };
 
+    enum class ModifierType { Normal, Multiple, Special };
+
     struct Key {
-        // the difference between SDL_Keymod and ModifierType type is, that ModifierType is SDL_Keymod or-ed together, and supports arithmetic expressions out of teh box (like & and |)
-        using ModifierType = std::underlying_type_t<SDL_Keymod>;
+        // the difference between SDL_Keymod and ModifierType type is, that ModifierType is SDL_Keymod or-ed together, and supports arithmetic expressions out of the box (like & and |)
+        using UnderlyingModifierType = std::underlying_type_t<SDL_Keymod>;
 
     private:
         SDL_KeyCode m_keycode;
-        ModifierType m_modifiers;
+        UnderlyingModifierType m_modifiers;
 
     public:
-        explicit Key(SDL_KeyCode keycode, ModifierType modifiers);
+        explicit Key(SDL_KeyCode keycode, UnderlyingModifierType modifiers);
         explicit Key(SDL_KeyCode keycode, const std::vector<Modifier>& modifiers = {});
         explicit Key(const SDL_Keysym& keysym);
 
-        //TODO: also parse modifiers according to some format (E.g "<mod> + <mod> + <key>")
-        static helper::expected<Key, std::string>
-        from_string(const std::string& value, const std::vector<Modifier>& modifiers = {});
-
+        static helper::expected<Key, std::string> from_string(const std::string& value);
 
         [[nodiscard]] bool is_key(const Key& other) const;
 
+        /**
+        * @brief Checks if the key has a modifier, this performs a logical check, e.g. LALT and ALT are treated as match 
+        * 
+        * @param modifier 
+        * @return bool 
+        */
         [[nodiscard]] bool has_modifier(const Modifier& modifier) const;
+
+        /**
+        * @brief Checks if the key has a modifier, this performs a exact check, e.g. LALT and ALT are treated as NON-match 
+        * 
+        * @param modifier 
+        * @return bool 
+        */
+        [[nodiscard]] bool has_modifier_exact(const Modifier& modifier) const;
 
         [[nodiscard]] bool operator==(const Key& other) const;
 
-        //TODO: also add function, to serialize the modifiers too
-        [[nodiscard]] std::string name() const;
+        [[nodiscard]] bool is_equal(const Key& other, bool ignore_special_modifiers = true) const;
 
-        [[nodiscard]] operator std::string() const;
+        [[nodiscard]] std::string to_string() const;
 
     private:
         [[nodiscard]] static helper::expected<SDL_KeyCode, std::string> sdl_keycode_from_string(const std::string& value
         );
 
-        [[nodiscard]] static ModifierType sdl_modifier_from_modifiers(const std::vector<Modifier>& modifiers);
+        [[nodiscard]] static UnderlyingModifierType sdl_modifier_from_modifiers(const std::vector<Modifier>& modifiers);
     };
 
 
 } // namespace SDL
 
-
-namespace detail {
-
-    struct ModifierIterator {
-    public:
-        using ContentType = std::pair<bool, SDL::Modifier>;
-        using Container = std::vector<ContentType>;
-        using iterator = Container::iterator;
-        using const_iterator = Container::const_iterator;
-
-    private:
-        std::vector<ContentType> m_underlying_container{};
-
-    public:
-        ModifierIterator(SDL::Key::ModifierType modifiers);
-
-        [[nodiscard]] const_iterator begin() const;
-        [[nodiscard]] iterator begin();
-
-        [[nodiscard]] const_iterator end() const;
-        [[nodiscard]] iterator end();
-    };
-} // namespace detail
+template<>
+struct fmt::formatter<SDL::Key> : formatter<std::string> {
+    auto format(const SDL::Key& key, format_context& ctx) {
+        return formatter<std::string>::format(key.to_string(), ctx);
+    }
+};
 
 
 //TODO: add input manager and rename curretn inputmanager to game_input manager or similar

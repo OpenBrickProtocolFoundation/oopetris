@@ -1,30 +1,25 @@
 
 #include "sdl_key.hpp"
+#include "helper/optional.hpp"
 #include "helper/utils.hpp"
 
+#include <array>
 #include <fmt/format.h>
+#include <fmt/ranges.h>
+#include <string>
 #include <tuple>
-#include <type_traits>
+#include <unordered_map>
+#include <vector>
 
 
-SDL::Key::Key(SDL_KeyCode keycode, ModifierType modifiers) : m_keycode{ keycode }, m_modifiers{ modifiers } { }
+SDL::Key::Key(SDL_KeyCode keycode, UnderlyingModifierType modifiers)
+    : m_keycode{ keycode },
+      m_modifiers{ modifiers } { }
 
 SDL::Key::Key(SDL_KeyCode keycode, const std::vector<Modifier>& modifiers)
     : Key{ keycode, SDL::Key::sdl_modifier_from_modifiers(modifiers) } { }
 
 SDL::Key::Key(const SDL_Keysym& keysym) : Key{ static_cast<const SDL_KeyCode>(keysym.sym), keysym.mod } { }
-
-helper::expected<SDL::Key, std::string>
-SDL::Key::from_string(const std::string& value, const std::vector<SDL::Modifier>& modifiers) {
-
-    const auto keycode = SDL::Key::sdl_keycode_from_string(value);
-    if (not keycode.has_value()) {
-        return helper::unexpected<std::string>{ keycode.error() };
-    }
-
-    const auto raw_modifiers = SDL::Key::sdl_modifier_from_modifiers(modifiers);
-    return SDL::Key{ keycode.value(), raw_modifiers };
-}
 
 
 [[nodiscard]] bool SDL::Key::is_key(const SDL::Key& other) const {
@@ -32,7 +27,7 @@ SDL::Key::from_string(const std::string& value, const std::vector<SDL::Modifier>
 }
 
 namespace {
-    SDL_Keymod to_sdl_modifier(SDL::Modifier modifier) {
+    constexpr SDL_Keymod to_sdl_modifier(SDL::Modifier modifier) {
         switch (modifier) {
             case SDL::Modifier::LSHIFT:
                 return KMOD_LSHIFT;
@@ -76,7 +71,7 @@ namespace {
         }
     }
 
-    SDL::Modifier from_sdl_modifier(SDL_Keymod modifier) {
+    [[maybe_unused]] constexpr SDL::Modifier from_sdl_modifier(SDL_Keymod modifier) {
         switch (modifier) {
             case KMOD_LSHIFT:
                 return SDL::Modifier::LSHIFT;
@@ -119,29 +114,253 @@ namespace {
                 utils::unreachable();
         }
     }
+
+    constexpr std::tuple<std::array<SDL::Modifier, 8>, std::array<SDL::Modifier, 4>, std::array<SDL::Modifier, 4>>
+    get_modifier_type_array() {
+        return {
+            {
+             SDL::Modifier::LSHIFT,
+             SDL::Modifier::RSHIFT,
+             SDL::Modifier::LCTRL,
+             SDL::Modifier::RCTRL,
+             SDL::Modifier::LALT,
+             SDL::Modifier::RALT,
+             SDL::Modifier::LGUI,
+             SDL::Modifier::RGUI,
+             },
+            {
+             SDL::Modifier::NUM,
+             SDL::Modifier::CAPS,
+             SDL::Modifier::MODE,
+             SDL::Modifier::SCROLL,
+             },
+            {
+             SDL::Modifier::CTRL,
+             SDL::Modifier::SHIFT,
+             SDL::Modifier::ALT,
+             SDL::Modifier::GUI,
+             }
+        };
+    }
+
+    [[nodiscard]] std::string sdl_key_name(SDL_KeyCode keycode) {
+        const auto* name = SDL_GetKeyName(keycode);
+        if (std::strlen(name) == 0) {
+            throw std::runtime_error(fmt::format(
+                    "No name for the sdl key {}: {}", static_cast<std::underlying_type_t<decltype(keycode)>>(keycode),
+                    SDL_GetError()
+            ));
+        }
+        return std::string{ name };
+    }
+
+
+    [[maybe_unused]] SDL::ModifierType typeof_modifier(SDL::Modifier modifier) {
+        const auto& [normal, special, multiple] = get_modifier_type_array();
+
+        if (std::find(normal.cbegin(), normal.cend(), modifier) != normal.cend()) {
+            return SDL::ModifierType::Normal;
+        }
+
+        if (std::find(special.cbegin(), special.cend(), modifier) != special.cend()) {
+            return SDL::ModifierType::Special;
+        }
+
+        if (std::find(multiple.cbegin(), multiple.cend(), modifier) != multiple.cend()) {
+            return SDL::ModifierType::Multiple;
+        }
+
+        utils::unreachable();
+    }
+
+
+    constexpr std::string modifier_to_string(SDL::Modifier modifier) {
+        switch (modifier) {
+            case SDL::Modifier::LSHIFT:
+                return "Shift-L";
+            case SDL::Modifier::RSHIFT:
+                return "Shift-R";
+
+            case SDL::Modifier::LCTRL:
+                return "Ctrl-L";
+            case SDL::Modifier::RCTRL:
+                return "Ctrl-R";
+
+            case SDL::Modifier::LALT:
+                return "Alt-L";
+            case SDL::Modifier::RALT:
+                return "Alt-R";
+
+            case SDL::Modifier::LGUI:
+                return "Gui-L";
+            case SDL::Modifier::RGUI:
+                return "Gui-R";
+
+            case SDL::Modifier::NUM:
+                return "Num";
+            case SDL::Modifier::CAPS:
+                return "Caps";
+            case SDL::Modifier::MODE:
+                return "Mode";
+            case SDL::Modifier::SCROLL:
+                return "Scroll";
+
+            case SDL::Modifier::CTRL:
+                return "Ctrl";
+            case SDL::Modifier::SHIFT:
+                return "Shift";
+            case SDL::Modifier::ALT:
+                return "Alt";
+            case SDL::Modifier::GUI:
+                return "Gui";
+            default:
+                utils::unreachable();
+        }
+    }
+
+    std::string to_lower_case(const std::string& input) {
+        auto result = input;
+        for (size_t i = 0; i < result.size(); ++i) {
+            auto& elem = result.at(i);
+            elem = std::tolower(elem);
+        }
+
+        return result;
+    }
+
+    // for string delimiter
+    std::vector<std::string> split_string_by_char(const std::string& start, const std::string& delimiter) {
+        size_t pos_start = 0;
+        size_t pos_end;
+        const auto delim_len = delimiter.length();
+
+        std::vector<std::string> res{};
+
+        while ((pos_end = start.find(delimiter, pos_start)) != std::string::npos) {
+            auto token = start.substr(pos_start, pos_end - pos_start);
+            pos_start = pos_end + delim_len;
+            res.push_back(token);
+        }
+
+        res.push_back(start.substr(pos_start));
+        return res;
+    }
+
+    constexpr helper::optional<SDL::Modifier> modifier_from_string(std::string modifier) {
+
+        if (modifier.empty()) {
+            return helper::nullopt;
+        }
+
+        const auto lower_case = to_lower_case(modifier);
+
+
+        const std::unordered_map<std::string, SDL::Modifier> map{
+            { "shift-l", SDL::Modifier::LSHIFT },
+            { "shift-r", SDL::Modifier::RSHIFT },
+            {  "ctrl-l",  SDL::Modifier::LCTRL },
+            {  "ctrl-r",  SDL::Modifier::RCTRL },
+            {   "alt-l",   SDL::Modifier::LALT },
+            {   "alt-r",   SDL::Modifier::RALT },
+            {   "gui-l",   SDL::Modifier::LGUI },
+            {   "gui-r",   SDL::Modifier::RGUI },
+            {     "num",    SDL::Modifier::NUM },
+            {    "caps",   SDL::Modifier::CAPS },
+            {    "mode",   SDL::Modifier::MODE },
+            {  "scroll", SDL::Modifier::SCROLL },
+            {    "ctrl",   SDL::Modifier::CTRL },
+            {   "shift",  SDL::Modifier::SHIFT },
+            {     "alt",    SDL::Modifier::ALT },
+            {     "gui",    SDL::Modifier::GUI },
+        }; // namespace
+
+        if (map.contains(modifier)) {
+            return map.at(modifier);
+        }
+
+        return helper::nullopt;
+    }
+
 } // namespace
+
+
+helper::expected<SDL::Key, std::string> SDL::Key::from_string(const std::string& value) {
+
+
+    const auto tokens = split_string_by_char(value, "+");
+
+    std::vector<SDL::Modifier> modifiers{};
+
+    for (size_t i = 0; i < tokens.size(); ++i) {
+        const auto& token = tokens.at(i);
+        if (i + 1 == tokens.size()) {
+            const auto keycode = SDL::Key::sdl_keycode_from_string(token);
+            if (not keycode.has_value()) {
+                return helper::unexpected<std::string>{ keycode.error() };
+            }
+
+            return SDL::Key{ keycode.value(), modifiers };
+        }
+
+        const auto modifier = modifier_from_string(token);
+        if (not modifier.has_value()) {
+            return helper::unexpected<std::string>{ fmt::format("Not a valid modifier: {}", token) };
+        }
+
+        modifiers.push_back(modifier.value());
+    }
+
+    return helper::unexpected<std::string>{ "empty input" };
+}
+
 
 [[nodiscard]] bool SDL::Key::has_modifier(const Modifier& modifier) const {
     const auto sdl_modifier = to_sdl_modifier(modifier);
-    return (m_modifiers & sdl_modifier) != KMOD_NONE;
+    ;
+
+    return (m_modifiers & sdl_modifier) != 0;
 }
 
+[[nodiscard]] bool SDL::Key::has_modifier_exact(const Modifier& modifier) const {
+    const auto sdl_modifier = to_sdl_modifier(modifier);
+
+    return (m_modifiers & sdl_modifier) == sdl_modifier;
+}
+
+
 [[nodiscard]] bool SDL::Key::operator==(const Key& other) const {
+    return is_equal(other, true);
+}
+
+[[nodiscard]] bool SDL::Key::is_equal(const Key& other, bool ignore_special_modifiers) const {
     if (not is_key(other)) {
         return false;
     }
 
 
-    // fast path, if the second one has no modifiers
-    if (other.m_modifiers == KMOD_NONE) {
-        return m_modifiers == KMOD_NONE;
+    // fast path if they both are exactly the same
+    if (other.m_modifiers == m_modifiers) {
+        return true;
     }
 
-    //TODO: use a feaster method, this takes a long time!
-    const auto it = detail::ModifierIterator(other.m_modifiers);
 
-    for (const auto& [present, modifier] : it) {
-        if (present != not has_modifier(modifier)) {
+    const auto& [_, special, multiple] = get_modifier_type_array();
+
+
+    for (const auto& modifier : multiple) {
+        const auto sdl_modifier = to_sdl_modifier(modifier);
+        if (((other.m_modifiers & sdl_modifier) & (m_modifiers & sdl_modifier)) == 0) {
+            return false;
+        }
+    }
+
+    if (ignore_special_modifiers) {
+        return true;
+    }
+
+    for (const auto& modifier : special) {
+        const auto sdl_modifier = to_sdl_modifier(modifier);
+        if ((other.m_modifiers & sdl_modifier) != (m_modifiers & sdl_modifier)) {
             return false;
         }
     }
@@ -149,15 +368,20 @@ namespace {
     return true;
 }
 
-[[nodiscard]] std::string SDL::Key::name() const {
-    const auto* name = SDL_GetKeyName(m_keycode);
-    if (std::strlen(name) == 0) {
-        throw std::runtime_error(fmt::format(
-                "No name for the sdl key {}: {}", static_cast<std::underlying_type_t<decltype(m_keycode)>>(m_keycode),
-                SDL_GetError()
-        ));
+[[nodiscard]] std::string SDL::Key::to_string() const {
+    std::vector<std::string> parts{};
+
+    const auto& [_, special, multiple] = get_modifier_type_array();
+
+    for (const auto modifier : special) {
+        if (has_modifier(modifier)) {
+            parts.emplace_back(modifier_to_string(modifier));
+        }
     }
-    return std::string{ name };
+
+    parts.emplace_back(sdl_key_name(m_keycode));
+
+    return fmt::format("{}", fmt::join(parts, "+"));
 }
 
 
@@ -172,68 +396,13 @@ namespace {
     return static_cast<const SDL_KeyCode>(key);
 }
 
-[[nodiscard]] SDL::Key::ModifierType SDL::Key::sdl_modifier_from_modifiers(const std::vector<Modifier>& modifiers) {
-    ModifierType result = KMOD_NONE;
+[[nodiscard]] SDL::Key::UnderlyingModifierType SDL::Key::sdl_modifier_from_modifiers(
+        const std::vector<Modifier>& modifiers
+) {
+    UnderlyingModifierType result = KMOD_NONE;
     for (const auto& modifier : modifiers) {
         result |= to_sdl_modifier(modifier);
     }
 
     return result;
-}
-
-
-detail::ModifierIterator::ModifierIterator(SDL::Key::ModifierType modifiers) {
-
-    const std::vector<std::tuple<SDL_Keymod, SDL_Keymod, SDL_Keymod>> triples{
-        { KMOD_LSHIFT, KMOD_RSHIFT, KMOD_SHIFT },
-        {  KMOD_LCTRL,  KMOD_RCTRL,  KMOD_CTRL },
-        {   KMOD_LALT,   KMOD_RALT,   KMOD_ALT },
-        {   KMOD_LGUI,   KMOD_RGUI,   KMOD_GUI },
-    };
-
-
-    const std::vector<SDL_Keymod> normal_mods{
-        KMOD_NUM,
-        KMOD_CAPS,
-        KMOD_MODE,
-        KMOD_SCROLL,
-    };
-
-    for (const auto& [left_mod, right_mod, both_mod] : triples) {
-
-        std::tuple<bool, bool, bool> result = { false, false, false };
-
-        if ((modifiers & both_mod) == both_mod) {
-            result = { true, true, true };
-        } else if ((modifiers & left_mod) == left_mod) {
-            result = { true, false, true };
-        } else if ((modifiers & right_mod) == right_mod) {
-            result = { false, true, true };
-        }
-
-        m_underlying_container.emplace_back(std::get<0>(result), from_sdl_modifier(left_mod));
-        m_underlying_container.emplace_back(std::get<1>(result), from_sdl_modifier(right_mod));
-        m_underlying_container.emplace_back(std::get<2>(result), from_sdl_modifier(both_mod));
-    }
-
-    for (const auto& mod : normal_mods) {
-        m_underlying_container.emplace_back((modifiers & mod) != KMOD_NONE, from_sdl_modifier(mod));
-    }
-}
-
-
-[[nodiscard]] detail::ModifierIterator::const_iterator detail::ModifierIterator::begin() const {
-    return m_underlying_container.begin();
-}
-
-[[nodiscard]] detail::ModifierIterator::iterator detail::ModifierIterator::begin() {
-    return m_underlying_container.begin();
-}
-
-[[nodiscard]] detail::ModifierIterator::const_iterator detail::ModifierIterator::end() const {
-    return m_underlying_container.end();
-}
-
-[[nodiscard]] detail::ModifierIterator::iterator detail::ModifierIterator::end() {
-    return m_underlying_container.end();
 }

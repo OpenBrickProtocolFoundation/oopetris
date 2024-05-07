@@ -136,17 +136,17 @@ namespace nlohmann {
 
         static void to_json(json& j, const input::KeyboardSettings& settings) {
             j = nlohmann::json{
-                { "rotate_left", settings.rotate_left.name() },
-                { "rotate_right", settings.rotate_right.name() },
-                { "move_left", settings.move_left.name() },
-                { "move_right", settings.move_right.name() },
-                { "move_down", settings.move_down.name() },
-                { "drop", settings.drop.name() },
-                { "hold", settings.hold.name() },
+                { "rotate_left", settings.rotate_left.to_string() },
+                { "rotate_right", settings.rotate_right.to_string() },
+                { "move_left", settings.move_left.to_string() },
+                { "move_right", settings.move_right.to_string() },
+                { "move_down", settings.move_down.to_string() },
+                { "drop", settings.drop.to_string() },
+                { "hold", settings.hold.to_string() },
                 {
                  "menu", nlohmann::json{
-                                { "pause", settings.pause.name() },
-                                { "open_settings", settings.open_settings.name() },
+                                { "pause", settings.pause.to_string() },
+                                { "open_settings", settings.open_settings.to_string() },
                         }, }
             };
         }
