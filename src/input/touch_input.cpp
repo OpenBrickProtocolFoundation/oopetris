@@ -2,6 +2,9 @@
 
 
 #include "touch_input.hpp"
+#include "graphics/point.hpp"
+#include "helper/optional.hpp"
+#include "input/input.hpp"
 
 #include <cmath>
 #include <memory>
@@ -28,13 +31,21 @@ helper::optional<InputEvent>
 input::TouchGameInput::sdl_event_to_input_event( // NOLINT(readability-function-cognitive-complexity)
         const SDL_Event& event
 ) {
-    //TODO to handle those things better, holding has to be supported
 
-    // also take into accounts fingerId, since there may be multiple fingers, each finger has it's own saved state
-    const SDL_FingerID finger_id = event.tfinger.fingerId;
+    //TODO:
+    /*   if (event.tfinger.touchId != m_id) {
+        return helper::nullopt;
+    } */
+
+    //TODO to handle those things better, holding has to be supported
 
 
     if (event.type == SDL_FINGERDOWN) {
+
+        // also take into accounts fingerId, since there may be multiple fingers, each finger has it's own saved state
+        const SDL_FingerID finger_id = event.tfinger.fingerId;
+
+
         if (m_finger_state.contains(finger_id) and m_finger_state.at(finger_id).has_value()) {
             // there are some valid reasons, this can occur now
             return helper::nullopt;
@@ -54,6 +65,11 @@ input::TouchGameInput::sdl_event_to_input_event( // NOLINT(readability-function-
 
 
     if (event.type == SDL_FINGERUP) {
+
+        // also take into accounts fingerId, since there may be multiple fingers, each finger has it's own saved state
+        const SDL_FingerID finger_id = event.tfinger.fingerId;
+
+
         if (!m_finger_state.contains(finger_id) or !m_finger_state.at(finger_id).has_value()) {
             // there are some valid reasons, this can occur now
             return helper::nullopt;
@@ -153,22 +169,89 @@ input::TouchInput::get_by_device_index(const std::shared_ptr<Window>& window, in
 }
 
 
-[[nodiscard]] helper::optional<input::NavigationEvent> input::TouchInput::get_navigation_event(const SDL_Event& event) const {
+[[nodiscard]] helper::optional<input::NavigationEvent> input::TouchInput::get_navigation_event(const SDL_Event& event
+) const {
+    //technically no touch event, but it's a navigation event, and by APi design it can also handle those
+    if (event.type == SDL_KEYDOWN and event.key.keysym.sym == SDLK_AC_BACK) {
+        return input::NavigationEvent::BACK;
+    }
 
+    return helper::nullopt;
 }
 
-[[nodiscard]] std::string input::TouchInput::describe_navigation_event(NavigationEvent event) const { }
-
-[[nodiscard]] helper::optional<input::PointerEventHelper> input::TouchInput::get_pointer_event(const SDL_Event& event) const {
-
+[[nodiscard]] std::string input::TouchInput::describe_navigation_event(NavigationEvent event) const {
+    switch (event) {
+        case NavigationEvent::BACK:
+            return "Back";
+        case NavigationEvent::OK:
+        case NavigationEvent::DOWN:
+        case NavigationEvent::UP:
+        case NavigationEvent::LEFT:
+        case NavigationEvent::RIGHT:
+        case NavigationEvent::TAB:
+            return "Unsupported";
+        default:
+            utils::unreachable();
+    }
 }
+
+[[nodiscard]] helper::optional<input::PointerEventHelper> input::TouchInput::get_pointer_event(const SDL_Event& event
+) const {
+
+    auto pointer_event = input::PointerEvent::PointerUp;
+
+    switch (event.type) {
+        case SDL_FINGERMOTION:
+            pointer_event = input::PointerEvent::Motion;
+            break;
+        case SDL_FINGERDOWN:
+            pointer_event = input::PointerEvent::PointerDown;
+            break;
+        case SDL_FINGERUP:
+            break;
+        default:
+            return helper::nullopt;
+    }
+
+    if (event.tfinger.touchId != m_id) {
+        return helper::nullopt;
+    }
+
+    // These are doubles, from 0-1 (or if using virtual layouts > 0) in percent, the have to be casted to absolut x coordinates!
+    const double x_percent = event.tfinger.x;
+    const double y_percent = event.tfinger.y;
+    const auto window_size = m_window->size();
+    const auto x = static_cast<i32>(std::round(x_percent * window_size.x));
+    const auto y = static_cast<i32>(std::round(y_percent * window_size.y));
+
+
+    return input::PointerEventHelper{
+        shapes::IPoint{ x, y },
+        pointer_event
+    };
+}
+
 
 [[nodiscard]] SDL_Event input::TouchInput::offset_pointer_event(const SDL_Event& event, const shapes::IPoint& point)
         const {
 
-            
-         }
 
+    auto new_event = event;
+
+    if (event.type != SDL_FINGERMOTION and event.type != SDL_FINGERDOWN and event.type != SDL_FINGERUP) {
+        throw std::runtime_error("Tried to offset event, that is no pointer event: in Touch Input");
+    }
+
+    const double x_percent = event.tfinger.x;
+    const double y_percent = event.tfinger.y;
+
+    const auto window_size = m_window->size();
+
+    new_event.tfinger.x = x_percent + static_cast<double>(point.x) / static_cast<double>(window_size.x);
+    new_event.tfinger.y = y_percent + static_cast<double>(point.y) / static_cast<double>(window_size.y);
+
+    return new_event;
+}
 
 [[nodiscard]] helper::expected<bool, std::string> input::TouchSettings::validate() const {
 
@@ -185,29 +268,6 @@ input::TouchInput::get_by_device_index(const std::shared_ptr<Window>& window, in
     }
 
     return true;
-}
-
-
-[[nodiscard]] SDL_Event input::TouchInput::offset_pointer_event(const SDL_Event& event, const shapes::IPoint& point)
-        const {
-
-
-    auto new_event = event;
-
-    if (event.type != SDL_FINGERMOTION and event.type != SDL_FINGERDOWN and event.type != SDL_FINGERUP) {
-        throw std::runtime_error("Tried to offset event, that is no pointer event: in Touch Input");
-    }
-
-
-    const double x_percent = event.tfinger.x;
-    const double y_percent = event.tfinger.y;
-
-    const auto window_size = m_window->size();
-
-    new_event.tfinger.x = x_percent + static_cast<double>(point.x) / static_cast<double>(window_size.x);
-    new_event.tfinger.y = y_percent + static_cast<double>(point.y) / static_cast<double>(window_size.y);
-
-    return new_event;
 }
 
 
@@ -234,135 +294,3 @@ void input::TouchInputManager::discover_devices(
         }
     }
 }
-
-
-//TODO:
-/* 
-
-
-    decltype(event.type) desired_type{};
-    switch (click_type) {
-        case CrossPlatformClickEvent::Motion:
-            desired_type = SDL_FINGERMOTION;
-            break;
-        case CrossPlatformClickEvent::ButtonDown:
-            desired_type = SDL_FINGERDOWN;
-            break;
-        case CrossPlatformClickEvent::ButtonUp:
-            desired_type = SDL_FINGERUP;
-            break;
-        case CrossPlatformClickEvent::Any:
-            return event.type == SDL_FINGERMOTION || event.type == SDL_FINGERDOWN || event.type == SDL_FINGERUP;
-        default:
-            utils::unreachable();
-    }
-
-    return event.type == desired_type;
- */
-
-
-/**
- 
-
-
-[[nodiscard]] std::pair<i32, i32> utils::get_raw_coordinates(const Window* window, const SDL_Event& event) {
-
-    assert(utils::event_is_click_event(event, utils::CrossPlatformClickEvent::Any) && "expected a click event");
-
-#if defined(__ANDROID__)
-    // These are doubles, from 0-1 (or if using virtual layouts > 0) in percent, the have to be casted to absolut x coordinates!
-    const double x_percent = event.tfinger.x;
-    const double y_percent = event.tfinger.y;
-    const auto window_size = window->size();
-    const auto x = static_cast<i32>(std::round(x_percent * window_size.x));
-    const auto y = static_cast<i32>(std::round(y_percent * window_size.y));
-
-
-#elif defined(__SWITCH__)
-    UNUSED(window);
-    UNUSED(event);
-    throw std::runtime_error("Not supported on the Nintendo switch");
-    int x{};
-    int y{};
-#else
-    UNUSED(window);
-
-    Sint32 x{};
-    Sint32 y{};
-    switch (event.type) {
-        case SDL_MOUSEMOTION:
-            x = event.motion.x;
-            y = event.motion.y;
-            break;
-        case SDL_MOUSEBUTTONDOWN:
-        case SDL_MOUSEBUTTONUP:
-            x = event.button.x;
-            y = event.button.y;
-            break;
-        default:
-            utils::unreachable();
-    }
-#endif
-
-
-    return { static_cast<i32>(x), static_cast<i32>(y) };
-}
-
-
- * 
- */
-
-
-//TODO:
-/* 
-[[nodiscard]] bool utils::event_is_action(const SDL_Event& event, const CrossPlatformAction action) {
-    switch (action) {
-        case CrossPlatformAction::OK:
-        case CrossPlatformAction::DOWN:
-        case CrossPlatformAction::UP:
-        case CrossPlatformAction::LEFT:
-        case CrossPlatformAction::RIGHT:
-        case CrossPlatformAction::OPEN_SETTINGS:
-        case CrossPlatformAction::TAB:
-            // this can't be checked here, it has to be checked via collision on buttons etc. event_is_action(..., ...::DOWN, UP ...) can only be used inside device_supports_keys() clauses!
-            throw std::runtime_error("Not supported on android 'event_is_action'");
-        case CrossPlatformAction::PAUSE:
-            return (event.type == SDL_KEYDOWN and event.key.keysym.sym == SDLK_AC_BACK);
-
-        case CrossPlatformAction::UNPAUSE:
-            return event.type == SDL_FINGERDOWN;
-
-        case CrossPlatformAction::EXIT:
-        case CrossPlatformAction::CLOSE:
-            return (event.type == SDL_KEYDOWN and event.key.keysym.sym == SDLK_AC_BACK);
-
-        default:
-            utils::unreachable();
-    }
-
-
-    [[nodiscard]] std::string utils::action_description(CrossPlatformAction action) {
-
-
-        switch (action) {
-            case CrossPlatformAction::OK:
-            case CrossPlatformAction::DOWN:
-            case CrossPlatformAction::UP:
-            case CrossPlatformAction::LEFT:
-            case CrossPlatformAction::RIGHT:
-            case CrossPlatformAction::OPEN_SETTINGS:
-            case CrossPlatformAction::TAB:
-                // this can't be checked here, it has to be checked via collision on buttons etc. event_is_action(..., ...::DOWN, UP ...) can only be used inside device_supports_keys() clauses!
-                throw std::runtime_error("Not supported on android 'action_description'");
-            case CrossPlatformAction::UNPAUSE:
-                return "Tap anywhere";
-            case CrossPlatformAction::PAUSE:
-            case CrossPlatformAction::EXIT:
-            case CrossPlatformAction::CLOSE:
-                return "Back";
-
-            default:
-                utils::unreachable();
-        }
-    }
- */
