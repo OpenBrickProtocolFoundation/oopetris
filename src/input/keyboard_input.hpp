@@ -76,7 +76,6 @@ namespace input {
 
         [[nodiscard]] std::string describe_menu_event(MenuEvent event) const override;
 
-
     private:
         [[nodiscard]] helper::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event) const;
     };
