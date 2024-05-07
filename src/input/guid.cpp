@@ -20,6 +20,10 @@ SDL::GUID::GUID(const SDL_GUID& data) : m_guid{} {
     return helper::unexpected<std::string>{ result.error() };
 }
 
+[[nodiscard]] bool SDL::GUID::operator==(const GUID& other) const {
+    return m_guid == other.m_guid;
+}
+
 
 [[nodiscard]] std::string SDL::GUID::to_string(FormatType type) const {
     switch (type) {

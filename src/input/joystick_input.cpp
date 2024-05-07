@@ -79,7 +79,7 @@ input::JoystickInput::get_by_device_index(int device_index) {
 
     const auto guid = SDL::GUID{ SDL_JoystickGetGUID(joystick) };
 
-    if (guid == SDL::GUID::zero()) {
+    if (guid == SDL::GUID{}) {
         return helper::unexpected<std::string>{ fmt::format("Failed to get joystick GUID: {}", SDL_GetError()) };
     }
 
@@ -368,6 +368,11 @@ void JoystickGameInput::update(SimulationStep simulation_step_index) {
 //TODO: use settings
 helper::optional<InputEvent> JoystickSwitchGameInput_Type1::sdl_event_to_input_event(const SDL_Event& event) const {
     if (event.type == SDL_JOYBUTTONDOWN) {
+
+        if (event.jbutton.which != m_instance_id) {
+            return helper::nullopt;
+        }
+
         //TODO: use switch case
         const auto button = event.jbutton.button;
         if (button == JOYCON_DPAD_LEFT) {
@@ -392,6 +397,11 @@ helper::optional<InputEvent> JoystickSwitchGameInput_Type1::sdl_event_to_input_e
             return InputEvent::HoldPressed;
         }
     } else if (event.type == SDL_JOYBUTTONUP) {
+
+        if (event.jbutton.which != m_instance_id) {
+            return helper::nullopt;
+        }
+
         const auto button = event.jbutton.button;
         if (button == JOYCON_DPAD_LEFT) {
             return InputEvent::RotateLeftReleased;
@@ -422,6 +432,11 @@ helper::optional<InputEvent> JoystickSwitchGameInput_Type1::sdl_event_to_input_e
 //TODO: use settings
 helper::optional<InputEvent> JoystickInput::sdl_event_to_input_event(const SDL_Event& event) const {
     if (event.type == SDL_JOYBUTTONDOWN) {
+
+        if (event.jbutton.which != m_instance_id) {
+            return helper::nullopt;
+        }
+
         const auto button = event.jbutton.button;
         if (button == JOYCON_L) {
             return InputEvent::RotateLeftPressed;
@@ -445,6 +460,11 @@ helper::optional<InputEvent> JoystickInput::sdl_event_to_input_event(const SDL_E
             return InputEvent::HoldPressed;
         }
     } else if (event.type == SDL_JOYBUTTONUP) {
+
+        if (event.jbutton.which != m_instance_id) {
+            return helper::nullopt;
+        }
+
         const auto button = event.jbutton.button;
         if (button == JOYCON_L) {
             return InputEvent::RotateLeftReleased;

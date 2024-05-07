@@ -153,6 +153,23 @@ input::TouchInput::get_by_device_index(const std::shared_ptr<Window>& window, in
 }
 
 
+[[nodiscard]] helper::optional<input::NavigationEvent> input::TouchInput::get_navigation_event(const SDL_Event& event) const {
+
+}
+
+[[nodiscard]] std::string input::TouchInput::describe_navigation_event(NavigationEvent event) const { }
+
+[[nodiscard]] helper::optional<input::PointerEventHelper> input::TouchInput::get_pointer_event(const SDL_Event& event) const {
+
+}
+
+[[nodiscard]] SDL_Event input::TouchInput::offset_pointer_event(const SDL_Event& event, const shapes::IPoint& point)
+        const {
+
+            
+         }
+
+
 [[nodiscard]] helper::expected<bool, std::string> input::TouchSettings::validate() const {
 
     if (move_x_threshold > 1.0 || move_x_threshold < 0.0) {
@@ -217,6 +234,83 @@ void input::TouchInputManager::discover_devices(
         }
     }
 }
+
+
+//TODO:
+/* 
+
+
+    decltype(event.type) desired_type{};
+    switch (click_type) {
+        case CrossPlatformClickEvent::Motion:
+            desired_type = SDL_FINGERMOTION;
+            break;
+        case CrossPlatformClickEvent::ButtonDown:
+            desired_type = SDL_FINGERDOWN;
+            break;
+        case CrossPlatformClickEvent::ButtonUp:
+            desired_type = SDL_FINGERUP;
+            break;
+        case CrossPlatformClickEvent::Any:
+            return event.type == SDL_FINGERMOTION || event.type == SDL_FINGERDOWN || event.type == SDL_FINGERUP;
+        default:
+            utils::unreachable();
+    }
+
+    return event.type == desired_type;
+ */
+
+
+/**
+ 
+
+
+[[nodiscard]] std::pair<i32, i32> utils::get_raw_coordinates(const Window* window, const SDL_Event& event) {
+
+    assert(utils::event_is_click_event(event, utils::CrossPlatformClickEvent::Any) && "expected a click event");
+
+#if defined(__ANDROID__)
+    // These are doubles, from 0-1 (or if using virtual layouts > 0) in percent, the have to be casted to absolut x coordinates!
+    const double x_percent = event.tfinger.x;
+    const double y_percent = event.tfinger.y;
+    const auto window_size = window->size();
+    const auto x = static_cast<i32>(std::round(x_percent * window_size.x));
+    const auto y = static_cast<i32>(std::round(y_percent * window_size.y));
+
+
+#elif defined(__SWITCH__)
+    UNUSED(window);
+    UNUSED(event);
+    throw std::runtime_error("Not supported on the Nintendo switch");
+    int x{};
+    int y{};
+#else
+    UNUSED(window);
+
+    Sint32 x{};
+    Sint32 y{};
+    switch (event.type) {
+        case SDL_MOUSEMOTION:
+            x = event.motion.x;
+            y = event.motion.y;
+            break;
+        case SDL_MOUSEBUTTONDOWN:
+        case SDL_MOUSEBUTTONUP:
+            x = event.button.x;
+            y = event.button.y;
+            break;
+        default:
+            utils::unreachable();
+    }
+#endif
+
+
+    return { static_cast<i32>(x), static_cast<i32>(y) };
+}
+
+
+ * 
+ */
 
 
 //TODO:

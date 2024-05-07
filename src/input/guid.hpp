@@ -28,8 +28,6 @@ namespace SDL {
 
         GUID(const SDL_GUID& data);
 
-        [[nodiscard]] static GUID zero();
-
         [[nodiscard]] static helper::expected<GUID, std::string> from_string(const std::string& value);
 
         [[nodiscard]] bool operator==(const GUID& other) const;
