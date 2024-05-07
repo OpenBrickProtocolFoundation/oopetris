@@ -259,7 +259,7 @@ input::SwitchJoystickInput_Type1::SwitchJoystickInput_Type1(
         case NavigationEvent::RIGHT:
             return "Right";
         case NavigationEvent::TAB:
-            return "Unsupported";
+            throw std::runtime_error("Tab is not supported");
         default:
             utils::unreachable();
     }
@@ -336,7 +336,7 @@ input::_3DSJoystickInput_Type1::_3DSJoystickInput_Type1(
         case NavigationEvent::RIGHT:
             return "Right";
         case NavigationEvent::TAB:
-            return "Unsupported";
+            throw std::runtime_error("Tab is not supported");
         default:
             utils::unreachable();
     }
