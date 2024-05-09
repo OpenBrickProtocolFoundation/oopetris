@@ -34,7 +34,7 @@ jobs:
 
           - name: Linux Release
             os: ubuntu
-            os-version: 22.04
+            os-version: 24.04
             buildtype: release
             use-clang: false
             library_type: shared
@@ -42,7 +42,7 @@ jobs:
 
           - name: Linux Clang Release (libstdc++)
             os: ubuntu
-            os-version: 22.04
+            os-version: 24.04
             buildtype: release
             use-clang: true
             use-clang_stdlib: false
@@ -51,7 +51,7 @@ jobs:
 
           - name: Linux Clang Release (libc++)
             os: ubuntu
-            os-version: 22.04
+            os-version: 24.04
             buildtype: release
             use-clang: true
             use-clang_stdlib: true
