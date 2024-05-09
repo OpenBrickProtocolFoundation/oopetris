@@ -18,8 +18,6 @@ namespace input {
 
     public:
         KeyboardInput();
-        virtual ~KeyboardInput();
-
 
         [[nodiscard]] helper::optional<NavigationEvent> get_navigation_event(const SDL_Event& event) const override;
 

@@ -4,6 +4,7 @@
 #include "helper/expected.hpp"
 #include "helper/optional.hpp"
 #include "helper/utils.hpp"
+#include "input/game_input.hpp"
 #include "input/input.hpp"
 
 #include <spdlog/spdlog.h>
@@ -52,7 +53,6 @@ input::JoystickInput::~JoystickInput() {
 [[nodiscard]] helper::expected<std::unique_ptr<input::JoystickInput>, std::string>
 input::JoystickInput::get_by_device_index(int device_index) {
 
-
     auto* joystick = SDL_JoystickOpen(device_index);
 
     if (joystick == nullptr) {
@@ -94,9 +94,11 @@ input::JoystickInput::get_by_device_index(int device_index) {
     ) };
 }
 
+[[nodiscard]] SDL_JoystickID input::JoystickInput::instance_id() const {
+    return m_instance_id;
+}
 
 void input::JoyStickInputManager::discover_devices(std::vector<std::unique_ptr<Input>>& inputs) {
-
 
     //initialize joystick input, this needs to call some sdl things
 
@@ -344,29 +346,54 @@ input::_3DSJoystickInput_Type1::_3DSJoystickInput_Type1(
 
 
 #endif
+#endif
 
-void JoystickGameInput::handle_event(const SDL_Event& event, const Window*) {
+void input::JoystickGameInput::handle_event(const SDL_Event& event) {
     m_event_buffer.push_back(event);
 }
 
-void JoystickGameInput::update(SimulationStep simulation_step_index) {
+void input::JoystickGameInput::update(SimulationStep simulation_step_index) {
     for (const auto& event : m_event_buffer) {
         const auto input_event = sdl_event_to_input_event(event);
         if (input_event.has_value()) {
-            Input::handle_event(*input_event, simulation_step_index);
+            GameInput::handle_event(*input_event, simulation_step_index);
         }
     }
     m_event_buffer.clear();
 
-    Input::update(simulation_step_index);
+    GameInput::update(simulation_step_index);
 }
 
+
+[[nodiscard]] helper::optional<std::shared_ptr<input::JoystickGameInput>>
+input::JoystickGameInput::get_game_input_by_settings(
+        const input::InputManager& input_manager,
+        EventDispatcher* event_dispatcher,
+        const JoystickSettings& settings
+) {
+
+    //TODO: filter all input_manager.inputs() by guid, than try to get them in order, by trying to convert the settings validate them and create the game input
+
+    //TODO: set up: that on removal of the joystick_input pause is pressed and either a new gam,einput is created or waited until he reconnects!
+
+
+    UNUSED(input_manager);
+    UNUSED(settings);
+    UNUSED(event_dispatcher);
+    UNUSED(settings);
+
+    return helper::nullopt;
+}
+
+
+#if defined(__CONSOLE__)
 #if defined(__SWITCH__)
+
 
 // game_input uses Input to handle events, but stores the config settings for the specific button
 
 //TODO: use settings
-helper::optional<InputEvent> JoystickSwitchGameInput_Type1::sdl_event_to_input_event(const SDL_Event& event) const {
+helper::optional<InputEvent> SwitchJoystickGameInput_Type1::sdl_event_to_input_event(const SDL_Event& event) const {
     if (event.type == SDL_JOYBUTTONDOWN) {
 
         if (event.jbutton.which != m_instance_id) {
@@ -430,7 +457,7 @@ helper::optional<InputEvent> JoystickSwitchGameInput_Type1::sdl_event_to_input_e
 #elif defined(__3DS__)
 
 //TODO: use settings
-helper::optional<InputEvent> JoystickInput::sdl_event_to_input_event(const SDL_Event& event) const {
+helper::optional<InputEvent> _3DSJoystickGameInput_Type1::sdl_event_to_input_event(const SDL_Event& event) const {
     if (event.type == SDL_JOYBUTTONDOWN) {
 
         if (event.jbutton.which != m_instance_id) {
@@ -496,18 +523,9 @@ helper::optional<InputEvent> JoystickInput::sdl_event_to_input_event(const SDL_E
 #endif
 
 
-[[nodiscard]] helper::expected<bool, std::string> input::JoystickSettings::validate() const {
-
-    const std::vector<std::string> to_use{ rotate_left, rotate_right, move_left, move_right,   move_down,
-                                           drop,        hold,         pause,     open_settings };
-
-    return input::InputSettings::has_unique_members(to_use);
-}
-
-
 std::string json_helper::get_key_from_object(const nlohmann::json& j, const std::string& name) {
 
-    auto context = j.at(name);
+    const auto& context = j.at(name);
 
     std::string input;
     context.get_to(input);

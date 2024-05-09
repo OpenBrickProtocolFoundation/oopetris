@@ -1,9 +1,8 @@
-
-
-
 #include "touch_input.hpp"
 #include "graphics/point.hpp"
 #include "helper/optional.hpp"
+#include "helper/utils.hpp"
+#include "input/game_input.hpp"
 #include "input/input.hpp"
 
 #include <cmath>
@@ -139,15 +138,33 @@ input::TouchGameInput::sdl_event_to_input_event( // NOLINT(readability-function-
 }
 
 
+[[nodiscard]] helper::optional<input::MenuEvent> input::TouchGameInput::get_menu_event(const SDL_Event& event) const {
+
+    if (event.type == SDL_KEYDOWN and event.key.keysym.sym == SDLK_AC_BACK) {
+        return MenuEvent::PAUSE;
+    }
+
+    return helper::nullopt;
+}
+
+[[nodiscard]] std::string input::TouchGameInput::describe_menu_event(MenuEvent event) const {
+    switch (event) {
+        case input::MenuEvent::PAUSE:
+            return "Back";
+        case input::MenuEvent::OPEN_SETTINGS:
+            throw std::runtime_error("Open Settings is not supported");
+        default:
+            utils::unreachable();
+    }
+}
+
 input::TouchInput::TouchInput(const std::shared_ptr<Window>& window, SDL_TouchID id, const std::string& name)
     : PointerInput{ name },
       m_window{ window },
       m_id{ id } { }
 
-
 [[nodiscard]] helper::expected<std::unique_ptr<input::TouchInput>, std::string>
 input::TouchInput::get_by_device_index(const std::shared_ptr<Window>& window, int device_index) {
-
 
     const auto touch_id = SDL_GetTouchDevice(device_index);
 
@@ -156,7 +173,6 @@ input::TouchInput::get_by_device_index(const std::shared_ptr<Window>& window, in
             fmt::format("Failed to get touch id at device index {}: {}", device_index, SDL_GetError())
         };
     }
-
 
     std::string name = "unknown name";
     const auto* char_name = SDL_GetTouchName(device_index);

@@ -13,6 +13,10 @@
 #include <stdexcept>
 
 
+input::Input::Input(const std::string& name, InputType type) : m_name{ name }, m_type{ type } { }
+
+input::Input::~Input() = default;
+
 input::PointerEventHelper::PointerEventHelper(shapes::IPoint pos, PointerEvent event)
     : m_pos{ pos },
       m_event{ event } { }
@@ -148,31 +152,42 @@ input::InputManager::~InputManager() = default;
 //TODO: improve this API, to correctly use settings to determine the input to use.
 [[nodiscard]] std::shared_ptr<input::GameInput> input::InputManager::get_game_input(ServiceProvider* service_provider) {
 
+    //TODO: use smart pointer for the event dispatcher
 
-    //TODO: select the first suitable
+
+    //TODO: select the first suitable, by using the primary input method or some other settings!
     for (const auto& control : service_provider->settings_manager().controls()) {
 
         return std::visit(
-                helper::overloaded{
-                        [service_provider](const input::KeyboardSettings& keyboard_settings
-                        ) mutable -> std::shared_ptr<GameInput> {
-                            auto* const event_dispatcher = &(service_provider->event_dispatcher());
-                            auto input =
-                                    std::make_shared<input::KeyboardGameInput>(keyboard_settings, event_dispatcher);
-                            return input;
-                        },
-                        [service_provider](const input::JoystickSettings& joystick_settings
-                        ) mutable -> std::shared_ptr<GameInput> {
-                            auto* const event_dispatcher = &(service_provider->event_dispatcher());
-                            auto input = std::make_shared<JoystickGameInput>(joystick_settings, event_dispatcher);
-                            return input;
-                        },
-                        [service_provider](const input::TouchSettings& touch_settings
-                        ) mutable -> std::shared_ptr<GameInput> {
-                            auto* const event_dispatcher = &(service_provider->event_dispatcher());
-                            auto input = std::make_shared<TouchGameInput>(touch_settings, event_dispatcher);
-                            return input;
-                        } },
+                helper::overloaded{ [service_provider](const input::KeyboardSettings& keyboard_settings
+                                    ) mutable -> std::shared_ptr<GameInput> {
+                                       auto* const event_dispatcher = &(service_provider->event_dispatcher());
+                                       auto input = std::make_shared<input::KeyboardGameInput>(
+                                               keyboard_settings, event_dispatcher
+                                       );
+                                       return input;
+                                   },
+                                    [service_provider](const input::JoystickSettings& joystick_settings
+                                    ) mutable -> std::shared_ptr<GameInput> {
+                                        auto* const event_dispatcher = &(service_provider->event_dispatcher());
+                                        auto input = input::JoystickGameInput::get_game_input_by_settings(
+                                                service_provider->input_manager(), event_dispatcher, joystick_settings
+                                        );
+
+                                        //TODO: better error handling, if this fails look forward in the
+                                        if (not input.has_value()) {
+                                            throw std::runtime_error("Not possible to get joystick by settings");
+                                        }
+
+
+                                        return input.value();
+                                    },
+                                    [service_provider](const input::TouchSettings& touch_settings
+                                    ) mutable -> std::shared_ptr<GameInput> {
+                                        auto* const event_dispatcher = &(service_provider->event_dispatcher());
+                                        auto input = std::make_shared<TouchGameInput>(touch_settings, event_dispatcher);
+                                        return input;
+                                    } },
                 control
         );
     }
@@ -202,3 +217,5 @@ input::InputManager::~InputManager() = default;
     assert(not m_inputs.empty() && "at least one input has to be given");
     return m_inputs.at(0);
 }
+
+input::PointerInput::PointerInput(const std::string& name) : Input{ name, input::InputType::Pointer } { }

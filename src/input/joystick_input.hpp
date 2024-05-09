@@ -42,7 +42,12 @@ namespace input {
         [[nodiscard]] static helper::expected<std::unique_ptr<JoystickInput>, std::string> get_by_device_index(
                 int device_index
         );
+
         [[nodiscard]] SDL_JoystickID instance_id() const;
+
+        // Add get_game_input method!
+
+
     };
 
 
@@ -66,23 +71,32 @@ namespace input {
     };
 
     //using std::string in here, since we only know, if these are valid joystick button names, after parsing the GUID and than seeing if we support that joystick and than using the string mappings for that specific joystick
-    struct JoystickSettings {
+
+    template<typename T>
+    struct AbstractJoystickSettings {
         JoystickIdentification identification;
 
-        std::string rotate_left;
-        std::string rotate_right;
-        std::string move_left;
-        std::string move_right;
-        std::string move_down;
-        std::string drop;
-        std::string hold;
+        T rotate_left;
+        T rotate_right;
+        T move_left;
+        T move_right;
+        T move_down;
+        T drop;
+        T hold;
 
-        std::string pause;
-        std::string open_settings;
+        T pause;
+        T open_settings;
 
 
-        [[nodiscard]] helper::expected<bool, std::string> validate() const;
+        [[nodiscard]] helper::expected<bool, std::string> validate() const {
+            const std::vector<std::string> to_use{ rotate_left, rotate_right, move_left, move_right,   move_down,
+                                                   drop,        hold,         pause,     open_settings };
+
+            return input::InputSettings::has_unique_members(to_use);
+        }
     };
+
+    using JoystickSettings = AbstractJoystickSettings<std::string>;
 
 
     //TODO: differntiate different controllers and modes, e.g the switch can have pro controller, the included ones, each of them seperate etc.
@@ -123,16 +137,15 @@ namespace input {
 
 #endif
 
+
     struct JoystickGameInput : public GameInput, public EventListener {
     private:
-        JoystickSettings m_settings;
         std::vector<SDL_Event> m_event_buffer;
         EventDispatcher* m_event_dispatcher;
 
     public:
-        JoystickGameInput(const JoystickSettings& settings, EventDispatcher* event_dispatcher)
+        JoystickGameInput(EventDispatcher* event_dispatcher)
             : GameInput{ GameInputType::Controller },
-              m_settings{ settings },
               m_event_dispatcher{ event_dispatcher } {
             m_event_dispatcher->register_listener(this);
         }
@@ -145,13 +158,49 @@ namespace input {
 
         void update(SimulationStep simulation_step_index) override;
 
+        [[nodiscard]] static helper::optional<std::shared_ptr<JoystickGameInput>> get_game_input_by_settings(
+                const input::InputManager& input_manager,
+                EventDispatcher* event_dispatcher,
+                const JoystickSettings& settings
+        );
+
+    protected:
+        [[nodiscard]] virtual helper::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event) const = 0;
+    };
+
+
+#if defined(__CONSOLE__)
+#if defined(__SWITCH__)
+
+    struct SwitchJoystickGameInput_Type1 : public JoystickGameInput {
+
+    public:
+        SwitchJoystickGameInput_Type1(JoystickSettings settings, EventDispatcher* event_dispatcher);
+
         [[nodiscard]] helper::optional<MenuEvent> get_menu_event(const SDL_Event& event) const override;
 
         [[nodiscard]] std::string describe_menu_event(MenuEvent event) const override;
 
-    private:
-        [[nodiscard]] helper::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event) const;
+    protected:
+        [[nodiscard]] helper::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event) const override;
     };
+
+#elif defined(__3DS__)
+    struct _3DSJoystickGameInput_Type1 : public JoystickGameInput {
+
+    public:
+        _3DSJoystickGameInput_Type1(JoystickSettings settings, EventDispatcher* event_dispatcher);
+
+        [[nodiscard]] helper::optional<MenuEvent> get_menu_event(const SDL_Event& event) const override;
+
+        [[nodiscard]] std::string describe_menu_event(MenuEvent event) const override;
+
+    protected:
+        [[nodiscard]] helper::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event) const override;
+    };
+
+#endif
+#endif
 
 } // namespace input
 
