@@ -32,10 +32,10 @@ input::PointerEventHelper::PointerEventHelper(shapes::IPoint pos, PointerEvent e
 [[nodiscard]] bool input::PointerEventHelper::is_in(const shapes::URect& rect) const {
     using Type = decltype(m_pos)::Type;
 
-    assert(rect.top_left.x <= std::numeric_limits<Type>::max());
-    assert(rect.top_left.y <= std::numeric_limits<Type>::max());
-    assert(rect.bottom_right.x <= std::numeric_limits<Type>::max());
-    assert(rect.bottom_right.y <= std::numeric_limits<Type>::max());
+    assert(rect.top_left.x <= static_cast<u32>(std::numeric_limits<Type>::max()));
+    assert(rect.top_left.y <=  static_cast<u32>(std::numeric_limits<Type>::max()));
+    assert(rect.bottom_right.x <=  static_cast<u32>(std::numeric_limits<Type>::max()));
+    assert(rect.bottom_right.y <=  static_cast<u32>(std::numeric_limits<Type>::max()));
 
     return is_in(rect.cast<Type>());
 }

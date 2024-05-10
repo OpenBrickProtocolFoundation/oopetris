@@ -258,13 +258,15 @@ input::TouchInput::get_by_device_index(const std::shared_ptr<Window>& window, in
         throw std::runtime_error("Tried to offset event, that is no pointer event: in Touch Input");
     }
 
-    const double x_percent = event.tfinger.x;
-    const double y_percent = event.tfinger.y;
+    using FloatType = decltype(event.tfinger.x); 
+
+    const FloatType x_percent = event.tfinger.x;
+    const FloatType y_percent = event.tfinger.y;
 
     const auto window_size = m_window->size();
 
-    new_event.tfinger.x = x_percent + static_cast<double>(point.x) / static_cast<double>(window_size.x);
-    new_event.tfinger.y = y_percent + static_cast<double>(point.y) / static_cast<double>(window_size.y);
+    new_event.tfinger.x = x_percent + static_cast<FloatType>(point.x) / static_cast<FloatType>(window_size.x);
+    new_event.tfinger.y = y_percent + static_cast<FloatType>(point.y) / static_cast<FloatType>(window_size.y);
 
     return new_event;
 }
