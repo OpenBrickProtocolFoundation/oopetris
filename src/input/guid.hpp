@@ -12,7 +12,7 @@
 
 extern "C" {
 #if SDL_MAJOR_VERSION < 2 || SDL_MINOR_VERSION < 30 || SDL_PATCHLEVEL < 0
-typedef SDL_GUID SDL_JoystickGUID; //NOLINT(modernize-use-using), it's used in extern C, there is no using
+typedef SDL_JoystickGUID SDL_GUID; //NOLINT(modernize-use-using), it's used in extern C, there is no using
 #endif
 }
 
