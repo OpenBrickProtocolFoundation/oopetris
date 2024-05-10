@@ -302,7 +302,6 @@ namespace {
 
 helper::expected<SDL::Key, std::string> SDL::Key::from_string(const std::string& value) {
 
-
     auto tokens = split_string_by_char(value, "+");
     for (auto& token : tokens) {
         trim(token);
@@ -312,9 +311,18 @@ helper::expected<SDL::Key, std::string> SDL::Key::from_string(const std::string&
 
     for (size_t i = 0; i < tokens.size(); ++i) {
         const auto& token = tokens.at(i);
+
+        if (token.empty()) {
+            return helper::unexpected<std::string>{ "Empty token" };
+        }
+
         if (i + 1 == tokens.size()) {
             const auto keycode = SDL::Key::sdl_keycode_from_string(token);
             if (not keycode.has_value()) {
+                const auto modifier = modifier_from_string(token);
+                if (modifier.has_value()) {
+                    return helper::unexpected<std::string>{ "No key but only modifiers given" };
+                }
                 return helper::unexpected<std::string>{ keycode.error() };
             }
 
@@ -352,9 +360,57 @@ helper::expected<SDL::Key, std::string> SDL::Key::from_string(const std::string&
 }
 
 [[nodiscard]] bool SDL::Key::has_modifier_exact(const Modifier& modifier) const {
-    const auto sdl_modifier = to_sdl_modifier(modifier);
 
-    return (m_modifiers & sdl_modifier) == sdl_modifier;
+    SDL::Modifier has_not;
+
+    switch (modifier) {
+        case SDL::Modifier::LSHIFT:
+            has_not = SDL::Modifier::RSHIFT;
+            break;
+        case SDL::Modifier::RSHIFT:
+            has_not = SDL::Modifier::LSHIFT;
+            break;
+        case SDL::Modifier::LCTRL:
+            has_not = SDL::Modifier::RCTRL;
+            break;
+        case SDL::Modifier::RCTRL:
+            has_not = SDL::Modifier::LCTRL;
+            break;
+        case SDL::Modifier::LALT:
+            has_not = SDL::Modifier::RALT;
+            break;
+        case SDL::Modifier::RALT:
+            has_not = SDL::Modifier::LALT;
+            break;
+        case SDL::Modifier::LGUI:
+            has_not = SDL::Modifier::RGUI;
+            break;
+        case SDL::Modifier::RGUI:
+            has_not = SDL::Modifier::LGUI;
+            break;
+
+        case SDL::Modifier::NUM:
+        case SDL::Modifier::CAPS:
+        case SDL::Modifier::MODE:
+        case SDL::Modifier::SCROLL:
+
+        case SDL::Modifier::CTRL:
+        case SDL::Modifier::SHIFT:
+        case SDL::Modifier::ALT:
+        case SDL::Modifier::GUI: {
+            const auto sdl_modifier = to_sdl_modifier(modifier);
+            return (m_modifiers & sdl_modifier) == sdl_modifier;
+        }
+
+        default:
+            utils::unreachable();
+    }
+
+
+    const auto sdl_modifier = to_sdl_modifier(modifier);
+    const auto sdl_modifier_not = to_sdl_modifier(has_not);
+
+    return (m_modifiers & sdl_modifier) == sdl_modifier && (m_modifiers & sdl_modifier_not) == 0;
 }
 
 
@@ -401,13 +457,26 @@ helper::expected<SDL::Key, std::string> SDL::Key::from_string(const std::string&
 [[nodiscard]] std::string SDL::Key::to_string() const {
     std::vector<std::string> parts{};
 
-    const auto& [_, special, multiple] = get_modifier_type_array();
+    const auto& [normal, special, multiple] = get_modifier_type_array();
 
     for (const auto modifier : special) {
         if (has_modifier(modifier)) {
             parts.emplace_back(modifier_to_string(modifier));
         }
     }
+
+    for (const auto modifier : multiple) {
+        if (has_modifier_exact(modifier)) {
+            parts.emplace_back(modifier_to_string(modifier));
+        }
+    }
+
+    for (const auto modifier : normal) {
+        if (has_modifier_exact(modifier)) {
+            parts.emplace_back(modifier_to_string(modifier));
+        }
+    }
+
 
     parts.emplace_back(sdl_key_name(m_keycode));
 

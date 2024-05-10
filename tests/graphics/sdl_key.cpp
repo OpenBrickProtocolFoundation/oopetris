@@ -28,11 +28,23 @@ TEST(SDLKey, SimpleComparision) {
 TEST(SDLKey, FromString) {
 
     const std::vector<std::tuple<helper::expected<SDL::Key, std::string>, std::string>> strings{
-        {                         SDL::Key{ SDLK_1, { SDL::Modifier::CTRL } },    "Ctrl + 1" },
-        {                       SDL::Key{ SDLK_1, { SDL::Modifier::LSHIFT } }, "Shift-L + 1" },
-        {                       SDL::Key{ SDLK_1, { SDL::Modifier::RSHIFT } }, "Shift-R + 1" },
-        { helper::unexpected<std::string>{ "Not a valid modifier: 'ShiftL'" },  "ShiftL + 1" },
-     { helper::unexpected<std::string>{ "Duplicate modifier: 'Shift'" },  "Shift + Shift + 1" },
+        {                                                               SDL::Key{ SDLK_1, { SDL::Modifier::CTRL } },"Ctrl + 1"                                                                                                                    },
+        {                                                             SDL::Key{ SDLK_1, { SDL::Modifier::LSHIFT } },       "Shift-L + 1" },
+        {                                                             SDL::Key{ SDLK_1, { SDL::Modifier::RSHIFT } },       "Shift-R + 1" },
+        {                                       helper::unexpected<std::string>{ "Not a valid modifier: 'ShiftL'" },        "ShiftL + 1" },
+        {                                          helper::unexpected<std::string>{ "Duplicate modifier: 'Shift'" }, "Shift + Shift + 1" },
+        {                                      helper::unexpected<std::string>{ "No key but only modifiers given" },             "Shift" },
+        {                                                          helper::unexpected<std::string>{ "Empty token" },                  "" },
+        {                                                          helper::unexpected<std::string>{ "Empty token" },         "   + \t  " },
+        {                                                                                        SDL::Key{ SDLK_1 },                 "1" },
+        { SDL::Key{ SDLK_1, { SDL::Modifier::CTRL, SDL::Modifier::ALT, SDL::Modifier::SHIFT, SDL::Modifier::GUI } },
+         "Shift + Alt + Ctrl + Gui + 1"                                                                                                 },
+        {                                                              SDL::Key{ SDLK_1, { SDL::Modifier::LCTRL } },        "Ctrl-L + 1" },
+        {                                                              SDL::Key{ SDLK_1, { SDL::Modifier::RCTRL } },        "Ctrl-R + 1" },
+        {                                                               SDL::Key{ SDLK_1, { SDL::Modifier::LALT } },         "Alt-L + 1" },
+        {                                                               SDL::Key{ SDLK_1, { SDL::Modifier::RALT } },         "Alt-R + 1" },
+        {                                                               SDL::Key{ SDLK_1, { SDL::Modifier::LGUI } },         "Gui-L + 1" },
+        {                                                               SDL::Key{ SDLK_1, { SDL::Modifier::RGUI } },         "Gui-R + 1" },
     };
 
     for (const auto& [correct, str] : strings) {
