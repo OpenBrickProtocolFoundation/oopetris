@@ -1,4 +1,3 @@
-
 if meson.is_cross_build()
     error('Tests are not supported for cross builds (atm)')
 endif
@@ -14,7 +13,6 @@ graphics_test_src = []
 
 test_deps += dependency('gtest')
 test_deps += dependency('gmock')
-
 
 subdir('core')
 subdir('graphics')
@@ -52,8 +50,6 @@ graphics_tests = executable(
     graphics_test_src,
     include_directories: test_inc_dirs,
     dependencies: [test_deps, liboopetris_graphics_dep],
-    ## COLOR_TEST_MODE =  0 (SET_VALUE) | 1 (EXHAUSTIVE) | any other number : use that many steps from exhaustive, see code
-    cpp_args: ['-DCOLOR_TEST_MODE=0'],
     override_options: {
         'warning_level': '3',
         'werror': true,

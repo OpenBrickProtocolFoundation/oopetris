@@ -21,3 +21,8 @@ SettingsManager::SettingsManager(ServiceProvider* service_provider) : m_service_
         };
     }
 }
+
+
+[[nodiscard]] const std::vector<Controls>& SettingsManager::controls() const {
+    return m_current_settings.controls;
+}

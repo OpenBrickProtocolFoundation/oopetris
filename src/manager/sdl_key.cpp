@@ -9,6 +9,7 @@
 #include <string>
 #include <tuple>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 
@@ -246,6 +247,21 @@ namespace {
         return res;
     }
 
+    // trim from start (in place)
+    inline void ltrim(std::string& s) {
+        s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) { return !std::isspace(ch); }));
+    }
+
+    // trim from end (in place)
+    inline void rtrim(std::string& s) {
+        s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) { return !std::isspace(ch); }).base(), s.end());
+    }
+
+    void trim(std::string& s) {
+        ltrim(s);
+        rtrim(s);
+    }
+
     constexpr helper::optional<SDL::Modifier> modifier_from_string(std::string modifier) {
 
         if (modifier.empty()) {
@@ -274,8 +290,8 @@ namespace {
             {     "gui",    SDL::Modifier::GUI },
         }; // namespace
 
-        if (map.contains(modifier)) {
-            return map.at(modifier);
+        if (map.contains(lower_case)) {
+            return map.at(lower_case);
         }
 
         return helper::nullopt;
@@ -287,7 +303,10 @@ namespace {
 helper::expected<SDL::Key, std::string> SDL::Key::from_string(const std::string& value) {
 
 
-    const auto tokens = split_string_by_char(value, "+");
+    auto tokens = split_string_by_char(value, "+");
+    for (auto& token : tokens) {
+        trim(token);
+    }
 
     std::vector<SDL::Modifier> modifiers{};
 
@@ -299,12 +318,23 @@ helper::expected<SDL::Key, std::string> SDL::Key::from_string(const std::string&
                 return helper::unexpected<std::string>{ keycode.error() };
             }
 
+            //search for duplicates
+            std::unordered_set<SDL::Modifier> values{};
+            for (const auto& modifier : modifiers) {
+                if (values.contains(modifier)) {
+                    return helper::unexpected<std::string>{
+                        fmt::format("Duplicate modifier: '{}'", modifier_to_string(modifier))
+                    };
+                }
+                values.insert(modifier);
+            }
+
             return SDL::Key{ keycode.value(), modifiers };
         }
 
         const auto modifier = modifier_from_string(token);
         if (not modifier.has_value()) {
-            return helper::unexpected<std::string>{ fmt::format("Not a valid modifier: {}", token) };
+            return helper::unexpected<std::string>{ fmt::format("Not a valid modifier: '{}'", token) };
         }
 
         modifiers.push_back(modifier.value());
@@ -381,7 +411,7 @@ helper::expected<SDL::Key, std::string> SDL::Key::from_string(const std::string&
 
     parts.emplace_back(sdl_key_name(m_keycode));
 
-    return fmt::format("{}", fmt::join(parts, "+"));
+    return fmt::format("{}", fmt::join(parts, " + "));
 }
 
 

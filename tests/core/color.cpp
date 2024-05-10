@@ -1,5 +1,7 @@
 
 #include "helper/color.hpp"
+#include "helper/magic_enum_wrapper.hpp"
+#include "utils/helper.hpp"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -38,25 +40,13 @@ void PrintTo(const HSVColor& color, std::ostream* os) {
     *os << color.to_string();
 }
 
+namespace color {
 
-// make helper::expected printable
-template<typename T, typename S>
-void PrintTo(const helper::expected<T, S>& value, std::ostream* os) {
-    if (value.has_value()) {
-        *os << "Value: " << ::testing::PrintToString<T>(value.value());
-    } else {
-        *os << "Error: " << ::testing::PrintToString<S>(value.error());
+    void PrintTo(const SerializeMode& value, std::ostream* os) {
+        *os << magic_enum::enum_name(value);
     }
 }
 
-
-MATCHER(ExpectedHasValue, "expected has value") {
-    return arg.has_value();
-}
-
-MATCHER(ExpectedHasError, "expected has error") {
-    return not arg.has_value();
-}
 
 TEST(Color, DefaultConstruction) {
     const auto c1 = Color{};
