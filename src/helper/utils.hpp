@@ -7,6 +7,7 @@
 #include <cassert>
 #include <climits>
 #include <exception>
+#include <limits>
 #include <memory>
 #include <type_traits>
 
