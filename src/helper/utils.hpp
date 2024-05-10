@@ -7,9 +7,11 @@
 #include <cassert>
 #include <climits>
 #include <exception>
+#include <iostream>
 #include <limits>
 #include <memory>
 #include <type_traits>
+#include <utility>
 
 namespace helper {
 
@@ -57,11 +59,27 @@ namespace utils {
         return static_cast<std::underlying_type_t<Enum>>(enum_);
     }
 
+#if __cpp_lib_unreachable >= 202202L
     [[noreturn]] inline void unreachable() {
-        assert(false and "unreachable");
-        std::terminate();
-    }
+#if !defined(NDEBUG)
+        std::cerr << "UNREACHABLE\n";
+#endif
 
+        std::unreachable();
+    }
+#else
+    [[noreturn]] inline void unreachable() {
+#if !defined(NDEBUG)
+        std::cerr << "UNREACHABLE\n";
+#endif
+
+#if defined(_MSC_VER) && !defined(__clang__) // MSVC
+        __assume(false);
+#else                                        // GCC, Clang
+        __builtin_unreachable();
+#endif
+    }
+#endif
     template<size_t T>
     struct size_t_identity {
         //using type = T;

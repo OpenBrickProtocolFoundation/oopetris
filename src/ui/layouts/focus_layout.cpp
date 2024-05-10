@@ -174,7 +174,7 @@ ui::FocusLayout::handle_event_result( // NOLINT(readability-function-cognitive-c
             return ui::Widget::InnerState{ ui::EventHandleType::RequestAction, value.second };
         }
         default:
-            std::unreachable();
+            utils::unreachable();
     }
 }
 
