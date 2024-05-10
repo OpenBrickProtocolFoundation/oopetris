@@ -278,14 +278,14 @@ input::_3DSJoystickInput_Type1::_3DSJoystickInput_Type1(
     : JoystickInput{ joystick, instance_id, name } { }
 
 
-[[nodiscard]] helper::optional<NavigationEvent> input::_3DSJoystickInput_Type1::get_navigation_event(
+[[nodiscard]] helper::optional<input::NavigationEvent> input::_3DSJoystickInput_Type1::get_navigation_event(
         const SDL_Event& event
 ) const {
 
 
     if (event.type == SDL_JOYBUTTONDOWN) {
 
-        if (event.jbutton.which != m_instance_id) {
+        if (event.jbutton.which != instance_id()) {
             return helper::nullopt;
         }
 
@@ -464,9 +464,10 @@ helper::optional<InputEvent> input::_3DSJoystickGameInput_Type1::sdl_event_to_in
 ) const {
     if (event.type == SDL_JOYBUTTONDOWN) {
 
-        if (event.jbutton.which != m_instance_id) {
+        //TODO:
+        /*   if (event.jbutton.which != m_instance_id) {
             return helper::nullopt;
-        }
+        } */
 
         const auto button = event.jbutton.button;
         if (button == JOYCON_L) {
@@ -492,9 +493,10 @@ helper::optional<InputEvent> input::_3DSJoystickGameInput_Type1::sdl_event_to_in
         }
     } else if (event.type == SDL_JOYBUTTONUP) {
 
-        if (event.jbutton.which != m_instance_id) {
+        //TODO:
+        /* if (event.jbutton.which != m_instance_id) {
             return helper::nullopt;
-        }
+        } */
 
         const auto button = event.jbutton.button;
         if (button == JOYCON_L) {

@@ -119,7 +119,7 @@ namespace input {
     struct _3DSJoystickInput_Type1 : JoystickInput {
 
         //TODO
-        static SDL::GUID guid{};
+        static constexpr SDL::GUID guid{};
 
     public:
         _3DSJoystickInput_Type1(SDL_Joystick* joystick, SDL_JoystickID instance_id, const std::string& name);
