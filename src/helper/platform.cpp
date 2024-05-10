@@ -3,7 +3,7 @@
 
 #if defined(__CONSOLE__)
 #include "helper/console_helpers.hpp"
-#include "platform/console_buttons.hpp"
+#include "input/console_buttons.hpp"
 #endif
 
 #include <SDL.h>

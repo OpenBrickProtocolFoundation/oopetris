@@ -12,7 +12,6 @@
 #include <fmt/format.h>
 #include <string>
 
-
 namespace input {
 
 
@@ -104,7 +103,7 @@ namespace input {
     struct SwitchJoystickInput_Type1 : JoystickInput {
 
         //TODO
-        static SDL::GUID guid{};
+        static constexpr SDL::GUID guid{};
 
     public:
         SwitchJoystickInput_Type1(SDL_Joystick* joystick, SDL_JoystickID instance_id, const std::string& name);
@@ -171,6 +170,7 @@ namespace input {
 #if defined(__SWITCH__)
 
     struct SwitchJoystickGameInput_Type1 : public JoystickGameInput {
+        //TODO: reference JoystickInput
 
     public:
         SwitchJoystickGameInput_Type1(JoystickSettings settings, EventDispatcher* event_dispatcher);
