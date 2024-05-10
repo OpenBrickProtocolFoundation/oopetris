@@ -112,7 +112,7 @@ namespace input {
             std::vector<T> already_bound{};
 
 
-            for (const auto single_check : to_check) {
+            for (const auto& single_check : to_check) {
 
                 if (std::find(already_bound.cbegin(), already_bound.cend(), single_check) != already_bound.cend()) {
                     return helper::unexpected<std::string>{ fmt::format("KeyCode already bound: '{}'", single_check) };
