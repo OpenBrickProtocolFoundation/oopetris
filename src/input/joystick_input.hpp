@@ -46,8 +46,6 @@ namespace input {
         [[nodiscard]] SDL_JoystickID instance_id() const;
 
         // Add get_game_input method!
-
-
     };
 
 

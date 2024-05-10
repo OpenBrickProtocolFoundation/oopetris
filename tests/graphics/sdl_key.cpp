@@ -16,6 +16,12 @@ namespace SDL {
     void PrintTo(const Key& key, std::ostream* os) {
         *os << key.to_string();
     }
+
+
+    std::ostream& operator<<(std::ostream& os, const Key& value) {
+        os << value.to_string();
+        return os;
+    }
 } // namespace SDL
 
 TEST(SDLKey, SimpleComparision) {
@@ -58,5 +64,34 @@ TEST(SDLKey, FromString) {
             ASSERT_THAT(parsed, ExpectedHasError()) << "Input was: " << str;
             ASSERT_EQ(correct.error(), parsed.error());
         }
+    }
+}
+
+
+TEST(SDLKey, ToString) {
+
+    const std::vector<SDL::Key> keys{
+        SDL::Key{ SDLK_1, { SDL::Modifier::CTRL } },
+        SDL::Key{ SDLK_1, { SDL::Modifier::LSHIFT } },
+        SDL::Key{ SDLK_1, { SDL::Modifier::RSHIFT } },
+        SDL::Key{ SDLK_1 },
+        SDL::Key{ SDLK_1, { SDL::Modifier::CTRL, SDL::Modifier::ALT, SDL::Modifier::SHIFT, SDL::Modifier::GUI } },
+        SDL::Key{ SDLK_1, { SDL::Modifier::LCTRL } },
+        SDL::Key{ SDLK_1, { SDL::Modifier::RCTRL } },
+        SDL::Key{ SDLK_1, { SDL::Modifier::LALT } },
+        SDL::Key{ SDLK_1, { SDL::Modifier::RALT } },
+        SDL::Key{ SDLK_1, { SDL::Modifier::LGUI } },
+        SDL::Key{ SDLK_1, { SDL::Modifier::RGUI } },
+    };
+
+    for (const auto& key : keys) {
+
+        const auto keys_string = key.to_string();
+
+        const auto parsed = SDL::Key::from_string(keys_string);
+
+
+        ASSERT_THAT(parsed, ExpectedHasValue()) << "Input was: " << key;
+        ASSERT_EQ(parsed.value(), key);
     }
 }
