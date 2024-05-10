@@ -224,7 +224,7 @@ namespace {
         auto result = input;
         for (size_t i = 0; i < result.size(); ++i) {
             auto& elem = result.at(i);
-            elem = std::tolower(elem);
+            elem = static_cast<char>(std::tolower(elem));
         }
 
         return result;
@@ -263,7 +263,7 @@ namespace {
         rtrim(s);
     }
 
-    constexpr helper::optional<SDL::Modifier> modifier_from_string(std::string modifier) {
+    helper::optional<SDL::Modifier> modifier_from_string(std::string modifier) {
 
         if (modifier.empty()) {
             return helper::nullopt;
@@ -289,7 +289,7 @@ namespace {
             {   "shift",  SDL::Modifier::SHIFT },
             {     "alt",    SDL::Modifier::ALT },
             {     "gui",    SDL::Modifier::GUI },
-        }; // namespace
+        };
 
         if (map.contains(lower_case)) {
             return map.at(lower_case);
