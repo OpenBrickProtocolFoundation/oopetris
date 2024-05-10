@@ -6,6 +6,7 @@
 #include "platform/console_buttons.hpp"
 #endif
 
+#include <SDL.h>
 #include <cerrno>
 #include <cstdlib>
 #include <spdlog/spdlog.h>
