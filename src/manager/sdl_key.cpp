@@ -3,6 +3,7 @@
 #include "helper/optional.hpp"
 #include "helper/utils.hpp"
 
+#include <algorithm>
 #include <array>
 #include <fmt/format.h>
 #include <fmt/ranges.h>
@@ -20,7 +21,7 @@ SDL::Key::Key(SDL_KeyCode keycode, UnderlyingModifierType modifiers)
 SDL::Key::Key(SDL_KeyCode keycode, const std::vector<Modifier>& modifiers)
     : Key{ keycode, SDL::Key::sdl_modifier_from_modifiers(modifiers) } { }
 
-SDL::Key::Key(const SDL_Keysym& keysym) : Key{ static_cast<const SDL_KeyCode>(keysym.sym), keysym.mod } { }
+SDL::Key::Key(const SDL_Keysym& keysym) : Key{ static_cast<SDL_KeyCode>(keysym.sym), keysym.mod } { }
 
 
 [[nodiscard]] bool SDL::Key::is_key(const SDL::Key& other) const {
@@ -492,7 +493,7 @@ helper::expected<SDL::Key, std::string> SDL::Key::from_string(const std::string&
         };
     }
 
-    return static_cast<const SDL_KeyCode>(key);
+    return static_cast<SDL_KeyCode>(key);
 }
 
 [[nodiscard]] SDL::Key::UnderlyingModifierType SDL::Key::sdl_modifier_from_modifiers(
