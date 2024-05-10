@@ -1,5 +1,3 @@
-
-
 only_allow_native_libs = false
 if meson.is_cross_build()
     if host_machine.system() == 'switch' or host_machine.system() == '3ds'
@@ -28,13 +26,12 @@ if meson.is_cross_build()
     endif
 endif
 
-
-
 sdl2_dep = dependency(
     'sdl2',
     'SDL2',
     allow_fallback: false,
     required: only_allow_native_libs,
+    version: '>=2.24.0',
 )
 
 if sdl2_dep.found()
@@ -46,11 +43,13 @@ else
         'sdl2',
         required: true,
         default_options: {'test': false},
+        version: '>=2.24.0',
     )
     sdl2main_dep = dependency(
         'sdl2main',
         required: true,
         fallback: 'sdl2',
+        version: '>=2.24.0',
     )
 
     graphic_application_deps += sdl2main_dep
@@ -101,7 +100,6 @@ else
     endif
 endif
 
-
 sdl2_mixer_dep = dependency(
     'sdl2_mixer',
     'SDL2_mixer',
@@ -118,15 +116,13 @@ fmt_use_header_only = false
 
 if (
     meson.is_cross_build()
-    and (host_machine.system() == 'switch'
-    or host_machine.system() == '3ds')
+    and (host_machine.system() == 'switch' or host_machine.system() == '3ds')
 )
     fmt_use_header_only = true
     # clang with libc++ creates some really long and confusing linker errors, so just use the header only library
 elif cpp.get_id() == 'clang' and build_with_libcpp
     fmt_use_header_only = true
 endif
-
 
 if fmt_use_header_only
     fmt_header_only_dep = dependency(
@@ -141,7 +137,6 @@ else
 endif
 
 core_lib += {'deps': [core_lib.get('deps'), fmt_dep]}
-
 
 spdlog_dep = dependency(
     'spdlog',
@@ -211,8 +206,6 @@ else
     message('Compiler support std::optional, using that')
 endif
 
-
-
 magic_enum_dep = dependency(
     'magic_enum',
     required: true,
@@ -225,11 +218,9 @@ core_lib += {'deps': [core_lib.get('deps'), argparse_dep]}
 
 online_multiplayer_supported = true
 
-
 if (
     meson.is_cross_build()
-    and (host_machine.system() == 'switch'
-    or host_machine.system() == '3ds')
+    and (host_machine.system() == 'switch' or host_machine.system() == '3ds')
 )
     online_multiplayer_supported = false
 
@@ -262,7 +253,6 @@ utf8cpp_dep = dependency(
 )
 core_lib += {'deps': [core_lib.get('deps'), utf8cpp_dep]}
 
-
 build_installer = get_option('build_installer')
 
 is_flatpak_build = false
@@ -271,8 +261,8 @@ is_flatpak_build = false
 if build_installer
     if get_option('buildtype') != 'release'
         error(
-            'buildtype needs to be \'release\', when building the installer, but was: ' +
-            get_option('buildtype'),
+            'buildtype needs to be \'release\', when building the installer, but was: '
+            + get_option('buildtype'),
         )
     endif
 
@@ -288,7 +278,8 @@ if build_installer
         message('Adding a windows installer target: \'windows_installer\'')
     else
         error(
-            'unsuported system for building the installer: ' + host_machine.system(),
+            'unsuported system for building the installer: '
+            + host_machine.system(),
         )
 
     endif
@@ -302,8 +293,6 @@ if build_installer
 
 endif
 
-
-
 if is_flatpak_build
     app_name = 'com.github.mgerhold.OOPetris'
     core_lib += {
@@ -314,10 +303,8 @@ if is_flatpak_build
     }
 endif
 
-
 have_file_dialogs = false
 have_discord_sdk = false
-
 
 nfde_dep = dependency(
     'nativefiledialog-extended',
