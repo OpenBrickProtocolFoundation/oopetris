@@ -33,7 +33,7 @@ jobs:
       - name: Setup ninja
         run: |
             sudo apt-get update
-            sudo apt-get install ninja-build
+            sudo apt-get install ninja-build jq
 
       - name: Setup JDK
         uses: actions/setup-java@v4
