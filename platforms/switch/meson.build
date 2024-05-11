@@ -1,10 +1,8 @@
-
 ## get the options object and "unpack" it
 
 switch_exe_name = switch_options[0]
 switch_src_files = switch_options[1]
 switch_deps = switch_options[2]
-
 
 # libraries
 
@@ -32,7 +30,6 @@ switch_dependencies_native = [
     'SDL2main',
 ]
 
-
 foreach dep : switch_dependencies
     switch_deps += dependency(
         dep,
@@ -56,8 +53,6 @@ foreach dep : switch_dependencies_native
     )
 endforeach
 
-
-
 ## compilation
 
 switch_elf_file = build_target(
@@ -76,7 +71,6 @@ use_nacp = ['true', 'True', '1', true].contains(
     meson.get_external_property('USE_NACP', ''),
 )
 
-
 elf2nro = find_program('elf2nro')
 # executable input elf file, output nro file
 NRO_FLAGS = [elf2nro, switch_elf_file.full_path(), switch_exe_name + '.nro']
@@ -92,7 +86,6 @@ if use_nacp
     APP_NAME = meson.get_external_property('APP_NAME', switch_exe_name)
     NACP_FLAGS += APP_NAME
 
-
     APP_AUTHOR = meson.get_external_property('APP_AUTHOR', '')
     if APP_AUTHOR == ''
         error('If USE_NACP is set, you have to provide an APP_AUTHOR')
@@ -100,15 +93,16 @@ if use_nacp
     NACP_FLAGS += APP_AUTHOR
 
     APP_VERSION = meson.get_external_property('APP_VERSION', '')
+    if APP_VERSION == true
+        APP_VERSION = meson.project_version()
+    endif
+
     if APP_VERSION == ''
         error('If USE_NACP is set, you have to provide an APP_VERSION')
     endif
     NACP_FLAGS += APP_VERSION
 
-    NACP_FLAGS += (
-        switch_exe_name + '.nacp' # outfile
-    )
-
+    NACP_FLAGS += (switch_exe_name + '.nacp')
 
     APP_TITLEID = meson.get_external_property('APP_TITLEID', '')
 
@@ -117,8 +111,7 @@ if use_nacp
         NACP_FLAGS += '--titleid=' + APP_TITLEID
     endif
 
-
-    # nacptool --create <name> <author> <version> <switch_exe_name>.nacp 
+    # nacptool --create <name> <author> <version> <switch_exe_name>.nacp
     # optional: --titleid=<titleID>
     nacp_file = custom_target(
         switch_exe_name + '.nacp',
@@ -128,7 +121,6 @@ if use_nacp
     )
     NRO_FLAGS += '--nacp=' + switch_exe_name + '.nacp'
     NRO_DEPS += nacp_file
-
 
 endif
 
@@ -145,15 +137,11 @@ if not fs.is_absolute(APP_ICON)
     APP_ICON = meson.project_source_root() / APP_ICON
 endif
 
-
 if not fs.exists(APP_ICON)
     error('APP_ICON should exist, but doesn\'t: \'' + APP_ICON + '\'')
 endif
 
-
-
 NRO_FLAGS += '--icon=' + APP_ICON
-
 
 APP_ROMFS = meson.get_external_property('APP_ROMFS', '')
 

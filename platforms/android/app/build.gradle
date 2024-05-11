@@ -7,18 +7,77 @@ if (buildAsApplication) {
     apply plugin: 'com.android.library'
 }
 
-boolean existsABIDir(String abi) {
+/**
+ * Internal helper function
+ */
+File getABIDir(String abi) {
     String path = "../../../../build-" + abi;
     File file = project.file(project.getLayout().getBuildDirectory().file(path));
-    return file.exists();
+    return file;
+}
+
+/**
+ * Internal helper function
+ */
+boolean existsABIDir(String abi) {
+    File file = getABIDir(abi);
+    return file.exists() && file.isDirectory();
+}
+
+/**
+ * Internal helper function
+ */
+static List<String> readInputStream(InputStream stream) {
+    InputStreamReader reader = new InputStreamReader(stream);
+    return reader.readLines()
+}
+
+/**
+ * Internal helper function
+ */
+static Tuple3<List<String>, List<String>, Integer> executePipeline(List<List<String>> commands) {
+    List<ProcessBuilder> builders = commands.collect { it -> new ProcessBuilder(it) };
+
+    List<Process> processes = ProcessBuilder.startPipeline(builders);
+    Process last = processes.get(processes.size() - 1);
+
+    int exitCode = last.waitFor();
+
+    List<String> stdout = readInputStream(last.getInputStream());
+    List<String> stderr = readInputStream(last.getErrorStream());
+
+    return new Tuple3<List<String>, List<String>, Integer>(stdout, stderr, exitCode);
+}
+
+/**
+ * Internal helper function
+ */
+static boolean isValidVersion(String version) {
+    if (version == null) {
+        return false;
+    }
+
+    List<String> parts = version.split("\\.")
+
+    if (parts.size() != 3) {
+        return false;
+    }
+
+    for (part in parts) {
+        if (!part.isInteger()) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 /**
  * Read the Android ABI from user input.
  * supported ANDROID_ABIs are 'arm64-v8a', 'armeabi-v7a', 'x86', 'x86_64'
- * @return return
+ * @return List<String>
  */
-def List getAndroidABI() {
+List getAndroidABIs() {
     String property = project.findProperty('ANDROID_ABI')
 
     List<String> supportedABIs = ["armeabi-v7a", "arm64-v8a", "x86", "x86_64"];
@@ -49,7 +108,7 @@ def List getAndroidABI() {
 
     for (abi in AbiFilters) {
         if (!existsABIDir(abi)) {
-            throw new Exception('ERROR: build folder for abi \'' + abi + '\' doesn\'t  exist: ' + file);
+            throw new Exception("ERROR: build folder for abi '" + abi + "' doesn't  exist: " + file);
         }
     }
 
@@ -60,8 +119,99 @@ def List getAndroidABI() {
     return AbiFilters
 }
 
+
+/**
+ * Determine the version
+ * if you specify it explicitly, that will be used, otherwise meson introspect will be called
+ * @return String
+ */
+String getVersion() {
+    String property = project.findProperty('VERSION')
+
+
+    if (property != null) {
+        if (!isValidVersion(property)) {
+            throw new Exception('User defined version is invalid: ' + property);
+        }
+
+        return property;
+    }
+
+    // auto detect
+
+    List<String> abis = getAndroidABIs();
+    List<String> versions = new ArrayList<String>();
+
+    for (abi in abis) {
+        File abiDir = getABIDir(abi);
+
+        Tuple3<List<String>, List<String>, Integer> versionResult = executePipeline(Arrays.asList(
+                Arrays.asList("meson", "introspect", "--projectinfo", abiDir.getAbsolutePath()),
+                Arrays.asList("jq", "-r", ".version")
+        ));
+
+        if (versionResult.getV3() != 0) {
+            throw new Exception(
+                    'An error occured while trying to detect the version: process exited with exit code: ' +
+                            versionResult.getV3() +
+                            ' and stderr:\n' +
+                            versionResult.getV2().join("\n")
+            );
+        }
+
+        if (versionResult.getV2() != null && !versionResult.getV2().isEmpty()) {
+            throw new Exception('An error occured while trying to detect the version (code 1): ' + versionResult.getV2().join("\n"));
+        }
+
+        if (versionResult.getV1() == null || versionResult.getV1().size() != 1) {
+            throw new Exception('An error occured while trying to detect the version (code 2): ' + versionResult.getV1().join("\n"));
+        }
+
+        String version = versionResult.getV1()[0];
+
+        if (!isValidVersion(version)) {
+            throw new Exception("Auto detection of version returned invalid version: '" + version + "'");
+        }
+
+        for (version1 in versions) {
+            if (version != version1) {
+                throw new Exception("Recievd two versions, that didn't match: " + version1 + " != " + version);
+            }
+        }
+
+        versions.add(version);
+
+    }
+
+
+    if (versions.size() == 0) {
+        throw new Exception("ERROR: at least one version has to be detected (at least one abi has to be returend by 'getAndroidABIs()')");
+    }
+
+    // we guarantee, that every string in there is the same, and that it has at least one entry 
+    return versions[0];
+
+}
+
+List<String> abisToUse = getAndroidABIs()
+String versionString = getVersion()
+
+System.out.printf("DEBUG: Using abis: %s%n", abisToUse.join(", "))
+System.out.printf("DEBUG: Using version: %s%n", versionString)
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
 android {
-    compileSdk 34
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
+    }
+
+    compileSdkVersion 34
     ndkVersion "26.3.11579264"
     defaultConfig {
         if (buildAsApplication) {
@@ -70,7 +220,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 34
         versionCode 5
-        versionName "0.5.4"
+        versionName(versionString)
     }
     buildTypes {
         release {
@@ -119,7 +269,7 @@ android {
             // Resets the list of ABIs for Gradle to create APKs for to none.
             reset()
             // Specifies a list of ABIs for Gradle to create APKs for.
-            include(*getAndroidABI())
+            include(*abisToUse)
             // Specifies that you don't want to also generate a universal APK that includes all ABIs.
             universalApk false
         }

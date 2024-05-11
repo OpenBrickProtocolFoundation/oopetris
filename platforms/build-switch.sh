@@ -101,7 +101,7 @@ libnx='$LIBNX'
 
 APP_NAME	= 'oopetris'
 APP_AUTHOR 	= 'coder2k'
-APP_VERSION = '0.5.4'
+APP_VERSION = true
 
 USE_NACP    = true
 
