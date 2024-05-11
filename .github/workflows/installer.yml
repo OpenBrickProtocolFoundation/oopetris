@@ -58,10 +58,11 @@ jobs:
           location: ${{ github.workspace }}
   
       - name: Extract EnVar plugin
-        run: 7z x "-oC:/Program Files (x86)(NSIS" "${{ github.workspace }}/envar_plugin.zip"
+        run: 7z x "-oC:/Program Files (x86)/NSIS" "${{ github.workspace }}/envar_plugin.zip"
 
       - name: Build installer (Windows)
-        run: meson compile -C build windows_installer
+        run: |
+          meson compile -C build windows_installer
 
       - name: Upload artifacts - Windows
         uses: actions/upload-artifact@v4

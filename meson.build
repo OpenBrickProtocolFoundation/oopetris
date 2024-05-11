@@ -89,9 +89,9 @@ else
                 'windows_installer',
                 command: [
                     makensis,
-                    '/DVERSION=' + meson.project_version(),
-                    '/DPROJECT_SOURCE_DIR=' + meson.project_source_root(),
-                    '/DPROJECT_BUILD_DIR=' + meson.project_build_root(),
+                    '-DVERSION=' + meson.project_version(),
+                    '-DPROJECT_SOURCE_DIR=' + meson.project_source_root(),
+                    '-DPROJECT_BUILD_DIR=' + meson.project_build_root(),
                     nsis_script,
                 ],
                 depends: [oopetris_exe, oopetris_recordings_utility_exe],
