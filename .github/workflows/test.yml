@@ -19,10 +19,10 @@ jobs:
         run: |
           wget https://apt.llvm.org/llvm.sh
           chmod +x llvm.sh
-          sudo ./llvm.sh 17
-          sudo apt-get install libc++-17* libc++abi*17* llvm-17 -y
-          echo "CC=clang-17" >> "$GITHUB_ENV"
-          echo "CXX=clang++-17" >> "$GITHUB_ENV"
+          sudo ./llvm.sh 18
+          sudo apt-get install libc++-18* libc++abi*18* llvm-18 -y
+          echo "CC=clang-18" >> "$GITHUB_ENV"
+          echo "CXX=clang++-18" >> "$GITHUB_ENV"
             
       - name: Setup meson
         run: |
