@@ -22,6 +22,7 @@
 ; Custom defines
 !define NAME "OOPetris"
 !define APPFILE "oopetris.exe"
+!define APP_UNINSTALLER_FILE "Uninstall.exe"
 !define SLUG "${NAME} v${VERSION}"
 
 ;--------------------------------
@@ -30,7 +31,7 @@
 Name "${NAME}"
 OutFile "${NAME} Setup.exe"
 InstallDir "$PROGRAMFILES\${NAME}"
-InstallDirRegKey HKCU "Software\${NAME}" ""
+InstallDirRegKey HKCU "Software\${NAME}" "InstallDir"
 RequestExecutionLevel admin
 
 ;--------------------------------
@@ -62,7 +63,7 @@ RequestExecutionLevel admin
 ;--------------------------------
 ; Section - Install App, always installed
 
-Section "-hidden app"
+Section "Core App" CoreApp
     SectionIn RO ; Read only, always installed
 
     ; install assets
@@ -86,10 +87,14 @@ Section "-hidden app"
     SetOutPath "$INSTDIR"
     File /a "${PROJECT_SOURCE_DIR}\subprojects\discord_game_sdk-3.2.1\lib\x86_64\discord_game_sdk.dll"
 
-    WriteRegStr HKCU "Software\${NAME}" "" $INSTDIR
-    WriteUninstaller "$INSTDIR\Uninstall.exe"
 
+    WriteRegStr HKCU "Software\${NAME}" "InstallDir" $INSTDIR
+    WriteUninstaller "$INSTDIR\${APP_UNINSTALLER_FILE}"
 
+    ; create start menu entry
+    CreateDirectory '$SMPROGRAMS\${NAME}'
+    CreateShortCut '$SMPROGRAMS\${NAME}\${NAME}.lnk' '$INSTDIR\${APPFILE}' "" '$INSTDIR\${APPFILE}' 0
+    CreateShortCut '$SMPROGRAMS\${NAME}\Uninstall ${NAME}.lnk' '$INSTDIR\${APP_UNINSTALLER_FILE}' "" '$INSTDIR\${APP_UNINSTALLER_FILE}' 0
 SectionEnd
 
 
@@ -105,28 +110,22 @@ Section "Additional Binaries" AdditionalBinaries
     ; add the bin dir to the path
     EnVar::SetHKCU 
     EnVar::AddValue "Path" "$INSTDIR\bin"
-SectionEnd
 
-
-
-;--------------------------------
-; Section - Shortcut; optional, can be selected by user if he wants to have one
-
-Section "Desktop Shortcut" DeskShort
-    CreateShortCut "$DESKTOP\${NAME}.lnk" "$INSTDIR\${APPFILE}"
+    ; store that this is installed
+    WriteRegDWORD HKCU "Software\${NAME}" "AddBin" 1
 SectionEnd
 
 ;--------------------------------
 ; Descriptions
 
 ;Language strings
-LangString DESC_DeskShort ${LANG_ENGLISH} "Create Shortcut on Desktop"
+LangString DESC_CoreApp ${LANG_ENGLISH} "Install Core App"
 LangString DESC_BinaryFiles ${LANG_ENGLISH} "Install (Optional) Additional Binaries"
 
 
 ;Assign language strings to sections
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
-  !insertmacro MUI_DESCRIPTION_TEXT ${DeskShort} $(DESC_DeskShort)
+  !insertmacro MUI_DESCRIPTION_TEXT ${CoreApp} $(DESC_CoreApp)
   !insertmacro MUI_DESCRIPTION_TEXT ${AdditionalBinaries} $(DESC_BinaryFiles)
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
@@ -153,7 +152,6 @@ Function un.RMDirUP
     Skip:
 
     Pop $0
-
 FunctionEnd
 
 ;--------------------------------
@@ -161,20 +159,36 @@ FunctionEnd
 
 Section "Uninstall"
 
-  ;Delete Shortcut
-  Delete "$DESKTOP\${NAME}.lnk"
+  ; Delete assets
+  RMDir /r "$INSTDIR\assets"
 
-  ;Delete Uninstall
-  Delete "$INSTDIR\Uninstall.exe"
+  ; Delete executable
+  Delete "$INSTDIR\${APPFILE}"
 
-  ;Delete Folder
+  ; Delete Uninstall file
+  Delete "$INSTDIR\${APP_UNINSTALLER_FILE}"
+
+  ; Delete the rest of the Folder
   RMDir /r "$INSTDIR"
   ${RMDirUP} "$INSTDIR"
 
-  DeleteRegKey /ifempty HKCU "Software\${NAME}"
+  ; delete start menu entry
+  Delete '$SMPROGRAMS\${NAME}\${NAME}.lnk' 
+  Delete '$SMPROGRAMS\${NAME}\Uninstall ${NAME}.lnk'
+  
+  RMDir /r '$SMPROGRAMS\${NAME}'
+  ${RMDirUP} '$SMPROGRAMS\${NAME}'
 
-  ; remove the bin dir from the path
-  EnVar::SetHKCU 
-  EnVar::DeleteValue "Path" "$INSTDIR\bin"
+  ReadRegDWORD $0 HKCU "Software\${NAME}" "AddBin"
 
+  ${If} $0 != 0
+    ; we have additional binaries installed
+
+    ; remove the bin dir from the path
+    EnVar::SetHKCU 
+    EnVar::DeleteValue "Path" "$INSTDIR\bin"
+  ${EndIf}
+
+  ; delete the whole reg key
+  DeleteRegKey HKCU "Software\${NAME}"
 SectionEnd
