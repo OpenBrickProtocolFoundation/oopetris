@@ -211,7 +211,7 @@ android {
         targetCompatibility JavaVersion.VERSION_21
     }
 
-    compileSdk 34
+    compileSdkVersion 34
     ndkVersion "26.3.11579264"
     defaultConfig {
         if (buildAsApplication) {
