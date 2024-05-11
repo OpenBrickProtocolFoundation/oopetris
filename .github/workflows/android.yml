@@ -49,7 +49,7 @@ jobs:
           sdkmanager --install "ndk;27.0.11718014"
 
 
-      - name: Build natibe libraries
+      - name: Build native libraries
         run: |
           bash ./platforms/build-android.sh ${{ matrix.config.arch }} complete_rebuild release
           cp -r ./assets/ platforms/android/app/src/main
