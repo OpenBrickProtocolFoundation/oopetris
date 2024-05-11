@@ -285,13 +285,20 @@ if build_installer
             )
         endif
     elif host_machine.system() == 'windows'
-        error('windows installer is still WIP')
+        message('Adding a windows installer target: \'windows_installer\'')
     else
         error(
             'unsuported system for building the installer: ' + host_machine.system(),
         )
 
     endif
+
+    core_lib += {
+        'compile_args': [
+            core_lib.get('compile_args'),
+            '-DBUILD_INSTALLER',
+        ],
+    }
 
 endif
 
@@ -302,8 +309,7 @@ if is_flatpak_build
     core_lib += {
         'compile_args': [
             core_lib.get('compile_args'),
-            '-DFLATPAK_BUILD',
-            '-DBUILD_INSTALLER',
+            '-DFLATPAK_BUILD'
         ],
     }
 endif

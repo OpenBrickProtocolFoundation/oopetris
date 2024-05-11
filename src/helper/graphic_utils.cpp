@@ -25,9 +25,11 @@ std::vector<std::string> utils::supported_features() {
     return features;
 }
 
-
+/**
+ * \brief this returns the directory of the app, it's read and write-able
+*/
 [[nodiscard]] std::filesystem::path utils::get_root_folder() {
-#if defined(__ANDROID__) or defined(BUILD_INSTALLER)
+#if defined(__ANDROID__)
     // this call also creates the dir (at least tries to) it returns
     char* pref_path = SDL_GetPrefPath(constants::author, constants::program_name);
     if (!pref_path) {
@@ -37,21 +39,32 @@ std::vector<std::string> utils::supported_features() {
 #elif defined(__CONSOLE__)
     // this is in the sdcard of the switch, since internal storage is read-only for applications!
     return std::filesystem::path{ "." };
-
-#elif defined(FLATPAK_BUILD)
+#elif defined(BUILD_INSTALLER)
+#if defined(FLATPAK_BUILD)
     // this is a read write location in the flatpak build, see https://docs.flatpak.org/en/latest/conventions.html
     const char* data_home = std::getenv("XDG_DATA_HOME");
-    if (data_home == = nullptr) {
+    if (data_home == nullptr) {
         throw std::runtime_error{ "Failed to get flatpak data directory (XDG_DATA_HOME)" };
     }
 
     return std::filesystem::path{ data_home };
+#else
+    // this call also creates the dir (at least tries to) it returns
+    char* pref_path = SDL_GetPrefPath(constants::author, constants::program_name);
+    if (!pref_path) {
+        throw std::runtime_error{ "Failed in getting the Pref Path: " + std::string{ SDL_GetError() } };
+    }
+    return std::filesystem::path{ std::string{ pref_path } };
+#endif
 #else
     // this is only used in local build for debugging, when compiling in release mode the path is real path where the app can store many things without interfering with other things (eg. AppData\Roaming\... on Windows or  .local/share/... on Linux )
     return std::filesystem::path{ "." };
 #endif
 }
 
+/**
+ * \brief this returns the directory of the assets, and is read-only 
+*/
 [[nodiscard]] std::filesystem::path utils::get_assets_folder() {
 #if defined(__ANDROID__)
     return std::filesystem::path{ "" };
@@ -61,13 +74,20 @@ std::vector<std::string> utils::supported_features() {
 #elif defined(BUILD_INSTALLER)
 
 #if defined(FLATPAK_BUILD)
+    // if you build in BUILD_INSTALLER mode, you have to assure that the data is there e.g. music  + fonts!
     const char* resource_path = "/app/share/oopetris/";
+#elif defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
+    char* resource_path = SDL_GetBasePath();
+    if (!resource_path) {
+        throw std::runtime_error{ "Failed in getting the Base Path: " + std::string{ SDL_GetError() } };
+    }
+
 #else
     char* resource_path = SDL_GetPrefPath(constants::author, constants::program_name);
     if (!resource_path) {
         throw std::runtime_error{ "Failed in getting the Pref Path: " + std::string{ SDL_GetError() } };
     }
-// if you build in BUILD_INSTALLER mode, you have to assure that the data is there e.g. music  + fonts!
+
 #endif
     return std::filesystem::path{ std::string{ resource_path } } / "assets";
 #else

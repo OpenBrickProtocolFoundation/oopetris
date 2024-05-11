@@ -50,7 +50,7 @@ elif meson.is_cross_build() and host_machine.system() == '3ds'
     subdir('platforms/3ds')
 else
 
-    executable(
+    oopetris_exe = executable(
         'oopetris',
         main_files,
         dependencies: [liboopetris_graphics_dep, graphic_application_deps],
@@ -59,9 +59,10 @@ else
             'werror': true,
         },
         install: true,
+        win_subsystem: 'windows',
     )
 
-    executable(
+    oopetris_recordings_utility_exe = executable(
         'oopetris_recordings_utility',
         recordings_main_files,
         dependencies: liboopetris_recordings_dep,
@@ -70,7 +71,30 @@ else
             'werror': true,
         },
         install: true,
+        win_subsystem: 'console',
     )
+
+    if build_installer
+        if host_machine.system() == 'windows'
+
+            makensis = find_program('makensis')
+
+            nsis_script = meson.project_source_root() / 'tools' / 'installer' / 'setup.nsi'
+
+            run_target(
+                'windows_installer',
+                command: [
+                    makensis,
+                    '/DVERSION=' + meson.project_version(),
+                    '/DPROJECT_SOURCE_DIR=' + meson.project_source_root().replace('/','\\'),
+                    '/DPROJECT_BUILD_DIR=' + meson.project_build_root().replace('/','\\'),
+                    nsis_script,
+                ],
+                depends: [oopetris_exe, oopetris_recordings_utility_exe],
+            )
+
+        endif
+    endif
 
 endif
 

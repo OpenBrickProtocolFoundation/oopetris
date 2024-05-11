@@ -89,3 +89,4 @@ logs/
 /toolchains/
 .flatpak-builder/
 flatpak-build/
+tools/installer/*.exe
