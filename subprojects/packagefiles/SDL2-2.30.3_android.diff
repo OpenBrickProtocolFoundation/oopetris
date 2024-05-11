@@ -1,8 +1,17 @@
 diff --git a/meson.build b/meson.build
-index 1ef0367..1829972 100644
+index 84647ee..a669ef9 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -899,6 +899,7 @@ if platform_is_android
+@@ -247,7 +247,7 @@ endif
+ 
+ threads_dep = dependency('threads', required : opt_threads)
+ 
+-if platform_is_apple
++if platform_is_apple or platform_is_android
+     libusb_dep = fake_dep
+ else
+     libusb_dep = dependency('libusb-1.0', required : opt_hidapi)
+@@ -928,6 +928,7 @@ if platform_is_android
      extra_deps += [
          cc.find_library('android'),
          cc.find_library('log'),
@@ -10,6 +19,15 @@ index 1ef0367..1829972 100644
      ]
      if not opt_video_openglesv2.disabled()
          extra_deps += cc.find_library('GLESv2', required : opt_video_openglesv2.enabled())
+@@ -1169,7 +1170,7 @@ if platform_is_darwin
+     all_sources += [objc_sources]
+ endif
+ 
+-if platform_is_winrt or platform_is_haiku
++if platform_is_winrt or platform_is_haiku or platform_is_android
+     add_languages('cpp', native: false)
+     all_sources += [cxx_sources]
+ endif
 diff --git a/src/core/android/meson.build b/src/core/android/meson.build
 index 8c4338b..31ffbf3 100644
 --- a/src/core/android/meson.build
@@ -20,3 +38,31 @@ index 8c4338b..31ffbf3 100644
  )
 +
 +extra_deps += dependency('cpu-features')
+diff --git a/src/video/haiku/meson.build b/src/video/haiku/meson.build
+index b8a2d9f..c6232c6 100644
+--- a/src/video/haiku/meson.build
++++ b/src/video/haiku/meson.build
+@@ -1,10 +1,13 @@
+-cxx_sources += files(
+-    'SDL_bclipboard.cc',
+-    'SDL_bevents.cc',
+-    'SDL_bframebuffer.cc',
+-    'SDL_bkeyboard.cc',
+-    'SDL_bmodes.cc',
+-    'SDL_bopengl.cc',
+-    'SDL_bvideo.cc',
+-    'SDL_bwindow.cc',
+-)
++
++if platform_is_haiku
++    cxx_sources += files(
++        'SDL_bclipboard.cc',
++        'SDL_bevents.cc',
++        'SDL_bframebuffer.cc',
++        'SDL_bkeyboard.cc',
++        'SDL_bmodes.cc',
++        'SDL_bopengl.cc',
++        'SDL_bvideo.cc',
++        'SDL_bwindow.cc',
++    )
++endif

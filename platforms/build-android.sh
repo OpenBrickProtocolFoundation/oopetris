@@ -346,7 +346,7 @@ EOF
             "--libdir=usr/lib/$ARM_NAME_TRIPLE/$SDK_VERSION" \
             --cross-file "./platforms/crossbuild-android-$ARM_TARGET_ARCH.ini" \
             "-Dbuildtype=$BUILDTYPE" \
-            -Dsdl2:use_hidapi=disabled \
+            -Dsdl2:use_hidapi=enabled \
             -Dcpp_args=-DAUDIO_PREFER_MP3 \
             -Dclang_libcpp=disabled
 
