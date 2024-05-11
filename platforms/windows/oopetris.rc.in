@@ -9,9 +9,9 @@ VS_VERSION_INFO VERSIONINFO
     BEGIN
       BLOCK "040904B0"
       BEGIN
-	VALUE "FileDescription", "OOpetris"
+	VALUE "FileDescription", "@OOPETRIS_NAME@"
 	VALUE "FileVersion", "@OOPETRIS_VERSION@.0"
-	VALUE "ProductName", "OOpetris"
+	VALUE "ProductName", "@OOPETRIS_NAME@"
 	VALUE "ProductVersion", "@OOPETRIS_VERSION@"
       END
     END

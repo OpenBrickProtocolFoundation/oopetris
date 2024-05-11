@@ -1,8 +1,11 @@
-
 core_lib = {
     'src_files': [],
     'inc_dirs': [],
-    'compile_args': ['-DOOPETRIS_VERSION=' + meson.project_version()],
+    'compile_args': [
+        '-DOOPETRIS_VERSION=' + meson.project_version(),
+        '-DOOPETRIS_NAME=' + oopetris_name,
+        '-DOOPETRIS_AUTHOR=' + oopetris_author,
+    ],
     'deps': [],
 }
 
@@ -22,7 +25,6 @@ graphics_lib = {
 
 global_deps = []
 graphic_application_deps = []
-
 
 cpp = meson.get_compiler('cpp')
 
@@ -64,10 +66,8 @@ if (
     get_option('buildtype') == 'debug'
     or get_option('buildtype') == 'debugoptimized'
 )
-#TODO: replace with ! NDEBUG in cpp files and remove this
+    #TODO: replace with ! NDEBUG in cpp files and remove this
     core_lib += {
         'compile_args': [core_lib.get('compile_args'), '-DDEBUG_BUILD'],
     }
 endif
-
-

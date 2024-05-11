@@ -17,10 +17,16 @@
 !error "PROJECT_BUILD_DIR not specified"
 !endif
 
+!ifndef NAME
+!error "NAME not specified"
+!endif
+
+!ifndef AUTHOR
+!error "AUTHOR not specified"
+!endif
 
 ;--------------------------------
 ; Custom defines
-!define NAME "OOPetris"
 !define APPFILE "oopetris.exe"
 !define APP_UNINSTALLER_FILE "Uninstall.exe"
 !define SLUG "${NAME} v${VERSION}"
@@ -87,6 +93,11 @@ Section "Core App" CoreApp
     SetOutPath "$INSTDIR"
     File /a "${PROJECT_SOURCE_DIR}\subprojects\discord_game_sdk-3.2.1\lib\x86_64\discord_game_sdk.dll"
 
+    ; install default settings (DO NOT Override)
+    SetOutPath "$APPDATA\${AUTHOR}\${NAME}"
+    SetOverwrite off
+    File  "${PROJECT_SOURCE_DIR}\settings.json"
+    SetOverwrite on
 
     WriteRegStr HKCU "Software\${NAME}" "InstallDir" $INSTDIR
     WriteUninstaller "$INSTDIR\${APP_UNINSTALLER_FILE}"
@@ -171,6 +182,8 @@ Section "Uninstall"
   ; Delete the rest of the Folder
   RMDir /r "$INSTDIR"
   ${RMDirUP} "$INSTDIR"
+
+  ; note settings are NOT removed!
 
   ; delete start menu entry
   Delete '$SMPROGRAMS\${NAME}\${NAME}.lnk' 

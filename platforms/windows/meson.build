@@ -8,10 +8,12 @@ patch_version = version_arr[2].to_int()
 rc_conf = configuration_data(
   {
     'OOPETRIS_VERSION': meson.project_version(),
+    'OOPETRIS_NAME': oopetris_name,
+    'OOPETRIS_AUTHOR': oopetris_author,
     'OOPETRIS_MAJOR_VERSION': major_version,
     'OOPETRIS_MINOR_VERSION': minor_version,
     'OOPETRIS_PATCH_VERSION': patch_version,
-    'PROJECT_SOURCE_DIR': meson.project_source_root().replace('\\','/'),
+    'PROJECT_SOURCE_DIR': meson.project_source_root().replace('\\', '/'),
   },
 )
 

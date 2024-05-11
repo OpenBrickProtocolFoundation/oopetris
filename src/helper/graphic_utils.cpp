@@ -37,7 +37,7 @@ std::vector<std::string> utils::supported_features() {
     }
     return std::filesystem::path{ std::string{ pref_path } };
 #elif defined(__CONSOLE__)
-    // this is in the sdcard of the switch, since internal storage is read-only for applications!
+    // this is in the sdcard of the switch / 3ds , since internal storage is read-only for applications!
     return std::filesystem::path{ "." };
 #elif defined(BUILD_INSTALLER)
 #if defined(FLATPAK_BUILD)
@@ -48,13 +48,14 @@ std::vector<std::string> utils::supported_features() {
     }
 
     return std::filesystem::path{ data_home };
-#else
-    // this call also creates the dir (at least tries to) it returns
+#elif defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
     char* pref_path = SDL_GetPrefPath(constants::author, constants::program_name);
     if (!pref_path) {
         throw std::runtime_error{ "Failed in getting the Pref Path: " + std::string{ SDL_GetError() } };
     }
-    return std::filesystem::path{ std::string{ pref_path } };
+    return std::filesystem::path{ pref_path };
+#else
+#error "unrecognized installer build"
 #endif
 #else
     // this is only used in local build for debugging, when compiling in release mode the path is real path where the app can store many things without interfering with other things (eg. AppData\Roaming\... on Windows or  .local/share/... on Linux )
@@ -72,24 +73,18 @@ std::vector<std::string> utils::supported_features() {
     // this is in the internal storage of the nintendo switch, it ios mounted by libnx (runtime switch support library) and filled at compile time with assets (its called ROMFS there)
     return std::filesystem::path{ "romfs:/assets" };
 #elif defined(BUILD_INSTALLER)
-
-#if defined(FLATPAK_BUILD)
     // if you build in BUILD_INSTALLER mode, you have to assure that the data is there e.g. music  + fonts!
-    const char* resource_path = "/app/share/oopetris/";
+#if defined(FLATPAK_BUILD)
+    return std::filesystem::path{ "/app/share/oopetris/assets/" };
 #elif defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
     char* resource_path = SDL_GetBasePath();
     if (!resource_path) {
         throw std::runtime_error{ "Failed in getting the Base Path: " + std::string{ SDL_GetError() } };
     }
-
+    return std::filesystem::path{ resource_path } / "assets";
 #else
-    char* resource_path = SDL_GetPrefPath(constants::author, constants::program_name);
-    if (!resource_path) {
-        throw std::runtime_error{ "Failed in getting the Pref Path: " + std::string{ SDL_GetError() } };
-    }
-
+#error "unrecognized installer build"
 #endif
-    return std::filesystem::path{ std::string{ resource_path } } / "assets";
 #else
     return std::filesystem::path{ "assets" };
 #endif

@@ -14,6 +14,9 @@ project(
     version: '0.5.5',
 )
 
+oopetris_author = 'Coder2k'
+oopetris_name = 'OOPetris'
+
 subdir('tools/options')
 
 subdir('tools/dependencies')
@@ -90,6 +93,8 @@ else
                 command: [
                     makensis,
                     '-DVERSION=' + meson.project_version(),
+                    '-DNAME=' + oopetris_name,
+                    '-DAUTHOR=' + oopetris_author,
                     '-DPROJECT_SOURCE_DIR=' + meson.project_source_root(),
                     '-DPROJECT_BUILD_DIR=' + meson.project_build_root(),
                     nsis_script,
