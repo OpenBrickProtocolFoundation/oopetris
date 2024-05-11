@@ -56,7 +56,7 @@ jobs:
       - name: Build APK
         run: | 
           cd platforms/android/
-          ./gradlew assembleDebug --no-daemon -PANDROID_ABI=${{ matrix.config.arch }} -PVERSION=$(meson introspect --projectinfo build | jq -r '.version')
+          ./gradlew assembleDebug --no-daemon -PANDROID_ABI=${{ matrix.config.arch }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
