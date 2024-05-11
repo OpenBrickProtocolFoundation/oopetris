@@ -1,2 +1,0 @@
-#define AppIcon 101
-AppIcon ICON "../../assets/icon/icon.ico"

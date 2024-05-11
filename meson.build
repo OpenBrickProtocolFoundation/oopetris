@@ -50,12 +50,8 @@ elif meson.is_cross_build() and host_machine.system() == '3ds'
     subdir('platforms/3ds')
 else
 
-      if host_machine.system() == 'windows'
-
-        windows = import('windows')
-        oopetris_resource_windows = windows.compile_resources('platforms' / 'windows' / 'oopetris.rc')
-
-        main_files += oopetris_resource_windows
+    if host_machine.system() == 'windows'
+        subdir('platforms/windows')
     endif
 
     oopetris_exe = executable(
