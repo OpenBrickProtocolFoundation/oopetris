@@ -50,6 +50,16 @@ jobs:
       - name: Build
         run: meson compile -C build 
 
+      - name: Download EnVar plugin for NSIS
+        uses: carlosperate/download-file-action@v2
+        with:
+          file-url: https://nsis.sourceforge.io/mediawiki/images/7/7f/EnVar_plugin.zip
+          file-name: envar_plugin.zip
+          location: ${{ github.workspace }}
+  
+      - name: Extract EnVar plugin
+        run: 7z x "-oC:/Program Files (x86)(NSIS" "${{ github.workspace }}/envar_plugin.zip"
+
       - name: Build installer (Windows)
         run: meson compile -C build windows_installer
 
