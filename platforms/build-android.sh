@@ -4,8 +4,8 @@ set -e
 
 mkdir -p toolchains
 
-export NDK_VER_DOWNLOAD="r26d"
-export NDK_VER_DESC="r26d"
+export NDK_VER_DOWNLOAD="r27-beta1"
+export NDK_VER_DESC="r27-beta1"
 
 export BASE_PATH="$PWD/toolchains/android-ndk-$NDK_VER_DESC"
 export ANDROID_NDK_HOME="$BASE_PATH"
@@ -177,11 +177,11 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
         cd "$BUILD_DIR_MPG123"
 
-        wget -q "https://www.mpg123.de/download/mpg123-1.32.4.tar.bz2"
+        wget -q "https://www.mpg123.de/download/mpg123-1.32.6.tar.bz2"
 
-        tar -xf "mpg123-1.32.4.tar.bz2"
+        tar -xf "mpg123-1.32.6.tar.bz2"
 
-        cd "mpg123-1.32.4"
+        cd "mpg123-1.32.6"
 
         BUILDYSTEM="cmake"
 
@@ -241,11 +241,11 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
         cd "$BUILD_DIR_OPENSSL"
 
-        wget -q "https://www.openssl.org/source/openssl-3.0.13.tar.gz"
+        wget -q "https://github.com/openssl/openssl/releases/download/openssl-3.3.0/openssl-3.3.0.tar.gz"
 
-        tar -xzf "openssl-3.0.13.tar.gz"
+        tar -xzf "openssl-3.3.0.tar.gz"
 
-        cd "openssl-3.0.13"
+        cd "openssl-3.3.0"
 
         OPENSSL_TARGET_ARCH="android-$ARCH"
 
@@ -338,6 +338,7 @@ EOF
 
     if [ "$COMPILE_TYPE" == "complete_rebuild" ] || [ ! -e "$BUILD_DIR" ]; then
 
+        # TODO: enbale hidapi, by not dependening on libusb, that is not availbale on android
         meson setup "$BUILD_DIR" \
             "--prefix=$SYS_ROOT" \
             "--wipe" \
@@ -345,7 +346,7 @@ EOF
             "--libdir=usr/lib/$ARM_NAME_TRIPLE/$SDK_VERSION" \
             --cross-file "./platforms/crossbuild-android-$ARM_TARGET_ARCH.ini" \
             "-Dbuildtype=$BUILDTYPE" \
-            -Dsdl2:use_hidapi=disabled \
+            -Dsdl2:use_hidapi=enabled \
             -Dcpp_args=-DAUDIO_PREFER_MP3 \
             -Dclang_libcpp=disabled
 
