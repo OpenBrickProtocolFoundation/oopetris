@@ -37,6 +37,7 @@ RequestExecutionLevel admin
 ; UI
 
 !define MUI_ICON "${PROJECT_SOURCE_DIR}\assets\icon\icon.ico"
+!define MUI_UNICON "${PROJECT_SOURCE_DIR}\assets\icon\icon.ico"
 !define MUI_HEADERIMAGE
 !define MUI_ABORTWARNING
 !define MUI_WELCOMEPAGE_TITLE "${SLUG} Setup"
