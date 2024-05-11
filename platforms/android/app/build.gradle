@@ -74,13 +74,13 @@ static boolean isValidVersion(String version) {
 
 /**
  * Read the Android ABI from user input.
- * supported ANDROID_ABIs are 'arm64-v8a', 'armeabi-v7a', 'x86', 'x86_64'
+ * supported ANDROID_ABIs are 'arm64-v8a', 'armeabi-v7a', 'x86', 'x86_64', 'riscv64'
  * @return List<String>
  */
 List getAndroidABIs() {
     String property = project.findProperty('ANDROID_ABI')
 
-    List<String> supportedABIs = ["armeabi-v7a", "arm64-v8a", "x86", "x86_64"];
+    List<String> supportedABIs = ["armeabi-v7a", "arm64-v8a", "x86", "x86_64", "riscv64"];
 
     List<String> AbiFilters = new ArrayList<String>()
     if (property == null) {
@@ -94,16 +94,21 @@ List getAndroidABIs() {
         for (abi in supportedABIs) {
             AbiFilters.add(abi);
         }
-    } else if (property.equalsIgnoreCase('armeabi-v7a')) {
-        AbiFilters.add(property);
-    } else if (property.equalsIgnoreCase('arm64-v8a')) {
-        AbiFilters.add(property);
-    } else if (property.equalsIgnoreCase('x86')) {
-        AbiFilters.add(property);
-    } else if (property.equalsIgnoreCase('x86_64')) {
-        AbiFilters.add(property);
     } else {
-        throw new Exception('ERROR: Invalid ANDROID_ABI entered: ' + property)
+        boolean found = false;
+
+        for(abi in supportedABIs){
+            if(property.equalsIgnoreCase(abi)){
+                AbiFilters.add(abi);
+                found = true;
+                break;
+            }
+        }
+
+        if(!found){
+            throw new Exception('ERROR: Invalid ANDROID_ABI entered: ' + property)
+        }
+
     }
 
     for (abi in AbiFilters) {
@@ -211,14 +216,14 @@ android {
         targetCompatibility JavaVersion.VERSION_21
     }
 
-    compileSdkVersion 34
-    ndkVersion "27.0.11718014-beta1"
+    compileSdk 35
+    ndkVersion '27.0.11718014 beta1'
     defaultConfig {
         if (buildAsApplication) {
             applicationId "com.github.oopetris"
         }
         minSdkVersion 21
-        targetSdkVersion 34
+        targetSdkVersion 35
         versionCode 6
         versionName(versionString)
     }
