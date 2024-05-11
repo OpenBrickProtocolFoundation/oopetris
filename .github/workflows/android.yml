@@ -46,7 +46,7 @@ jobs:
         
       - name: Setup NDK
         run: | 
-          sdkmanager --install "ndk;27.0.11718014-beta1"
+          sdkmanager --install "ndk;27.0.11718014"
 
 
       - name: Build natibe libraries
