@@ -81,6 +81,10 @@ Section "-hidden app"
     SetOutPath "$INSTDIR"
     File /a "${PROJECT_BUILD_DIR}\${APPFILE}"
 
+    ; install dynamic libraries
+    SetOutPath "$INSTDIR"
+    File /a "${PROJECT_SOURCE_DIR}\subprojects\discord_game_sdk-3.2.1\lib\x86_64\discord_game_sdk.dll"
+
     WriteRegStr HKCU "Software\${NAME}" "" $INSTDIR
     WriteUninstaller "$INSTDIR\Uninstall.exe"
 
