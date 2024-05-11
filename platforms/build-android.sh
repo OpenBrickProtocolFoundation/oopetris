@@ -177,11 +177,11 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
         cd "$BUILD_DIR_MPG123"
 
-        wget -q "https://www.mpg123.de/download/mpg123-1.32.4.tar.bz2"
+        wget -q "https://www.mpg123.de/download/mpg123-1.32.6.tar.bz2"
 
-        tar -xf "mpg123-1.32.4.tar.bz2"
+        tar -xf "mpg123-1.32.6.tar.bz2"
 
-        cd "mpg123-1.32.4"
+        cd "mpg123-1.32.6"
 
         BUILDYSTEM="cmake"
 
@@ -241,11 +241,11 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
         cd "$BUILD_DIR_OPENSSL"
 
-        wget -q "https://www.openssl.org/source/openssl-3.0.13.tar.gz"
+        wget -q "https://github.com/openssl/openssl/releases/download/openssl-3.3.0/openssl-3.3.0.tar.gz"
 
-        tar -xzf "openssl-3.0.13.tar.gz"
+        tar -xzf "openssl-3.3.0.tar.gz"
 
-        cd "openssl-3.0.13"
+        cd "openssl-3.3.0"
 
         OPENSSL_TARGET_ARCH="android-$ARCH"
 
