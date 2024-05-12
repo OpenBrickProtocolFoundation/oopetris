@@ -12,13 +12,13 @@
 
 inline void to_json(nlohmann::json& j, const KeyboardControls& controls) {
     j = nlohmann::json{
-        { "rotate_left",  magic_enum::enum_name(controls.rotate_left)},
-        {"rotate_right", magic_enum::enum_name(controls.rotate_right)},
-        {   "move_left",    magic_enum::enum_name(controls.move_left)},
-        {  "move_right",   magic_enum::enum_name(controls.move_right)},
-        {   "move_down",    magic_enum::enum_name(controls.move_down)},
-        {        "drop",         magic_enum::enum_name(controls.drop)},
-        {        "hold",         magic_enum::enum_name(controls.hold)},
+        {  "rotate_left",  magic_enum::enum_name(controls.rotate_left) },
+        { "rotate_right", magic_enum::enum_name(controls.rotate_right) },
+        {    "move_left",    magic_enum::enum_name(controls.move_left) },
+        {   "move_right",   magic_enum::enum_name(controls.move_right) },
+        {    "move_down",    magic_enum::enum_name(controls.move_down) },
+        {         "drop",         magic_enum::enum_name(controls.drop) },
+        {         "hold",         magic_enum::enum_name(controls.hold) },
     };
 }
 
@@ -82,9 +82,10 @@ inline void from_json(const nlohmann::json& j, Controls& controls) {
 }
 
 struct Settings {
-    Platform platform;
+    Platform platform{};
     Controls controls;
-    float volume;
+    float volume{ 0.2f };
+    bool discord{ false }; //changing this requires a restart
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Settings, platform, controls, volume)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Settings, platform, controls, volume, discord)

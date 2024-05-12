@@ -246,17 +246,6 @@ void Application::render() const {
 
 void Application::initialize() {
 
-#if defined(_HAVE_DISCORD_SDK)
-    auto discord_instance = DiscordInstance::initialize();
-    if (not discord_instance.has_value()) {
-        spdlog::warn("Error initializing the discord instance, it might not be running: {}", discord_instance.error());
-    } else {
-        m_discord_instance = std::move(discord_instance.value());
-        m_discord_instance->after_setup();
-    }
-
-#endif
-
     try_load_settings();
     load_resources();
     push_scene(scenes::create_scene(*this, SceneId::MainMenu, ui::FullScreenLayout{ *m_window }));
@@ -267,6 +256,21 @@ void Application::initialize() {
             ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
             ui::RelativeLayout{ window(), 0.0, 0.0, 0.1, 0.05 }, false
     );
+#endif
+
+#if defined(_HAVE_DISCORD_SDK)
+    if (m_settings.discord) {
+        auto discord_instance = DiscordInstance::initialize();
+        if (not discord_instance.has_value()) {
+            spdlog::warn(
+                    "Error initializing the discord instance, it might not be running: {}", discord_instance.error()
+            );
+        } else {
+            m_discord_instance = std::move(discord_instance.value());
+            m_discord_instance->after_setup();
+        }
+    }
+
 #endif
 }
 
@@ -281,20 +285,23 @@ void Application::try_load_settings() {
         spdlog::error("unable to load settings from \"{}\": {}", settings_filename, result.error());
         spdlog::warn("applying default settings");
     }
+
+    // apply settings
+    m_music_manager.set_volume(m_settings.volume);
 }
 
 void Application::load_resources() {
     constexpr auto fonts_size = 128;
-    const std::vector<std::tuple<FontId, std::string>> fonts {
+    const std::vector<std::tuple<FontId, std::string>> fonts{
 #if defined(__3DS__)
         //TODO: debug why the other font crashed, not on loading, but on trying to render text!
-        { FontId::Default, "LeroyLetteringLightBeta01.ttf" },
+        {        FontId::Default, "LeroyLetteringLightBeta01.ttf" },
 #else
         { FontId::Default, "PressStart2P.ttf" },
 #endif
-                { FontId::Arial, "arial.ttf" }, { FontId::NotoColorEmoji, "NotoColorEmoji.ttf" }, {
-            FontId::Symbola, "Symbola.ttf"
-        }
+        {          FontId::Arial,                     "arial.ttf" },
+        { FontId::NotoColorEmoji,            "NotoColorEmoji.ttf" },
+        {        FontId::Symbola,                   "Symbola.ttf" }
     };
     for (const auto& [font_id, path] : fonts) {
         const auto font_path = utils::get_assets_folder() / "fonts" / path;
