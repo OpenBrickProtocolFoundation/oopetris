@@ -75,25 +75,24 @@ namespace scenes {
         if (m_next_command.has_value()) {
             return std::visit(
                     helper::overloaded{
-                            [](const Return&) {
-                                return UpdateResult{ SceneUpdate::StopUpdating, Scene::Pop{} };
-                            },
+                            [](const Return&) { return UpdateResult{ SceneUpdate::StopUpdating, Scene::Pop{} }; },
                             [this](const Action& action) {
-                                m_next_command = helper::nullopt;
-
                                 if (auto* recording_component =
                                             dynamic_cast<custom_ui::RecordingComponent*>(action.widget);
                                     recording_component != nullptr) {
 
                                     const auto recording_path = recording_component->metadata().path;
 
+                                    // action is a reference to a structure inside m_next_command, so resetting it means, we need to copy everything out of it
+                                    m_next_command = helper::nullopt;
+
                                     return UpdateResult{
                                         SceneUpdate::StopUpdating,
-                                        Scene::RawSwitch{"ReplayGame",
+                                        Scene::RawSwitch{ "ReplayGame",
                                                          std::make_unique<ReplayGame>(
-                                                         m_service_provider, ui::FullScreenLayout{ m_service_provider->window() },
+                                                                  m_service_provider, ui::FullScreenLayout{ m_service_provider->window() },
                                                          recording_path
-                                                         )}
+                                                          ) }
                                     };
                                 }
 #if defined(_HAVE_FILE_DIALOGS)
@@ -107,6 +106,9 @@ namespace scenes {
                                     }
 
                                     add_all_recordings();
+
+                                    // action is a reference to a structure inside m_next_command, so resetting it means, we need to copy everything out of it
+                                    m_next_command = helper::nullopt;
 
                                     return UpdateResult{ SceneUpdate::StopUpdating, helper::nullopt };
                                 }

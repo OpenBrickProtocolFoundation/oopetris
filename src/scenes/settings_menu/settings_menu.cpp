@@ -115,12 +115,13 @@ namespace scenes {
                                 return UpdateResult{ SceneUpdate::StopUpdating, Scene::Pop{} };
                             },
                             [this](const Action& action) {
-                                m_next_command = helper::nullopt;
-
                                 if (auto* settings_details = dynamic_cast<settings::SettingsDetails*>(action.widget);
                                     settings_details != nullptr) {
 
                                     auto change_scene = settings_details->get_details_scene();
+
+                                    // action is a reference to a structure inside m_next_command, so resetting it means, we need to copy everything out of it
+                                    m_next_command = helper::nullopt;
 
                                     return UpdateResult{ SceneUpdate::StopUpdating, std::move(change_scene) };
                                 }
@@ -151,7 +152,7 @@ namespace scenes {
         if (const auto event_result = m_main_layout.handle_event(event, window); event_result) {
             if (const auto additional = event_result.get_additional();
                 additional.has_value() and additional.value().first == ui::EventHandleType::RequestAction) {
-                m_next_command = Command{ Action(additional.value().second) };
+                m_next_command = Command{ Action{ additional.value().second } };
             }
 
             return true;
