@@ -3,6 +3,7 @@
 
 !include "MUI2.nsh"
 !include "logiclib.nsh"
+!include "FileFunc.nsh"
 
 ; test if required arguments were given in the command line
 !ifndef VERSION
@@ -30,7 +31,7 @@
 !define APPFILE "oopetris.exe"
 !define APP_UNINSTALLER_FILE "Uninstall.exe"
 !define SLUG "${NAME} v${VERSION}"
-
+!define ARP "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NAME}"
 ;--------------------------------
 ; General
 
@@ -66,6 +67,34 @@ RequestExecutionLevel admin
 ; Set UI language
 !insertmacro MUI_LANGUAGE "English"
 
+
+; Return on top of stack the total size of the selected (installed) sections, formated as DWORD
+; Assumes no more than 256 sections are defined
+;; source: https://nsis.sourceforge.io/Add_uninstall_information_to_Add/Remove_Programs
+Var GetInstalledSize.total
+Function GetInstalledSize
+	Push $0
+	Push $1
+	StrCpy $GetInstalledSize.total 0
+	${ForEach} $1 0 256 + 1
+		${if} ${SectionIsSelected} $1
+			SectionGetSize $1 $0
+			IntOp $GetInstalledSize.total $GetInstalledSize.total + $0
+		${Endif}
+ 
+		; Error flag is set when an out-of-bound section is referenced
+		${if} ${errors}
+			${break}
+		${Endif}
+	${Next}
+ 
+	ClearErrors
+	Pop $1
+	Pop $0
+	IntFmt $GetInstalledSize.total "0x%08X" $GetInstalledSize.total
+	Push $GetInstalledSize.total
+FunctionEnd
+
 ;--------------------------------
 ; Section - Install App, always installed
 
@@ -81,9 +110,10 @@ Section "Core App" CoreApp
 
     SetOutPath "$INSTDIR\assets\icons"
     File /r "${PROJECT_SOURCE_DIR}\assets\icons\*.*"
-
-    SetOutPath "$INSTDIR\assets\music"
-    File /r "${PROJECT_SOURCE_DIR}\assets\music\*.*"
+    
+    ; install the windows icon to use it
+    SetOutPath "$INSTDIR"
+    File "/oname=${NAME}.ico" "${PROJECT_SOURCE_DIR}\assets\icon\icon.ico" 
 
     ; install executable
     SetOutPath "$INSTDIR"
@@ -91,14 +121,18 @@ Section "Core App" CoreApp
 
     ; install dynamic libraries
     SetOutPath "$INSTDIR"
-    File /a "${PROJECT_SOURCE_DIR}\subprojects\discord_game_sdk-3.2.1\lib\x86_64\discord_game_sdk.dll"
+    File "${PROJECT_SOURCE_DIR}\subprojects\discord_game_sdk-3.2.1\lib\x86_64\discord_game_sdk.dll"
 
     ; install default settings (DO NOT Override)
     SetOutPath "$APPDATA\${AUTHOR}\${NAME}"
     SetOverwrite off
-    File  "${PROJECT_SOURCE_DIR}\settings.json"
+    File "${PROJECT_SOURCE_DIR}\settings.json"
     SetOverwrite on
 
+    ; write some regestry keys, just for information
+    WriteRegStr HKCU "Software\${NAME}" "Version" "${VERSION}"
+
+    ; write the uninstaller and needed information
     WriteRegStr HKCU "Software\${NAME}" "InstallDir" $INSTDIR
     WriteUninstaller "$INSTDIR\${APP_UNINSTALLER_FILE}"
 
@@ -106,9 +140,41 @@ Section "Core App" CoreApp
     CreateDirectory '$SMPROGRAMS\${NAME}'
     CreateShortCut '$SMPROGRAMS\${NAME}\${NAME}.lnk' '$INSTDIR\${APPFILE}' "" '$INSTDIR\${APPFILE}' 0
     CreateShortCut '$SMPROGRAMS\${NAME}\Uninstall ${NAME}.lnk' '$INSTDIR\${APP_UNINSTALLER_FILE}' "" '$INSTDIR\${APP_UNINSTALLER_FILE}' 0
+
+    ; create metadata for some windows features to work correctly
+
+    ; Write the uninstall keys for Windows
+    WriteRegStr HKCU "${ARP}" "UninstallString" '"$INSTDIR\${APP_UNINSTALLER_FILE}"'
+    WriteRegStr HKCU "${ARP}" "QuietUninstallString" '"$INSTDIR\${APP_UNINSTALLER_FILE}"'
+
+    ; write some generic metadata about the uninstaller
+    WriteRegStr HKCU "${ARP}" "DisplayName" "${NAME}"
+    WriteRegStr HKCU "${ARP}" "DisplayVersion" "${VERSION}"
+    WriteRegStr HKCU "${ARP}" "Publisher" "${AUTHOR}"
+    WriteRegStr HKCU "${ARP}" "DisplayIcon" "$INSTDIR\${NAME}.ico"
+
+    ; get the estimated size and use it
+    Call GetInstalledSize
+    WriteRegDWORD HKCU "${ARP}" "EstimatedSize" "$GetInstalledSize.total"
+    
+    ; no modify or repair functionality given
+    WriteRegDWORD HKCU "${ARP}" "NoModify" 1
+    WriteRegDWORD HKCU "${ARP}" "NoRepair" 1
 SectionEnd
 
 
+;--------------------------------
+; Section - Install Music assets, optional, can be selected by user if he wants to have music
+
+Section "Music" Music
+    ; install music assets (these are larger)
+    SetOutPath "$INSTDIR\assets\music"
+    File /r "${PROJECT_SOURCE_DIR}\assets\music\*.*"
+    
+    ; store that this is installed
+    WriteRegDWORD HKCU "Software\${NAME}" "MusicInstalled" 1
+SectionEnd
+    
 
 ;--------------------------------
 ; Section - Install Binary helper, optional, can be selected by user if he wants to have one
@@ -131,13 +197,14 @@ SectionEnd
 
 ;Language strings
 LangString DESC_CoreApp ${LANG_ENGLISH} "Install Core App"
-LangString DESC_BinaryFiles ${LANG_ENGLISH} "Install (Optional) Additional Binaries"
-
+LangString DESC_BinaryFiles ${LANG_ENGLISH} "Install Additional Binaries"
+LangString DESC_Music ${LANG_ENGLISH} "Install Music Assets"
 
 ;Assign language strings to sections
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
   !insertmacro MUI_DESCRIPTION_TEXT ${CoreApp} $(DESC_CoreApp)
   !insertmacro MUI_DESCRIPTION_TEXT ${AdditionalBinaries} $(DESC_BinaryFiles)
+  !insertmacro MUI_DESCRIPTION_TEXT ${Music} $(DESC_Music)
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 ;--------------------------------
@@ -204,4 +271,7 @@ Section "Uninstall"
 
   ; delete the whole reg key
   DeleteRegKey HKCU "Software\${NAME}"
+
+  ; delete the whole reg keyfor the uninstaller
+  DeleteRegKey HKCU "${ARP}"
 SectionEnd
