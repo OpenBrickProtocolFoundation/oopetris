@@ -162,6 +162,35 @@ Section "Core App" CoreApp
     WriteRegDWORD HKCU "${ARP}" "NoRepair" 1
 SectionEnd
 
+;--------------------------------
+; Section - Install C++ Redist., always installed, if needed, hidden
+;; source: partially https://stackoverflow.com/questions/62092185/how-to-install-the-visual-c-redist-using-nsis
+;; and https://gist.github.com/mattiasghodsian/a30f50568792939e35e93e6bc2084c2a
+
+!define VC_REDITS_NAME "vc_redist.x64.exe"
+
+Section "-hidden Visual Studio C++ Runtime"
+    ; install the MSVC C++ Redistributable (Runtime libraries needed by C++ and C), only if not already installed
+    ReadRegDWORD $0 HKLM "SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x64" "Installed"
+
+    ; if it isn't preseent it will be 0, otherwise it will be 0 or 1, depending if this is installed or not
+    ${If} $0 == 0
+      ; we have the C++ redist. not installed 
+
+      DetailPrint "Visual Studio C++ Runtime NOT installed, launching installer"
+
+      SetOutPath "$INSTDIR"
+      ; this dir is specifiy to github runners, locally it would be: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Redist\MSVC\v143\${VC_REDITS_NAME}"
+      File "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Redist\MSVC\v143\${VC_REDITS_NAME}"
+      ; error code is ignored, that is intended
+      ExecWait '"$INSTDIR\${VC_REDITS_NAME}" /install'
+      ; it is not needed anymore
+      Delete "$INSTDIR\${VC_REDITS_NAME}"
+    ${Else}
+       DetailPrint "Visual Studio C++ Runtime already installed, skipping installing it"
+    ${EndIf}
+SectionEnd
+
 
 ;--------------------------------
 ; Section - Install Music assets, optional, can be selected by user if he wants to have music
