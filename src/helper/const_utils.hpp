@@ -6,13 +6,27 @@
 #include <cassert>
 #include <type_traits>
 
-// define a consteval assert, it isn't a pretty error message, but there's nothing we can do against that atm :(
-// this https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2024/p2758r2.html tries to fix it
+// use C++26 feature, if available:
+#if __cpp_static_assert >= 202306L
 #define CONSTEVAL_ONLY_STATIC_ASSERT(CHECK, MSG) /*NOLINT(cppcoreguidelines-macro-usage)*/                                                      \
     ((CHECK) ? void(0) : [] {                                                                                                                   \
         /* If you see this really bad c++ error message, follow the origin of MSG, to see the real error message, c++ error messages suck xD */ \
         throw(MSG);                                                                                                                             \
     }())
+
+//This doesn't work, since CHECK is in most cases not a constant expression so not constant evaluatable inside the if constexpr, and therefore static_assert(false,..) would trigger always
+/* 
+#define CONSTEVAL_ONLY_STATIC_ASSERT(CHECK, MSG)
+(if constexpr (!(CHECK)) { static_assert(false, MSG); }())
+s*/
+
+#else
+#define CONSTEVAL_ONLY_STATIC_ASSERT(CHECK, MSG) /*NOLINT(cppcoreguidelines-macro-usage)*/                                                      \
+    ((CHECK) ? void(0) : [] {                                                                                                                   \
+        /* If you see this really bad c++ error message, follow the origin of MSG, to see the real error message, c++ error messages suck xD */ \
+        throw(MSG);                                                                                                                             \
+    }())
+#endif
 
 #define CONSTEVAL_STATIC_ASSERT(CHECK, MSG)           \
     do { /*NOLINT(cppcoreguidelines-avoid-do-while)*/ \
