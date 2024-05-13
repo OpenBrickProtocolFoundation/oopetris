@@ -33,9 +33,9 @@ input::PointerEventHelper::PointerEventHelper(shapes::IPoint pos, PointerEvent e
     using Type = decltype(m_pos)::Type;
 
     assert(rect.top_left.x <= static_cast<u32>(std::numeric_limits<Type>::max()));
-    assert(rect.top_left.y <=  static_cast<u32>(std::numeric_limits<Type>::max()));
-    assert(rect.bottom_right.x <=  static_cast<u32>(std::numeric_limits<Type>::max()));
-    assert(rect.bottom_right.y <=  static_cast<u32>(std::numeric_limits<Type>::max()));
+    assert(rect.top_left.y <= static_cast<u32>(std::numeric_limits<Type>::max()));
+    assert(rect.bottom_right.x <= static_cast<u32>(std::numeric_limits<Type>::max()));
+    assert(rect.bottom_right.y <= static_cast<u32>(std::numeric_limits<Type>::max()));
 
     return is_in(rect.cast<Type>());
 }

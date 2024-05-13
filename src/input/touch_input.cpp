@@ -258,7 +258,7 @@ input::TouchInput::get_by_device_index(const std::shared_ptr<Window>& window, in
         throw std::runtime_error("Tried to offset event, that is no pointer event: in Touch Input");
     }
 
-    using FloatType = decltype(event.tfinger.x); 
+    using FloatType = decltype(event.tfinger.x);
 
     const FloatType x_percent = event.tfinger.x;
     const FloatType y_percent = event.tfinger.y;
