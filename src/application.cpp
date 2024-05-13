@@ -259,7 +259,7 @@ void Application::initialize() {
 #endif
 
 #if defined(_HAVE_DISCORD_SDK)
-    if (m_settings_manager.discord()) {
+    if (m_settings_manager.settings().discord) {
         auto discord_instance = DiscordInstance::initialize();
         if (not discord_instance.has_value()) {
             spdlog::warn(

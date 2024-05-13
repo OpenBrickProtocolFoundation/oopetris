@@ -156,7 +156,7 @@ input::InputManager::~InputManager() = default;
 
 
     //TODO: select the first suitable, by using the primary input method or some other settings!
-    for (const auto& control : service_provider->settings_manager().controls()) {
+    for (const auto& control : service_provider->settings_manager().settings().controls) {
 
         return std::visit(
                 helper::overloaded{ [service_provider](const input::KeyboardSettings& keyboard_settings

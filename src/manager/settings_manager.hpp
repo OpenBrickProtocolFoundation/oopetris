@@ -68,7 +68,7 @@ namespace detail {
 struct SettingsManager {
 private:
     ServiceProvider* m_service_provider;
-    detail::Settings m_current_settings;
+    detail::Settings m_settings;
 
 public:
     explicit SettingsManager(ServiceProvider* service_provider);

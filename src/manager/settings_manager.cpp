@@ -10,19 +10,19 @@ SettingsManager::SettingsManager(ServiceProvider* service_provider) : m_service_
     const auto result = json::try_parse_json_file<detail::Settings>(settings_file);
 
     if (result.has_value()) {
-        m_current_settings = result.value();
+        m_settings = result.value();
     } else {
         spdlog::error("unable to load settings from \"{}\": {}", detail::settings_filename, result.error());
         spdlog::warn("applying default settings");
 
         //TODO: better default settings
-        m_current_settings = {
+        m_settings = {
             detail::Settings{ {}, 1.0 }
         };
     }
 }
 
 
-[[nodiscard]] const std::vector<Controls>& SettingsManager::controls() const {
-    return m_current_settings.controls;
+[[nodiscard]] const detail::Settings& SettingsManager::settings() const {
+    return m_settings;
 }
