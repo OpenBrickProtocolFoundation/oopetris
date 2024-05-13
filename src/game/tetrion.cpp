@@ -522,12 +522,9 @@ helper::TetrominoType Tetrion::get_next_tetromino_type() {
 }
 
 bool Tetrion::tetromino_can_move_down(const Tetromino& tetromino) const {
-    for (const Mino& mino : tetromino.minos()) { // NOLINT(readability-use-anyofallof)
-        if (not mino_can_move_down(mino.position())) {
-            return false;
-        }
-    }
-    return true;
+    return not std::ranges::any_of(tetromino.minos(), [this](const Mino& mino) {
+        return not mino_can_move_down(mino.position());
+    });
 }
 
 
@@ -568,12 +565,9 @@ u8 Tetrion::rotation_to_index(const Rotation from, const Rotation to) {
 }
 
 bool Tetrion::is_tetromino_position_valid(const Tetromino& tetromino) const {
-    for (const Mino& mino : tetromino.minos()) { // NOLINT(readability-use-anyofallof)
-        if (not is_valid_mino_position(mino.position())) {
-            return false;
-        }
-    }
-    return true;
+    return not std::ranges::any_of(tetromino.minos(), [this](const Mino& mino) {
+        return not is_valid_mino_position(mino.position());
+    });
 }
 
 bool Tetrion::rotate(Tetrion::RotationDirection rotation_direction) {

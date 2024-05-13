@@ -1,7 +1,7 @@
 #include "mino_stack.hpp"
-
 #include "grid_properties.hpp"
 #include "helper/magic_enum_wrapper.hpp"
+
 #include <algorithm>
 
 void MinoStack::clear_row_and_let_sink(u8 row) {
@@ -17,12 +17,9 @@ void MinoStack::clear_row_and_let_sink(u8 row) {
 }
 
 [[nodiscard]] bool MinoStack::is_empty(GridPoint coordinates) const {
-    for (const Mino& mino : m_minos) { // NOLINT(readability-use-anyofallof)
-        if (mino.position() == coordinates) {
-            return false;
-        }
-    }
-    return true;
+    return not std::ranges::any_of(m_minos, [&coordinates](const Mino& mino) {
+        return mino.position() == coordinates;
+    });
 }
 
 void MinoStack::set(GridPoint coordinates, helper::TetrominoType type) {
