@@ -22,9 +22,15 @@
 namespace {
 
     [[nodiscard]] helper::MessageBox::Type get_notification_level(helper::error::Severity severity) {
-        return severity == helper::error::Severity::Fatal   ? helper::MessageBox::Type::Error
-               : severity == helper::error::Severity::Major ? helper::MessageBox::Type::Warning
-                                                            : helper::MessageBox::Type::Information;
+        switch (severity) {
+            case helper::error::Severity::Minor:
+                return helper::MessageBox::Type::Information;
+            case helper::error::Severity::Major:
+                return helper::MessageBox::Type::Warning;
+            case helper::error::Severity::Fatal:
+            default:
+                return helper::MessageBox::Type::Error;
+        }
     }
 
 } // namespace
@@ -88,7 +94,7 @@ void Application::run() {
         const Uint64 current_time = SDL_GetPerformanceCounter();
 
         if (current_time - start_time >= update_time) {
-            double elapsed = static_cast<double>(current_time - start_time) / count_per_s;
+            const double elapsed = static_cast<double>(current_time - start_time) / count_per_s;
             m_fps_text->set_text(*this, fmt::format("FPS: {:.2f}", static_cast<double>(frame_counter) / elapsed));
             start_time = current_time;
             frame_counter = 0;
@@ -100,7 +106,7 @@ void Application::run() {
             const auto now = std::chrono::steady_clock::now();
             const auto runtime = (now - start_execution_time);
             if (runtime < sleep_time) {
-                //TODO: use SDL_DelayNS in sdl >= 3.0
+                //TODO(totto): use SDL_DelayNS in sdl >= 3.0
                 helper::sleep_nanoseconds(sleep_time - runtime);
                 start_execution_time = std::chrono::steady_clock::now();
             } else {
@@ -190,9 +196,12 @@ void Application::update() {
                                     spdlog::info("pushing back scene {}", raw_push.name);
                                     m_scene_stack.push_back(std::move(raw_push.scene));
                                 },
-                                [this](const scenes::Scene::Switch& switch_) {
-                                    spdlog::info("switching to scene {}", magic_enum::enum_name(switch_.target_scene));
-                                    auto scene = scenes::create_scene(*this, switch_.target_scene, switch_.layout);
+                                [this](const scenes::Scene::Switch& scene_switch) {
+                                    spdlog::info(
+                                            "switching to scene {}", magic_enum::enum_name(scene_switch.target_scene)
+                                    );
+                                    auto scene =
+                                            scenes::create_scene(*this, scene_switch.target_scene, scene_switch.layout);
 
                                     // only clear, after the construction was successful
                                     m_scene_stack.clear();
