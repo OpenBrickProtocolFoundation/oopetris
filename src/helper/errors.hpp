@@ -38,7 +38,7 @@ namespace helper {
     };
 
     struct MinorError : public GeneralError {
-        MinorError(const std::string& message) noexcept ;
+        MinorError(const std::string& message) noexcept;
 
         MinorError(std::string&& message) noexcept;
     };
