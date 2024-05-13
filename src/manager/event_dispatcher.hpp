@@ -38,7 +38,7 @@ public:
     }
 
     void unregister_listener(const EventListener* listener) {
-        const auto end = std::remove(m_listeners.begin(), m_listeners.end(), listener);
+        const auto end = std::ranges::remove(m_listeners, listener).begin();
         assert(end != m_listeners.end() and "listener to delete could not be found");
         m_listeners.erase(end, m_listeners.end());
     }
@@ -54,9 +54,7 @@ public:
                 switch (event.type) {
                     case SDL_KEYDOWN:
                     case SDL_KEYUP: {
-                        if (std::find(
-                                    allowed_input_keys.cbegin(), allowed_input_keys.cend(), SDL::Key{ event.key.keysym }
-                            )
+                        if (std::ranges::find(allowed_input_keys, SDL::Key{ event.key.keysym })
                             == allowed_input_keys.cend()) {
                             return;
                         }

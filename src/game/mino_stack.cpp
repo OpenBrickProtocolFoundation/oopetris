@@ -6,7 +6,7 @@
 
 void MinoStack::clear_row_and_let_sink(u8 row) {
     m_minos.erase(
-            std::remove_if(m_minos.begin(), m_minos.end(), [&](const Mino& mino) { return mino.position().y == row; }),
+            std::ranges::remove_if(m_minos, [&](const Mino& mino) { return mino.position().y == row; }).begin(),
             m_minos.end()
     );
     for (Mino& mino : m_minos) {
@@ -45,18 +45,17 @@ void MinoStack::set(GridPoint coordinates, helper::TetrominoType type) {
         return false;
     }
 
-    const auto all_of_this_in_other = std::all_of(m_minos.cbegin(), m_minos.cend(), [&](const auto& mino) {
-        return std::find(other.m_minos.cbegin(), other.m_minos.cend(), mino) != end(other.m_minos);
+    const auto all_of_this_in_other = std::ranges::all_of(m_minos, [&](const auto& mino) {
+        return std::ranges::find(other.m_minos, mino) != end(other.m_minos);
     });
 
     if (not all_of_this_in_other) {
         return false;
     }
 
-    const auto all_of_other_in_this =
-            std::all_of(other.m_minos.cbegin(), other.m_minos.cend(), [this](const auto& mino) {
-                return std::find(m_minos.cbegin(), m_minos.cend(), mino) != end(m_minos);
-            });
+    const auto all_of_other_in_this = std::ranges::all_of(other.m_minos, [this](const auto& mino) {
+        return std::ranges::find(m_minos, mino) != end(m_minos);
+    });
 
     return all_of_other_in_this;
 }
@@ -70,10 +69,9 @@ std::ostream& operator<<(std::ostream& ostream, const MinoStack& mino_stack) {
     ostream << "MinoStack(\n";
     for (u8 y = 0; y < grid::height_in_tiles; ++y) {
         for (u8 x = 0; x < grid::width_in_tiles; ++x) {
-            const auto find_iterator =
-                    std::find_if(mino_stack.minos().cbegin(), mino_stack.minos().cend(), [&](const auto& mino) {
-                        return mino.position() == shapes::AbstractPoint<u8>{ x, y };
-                    });
+            const auto find_iterator = std::ranges::find_if(mino_stack.minos(), [&](const auto& mino) {
+                return mino.position() == shapes::AbstractPoint<u8>{ x, y };
+            });
             const auto found = (find_iterator != mino_stack.minos().cend());
             if (found) {
                 ostream << magic_enum::enum_name(find_iterator->type());

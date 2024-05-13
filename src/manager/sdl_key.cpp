@@ -7,6 +7,8 @@
 #include <array>
 #include <fmt/format.h>
 #include <fmt/ranges.h>
+#include <iterator>
+#include <ranges>
 #include <string>
 #include <tuple>
 #include <unordered_map>
@@ -160,15 +162,15 @@ namespace {
     [[maybe_unused]] SDL::ModifierType typeof_modifier(SDL::Modifier modifier) {
         const auto& [normal, special, multiple] = get_modifier_type_array();
 
-        if (std::find(normal.cbegin(), normal.cend(), modifier) != normal.cend()) {
+        if (std::ranges::find(normal, modifier) != normal.cend()) {
             return SDL::ModifierType::Normal;
         }
 
-        if (std::find(special.cbegin(), special.cend(), modifier) != special.cend()) {
+        if (std::ranges::find(special, modifier) != special.cend()) {
             return SDL::ModifierType::Special;
         }
 
-        if (std::find(multiple.cbegin(), multiple.cend(), modifier) != multiple.cend()) {
+        if (std::ranges::find(multiple, modifier) != multiple.cend()) {
             return SDL::ModifierType::Multiple;
         }
 
@@ -249,21 +251,26 @@ namespace {
     }
 
     // trim from start (in place)
-    inline void ltrim(std::string& s) {
-        s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) { return !std::isspace(ch); }));
+    inline void ltrim(std::string& str) {
+        str.erase(str.begin(), std::ranges::find_if(str, [](unsigned char ch) { return !std::isspace(ch); }));
     }
 
     // trim from end (in place)
-    inline void rtrim(std::string& s) {
-        s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) { return !std::isspace(ch); }).base(), s.end());
+    inline void rtrim(std::string& str) {
+        str.erase(
+                std::ranges::find_if(
+                        std::ranges::reverse_view(str), [](unsigned char ch) { return !std::isspace(ch); }
+                ).base(),
+                str.end()
+        );
     }
 
-    void trim(std::string& s) {
-        ltrim(s);
-        rtrim(s);
+    void trim(std::string& str) {
+        ltrim(str);
+        rtrim(str);
     }
 
-    helper::optional<SDL::Modifier> modifier_from_string(std::string modifier) {
+    helper::optional<SDL::Modifier> modifier_from_string(const std::string& modifier) {
 
         if (modifier.empty()) {
             return helper::nullopt;

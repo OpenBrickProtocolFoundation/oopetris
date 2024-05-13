@@ -46,7 +46,7 @@ void json::check_for_no_additional_keys(const nlohmann::json& j, const std::vect
 
 
     for (const auto& [key, _] : object) {
-        if (std::find(keys.cbegin(), keys.cend(), key) == keys.cend()) {
+        if (std::ranges::find(keys, key) == keys.cend()) {
             throw nlohmann::json::type_error::create(
                     302, fmt::format("object may only contain expected keys, but contained '{}'", key), &j
             );

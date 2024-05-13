@@ -72,8 +72,8 @@ public:
     template<usize other_data_size, typename Result = StaticString<data_size + other_data_size - 1>>
     [[nodiscard]] constexpr Result operator+(const StaticString<other_data_size>& other) const {
         auto concatenated = Result{};
-        std::copy(cbegin(), cend(), concatenated.begin());
-        std::copy(other.cbegin(), other.cend(), concatenated.begin() + size());
+        std::ranges::copy(*this, concatenated.begin());
+        std::ranges::copy(other, concatenated.begin() + size());
         concatenated.back() = '\0';
         return concatenated;
     }

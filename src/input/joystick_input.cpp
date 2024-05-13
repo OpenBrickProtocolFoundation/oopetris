@@ -167,7 +167,7 @@ void input::JoyStickInputManager::discover_devices(std::vector<std::unique_ptr<I
         }
         case SDL_JOYDEVICEREMOVED: {
             const auto instance_id = event.jdevice.which;
-            for (auto it = inputs.cbegin(); it != inputs.end(); it++) {
+            for (auto it = inputs.cbegin(); it != inputs.cend(); it++) {
 
                 if (const auto joystick_input = utils::is_child_class<input::JoystickInput>(*it);
                     joystick_input.has_value()) {
