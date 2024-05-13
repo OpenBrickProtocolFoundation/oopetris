@@ -3,7 +3,6 @@
 Checks: "clang-diagnostic-*,clang-analyzer-*,bugprone-*,misc-*,performance-*,readability-*,portability-*,modernize-*,cppcoreguidelines-*,-modernize-use-trailing-return-type,-readability-named-parameter,-readability-identifier-length,-misc-include-cleaner,-cppcoreguidelines-avoid-magic-numbers,-readability-magic-numbers,-misc-non-private-member-variables-in-classes,-cppcoreguidelines-non-private-member-variables-in-classes"
 WarningsAsErrors: ""
 HeaderFilterRegex: "oopetris/src/.*"
-AnalyzeTemporaryDtors: false
 FormatStyle: "file"
 CheckOptions:
     ## NAMING CONVENTION SECTION
