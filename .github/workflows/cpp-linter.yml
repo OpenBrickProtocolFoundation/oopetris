@@ -14,10 +14,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # NOTE: meson has no dependencies, so --break-system-packages doesn't really break anything!  
       - name: Setup Meson
         run: |
           python -m pip install --upgrade pip
-          pip install meson
+          pip install meson --break-system-packages
 
       - name: Setup Clang
         uses: egor-tensin/setup-clang@v1

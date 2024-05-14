@@ -24,10 +24,11 @@ jobs:
           echo "CC=clang-18" >> "$GITHUB_ENV"
           echo "CXX=clang++-18" >> "$GITHUB_ENV"
             
+      # NOTE: meson has no dependencies, so --break-system-packages doesn't really break anything!
       - name: Setup meson
         run: |
           python -m pip install --upgrade pip
-          pip install meson
+          pip install meson --break-system-packages
 
       - name: Install dependencies
         run: |
