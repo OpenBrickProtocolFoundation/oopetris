@@ -187,33 +187,23 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
         cd "mpg123-1.32.6"
 
-        BUILDYSTEM="cmake"
+        cd ports/cmake/
 
-        if [ $BUILDYSTEM = "autotools" ]; then
+        BUILD_DIR_MPG123="build-mpg123"
 
-            ./configure --prefix="$SYS_ROOT/usr" --oldincludedir="$SYS_ROOT/usr/include" --host="$ARM_NAME_TRIPLE" --with-sysroot="$SYS_ROOT" --with-audio="dummy"
+        mkdir -p "$BUILD_DIR_MPG123"
 
-            make
+        cd "$BUILD_DIR_MPG123"
 
-            make install
-
+        if [ "$ARCH_VERSION" = "i686" ]; then
+            cmake .. --install-prefix "$SYS_ROOT/usr" "-DCMAKE_SYSROOT=$SYS_ROOT" -DOUTPUT_MODULES=dummy -DCMAKE_POSITION_INDEPENDENT_CODE=ON "-DCMAKE_SYSTEM_PROCESSOR=$ARCH_VERSION" -DCMAKE_TOOLCHAIN_FILE=../linux_i686.toolchain.cmake
         else
-
-            cd ports/cmake/
-
-            BUILD_DIR_MPG123="build-mpg123"
-
-            mkdir -p "$BUILD_DIR_MPG123"
-
-            cd "$BUILD_DIR_MPG123"
-
-            cmake .. --install-prefix "$SYS_ROOT/usr" "-DCMAKE_SYSROOT=$SYS_ROOT" -DOUTPUT_MODULES=dummy -DCMAKE_POSITION_INDEPENDENT_CODE=ON "-DCMAKE_HOST_SYSTEM_PROCESSOR=$ARCH_VERSION"
-
-            cmake --build .
-
-            cmake --install .
-
+            cmake .. --install-prefix "$SYS_ROOT/usr" "-DCMAKE_SYSROOT=$SYS_ROOT" -DOUTPUT_MODULES=dummy -DCMAKE_POSITION_INDEPENDENT_CODE=ON "-DCMAKE_SYSTEM_PROCESSOR=$ARCH_VERSION"
         fi
+
+        cmake --build .
+
+        cmake --install .
 
         touch "$BUILD_MPG123_FILE"
 
