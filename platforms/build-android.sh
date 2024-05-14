@@ -177,9 +177,13 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
         cd "$BUILD_DIR_MPG123"
 
-        wget -q "https://www.mpg123.de/download/mpg123-1.32.6.tar.bz2"
+        if [ ! -e "mpg123-1.32.6.tar.bz2" ]; then
+            wget -q "https://www.mpg123.de/download/mpg123-1.32.6.tar.bz2"
+        fi
 
-        tar -xf "mpg123-1.32.6.tar.bz2"
+        if [ ! -d "mpg123-1.32.6" ]; then
+            tar -xf "mpg123-1.32.6.tar.bz2"
+        fi
 
         cd "mpg123-1.32.6"
 
@@ -203,7 +207,8 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
             cd "$BUILD_DIR_MPG123"
 
-            cmake .. --install-prefix "$SYS_ROOT/usr" "-DCMAKE_SYSROOT=$SYS_ROOT" -DOUTPUT_MODULES=dummy -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+            cmake .. --install-prefix "$SYS_ROOT/usr" "-DCMAKE_SYSROOT=$SYS_ROOT" -DOUTPUT_MODULES=dummy -DCMAKE_POSITION_INDEPENDENT_CODE=ON "-DCMAKE_HOST_SYSTEM_PROCESSOR=$ARCH_VERSION"
+
             cmake --build .
 
             cmake --install .
@@ -233,11 +238,11 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
         cd "$BUILD_DIR_OPENSSL"
 
         if [ ! -e "openssl-3.3.0.tar.gz" ]; then
-        wget -q "https://github.com/openssl/openssl/releases/download/openssl-3.3.0/openssl-3.3.0.tar.gz"
+            wget -q "https://github.com/openssl/openssl/releases/download/openssl-3.3.0/openssl-3.3.0.tar.gz"
         fi
 
         if [ ! -d "openssl-3.3.0" ]; then
-        tar -xzf "openssl-3.3.0.tar.gz"
+            tar -xzf "openssl-3.3.0.tar.gz"
         fi
 
         cd "openssl-3.3.0"
@@ -250,7 +255,7 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
             ./Configure --prefix="$SYS_ROOT/usr" no-asm no-tests no-shared "$OPENSSL_TARGET_ARCH" "-D__ANDROID_API__=$SDK_VERSION"
         else
-        ./Configure --prefix="$SYS_ROOT/usr" no-tests no-shared "$OPENSSL_TARGET_ARCH" "-D__ANDROID_API__=$SDK_VERSION"
+            ./Configure --prefix="$SYS_ROOT/usr" no-tests no-shared "$OPENSSL_TARGET_ARCH" "-D__ANDROID_API__=$SDK_VERSION"
         fi
 
         make clean
