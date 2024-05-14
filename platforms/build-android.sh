@@ -232,9 +232,13 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
         cd "$BUILD_DIR_OPENSSL"
 
+        if [ ! -e "openssl-3.3.0.tar.gz" ]; then
         wget -q "https://github.com/openssl/openssl/releases/download/openssl-3.3.0/openssl-3.3.0.tar.gz"
+        fi
 
+        if [ ! -d "openssl-3.3.0" ]; then
         tar -xzf "openssl-3.3.0.tar.gz"
+        fi
 
         cd "openssl-3.3.0"
 
@@ -242,7 +246,25 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
         export ANDROID_NDK_ROOT="$ANDROID_NDK_HOME"
 
+        if [ "$ARCH_VERSION" = "armv7a" ]; then
+
+            ./Configure --prefix="$SYS_ROOT/usr" no-asm no-tests no-shared "$OPENSSL_TARGET_ARCH" "-D__ANDROID_API__=$SDK_VERSION"
+        else
         ./Configure --prefix="$SYS_ROOT/usr" no-tests no-shared "$OPENSSL_TARGET_ARCH" "-D__ANDROID_API__=$SDK_VERSION"
+        fi
+
+        make clean
+
+        if [ "$ARCH_VERSION" = "armv7-a" ]; then
+
+            # fix an compile time error since openssl 3.1.0 >
+            # see https://github.com/android/ndk/issues/1992
+            # Apply patch that fixes the armcap instruction
+
+            # sed -e '/[.]hidden.*OPENSSL_armcap_P/d; /[.]extern.*OPENSSL_armcap_P/ {p; s/extern/hidden/ }' -i -- crypto/*arm*pl crypto/*/asm/*arm*pl
+            sed -E -i '' -e '/[.]hidden.*OPENSSL_armcap_P/d' -e '/[.]extern.*OPENSSL_armcap_P/ {p; s/extern/hidden/; }' crypto/*arm*pl crypto/*/asm/*arm*pl
+
+        fi
 
         make -j build_sw
 
