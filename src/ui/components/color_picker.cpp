@@ -149,10 +149,7 @@ void detail::ColorCanvas::draw_pseudo_circle(const ServiceProvider& service_prov
 }
 
 helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
-detail::ColorCanvas::handle_event( //NOLINT(readability-function-cognitive-complexity)
-        const std::shared_ptr<input::InputManager>& input_manager,
-        const SDL_Event& event
-) {
+detail::ColorCanvas::handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) {
     Widget::EventHandleResult handled = false;
 
     const auto fill_rect = layout().get_rect();
@@ -261,16 +258,17 @@ void detail::ColorCanvas::redraw_texture() {
 
     m_service_provider->renderer().set_render_target(*m_texture);
 
-    const auto w = fill_rect.width();
-    const auto h = fill_rect.height();
+    const auto width = fill_rect.width();
+    const auto height = fill_rect.height();
 
     const auto hue = m_current_color.h;
 
-    //TODO: try to speed this up, since it is a performance bottle neck, if hovering like a madman (xD) over the color slider
-    for (u32 y = 0; y < h; y++) {
-        const auto v = 1.0 - (static_cast<double>(y) / static_cast<double>(h));
-        for (u32 x = 0; x < w; x++) {
-            const Color color = HSVColor(hue, static_cast<double>(x) / static_cast<double>(w), v).to_rgb_color();
+    //TODO(Totto): try to speed this up, since it is a performance bottle neck, if hovering like a madman (xD) over the color slider
+    for (u32 y = 0; y < height; y++) {
+        const auto value = 1.0 - (static_cast<double>(y) / static_cast<double>(height));
+        for (u32 x = 0; x < width; x++) {
+            const Color color =
+                    HSVColor(hue, static_cast<double>(x) / static_cast<double>(width), value).to_rgb_color();
 
             m_service_provider->renderer().draw_pixel(shapes::UPoint{ x, y }, color);
         }
@@ -293,7 +291,7 @@ ui::ColorPicker::ColorPicker(
       m_mode{ ColorMode::RGB },
       m_callback{ std::move(callback) } {
 
-    //TODO: add alpha slider at the side
+    //TODO(Totto): add alpha slider at the side
 
     constexpr double main_rect_height = 0.8;
 
@@ -459,10 +457,7 @@ void ui::ColorPicker::render(const ServiceProvider& service_provider) const {
 }
 
 helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
-ui::ColorPicker::handle_event( //NOLINT(readability-function-cognitive-complexity)
-        const std::shared_ptr<input::InputManager>& input_manager,
-        const SDL_Event& event
-) {
+ui::ColorPicker::handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) {
 
     auto handled = m_color_slider->handle_event(input_manager, event);
 

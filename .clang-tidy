@@ -1,6 +1,6 @@
 # taken from https://github.com/cpp-linter/cpp-linter-action/blob/main/demo/.clang-tidy
 ---
-Checks: "clang-diagnostic-*,clang-analyzer-*,bugprone-*,misc-*,performance-*,readability-*,portability-*,modernize-*,cppcoreguidelines-*,google-*,llvm-*,cert-*,-modernize-use-trailing-return-type,-bugprone-argument-comment,-misc-include-cleaner,-cppcoreguidelines-avoid-magic-numbers,-readability-magic-numbers"
+Checks: "clang-diagnostic-*,clang-analyzer-*,bugprone-*,misc-*,performance-*,readability-*,portability-*,modernize-*,cppcoreguidelines-*,google-*,llvm-*,cert-*,-modernize-use-trailing-return-type,-bugprone-argument-comment,-misc-include-cleaner,-cppcoreguidelines-avoid-magic-numbers,-readability-magic-numbers,-readability-avoid-nested-conditional-operator,-llvm-namespace-comment"
 WarningsAsErrors: ""
 HeaderFilterRegex: "oopetris/src/.*"
 FormatStyle: "file"
@@ -52,6 +52,8 @@ CheckOptions:
     value: "lower_case"
   - key: readability-identifier-naming.GlobalFunctionCase
     value: "lower_case"
+  - key: readability-identifier-naming.GlobalFunctionIgnoredRegexp
+    value: "(PrintTo)" ## for gtest
   - key: readability-identifier-naming.GlobalPointerCase
     value: "lower_case"
   - key: readability-identifier-naming.GlobalVariableCase
@@ -132,8 +134,6 @@ CheckOptions:
     value: "lower_case"
 
     # some needed settings, that are non default
-  - key: bugprone-assert-side-effect.AssertMacros
-    value: "assert"
   - key: bugprone-misplaced-widening-cast.CheckImplicitCasts
     value: true
   - key: misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic
@@ -153,10 +153,14 @@ CheckOptions:
 
   ## special things, that have special values
   - key: readability-identifier-length.IgnoredVariableNames
-    value: ""
+    value: "(os)" # ostream
   - key: readability-identifier-length.IgnoredParameterNames
     value: "^[n]$"
   - key: readability-identifier-length.MinimumLoopCounterNameLength
     value: 1
   - key: readability-identifier-length.MinimumExceptionNameLength
     value: 5
+  - key: readability-function-cognitive-complexity.Threshold
+    value: 50
+  - key: bugprone-assert-side-effect.AssertMacros
+    value: "assert"

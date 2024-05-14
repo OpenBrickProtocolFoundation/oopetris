@@ -93,10 +93,7 @@ ui::Widget::EventHandleResult ui::FocusLayout::handle_focus_change_events(
 }
 
 [[nodiscard]] helper::optional<ui::Widget::InnerState>
-ui::FocusLayout::handle_event_result( // NOLINT(readability-function-cognitive-complexity)
-        const helper::optional<ui::Widget::InnerState>& result,
-        Widget* widget
-) {
+ui::FocusLayout::handle_event_result(const helper::optional<ui::Widget::InnerState>& result, Widget* widget) {
 
     if (not result.has_value()) {
         return helper::nullopt;

@@ -59,13 +59,13 @@ helper::expected<TetrionSnapshot, std::string> TetrionSnapshot::from_istream(std
     MinoStack mino_stack{};
 
     for (MinoCount i = 0; i < num_minos.value(); ++i) {
-        const auto x = helper::reader::read_from_istream<Coordinate>(istream);
-        if (not x.has_value()) {
+        const auto x_coord = helper::reader::read_from_istream<Coordinate>(istream);
+        if (not x_coord.has_value()) {
             return helper::unexpected<std::string>{ "unable to read x coordinate of mino from snapshot" };
         }
 
-        const auto y = helper::reader::read_from_istream<Coordinate>(istream);
-        if (not y.has_value()) {
+        const auto y_coord = helper::reader::read_from_istream<Coordinate>(istream);
+        if (not y_coord.has_value()) {
             return helper::unexpected<std::string>{ "unable to read y coordinate of mino from snapshot" };
         }
 
@@ -81,7 +81,7 @@ helper::expected<TetrionSnapshot, std::string> TetrionSnapshot::from_istream(std
             };
         }
 
-        mino_stack.set(shapes::AbstractPoint<u8>(x.value(), y.value()), maybe_type.value());
+        mino_stack.set(shapes::AbstractPoint<u8>(x_coord.value(), y_coord.value()), maybe_type.value());
     }
 
 
@@ -191,10 +191,10 @@ helper::expected<bool, std::string> TetrionSnapshot::compare_to(const TetrionSna
     }
 
     if (m_mino_stack != other.m_mino_stack) {
-        std::stringstream ss;
-        ss << m_mino_stack << " vs. " << other.m_mino_stack;
+        std::stringstream string_stream{};
+        string_stream << m_mino_stack << " vs. " << other.m_mino_stack;
 
-        return helper::unexpected<std::string>{ fmt::format("mino stacks do not match:\n {}", ss.str()) };
+        return helper::unexpected<std::string>{ fmt::format("mino stacks do not match:\n {}", string_stream.str()) };
     }
 
     return true;

@@ -101,8 +101,7 @@ recorder::RecordingReader::get_header_from_path(const std::filesystem::path& pat
     );
 }
 
-helper::expected<recorder::RecordingReader, std::string>
-recorder::RecordingReader::from_path( // NOLINT(readability-function-cognitive-complexity)
+helper::expected<recorder::RecordingReader, std::string> recorder::RecordingReader::from_path(
         const std::filesystem::path& path
 ) {
 

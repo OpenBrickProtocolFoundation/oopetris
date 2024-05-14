@@ -77,9 +77,9 @@ recorder::InformationValue::to_bytes( // NOLINT(misc-no-recursion)
         typedef union {
             u32 original_value;
             float value;
-        } float_conversion;
+        } FloatConversion;
 
-        const float_conversion conversion_value{ .value = as<float>() };
+        const FloatConversion conversion_value{ .value = as<float>() };
         helper::writer::append_value<u32>(bytes, conversion_value.original_value);
         return bytes;
     }
@@ -91,9 +91,9 @@ recorder::InformationValue::to_bytes( // NOLINT(misc-no-recursion)
         typedef union {
             u64 original_value;
             double value;
-        } double_conversion;
+        } DoubleConversion;
 
-        const double_conversion conversion_value{ .value = as<double>() };
+        const DoubleConversion conversion_value{ .value = as<double>() };
         helper::writer::append_value<u64>(bytes, conversion_value.original_value);
         return bytes;
     }
@@ -232,11 +232,11 @@ helper::expected<std::string, std::string> recorder::InformationValue::read_stri
 }
 
 
-helper::expected<recorder::InformationValue, std::string> recorder::InformationValue::
-        read_value_from_istream( // NOLINT(readability-function-cognitive-complexity,misc-no-recursion)
-                std::istream& istream,
-                u32 recursion_depth
-        ) {
+helper::expected<recorder::InformationValue, std::string>
+recorder::InformationValue::read_value_from_istream( // NOLINT(misc-no-recursion)
+        std::istream& istream,
+        u32 recursion_depth
+) {
     const auto magic_byte = helper::reader::read_from_istream<std::underlying_type_t<ValueType>>(istream);
     if (not magic_byte.has_value()) {
         return helper::unexpected<std::string>{ "unable to read magic byte" };
@@ -262,9 +262,9 @@ helper::expected<recorder::InformationValue, std::string> recorder::InformationV
         typedef union {
             u32 original_value;
             float value;
-        } float_conversion;
+        } FloatConversion;
 
-        const float_conversion raw_float_value{ .original_value = raw_float.value() };
+        const FloatConversion raw_float_value{ .original_value = raw_float.value() };
         return recorder::InformationValue{ raw_float_value.value };
     }
 
@@ -278,9 +278,9 @@ helper::expected<recorder::InformationValue, std::string> recorder::InformationV
         typedef union {
             u64 original_value;
             double value;
-        } double_conversion;
+        } DoubleConversion;
 
-        const double_conversion raw_double_value{ .original_value = raw_double.value() };
+        const DoubleConversion raw_double_value{ .original_value = raw_double.value() };
         return recorder::InformationValue{ raw_double_value.value };
     }
 

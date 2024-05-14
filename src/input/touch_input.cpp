@@ -26,10 +26,7 @@ void input::TouchGameInput::update(SimulationStep simulation_step_index) {
     GameInput::update(simulation_step_index);
 }
 
-helper::optional<InputEvent>
-input::TouchGameInput::sdl_event_to_input_event( // NOLINT(readability-function-cognitive-complexity)
-        const SDL_Event& event
-) {
+helper::optional<InputEvent> input::TouchGameInput::sdl_event_to_input_event(const SDL_Event& event) {
 
     //TODO:
     /*   if (event.tfinger.touchId != m_id) {

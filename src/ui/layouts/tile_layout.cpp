@@ -8,11 +8,8 @@ void ui::TileLayout::render(const ServiceProvider& service_provider) const {
     }
 }
 
-ui::Widget::EventHandleResult ui::TileLayout::handle_event(
-        const std::shared_ptr<input::InputManager>& input_manager,
-        const SDL_Event& event
-) // NOLINT(readability-function-cognitive-complexity)
-{
+ui::Widget::EventHandleResult
+ui::TileLayout::handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) {
     Widget::EventHandleResult handled = handle_focus_change_events(input_manager, event);
 
     if (handled) {
@@ -54,8 +51,8 @@ ui::Widget::EventHandleResult ui::TileLayout::handle_event(
 
     const auto start_point = layout().get_rect().top_left;
 
-    u32 x = start_point.x + margin.first;
-    u32 y = start_point.y + margin.second;
+    u32 x_pos = start_point.x + margin.first;
+    u32 y_pos = start_point.y + margin.second;
     u32 width = layout().get_rect().width() - (margin.first * 2);
     u32 height = layout().get_rect().height() - (margin.second * 2);
 
@@ -70,7 +67,7 @@ ui::Widget::EventHandleResult ui::TileLayout::handle_event(
                                                  : static_cast<u32>(width * steps.at(index)) - gap.get_margin() / 2);
 
         width = current_end - previous_start;
-        x += previous_start;
+        x_pos += previous_start;
     } else {
         const auto previous_start =
                 index == 0 ? 0 : static_cast<u32>(height * steps.at(index - 1)) + gap.get_margin() / 2;
@@ -82,13 +79,13 @@ ui::Widget::EventHandleResult ui::TileLayout::handle_event(
                                                  : static_cast<u32>(height * steps.at(index)) - gap.get_margin() / 2);
 
         height = current_end - previous_start;
-        y += previous_start;
+        y_pos += previous_start;
     }
 
 
     return AbsolutLayout{
-        x,
-        y,
+        x_pos,
+        y_pos,
         width,
         height,
     };

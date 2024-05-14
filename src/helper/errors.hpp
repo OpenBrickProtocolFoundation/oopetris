@@ -18,29 +18,37 @@ namespace helper {
 
     public:
         GeneralError(const std::string& message, error::Severity severity) noexcept;
+
         GeneralError(std::string&& message, error::Severity severity) noexcept;
+
+        ~GeneralError();
+
         GeneralError(const GeneralError& error) noexcept;
+        [[nodiscard]] GeneralError& operator=(const GeneralError& error) noexcept;
+
+        GeneralError(GeneralError&& error) noexcept;
+        [[nodiscard]] GeneralError& operator=(GeneralError&& error) noexcept;
 
         [[nodiscard]] const std::string& message() const;
         [[nodiscard]] error::Severity severity() const;
     };
 
     struct FatalError : public GeneralError {
-        FatalError(const std::string& message) noexcept;
+        explicit FatalError(const std::string& message) noexcept;
 
-        FatalError(std::string&& message) noexcept;
+        explicit FatalError(std::string&& message) noexcept;
     };
 
     struct MajorError : public GeneralError {
-        MajorError(const std::string& message) noexcept;
+        explicit MajorError(const std::string& message) noexcept;
 
-        MajorError(std::string&& message) noexcept;
+        explicit MajorError(std::string&& message) noexcept;
     };
 
     struct MinorError : public GeneralError {
-        MinorError(const std::string& message) noexcept;
+        explicit MinorError(const std::string& message) noexcept;
 
-        MinorError(std::string&& message) noexcept;
+        explicit MinorError(std::string&& message) noexcept;
     };
 
     using InitializationError = FatalError;

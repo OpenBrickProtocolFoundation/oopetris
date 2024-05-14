@@ -91,11 +91,8 @@ namespace ui {
         }
 
 
-        Widget::EventHandleResult handle_event(
-                const std::shared_ptr<input::InputManager>& input_manager,
-                const SDL_Event& event
-        ) // NOLINT(readability-function-cognitive-complexity)
-                override {
+        Widget::EventHandleResult
+        handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override {
             Widget::EventHandleResult handled = false;
 
             const auto navigation_event = input_manager->get_navigation_event(event);

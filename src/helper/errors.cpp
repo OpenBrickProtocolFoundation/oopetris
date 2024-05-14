@@ -8,9 +8,15 @@ helper::GeneralError::GeneralError(std::string&& message, error::Severity severi
     : m_message{ std::move(message) },
       m_severity{ severity } { }
 
-helper::GeneralError::GeneralError(const GeneralError& error) noexcept
-    : m_message{ error.message() },
-      m_severity{ error.severity() } { }
+helper::GeneralError::~GeneralError() = default;
+
+helper::GeneralError::GeneralError(const GeneralError& error) noexcept = default;
+[[nodiscard]] helper::GeneralError& helper::GeneralError::operator=(const GeneralError& error) noexcept = default;
+
+helper::GeneralError::GeneralError(GeneralError&& error) noexcept = default;
+
+[[nodiscard]] helper::GeneralError& helper::GeneralError::operator=(GeneralError&& error) noexcept = default;
+
 
 [[nodiscard]] const std::string& helper::GeneralError::message() const {
     return m_message;

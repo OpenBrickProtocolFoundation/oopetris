@@ -22,15 +22,9 @@
 namespace {
 
     [[nodiscard]] helper::MessageBox::Type get_notification_level(helper::error::Severity severity) {
-        switch (severity) {
-            case helper::error::Severity::Minor:
-                return helper::MessageBox::Type::Information;
-            case helper::error::Severity::Major:
-                return helper::MessageBox::Type::Warning;
-            case helper::error::Severity::Fatal:
-            default:
-                return helper::MessageBox::Type::Error;
-        }
+        return severity == helper::error::Severity::Fatal   ? helper::MessageBox::Type::Error
+               : severity == helper::error::Severity::Major ? helper::MessageBox::Type::Warning
+                                                            : helper::MessageBox::Type::Information;
     }
 
 } // namespace
