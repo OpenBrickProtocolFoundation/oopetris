@@ -23,13 +23,13 @@ Tetrion::Tetrion(
         bool is_top_level
 )
     : ui::Widget{ layout , ui::WidgetType::Component ,is_top_level},
-      m_next_gravity_simulation_step_index{ get_gravity_delay_frames() },
       m_lock_delay_step_index{ lock_delay },
       m_service_provider{ service_provider },
       m_recording_writer{ std::move(recording_writer) },
       m_random{ random_seed },
       m_level{ starting_level },
       m_tetrion_index{ tetrion_index },
+      m_next_gravity_simulation_step_index{ get_gravity_delay_frames() },
       main_layout{
                 utils::size_t_identity<2>(),
                 0,
@@ -494,7 +494,7 @@ void Tetrion::refresh_previews() {
     auto bag_index = usize{ 0 };
     for (std::remove_cvref_t<decltype(num_preview_tetrominos)> i = 0; i < num_preview_tetrominos; ++i) {
         m_preview_tetrominos.at(static_cast<usize>(i)) = Tetromino{
-            grid::preview_tetromino_position + shapes::UPoint{0, static_cast<u32>(grid::preview_padding * i)},
+            grid::preview_tetromino_position + shapes::UPoint{ 0, static_cast<u32>(grid::preview_padding * i) },
             m_sequence_bags.at(bag_index)[sequence_index]
         };
         ++sequence_index;
