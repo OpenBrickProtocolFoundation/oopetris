@@ -203,19 +203,10 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
             cd "$BUILD_DIR_MPG123"
 
-            if [ "$ARCH_VERSION" = "i686" ]; then
-                #cmake .. -DCMAKE_TOOLCHAIN_FILE=linux_i686.toolchain.cmake --install-prefix "$SYS_ROOT/usr" "-DCMAKE_SYSROOT=$SYS_ROOT" -DOUTPUT_MODULES=dummy -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-                # cmake --build .
+            cmake .. --install-prefix "$SYS_ROOT/usr" "-DCMAKE_SYSROOT=$SYS_ROOT" -DOUTPUT_MODULES=dummy -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+            cmake --build .
 
-                # cmake --install .
-                : # nop, for bash syntax
-
-            else
-                cmake .. --install-prefix "$SYS_ROOT/usr" "-DCMAKE_SYSROOT=$SYS_ROOT" -DOUTPUT_MODULES=dummy -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-                cmake --build .
-
-                cmake --install .
-            fi
+            cmake --install .
 
         fi
 
