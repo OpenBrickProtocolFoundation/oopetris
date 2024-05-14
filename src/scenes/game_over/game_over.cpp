@@ -5,7 +5,7 @@
 #include "manager/resource_manager.hpp"
 #include "platform/capabilities.hpp"
 
-#include <fmt/format.h>
+#include "helper/format.hpp"
 
 namespace scenes {
 

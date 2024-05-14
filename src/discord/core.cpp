@@ -1,11 +1,10 @@
 
 
 #include "core.hpp"
+#include "helper/format.hpp"
 #include "helper/magic_enum_wrapper.hpp"
 #include "helper/utils.hpp"
-#include "types.h"
 
-#include <fmt/format.h>
 #include <spdlog/spdlog.h>
 
 

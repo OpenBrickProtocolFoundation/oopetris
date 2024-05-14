@@ -7,7 +7,7 @@
 #include "nfd_include.hpp"
 
 #include <filesystem>
-#include <fmt/format.h>
+#include "helper/format.hpp"
 #include <fmt/ranges.h>
 #include <functional>
 #include <memory>
@@ -49,7 +49,7 @@ namespace {
                 auto* name = new nfdu8char_t[filter_name_size]; // NOLINT(cppcoreguidelines-owning-memory)
                 std::memcpy(name, filter_name.c_str(), filter_name_size * sizeof(nfdu8char_t));
 
-                const std::string extension_list = fmt::format("{}", fmt::join(allowed_file.extension_list, ","));
+                const std::string extension_list = fmt::format("{}", helper::join(allowed_file.extension_list, ","));
                 const auto extension_list_size = extension_list.size() + 1;
 
                 auto* extensions = new nfdu8char_t[extension_list_size]; // NOLINT(cppcoreguidelines-owning-memory)

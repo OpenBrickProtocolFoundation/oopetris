@@ -4,7 +4,7 @@
 #include "helper/magic_enum_wrapper.hpp"
 #include "tetrion_core_information.hpp"
 
-#include <fmt/format.h>
+#include "helper/format.hpp"
 #include <sstream>
 #include <string_view>
 

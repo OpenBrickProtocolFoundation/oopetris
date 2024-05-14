@@ -5,7 +5,7 @@
 #include "helper/expected.hpp"
 #include "helper/utils.hpp"
 
-#include <fmt/format.h>
+#include "helper/format.hpp"
 
 
 helper::expected<HSVColor, std::string> HSVColor::from_string(const std::string& value) {

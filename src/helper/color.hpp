@@ -6,7 +6,7 @@
 
 #include <algorithm>
 #include <cmath>
-#include <fmt/format.h>
+#include "helper/format.hpp"
 #include <ostream>
 #include <string>
 

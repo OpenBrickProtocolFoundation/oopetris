@@ -6,7 +6,7 @@
 #include "manager/resource_manager.hpp"
 #include "ui/widget.hpp"
 
-#include <fmt/format.h>
+#include "helper/format.hpp"
 
 
 custom_ui::RecordingComponent::RecordingComponent(

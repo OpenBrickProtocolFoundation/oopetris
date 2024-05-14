@@ -2,7 +2,7 @@
 #include "message_box.hpp"
 
 #include <SDL.h>
-#include <fmt/format.h>
+#include "helper/format.hpp"
 
 void helper::MessageBox::show_simple(
         Type type,

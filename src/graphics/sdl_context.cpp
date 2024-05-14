@@ -1,9 +1,9 @@
 #include "graphics/sdl_context.hpp"
 #include "helper/errors.hpp"
+#include "helper/format.hpp"
 
 #include <SDL.h>
 #include <SDL_ttf.h>
-#include <fmt/format.h>
 
 #if defined(__CONSOLE__)
 #include "helper/console_helpers.hpp"

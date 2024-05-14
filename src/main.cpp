@@ -1,10 +1,10 @@
 #include "application.hpp"
 #include "helper/errors.hpp"
+#include "helper/format.hpp"
 #include "helper/message_box.hpp"
 #include "helper/utils.hpp"
 
 #include <filesystem>
-#include <fmt/format.h>
 #include <memory>
 
 #if defined(__ANDROID__)

@@ -13,7 +13,7 @@
 #include <cstdlib>
 #endif
 
-#include <fmt/format.h>
+#include "helper/format.hpp"
 
 void console::debug_write(const char* text, size_t size) {
 #ifdef __3DS__

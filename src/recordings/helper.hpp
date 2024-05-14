@@ -8,7 +8,7 @@
 #include "helper/utils.hpp"
 
 #include <filesystem>
-#include <fmt/format.h>
+#include "helper/format.hpp"
 #include <fstream>
 #include <string>
 #include <utility>

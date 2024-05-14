@@ -22,7 +22,7 @@
 #pragma warning(default : 4100)
 #endif
 
-#include <fmt/format.h>
+#include "helper/format.hpp"
 #include <spdlog/spdlog.h>
 
 #include "helper/expected.hpp"

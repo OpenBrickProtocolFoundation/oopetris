@@ -11,7 +11,7 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <filesystem>
-#include <fmt/format.h>
+#include "helper/format.hpp"
 #include <spdlog/spdlog.h>
 #include <string>
 

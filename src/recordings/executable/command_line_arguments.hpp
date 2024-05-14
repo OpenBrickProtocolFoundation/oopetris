@@ -4,7 +4,7 @@
 
 #include <argparse/argparse.hpp>
 #include <filesystem>
-#include <fmt/format.h>
+#include "helper/format.hpp"
 #include <stdexcept>
 #include <string>
 #include <type_traits>

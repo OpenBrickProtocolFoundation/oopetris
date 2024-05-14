@@ -2,6 +2,7 @@
 
 #include "additional_information.hpp"
 #include "helper.hpp"
+#include "helper/format_ranges.hpp"
 
 #include <algorithm>
 #include <functional>
@@ -34,7 +35,7 @@
                             strings.push_back(element.to_string(recursion_depth + 1));
                         }
 
-                        return fmt::format("{{ {} }}", fmt::join(strings, ", "));
+                        return fmt::format("{{ {} }}", helper::join(strings, ", "));
                     } },
             m_value
     );
@@ -453,7 +454,7 @@ helper::expected<recorder::AdditionalInformation, std::string> recorder::Additio
     if (read_checksum.value() != calculated_checksum.value()) {
         return helper::unexpected<std::string>{ fmt::format(
                 "value checksum mismatch, the AdditionalInformation was altered: expected {:x} but got {:x}",
-                fmt::join(calculated_checksum.value(), ""), fmt::join(read_checksum.value(), "")
+                helper::join(calculated_checksum.value(), ""), helper::join(read_checksum.value(), "")
         ) };
     }
 

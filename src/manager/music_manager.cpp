@@ -9,7 +9,7 @@
 #include <SDL.h>
 #include <SDL_mixer.h>
 #include <filesystem>
-#include <fmt/format.h>
+#include "helper/format.hpp"
 #include <stdexcept>
 #include <string>
 

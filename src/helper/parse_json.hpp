@@ -8,10 +8,10 @@
 #include <nlohmann/json.hpp>
 
 #include "helper/expected.hpp"
+#include "helper/format.hpp"
 #include "helper/optional.hpp"
 
 #include <filesystem>
-#include <fmt/format.h>
 #include <fstream>
 #include <sstream>
 #include <string>

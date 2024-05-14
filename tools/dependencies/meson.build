@@ -114,35 +114,6 @@ graphics_lib += {
     'compile_args': [graphics_lib.get('compile_args'), sdl2_mixer_defines],
 }
 
-fmt_use_header_only = false
-
-if (
-    meson.is_cross_build()
-    and (host_machine.system() == 'switch'
-    or host_machine.system() == '3ds')
-)
-    fmt_use_header_only = true
-    # clang with libc++ creates some really long and confusing linker errors, so just use the header only library
-elif cpp.get_id() == 'clang' and build_with_libcpp
-    fmt_use_header_only = true
-endif
-
-
-if fmt_use_header_only
-    fmt_header_only_dep = dependency(
-        'fmt_header_only',
-        required: true,
-        allow_fallback: true,
-    )
-    meson.override_dependency('fmt', fmt_header_only_dep)
-    fmt_dep = fmt_header_only_dep
-else
-    fmt_dep = dependency('fmt', required: true, allow_fallback: true)
-endif
-
-core_lib += {'deps': [core_lib.get('deps'), fmt_dep]}
-
-
 spdlog_dep = dependency(
     'spdlog',
     required: true,
@@ -177,7 +148,7 @@ int main() {
 )
 
 if not have_std_expected
-    message('Compiler doesn\'t support std::expected, using fallback')
+    message('Compiler doesn\'t supports std::expected, using fallback')
 
     tl_exp_dep = dependency('tl-expected', required: true)
     core_lib += {
@@ -185,7 +156,7 @@ if not have_std_expected
         'deps': [core_lib.get('deps'), tl_exp_dep],
     }
 else
-    message('Compiler support std::expected, using that')
+    message('Compiler supports std::expected, using that')
 endif
 
 # check std::optional support
@@ -201,16 +172,67 @@ int main() {
 )
 
 if not have_std_optional
-    message('Compiler doesn\'t support std::optional, using fallback')
+    message('Compiler doesn\'t supports std::optional, using fallback')
     tl_opt_dep = dependency('tl-optional', required: true)
     core_lib += {
         'compile_args': [core_lib.get('compile_args'), '-D_USE_TL_OPTIONAL'],
         'deps': [core_lib.get('deps'), tl_opt_dep],
     }
 else
-    message('Compiler support std::optional, using that')
+    message('Compiler supports std::optional, using that')
 endif
 
+
+# check <format> support
+have_format_header = cpp.compiles(
+    '''
+#include <format>
+#include <iostream>
+int main() {
+    std::cout << std::format("{} is {}\n", "The answer", 42);
+    return 0;
+}
+
+''',
+    args: core_lib.get('compile_args'),
+)
+
+if not have_format_header
+    message('Compiler doesn\'t supports <format>, using fallback')
+
+    fmt_use_header_only = false
+
+    if (
+        meson.is_cross_build()
+        and (host_machine.system() == 'switch'
+        or host_machine.system() == '3ds')
+    )
+        fmt_use_header_only = true
+        # clang with libc++ creates some really long and confusing linker errors, so just use the header only library
+    elif cpp.get_id() == 'clang' and build_with_libcpp
+        fmt_use_header_only = true
+    endif
+
+
+    if fmt_use_header_only
+        fmt_header_only_dep = dependency(
+            'fmt_header_only',
+            required: true,
+            allow_fallback: true,
+        )
+        meson.override_dependency('fmt', fmt_header_only_dep)
+        fmt_dep = fmt_header_only_dep
+    else
+        fmt_dep = dependency('fmt', required: true, allow_fallback: true)
+    endif
+
+    core_lib += {
+        'compile_args': [core_lib.get('compile_args'), '-D_USE_FMTLIB'],
+        'deps': [core_lib.get('deps'), fmt_dep],
+    }
+else
+    message('Compiler supports <format>, using that')
+endif
 
 
 magic_enum_dep = dependency(
@@ -281,7 +303,7 @@ if build_installer
             is_flatpak_build = true
         else
             error(
-                'only support flatpak builds, when  building the installer for linux',
+                'only supports flatpak builds, when  building the installer for linux',
             )
         endif
     elif host_machine.system() == 'windows'
@@ -307,10 +329,7 @@ endif
 if is_flatpak_build
     app_name = 'com.github.mgerhold.OOPetris'
     core_lib += {
-        'compile_args': [
-            core_lib.get('compile_args'),
-            '-DFLATPAK_BUILD'
-        ],
+        'compile_args': [core_lib.get('compile_args'), '-DFLATPAK_BUILD'],
     }
 endif
 

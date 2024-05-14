@@ -1,10 +1,9 @@
 
 #include "recording_reader.hpp"
+#include "helper/format_ranges.hpp"
 #include "helper/magic_enum_wrapper.hpp"
 #include "recordings/additional_information.hpp"
 
-#include <fmt/format.h>
-#include <fmt/ranges.h>
 #include <tuple>
 
 recorder::RecordingReader::RecordingReader(
@@ -92,7 +91,7 @@ recorder::RecordingReader::get_header_from_path(const std::filesystem::path& pat
     if (read_checksum.value() != calculated_checksum) {
         return helper::unexpected<std::string>{ fmt::format(
                 "header checksum mismatch, the file was altered: expected {:x} but got {:x}",
-                fmt::join(calculated_checksum, ""), fmt::join(read_checksum.value(), "")
+                helper::join(calculated_checksum, ""), helper::join(read_checksum.value(), "")
         ) };
     }
 
@@ -206,7 +205,7 @@ recorder::RecordingReader::from_path( // NOLINT(readability-function-cognitive-c
 recorder::RecordingReader::read_tetrion_header_from_file(std::ifstream& file) {
     if (not file) {
         return helper::unexpected<helper::reader::ReadError>{
-            {helper::reader::ReadErrorType::InvalidStream, "failed to read data from file"}
+            { helper::reader::ReadErrorType::InvalidStream, "failed to read data from file" }
         };
     }
 
@@ -214,14 +213,14 @@ recorder::RecordingReader::read_tetrion_header_from_file(std::ifstream& file) {
 
     if (not seed.has_value()) {
         return helper::unexpected<helper::reader::ReadError>{
-            {helper::reader::ReadErrorType::Incomplete, "field 'seed' has no value"}
+            { helper::reader::ReadErrorType::Incomplete, "field 'seed' has no value" }
         };
     }
 
     const auto starting_level = helper::reader::read_integral_from_file<decltype(TetrionHeader::starting_level)>(file);
     if (not starting_level.has_value()) {
         return helper::unexpected<helper::reader::ReadError>{
-            {helper::reader::ReadErrorType::Incomplete, "field 'starting_level' has no value"}
+            { helper::reader::ReadErrorType::Incomplete, "field 'starting_level' has no value" }
         };
     }
 
@@ -233,14 +232,14 @@ recorder::RecordingReader::read_tetrion_header_from_file(std::ifstream& file) {
 ) {
     if (not file) {
         return helper::unexpected<helper::reader::ReadError>{
-            {helper::reader::ReadErrorType::InvalidStream, "invalid input file stream while trying to read record"}
+            { helper::reader::ReadErrorType::InvalidStream, "invalid input file stream while trying to read record" }
         };
     }
 
     const auto tetrion_index = helper::reader::read_integral_from_file<decltype(Record::tetrion_index)>(file);
     if (not tetrion_index.has_value()) {
         return helper::unexpected<helper::reader::ReadError>{
-            {helper::reader::ReadErrorType::EndOfFile, "the field 'tetrion_index' is missing"}
+            { helper::reader::ReadErrorType::EndOfFile, "the field 'tetrion_index' is missing" }
         };
     }
 
@@ -248,27 +247,27 @@ recorder::RecordingReader::read_tetrion_header_from_file(std::ifstream& file) {
             helper::reader::read_integral_from_file<decltype(Record::simulation_step_index)>(file);
     if (not simulation_step_index.has_value()) {
         return helper::unexpected<helper::reader::ReadError>{
-            {helper::reader::ReadErrorType::Incomplete, "the field 'simulation_step_index' is missing"}
+            { helper::reader::ReadErrorType::Incomplete, "the field 'simulation_step_index' is missing" }
         };
     }
 
     const auto event = helper::reader::read_integral_from_file<std::underlying_type_t<InputEvent>>(file);
     if (not event.has_value()) {
         return helper::unexpected<helper::reader::ReadError>{
-            {helper::reader::ReadErrorType::Incomplete, "the field 'InputEvent' is missing"}
+            { helper::reader::ReadErrorType::Incomplete, "the field 'InputEvent' is missing" }
         };
     }
     if (not file) {
         return helper::unexpected<helper::reader::ReadError>{
-            {helper::reader::ReadErrorType::Incomplete, "failed to read data from file"}
+            { helper::reader::ReadErrorType::Incomplete, "failed to read data from file" }
         };
     }
 
     const auto maybe_event = magic_enum::enum_cast<InputEvent>(event.value());
     if (not maybe_event.has_value()) {
         return helper::unexpected<helper::reader::ReadError>{
-            {helper::reader::ReadErrorType::Incomplete,
-             fmt::format("got invalid enum value for InputEvent: {}", event.value())}
+            { helper::reader::ReadErrorType::Incomplete,
+             fmt::format("got invalid enum value for InputEvent: {}", event.value()) }
         };
     }
 

@@ -4,7 +4,9 @@
 #include "helper/command_line_arguments.hpp"
 #include "helper/date.hpp"
 #include "helper/errors.hpp"
+#include "helper/format.hpp"
 #include "platform/replay_input.hpp"
+
 #include <stdexcept>
 
 
@@ -16,7 +18,6 @@
 #include "platform/keyboard_input.hpp"
 #endif
 
-#include <fmt/format.h>
 
 namespace {
 

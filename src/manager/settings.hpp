@@ -6,7 +6,7 @@
 #include "platform/platform.hpp"
 
 #include <array>
-#include <fmt/format.h>
+#include "helper/format.hpp"
 #include <string>
 #include <variant>
 

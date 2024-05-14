@@ -9,7 +9,7 @@
 #include "ui/components/link_label.hpp"
 #include "ui/layouts/tile_layout.hpp"
 
-#include <fmt/format.h>
+#include "helper/format.hpp"
 #include <fmt/ranges.h>
 namespace scenes {
 
@@ -45,7 +45,7 @@ namespace scenes {
         );
 
         m_main_grid.add<ui::Label>(
-                service_provider, fmt::format("Features: {}", fmt::join(utils::supported_features(), ", ")),
+                service_provider, fmt::format("Features: {}", helper::join(utils::supported_features(), ", ")),
                 service_provider->fonts().get(FontId::Default), Color::white(), std::pair<double, double>{ 0.95, 0.5 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
         );
