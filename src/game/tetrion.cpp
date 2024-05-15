@@ -32,7 +32,7 @@ Tetrion::Tetrion(
       m_level{ starting_level },
       m_tetrion_index{ tetrion_index },
       m_next_gravity_simulation_step_index{ get_gravity_delay_frames() },
-      main_layout{
+      m_main_layout{
                 utils::size_t_identity<2>(),
                 0,
                 ui::Direction::Vertical,
@@ -42,9 +42,9 @@ Tetrion::Tetrion(
                 layout
        } {
 
-    main_layout.add<Grid>();
+    m_main_layout.add<Grid>();
 
-    main_layout.add<ui::GridLayout>(
+    m_main_layout.add<ui::GridLayout>(
             1, 3, ui::Direction::Vertical, ui::AbsolutMargin{ 0 }, std::pair<double, double>{ 0.0, 0.1 }
     );
 
@@ -105,7 +105,7 @@ void Tetrion::update_step(const SimulationStep simulation_step_index) {
 
 void Tetrion::render(const ServiceProvider& service_provider) const {
 
-    main_layout.render(service_provider);
+    m_main_layout.render(service_provider);
 
     const auto* grid = get_grid();
     const double original_scale = grid->scale_to_original();
@@ -148,7 +148,7 @@ void Tetrion::render(const ServiceProvider& service_provider) const {
 }
 
 [[nodiscard]] helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
-Tetrion::handle_event(const std::shared_ptr<input::InputManager>&, const SDL_Event&) {
+Tetrion::handle_event(const std::shared_ptr<input::InputManager>& /*input_manager*/, const SDL_Event& /*event*/) {
     return false;
 }
 
@@ -179,7 +179,7 @@ bool Tetrion::handle_input_command(const input::GameInputCommand command, const 
             }
             return false;
         case input::GameInputCommand::MoveDown:
-            //TODO: use input_type() != InputType:Touch
+            //TODO(Totto): use input_type() != InputType:Touch
 #if not defined(__ANDROID__)
             m_down_key_pressed = true;
             m_is_accelerated_down_movement = true;
@@ -334,19 +334,19 @@ void Tetrion::hold_tetromino(const SimulationStep simulation_step_index) {
 }
 
 [[nodiscard]] Grid* Tetrion::get_grid() {
-    return main_layout.get<Grid>(0);
+    return m_main_layout.get<Grid>(0);
 }
 
 [[nodiscard]] const Grid* Tetrion::get_grid() const {
-    return main_layout.get<Grid>(0);
+    return m_main_layout.get<Grid>(0);
 }
 
 [[nodiscard]] ui::GridLayout* Tetrion::get_text_layout() {
-    return main_layout.get<ui::GridLayout>(1);
+    return m_main_layout.get<ui::GridLayout>(1);
 }
 
 [[nodiscard]] const ui::GridLayout* Tetrion::get_text_layout() const {
-    return main_layout.get<ui::GridLayout>(1);
+    return m_main_layout.get<ui::GridLayout>(1);
 }
 
 [[nodiscard]] u8 Tetrion::tetrion_index() const {
@@ -522,12 +522,9 @@ helper::TetrominoType Tetrion::get_next_tetromino_type() {
 }
 
 bool Tetrion::tetromino_can_move_down(const Tetromino& tetromino) const {
-    for (const Mino& mino : tetromino.minos()) { // NOLINT(readability-use-anyofallof)
-        if (not mino_can_move_down(mino.position())) {
-            return false;
-        }
-    }
-    return true;
+    return not std::ranges::any_of(tetromino.minos(), [this](const Mino& mino) {
+        return not mino_can_move_down(mino.position());
+    });
 }
 
 
@@ -539,41 +536,38 @@ bool Tetrion::tetromino_can_move_down(const Tetromino& tetromino) const {
     return frames;
 }
 
-u8 Tetrion::rotation_to_index(const Rotation from, const Rotation to) {
-    if (from == Rotation::North and to == Rotation::East) {
+u8 Tetrion::rotation_to_index(const Rotation from, const Rotation rotation_to) {
+    if (from == Rotation::North and rotation_to == Rotation::East) {
         return 0;
     }
-    if (from == Rotation::East and to == Rotation::North) {
+    if (from == Rotation::East and rotation_to == Rotation::North) {
         return 1;
     }
-    if (from == Rotation::East and to == Rotation::South) {
+    if (from == Rotation::East and rotation_to == Rotation::South) {
         return 2;
     }
-    if (from == Rotation::South and to == Rotation::East) {
+    if (from == Rotation::South and rotation_to == Rotation::East) {
         return 3;
     }
-    if (from == Rotation::South and to == Rotation::West) {
+    if (from == Rotation::South and rotation_to == Rotation::West) {
         return 4;
     }
-    if (from == Rotation::West and to == Rotation::South) {
+    if (from == Rotation::West and rotation_to == Rotation::South) {
         return 5;
     }
-    if (from == Rotation::West and to == Rotation::North) {
+    if (from == Rotation::West and rotation_to == Rotation::North) {
         return 6;
     }
-    if (from == Rotation::North and to == Rotation::West) {
+    if (from == Rotation::North and rotation_to == Rotation::West) {
         return 7;
     }
     utils::unreachable();
 }
 
 bool Tetrion::is_tetromino_position_valid(const Tetromino& tetromino) const {
-    for (const Mino& mino : tetromino.minos()) { // NOLINT(readability-use-anyofallof)
-        if (not is_valid_mino_position(mino.position())) {
-            return false;
-        }
-    }
-    return true;
+    return not std::ranges::any_of(tetromino.minos(), [this](const Mino& mino) {
+        return not is_valid_mino_position(mino.position());
+    });
 }
 
 bool Tetrion::rotate(Tetrion::RotationDirection rotation_direction) {

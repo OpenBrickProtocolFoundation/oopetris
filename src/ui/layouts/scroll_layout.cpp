@@ -107,10 +107,8 @@ void ui::ScrollLayout::render(const ServiceProvider& service_provider) const {
     }
 }
 
-ui::Widget::EventHandleResult ui::ScrollLayout::handle_event( // NOLINT(readability-function-cognitive-complexity)
-        const std::shared_ptr<input::InputManager>& input_manager,
-        const SDL_Event& event
-) {
+ui::Widget::EventHandleResult
+ui::ScrollLayout::handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) {
 
     Widget::EventHandleResult handled = handle_focus_change_events(input_manager, event);
 
@@ -173,7 +171,7 @@ ui::Widget::EventHandleResult ui::ScrollLayout::handle_event( // NOLINT(readabil
             handled = true;
         }
 
-        //TODO: support touch screen scrolling too, factor this out into the input manager
+        //TODO(Totto): support touch screen scrolling too, factor this out into the input manager
     } else if (event.type == SDL_MOUSEWHEEL) {
 
         // attention the mouse direction changes (it's called natural scrolling on macos/ windows / linux) are not detected by sdl until restart, and here we use the correct scroll behaviour, as the user configured the mouse in it's OS

@@ -95,10 +95,7 @@ void input::KeyboardGameInput::update(SimulationStep simulation_step_index) {
     GameInput::update(simulation_step_index);
 }
 
-helper::optional<InputEvent>
-input::KeyboardGameInput::sdl_event_to_input_event( // NOLINT(readability-function-cognitive-complexity)
-        const SDL_Event& event
-) const {
+helper::optional<InputEvent> input::KeyboardGameInput::sdl_event_to_input_event(const SDL_Event& event) const {
     if (event.type == SDL_KEYDOWN and event.key.repeat == 0) {
         const auto key = SDL::Key{ event.key.keysym };
         if (key == m_settings.rotate_left) {

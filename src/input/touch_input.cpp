@@ -26,17 +26,14 @@ void input::TouchGameInput::update(SimulationStep simulation_step_index) {
     GameInput::update(simulation_step_index);
 }
 
-helper::optional<InputEvent>
-input::TouchGameInput::sdl_event_to_input_event( // NOLINT(readability-function-cognitive-complexity)
-        const SDL_Event& event
-) {
+helper::optional<InputEvent> input::TouchGameInput::sdl_event_to_input_event(const SDL_Event& event) {
 
-    //TODO:
+    //TODO(Totto): fix this
     /*   if (event.tfinger.touchId != m_id) {
         return helper::nullopt;
     } */
 
-    //TODO to handle those things better, holding has to be supported
+    //TODO(Totto): to handle those things better, holding has to be supported
 
 
     if (event.type == SDL_FINGERDOWN) {
@@ -50,14 +47,14 @@ input::TouchGameInput::sdl_event_to_input_event( // NOLINT(readability-function-
             return helper::nullopt;
         }
 
-        const auto x = event.tfinger.x;
-        const auto y = event.tfinger.y;
+        const auto x_pos = event.tfinger.x;
+        const auto y_pos = event.tfinger.y;
         const auto timestamp = event.tfinger.timestamp;
 
         m_finger_state.insert_or_assign(
                 finger_id,
                 helper::optional<PressedState>{
-                        PressedState{ timestamp, x, y }
+                        PressedState{ timestamp, x_pos, y_pos }
         }
         );
     }
@@ -69,24 +66,31 @@ input::TouchGameInput::sdl_event_to_input_event( // NOLINT(readability-function-
         const SDL_FingerID finger_id = event.tfinger.fingerId;
 
 
-        if (!m_finger_state.contains(finger_id) or !m_finger_state.at(finger_id).has_value()) {
+        if (!m_finger_state.contains(finger_id)) {
             // there are some valid reasons, this can occur now
             return helper::nullopt;
         }
 
-        const auto pressed_state = m_finger_state.at(finger_id).value();
+        const auto& finger_state = m_finger_state.at(finger_id);
 
-        const auto x = event.tfinger.x;
-        const auto y = event.tfinger.y;
+        if (!finger_state.has_value()) {
+            return helper::nullopt;
+        }
+
+        const auto& pressed_state = finger_state.value();
+
+
+        const auto x_pos = event.tfinger.x;
+        const auto y_pos = event.tfinger.y;
         const auto timestamp = event.tfinger.timestamp;
 
 
-        const auto dx = x - pressed_state.x;
-        const auto dy = y - pressed_state.y;
+        const auto delta_x = x_pos - pressed_state.x;
+        const auto delta_y = y_pos - pressed_state.y;
         const auto duration = timestamp - pressed_state.timestamp;
 
-        const auto dx_abs = std::fabs(dx);
-        const auto dy_abs = std::fabs(dy);
+        const auto dx_abs = std::fabs(delta_x);
+        const auto dy_abs = std::fabs(delta_y);
 
         const auto threshold_x = m_settings.move_x_threshold;
         const auto threshold_y = m_settings.move_y_threshold;
@@ -95,26 +99,26 @@ input::TouchGameInput::sdl_event_to_input_event( // NOLINT(readability-function-
         if (duration < m_settings.rotation_duration_threshold) {
             if (dx_abs < threshold_x and dy_abs < threshold_y) {
                 // tap on the right side of the screen
-                if (x > 0.5) {
+                if (x_pos > 0.5) {
                     return InputEvent::RotateRightPressed;
                 }
                 // tap on the left side of the screen
-                if (x <= 0.5) {
+                if (x_pos <= 0.5) {
                     return InputEvent::RotateLeftPressed;
                 }
             }
         }
 
         // swipe right
-        if (dx > threshold_x and dy_abs < threshold_y) {
+        if (delta_x > threshold_x and dy_abs < threshold_y) {
             return InputEvent::MoveRightPressed;
         }
         // swipe left
-        if (dx < -threshold_x and dy_abs < threshold_y) {
+        if (delta_x < -threshold_x and dy_abs < threshold_y) {
             return InputEvent::MoveLeftPressed;
         }
         // swipe down
-        if (dy > threshold_y and dx_abs < threshold_x) {
+        if (delta_y > threshold_y and dx_abs < threshold_x) {
             // swipe down to drop
             if (duration < m_settings.drop_duration_threshold) {
                 return InputEvent::DropPressed;
@@ -123,14 +127,14 @@ input::TouchGameInput::sdl_event_to_input_event( // NOLINT(readability-function-
         }
 
         // swipe up
-        if (dy < -threshold_y and dx_abs < threshold_x) {
+        if (delta_y < -threshold_y and dx_abs < threshold_x) {
             return InputEvent::HoldPressed;
         }
     }
 
 
     if (event.type == SDL_FINGERMOTION) {
-        //TODO support hold
+        //TODO(Totto): support hold
     }
 
 
@@ -158,10 +162,10 @@ input::TouchGameInput::sdl_event_to_input_event( // NOLINT(readability-function-
     }
 }
 
-input::TouchInput::TouchInput(const std::shared_ptr<Window>& window, SDL_TouchID id, const std::string& name)
+input::TouchInput::TouchInput(const std::shared_ptr<Window>& window, SDL_TouchID touch_id, const std::string& name)
     : PointerInput{ name },
       m_window{ window },
-      m_id{ id } { }
+      m_id{ touch_id } { }
 
 [[nodiscard]] helper::expected<std::unique_ptr<input::TouchInput>, std::string>
 input::TouchInput::get_by_device_index(const std::shared_ptr<Window>& window, int device_index) {
@@ -237,12 +241,12 @@ input::TouchInput::get_by_device_index(const std::shared_ptr<Window>& window, in
     const double x_percent = event.tfinger.x;
     const double y_percent = event.tfinger.y;
     const auto window_size = m_window->size();
-    const auto x = static_cast<i32>(std::round(x_percent * window_size.x));
-    const auto y = static_cast<i32>(std::round(y_percent * window_size.y));
+    const auto x_pos = static_cast<i32>(std::round(x_percent * window_size.x));
+    const auto y_pos = static_cast<i32>(std::round(y_percent * window_size.y));
 
 
     return input::PointerEventHelper{
-        shapes::IPoint{ x, y },
+        shapes::IPoint{ x_pos, y_pos },
         pointer_event
     };
 }
@@ -258,7 +262,7 @@ input::TouchInput::get_by_device_index(const std::shared_ptr<Window>& window, in
         throw std::runtime_error("Tried to offset event, that is no pointer event: in Touch Input");
     }
 
-    using FloatType = decltype(event.tfinger.x); 
+    using FloatType = decltype(event.tfinger.x);
 
     const FloatType x_percent = event.tfinger.x;
     const FloatType y_percent = event.tfinger.y;

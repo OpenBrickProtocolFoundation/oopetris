@@ -9,18 +9,18 @@
 #include <vector>
 
 namespace {
-    using ForeachCallback = std::function<void(u8 r, u8 g, u8 b)>;
+    using ForeachCallback = std::function<void(u8 red, u8 green, u8 blue)>;
     void foreach_loop(const ForeachCallback& callback) {
-        u8 r{ 0 };
-        u8 g{ 0 };
-        u8 b{ 0 };
+        u8 red{ 0 };
+        u8 green{ 0 };
+        u8 blue{ 0 };
         do {         // NOLINT(cppcoreguidelines-avoid-do-while)
             do {     // NOLINT(cppcoreguidelines-avoid-do-while)
                 do { // NOLINT(cppcoreguidelines-avoid-do-while)
-                    callback(r, g, b);
-                } while (r++ != 255);
-            } while (g++ != 255);
-        } while (b++ != 255);
+                    callback(red, green, blue);
+                } while (red++ != 255);
+            } while (green++ != 255);
+        } while (blue++ != 255);
     }
 
 } // namespace
@@ -45,20 +45,21 @@ namespace color {
     void PrintTo(const SerializeMode& value, std::ostream* os) {
         *os << magic_enum::enum_name(value);
     }
+
 }
 
 
 TEST(Color, DefaultConstruction) {
-    const auto c1 = Color{};
-    const auto c2 = Color{ 0, 0, 0, 0 };
-    ASSERT_EQ(c1, c2);
+    const auto color1 = Color{};
+    const auto color2 = Color{ 0, 0, 0, 0 };
+    ASSERT_EQ(color1, color2);
 }
 
 TEST(Color, ConstructorProperties) {
-    foreach_loop([](u8 r, u8 g, u8 b) {
-        const auto c1 = Color{ r, g, b };
-        const auto c2 = Color{ r, g, b, 0xFF };
-        ASSERT_EQ(c1, c2);
+    foreach_loop([](u8 red, u8 green, u8 blue) {
+        const auto color1 = Color{ red, green, blue };
+        const auto color2 = Color{ red, green, blue, 0xFF };
+        ASSERT_EQ(color1, color2);
     });
 }
 
@@ -163,9 +164,9 @@ TEST(Color, FromStringInvalid) {
 
 
 TEST(HSVColor, DefaultConstruction) {
-    const auto c1 = HSVColor{};
-    const auto c2 = HSVColor{ 0, 0, 0, 0 };
-    ASSERT_EQ(c1, c2);
+    const auto color1 = HSVColor{};
+    const auto color2 = HSVColor{ 0, 0, 0, 0 };
+    ASSERT_EQ(color1, color2);
 }
 
 TEST(HSVColor, ConstructorProperties) {
@@ -179,9 +180,9 @@ TEST(HSVColor, ConstructorProperties) {
     };
 
     for (const auto& [h, s, v] : values) {
-        const auto c1 = HSVColor{ h, s, v };
-        const auto c2 = HSVColor{ h, s, v, 0xFF };
-        ASSERT_EQ(c1, c2);
+        const auto color1 = HSVColor{ h, s, v };
+        const auto color2 = HSVColor{ h, s, v, 0xFF };
+        ASSERT_EQ(color1, color2);
     }
 }
 
@@ -209,7 +210,7 @@ TEST(HSVColor, InvalidConstructors) {
 #endif
 
 
-TEST(ColorConversion, HSV_to_RGB_to_HSV) { //NOLINT(readability-function-cognitive-complexity)
+TEST(ColorConversion, HSVtoRGBtoHSV) {
 
 #if COLOR_TEST_MODE == 0
     const std::vector<HSVColor> colors{
@@ -255,7 +256,7 @@ TEST(ColorConversion, HSV_to_RGB_to_HSV) { //NOLINT(readability-function-cogniti
 }
 
 
-TEST(ColorConversion, RGG_to_HSV_to_RGB) { //NOLINT(readability-function-cognitive-complexity)
+TEST(ColorConversion, RGG_to_HSV_to_RGB) {
 
 #if COLOR_TEST_MODE == 0
     const std::vector<Color> colors{

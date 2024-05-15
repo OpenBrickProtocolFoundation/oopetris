@@ -62,11 +62,8 @@ namespace ui {
         //TODO: how to handle text limits (since texture for texts on the gpu can't get unlimitedly big, maybe use software texture?)
         void render(const ServiceProvider& service_provider) const override;
 
-        Widget::EventHandleResult handle_event(
-                const std::shared_ptr<input::InputManager>& input_manager,
-                const SDL_Event& event
-        ) // NOLINT(readability-function-cognitive-complexity)
-                override;
+        Widget::EventHandleResult
+        handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override;
 
         void set_text(const std::string& text);
 

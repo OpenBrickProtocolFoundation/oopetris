@@ -31,11 +31,12 @@ input::MouseInput::MouseInput() : PointerInput("mouse") { }
 }
 
 
-[[nodiscard]] helper::optional<input::NavigationEvent> input::MouseInput::get_navigation_event(const SDL_Event&) const {
+[[nodiscard]] helper::optional<input::NavigationEvent>
+input::MouseInput::get_navigation_event(const SDL_Event& /*event*/) const {
     return helper::nullopt;
 }
 
-[[nodiscard]] std::string input::MouseInput::describe_navigation_event(NavigationEvent) const {
+[[nodiscard]] std::string input::MouseInput::describe_navigation_event(NavigationEvent /*event*/) const {
     throw std::runtime_error("not supported");
 }
 
@@ -63,7 +64,7 @@ input::MouseInput::MouseInput() : PointerInput("mouse") { }
         return helper::nullopt;
     }
 
-    shapes::IPoint pos{ event.button.x, event.button.y };
+    const shapes::IPoint pos{ event.button.x, event.button.y };
 
     return input::PointerEventHelper{ pos, pointer_event };
 }

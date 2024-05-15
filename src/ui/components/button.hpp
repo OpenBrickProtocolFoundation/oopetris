@@ -19,12 +19,13 @@ namespace ui {
     public:
         using Callback = std::function<bool(const CallBackType&)>;
 
-    protected:
+    private:
         Content m_content;
         Callback m_callback;
         shapes::URect m_fill_rect;
         bool m_enabled;
 
+    protected:
         explicit Button(
                 Content&& content,
                 u32 focus_id,
@@ -46,6 +47,10 @@ namespace ui {
                 focus();
             }
         }
+
+        [[nodiscard]] const Callback& callback() const {
+            return m_callback;
+        };
 
     public:
         explicit Button(
@@ -72,7 +77,7 @@ namespace ui {
 
         void render(const ServiceProvider& service_provider) const override {
 
-            //TODO: get as input a color palette and use that!
+            //TODO(Totto): get as input a color palette and use that!
             const auto color = not m_enabled ? (has_focus() ? "#A36A6A"_c : "#919191"_c)
                                              : (has_focus()    ? is_hovered() ? "#FF6A00"_c : Color::red()
                                                    : is_hovered() ? "#00BBFF"_c

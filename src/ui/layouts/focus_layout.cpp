@@ -4,6 +4,8 @@
 #include "input/input.hpp"
 #include "ui/widget.hpp"
 
+#include <ranges>
+
 
 ui::FocusLayout::FocusLayout(const Layout& layout, u32 focus_id, FocusOptions options, bool is_top_level)
     : Widget{ layout, WidgetType::Container, is_top_level },
@@ -91,10 +93,7 @@ ui::Widget::EventHandleResult ui::FocusLayout::handle_focus_change_events(
 }
 
 [[nodiscard]] helper::optional<ui::Widget::InnerState>
-ui::FocusLayout::handle_event_result( // NOLINT(readability-function-cognitive-complexity)
-        const helper::optional<ui::Widget::InnerState>& result,
-        Widget* widget
-) {
+ui::FocusLayout::handle_event_result(const helper::optional<ui::Widget::InnerState>& result, Widget* widget) {
 
     if (not result.has_value()) {
         return helper::nullopt;
@@ -179,11 +178,10 @@ ui::FocusLayout::handle_event_result( // NOLINT(readability-function-cognitive-c
 }
 
 [[nodiscard]] u32 ui::FocusLayout::focusable_index_by_id(const u32 id) const {
-    const auto find_iterator =
-            std::find_if(m_widgets.begin(), m_widgets.end(), [id](const std::unique_ptr<Widget>& widget) {
-                const auto focusable = as_focusable(widget.get());
-                return focusable.has_value() and focusable.value()->focus_id() == id;
-            });
+    const auto find_iterator = std::ranges::find_if(m_widgets, [id](const std::unique_ptr<Widget>& widget) {
+        const auto focusable = as_focusable(widget.get());
+        return focusable.has_value() and focusable.value()->focus_id() == id;
+    });
     assert(find_iterator != m_widgets.end());
     const auto index = static_cast<u32>(std::distance(m_widgets.begin(), find_iterator));
     return index;
@@ -199,17 +197,18 @@ ui::FocusLayout::handle_event_result( // NOLINT(readability-function-cognitive-c
     }
 
 #ifdef DEBUG_BUILD
-    const auto duplicates = std::adjacent_find(result.cbegin(), result.cend());
+    // this works, since result is sorted already
+    const auto duplicates = std::ranges::adjacent_find(result);
     if (duplicates != result.cend()) {
         throw std::runtime_error("Focusables have duplicates: " + std::to_string(*duplicates));
     }
 #endif
-    std::sort(result.begin(), result.end());
+    std::ranges::sort(result);
     return result;
 }
 
 [[nodiscard]] u32 ui::FocusLayout::index_of(const std::vector<u32>& ids, const u32 needle) {
-    return static_cast<u32>(std::distance(ids.cbegin(), std::find(ids.cbegin(), ids.cend(), needle)));
+    return static_cast<u32>(std::distance(ids.cbegin(), std::ranges::find(ids, needle)));
 }
 
 [[nodiscard]] bool ui::FocusLayout::try_set_next_focus(const FocusChangeDirection focus_direction) {

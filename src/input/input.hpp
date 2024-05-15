@@ -32,7 +32,7 @@ namespace input {
         InputType m_type;
 
     public:
-        Input(const std::string& name, InputType type);
+        Input(std::string name, InputType type);
         virtual ~Input();
 
         [[nodiscard]] const std::string& name() const;
@@ -66,7 +66,7 @@ namespace input {
 
 
     struct PointerInput : Input {
-        PointerInput(const std::string& name);
+        explicit PointerInput(const std::string& name);
 
         [[nodiscard]] virtual helper::optional<PointerEventHelper> get_pointer_event(const SDL_Event& event) const = 0;
 
@@ -80,7 +80,6 @@ namespace input {
 
     public:
         explicit InputManager(const std::shared_ptr<Window>& window);
-        ~InputManager();
 
         [[nodiscard]] const std::vector<std::unique_ptr<Input>>& inputs() const;
 
@@ -114,7 +113,7 @@ namespace input {
 
             for (const auto& single_check : to_check) {
 
-                if (std::find(already_bound.cbegin(), already_bound.cend(), single_check) != already_bound.cend()) {
+                if (std::ranges::find(already_bound, single_check) != already_bound.cend()) {
                     return helper::unexpected<std::string>{ fmt::format("KeyCode already bound: '{}'", single_check) };
                 }
 

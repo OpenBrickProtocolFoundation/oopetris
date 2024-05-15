@@ -24,5 +24,5 @@ ui::ImageButton::ImageButton(
 } { }
 
 [[nodiscard]] bool ui::ImageButton::on_clicked() const {
-    return m_callback(*this);
+    return callback()(*this);
 }

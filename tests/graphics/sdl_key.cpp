@@ -3,7 +3,6 @@
 #include "helper/expected.hpp"
 #include "utils/helper.hpp"
 
-#include "gtest/gtest.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <tuple>

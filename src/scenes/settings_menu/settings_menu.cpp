@@ -71,7 +71,7 @@ namespace scenes {
                 },
                 [service_provider](double amount) {
                     const auto mapped_amount = amount <= 0.0F ? helper::nullopt : helper::optional<double>{ amount };
-                    return service_provider->music_manager().set_volume(mapped_amount, false, false);
+                    service_provider->music_manager().set_volume(mapped_amount, false, false);
                 },
                 0.05F, std::pair<double, double>{ 0.6, 1.0 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }

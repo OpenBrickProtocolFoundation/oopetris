@@ -62,7 +62,7 @@ input::JoystickInput::get_by_device_index(int device_index) {
         };
     }
 
-    //TODO: add support for gamecontrollers (SDL_IsGameController)
+    //TODO(Totto): add support for gamecontrollers (SDL_IsGameController)
 
     const auto instance_id = SDL_JoystickInstanceID(joystick);
 
@@ -167,7 +167,7 @@ void input::JoyStickInputManager::discover_devices(std::vector<std::unique_ptr<I
         }
         case SDL_JOYDEVICEREMOVED: {
             const auto instance_id = event.jdevice.which;
-            for (auto it = inputs.cbegin(); it != inputs.end(); it++) {
+            for (auto it = inputs.cbegin(); it != inputs.cend(); it++) {
 
                 if (const auto joystick_input = utils::is_child_class<input::JoystickInput>(*it);
                     joystick_input.has_value()) {
@@ -186,7 +186,6 @@ void input::JoyStickInputManager::discover_devices(std::vector<std::unique_ptr<I
         default:
             return false;
     }
-    //TODO
 }
 
 
@@ -372,9 +371,9 @@ input::JoystickGameInput::get_game_input_by_settings(
         const JoystickSettings& settings
 ) {
 
-    //TODO: filter all input_manager.inputs() by guid, than try to get them in order, by trying to convert the settings validate them and create the game input
+    //TODO(Totto): filter all input_manager.inputs() by guid, than try to get them in order, by trying to convert the settings validate them and create the game input
 
-    //TODO: set up: that on removal of the joystick_input pause is pressed and either a new gam,einput is created or waited until he reconnects!
+    //TODO(Totto): set up: that on removal of the joystick_input pause is pressed and either a new gam,einput is created or waited until he reconnects!
 
 
     UNUSED(input_manager);
@@ -529,9 +528,9 @@ helper::optional<InputEvent> input::_3DSJoystickGameInput_Type1::sdl_event_to_in
 #endif
 
 
-std::string json_helper::get_key_from_object(const nlohmann::json& j, const std::string& name) {
+std::string json_helper::get_key_from_object(const nlohmann::json& obj, const std::string& name) {
 
-    const auto& context = j.at(name);
+    const auto& context = obj.at(name);
 
     std::string input;
     context.get_to(input);

@@ -42,7 +42,7 @@ namespace scenes {
             case SceneId::OnlineLobby:
                 return std::make_unique<OnlineLobby>(&service_provider, layout);
 #endif
-            //TODO
+            //TODO(Totto): implement those
             /*      
             case SceneId::LocalMultiPlayerGame:
                 return std::make_unique<TODO>(&service_provider, layout);

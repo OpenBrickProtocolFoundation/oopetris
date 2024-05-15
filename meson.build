@@ -7,7 +7,7 @@ project(
         'buildtype': 'debug',
         'optimization': '3',
         'strip': true,
-        'cpp_std': ['c++23', 'c++latest', 'vc++latest', 'c++20'],
+        'cpp_std': ['c++26', 'c++23', 'c++latest', 'vc++latest'],
         'b_ndebug': 'if-release',
 
     },

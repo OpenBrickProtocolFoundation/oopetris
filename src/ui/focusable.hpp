@@ -5,20 +5,20 @@
 
 namespace ui {
 
-    //TODO: replace this by a focus helper per scene!
+    //TODO(Totto): replace this by a focus helper per scene!
     struct FocusHelper {
     private:
         u32 m_focus_id;
 
     public:
-        FocusHelper(u32 start_focus_id = 0) : m_focus_id{ start_focus_id } {};
+        explicit FocusHelper(u32 start_focus_id = 0) : m_focus_id{ start_focus_id } {};
 
         [[nodiscard]] u32 focus_id() {
             return m_focus_id++;
         }
 
         // return a placeholder, that signifies, this focus id is unused
-        [[nodiscard]] static u32 FocusIDUnused() {
+        [[nodiscard]] static u32 focus_id_unused() {
             return static_cast<u32>(-1);
         }
     };

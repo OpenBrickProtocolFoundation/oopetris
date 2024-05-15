@@ -7,6 +7,7 @@
 #include <array>
 #include <fmt/format.h>
 #include <fmt/ranges.h>
+#include <ranges>
 #include <string>
 #include <tuple>
 #include <unordered_map>
@@ -160,15 +161,15 @@ namespace {
     [[maybe_unused]] SDL::ModifierType typeof_modifier(SDL::Modifier modifier) {
         const auto& [normal, special, multiple] = get_modifier_type_array();
 
-        if (std::find(normal.cbegin(), normal.cend(), modifier) != normal.cend()) {
+        if (std::ranges::find(normal, modifier) != normal.cend()) {
             return SDL::ModifierType::Normal;
         }
 
-        if (std::find(special.cbegin(), special.cend(), modifier) != special.cend()) {
+        if (std::ranges::find(special, modifier) != special.cend()) {
             return SDL::ModifierType::Special;
         }
 
-        if (std::find(multiple.cbegin(), multiple.cend(), modifier) != multiple.cend()) {
+        if (std::ranges::find(multiple, modifier) != multiple.cend()) {
             return SDL::ModifierType::Multiple;
         }
 
@@ -222,8 +223,7 @@ namespace {
 
     std::string to_lower_case(const std::string& input) {
         auto result = input;
-        for (size_t i = 0; i < result.size(); ++i) {
-            auto& elem = result.at(i);
+        for (auto& elem : result) {
             elem = static_cast<char>(std::tolower(elem));
         }
 
@@ -233,7 +233,7 @@ namespace {
     // for string delimiter
     std::vector<std::string> split_string_by_char(const std::string& start, const std::string& delimiter) {
         size_t pos_start = 0;
-        size_t pos_end;
+        size_t pos_end = 0;
         const auto delim_len = delimiter.length();
 
         std::vector<std::string> res{};
@@ -249,21 +249,26 @@ namespace {
     }
 
     // trim from start (in place)
-    inline void ltrim(std::string& s) {
-        s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) { return !std::isspace(ch); }));
+    inline void ltrim(std::string& str) {
+        str.erase(str.begin(), std::ranges::find_if(str, [](unsigned char chr) { return std::isspace(chr) == 0; }));
     }
 
     // trim from end (in place)
-    inline void rtrim(std::string& s) {
-        s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) { return !std::isspace(ch); }).base(), s.end());
+    inline void rtrim(std::string& str) {
+        str.erase(
+                std::ranges::find_if(
+                        std::ranges::reverse_view(str), [](unsigned char chr) { return std::isspace(chr) == 0; }
+                ).base(),
+                str.end()
+        );
     }
 
-    void trim(std::string& s) {
-        ltrim(s);
-        rtrim(s);
+    void trim(std::string& str) {
+        ltrim(str);
+        rtrim(str);
     }
 
-    helper::optional<SDL::Modifier> modifier_from_string(std::string modifier) {
+    helper::optional<SDL::Modifier> modifier_from_string(const std::string& modifier) {
 
         if (modifier.empty()) {
             return helper::nullopt;

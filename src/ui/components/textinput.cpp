@@ -102,10 +102,7 @@ void ui::TextInput::render(const ServiceProvider& service_provider) const {
 }
 
 helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
-ui::TextInput::handle_event( // NOLINT(readability-function-cognitive-complexity)
-        const std::shared_ptr<input::InputManager>& input_manager,
-        const SDL_Event& event
-) {
+ui::TextInput::handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) {
 
     //TODO: if already has focus, position cursor there, where we clicked
     if (const auto hover_result = detect_hover(input_manager, event); hover_result) {
@@ -246,7 +243,7 @@ void ui::TextInput::set_text(const std::string& text) {
     return m_text;
 }
 
-void ui::TextInput::recalculate_textures(bool text_changed) { //NOLINT(readability-function-cognitive-complexity)
+void ui::TextInput::recalculate_textures(bool text_changed) {
 
     const auto& renderer = m_service_provider->renderer();
 
@@ -308,17 +305,17 @@ void ui::TextInput::recalculate_textures(bool text_changed) { //NOLINT(readabili
             utf8::append(utf8::next(current_iterator, m_text.end()), sub_string);
         }
 
-        int w = 0;
-        int h = 0;
-        const int result = TTF_SizeUTF8(m_font.get(), sub_string.c_str(), &w, &h);
+        int width = 0;
+        int height = 0;
+        const int result = TTF_SizeUTF8(m_font.get(), sub_string.c_str(), &width, &height);
 
         if (result < 0) {
             throw helper::FatalError{ fmt::format("Error during SDL_TTF_SizeUTF8: {}", SDL_GetError()) };
         }
 
-        const double ratio_sub_string = static_cast<double>(h) / static_cast<double>(fill_rect().height());
+        const double ratio_sub_string = static_cast<double>(height) / static_cast<double>(fill_rect().height());
 
-        cursor_offset = static_cast<u32>(static_cast<double>(w) / ratio_sub_string);
+        cursor_offset = static_cast<u32>(static_cast<double>(width) / ratio_sub_string);
     }
 
     m_cursor_rect = (unmoved_cursor >> fill_rect().top_left) >> shapes::UPoint{ cursor_offset, 0 };

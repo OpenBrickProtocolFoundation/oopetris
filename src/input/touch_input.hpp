@@ -15,7 +15,7 @@ namespace input {
         SDL_TouchID m_id;
 
     public:
-        TouchInput(const std::shared_ptr<Window>& window, SDL_TouchID id, const std::string& name);
+        TouchInput(const std::shared_ptr<Window>& window, SDL_TouchID touch_id, const std::string& name);
 
         [[nodiscard]] static helper::expected<std::unique_ptr<TouchInput>, std::string>
         get_by_device_index(const std::shared_ptr<Window>& window, int device_index);

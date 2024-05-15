@@ -13,7 +13,7 @@ Game::Game(
 )
     : ui::Widget{ layout, ui::WidgetType::Component, is_top_level },
       m_clock_source{ std::make_unique<LocalClock>(starting_parameters.target_fps) },
-      m_input{ std::move(input) } {
+      m_input{ input } {
 
 
     spdlog::info("starting level for tetrion {}", starting_parameters.starting_level);

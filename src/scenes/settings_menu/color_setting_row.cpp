@@ -19,7 +19,7 @@ detail::ColorSettingRectangle::ColorSettingRectangle(
         bool is_top_level
 )
     : Widget{ layout, ui::WidgetType::Component, is_top_level },
-      Focusable{ ui::FocusHelper::FocusIDUnused() },
+      Focusable{ ui::FocusHelper::focus_id_unused() },
       Hoverable{ fill_rect },
       m_color{ start_color },
       m_fill_rect{ fill_rect } { }
@@ -50,7 +50,7 @@ detail::ColorSettingRectangle::ColorSettingRectangle(
 
 void detail::ColorSettingRectangle::render(const ServiceProvider& service_provider) const {
     service_provider.renderer().draw_rect_filled(m_fill_rect, m_color);
-    //TODO: maybe use a dynamic color, to have some contrast?
+    //TODO(Totto): maybe use a dynamic color, to have some contrast?
     service_provider.renderer().draw_rect_outline(m_fill_rect, Color::white());
 }
 helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>> detail::ColorSettingRectangle::handle_event(
@@ -144,7 +144,7 @@ custom_ui::ColorSettingRow::ColorSettingRow(
       ui::Hoverable{ layout.get_rect() },
       m_service_provider{ service_provider },
       m_main_layout{ utils::size_t_identity<2>(),
-                     ui::FocusHelper::FocusIDUnused(),
+                     ui::FocusHelper::focus_id_unused(),
                      ui::Direction::Horizontal,
                      std::array<double, 1>{ 0.7 },
                      ui::RelativeMargin{ layout.get_rect(), ui::Direction::Vertical, 0.05 },

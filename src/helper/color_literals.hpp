@@ -200,7 +200,7 @@ namespace {
     using ColorFromHexStringReturnType = std::pair<Color, bool>;
 
     [[nodiscard]] constexpr const_utils::expected<ColorFromHexStringReturnType, std::string>
-    get_color_from_hex_string(const char* input, std::size_t size) { //NOLINT(readability-function-cognitive-complexity
+    get_color_from_hex_string(const char* input, std::size_t size) {
 
         if (size == const_constants::hex_rgb_size) {
 
@@ -247,7 +247,7 @@ namespace {
     using ColorFromRGBStringReturnType = std::pair<Color, bool>;
 
     [[nodiscard]] constexpr const_utils::expected<ColorFromRGBStringReturnType, std::string>
-    get_color_from_rgb_string(const char* input, std::size_t) { //NOLINT(readability-function-cognitive-complexity
+    get_color_from_rgb_string(const char* input, std::size_t) {
 
         if (input[0] == 'r' && input[1] == 'g' && input[2] == 'b') {
             if (input[3] == '(') {
@@ -415,7 +415,7 @@ namespace {
     using ColorFromHSVStringReturnType = std::pair<HSVColor, bool>;
 
     [[nodiscard]] constexpr const_utils::expected<ColorFromHSVStringReturnType, std::string>
-    get_color_from_hsv_string(const char* input, std::size_t) { //NOLINT(readability-function-cognitive-complexity
+    get_color_from_hsv_string(const char* input, std::size_t) {
 
         if (input[0] == 'h' && input[1] == 's' && input[2] == 'v') {
             if (input[3] == '(') {
