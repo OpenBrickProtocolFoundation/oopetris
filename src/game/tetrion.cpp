@@ -32,7 +32,7 @@ Tetrion::Tetrion(
       m_level{ starting_level },
       m_tetrion_index{ tetrion_index },
       m_next_gravity_simulation_step_index{ get_gravity_delay_frames() },
-      main_layout{
+      m_main_layout{
                 utils::size_t_identity<2>(),
                 0,
                 ui::Direction::Vertical,

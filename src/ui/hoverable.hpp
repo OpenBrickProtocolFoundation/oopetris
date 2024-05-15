@@ -72,7 +72,7 @@ namespace ui {
             m_is_hovered = true;
         }
 
-        //TODO: this has to be used correctly, a click or focus change isn't an event, where an unhover needs to happen!
+        //TODO(Totto): this has to be used correctly, a click or focus change isn't an event, where an unhover needs to happen!
         void on_unhover() {
             m_is_hovered = false;
         }

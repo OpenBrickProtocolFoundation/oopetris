@@ -85,10 +85,16 @@ namespace ui {
             }
         }
 
-
         ~AbstractSlider() override {
             SDL_CaptureMouse(SDL_FALSE);
         }
+
+
+        AbstractSlider(const AbstractSlider&) = default;
+        AbstractSlider& operator=(const AbstractSlider&) = default;
+
+        AbstractSlider(AbstractSlider&&) noexcept = default;
+        AbstractSlider& operator=(AbstractSlider&&) noexcept = default;
 
 
         Widget::EventHandleResult
@@ -173,7 +179,7 @@ namespace ui {
                         handled = true;
                     }
 
-                    //TODO: this is not working, since pointer_event.has_value() is wrong in this case
+                    //TODO(Totto): this is not working, since pointer_event.has_value() is wrong in this case
                 } else if (event.type == SDL_MOUSEWHEEL && has_focus()) {
 
                     // here we use a reverse scroll behaviour, since moving the mouse up is always considered increasing the volume, regardless of you OS setting about natural scrolling or not

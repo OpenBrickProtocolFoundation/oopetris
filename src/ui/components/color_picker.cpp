@@ -23,7 +23,7 @@ detail::ColorSlider::ColorSlider(
         const ui::Layout& layout,
         bool is_top_level
 )
-    : AbstractSlider<double>{ ui::FocusHelper::FocusIDUnused(),
+    : AbstractSlider<double>{ ui::FocusHelper::focus_id_unused(),
                               std::move(range),
                               std::move(getter),
                               std::move(setter),
@@ -373,7 +373,7 @@ ui::ColorPicker::ColorPicker(
     const auto toggle_button_layout = ui::RelativeLayout{ components_fill_layout, 0.0, 0.0, toggle_button_size, 1.0 };
 
 
-    const auto focus_id_unused = FocusHelper::FocusIDUnused();
+    const auto focus_id_unused = FocusHelper::focus_id_unused();
 
     const auto rgb_image_path = utils::get_assets_folder() / "icons" / "rgb_color_selector.png";
 

@@ -62,5 +62,5 @@ ui::TextButton::TextButton(
 } { }
 
 [[nodiscard]] bool ui::TextButton::on_clicked() const {
-    return m_callback(*this);
+    return callback()(*this);
 }

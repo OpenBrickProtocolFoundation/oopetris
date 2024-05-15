@@ -76,7 +76,7 @@ private:
     std::array<helper::optional<Tetromino>, num_preview_tetrominos> m_preview_tetrominos{};
     u8 m_tetrion_index;
     u64 m_next_gravity_simulation_step_index;
-    ui::TileLayout main_layout;
+    ui::TileLayout m_main_layout;
 
 
 public:

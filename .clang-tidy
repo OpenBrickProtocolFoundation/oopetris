@@ -1,6 +1,6 @@
 # taken from https://github.com/cpp-linter/cpp-linter-action/blob/main/demo/.clang-tidy
 ---
-Checks: "clang-diagnostic-*,clang-analyzer-*,bugprone-*,misc-*,performance-*,readability-*,portability-*,modernize-*,cppcoreguidelines-*,google-*,llvm-*,cert-*,-modernize-use-trailing-return-type,-bugprone-argument-comment,-misc-include-cleaner,-cppcoreguidelines-avoid-magic-numbers,-readability-magic-numbers,-readability-avoid-nested-conditional-operator,-llvm-namespace-comment"
+Checks: "clang-diagnostic-*,clang-analyzer-*,bugprone-*,misc-*,performance-*,readability-*,portability-*,modernize-*,cppcoreguidelines-*,google-*,llvm-*,cert-*,-modernize-use-trailing-return-type,-bugprone-argument-comment,-misc-include-cleaner,-cppcoreguidelines-avoid-magic-numbers,-readability-magic-numbers,-readability-avoid-nested-conditional-operator,-llvm-namespace-comment,-llvm-header-guard"
 WarningsAsErrors: ""
 HeaderFilterRegex: "oopetris/src/.*"
 FormatStyle: "file"
