@@ -223,8 +223,7 @@ namespace {
 
     std::string to_lower_case(const std::string& input) {
         auto result = input;
-        for (size_t i = 0; i < result.size(); ++i) {
-            auto& elem = result.at(i);
+        for (auto& elem : result) {
             elem = static_cast<char>(std::tolower(elem));
         }
 
@@ -234,7 +233,7 @@ namespace {
     // for string delimiter
     std::vector<std::string> split_string_by_char(const std::string& start, const std::string& delimiter) {
         size_t pos_start = 0;
-        size_t pos_end;
+        size_t pos_end = 0;
         const auto delim_len = delimiter.length();
 
         std::vector<std::string> res{};
@@ -251,14 +250,14 @@ namespace {
 
     // trim from start (in place)
     inline void ltrim(std::string& str) {
-        str.erase(str.begin(), std::ranges::find_if(str, [](unsigned char ch) { return !std::isspace(ch); }));
+        str.erase(str.begin(), std::ranges::find_if(str, [](unsigned char chr) { return std::isspace(chr) == 0; }));
     }
 
     // trim from end (in place)
     inline void rtrim(std::string& str) {
         str.erase(
                 std::ranges::find_if(
-                        std::ranges::reverse_view(str), [](unsigned char ch) { return !std::isspace(ch); }
+                        std::ranges::reverse_view(str), [](unsigned char chr) { return std::isspace(chr) == 0; }
                 ).base(),
                 str.end()
         );

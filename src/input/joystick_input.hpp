@@ -206,7 +206,7 @@ namespace input {
 namespace json_helper {
 
 
-    [[nodiscard]] std::string get_key_from_object(const nlohmann::json& j, const std::string& name);
+    [[nodiscard]] std::string get_key_from_object(const nlohmann::json& obj, const std::string& name);
 
 } // namespace json_helper
 

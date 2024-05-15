@@ -77,11 +77,12 @@ void input::ReplayGameInput::late_update(const SimulationStep simulation_step_in
 }
 
 
-[[nodiscard]] helper::optional<input::MenuEvent> input::ReplayGameInput::get_menu_event(const SDL_Event&) const {
+[[nodiscard]] helper::optional<input::MenuEvent> input::ReplayGameInput::get_menu_event(const SDL_Event& /*event*/)
+        const {
     return helper::nullopt;
 }
 
-[[nodiscard]] std::string input::ReplayGameInput::describe_menu_event(MenuEvent) const {
+[[nodiscard]] std::string input::ReplayGameInput::describe_menu_event(MenuEvent /*event*/) const {
     throw std::runtime_error("not supported");
 }
 

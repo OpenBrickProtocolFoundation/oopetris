@@ -264,6 +264,7 @@ void detail::ColorCanvas::redraw_texture() {
     const auto hue = m_current_color.h;
 
     //TODO(Totto): try to speed this up, since it is a performance bottle neck, if hovering like a madman (xD) over the color slider
+    // maybe use shaders?
     for (u32 y = 0; y < height; y++) {
         const auto value = 1.0 - (static_cast<double>(y) / static_cast<double>(height));
         for (u32 x = 0; x < width; x++) {
@@ -505,7 +506,7 @@ ui::ColorPicker::handle_event(const std::shared_ptr<input::InputManager>& input_
                     }
 
                     if (not maybe_color.has_value()) {
-                        //TODO: maybe inform the user, that the input is incorrect?
+                        //TODO(Totto): maybe inform the user, that the input is incorrect?
                         //m_color_text->display_error();
 
                         // reset the text

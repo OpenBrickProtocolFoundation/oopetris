@@ -50,7 +50,7 @@ detail::ColorSettingRectangle::ColorSettingRectangle(
 
 void detail::ColorSettingRectangle::render(const ServiceProvider& service_provider) const {
     service_provider.renderer().draw_rect_filled(m_fill_rect, m_color);
-    //TODO: maybe use a dynamic color, to have some contrast?
+    //TODO(Totto): maybe use a dynamic color, to have some contrast?
     service_provider.renderer().draw_rect_outline(m_fill_rect, Color::white());
 }
 helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>> detail::ColorSettingRectangle::handle_event(

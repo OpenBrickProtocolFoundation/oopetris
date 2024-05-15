@@ -13,7 +13,7 @@
 #include <stdexcept>
 
 
-input::Input::Input(const std::string& name, InputType type) : m_name{ name }, m_type{ type } { }
+input::Input::Input(std::string name, InputType type) : m_name{ std::move(name) }, m_type{ type } { }
 
 input::Input::~Input() = default;
 
@@ -71,9 +71,6 @@ input::InputManager::InputManager(const std::shared_ptr<Window>& window) {
     //initialize joystick inputs by using the manager
     input::JoyStickInputManager::discover_devices(m_inputs);
 }
-
-input::InputManager::~InputManager() = default;
-
 
 [[nodiscard]] const std::vector<std::unique_ptr<input::Input>>& input::InputManager::inputs() const {
     return m_inputs;
@@ -149,13 +146,13 @@ input::InputManager::~InputManager() = default;
     return false;
 }
 
-//TODO: improve this API, to correctly use settings to determine the input to use.
+//TODO(Totto): improve this API, to correctly use settings to determine the input to use.
 [[nodiscard]] std::shared_ptr<input::GameInput> input::InputManager::get_game_input(ServiceProvider* service_provider) {
 
-    //TODO: use smart pointer for the event dispatcher
+    //TODO(TODO): use smart pointer for the event dispatcher
 
 
-    //TODO: select the first suitable, by using the primary input method or some other settings!
+    //TODO(Totto): select the first suitable, by using the primary input method or some other settings!
     for (const auto& control : service_provider->settings_manager().settings().controls) {
 
         return std::visit(
@@ -174,7 +171,7 @@ input::InputManager::~InputManager() = default;
                                                 service_provider->input_manager(), event_dispatcher, joystick_settings
                                         );
 
-                                        //TODO: better error handling, if this fails look forward in the
+                                        //TODO(Totto): better error handling, if this fails look forward in the
                                         if (not input.has_value()) {
                                             throw std::runtime_error("Not possible to get joystick by settings");
                                         }

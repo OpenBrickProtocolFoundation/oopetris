@@ -22,7 +22,7 @@ namespace scenes {
 
         if (parameters.empty()) {
             throw std::runtime_error("An empty recording file isn't supported");
-        } else if (parameters.size() == 1) { // NOLINT(readability-else-after-return)
+        } else if (parameters.size() == 1) { // NOLINT(readability-else-after-return,llvm-else-after-return)
             layouts.push_back(ui::RelativeLayout{ layout, 0.02, 0.01, 0.96, 0.98 });
         } else if (parameters.size() == 2) {
             layouts.push_back(ui::RelativeLayout{ layout, 0.02, 0.01, 0.46, 0.98 });
