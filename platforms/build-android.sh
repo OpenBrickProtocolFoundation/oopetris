@@ -105,10 +105,10 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
     ARM_COMPILER_TRIPLE=$(echo "$RAW_JSON" | jq -M -r -c '."llvm_triple"')
     ARM_TOOL_TRIPLE=$(echo "$ARM_NAME_TRIPLE$SDK_VERSION" | sed s/$ARCH/$ARCH_VERSION/)
 
-    export SYM_LINK_PATH=sysroot_sym-$ARCH_VERSION
+    export SYM_LINK_PATH=sym-$ARCH_VERSION
 
     export HOST_ROOT="$BASE_PATH/toolchains/llvm/prebuilt/linux-x86_64"
-    export SYS_ROOT="${HOST_ROOT}/$SYM_LINK_PATH"
+    export SYS_ROOT="${HOST_ROOT}/$SYM_LINK_PATH/sysroot"
     export BIN_DIR="$HOST_ROOT/bin"
     export PATH="$BIN_DIR:$PATH"
 
@@ -177,47 +177,41 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
         cd "$BUILD_DIR_MPG123"
 
-        wget -q "https://www.mpg123.de/download/mpg123-1.32.6.tar.bz2"
+        if [ ! -e "mpg123-1.32.6.tar.bz2" ]; then
+            wget -q "https://www.mpg123.de/download/mpg123-1.32.6.tar.bz2"
+        fi
 
-        tar -xf "mpg123-1.32.6.tar.bz2"
+        if [ ! -d "mpg123-1.32.6" ]; then
+            tar -xf "mpg123-1.32.6.tar.bz2"
+        fi
 
         cd "mpg123-1.32.6"
 
-        BUILDYSTEM="cmake"
+        cd ports/cmake/
 
-        if [ $BUILDYSTEM = "autotools" ]; then
+        BUILD_DIR_MPG123="build-mpg123"
 
-            ./configure --prefix="$SYS_ROOT/usr" --oldincludedir="$SYS_ROOT/usr/include" --host="$ARM_NAME_TRIPLE" --with-sysroot="$SYS_ROOT" --with-audio="dummy"
+        mkdir -p "$BUILD_DIR_MPG123"
 
-            make
+        cd "$BUILD_DIR_MPG123"
 
-            make install
+        export MPG123_ANDROID_SSE_ENABLED="ON"
 
-        else
-
-            cd ports/cmake/
-
-            BUILD_DIR_MPG123="build-mpg123"
-
-            mkdir -p "$BUILD_DIR_MPG123"
-
-            cd "$BUILD_DIR_MPG123"
-
-            if [ "$ARCH_VERSION" = "i686" ]; then
-                #cmake .. -DCMAKE_TOOLCHAIN_FILE=linux_i686.toolchain.cmake --install-prefix "$SYS_ROOT/usr" "-DCMAKE_SYSROOT=$SYS_ROOT" -DOUTPUT_MODULES=dummy -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-                # cmake --build .
-
-                # cmake --install .
-                : # nop, for bash syntax
-
-            else
-                cmake .. --install-prefix "$SYS_ROOT/usr" "-DCMAKE_SYSROOT=$SYS_ROOT" -DOUTPUT_MODULES=dummy -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-                cmake --build .
-
-                cmake --install .
-            fi
-
+        if [ "$ARCH_VERSION" = "i686" ]; then
+            MPG123_ANDROID_SSE_ENABLED="OFF"
         fi
+
+        cmake .. --install-prefix "$SYS_ROOT/usr" "-DCMAKE_SYSROOT=$SYS_ROOT" -DOUTPUT_MODULES=dummy -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+            "-DCMAKE_SYSTEM_NAME=Android" \
+            "-DCMAKE_SYSTEM_VERSION=$SDK_VERSION" \
+            "-DCMAKE_ANDROID_ARCH_ABI=$KEY" \
+            "-DCMAKE_ANDROID_NDK=$ANDROID_NDK" \
+            "-DCMAKE_ANDROID_NDK_TOOLCHAIN_VERSION=clang" \
+            "-DWITH_SSE=$MPG123_ANDROID_SSE_ENABLED"
+
+        cmake --build .
+
+        cmake --install .
 
         touch "$BUILD_MPG123_FILE"
 
@@ -241,9 +235,13 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
         cd "$BUILD_DIR_OPENSSL"
 
-        wget -q "https://github.com/openssl/openssl/releases/download/openssl-3.3.0/openssl-3.3.0.tar.gz"
+        if [ ! -e "openssl-3.3.0.tar.gz" ]; then
+            wget -q "https://github.com/openssl/openssl/releases/download/openssl-3.3.0/openssl-3.3.0.tar.gz"
+        fi
 
-        tar -xzf "openssl-3.3.0.tar.gz"
+        if [ ! -d "openssl-3.3.0" ]; then
+            tar -xzf "openssl-3.3.0.tar.gz"
+        fi
 
         cd "openssl-3.3.0"
 
@@ -251,7 +249,25 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
         export ANDROID_NDK_ROOT="$ANDROID_NDK_HOME"
 
-        ./Configure --prefix="$SYS_ROOT/usr" no-tests no-shared "$OPENSSL_TARGET_ARCH" "-D__ANDROID_API__=$SDK_VERSION"
+        if [ "$ARCH_VERSION" = "armv7a" ]; then
+
+            ./Configure --prefix="$SYS_ROOT/usr" no-asm no-tests no-shared "$OPENSSL_TARGET_ARCH" "-D__ANDROID_API__=$SDK_VERSION"
+        else
+            ./Configure --prefix="$SYS_ROOT/usr" no-tests no-shared "$OPENSSL_TARGET_ARCH" "-D__ANDROID_API__=$SDK_VERSION"
+        fi
+
+        make clean
+
+        if [ "$ARCH_VERSION" = "armv7-a" ]; then
+
+            # fix an compile time error since openssl 3.1.0 >
+            # see https://github.com/android/ndk/issues/1992
+            # Apply patch that fixes the armcap instruction
+
+            # sed -e '/[.]hidden.*OPENSSL_armcap_P/d; /[.]extern.*OPENSSL_armcap_P/ {p; s/extern/hidden/ }' -i -- crypto/*arm*pl crypto/*/asm/*arm*pl
+            sed -E -i '' -e '/[.]hidden.*OPENSSL_armcap_P/d' -e '/[.]extern.*OPENSSL_armcap_P/ {p; s/extern/hidden/; }' crypto/*arm*pl crypto/*/asm/*arm*pl
+
+        fi
 
         make -j build_sw
 

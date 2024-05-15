@@ -1,0 +1,25 @@
+diff --git a/meson.build b/meson.build
+index 45cd1d1..c648181 100644
+--- a/meson.build
++++ b/meson.build
+@@ -1,7 +1,10 @@
+ project('fmt', 'cpp', version: '10.2.0', license: 'MIT WITH fmt-exception', default_options: ['cpp_std=c++14'])
+ 
++#TODO: remove with the next release
++cpp = meson.get_compiler('cpp')
++
+ fmt_private_cpp_args = []
+-fmt_interface_cpp_args = []
++fmt_interface_cpp_args = [cpp.get_supported_arguments('-Wno-tautological-compare')]
+ if get_option('default_library') == 'shared'
+   fmt_private_cpp_args += ['-DFMT_LIB_EXPORT']
+   fmt_interface_cpp_args += ['-DFMT_SHARED']
+@@ -29,7 +32,7 @@ fmt_dep = declare_dependency(
+ 
+ fmt_header_only_dep = declare_dependency(
+   include_directories: 'include',
+-  compile_args: '-DFMT_HEADER_ONLY',
++  compile_args: [cpp.get_supported_arguments('-Wno-tautological-compare'), '-DFMT_HEADER_ONLY'],
+ )
+ 
+ pkg_mod = import('pkgconfig')
