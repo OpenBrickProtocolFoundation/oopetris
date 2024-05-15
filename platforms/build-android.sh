@@ -105,10 +105,10 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
     ARM_COMPILER_TRIPLE=$(echo "$RAW_JSON" | jq -M -r -c '."llvm_triple"')
     ARM_TOOL_TRIPLE=$(echo "$ARM_NAME_TRIPLE$SDK_VERSION" | sed s/$ARCH/$ARCH_VERSION/)
 
-    export SYM_LINK_PATH=sysroot_sym-$ARCH_VERSION
+    export SYM_LINK_PATH=sym-$ARCH_VERSION
 
     export HOST_ROOT="$BASE_PATH/toolchains/llvm/prebuilt/linux-x86_64"
-    export SYS_ROOT="${HOST_ROOT}/$SYM_LINK_PATH"
+    export SYS_ROOT="${HOST_ROOT}/$SYM_LINK_PATH/sysroot"
     export BIN_DIR="$HOST_ROOT/bin"
     export PATH="$BIN_DIR:$PATH"
 
@@ -195,11 +195,19 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
         cd "$BUILD_DIR_MPG123"
 
+        export MPG123_ANDROID_SSE_ENABLED="ON"
+
         if [ "$ARCH_VERSION" = "i686" ]; then
-            cmake .. --install-prefix "$SYS_ROOT/usr" "-DCMAKE_SYSROOT=$SYS_ROOT" -DOUTPUT_MODULES=dummy -DCMAKE_POSITION_INDEPENDENT_CODE=ON "-DCMAKE_SYSTEM_PROCESSOR=$ARCH_VERSION" -DCMAKE_TOOLCHAIN_FILE=../linux_i686.toolchain.cmake
-        else
-            cmake .. --install-prefix "$SYS_ROOT/usr" "-DCMAKE_SYSROOT=$SYS_ROOT" -DOUTPUT_MODULES=dummy -DCMAKE_POSITION_INDEPENDENT_CODE=ON "-DCMAKE_SYSTEM_PROCESSOR=$ARCH_VERSION"
+            MPG123_ANDROID_SSE_ENABLED="OFF"
         fi
+
+        cmake .. --install-prefix "$SYS_ROOT/usr" "-DCMAKE_SYSROOT=$SYS_ROOT" -DOUTPUT_MODULES=dummy -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+            "-DCMAKE_SYSTEM_NAME=Android" \
+            "-DCMAKE_SYSTEM_VERSION=$SDK_VERSION" \
+            "-DCMAKE_ANDROID_ARCH_ABI=$KEY" \
+            "-DCMAKE_ANDROID_NDK=$ANDROID_NDK" \
+            "-DCMAKE_ANDROID_NDK_TOOLCHAIN_VERSION=clang" \
+            "-DWITH_SSE=$MPG123_ANDROID_SSE_ENABLED"
 
         cmake --build .
 
