@@ -152,40 +152,27 @@ input::InputManager::InputManager(const std::shared_ptr<Window>& window) {
 namespace {
 #if defined(__ANDROID__)
     using PrimaryInputType = input::TouchInput;
-    using PrimaryGameInputType = input::TouchGameInput;
 #elif defined(__CONSOLE__)
     using PrimaryInputType = input::JoystickInput;
-    using PrimaryGameInputType = input::JoystickGameInput;
 #else
     using PrimaryInputType = input::KeyboardInput;
-    using PrimaryGameInputType = input::KeyboardGameInput;
 #endif
 } // namespace
 
 
-//TODO(Totto): improve this API, to correctly use settings to determine the input to use.
-[[nodiscard]] helper::optional<std::shared_ptr<input::GameInput>> input::InputManager::get_game_input(
-        ServiceProvider* service_provider
-) {
+namespace {
+    //TODO(Totto): use smart pointer for the event dispatcher
+    helper::optional<std::shared_ptr<input::GameInput>>
+    get_game_input_by_setting(ServiceProvider* service_provider, const Controls& control) {
 
-    //TODO(TODO): use smart pointer for the event dispatcher
+        using ReturnType = helper::expected<std::shared_ptr<input::GameInput>, std::string>;
 
-
-    using ReturnType = helper::expected<std::shared_ptr<GameInput>, std::string>;
-
-    // TODO(Totto): use primary input only, if there is no setting, on what to use, add setting for what to use!
-
-    std::vector<std::shared_ptr<input::GameInput>> game_inputs{};
-
-    for (const auto& control : service_provider->settings_manager().settings().controls) {
 
         auto result = std::visit(
                 helper::overloaded{
                         [service_provider](const input::KeyboardSettings& keyboard_settings) mutable -> ReturnType {
                             auto* const event_dispatcher = &(service_provider->event_dispatcher());
-                            auto input =
-                                    std::make_shared<input::KeyboardGameInput>(keyboard_settings, event_dispatcher);
-                            return input;
+                            return std::make_shared<input::KeyboardGameInput>(keyboard_settings, event_dispatcher);
                         },
                         [service_provider](const input::JoystickSettings& joystick_settings) mutable -> ReturnType {
                             auto* const event_dispatcher = &(service_provider->event_dispatcher());
@@ -209,7 +196,7 @@ namespace {
                                 if (const auto pointer_input = utils::is_child_class<input::TouchInput>(input);
                                     pointer_input.has_value()) {
                                     auto* const event_dispatcher = &(service_provider->event_dispatcher());
-                                    return std::make_shared<TouchGameInput>(
+                                    return std::make_shared<input::TouchGameInput>(
                                             touch_settings, event_dispatcher, pointer_input.value()
                                     );
                                 }
@@ -224,19 +211,133 @@ namespace {
 
 
         if (result.has_value()) {
-            game_inputs.push_back(std::move(result.value()));
-        } else {
-            spdlog::debug("Couldn't get input: {}", result.error());
+            return std::move(result.value());
+        }
+
+        return helper::nullopt;
+    }
+
+
+    template<typename T>
+    T get_settings_or_default(const std::vector<Controls>& controls) {
+        for (const auto& control : controls) {
+
+            const T* retrieved = std::get_if<T>(&control);
+
+            if (retrieved != nullptr) {
+                return *retrieved;
+            }
+        }
+
+
+        return T::default_settings();
+    }
+
+
+    input::JoystickSettings
+    get_settings_or_default_joystick(const input::JoystickInput* input, const std::vector<Controls>& controls) {
+
+        for (const auto& control : controls) {
+
+            const auto* retrieved = std::get_if<input::JoystickSettings>(&control);
+
+            if (retrieved != nullptr) {
+                if (retrieved->identification.guid == input->guid()) {
+                    return *retrieved;
+                }
+            }
+        }
+
+
+        return input->default_settings();
+    }
+
+
+    helper::optional<std::shared_ptr<input::GameInput>>
+    get_game_input_by_input(ServiceProvider* service_provider, const std::unique_ptr<input::Input>& input) {
+
+        const auto& settings = service_provider->settings_manager().settings();
+
+
+        if (const auto keyboard_input = utils::is_child_class<input::KeyboardInput>(input);
+            keyboard_input.has_value()) {
+
+            const auto keyboard_settings = get_settings_or_default<input::KeyboardSettings>(settings.controls);
+
+            auto* const event_dispatcher = &(service_provider->event_dispatcher());
+            return std::make_shared<input::KeyboardGameInput>(keyboard_settings, event_dispatcher);
+        }
+
+
+        if (const auto joystick_input = utils::is_child_class<input::JoystickInput>(input);
+            joystick_input.has_value()) {
+
+            const auto joystick_settings = get_settings_or_default_joystick(joystick_input.value(), settings.controls);
+
+            auto* const event_dispatcher = &(service_provider->event_dispatcher());
+
+            auto game_input = input::JoystickGameInput::get_game_input_by_settings(
+                    service_provider->input_manager(), event_dispatcher, joystick_settings
+            );
+
+            if (not game_input.has_value()) {
+                spdlog::warn("Not possible to get joystick by settings: {}", game_input.error());
+                return helper::nullopt;
+            }
+
+
+            return game_input.value();
+        }
+
+        if (const auto touch_input = utils::is_child_class<input::TouchInput>(input); touch_input.has_value()) {
+
+            const auto touch_settings = get_settings_or_default<input::TouchSettings>(settings.controls);
+
+            auto* const event_dispatcher = &(service_provider->event_dispatcher());
+
+            return std::make_shared<input::TouchGameInput>(touch_settings, event_dispatcher, touch_input.value());
+        }
+
+
+        return helper::nullopt;
+    }
+
+
+} // namespace
+
+
+[[nodiscard]] helper::optional<std::shared_ptr<input::GameInput>> input::InputManager::get_game_input(
+        ServiceProvider* service_provider
+) {
+
+    const auto& settings = service_provider->settings_manager().settings();
+
+    // 1. If we have a fixed index, by settings, we use that, if it fails, we don#t try anything other
+
+    if (settings.selected.has_value()) {
+        const auto index = settings.selected.value();
+        if (settings.controls.size() >= index) {
+            return helper::nullopt;
+        }
+
+        return get_game_input_by_setting(service_provider, settings.controls.at(index));
+    }
+
+
+    // 2. We use the primary input for this platform
+
+    for (const auto& input : service_provider->input_manager().inputs()) {
+        if (auto primary_input = utils::is_child_class<PrimaryInputType>(input); primary_input.has_value()) {
+            auto result = get_game_input_by_input(service_provider, input);
+            if (result.has_value()) {
+                return result.value();
+            }
         }
     }
 
-    for (auto input : game_inputs) {
-        if (const auto type_input = utils::is_child_class<PrimaryGameInputType>(input); type_input.has_value()) {
-            return input;
-        }
-    }
 
-    //TODO: use the default settings for joystick / touch input / keyboard input, whatever
+    // 3. we fail, since no suitable input could be found
+
     return helper::nullopt;
 }
 

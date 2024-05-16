@@ -17,53 +17,11 @@
 namespace input {
 
 
-    /**
- * @brief 
- *
- * @note regarding the NOLINT: the destructor just cleans up the SDL_Joystick, it has nothing to do with class members that would need special member functions to be explicitly defined
- * 
- */
-    struct JoystickInput //NOLINT(cppcoreguidelines-special-member-functions)
-        : Input {
-    private:
-        SDL_Joystick* m_joystick;
-        SDL_JoystickID m_instance_id;
-
-        [[nodiscard]] static helper::optional<std::unique_ptr<JoystickInput>> get_joystick_by_guid(
-                const SDL::GUID& guid,
-                SDL_Joystick* joystick,
-                SDL_JoystickID instance_id,
-                const std::string& name
-        );
-
-    public:
-        JoystickInput(SDL_Joystick* joystick, SDL_JoystickID instance_id, const std::string& name);
-        ~JoystickInput();
-
-        [[nodiscard]] static helper::expected<std::unique_ptr<JoystickInput>, std::string> get_by_device_index(
-                int device_index
-        );
-
-        [[nodiscard]] SDL_JoystickID instance_id() const;
-
-        // Add get_game_input method!
-    };
-
-
-    //TODO: also support gamecontroller API
-    // see: https://github.com/mdqinc/SDL_GameControllerDB?tab=readme-ov-file
-
-    struct JoyStickInputManager {
-        static void discover_devices(std::vector<std::unique_ptr<Input>>& inputs);
-
-        [[nodiscard]] static bool
-        process_special_inputs(const SDL_Event& event, std::vector<std::unique_ptr<Input>>& inputs);
-    };
-
-
     // essentially a GUID
     struct JoystickIdentification {
         SDL::GUID guid;
+
+        std::string name; //optional (can be ""), just for human readable settings
 
         static helper::expected<JoystickIdentification, std::string> from_string(const std::string& value);
     };
@@ -97,6 +55,54 @@ namespace input {
     using JoystickSettings = AbstractJoystickSettings<std::string>;
 
 
+    /**
+ * @brief 
+ *
+ * @note regarding the NOLINT: the destructor just cleans up the SDL_Joystick, it has nothing to do with class members that would need special member functions to be explicitly defined
+ * 
+ */
+    struct JoystickInput //NOLINT(cppcoreguidelines-special-member-functions)
+        : Input {
+    private:
+        SDL_Joystick* m_joystick;
+        SDL_JoystickID m_instance_id;
+
+        [[nodiscard]] static helper::optional<std::unique_ptr<JoystickInput>> get_joystick_by_guid(
+                const SDL::GUID& guid,
+                SDL_Joystick* joystick,
+                SDL_JoystickID instance_id,
+                const std::string& name
+        );
+
+    public:
+        JoystickInput(SDL_Joystick* joystick, SDL_JoystickID instance_id, const std::string& name);
+        ~JoystickInput();
+
+        [[nodiscard]] static helper::expected<std::unique_ptr<JoystickInput>, std::string> get_by_device_index(
+                int device_index
+        );
+
+        [[nodiscard]] SDL_JoystickID instance_id() const;
+
+        [[nodiscard]] SDL::GUID guid() const;
+
+        [[nodiscard]] virtual JoystickSettings default_settings() const = 0;
+
+        // Add get_game_input method!
+    };
+
+
+    //TODO: also support gamecontroller API
+    // see: https://github.com/mdqinc/SDL_GameControllerDB?tab=readme-ov-file
+
+    struct JoyStickInputManager {
+        static void discover_devices(std::vector<std::unique_ptr<Input>>& inputs);
+
+        [[nodiscard]] static bool
+        process_special_inputs(const SDL_Event& event, std::vector<std::unique_ptr<Input>>& inputs);
+    };
+
+
     //TODO: differntiate different controllers and modes, e.g the switch can have pro controller, the included ones, each of them seperate etc.
 
     template<typename T>
@@ -126,8 +132,6 @@ namespace input {
         [[nodiscard]] virtual JoystickSettings to_normal_settings(
                 const AbstractJoystickSettings<console::SettingsType>& settings
         ) const = 0;
-
-        [[nodiscard]] virtual JoystickSettings default_settings() const = 0;
     };
 
 #if defined(__SWITCH__)
@@ -302,14 +306,15 @@ namespace nlohmann {
 
     template<>
     struct adl_serializer<input::JoystickIdentification> {
-        static input::JoystickIdentification from_json(const json& j) {
+        static input::JoystickIdentification from_json(const json& obj) {
 
-            ::json::check_for_no_additional_keys(j, { "guid" });
+            ::json::check_for_no_additional_keys(obj, { "guid", "name" });
 
-            auto context = j.at("guid");
+            auto context = obj.at("guid");
 
             std::string input;
             context.get_to(input);
+
 
             const auto& value = SDL::GUID::from_string(input);
 
@@ -319,12 +324,18 @@ namespace nlohmann {
                 );
             }
 
-            return input::JoystickIdentification{ .guid = value.value() };
+            std::string name{};
+
+            if (obj.contains("name")) {
+                obj.at("name").get_to(name);
+            }
+
+            return input::JoystickIdentification{ .guid = value.value(), .name = name };
         }
 
         static void to_json(json& j, const input::JoystickIdentification& identification) {
             j = nlohmann::json{
-                { "guid", identification.guid.to_string() },
+                { "guid", identification.guid.to_string(), { "name", identification.name } },
             };
         }
     };

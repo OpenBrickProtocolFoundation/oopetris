@@ -1,5 +1,6 @@
 #pragma once
 
+#include "helper/optional.hpp"
 #include "input/joystick_input.hpp"
 #include "input/keyboard_input.hpp"
 #include "input/touch_input.hpp"
@@ -55,12 +56,15 @@ namespace detail {
 
     struct Settings {
         std::vector<Controls> controls;
-        float volume{ 0.2f };
+        helper::optional<u32> selected;
+        float volume{ 0.2F };
         bool discord{ false }; //changing this requires a restart
     };
 
 
-    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Settings, controls, volume, discord)
+    void to_json(nlohmann::json& obj, const Settings& settings);
+
+    void from_json(const nlohmann::json& obj, Settings& settings);
 
 } // namespace detail
 

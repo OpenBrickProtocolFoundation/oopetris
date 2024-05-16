@@ -131,8 +131,8 @@ namespace nlohmann {
             return settings;
         }
 
-        static void to_json(json& j, const input::KeyboardSettings& settings) {
-            j = nlohmann::json{
+        static void to_json(json& obj, const input::KeyboardSettings& settings) {
+            obj = nlohmann::json{
                 { "rotate_left", settings.rotate_left.to_string() },
                 { "rotate_right", settings.rotate_right.to_string() },
                 { "move_left", settings.move_left.to_string() },

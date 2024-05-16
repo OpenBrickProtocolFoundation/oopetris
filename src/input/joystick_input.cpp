@@ -99,6 +99,16 @@ input::JoystickInput::get_by_device_index(int device_index) {
     return m_instance_id;
 }
 
+[[nodiscard]] SDL::GUID input::JoystickInput::guid() const {
+    const auto guid = SDL::GUID{ SDL_JoystickGetGUID(m_joystick) };
+
+    if (guid == SDL::GUID{}) {
+        throw std::runtime_error{ fmt::format("Failed to get joystick GUID: {}", SDL_GetError()) };
+    }
+
+    return guid;
+}
+
 void input::JoyStickInputManager::discover_devices(std::vector<std::unique_ptr<Input>>& inputs) {
 
     //initialize joystick input, this needs to call some sdl things
@@ -779,11 +789,8 @@ helper::optional<InputEvent> input::ConsoleJoystickGameInput::sdl_event_to_input
 
 std::string json_helper::get_key_from_object(const nlohmann::json& obj, const std::string& name) {
 
-    const auto& context = obj.at(name);
-
     std::string input;
-    context.get_to(input);
-
+    obj.at(name).get_to(input);
 
     return input;
 }

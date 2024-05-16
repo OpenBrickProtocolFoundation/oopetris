@@ -1,61 +1,65 @@
 {
-	"controls": [
-		{
-			"type": "keyboard",
-			"drop": "W",
-			"hold": "E",
-			"move_down": "S",
-			"move_left": "A",
-			"move_right": "D",
-			"rotate_left": "Left",
-			"rotate_right": "Right",
-			"menu": {
-				"pause": "Escape",
-				"open_settings": "P"
-			}
-		},
-		{
-			"type": "joystick",
-			"identification": {
-				"guid": "GUID1"
+	"controls": {
+		"selected": null,
+		"inputs": [
+			{
+				"type": "keyboard",
+				"drop": "W",
+				"hold": "E",
+				"move_down": "S",
+				"move_left": "A",
+				"move_right": "D",
+				"rotate_left": "Left",
+				"rotate_right": "Right",
+				"menu": {
+					"pause": "Escape",
+					"open_settings": "P"
+				}
 			},
-			"drop": "W",
-			"hold": "E",
-			"move_down": "S",
-			"move_left": "A",
-			"move_right": "D",
-			"rotate_left": "Y",
-			"rotate_right": "X",
-			"menu": {
-				"pause": "Esc",
-				"open_settings": "P"
-			}
-		},
-		{
-			"type": "joystick",
-			"identification": {
-				"guid": "GUID2"
+			{
+				"type": "joystick",
+				"identification": {
+					"guid": "00:00:10:32:4e:69:6e:74:65:6e:64:6f:20:33:44:00",
+					"name": "Nintendo 3DS"
+				},
+				"drop": "W",
+				"hold": "E",
+				"move_down": "S",
+				"move_left": "A",
+				"move_right": "D",
+				"rotate_left": "Y",
+				"rotate_right": "X",
+				"menu": {
+					"pause": "Esc",
+					"open_settings": "P"
+				}
 			},
-			"drop": "W",
-			"hold": "E",
-			"move_down": "S",
-			"move_left": "A",
-			"move_right": "D",
-			"rotate_left": "Y",
-			"rotate_right": "X",
-			"menu": {
-				"pause": "Esc",
-				"open_settings": "P"
+			{
+				"type": "joystick",
+				"identification": {
+					"guid": "GUID2"
+				},
+				"drop": "W",
+				"hold": "E",
+				"move_down": "S",
+				"move_left": "A",
+				"move_right": "D",
+				"rotate_left": "Y",
+				"rotate_right": "X",
+				"menu": {
+					"pause": "Esc",
+					"open_settings": "P"
+				}
+			},
+			{
+				"type": "touch",
+				"move_x_threshold": 0.07,
+				"move_y_threshold": 0.37,
+				"rotation_duration_threshold": 500,
+				"drop_duration_threshold": 200
 			}
-		},
-		{
-			"type": "touch",
-			"move_x_threshold": 0.07,
-			"move_y_threshold": 0.37,
-			"rotation_duration_threshold": 500,
-			"drop_duration_threshold": 200
-		}
-	],
+		]
+	},
 	"volume": 0.2,
 	"discord": false
 }

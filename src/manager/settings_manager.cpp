@@ -18,8 +18,7 @@ SettingsManager::SettingsManager(ServiceProvider* service_provider) : m_service_
         spdlog::warn("applying default settings");
 
         m_settings = {
-            detail::Settings{ { input::KeyboardSettings::default_settings(), input::TouchSettings::default_settings() },
-                             1.0 }
+            detail::Settings{ {}, helper::nullopt, 1.0, false }
         };
     }
 }
@@ -27,4 +26,29 @@ SettingsManager::SettingsManager(ServiceProvider* service_provider) : m_service_
 
 [[nodiscard]] const detail::Settings& SettingsManager::settings() const {
     return m_settings;
+}
+
+
+void detail::to_json(nlohmann::json& obj, const detail::Settings& settings) {
+    obj = nlohmann::json{
+        { "controls",
+         nlohmann::json{ { "inputs", settings.controls }, { "selected", settings.selected } },
+         { "volume", settings.volume },
+         { "discord", settings.discord } }
+    };
+}
+
+void detail::from_json(const nlohmann::json& obj, detail::Settings& settings) {
+
+    ::json::check_for_no_additional_keys(obj, { "controls", "volume", "discord" });
+
+    obj.at("volume").get_to(settings.volume);
+    obj.at("discord").get_to(settings.discord);
+
+    const auto& controls = obj.at("controls");
+
+    ::json::check_for_no_additional_keys(controls, { "inputs", "selected" });
+
+    controls.at("inputs").get_to(settings.controls);
+    controls.at("selected").get_to(settings.selected);
 }
