@@ -145,9 +145,9 @@ namespace input {
     } while (false)
 
 
-#define SETTINGS_TO_STRING(original, target, map, key) \
-    do /*NOLINT(cppcoreguidelines-avoid-do-while)*/ {  \
-        (target).key = map.at((original).key);         \
+#define SETTINGS_TO_STRING(original, target, fn, key) \
+    do /*NOLINT(cppcoreguidelines-avoid-do-while)*/ { \
+        target.key = fn(original.key);                \
     } while (false)
 
 
@@ -209,33 +209,6 @@ namespace input {
 
             return result;
         }
-
-        template<typename T>
-        [[nodiscard]] static JoystickSettings
-        to_normal_settings(const AbstractJoystickSettings<T>& settings, const MappingType<T>& original_map) {
-
-            std::unordered_map<T, std::string> map{};
-
-            for (const auto& [key, value] : original_map) {
-                map.insert_or_assign(value, key);
-            }
-
-            JoystickSettings result{};
-
-            SETTINGS_TO_STRING(settings, result, map, rotate_left);
-            SETTINGS_TO_STRING(settings, result, map, rotate_right);
-            SETTINGS_TO_STRING(settings, result, map, move_left);
-            SETTINGS_TO_STRING(settings, result, map, move_right);
-            SETTINGS_TO_STRING(settings, result, map, move_down);
-
-            SETTINGS_TO_STRING(settings, result, map, drop);
-            SETTINGS_TO_STRING(settings, result, map, hold);
-
-            SETTINGS_TO_STRING(settings, result, map, pause);
-            SETTINGS_TO_STRING(settings, result, map, open_settings);
-
-            return result;
-        }
     };
 
 
@@ -247,6 +220,7 @@ namespace input {
         using SettingsType = enum JOYCON;
         AbstractJoystickSettings<SettingsType> m_settings;
 
+        MappingType<SettingsType> m_key_mappings;
 
     public:
         SwitchJoystickGameInput_Type1(
@@ -255,12 +229,20 @@ namespace input {
                 JoystickInput* underlying_input
         );
 
+        virtual ~SwitchJoystickGameInput_Type1();
+
         [[nodiscard]] helper::optional<MenuEvent> get_menu_event(const SDL_Event& event) const override;
 
         [[nodiscard]] std::string describe_menu_event(MenuEvent event) const override;
 
     protected:
         [[nodiscard]] helper::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event) const override;
+
+    private:
+        [[nodiscard]] static std::string key_to_string(SettingsType key);
+
+        [[nodiscard]] static JoystickSettings to_normal_settings(const AbstractJoystickSettings<SettingsType>& settings
+        );
     };
 
 #elif defined(__3DS__)
