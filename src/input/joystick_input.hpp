@@ -155,7 +155,10 @@ namespace input {
     struct _3DSJoystickInput_Type1 : ConsoleJoystickInput {
 
         //TODO
-        static constexpr SDL::GUID guid{};
+        static constexpr SDL::GUID guid{
+            SDL::GUID::ArrayType{ 0x00, 0x00, 0x10, 0x32, 0x4e, 0x69, 0x6e, 0x74, 0x65, 0x6e, 0x64, 0x6f, 0x20, 0x33,
+                                 0x44, 0x00 }
+        };
         _3DSJoystickInput_Type1(SDL_Joystick* joystick, SDL_JoystickID instance_id, const std::string& name);
 
         [[nodiscard]] helper::optional<NavigationEvent> get_navigation_event(const SDL_Event& event) const override;

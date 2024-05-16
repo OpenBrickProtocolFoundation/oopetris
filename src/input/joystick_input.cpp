@@ -442,7 +442,7 @@ input::_3DSJoystickInput_Type1::_3DSJoystickInput_Type1(
             case JOYCON_CSTICK_RIGHT:
             case JOYCON_CPAD_RIGHT:
                 return NavigationEvent::RIGHT;
-            case JOYCON_X:
+            case JOYCON_B:
                 return NavigationEvent::BACK;
             default:
                 return helper::nullopt;
@@ -462,7 +462,7 @@ input::_3DSJoystickInput_Type1::_3DSJoystickInput_Type1(
         case NavigationEvent::OK:
             return "A";
         case NavigationEvent::BACK:
-            return "X";
+            return "B";
         case NavigationEvent::DOWN:
             return "Down";
         case NavigationEvent::UP:
