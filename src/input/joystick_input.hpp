@@ -99,35 +99,76 @@ namespace input {
 
     //TODO: differntiate different controllers and modes, e.g the switch can have pro controller, the included ones, each of them seperate etc.
 
-#if defined(__CONSOLE__)
-#if defined(__SWITCH__)
-    struct SwitchJoystickInput_Type1 : JoystickInput {
+    template<typename T>
+    using MappingType = std::unordered_map<std::string, T>;
 
-        //TODO
-        static constexpr SDL::GUID guid{};
+#if defined(__CONSOLE__)
+
+    namespace console {
+        using SettingsType = enum JOYCON;
+    } // namespace console
+
+    struct ConsoleJoystickInput : JoystickInput {
+    private:
+        MappingType<console::SettingsType> m_key_mappings;
 
     public:
+        ConsoleJoystickInput(
+                SDL_Joystick* joystick,
+                SDL_JoystickID instance_id,
+                const std::string& name,
+                const MappingType<console::SettingsType>& key_mappings
+        );
+        [[nodiscard]] const MappingType<console::SettingsType>& key_mappings() const;
+
+        [[nodiscard]] virtual std::string key_to_string(console::SettingsType key) const = 0;
+
+        [[nodiscard]] virtual JoystickSettings to_normal_settings(
+                const AbstractJoystickSettings<console::SettingsType>& settings
+        ) const = 0;
+
+        [[nodiscard]] virtual JoystickSettings default_settings() const = 0;
+    };
+
+#if defined(__SWITCH__)
+    struct SwitchJoystickInput_Type1 : ConsoleJoystickInput {
+        //TODO
+        static constexpr SDL::GUID guid{};
         SwitchJoystickInput_Type1(SDL_Joystick* joystick, SDL_JoystickID instance_id, const std::string& name);
 
         [[nodiscard]] helper::optional<NavigationEvent> get_navigation_event(const SDL_Event& event) const override;
 
         [[nodiscard]] std::string describe_navigation_event(NavigationEvent event) const override;
+
+        [[nodiscard]] std::string key_to_string(console::SettingsType key) const override;
+
+        [[nodiscard]] JoystickSettings to_normal_settings(
+                const AbstractJoystickSettings<console::SettingsType>& settings
+        ) const override;
+
+        [[nodiscard]] JoystickSettings default_settings() const override;
     };
 
 
 #elif defined(__3DS__)
 
-    struct _3DSJoystickInput_Type1 : JoystickInput {
+    struct _3DSJoystickInput_Type1 : ConsoleJoystickInput {
 
         //TODO
         static constexpr SDL::GUID guid{};
-
-    public:
         _3DSJoystickInput_Type1(SDL_Joystick* joystick, SDL_JoystickID instance_id, const std::string& name);
 
         [[nodiscard]] helper::optional<NavigationEvent> get_navigation_event(const SDL_Event& event) const override;
 
         [[nodiscard]] std::string describe_navigation_event(NavigationEvent event) const override;
+
+        [[nodiscard]] std::string key_to_string(console::SettingsType key) const override;
+
+        [[nodiscard]] JoystickSettings to_normal_settings(
+                const AbstractJoystickSettings<console::SettingsType>& settings
+        ) const override;
+
+        [[nodiscard]] JoystickSettings default_settings() const override;
     };
 
 
@@ -199,9 +240,6 @@ namespace input {
         [[nodiscard]] virtual helper::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event) const = 0;
 
         template<typename T>
-        using MappingType = std::unordered_map<std::string, T>;
-
-        template<typename T>
         [[nodiscard]] static helper::optional<AbstractJoystickSettings<T>>
         try_resolve_settings(const JoystickSettings& settings, const MappingType<T>& map) {
 
@@ -221,48 +259,19 @@ namespace input {
 
 
 #if defined(__CONSOLE__)
-#if defined(__SWITCH__)
-
-    struct SwitchJoystickGameInput_Type1 : public JoystickGameInput {
+    struct ConsoleJoystickGameInput : public JoystickGameInput {
     private:
-        using SettingsType = enum JOYCON;
-        AbstractJoystickSettings<SettingsType> m_settings;
-
-        MappingType<SettingsType> m_key_mappings;
+        AbstractJoystickSettings<console::SettingsType> m_settings;
+        ConsoleJoystickInput* m_underlying_joystick_input;
 
     public:
-        SwitchJoystickGameInput_Type1(
+        ConsoleJoystickGameInput(
                 JoystickSettings settings,
                 EventDispatcher* event_dispatcher,
                 JoystickInput* underlying_input
         );
 
-        virtual ~SwitchJoystickGameInput_Type1();
-
-        [[nodiscard]] helper::optional<MenuEvent> get_menu_event(const SDL_Event& event) const override;
-
-        [[nodiscard]] std::string describe_menu_event(MenuEvent event) const override;
-
-    protected:
-        [[nodiscard]] helper::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event) const override;
-
-    private:
-        [[nodiscard]] static std::string key_to_string(SettingsType key);
-
-        [[nodiscard]] static JoystickSettings to_normal_settings(const AbstractJoystickSettings<SettingsType>& settings
-        );
-    };
-
-#elif defined(__3DS__)
-    struct _3DSJoystickGameInput_Type1 : public JoystickGameInput {
-        AbstractJoystickSettings<enum JOYCON> m_settings;
-
-    public:
-        _3DSJoystickGameInput_Type1(
-                JoystickSettings settings,
-                EventDispatcher* event_dispatcher,
-                JoystickInput* underlying_input
-        );
+        virtual ~ConsoleJoystickGameInput();
 
         [[nodiscard]] helper::optional<MenuEvent> get_menu_event(const SDL_Event& event) const override;
 
@@ -271,10 +280,10 @@ namespace input {
     protected:
         [[nodiscard]] helper::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event) const override;
     };
-
+#if !defined(__SWITCH__) && !defined(__3DS__)
+#error "unsupported console"
 #endif
 #endif
-
 } // namespace input
 
 

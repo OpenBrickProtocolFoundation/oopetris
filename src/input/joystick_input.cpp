@@ -200,7 +200,34 @@ input::SwitchJoystickInput_Type1::SwitchJoystickInput_Type1(
         SDL_JoystickID instance_id,
         const std::string& name
 )
-    : JoystickInput{ joystick, instance_id, name } { }
+    : ConsoleJoystickInput{
+          joystick,
+          instance_id,
+          name,
+          //NOTE: this are not all, but atm only those, who can be checked with a SDL_JOYBUTTONDOWN event
+          { { "A", JOYCON_A },
+           { "B", JOYCON_B },
+           { "X", JOYCON_X },
+           { "Y", JOYCON_Y },
+           { "L", JOYCON_L },
+           { "R", JOYCON_R },
+           { "ZL", JOYCON_ZL },
+           { "ZR", JOYCON_ZR },
+           { "PLUS", JOYCON_PLUS },
+           { "MINUS", JOYCON_MINUS },
+           { "DPAD_LEFT", JOYCON_DPAD_LEFT },
+           { "DPAD_UP", JOYCON_DPAD_UP },
+           { "DPAD_RIGHT", JOYCON_DPAD_RIGHT },
+           { "DPAD_DOWN", JOYCON_DPAD_DOWN },
+           { "LDPAD_LEFT", JOYCON_LDPAD_LEFT },
+           { "LDPAD_UP", JOYCON_LDPAD_UP },
+           { "LDPAD_RIGHT", JOYCON_LDPAD_RIGHT },
+           { "LDPAD_DOWN", JOYCON_LDPAD_DOWN },
+           { "RDPAD_LEFT", JOYCON_RDPAD_LEFT },
+           { "RDPAD_UP", JOYCON_RDPAD_UP },
+           { "RDPAD_RIGHT", JOYCON_RDPAD_RIGHT },
+           { "RDPAD_DOWN", JOYCON_RDPAD_DOWN } }
+} { }
 
 
 [[nodiscard]] helper::optional<input::NavigationEvent> input::SwitchJoystickInput_Type1::get_navigation_event(
@@ -266,6 +293,91 @@ input::SwitchJoystickInput_Type1::SwitchJoystickInput_Type1(
         default:
             utils::unreachable();
     }
+}
+
+
+[[nodiscard]] std::string input::SwitchJoystickInput_Type1::key_to_string(console::SettingsType key) const {
+    switch (key) {
+        case JOYCON_A:
+            return "A";
+        case JOYCON_B:
+            return "B";
+        case JOYCON_X:
+            return "X";
+        case JOYCON_Y:
+            return "Y";
+        case JOYCON_L:
+            return "L";
+        case JOYCON_R:
+            return "R";
+        case JOYCON_ZL:
+            return "ZL";
+        case JOYCON_ZR:
+            return "ZR";
+        case JOYCON_PLUS:
+            return "PLUS";
+        case JOYCON_MINUS:
+            return "MINUS";
+        case JOYCON_DPAD_LEFT:
+            return "DPAD_LEFT";
+        case JOYCON_DPAD_UP:
+            return "DPAD_UP";
+        case JOYCON_DPAD_RIGHT:
+            return "DPAD_RIGHT";
+        case JOYCON_DPAD_DOWN:
+            return "DPAD_DOWN";
+        case JOYCON_LDPAD_LEFT:
+            return "LDPAD_LEFT";
+        case JOYCON_LDPAD_UP:
+            return "LDPAD_UP";
+        case JOYCON_LDPAD_RIGHT:
+            return "LDPAD_RIGHT";
+        case JOYCON_LDPAD_DOWN:
+            return "LDPAD_DOWN";
+        case JOYCON_RDPAD_LEFT:
+            return "RDPAD_LEFT";
+        case JOYCON_RDPAD_UP:
+            return "RDPAD_UP";
+        case JOYCON_RDPAD_RIGHT:
+            return "RDPAD_RIGHT";
+        case JOYCON_RDPAD_DOWN:
+            return "RDPAD_DOWN";
+
+
+        default:
+            utils::unreachable();
+    }
+}
+
+[[nodiscard]] input::JoystickSettings input::SwitchJoystickInput_Type1::to_normal_settings(
+        const AbstractJoystickSettings<input::console::SettingsType>& settings
+) const {
+
+    JoystickSettings result{};
+
+#define X_LIST_MACRO(x) SETTINGS_TO_STRING(settings, result, key_to_string, x);
+
+    X_LIST_OF_SETTINGS_KEYS
+
+#undef X_LIST_MACRO
+
+    return result;
+}
+
+[[nodiscard]] input::JoystickSettings input::SwitchJoystickInput_Type1::default_settings() const {
+    const AbstractJoystickSettings<console::SettingsType> settings = //
+            { .identification = JoystickIdentification{},
+              .rotate_left = JOYCON_DPAD_LEFT,
+              .rotate_right = JOYCON_DPAD_RIGHT,
+              .move_left = JOYCON_LDPAD_LEFT,
+              .move_right = JOYCON_LDPAD_RIGHT,
+              .move_down = JOYCON_LDPAD_DOWN,
+              .drop = JOYCON_X,
+              .hold = JOYCON_B,
+              .pause = JOYCON_MINUS,
+              .open_settings = JOYCON_PLUS };
+
+    return to_normal_settings(settings);
 }
 
 
@@ -378,11 +490,11 @@ namespace {
 #if defined(__CONSOLE__)
 #if defined(__SWITCH__)
         if (guid == input::SwitchJoystickInput_Type1::guid) {
-            return std::make_shared<input::SwitchJoystickGameInput_Type1>(settings, event_dispatcher, underlying_input);
+            return std::make_shared<input::ConsoleJoystickGameInput>(settings, event_dispatcher, underlying_input);
         }
 #elif defined(__3DS__)
         if (guid == input::_3DSJoystickInput_Type1::guid) {
-            return std::make_shared<input::_3DSJoystickGameInput_Type1>(settings, event_dispatcher, underlying_input);
+            return std::make_shared<input::ConsoleJoystickGameInput>(settings, event_dispatcher, underlying_input);
         }
 
 #endif
@@ -433,32 +545,39 @@ input::JoystickGameInput::get_game_input_by_settings(
 
 
 #if defined(__CONSOLE__)
-#if defined(__SWITCH__)
 
-input::SwitchJoystickGameInput_Type1::SwitchJoystickGameInput_Type1(
+
+input::ConsoleJoystickInput::ConsoleJoystickInput(
+        SDL_Joystick* joystick,
+        SDL_JoystickID instance_id,
+        const std::string& name,
+        const MappingType<console::SettingsType>& key_mappings
+)
+    : JoystickInput{ joystick, instance_id, name },
+      m_key_mappings{ key_mappings } { }
+
+[[nodiscard]] const input::MappingType<input::console::SettingsType>& input::ConsoleJoystickInput::key_mappings(
+) const {
+    return m_key_mappings;
+}
+
+input::ConsoleJoystickGameInput::ConsoleJoystickGameInput(
         JoystickSettings settings,
         EventDispatcher* event_dispatcher,
         JoystickInput* underlying_input
 )
-    : JoystickGameInput{ event_dispatcher, underlying_input },
-    //NOTE: this are not all, but atm only those, who can be checked with a SDL_JOYBUTTONDOWN event
-    m_key_mappings{
-        {     "A",     JOYCON_A },
-        {     "B",     JOYCON_B },
-        {     "X",     JOYCON_X },
-        {     "Y",     JOYCON_Y },
+    : JoystickGameInput{ event_dispatcher, underlying_input } {
 
-        {     "L",     JOYCON_L },
-        {     "R",     JOYCON_R },
-        {    "ZL",    JOYCON_ZL },
-        {    "ZR",    JOYCON_ZR },
-        {  "PLUS",  JOYCON_PLUS },
-        { "MINUS", JOYCON_MINUS },
+    auto console_input = utils::is_child_class<ConsoleJoystickInput>(underlying_input);
+
+    if (not console_input.has_value()) {
+        throw std::runtime_error("Invalid input received");
     }
-{
 
+    m_underlying_joystick_input = console_input.value();
 
-    auto validate_settings = JoystickGameInput::try_resolve_settings(settings, m_key_mappings);
+    auto validate_settings =
+            JoystickGameInput::try_resolve_settings(settings, m_underlying_joystick_input->key_mappings());
     if (not validate_settings.has_value()) {
         throw std::runtime_error("Invalid settings");
     }
@@ -466,12 +585,11 @@ input::SwitchJoystickGameInput_Type1::SwitchJoystickGameInput_Type1(
     m_settings = validate_settings.value();
 }
 
-input::SwitchJoystickGameInput_Type1::~SwitchJoystickGameInput_Type1() = default;
+input::ConsoleJoystickGameInput::~ConsoleJoystickGameInput() = default;
 
 // game_input uses Input to handle events, but stores the config settings for the specific button
 
-helper::optional<InputEvent> input::SwitchJoystickGameInput_Type1::sdl_event_to_input_event(const SDL_Event& event
-) const {
+helper::optional<InputEvent> input::ConsoleJoystickGameInput::sdl_event_to_input_event(const SDL_Event& event) const {
     if (event.type == SDL_JOYBUTTONDOWN) {
 
         if (event.jbutton.which != m_underlying_input->instance_id()) {
@@ -533,8 +651,7 @@ helper::optional<InputEvent> input::SwitchJoystickGameInput_Type1::sdl_event_to_
     return helper::nullopt;
 }
 
-[[nodiscard]] helper::optional<input::MenuEvent> input::SwitchJoystickGameInput_Type1::get_menu_event(
-        const SDL_Event& event
+[[nodiscard]] helper::optional<input::MenuEvent> input::ConsoleJoystickGameInput::get_menu_event(const SDL_Event& event
 ) const {
 
     if (event.type == SDL_JOYBUTTONDOWN) {
@@ -557,124 +674,16 @@ helper::optional<InputEvent> input::SwitchJoystickGameInput_Type1::sdl_event_to_
 }
 
 
-[[nodiscard]] std::string input::SwitchJoystickGameInput_Type1::describe_menu_event(MenuEvent event) const {
+[[nodiscard]] std::string input::ConsoleJoystickGameInput::describe_menu_event(MenuEvent event) const {
     switch (event) {
         case input::MenuEvent::PAUSE:
-            return key_to_string(m_settings.pause);
+            return m_underlying_joystick_input->key_to_string(m_settings.pause);
         case input::MenuEvent::OPEN_SETTINGS:
-            return key_to_string(m_settings.open_settings);
+            return m_underlying_joystick_input->key_to_string(m_settings.open_settings);
         default:
             utils::unreachable();
     }
 }
-
-[[nodiscard]] std::string input::SwitchJoystickGameInput_Type1::key_to_string(SettingsType key) {
-    switch (key) {
-        case JOYCON_A:
-            return "A";
-        case JOYCON_B:
-            return "B";
-        case JOYCON_X:
-            return "X";
-        case JOYCON_Y:
-            return "Y";
-        case JOYCON_L:
-            return "L";
-        case JOYCON_R:
-            return "R";
-        case JOYCON_ZL:
-            return "ZL";
-        case JOYCON_ZR:
-            return "ZR";
-        case JOYCON_PLUS:
-            return "PLUS";
-        case JOYCON_MINUS:
-            return "MINUS";
-        default:
-            utils::unreachable();
-    }
-}
-
-[[nodiscard]] input::JoystickSettings input::SwitchJoystickGameInput_Type1::to_normal_settings(
-        const AbstractJoystickSettings<SettingsType>& settings
-) {
-
-    JoystickSettings result{};
-
-#define X_LIST_MACRO(x) SETTINGS_TO_STRING(settings, result, key_to_string, x);
-
-    X_LIST_OF_SETTINGS_KEYS
-
-#undef X_LIST_MACRO
-
-    return result;
-}
-
-
-#elif defined(__3DS__)
-
-helper::optional<InputEvent> input::_3DSJoystickGameInput_Type1::sdl_event_to_input_event(const SDL_Event& event
-) const {
-    if (event.type == SDL_JOYBUTTONDOWN) {
-
-        if (event.jbutton.which != m_instance_id) {
-            return helper::nullopt;
-        }
-
-        const auto button = event.jbutton.button;
-        if (button == m_settings.rotate_left) {
-            return InputEvent::RotateLeftPressed;
-        }
-        if (button == m_settings.rotate_right) {
-            return InputEvent::RotateRightPressed;
-        }
-        if (button == m_settings.move_down) {
-            return InputEvent::MoveDownPressed;
-        }
-        if (button == m_settings.move_left) {
-            return InputEvent::MoveLeftPressed;
-        }
-        if (button == m_settings.rotate_right) {
-            return InputEvent::MoveRightPressed;
-        }
-        if (button == m_settings.drop) {
-            return InputEvent::DropPressed;
-        }
-        if (button == m_settings.hold) {
-            return InputEvent::HoldPressed;
-        }
-    } else if (event.type == SDL_JOYBUTTONUP) {
-
-        if (event.jbutton.which != m_instance_id) {
-            return helper::nullopt;
-        }
-
-        const auto button = event.jbutton.button;
-        if (button == m_settings.rotate_left) {
-            return InputEvent::RotateLeftReleased;
-        }
-        if (button == m_settings.rotate_right) {
-            return InputEvent::RotateRightReleased;
-        }
-        if (button == m_settings.move_down) {
-            return InputEvent::MoveDownReleased;
-        }
-        if (button == m_settings.move_left) {
-            return InputEvent::MoveLeftReleased;
-        }
-        if (button == m_settings.rotate_right) {
-            return InputEvent::MoveRightReleased;
-        }
-        if (button == m_settings.drop) {
-            return InputEvent::DropReleased;
-        }
-        if (button == m_settings.hold) {
-            return InputEvent::HoldReleased;
-        }
-    }
-    return helper::nullopt;
-}
-#endif
 
 
 #endif
