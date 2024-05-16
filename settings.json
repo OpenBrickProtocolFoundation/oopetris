@@ -35,6 +35,24 @@
 				}
 			},
 			{
+				"type": "joystick",
+				"identification": {
+					"guid": "00:00:38:f8:53:77:69:74:63:68:20:43:6f:6e:74:00",
+					"name": "Switch Controller"
+				},
+				"drop": "X",
+				"hold": "B",
+				"move_down": "LPAD_DOWN",
+				"move_left": "LPAD_LEFT",
+				"move_right": "LPAD_RIGHT",
+				"rotate_left": "DPAD_LEFT",
+				"rotate_right": "DPAD_RIGHT",
+				"menu": {
+					"pause": "MINUS",
+					"open_settings": "PLUS"
+				}
+			},
+			{
 				"type": "touch",
 				"move_x_threshold": 0.07,
 				"move_y_threshold": 0.37,

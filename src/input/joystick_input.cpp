@@ -376,16 +376,19 @@ input::SwitchJoystickInput_Type1::SwitchJoystickInput_Type1(
 [[nodiscard]] input::AbstractJoystickSettings<input::console::SettingsType>
 input::SwitchJoystickInput_Type1::default_settings_raw() const {
     const AbstractJoystickSettings<console::SettingsType> settings = //
-            { .identification = JoystickIdentification{},
-              .rotate_left = JOYCON_DPAD_LEFT,
-              .rotate_right = JOYCON_DPAD_RIGHT,
-              .move_left = JOYCON_LDPAD_LEFT,
-              .move_right = JOYCON_LDPAD_RIGHT,
-              .move_down = JOYCON_LDPAD_DOWN,
-              .drop = JOYCON_X,
-              .hold = JOYCON_B,
-              .pause = JOYCON_MINUS,
-              .open_settings = JOYCON_PLUS };
+            {
+                .identification =
+                        JoystickIdentification{ .guid = SwitchJoystickInput_Type1::guid, .name = "Switch Controller" },
+                .rotate_left = JOYCON_DPAD_LEFT,
+                .rotate_right = JOYCON_DPAD_RIGHT,
+                .move_left = JOYCON_LDPAD_LEFT,
+                .move_right = JOYCON_LDPAD_RIGHT,
+                .move_down = JOYCON_LDPAD_DOWN,
+                .drop = JOYCON_X,
+                .hold = JOYCON_B,
+                .pause = JOYCON_MINUS,
+                .open_settings = JOYCON_PLUS
+    };
 
     return settings;
 }
@@ -534,16 +537,19 @@ input::_3DSJoystickInput_Type1::_3DSJoystickInput_Type1(
 [[nodiscard]] input::AbstractJoystickSettings<input::console::SettingsType>
 input::_3DSJoystickInput_Type1::default_settings_raw() const {
     const AbstractJoystickSettings<console::SettingsType> settings = //
-            { .identification = JoystickIdentification{},
-              .rotate_left = JOYCON_L,
-              .rotate_right = JOYCON_R,
-              .move_left = JOYCON_DPAD_LEFT,
-              .move_right = JOYCON_DPAD_RIGHT,
-              .move_down = JOYCON_DPAD_DOWN,
-              .drop = JOYCON_X,
-              .hold = JOYCON_B,
-              .pause = JOYCON_START,
-              .open_settings = JOYCON_SELECT };
+            {
+                .identification =
+                        JoystickIdentification{ .guid = _3DSJoystickInput_Type1::guid, .name = "Nintendo 3DS" },
+                .rotate_left = JOYCON_L,
+                .rotate_right = JOYCON_R,
+                .move_left = JOYCON_DPAD_LEFT,
+                .move_right = JOYCON_DPAD_RIGHT,
+                .move_down = JOYCON_DPAD_DOWN,
+                .drop = JOYCON_X,
+                .hold = JOYCON_B,
+                .pause = JOYCON_START,
+                .open_settings = JOYCON_SELECT
+    };
 
     return settings;
 }
