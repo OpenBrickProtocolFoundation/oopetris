@@ -132,6 +132,10 @@ namespace input {
         [[nodiscard]] virtual JoystickSettings to_normal_settings(
                 const AbstractJoystickSettings<console::SettingsType>& settings
         ) const = 0;
+
+        [[nodiscard]] JoystickSettings default_settings() const override;
+
+        [[nodiscard]] virtual AbstractJoystickSettings<console::SettingsType> default_settings_raw() const = 0;
     };
 
 #if defined(__SWITCH__)
@@ -150,7 +154,7 @@ namespace input {
                 const AbstractJoystickSettings<console::SettingsType>& settings
         ) const override;
 
-        [[nodiscard]] JoystickSettings default_settings() const override;
+        [[nodiscard]] AbstractJoystickSettings<console::SettingsType> default_settings_raw() const override;
     };
 
 
@@ -175,7 +179,7 @@ namespace input {
                 const AbstractJoystickSettings<console::SettingsType>& settings
         ) const override;
 
-        [[nodiscard]] JoystickSettings default_settings() const override;
+        [[nodiscard]] AbstractJoystickSettings<console::SettingsType> default_settings_raw() const override;
     };
 
 
@@ -196,13 +200,15 @@ namespace input {
     X_LIST_MACRO(open_settings)
 
 
-#define TRY_CONVERT(original, target, map, key)       \
-    do /*NOLINT(cppcoreguidelines-avoid-do-while)*/ { \
-        if (map.contains(original.key)) {             \
-            target.key = map.at(original.key);        \
-        } else {                                      \
-            return helper::nullopt;                   \
-        }                                             \
+#define TRY_CONVERT(original, target, map, key)                                                               \
+    do /*NOLINT(cppcoreguidelines-avoid-do-while)*/ {                                                         \
+        if (map.contains(original.key)) {                                                                     \
+            target.key = map.at(original.key);                                                                \
+        } else {                                                                                              \
+            return helper::unexpected<std::string>{                                                           \
+                fmt::format("While parsing key '{}': '{}' is not a valid joystick input", #key, original.key) \
+            };                                                                                                \
+        }                                                                                                     \
     } while (false)
 
 
@@ -247,7 +253,7 @@ namespace input {
         [[nodiscard]] virtual helper::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event) const = 0;
 
         template<typename T>
-        [[nodiscard]] static helper::optional<AbstractJoystickSettings<T>>
+        [[nodiscard]] static helper::expected<AbstractJoystickSettings<T>, std::string>
         try_resolve_settings(const JoystickSettings& settings, const MappingType<T>& map) {
 
 

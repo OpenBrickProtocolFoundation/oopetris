@@ -376,7 +376,8 @@ input::SwitchJoystickInput_Type1::SwitchJoystickInput_Type1(
     return result;
 }
 
-[[nodiscard]] input::JoystickSettings input::SwitchJoystickInput_Type1::default_settings() const {
+[[nodiscard]] input::AbstractJoystickSettings<input::console::SettingsType>
+input::SwitchJoystickInput_Type1::default_settings_raw() const {
     const AbstractJoystickSettings<console::SettingsType> settings = //
             { .identification = JoystickIdentification{},
               .rotate_left = JOYCON_DPAD_LEFT,
@@ -389,7 +390,7 @@ input::SwitchJoystickInput_Type1::SwitchJoystickInput_Type1(
               .pause = JOYCON_MINUS,
               .open_settings = JOYCON_PLUS };
 
-    return to_normal_settings(settings);
+    return settings;
 }
 
 
@@ -538,8 +539,8 @@ input::_3DSJoystickInput_Type1::_3DSJoystickInput_Type1(
 
     return result;
 }
-
-[[nodiscard]] input::JoystickSettings input::_3DSJoystickInput_Type1::default_settings() const {
+[[nodiscard]] input::AbstractJoystickSettings<input::console::SettingsType>
+input::_3DSJoystickInput_Type1::default_settings_raw() const {
     const AbstractJoystickSettings<console::SettingsType> settings = //
             { .identification = JoystickIdentification{},
               .rotate_left = JOYCON_L,
@@ -552,7 +553,7 @@ input::_3DSJoystickInput_Type1::_3DSJoystickInput_Type1(
               .pause = JOYCON_START,
               .open_settings = JOYCON_SELECT };
 
-    return to_normal_settings(settings);
+    return settings;
 }
 
 
@@ -594,7 +595,6 @@ namespace {
         if (guid == input::_3DSJoystickInput_Type1::guid) {
             return std::make_shared<input::ConsoleJoystickGameInput>(settings, event_dispatcher, underlying_input);
         }
-
 #endif
 #endif
 
@@ -659,6 +659,10 @@ input::ConsoleJoystickInput::ConsoleJoystickInput(
     return m_key_mappings;
 }
 
+[[nodiscard]] input::JoystickSettings input::ConsoleJoystickInput::default_settings() const {
+    return to_normal_settings(default_settings_raw());
+}
+
 input::ConsoleJoystickGameInput::ConsoleJoystickGameInput(
         JoystickSettings settings,
         EventDispatcher* event_dispatcher,
@@ -676,11 +680,15 @@ input::ConsoleJoystickGameInput::ConsoleJoystickGameInput(
 
     auto validate_settings =
             JoystickGameInput::try_resolve_settings(settings, m_underlying_joystick_input->key_mappings());
-    if (not validate_settings.has_value()) {
-        throw std::runtime_error("Invalid settings");
-    }
+    if (validate_settings.has_value()) {
+        m_settings = validate_settings.value();
+    } else {
 
-    m_settings = validate_settings.value();
+        spdlog::warn("Invalid settings: {}", validate_settings.error());
+        spdlog::warn("using default settings");
+
+        m_settings = m_underlying_joystick_input->default_settings_raw();
+    }
 }
 
 input::ConsoleJoystickGameInput::~ConsoleJoystickGameInput() = default;
@@ -708,7 +716,7 @@ helper::optional<InputEvent> input::ConsoleJoystickGameInput::sdl_event_to_input
         if (button == m_settings.move_left) {
             return InputEvent::MoveLeftPressed;
         }
-        if (button == m_settings.rotate_right) {
+        if (button == m_settings.move_right) {
             return InputEvent::MoveRightPressed;
         }
         if (button == m_settings.drop) {
@@ -736,7 +744,7 @@ helper::optional<InputEvent> input::ConsoleJoystickGameInput::sdl_event_to_input
         if (button == m_settings.move_left) {
             return InputEvent::MoveLeftReleased;
         }
-        if (button == m_settings.rotate_right) {
+        if (button == m_settings.move_right) {
             return InputEvent::MoveRightReleased;
         }
         if (button == m_settings.drop) {
