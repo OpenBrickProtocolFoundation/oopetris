@@ -152,7 +152,7 @@ input::InputManager::InputManager(const std::shared_ptr<Window>& window) {
 namespace {
 #if defined(__ANDROID__)
     using PrimaryInputType = input::TouchInput;
-    using PrimaryGameInputType = input::TouchGTouchGameInput;
+    using PrimaryGameInputType = input::TouchGameInput;
 #elif defined(__CONSOLE__)
     using PrimaryInputType = input::JoystickInput;
     using PrimaryGameInputType = input::JoystickGameInput;
