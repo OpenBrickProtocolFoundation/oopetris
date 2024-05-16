@@ -150,13 +150,15 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
     export BUILD_DIR="build-$ARM_TARGET_ARCH"
 
-    export CC=$ARM_TOOL_TRIPLE-clang
-    export CXX=$ARM_TOOL_TRIPLE-clang++
-    export LD=llvm-ld
-    export AS=llvm-as
-    export AR=llvm-ar
-    export RANLIB=llvm-ranlib
-    export STRIP=llvm-strip
+    export CC="$ARM_TOOL_TRIPLE-clang"
+    export CXX="$ARM_TOOL_TRIPLE-clang++"
+    export LD="llvm-ld"
+    export AS="llvm-as"
+    export AR="llvm-ar"
+    export RANLIB="llvm-ranlib"
+    export STRIP="llvm-strip"
+    export OBJCOPY="llvm-objcop"
+    export LLVM_CONFIG="llvm-config"
     unset PKG_CONFIG
 
     ## BUILD dependencies not buildable with meson (to complicated to port)
@@ -300,16 +302,17 @@ android_ndk = '$BIN_DIR'
 toolchain = '$BIN_DIR/$ARM_TRIPLE'
 
 [binaries]
-c = '$ARM_TOOL_TRIPLE-clang'
-cpp = '$ARM_TOOL_TRIPLE-clang++'
-ar      = 'llvm-ar'
-as      = 'llvm-as'
-ranlib  = 'llvm-ranlib'
-ld      = 'llvm-link'
-strip   = 'llvm-strip'
-objcopy = 'llvm-objcop'
+c = '$CC'
+cpp = '$CXX'
+c_ld = 'lld'
+cpp_ld = 'lld'
+ar      = '$AR'
+as      = '$AS'
+ranlib  = '$RANLIB'
+strip   = '$STRIP'
+objcopy = '$OBJCOPY'
 pkg-config = 'false'
-llvm-config = 'llvm-config'
+llvm-config = '$LLVM_CONFIG'
 
 [built-in options]
 c_std = 'gnu11'
