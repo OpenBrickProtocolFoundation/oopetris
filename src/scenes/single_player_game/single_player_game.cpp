@@ -104,8 +104,10 @@ namespace scenes {
         m_game->render(service_provider);
     }
 
-    [[nodiscard]] bool
-    SinglePlayerGame::handle_event(const std::shared_ptr<input::InputManager>&, const SDL_Event& event) {
+    [[nodiscard]] bool SinglePlayerGame::handle_event(
+            const std::shared_ptr<input::InputManager>& /*input_manager*/,
+            const SDL_Event& event
+    ) {
 
         const auto& game_input = m_game->game_input();
 

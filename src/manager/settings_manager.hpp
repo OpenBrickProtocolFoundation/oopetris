@@ -14,34 +14,39 @@ using Controls = std::variant<input::KeyboardSettings, input::JoystickSettings, 
 namespace nlohmann {
     template<>
     struct adl_serializer<Controls> {
-        static Controls from_json(const json& j) {
-            const auto& type = j.at("type");
+        static Controls from_json(const json& obj) {
+            const auto& type = obj.at("type");
 
             if (type == "keyboard") {
-                return Controls{ nlohmann::adl_serializer<input::KeyboardSettings>::from_json(j) };
-            } else if (type == "joystick") {
-                return Controls{ nlohmann::adl_serializer<input::JoystickSettings>::from_json(j) };
-            } else if (type == "touch") {
-                return Controls{ nlohmann::adl_serializer<input::TouchSettings>::from_json(j) };
-            } else {
-                throw std::runtime_error{ fmt::format("unsupported control type '{}'", to_string(type)) };
+                return Controls{ nlohmann::adl_serializer<input::KeyboardSettings>::from_json(obj) };
             }
+
+            if (type == "joystick") {
+                return Controls{ nlohmann::adl_serializer<input::JoystickSettings>::from_json(obj) };
+            }
+
+            if (type == "touch") {
+                return Controls{ nlohmann::adl_serializer<input::TouchSettings>::from_json(obj) };
+            }
+
+            throw std::runtime_error{ fmt::format("unsupported control type '{}'", to_string(type)) };
         }
 
-        static void to_json(json& j, Controls controls) {
+        static void to_json(json& obj, Controls controls) { // NOLINT(misc-no-recursion)
             std::visit(
-                    helper::overloaded{ [&](const input::KeyboardSettings& keyboard_settings) {
-                                           to_json(j, keyboard_settings);
-                                           j["type"] = "keyboard";
-                                       },
-                                        [&](const input::JoystickSettings& joystick_settings) {
-                                            to_json(j, joystick_settings);
-                                            j["type"] = "joystick";
-                                        },
-                                        [&](const input::TouchSettings& touch_settings) {
-                                            to_json(j, touch_settings);
-                                            j["type"] = "touch";
-                                        } },
+                    helper::overloaded{
+                            [&](const input::KeyboardSettings& keyboard_settings) { // NOLINT(misc-no-recursion)
+                                to_json(obj, keyboard_settings);
+                                obj["type"] = "keyboard";
+                            },
+                            [&](const input::JoystickSettings& joystick_settings) { // NOLINT(misc-no-recursion)
+                                to_json(obj, joystick_settings);
+                                obj["type"] = "joystick";
+                            },
+                            [&](const input::TouchSettings& touch_settings) { // NOLINT(misc-no-recursion)
+                                to_json(obj, touch_settings);
+                                obj["type"] = "touch";
+                            } },
                     controls
             );
         }
