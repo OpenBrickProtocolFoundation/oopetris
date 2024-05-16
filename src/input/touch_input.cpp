@@ -28,10 +28,10 @@ void input::TouchGameInput::update(SimulationStep simulation_step_index) {
 
 helper::optional<InputEvent> input::TouchGameInput::sdl_event_to_input_event(const SDL_Event& event) {
 
-    //TODO(Totto): fix this
-    /*   if (event.tfinger.touchId != m_id) {
+
+    if (event.tfinger.touchId != m_underlying_input->m_id) {
         return helper::nullopt;
-    } */
+    }
 
     //TODO(Totto): to handle those things better, holding has to be supported
 

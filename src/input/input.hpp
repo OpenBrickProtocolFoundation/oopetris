@@ -98,7 +98,9 @@ namespace input {
 
         [[nodiscard]] helper::BoolWrapper<SpecialRequest> process_special_inputs(const SDL_Event& event);
 
-        [[nodiscard]] std::shared_ptr<input::GameInput> get_game_input(ServiceProvider* service_provider);
+        [[nodiscard]] helper::optional<std::shared_ptr<input::GameInput>> get_game_input(
+                ServiceProvider* service_provider
+        );
 
         [[nodiscard]] const std::unique_ptr<input::Input>& get_primary_input();
     };

@@ -4,10 +4,10 @@
 #include "helper/expected.hpp"
 #include "helper/optional.hpp"
 #include "helper/utils.hpp"
-#include "input/console_buttons.hpp"
 #include "input/game_input.hpp"
 #include "input/input.hpp"
 
+#include <exception>
 #include <spdlog/spdlog.h>
 
 
@@ -173,6 +173,8 @@ void input::JoyStickInputManager::discover_devices(std::vector<std::unique_ptr<I
                     joystick_input.has_value()) {
 
                     if (joystick_input.value()->instance_id() == instance_id) {
+                        //TODO(Totto): if we use this joystick as game input we have to notify the user about it,and pause the game, until he is inserted again
+
                         inputs.erase(it);
                         return true;
                     }
@@ -364,93 +366,167 @@ void input::JoystickGameInput::update(SimulationStep simulation_step_index) {
 }
 
 
-[[nodiscard]] helper::optional<std::shared_ptr<input::JoystickGameInput>>
+namespace {
+
+    [[nodiscard]] helper::optional<std::shared_ptr<input::JoystickGameInput>> get_game_joystick_by_guid(
+            const SDL::GUID& guid,
+            const input::JoystickSettings& settings,
+            EventDispatcher* event_dispatcher,
+            input::JoystickInput* underlying_input
+
+    ) {
+#if defined(__CONSOLE__)
+#if defined(__SWITCH__)
+        if (guid == input::SwitchJoystickInput_Type1::guid) {
+            return std::make_shared<input::SwitchJoystickGameInput_Type1>(settings, event_dispatcher, underlying_input);
+        }
+#elif defined(__3DS__)
+        if (guid == input::_3DSJoystickInput_Type1::guid) {
+            return std::make_shared<input::_3DSJoystickGameInput_Type1>(settings, event_dispatcher, underlying_input);
+        }
+
+#endif
+#endif
+
+        UNUSED(guid);
+        UNUSED(settings);
+        UNUSED(event_dispatcher);
+        UNUSED(underlying_input);
+
+        return helper::nullopt;
+    }
+
+
+} // namespace
+
+[[nodiscard]] helper::expected<std::shared_ptr<input::JoystickGameInput>, std::string>
 input::JoystickGameInput::get_game_input_by_settings(
         const input::InputManager& input_manager,
         EventDispatcher* event_dispatcher,
         const JoystickSettings& settings
 ) {
 
-    //TODO(Totto): filter all input_manager.inputs() by guid, than try to get them in order, by trying to convert the settings validate them and create the game input
 
-    //TODO(Totto): set up: that on removal of the joystick_input pause is pressed and either a new gam,einput is created or waited until he reconnects!
+    for (const auto& input : input_manager.inputs()) {
+        if (const auto joystick_input = utils::is_child_class<input::JoystickInput>(input);
+            joystick_input.has_value()) {
 
+            try {
+                auto result = get_game_joystick_by_guid(
+                        settings.identification.guid, settings, event_dispatcher, joystick_input.value()
+                );
 
-    UNUSED(input_manager);
-    UNUSED(settings);
-    UNUSED(event_dispatcher);
-    UNUSED(settings);
+                if (result.has_value()) {
+                    return result.value();
+                }
 
-    return helper::nullopt;
+            } catch (const std::exception& exception) {
+                spdlog::warn("Couldn't construct JoystickGameInput: {}", exception.what());
+            }
+        }
+    }
+
+    return helper::unexpected<std::string>{
+        fmt::format("No JoystickGameInput candidate for the GUID: {}", settings.identification.guid.to_string())
+    };
 }
 
 
 #if defined(__CONSOLE__)
 #if defined(__SWITCH__)
 
+input::SwitchJoystickGameInput_Type1::SwitchJoystickGameInput_Type1(
+        JoystickSettings settings,
+        EventDispatcher* event_dispatcher,
+        JoystickInput* underlying_input
+)
+    : JoystickGameInput{ event_dispatcher, underlying_input } {
+
+    //TODO(Totto): make this static in some way
+    //NOTE: this are not all, but atm only those, who can be checked with a SDL_JOYBUTTONDOWN event
+    const MappingType<SettingsType> key_mappings{
+
+        {     "A",     JOYCON_A },
+        {     "B",     JOYCON_B },
+        {     "X",     JOYCON_X },
+        {     "Y",     JOYCON_Y },
+
+        {     "L",     JOYCON_L },
+        {     "R",     JOYCON_R },
+        {    "ZL",    JOYCON_ZL },
+        {    "ZR",    JOYCON_ZR },
+        {  "PLUS",  JOYCON_PLUS },
+        { "MINUS", JOYCON_MINUS },
+    };
+
+    auto validate_settings = JoystickGameInput::try_resolve_settings(settings, key_mappings);
+    if (not validate_settings.has_value()) {
+        throw std::runtime_error("Invalid settings");
+    }
+
+    m_settings = validate_settings.value();
+}
+
 
 // game_input uses Input to handle events, but stores the config settings for the specific button
 
-//TODO: use settings
 helper::optional<InputEvent> input::SwitchJoystickGameInput_Type1::sdl_event_to_input_event(const SDL_Event& event
 ) const {
     if (event.type == SDL_JOYBUTTONDOWN) {
 
-        //TODO
-        /* if (event.jbutton.which != m_instance_id) {
+        if (event.jbutton.which != m_underlying_input->instance_id()) {
             return helper::nullopt;
-        } */
+        }
 
         //TODO: use switch case
         const auto button = event.jbutton.button;
-        if (button == JOYCON_DPAD_LEFT) {
+        if (button == m_settings.rotate_left) {
             return InputEvent::RotateLeftPressed;
         }
-        if (button == JOYCON_DPAD_RIGHT) {
+        if (button == m_settings.rotate_right) {
             return InputEvent::RotateRightPressed;
         }
-        if (button == JOYCON_LDPAD_DOWN or button == JOYCON_RDPAD_DOWN) {
+        if (button == m_settings.move_down) {
             return InputEvent::MoveDownPressed;
         }
-        if (button == JOYCON_LDPAD_LEFT or button == JOYCON_RDPAD_LEFT) {
+        if (button == m_settings.move_left) {
             return InputEvent::MoveLeftPressed;
         }
-        if (button == JOYCON_LDPAD_RIGHT or button == JOYCON_RDPAD_RIGHT) {
+        if (button == m_settings.rotate_right) {
             return InputEvent::MoveRightPressed;
         }
-        if (button == JOYCON_X) {
+        if (button == m_settings.drop) {
             return InputEvent::DropPressed;
         }
-        if (button == JOYCON_B) {
+        if (button == m_settings.hold) {
             return InputEvent::HoldPressed;
         }
     } else if (event.type == SDL_JOYBUTTONUP) {
 
-        //TODO
-        /*  if (event.jbutton.which != m_instance_id) {
+        if (event.jbutton.which != m_underlying_input->instance_id()) {
             return helper::nullopt;
-        } */
+        }
 
         const auto button = event.jbutton.button;
-        if (button == JOYCON_DPAD_LEFT) {
+        if (button == m_settings.rotate_left) {
             return InputEvent::RotateLeftReleased;
         }
-        if (button == JOYCON_DPAD_RIGHT) {
+        if (button == m_settings.rotate_right) {
             return InputEvent::RotateRightReleased;
         }
-        if (button == JOYCON_LDPAD_DOWN or button == JOYCON_RDPAD_DOWN) {
+        if (button == m_settings.move_down) {
             return InputEvent::MoveDownReleased;
         }
-        if (button == JOYCON_LDPAD_LEFT or button == JOYCON_RDPAD_LEFT) {
+        if (button == m_settings.move_left) {
             return InputEvent::MoveLeftReleased;
         }
-        if (button == JOYCON_LDPAD_RIGHT or button == JOYCON_RDPAD_RIGHT) {
+        if (button == m_settings.rotate_right) {
             return InputEvent::MoveRightReleased;
         }
-        if (button == JOYCON_X) {
+        if (button == m_settings.drop) {
             return InputEvent::DropReleased;
         }
-        if (button == JOYCON_B) {
+        if (button == m_settings.hold) {
             return InputEvent::HoldReleased;
         }
     }
@@ -458,65 +534,62 @@ helper::optional<InputEvent> input::SwitchJoystickGameInput_Type1::sdl_event_to_
 }
 #elif defined(__3DS__)
 
-//TODO: use settings
 helper::optional<InputEvent> input::_3DSJoystickGameInput_Type1::sdl_event_to_input_event(const SDL_Event& event
 ) const {
     if (event.type == SDL_JOYBUTTONDOWN) {
 
-        //TODO:
-        /*   if (event.jbutton.which != m_instance_id) {
+        if (event.jbutton.which != m_instance_id) {
             return helper::nullopt;
-        } */
+        }
 
         const auto button = event.jbutton.button;
-        if (button == JOYCON_L) {
+        if (button == m_settings.rotate_left) {
             return InputEvent::RotateLeftPressed;
         }
-        if (button == JOYCON_R) {
+        if (button == m_settings.rotate_right) {
             return InputEvent::RotateRightPressed;
         }
-        if (button == JOYCON_DPAD_DOWN or button == JOYCON_CSTICK_DOWN) {
+        if (button == m_settings.move_down) {
             return InputEvent::MoveDownPressed;
         }
-        if (button == JOYCON_DPAD_LEFT or button == JOYCON_CSTICK_LEFT) {
+        if (button == m_settings.move_left) {
             return InputEvent::MoveLeftPressed;
         }
-        if (button == JOYCON_DPAD_RIGHT or button == JOYCON_CSTICK_RIGHT) {
+        if (button == m_settings.rotate_right) {
             return InputEvent::MoveRightPressed;
         }
-        if (button == JOYCON_A) {
+        if (button == m_settings.drop) {
             return InputEvent::DropPressed;
         }
-        if (button == JOYCON_B) {
+        if (button == m_settings.hold) {
             return InputEvent::HoldPressed;
         }
     } else if (event.type == SDL_JOYBUTTONUP) {
 
-        //TODO:
-        /* if (event.jbutton.which != m_instance_id) {
+        if (event.jbutton.which != m_instance_id) {
             return helper::nullopt;
-        } */
+        }
 
         const auto button = event.jbutton.button;
-        if (button == JOYCON_L) {
+        if (button == m_settings.rotate_left) {
             return InputEvent::RotateLeftReleased;
         }
-        if (button == JOYCON_R) {
+        if (button == m_settings.rotate_right) {
             return InputEvent::RotateRightReleased;
         }
-        if (button == JOYCON_DPAD_DOWN or button == JOYCON_CSTICK_DOWN) {
+        if (button == m_settings.move_down) {
             return InputEvent::MoveDownReleased;
         }
-        if (button == JOYCON_DPAD_LEFT or button == JOYCON_CSTICK_LEFT) {
+        if (button == m_settings.move_left) {
             return InputEvent::MoveLeftReleased;
         }
-        if (button == JOYCON_DPAD_RIGHT or button == JOYCON_CSTICK_RIGHT) {
+        if (button == m_settings.rotate_right) {
             return InputEvent::MoveRightReleased;
         }
-        if (button == JOYCON_A) {
+        if (button == m_settings.drop) {
             return InputEvent::DropReleased;
         }
-        if (button == JOYCON_B) {
+        if (button == m_settings.hold) {
             return InputEvent::HoldReleased;
         }
     }

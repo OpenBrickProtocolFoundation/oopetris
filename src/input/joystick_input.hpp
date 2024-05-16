@@ -5,12 +5,14 @@
 #include "helper/expected.hpp"
 #include "helper/parse_json.hpp"
 #include "input.hpp"
+#include "input/console_buttons.hpp"
 #include "input/game_input.hpp"
 #include "manager/event_dispatcher.hpp"
 
 #include <SDL.h>
 #include <fmt/format.h>
 #include <string>
+#include <unordered_map>
 
 namespace input {
 
@@ -62,7 +64,6 @@ namespace input {
     // essentially a GUID
     struct JoystickIdentification {
         SDL::GUID guid;
-
 
         static helper::expected<JoystickIdentification, std::string> from_string(const std::string& value);
     };
@@ -134,16 +135,35 @@ namespace input {
 
 #endif
 
+#define TRY_CONVERT(original, target, map, key)       \
+    do /*NOLINT(cppcoreguidelines-avoid-do-while)*/ { \
+        if (map.contains(original.key)) {             \
+            target.key = map.at(original.key);        \
+        } else {                                      \
+            return helper::nullopt;                   \
+        }                                             \
+    } while (false)
+
+
+#define SETTINGS_TO_STRING(original, target, map, key) \
+    do /*NOLINT(cppcoreguidelines-avoid-do-while)*/ {  \
+        (target).key = map.at((original).key);         \
+    } while (false)
+
 
     struct JoystickGameInput : public GameInput, public EventListener {
     private:
         std::vector<SDL_Event> m_event_buffer;
         EventDispatcher* m_event_dispatcher;
 
+    protected:
+        JoystickInput* m_underlying_input;
+
     public:
-        JoystickGameInput(EventDispatcher* event_dispatcher)
+        JoystickGameInput(EventDispatcher* event_dispatcher, JoystickInput* underlying_input)
             : GameInput{ GameInputType::Controller },
-              m_event_dispatcher{ event_dispatcher } {
+              m_event_dispatcher{ event_dispatcher },
+              m_underlying_input{ underlying_input } {
             m_event_dispatcher->register_listener(this);
         }
 
@@ -155,7 +175,8 @@ namespace input {
 
         void update(SimulationStep simulation_step_index) override;
 
-        [[nodiscard]] static helper::optional<std::shared_ptr<JoystickGameInput>> get_game_input_by_settings(
+        [[nodiscard]] static helper::expected<std::shared_ptr<input::JoystickGameInput>, std::string>
+        get_game_input_by_settings(
                 const input::InputManager& input_manager,
                 EventDispatcher* event_dispatcher,
                 const JoystickSettings& settings
@@ -163,6 +184,58 @@ namespace input {
 
     protected:
         [[nodiscard]] virtual helper::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event) const = 0;
+
+        template<typename T>
+        using MappingType = std::unordered_map<std::string, T>;
+
+        template<typename T>
+        [[nodiscard]] static helper::optional<AbstractJoystickSettings<T>>
+        try_resolve_settings(const JoystickSettings& settings, const MappingType<T>& map) {
+
+
+            AbstractJoystickSettings<T> result{};
+
+            TRY_CONVERT(settings, result, map, rotate_left);
+            TRY_CONVERT(settings, result, map, rotate_right);
+            TRY_CONVERT(settings, result, map, move_left);
+            TRY_CONVERT(settings, result, map, move_right);
+            TRY_CONVERT(settings, result, map, move_down);
+
+            TRY_CONVERT(settings, result, map, drop);
+            TRY_CONVERT(settings, result, map, hold);
+
+            TRY_CONVERT(settings, result, map, pause);
+            TRY_CONVERT(settings, result, map, open_settings);
+
+            return result;
+        }
+
+        template<typename T>
+        [[nodiscard]] static JoystickSettings
+        to_normal_settings(const AbstractJoystickSettings<T>& settings, const MappingType<T>& original_map) {
+
+            std::unordered_map<T, std::string> map{};
+
+            for (const auto& [key, value] : original_map) {
+                map.insert_or_assign(value, key);
+            }
+
+            JoystickSettings result{};
+
+            SETTINGS_TO_STRING(settings, result, map, rotate_left);
+            SETTINGS_TO_STRING(settings, result, map, rotate_right);
+            SETTINGS_TO_STRING(settings, result, map, move_left);
+            SETTINGS_TO_STRING(settings, result, map, move_right);
+            SETTINGS_TO_STRING(settings, result, map, move_down);
+
+            SETTINGS_TO_STRING(settings, result, map, drop);
+            SETTINGS_TO_STRING(settings, result, map, hold);
+
+            SETTINGS_TO_STRING(settings, result, map, pause);
+            SETTINGS_TO_STRING(settings, result, map, open_settings);
+
+            return result;
+        }
     };
 
 
@@ -170,10 +243,17 @@ namespace input {
 #if defined(__SWITCH__)
 
     struct SwitchJoystickGameInput_Type1 : public JoystickGameInput {
-        //TODO: reference JoystickInput
+    private:
+        using SettingsType = enum JOYCON;
+        AbstractJoystickSettings<SettingsType> m_settings;
+
 
     public:
-        SwitchJoystickGameInput_Type1(JoystickSettings settings, EventDispatcher* event_dispatcher);
+        SwitchJoystickGameInput_Type1(
+                JoystickSettings settings,
+                EventDispatcher* event_dispatcher,
+                JoystickInput* underlying_input
+        );
 
         [[nodiscard]] helper::optional<MenuEvent> get_menu_event(const SDL_Event& event) const override;
 
@@ -185,9 +265,14 @@ namespace input {
 
 #elif defined(__3DS__)
     struct _3DSJoystickGameInput_Type1 : public JoystickGameInput {
+        AbstractJoystickSettings<enum JOYCON> m_settings;
 
     public:
-        _3DSJoystickGameInput_Type1(JoystickSettings settings, EventDispatcher* event_dispatcher);
+        _3DSJoystickGameInput_Type1(
+                JoystickSettings settings,
+                EventDispatcher* event_dispatcher,
+                JoystickInput* underlying_input
+        );
 
         [[nodiscard]] helper::optional<MenuEvent> get_menu_event(const SDL_Event& event) const override;
 
@@ -244,25 +329,25 @@ namespace nlohmann {
 
     template<>
     struct adl_serializer<input::JoystickSettings> {
-        static input::JoystickSettings from_json(const json& j) {
+        static input::JoystickSettings from_json(const json& obj) {
 
             ::json::check_for_no_additional_keys(
-                    j, { "type", "identification", "rotate_left", "rotate_right", "move_left", "move_right",
-                         "move_down", "drop", "hold", "menu" }
+                    obj, { "type", "identification", "rotate_left", "rotate_right", "move_left", "move_right",
+                           "move_down", "drop", "hold", "menu" }
             );
 
             input::JoystickIdentification identification =
-                    adl_serializer<input::JoystickIdentification>::from_json(j.at("identification"));
+                    adl_serializer<input::JoystickIdentification>::from_json(obj.at("identification"));
 
-            const auto rotate_left = json_helper::get_key_from_object(j, "rotate_left");
-            const auto rotate_right = json_helper::get_key_from_object(j, "rotate_right");
-            const auto move_left = json_helper::get_key_from_object(j, "move_left");
-            const auto move_right = json_helper::get_key_from_object(j, "move_right");
-            const auto move_down = json_helper::get_key_from_object(j, "move_down");
-            const auto drop = json_helper::get_key_from_object(j, "drop");
-            const auto hold = json_helper::get_key_from_object(j, "hold");
+            const auto rotate_left = json_helper::get_key_from_object(obj, "rotate_left");
+            const auto rotate_right = json_helper::get_key_from_object(obj, "rotate_right");
+            const auto move_left = json_helper::get_key_from_object(obj, "move_left");
+            const auto move_right = json_helper::get_key_from_object(obj, "move_right");
+            const auto move_down = json_helper::get_key_from_object(obj, "move_down");
+            const auto drop = json_helper::get_key_from_object(obj, "drop");
+            const auto hold = json_helper::get_key_from_object(obj, "hold");
 
-            const auto& menu = j.at("menu");
+            const auto& menu = obj.at("menu");
 
             ::json::check_for_no_additional_keys(menu, { "pause", "open_settings" });
 
@@ -288,12 +373,12 @@ namespace nlohmann {
             return settings;
         }
 
-        static void to_json(json& j, const input::JoystickSettings& settings) {
+        static void to_json(json& obj, const input::JoystickSettings& settings) {
 
             auto identification = nlohmann::json{};
             adl_serializer<input::JoystickIdentification>::to_json(identification, settings.identification);
 
-            j = nlohmann::json{
+            obj = nlohmann::json{
                 { "identification", identification },
                 { "rotate_left", settings.rotate_left },
                 { "rotate_right", settings.rotate_right },

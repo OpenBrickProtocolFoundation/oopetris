@@ -4,6 +4,7 @@
 #include "helper/command_line_arguments.hpp"
 #include "helper/date.hpp"
 #include "helper/errors.hpp"
+#include "helper/optional.hpp"
 #include "input.hpp"
 #include "input/replay_input.hpp"
 
@@ -88,13 +89,16 @@ namespace {
 }
 
 
-[[nodiscard]] input::AdditionalInfo input::get_single_player_game_parameters(
+[[nodiscard]] helper::optional<input::AdditionalInfo> input::get_single_player_game_parameters(
         ServiceProvider* const service_provider,
         recorder::AdditionalInformation&& information,
         const date::ISO8601Date& date
 ) {
 
     auto input = service_provider->input_manager().get_game_input(service_provider);
+    if (not input.has_value()) {
+        return helper::nullopt;
+    }
 
     const auto starting_level = service_provider->command_line_arguments().starting_level;
 
@@ -104,7 +108,7 @@ namespace {
 
     const tetrion::StartingParameters starting_parameters = { target_fps, seed, starting_level, 0 };
 
-    AdditionalInfo result{ input, starting_parameters };
+    AdditionalInfo result{ input.value(), starting_parameters };
 
 
     auto tetrion_header = create_tetrion_headers_for_one(result);

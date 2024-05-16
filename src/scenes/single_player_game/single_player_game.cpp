@@ -1,5 +1,6 @@
 #include "single_player_game.hpp"
 #include "helper/date.hpp"
+#include "helper/errors.hpp"
 #include "helper/music_utils.hpp"
 #include "helper/platform.hpp"
 #include "input/game_input.hpp"
@@ -23,8 +24,16 @@ namespace scenes {
         //TODO: add more information, if logged in
 
 
-        auto [input, starting_parameters] =
+        auto result =
                 input::get_single_player_game_parameters(service_provider, std::move(additional_information), date);
+
+        if (not result.has_value()) {
+            throw helper::MajorError(
+                    "No suitable input was configured, go into the settings to select a suitable input! "
+            );
+        }
+
+        auto [input, starting_parameters] = result.value();
 
         m_game = std::make_unique<Game>(service_provider, std::move(input), starting_parameters, layout, true);
 

@@ -1,4 +1,6 @@
 #include "input.hpp"
+#include "helper/expected.hpp"
+#include "helper/optional.hpp"
 #include "helper/utils.hpp"
 #include "joystick_input.hpp"
 #include "keyboard_input.hpp"
@@ -11,6 +13,7 @@
 #include <memory>
 #include <spdlog/spdlog.h>
 #include <stdexcept>
+#include <string>
 
 
 input::Input::Input(std::string name, InputType type) : m_name{ std::move(name) }, m_type{ type } { }
@@ -146,66 +149,101 @@ input::InputManager::InputManager(const std::shared_ptr<Window>& window) {
     return false;
 }
 
+namespace {
+#if defined(__ANDROID__)
+    using PrimaryInputType = input::TouchInput;
+    using PrimaryGameInputType = input::TouchGTouchGameInput;
+#elif defined(__CONSOLE__)
+    using PrimaryInputType = input::JoystickInput;
+    using PrimaryGameInputType = input::JoystickGameInput;
+#else
+    using PrimaryInputType = input::KeyboardInput;
+    using PrimaryGameInputType = input::KeyboardGameInput;
+#endif
+} // namespace
+
+
 //TODO(Totto): improve this API, to correctly use settings to determine the input to use.
-[[nodiscard]] std::shared_ptr<input::GameInput> input::InputManager::get_game_input(ServiceProvider* service_provider) {
+[[nodiscard]] helper::optional<std::shared_ptr<input::GameInput>> input::InputManager::get_game_input(
+        ServiceProvider* service_provider
+) {
 
     //TODO(TODO): use smart pointer for the event dispatcher
 
 
-    //TODO(Totto): select the first suitable, by using the primary input method or some other settings!
+    using ReturnType = helper::expected<std::shared_ptr<GameInput>, std::string>;
+
+    // TODO(Totto): use primary input only, if there is no setting, on what to use, add setting for what to use!
+
+    std::vector<std::shared_ptr<input::GameInput>> game_inputs{};
+
     for (const auto& control : service_provider->settings_manager().settings().controls) {
 
-        return std::visit(
-                helper::overloaded{ [service_provider](const input::KeyboardSettings& keyboard_settings
-                                    ) mutable -> std::shared_ptr<GameInput> {
-                                       auto* const event_dispatcher = &(service_provider->event_dispatcher());
-                                       auto input = std::make_shared<input::KeyboardGameInput>(
-                                               keyboard_settings, event_dispatcher
-                                       );
-                                       return input;
-                                   },
-                                    [service_provider](const input::JoystickSettings& joystick_settings
-                                    ) mutable -> std::shared_ptr<GameInput> {
-                                        auto* const event_dispatcher = &(service_provider->event_dispatcher());
-                                        auto input = input::JoystickGameInput::get_game_input_by_settings(
-                                                service_provider->input_manager(), event_dispatcher, joystick_settings
-                                        );
+        auto input = std::visit(
+                helper::overloaded{
+                        [service_provider](const input::KeyboardSettings& keyboard_settings) mutable -> ReturnType {
+                            auto* const event_dispatcher = &(service_provider->event_dispatcher());
+                            auto input =
+                                    std::make_shared<input::KeyboardGameInput>(keyboard_settings, event_dispatcher);
+                            return input;
+                        },
+                        [service_provider](const input::JoystickSettings& joystick_settings) mutable -> ReturnType {
+                            auto* const event_dispatcher = &(service_provider->event_dispatcher());
+                            auto input = input::JoystickGameInput::get_game_input_by_settings(
+                                    service_provider->input_manager(), event_dispatcher, joystick_settings
+                            );
 
-                                        //TODO(Totto): better error handling, if this fails look forward in the
-                                        if (not input.has_value()) {
-                                            throw std::runtime_error("Not possible to get joystick by settings");
-                                        }
+                            if (not input.has_value()) {
+                                return helper::unexpected<std::string>{
+                                    fmt::format("Not possible to get joystick by settings: {}", input.error())
+                                };
+                            }
 
 
-                                        return input.value();
-                                    },
-                                    [service_provider](const input::TouchSettings& touch_settings
-                                    ) mutable -> std::shared_ptr<GameInput> {
-                                        auto* const event_dispatcher = &(service_provider->event_dispatcher());
-                                        auto input = std::make_shared<TouchGameInput>(touch_settings, event_dispatcher);
-                                        return input;
-                                    } },
+                            return input.value();
+                        },
+                        [service_provider](const input::TouchSettings& touch_settings) mutable -> ReturnType {
+                            //TODO(Totto): make it dynamic, which touch input to use
+
+                            for (const auto& input : service_provider->input_manager().inputs()) {
+                                if (const auto pointer_input = utils::is_child_class<input::TouchInput>(input);
+                                    pointer_input.has_value()) {
+                                    auto* const event_dispatcher = &(service_provider->event_dispatcher());
+                                    auto input = std::make_shared<TouchGameInput>(
+                                            touch_settings, event_dispatcher, pointer_input.value()
+                                    );
+                                    return input;
+                                }
+                            }
+
+                            return helper::unexpected<std::string>{
+                                "No TouchInput was found, so no TouchGameInput can be created"
+                            };
+                        } },
                 control
         );
+
+
+        if (input.has_value()) {
+            game_inputs.push_back(std::move(input.value()));
+        } else {
+            spdlog::debug("Couldn't get input: {}", input.error());
+        }
     }
 
-    return nullptr;
-}
+    for (auto input : game_inputs) {
+        if (const auto type_input = utils::is_child_class<PrimaryGameInputType>(input); type_input.has_value()) {
+            return input;
+        }
+    }
 
+    return helper::nullopt;
+}
 
 [[nodiscard]] const std::unique_ptr<input::Input>& input::InputManager::get_primary_input() {
 
-#if defined(__ANDROID__)
-    using PrimaryType = input::TouchInput;
-#elif defined(__CONSOLE__)
-    using PrimaryType = input::JoystickInput;
-#else
-    using PrimaryType = input::KeyboardInput;
-#endif
-
-
     for (const auto& input : m_inputs) {
-        if (const auto pointer_input = utils::is_child_class<PrimaryType>(input); pointer_input.has_value()) {
+        if (const auto pointer_input = utils::is_child_class<PrimaryInputType>(input); pointer_input.has_value()) {
             return input;
         }
     }
