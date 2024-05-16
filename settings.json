@@ -10,8 +10,8 @@
 			"rotate_left": "Left",
 			"rotate_right": "Right",
 			"menu": {
-				"pause": "Esc",
-				"open_settings": "E"
+				"pause": "Escape",
+				"open_settings": "P"
 			}
 		},
 		{
@@ -28,7 +28,7 @@
 			"rotate_right": "X",
 			"menu": {
 				"pause": "Esc",
-				"open_settings": "E"
+				"open_settings": "P"
 			}
 		},
 		{
@@ -45,7 +45,7 @@
 			"rotate_right": "X",
 			"menu": {
 				"pause": "Esc",
-				"open_settings": "E"
+				"open_settings": "P"
 			}
 		},
 		{

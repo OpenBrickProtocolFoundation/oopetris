@@ -78,6 +78,7 @@ namespace scenes {
         if (m_next_command.has_value()) {
             switch (m_next_command.value()) {
                 case Command::SinglePlayer:
+                    m_next_command = helper::nullopt;
                     return UpdateResult{
                         SceneUpdate::StopUpdating,
                         Scene::Switch{ SceneId::SinglePlayerGame, ui::FullScreenLayout{ m_service_provider->window() } }

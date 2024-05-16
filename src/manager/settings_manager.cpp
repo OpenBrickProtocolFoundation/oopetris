@@ -1,5 +1,7 @@
 #include "settings_manager.hpp"
 #include "helper/graphic_utils.hpp"
+#include "input/keyboard_input.hpp"
+#include "input/touch_input.hpp"
 
 
 #include <spdlog/spdlog.h>
@@ -15,9 +17,9 @@ SettingsManager::SettingsManager(ServiceProvider* service_provider) : m_service_
         spdlog::error("unable to load settings from \"{}\": {}", detail::settings_filename, result.error());
         spdlog::warn("applying default settings");
 
-        //TODO: better default settings
         m_settings = {
-            detail::Settings{ {}, 1.0 }
+            detail::Settings{ { input::KeyboardSettings::default_settings(), input::TouchSettings::default_settings() },
+                             1.0 }
         };
     }
 }

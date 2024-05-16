@@ -46,8 +46,8 @@ namespace input {
                                      .rotate_right = SDL::Key{ SDLK_RIGHT },
                                      .move_left = SDL::Key{ SDLK_a },
                                      .move_right = SDL::Key{ SDLK_d },
-                                     .move_down = SDL::Key{ SDLK_a },
-                                     .drop = SDL::Key{ SDLK_s },
+                                     .move_down = SDL::Key{ SDLK_s },
+                                     .drop = SDL::Key{ SDLK_w },
                                      .hold = SDL::Key{ SDLK_TAB },
                                      .pause = SDL::Key{ SDLK_ESCAPE },
                                      .open_settings = SDL::Key{ SDLK_e } };
