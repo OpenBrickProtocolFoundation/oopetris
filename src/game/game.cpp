@@ -62,7 +62,7 @@ void Game::render(const ServiceProvider& service_provider) const {
 }
 
 [[nodiscard]] helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
-Game::handle_event(const std::shared_ptr<input::InputManager>&, const SDL_Event&) {
+Game::handle_event(const std::shared_ptr<input::InputManager>& /*input_manager*/, const SDL_Event& /*event*/) {
     return false;
 }
 

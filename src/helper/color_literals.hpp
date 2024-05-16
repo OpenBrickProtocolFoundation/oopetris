@@ -8,7 +8,8 @@
 #include <string>
 
 
-namespace {
+namespace { //NOLINT(cert-dcl59-cpp,google-build-namespaces)
+
     namespace const_constants {
 
         // offsets in C strings for hex rgb and rgba
@@ -22,26 +23,26 @@ namespace {
     } // namespace const_constants
 
     // decode a decimal number
-    [[nodiscard]] constexpr const_utils::expected<u8, std::string> single_decimal_number(char n) {
-        if (n >= '0' && n <= '9') {
-            return const_utils::expected<u8, std::string>::good_result(static_cast<u8>(n - '0'));
+    [[nodiscard]] constexpr const_utils::expected<u8, std::string> single_decimal_number(char input) {
+        if (input >= '0' && input <= '9') {
+            return const_utils::expected<u8, std::string>::good_result(static_cast<u8>(input - '0'));
         }
 
         return const_utils::expected<u8, std::string>::error_result("the input must be a valid decimal character");
     }
 
     // decode a single_hex_number
-    [[nodiscard]] constexpr const_utils::expected<u8, std::string> single_hex_number(char n) {
-        if (n >= '0' && n <= '9') {
-            return const_utils::expected<u8, std::string>::good_result(static_cast<u8>(n - '0'));
+    [[nodiscard]] constexpr const_utils::expected<u8, std::string> single_hex_number(char input) {
+        if (input >= '0' && input <= '9') {
+            return const_utils::expected<u8, std::string>::good_result(static_cast<u8>(input - '0'));
         }
 
-        if (n >= 'A' && n <= 'F') {
-            return const_utils::expected<u8, std::string>::good_result(static_cast<u8>(n - 'A' + 10));
+        if (input >= 'A' && input <= 'F') {
+            return const_utils::expected<u8, std::string>::good_result(static_cast<u8>(input - 'A' + 10));
         }
 
-        if (n >= 'a' && n <= 'f') {
-            return const_utils::expected<u8, std::string>::good_result(static_cast<u8>(n - 'a' + 10));
+        if (input >= 'a' && input <= 'f') {
+            return const_utils::expected<u8, std::string>::good_result(static_cast<u8>(input - 'a' + 10));
         }
 
         return const_utils::expected<u8, std::string>::error_result("the input must be a valid hex character");
@@ -204,37 +205,37 @@ namespace {
 
         if (size == const_constants::hex_rgb_size) {
 
-            const auto r = single_hex_color_value(input + const_constants::red_offset);
-            PROPAGATE(r, ColorFromHexStringReturnType, std::string);
+            const auto red = single_hex_color_value(input + const_constants::red_offset);
+            PROPAGATE(red, ColorFromHexStringReturnType, std::string);
 
-            const auto g = single_hex_color_value(input + const_constants::green_offset);
-            PROPAGATE(g, ColorFromHexStringReturnType, std::string);
+            const auto green = single_hex_color_value(input + const_constants::green_offset);
+            PROPAGATE(green, ColorFromHexStringReturnType, std::string);
 
-            const auto b = single_hex_color_value(input + const_constants::blue_offset);
-            PROPAGATE(b, ColorFromHexStringReturnType, std::string);
+            const auto blue = single_hex_color_value(input + const_constants::blue_offset);
+            PROPAGATE(blue, ColorFromHexStringReturnType, std::string);
 
             return const_utils::expected<ColorFromHexStringReturnType, std::string>::good_result({
-                    Color{ r.value(), g.value(), b.value() },
+                    Color{ red.value(), green.value(), blue.value() },
                     false
             });
         }
 
         if (size == const_constants::hex_rgba_size) {
 
-            const auto r = single_hex_color_value(input + const_constants::red_offset);
-            PROPAGATE(r, ColorFromHexStringReturnType, std::string);
+            const auto red = single_hex_color_value(input + const_constants::red_offset);
+            PROPAGATE(red, ColorFromHexStringReturnType, std::string);
 
-            const auto g = single_hex_color_value(input + const_constants::green_offset);
-            PROPAGATE(g, ColorFromHexStringReturnType, std::string);
+            const auto green = single_hex_color_value(input + const_constants::green_offset);
+            PROPAGATE(green, ColorFromHexStringReturnType, std::string);
 
-            const auto b = single_hex_color_value(input + const_constants::blue_offset);
-            PROPAGATE(b, ColorFromHexStringReturnType, std::string);
+            const auto blue = single_hex_color_value(input + const_constants::blue_offset);
+            PROPAGATE(blue, ColorFromHexStringReturnType, std::string);
 
-            const auto a = single_hex_color_value(input + const_constants::alpha_offset);
-            PROPAGATE(a, ColorFromHexStringReturnType, std::string);
+            const auto alpha = single_hex_color_value(input + const_constants::alpha_offset);
+            PROPAGATE(alpha, ColorFromHexStringReturnType, std::string);
 
             return const_utils::expected<ColorFromHexStringReturnType, std::string>::good_result({
-                    Color{ r.value(), g.value(), b.value(), a.value() },
+                    Color{ red.value(), green.value(), blue.value(), alpha.value() },
                     true
             });
         }
@@ -247,7 +248,10 @@ namespace {
     using ColorFromRGBStringReturnType = std::pair<Color, bool>;
 
     [[nodiscard]] constexpr const_utils::expected<ColorFromRGBStringReturnType, std::string>
-    get_color_from_rgb_string(const char* input, std::size_t) {
+    get_color_from_rgb_string( //NOLINT(readability-function-cognitive-complexity)
+            const char* input,
+            std::size_t /*unused*/
+    ) {
 
         if (input[0] == 'r' && input[1] == 'g' && input[2] == 'b') {
             if (input[3] == '(') {
@@ -415,7 +419,10 @@ namespace {
     using ColorFromHSVStringReturnType = std::pair<HSVColor, bool>;
 
     [[nodiscard]] constexpr const_utils::expected<ColorFromHSVStringReturnType, std::string>
-    get_color_from_hsv_string(const char* input, std::size_t) {
+    get_color_from_hsv_string( //NOLINT(readability-function-cognitive-complexity)
+            const char* input,
+            std::size_t /*unused*/
+    ) {
 
         if (input[0] == 'h' && input[1] == 's' && input[2] == 'v') {
             if (input[3] == '(') {

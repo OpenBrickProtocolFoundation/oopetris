@@ -153,9 +153,11 @@ CheckOptions:
 
   ## special things, that have special values
   - key: readability-identifier-length.IgnoredVariableNames
-    value: "(os)" # ostream
+    value: ""
   - key: readability-identifier-length.IgnoredParameterNames
-    value: "^[n]$"
+    value: "^(os)$" ## std::ostream
+  - key: readability-identifier-length.IgnoredExceptionVariableNames
+    value: ""
   - key: readability-identifier-length.MinimumLoopCounterNameLength
     value: 1
   - key: readability-identifier-length.MinimumExceptionNameLength
