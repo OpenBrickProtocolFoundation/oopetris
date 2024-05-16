@@ -1,6 +1,7 @@
 
 #include "sdl_key.hpp"
 #include "helper/optional.hpp"
+#include "helper/string_manipulation.hpp"
 #include "helper/utils.hpp"
 
 #include <algorithm>
@@ -221,52 +222,6 @@ namespace {
         }
     }
 
-    std::string to_lower_case(const std::string& input) {
-        auto result = input;
-        for (auto& elem : result) {
-            elem = static_cast<char>(std::tolower(elem));
-        }
-
-        return result;
-    }
-
-    // for string delimiter
-    std::vector<std::string> split_string_by_char(const std::string& start, const std::string& delimiter) {
-        size_t pos_start = 0;
-        size_t pos_end = 0;
-        const auto delim_len = delimiter.length();
-
-        std::vector<std::string> res{};
-
-        while ((pos_end = start.find(delimiter, pos_start)) != std::string::npos) {
-            auto token = start.substr(pos_start, pos_end - pos_start);
-            pos_start = pos_end + delim_len;
-            res.push_back(token);
-        }
-
-        res.push_back(start.substr(pos_start));
-        return res;
-    }
-
-    // trim from start (in place)
-    inline void ltrim(std::string& str) {
-        str.erase(str.begin(), std::ranges::find_if(str, [](unsigned char chr) { return std::isspace(chr) == 0; }));
-    }
-
-    // trim from end (in place)
-    inline void rtrim(std::string& str) {
-        str.erase(
-                std::ranges::find_if(
-                        std::ranges::reverse_view(str), [](unsigned char chr) { return std::isspace(chr) == 0; }
-                ).base(),
-                str.end()
-        );
-    }
-
-    void trim(std::string& str) {
-        ltrim(str);
-        rtrim(str);
-    }
 
     helper::optional<SDL::Modifier> modifier_from_string(const std::string& modifier) {
 
@@ -274,7 +229,7 @@ namespace {
             return helper::nullopt;
         }
 
-        const auto lower_case = to_lower_case(modifier);
+        const auto lower_case = string::to_lower_case(modifier);
 
 
         const std::unordered_map<std::string, SDL::Modifier> map{
@@ -308,9 +263,9 @@ namespace {
 
 helper::expected<SDL::Key, std::string> SDL::Key::from_string(const std::string& value) {
 
-    auto tokens = split_string_by_char(value, "+");
+    auto tokens = string::split_string_by_char(value, "+");
     for (auto& token : tokens) {
-        trim(token);
+        string::trim(token);
     }
 
     std::vector<SDL::Modifier> modifiers{};

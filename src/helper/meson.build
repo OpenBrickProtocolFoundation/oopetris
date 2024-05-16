@@ -21,6 +21,8 @@ core_src_files += files(
     'sleep.cpp',
     'sleep.hpp',
     'static_string.hpp',
+    'string_manipulation.cpp',
+    'string_manipulation.hpp',
     'timer.hpp',
     'types.hpp',
     'utils.hpp',
