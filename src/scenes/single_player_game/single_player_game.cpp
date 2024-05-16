@@ -21,7 +21,7 @@ namespace scenes {
         additional_information.add("mode", "single_player");
         additional_information.add("platform", std::string{ magic_enum::enum_name(utils::get_platform()) });
         additional_information.add("date", date.value());
-        //TODO: add more information, if logged in
+        //TODO(Totto): add more information, if logged in
 
 
         auto result =

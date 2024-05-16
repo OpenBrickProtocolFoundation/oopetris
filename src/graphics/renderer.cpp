@@ -1,7 +1,7 @@
 #include "renderer.hpp"
 #include "helper/errors.hpp"
 
-//TODO: assert return values of all sdl functions
+//TODO(Totto):  assert return values of all sdl functions
 
 Renderer::Renderer(const Window& window, const VSync v_sync)
     : m_renderer{ SDL_CreateRenderer(

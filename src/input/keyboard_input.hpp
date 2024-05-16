@@ -25,7 +25,7 @@ namespace input {
     };
 
 
-    //TODO: don't default initialize all settings, but rather provide a static default setting, so that everything has to be set explicitly, or you can use the default explicitly
+    //TODO(Totto):  don't default initialize all settings, but rather provide a static default setting, so that everything has to be set explicitly, or you can use the default explicitly
     struct KeyboardSettings {
         SDL::Key rotate_left;
         SDL::Key rotate_right;

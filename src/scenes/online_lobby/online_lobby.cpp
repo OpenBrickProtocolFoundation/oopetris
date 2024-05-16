@@ -25,7 +25,7 @@ namespace scenes {
                 layout
           } {
 
-        //TODO: after the settings have been reworked, make this url changeable!
+        //TODO(Totto): after the settings have been reworked, make this url changeable!
         auto maybe_client = lobby::Client::get_client("http://127.0.0.1:5000");
         if (maybe_client.has_value()) {
             client = std::make_unique<lobby::Client>(std::move(maybe_client.value()));

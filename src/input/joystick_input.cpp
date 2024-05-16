@@ -740,7 +740,7 @@ helper::optional<InputEvent> input::ConsoleJoystickGameInput::sdl_event_to_input
             return helper::nullopt;
         }
 
-        //TODO: use switch case
+        //TODO(Totto): use switch case
         const auto button = event.jbutton.button;
         if (button == m_settings.rotate_left) {
             return InputEvent::RotateLeftPressed;

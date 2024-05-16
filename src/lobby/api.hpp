@@ -157,7 +157,7 @@ namespace lobby {
 
             const auto& version = server_version.value();
 
-            //TODO: if version is semver, support semver comparison
+            //TODO(Totto):  if version is semver, support semver comparison
             if (Client::supported_version.string() != version.version) {
                 return helper::unexpected<std::string>{ fmt::format(
                         "Connecting to unsupported server, version is {}, but we support only {}",
@@ -229,7 +229,7 @@ namespace lobby {
                 return helper::unexpected<std::string>{ reachable.error() };
             }
 
-            //TODO: once version is standard, check here if the version is supported
+            //TODO(Totto):  once version is standard, check here if the version is supported
 
             return client;
         }

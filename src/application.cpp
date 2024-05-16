@@ -281,7 +281,7 @@ void Application::load_resources() {
     constexpr auto fonts_size = 128;
     const std::vector<std::tuple<FontId, std::string>> fonts{
 #if defined(__3DS__)
-        //TODO: debug why the other font crashed, not on loading, but on trying to render text!
+        //TODO(Totto): debug why the other font crashed, not on loading, but on trying to render text!
         {        FontId::Default, "LeroyLetteringLightBeta01.ttf" },
 #else
         { FontId::Default, "PressStart2P.ttf" },

@@ -15,7 +15,7 @@ private:
     bool m_input_activated{ false };
     bool m_enabled{ true };
 
-    //TODO: factor out to some other place!
+    //TODO(Totto):  factor out to some other place!
     std::vector<SDL::Key> allowed_input_keys{
         SDL::Key{ SDLK_RETURN },
         SDL::Key{ SDLK_BACKSPACE },

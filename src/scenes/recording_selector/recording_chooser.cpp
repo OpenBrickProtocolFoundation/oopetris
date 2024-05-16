@@ -100,8 +100,8 @@ helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>> custom_ui::Reco
         const std::shared_ptr<input::InputManager>& input_manager,
         const SDL_Event& event
 ) {
-    //TODO: this double nested component can't correctly detect focus changes (since the checking for a focus change only occurs at one level deep)
-    //TODO: allow horizontal RIGHT <-> LEFT focus change on horizontal focus_layouts
+    //TODO(Totto): this double nested component can't correctly detect focus changes (since the checking for a focus change only occurs at one level deep)
+    //TODO(Totto): allow horizontal RIGHT <-> LEFT focus change on horizontal focus_layouts
     if (const auto handled = m_main_grid.handle_event(input_manager, event); handled) {
         return handled;
     }
@@ -120,10 +120,10 @@ helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>> custom_ui::Reco
     return currently_chosen_files;
 }
 
-//TODO: solve in another way, that is better
+//TODO(Totto):  solve in another way, that is better
 void custom_ui::RecordingFileChooser::prepare_dialog(ServiceProvider* service_provider) {
 
-    //TODO: show scene on top, that hints of the dialog
+    //TODO(Totto): show scene on top, that hints of the dialog
     this->currently_chosen_files.clear();
     service_provider->event_dispatcher().disable();
 }
@@ -132,6 +132,6 @@ void custom_ui::RecordingFileChooser::cleanup_dialog( //NOLINT(readability-conve
         ServiceProvider* service_provider
 ) {
 
-    //TODO: remove hint scene on top
+    //TODO(Totto): remove hint scene on top
     service_provider->event_dispatcher().enable();
 }

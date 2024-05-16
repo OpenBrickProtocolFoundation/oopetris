@@ -92,7 +92,7 @@ namespace input {
     };
 
 
-    //TODO: also support gamecontroller API
+    //TODO(Totto):  also support gamecontroller API
     // see: https://github.com/mdqinc/SDL_GameControllerDB?tab=readme-ov-file
 
     struct JoyStickInputManager {
@@ -103,7 +103,7 @@ namespace input {
     };
 
 
-    //TODO: differntiate different controllers and modes, e.g the switch can have pro controller, the included ones, each of them seperate etc.
+    //TODO(Totto):  differntiate different controllers and modes, e.g the switch can have pro controller, the included ones, each of them seperate etc.
 
     template<typename T>
     using MappingType = std::unordered_map<std::string, T>;

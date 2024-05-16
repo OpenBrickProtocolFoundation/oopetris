@@ -31,7 +31,7 @@ MusicManager::MusicManager(ServiceProvider* service_provider, u8 channel_size)
         throw helper::InitializationError{ fmt::format("Failed to initialize the audio system: {}", SDL_GetError()) };
     }
 
-    //TODO: dynamically handle codecs
+    //TODO(Totto): dynamically handle codecs
     const auto initialized_codecs = Mix_Init(MIX_INIT_FLAC | MIX_INIT_MP3);
     if (initialized_codecs == 0) {
         throw helper::InitializationError{ fmt::format("Failed to initialize any audio codec: {}", SDL_GetError()) };

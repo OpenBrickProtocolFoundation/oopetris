@@ -29,7 +29,7 @@ namespace scenes {
             layouts.push_back(ui::RelativeLayout{ layout, 0.52, 0.01, 0.46, 0.98 });
         } else {
 
-            //TODO: support bigger layouts than just 2
+            //TODO(Totto): support bigger layouts than just 2
             throw std::runtime_error("At the moment only replays from up to two players are supported");
         }
 
@@ -116,8 +116,8 @@ namespace scenes {
     [[nodiscard]] bool
     ReplayGame::handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) {
 
-        //TODO: add gameInput to this function
-        //TODO: re-add pause scene
+        //TODO(Totto): add gameInput to this function
+        //TODO(Totto): re-add pause scene
         UNUSED(input_manager);
         UNUSED(event);
         /*   if (utils::event_is_action(event, utils::CrossPlatformAction::PAUSE)) {

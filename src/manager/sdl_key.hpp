@@ -94,7 +94,7 @@ struct fmt::formatter<SDL::Key> : formatter<std::string> {
 };
 
 
-//TODO: add input manager and rename curretn inputmanager to game_input manager or similar
+//TODO(Totto):  add input manager and rename curretn inputmanager to game_input manager or similar
 
 // each devices can have multiple input devices, like keyboard, joycon etc. you can select mulltiple ones for navigation, some keys are ficed, like ctrl+c ctrl+v or arrow keys enter, esc tab,, some like wasd and similar can be chnaged by the inpout controller, support both click only and keyboard only, joyocn only, joyncon(s) + keyboard configurations
 

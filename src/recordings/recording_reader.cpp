@@ -116,7 +116,7 @@ helper::expected<recorder::RecordingReader, std::string> recorder::RecordingRead
 
     std::vector<Record> records{};
     std::vector<TetrionSnapshot> snapshots{};
-    //TODO: when using larger files and recordings, we should stream the data and discard used, to far away data, to not load everything into memory at once
+    //TODO(Totto): when using larger files and recordings, we should stream the data and discard used, to far away data, to not load everything into memory at once
 
     while (true) {
 

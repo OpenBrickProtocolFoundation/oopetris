@@ -15,7 +15,7 @@
 
 namespace data {
 
-    //TODO: add drop support
+    //TODO(Totto):  add drop support
     enum class RecordingSource : u8 { CommandLine, Folder, Manual, Online, Drop };
 
     struct RecordingMetadata {

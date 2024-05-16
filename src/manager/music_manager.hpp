@@ -47,7 +47,7 @@ public:
     helper::optional<std::string> load_effect(const std::string& name, std::filesystem::path& location);
     helper::optional<std::string> play_effect(const std::string& name, u8 channel_num = 1, int loop = 0);
 
-    //TODO: atm the volume changers only work on the music channel, when adding more effects, this should support channels via  https://wiki.libsdl.org/SDL2_mixer/Mix_Volume
+    //TODO(Totto):  atm the volume changers only work on the music channel, when adding more effects, this should support channels via  https://wiki.libsdl.org/SDL2_mixer/Mix_Volume
     [[nodiscard]] helper::optional<double> get_volume() const;
     void set_volume(helper::optional<double> new_volume, bool force_update = false, bool notify_listeners = true);
     // no nodiscard, since the return value is only a side effect, that is maybe useful

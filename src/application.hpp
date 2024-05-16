@@ -58,7 +58,7 @@ public:
     virtual void update();
     virtual void render() const;
 
-    //TODO: move those functions bodies to the cpp
+    //TODO(Totto): move those functions bodies to the cpp
 
     void push_scene(std::unique_ptr<scenes::Scene> scene) {
         m_scene_stack.push_back(std::move(scene));

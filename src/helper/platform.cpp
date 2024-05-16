@@ -72,7 +72,7 @@ namespace {
     spdlog::info("Returned string from url open was: {}", result);
     return true;
 #else
-    //TODO: this is dangerous, if we supply user input, so use SDL_OpenURL preferably
+    //TODO(Totto): this is dangerous, if we supply user input, so use SDL_OpenURL preferably
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
     const std::string shell_command = "start " + url;

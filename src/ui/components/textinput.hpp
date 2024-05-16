@@ -59,7 +59,7 @@ namespace ui {
 
         void update() override;
 
-        //TODO: how to handle text limits (since texture for texts on the gpu can't get unlimitedly big, maybe use software texture?)
+        //TODO(Totto):  how to handle text limits (since texture for texts on the gpu can't get unlimitedly big, maybe use software texture?)
         void render(const ServiceProvider& service_provider) const override;
 
         Widget::EventHandleResult

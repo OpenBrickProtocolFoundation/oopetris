@@ -70,7 +70,7 @@ struct HSVColor {
 };
 
 namespace {
-    //TODO: if everything (also libc++ ) supports c++23 , the std functions are constexpr, so we can use them
+    //TODO(Totto):  if everything (also libc++ ) supports c++23 , the std functions are constexpr, so we can use them
     template<typename T>
     constexpr T fmod_constexpr(T value, T divisor) {
         if (not utils::is_constant_evaluated()) {
