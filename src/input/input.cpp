@@ -179,7 +179,7 @@ namespace {
 
     for (const auto& control : service_provider->settings_manager().settings().controls) {
 
-        auto input = std::visit(
+        auto result = std::visit(
                 helper::overloaded{
                         [service_provider](const input::KeyboardSettings& keyboard_settings) mutable -> ReturnType {
                             auto* const event_dispatcher = &(service_provider->event_dispatcher());
@@ -209,10 +209,9 @@ namespace {
                                 if (const auto pointer_input = utils::is_child_class<input::TouchInput>(input);
                                     pointer_input.has_value()) {
                                     auto* const event_dispatcher = &(service_provider->event_dispatcher());
-                                    auto input = std::make_shared<TouchGameInput>(
+                                    return std::make_shared<TouchGameInput>(
                                             touch_settings, event_dispatcher, pointer_input.value()
                                     );
-                                    return input;
                                 }
                             }
 
@@ -224,10 +223,10 @@ namespace {
         );
 
 
-        if (input.has_value()) {
-            game_inputs.push_back(std::move(input.value()));
+        if (result.has_value()) {
+            game_inputs.push_back(std::move(result.value()));
         } else {
-            spdlog::debug("Couldn't get input: {}", input.error());
+            spdlog::debug("Couldn't get input: {}", result.error());
         }
     }
 
