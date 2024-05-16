@@ -601,17 +601,11 @@ helper::optional<InputEvent> input::SwitchJoystickGameInput_Type1::sdl_event_to_
 
     JoystickSettings result{};
 
-    SETTINGS_TO_STRING(settings, result, key_to_string, rotate_left);
-    SETTINGS_TO_STRING(settings, result, key_to_string, rotate_right);
-    SETTINGS_TO_STRING(settings, result, key_to_string, move_left);
-    SETTINGS_TO_STRING(settings, result, key_to_string, move_right);
-    SETTINGS_TO_STRING(settings, result, key_to_string, move_down);
+#define X_LIST_MACRO(x) SETTINGS_TO_STRING(settings, result, key_to_string, x);
 
-    SETTINGS_TO_STRING(settings, result, key_to_string, drop);
-    SETTINGS_TO_STRING(settings, result, key_to_string, hold);
+    X_LIST_OF_SETTINGS_KEYS
 
-    SETTINGS_TO_STRING(settings, result, key_to_string, pause);
-    SETTINGS_TO_STRING(settings, result, key_to_string, open_settings);
+#undef X_LIST_MACRO
 
     return result;
 }

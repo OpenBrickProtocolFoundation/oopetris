@@ -135,6 +135,19 @@ namespace input {
 
 #endif
 
+
+#define X_LIST_OF_SETTINGS_KEYS \
+    X_LIST_MACRO(rotate_left)   \
+    X_LIST_MACRO(rotate_right)  \
+    X_LIST_MACRO(move_left)     \
+    X_LIST_MACRO(move_right)    \
+    X_LIST_MACRO(move_down)     \
+    X_LIST_MACRO(drop)          \
+    X_LIST_MACRO(hold)          \
+    X_LIST_MACRO(pause)         \
+    X_LIST_MACRO(open_settings)
+
+
 #define TRY_CONVERT(original, target, map, key)       \
     do /*NOLINT(cppcoreguidelines-avoid-do-while)*/ { \
         if (map.contains(original.key)) {             \
@@ -195,17 +208,12 @@ namespace input {
 
             AbstractJoystickSettings<T> result{};
 
-            TRY_CONVERT(settings, result, map, rotate_left);
-            TRY_CONVERT(settings, result, map, rotate_right);
-            TRY_CONVERT(settings, result, map, move_left);
-            TRY_CONVERT(settings, result, map, move_right);
-            TRY_CONVERT(settings, result, map, move_down);
 
-            TRY_CONVERT(settings, result, map, drop);
-            TRY_CONVERT(settings, result, map, hold);
+#define X_LIST_MACRO(x) TRY_CONVERT(settings, result, map, x);
 
-            TRY_CONVERT(settings, result, map, pause);
-            TRY_CONVERT(settings, result, map, open_settings);
+            X_LIST_OF_SETTINGS_KEYS
+
+#undef X_LIST_MACRO
 
             return result;
         }
