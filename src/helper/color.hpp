@@ -144,7 +144,7 @@ struct Color {
 
     [[nodiscard]] HSVColor to_hsv_color() const;
 
-    explicit constexpr Color(const HSVColor& color) {
+    constexpr Color(const HSVColor& color) { //NOLINT(google-explicit-constructor)
 
         using FloatType = double; //for more precision use "long double" here
 

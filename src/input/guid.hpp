@@ -17,7 +17,7 @@ typedef SDL_JoystickGUID SDL_GUID; //NOLINT(modernize-use-using), it's used in e
 }
 
 
-namespace SDL {
+namespace sdl {
 
     struct GUID {
     public:
@@ -27,12 +27,12 @@ namespace SDL {
         ArrayType m_guid;
 
     public:
-        enum class FormatType { Long, Short };
+        enum class FormatType : u8 { Long, Short };
 
         constexpr GUID() : m_guid{} { }
-        constexpr GUID(const ArrayType& data) : m_guid{ data } { }
+        explicit constexpr GUID(const ArrayType& data) : m_guid{ data } { }
 
-        GUID(const SDL_GUID& data);
+        explicit GUID(const SDL_GUID& data);
 
         [[nodiscard]] static helper::expected<GUID, std::string> from_string(const std::string& value);
 
@@ -40,30 +40,30 @@ namespace SDL {
 
         [[nodiscard]] std::string to_string(FormatType type = FormatType::Long) const;
     };
-} // namespace SDL
+} // namespace sdl
 
 
 template<>
-struct fmt::formatter<SDL::GUID> : formatter<std::string> {
-    auto format(const SDL::GUID& guid, format_context& ctx) {
+struct fmt::formatter<sdl::GUID> : formatter<std::string> {
+    auto format(const sdl::GUID& guid, format_context& ctx) {
         return formatter<std::string>::format(guid.to_string(), ctx);
     }
 };
 
-namespace {
+namespace { //NOLINT(cert-dcl59-cpp,google-build-namespaces)
 
     // decode a single_hex_number
-    [[nodiscard]] constexpr const_utils::expected<u8, std::string> single_hex_number(char n) {
-        if (n >= '0' && n <= '9') {
-            return const_utils::expected<u8, std::string>::good_result(static_cast<u8>(n - '0'));
+    [[nodiscard]] constexpr const_utils::expected<u8, std::string> single_hex_number(char input) {
+        if (input >= '0' && input <= '9') {
+            return const_utils::expected<u8, std::string>::good_result(static_cast<u8>(input - '0'));
         }
 
-        if (n >= 'A' && n <= 'F') {
-            return const_utils::expected<u8, std::string>::good_result(static_cast<u8>(n - 'A' + 10));
+        if (input >= 'A' && input <= 'F') {
+            return const_utils::expected<u8, std::string>::good_result(static_cast<u8>(input - 'A' + 10));
         }
 
-        if (n >= 'a' && n <= 'f') {
-            return const_utils::expected<u8, std::string>::good_result(static_cast<u8>(n - 'a' + 10));
+        if (input >= 'a' && input <= 'f') {
+            return const_utils::expected<u8, std::string>::good_result(static_cast<u8>(input - 'a' + 10));
         }
 
         return const_utils::expected<u8, std::string>::error_result("the input must be a valid hex character");
@@ -72,22 +72,22 @@ namespace {
     // decode a single 2 digit color value in hex
     [[nodiscard]] constexpr const_utils::expected<u8, std::string> single_hex_color_value(const char* input) {
 
-        const auto first = single_hex_number(input[0]);
+        const auto first = single_hex_number(input[0]); //NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 
         PROPAGATE(first, u8, std::string);
 
-        const auto second = single_hex_number(input[1]);
+        const auto second = single_hex_number(input[1]); //NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 
         PROPAGATE(second, u8, std::string);
 
         return const_utils::expected<u8, std::string>::good_result((first.value() << 4) | second.value());
     }
 
-    [[nodiscard]] constexpr const_utils::expected<SDL::GUID, std::string>
+    [[nodiscard]] constexpr const_utils::expected<sdl::GUID, std::string>
     get_guid_from_string_impl(const char* input, std::size_t size) {
 
         if (size == 0) {
-            return const_utils::expected<SDL::GUID, std::string>::error_result(
+            return const_utils::expected<sdl::GUID, std::string>::error_result(
                     "not enough data to determine the literal type"
             );
         }
@@ -102,11 +102,11 @@ namespace {
             width = 3;
         } else {
 
-            return const_utils::expected<SDL::GUID, std::string>::error_result("Unrecognized guid literal");
+            return const_utils::expected<sdl::GUID, std::string>::error_result("Unrecognized guid literal");
         }
 
 
-        SDL::GUID::ArrayType result{};
+        sdl::GUID::ArrayType result{};
 
         for (size_t i = 0; i < amount; ++i) {
             size_t offset = i * (width);
@@ -115,14 +115,14 @@ namespace {
             const auto temp_result =
                     single_hex_color_value(input + offset); //NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 
-            PROPAGATE(temp_result, SDL::GUID, std::string);
+            PROPAGATE(temp_result, sdl::GUID, std::string);
 
             const auto value = temp_result.value();
 
             result.at(i) = value;
         }
 
-        return const_utils::expected<SDL::GUID, std::string>::good_result(SDL::GUID{ result });
+        return const_utils::expected<sdl::GUID, std::string>::good_result(sdl::GUID{ result });
     }
 
 } // namespace
@@ -130,7 +130,7 @@ namespace {
 
 namespace detail {
 
-    [[nodiscard]] constexpr const_utils::expected<SDL::GUID, std::string> get_guid_from_string(const std::string& input
+    [[nodiscard]] constexpr const_utils::expected<sdl::GUID, std::string> get_guid_from_string(const std::string& input
     ) {
         return get_guid_from_string_impl(input.c_str(), input.size());
     }
@@ -138,7 +138,7 @@ namespace detail {
 } // namespace detail
 
 
-consteval SDL::GUID operator""_guid(const char* input, std::size_t size) {
+consteval sdl::GUID operator""_guid(const char* input, std::size_t size) {
     const auto result = get_guid_from_string_impl(input, size);
 
     CONSTEVAL_STATIC_ASSERT(result.has_value(), "incorrect guid literal");

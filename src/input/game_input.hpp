@@ -50,13 +50,13 @@ namespace input {
         Tetrion* m_target_tetrion{};
         OnEventCallback m_on_event_callback{};
 
-        GameInput(GameInputType input_type) : m_input_type{ input_type } { }
+        explicit GameInput(GameInputType input_type) : m_input_type{ input_type } { }
 
         void handle_event(InputEvent event, SimulationStep simulation_step_index);
 
     public:
         virtual void update(SimulationStep simulation_step_index);
-        virtual void late_update(SimulationStep){};
+        virtual void late_update(SimulationStep /*simulation_step*/){};
 
         [[nodiscard]] virtual helper::optional<MenuEvent> get_menu_event(const SDL_Event& event) const = 0;
 

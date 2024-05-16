@@ -23,7 +23,7 @@ input::JoystickInput::~JoystickInput() {
 
 
 [[nodiscard]] helper::optional<std::unique_ptr<input::JoystickInput>> input::JoystickInput::get_joystick_by_guid(
-        const SDL::GUID& guid,
+        const sdl::GUID& guid,
         SDL_Joystick* joystick,
         SDL_JoystickID instance_id,
         const std::string& name
@@ -78,9 +78,9 @@ input::JoystickInput::get_by_device_index(int device_index) {
     }
 
 
-    const auto guid = SDL::GUID{ SDL_JoystickGetGUID(joystick) };
+    const auto guid = sdl::GUID{ SDL_JoystickGetGUID(joystick) };
 
-    if (guid == SDL::GUID{}) {
+    if (guid == sdl::GUID{}) {
         return helper::unexpected<std::string>{ fmt::format("Failed to get joystick GUID: {}", SDL_GetError()) };
     }
 
@@ -99,10 +99,10 @@ input::JoystickInput::get_by_device_index(int device_index) {
     return m_instance_id;
 }
 
-[[nodiscard]] SDL::GUID input::JoystickInput::guid() const {
-    const auto guid = SDL::GUID{ SDL_JoystickGetGUID(m_joystick) };
+[[nodiscard]] sdl::GUID input::JoystickInput::guid() const {
+    const auto guid = sdl::GUID{ SDL_JoystickGetGUID(m_joystick) };
 
-    if (guid == SDL::GUID{}) {
+    if (guid == sdl::GUID{}) {
         throw std::runtime_error{ fmt::format("Failed to get joystick GUID: {}", SDL_GetError()) };
     }
 
@@ -572,7 +572,7 @@ void input::JoystickGameInput::update(SimulationStep simulation_step_index) {
 namespace {
 
     [[nodiscard]] helper::optional<std::shared_ptr<input::JoystickGameInput>> get_game_joystick_by_guid(
-            const SDL::GUID& guid,
+            const sdl::GUID& guid,
             const input::JoystickSettings& settings,
             EventDispatcher* event_dispatcher,
             input::JoystickInput* underlying_input
