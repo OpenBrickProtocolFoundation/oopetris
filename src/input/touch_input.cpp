@@ -306,6 +306,8 @@ void input::TouchInputManager::discover_devices(
         return;
     }
 
+    spdlog::debug("Found {} Touch Devices", num_of_touch_devices);
+
     for (auto i = 0; i < num_of_touch_devices; ++i) {
 
         auto touch_input = TouchInput::get_by_device_index(window, i);

@@ -137,6 +137,8 @@ void input::JoyStickInputManager::discover_devices(std::vector<std::unique_ptr<I
         return;
     }
 
+    spdlog::debug("Found {} Joysticks", num_of_joysticks);
+
     for (auto i = 0; i < num_of_joysticks; ++i) {
 
         auto joystick = JoystickInput::get_by_device_index(i);
@@ -388,7 +390,26 @@ input::_3DSJoystickInput_Type1::_3DSJoystickInput_Type1(
         SDL_JoystickID instance_id,
         const std::string& name
 )
-    : JoystickInput{ joystick, instance_id, name } { }
+    : ConsoleJoystickInput{
+          joystick,
+          instance_id,
+          name,
+          //NOTE: this are not all, but atm only those, who can be checked with a SDL_JOYBUTTONDOWN event
+          { { "A", JOYCON_A },
+           { "B", JOYCON_B },
+           { "SELECT", JOYCON_SELECT },
+           { "START", JOYCON_START },
+           { "DPAD_RIGHT", JOYCON_DPAD_RIGHT },
+           { "DPAD_LEFT", JOYCON_DPAD_LEFT },
+           { "DPAD_UP", JOYCON_DPAD_UP },
+           { "DPAD_DOWN", JOYCON_DPAD_DOWN },
+           { "R", JOYCON_R },
+           { "L", JOYCON_L },
+           { "X", JOYCON_X },
+           { "Y", JOYCON_Y },
+           { "ZL", JOYCON_ZL },
+           { "ZR", JOYCON_ZR } }
+} { }
 
 
 [[nodiscard]] helper::optional<input::NavigationEvent> input::_3DSJoystickInput_Type1::get_navigation_event(
@@ -455,6 +476,73 @@ input::_3DSJoystickInput_Type1::_3DSJoystickInput_Type1(
         default:
             utils::unreachable();
     }
+}
+
+
+[[nodiscard]] std::string input::_3DSJoystickInput_Type1::key_to_string(console::SettingsType key) const {
+    switch (key) {
+        case JOYCON_A:
+            return "A";
+        case JOYCON_B:
+            return "B";
+        case JOYCON_SELECT:
+            return "SELECT";
+        case JOYCON_START:
+            return "START";
+        case JOYCON_DPAD_RIGHT:
+            return "DPAD_RIGHT";
+        case JOYCON_DPAD_LEFT:
+            return "DPAD_LEFT";
+        case JOYCON_DPAD_UP:
+            return "DPAD_UP";
+        case JOYCON_DPAD_DOWN:
+            return "DPAD_DOWN";
+        case JOYCON_R:
+            return "R";
+        case JOYCON_L:
+            return "L";
+        case JOYCON_X:
+            return "X";
+        case JOYCON_Y:
+            return "Y";
+        case JOYCON_ZL:
+            return "ZL";
+        case JOYCON_ZR:
+            return "ZR";
+        default:
+            utils::unreachable();
+    }
+}
+
+[[nodiscard]] input::JoystickSettings input::_3DSJoystickInput_Type1::to_normal_settings(
+        const AbstractJoystickSettings<input::console::SettingsType>& settings
+) const {
+
+    JoystickSettings result{};
+
+#define X_LIST_MACRO(x) SETTINGS_TO_STRING(settings, result, key_to_string, x);
+
+    X_LIST_OF_SETTINGS_KEYS
+
+#undef X_LIST_MACRO
+
+    return result;
+}
+
+[[nodiscard]] input::JoystickSettings input::_3DSJoystickInput_Type1::default_settings() const {
+    const AbstractJoystickSettings<console::SettingsType> settings = //
+            { .identification = JoystickIdentification{},
+              .rotate_left = JOYCON_L,
+              .rotate_right = JOYCON_R,
+              .move_left = JOYCON_DPAD_LEFT,
+              .move_right = JOYCON_DPAD_RIGHT,
+              .move_down = JOYCON_DPAD_DOWN,
+              .drop = JOYCON_X,
+              .hold = JOYCON_B,
+              .pause = JOYCON_START,
+              .open_settings = JOYCON_SELECT };
+
+    return to_normal_settings(settings);
 }
 
 
