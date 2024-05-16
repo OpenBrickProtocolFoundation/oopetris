@@ -136,6 +136,9 @@ namespace input {
         [[nodiscard]] JoystickSettings default_settings() const override;
 
         [[nodiscard]] virtual AbstractJoystickSettings<console::SettingsType> default_settings_raw() const = 0;
+
+        [[nodiscard]] helper::optional<input::NavigationEvent> handle_axis_navigation_event(const SDL_Event& event
+        ) const;
     };
 
 #if defined(__SWITCH__)

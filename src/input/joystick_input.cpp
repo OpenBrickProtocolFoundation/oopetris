@@ -280,10 +280,7 @@ input::SwitchJoystickInput_Type1::SwitchJoystickInput_Type1(
         }
     }
 
-    //TODO: handle SDL_JOYAXISMOTION
-
-
-    return helper::nullopt;
+    return handle_axis_navigation_event(event);
 }
 
 [[nodiscard]] std::string input::SwitchJoystickInput_Type1::describe_navigation_event(NavigationEvent event) const {
@@ -426,8 +423,6 @@ input::_3DSJoystickInput_Type1::_3DSJoystickInput_Type1(
 [[nodiscard]] helper::optional<input::NavigationEvent> input::_3DSJoystickInput_Type1::get_navigation_event(
         const SDL_Event& event
 ) const {
-
-
     if (event.type == SDL_JOYBUTTONDOWN) {
 
         if (event.jbutton.which != instance_id()) {
@@ -462,10 +457,7 @@ input::_3DSJoystickInput_Type1::_3DSJoystickInput_Type1(
         }
     }
 
-    //TODO: handle SDL_JOYAXISMOTION
-
-
-    return helper::nullopt;
+    return handle_axis_navigation_event(event);
 }
 
 [[nodiscard]] std::string input::_3DSJoystickInput_Type1::describe_navigation_event(NavigationEvent event) const {
@@ -662,6 +654,52 @@ input::ConsoleJoystickInput::ConsoleJoystickInput(
 [[nodiscard]] input::JoystickSettings input::ConsoleJoystickInput::default_settings() const {
     return to_normal_settings(default_settings_raw());
 }
+
+[[nodiscard]] helper::optional<input::NavigationEvent> input::ConsoleJoystickInput::handle_axis_navigation_event(
+        const SDL_Event& event
+) const {
+    if (event.type == SDL_JOYAXISMOTION) {
+
+        //TODO(Totto). maybe make this configurable
+        // this constant is here, that slight touches aren't counted as inputs ( really slight wiggles might occur unintentinoally) NOTE: that most inputs use all 16 bits for a normal press, so that this value can be that "big"!
+        constexpr auto axis_threshold = 1000;
+
+        if (event.jaxis.which != instance_id()) {
+            return helper::nullopt;
+        }
+
+        // x axis movement
+        if (event.jaxis.axis == 0) {
+            if (event.jaxis.value > axis_threshold) {
+                return NavigationEvent::RIGHT;
+            }
+
+            if (event.jaxis.value < -axis_threshold) {
+                return NavigationEvent::LEFT;
+            }
+
+            return helper::nullopt;
+        }
+
+        // y axis movement
+        if (event.jaxis.axis == 1) {
+            if (event.jaxis.value > axis_threshold) {
+                return NavigationEvent::DOWN;
+            }
+
+            if (event.jaxis.value < -axis_threshold) {
+                return NavigationEvent::UP;
+            }
+
+            return helper::nullopt;
+        }
+
+        throw std::runtime_error(fmt::format("Reached unsupported axis for SDL_JOYAXISMOTION {}", event.jaxis.axis));
+    }
+
+    return helper::nullopt;
+}
+
 
 input::ConsoleJoystickGameInput::ConsoleJoystickGameInput(
         JoystickSettings settings,
