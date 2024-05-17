@@ -73,7 +73,7 @@ helper::expected<std::filesystem::path, std::string> helper::openFileDialog(
 ) {
 
     NFD::UniquePathU8 out_path{};
-    auto filterItem = get_filter_items(allowed_files);
+    auto filter_item = get_filter_items(allowed_files);
 
     const auto path_deallocator = [](const nfdu8char_t* const char_value) {
         if (char_value == nullptr) {
@@ -93,7 +93,7 @@ helper::expected<std::filesystem::path, std::string> helper::openFileDialog(
     }
 
     const nfdresult_t result = NFD::OpenDialog(
-            out_path, filterItem.get(), static_cast<nfdfiltersize_t>(allowed_files.size()), default_path_value.get()
+            out_path, filter_item.get(), static_cast<nfdfiltersize_t>(allowed_files.size()), default_path_value.get()
     );
     if (result == NFD_OKAY) {
         return std::filesystem::path{ out_path.get() };
@@ -113,7 +113,7 @@ helper::expected<std::filesystem::path, std::string> helper::openFileDialog(
 ) {
 
     NFD::UniquePathSet out_paths{};
-    auto filterItem = get_filter_items(allowed_files);
+    auto filter_item = get_filter_items(allowed_files);
 
     const auto path_deallocator = [](const nfdu8char_t* const char_value) {
         if (char_value == nullptr) {
@@ -133,7 +133,7 @@ helper::expected<std::filesystem::path, std::string> helper::openFileDialog(
     }
 
     const nfdresult_t result = NFD::OpenDialogMultiple(
-            out_paths, filterItem.get(), static_cast<nfdfiltersize_t>(allowed_files.size()), default_path_value.get()
+            out_paths, filter_item.get(), static_cast<nfdfiltersize_t>(allowed_files.size()), default_path_value.get()
     );
     if (result == NFD_OKAY) {
         std::vector<std::filesystem::path> result_vector{};

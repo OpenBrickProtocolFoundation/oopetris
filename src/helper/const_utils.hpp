@@ -28,13 +28,13 @@ s*/
     }())
 #endif
 
-#define CONSTEVAL_STATIC_ASSERT(CHECK, MSG)           \
-    do { /*NOLINT(cppcoreguidelines-avoid-do-while)*/ \
-        if (utils::is_constant_evaluated()) {         \
-            CONSTEVAL_ONLY_STATIC_ASSERT(CHECK, MSG); \
-        } else {                                      \
-            assert(CHECK&& MSG);                      \
-        }                                             \
+#define CONSTEVAL_STATIC_ASSERT(CHECK, MSG) /*NOLINT(cppcoreguidelines-macro-usage)*/    \
+    do {                                    /*NOLINT(cppcoreguidelines-avoid-do-while)*/ \
+        if (utils::is_constant_evaluated()) {                                            \
+            CONSTEVAL_ONLY_STATIC_ASSERT(CHECK, MSG);                                    \
+        } else {                                                                         \
+            assert((CHECK) && (MSG));                                                    \
+        }                                                                                \
     } while (false)
 
 
@@ -44,20 +44,20 @@ namespace const_utils {
 #define PROPAGATE(val, V, E) /*NOLINT(cppcoreguidelines-macro-usage)*/       \
     do {                     /*NOLINT(cppcoreguidelines-avoid-do-while)*/    \
         if (not((val).has_value())) {                                        \
-            return const_utils::expected<V, E>::error_result((val).error()); \
+            return const_utils::Expected<V, E>::error_result((val).error()); \
         }                                                                    \
     } while (false)
 
-    // represents a sort of constexpr std::expected
+    // represents a sort of constexpr std::Expected
     template<typename V, typename E>
         requires std::is_default_constructible_v<V> && std::is_default_constructible_v<E>
-    struct expected {
+    struct Expected {
     private:
         bool m_has_value;
         V m_value;
         E m_error;
 
-        constexpr expected(
+        constexpr Expected(
                 bool has_value,
                 const V& value,
                 const E& error
@@ -67,11 +67,11 @@ namespace const_utils {
               m_error{ error } { }
 
     public:
-        [[nodiscard]] constexpr static expected<V, E> good_result(const V& type) {
+        [[nodiscard]] constexpr static Expected<V, E> good_result(const V& type) {
             return { true, type, E{} };
         }
 
-        [[nodiscard]] constexpr static expected<V, E> error_result(const E& error) {
+        [[nodiscard]] constexpr static Expected<V, E> error_result(const E& error) {
             return { false, V{}, error };
         }
 
@@ -80,13 +80,13 @@ namespace const_utils {
         }
 
         [[nodiscard]] constexpr V value() const {
-            CONSTEVAL_STATIC_ASSERT((has_value()), "value() call on expected without value");
+            CONSTEVAL_STATIC_ASSERT((has_value()), "value() call on Expected without value");
 
             return m_value;
         }
 
         [[nodiscard]] constexpr E error() const {
-            CONSTEVAL_STATIC_ASSERT((not has_value()), "error() call on expected without error");
+            CONSTEVAL_STATIC_ASSERT((not has_value()), "error() call on Expected without error");
 
             return m_error;
         }

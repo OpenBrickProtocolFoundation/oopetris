@@ -145,7 +145,7 @@ helper::optional<InputEvent> input::TouchGameInput::sdl_event_to_input_event(con
 [[nodiscard]] helper::optional<input::MenuEvent> input::TouchGameInput::get_menu_event(const SDL_Event& event) const {
 
     if (event.type == SDL_KEYDOWN and event.key.keysym.sym == SDLK_AC_BACK) {
-        return MenuEvent::PAUSE;
+        return MenuEvent::Pause;
     }
 
     return helper::nullopt;
@@ -153,9 +153,9 @@ helper::optional<InputEvent> input::TouchGameInput::sdl_event_to_input_event(con
 
 [[nodiscard]] std::string input::TouchGameInput::describe_menu_event(MenuEvent event) const {
     switch (event) {
-        case input::MenuEvent::PAUSE:
+        case input::MenuEvent::Pause:
             return "Back";
-        case input::MenuEvent::OPEN_SETTINGS:
+        case input::MenuEvent::OpenSettings:
             throw std::runtime_error("Open Settings is not supported");
         default:
             utils::unreachable();

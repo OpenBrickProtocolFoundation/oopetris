@@ -53,24 +53,24 @@ struct fmt::formatter<sdl::GUID> : formatter<std::string> {
 namespace { //NOLINT(cert-dcl59-cpp,google-build-namespaces)
 
     // decode a single_hex_number
-    [[nodiscard]] constexpr const_utils::expected<u8, std::string> single_hex_number(char input) {
+    [[nodiscard]] constexpr const_utils::Expected<u8, std::string> single_hex_number(char input) {
         if (input >= '0' && input <= '9') {
-            return const_utils::expected<u8, std::string>::good_result(static_cast<u8>(input - '0'));
+            return const_utils::Expected<u8, std::string>::good_result(static_cast<u8>(input - '0'));
         }
 
         if (input >= 'A' && input <= 'F') {
-            return const_utils::expected<u8, std::string>::good_result(static_cast<u8>(input - 'A' + 10));
+            return const_utils::Expected<u8, std::string>::good_result(static_cast<u8>(input - 'A' + 10));
         }
 
         if (input >= 'a' && input <= 'f') {
-            return const_utils::expected<u8, std::string>::good_result(static_cast<u8>(input - 'a' + 10));
+            return const_utils::Expected<u8, std::string>::good_result(static_cast<u8>(input - 'a' + 10));
         }
 
-        return const_utils::expected<u8, std::string>::error_result("the input must be a valid hex character");
+        return const_utils::Expected<u8, std::string>::error_result("the input must be a valid hex character");
     }
 
     // decode a single 2 digit color value in hex
-    [[nodiscard]] constexpr const_utils::expected<u8, std::string> single_hex_color_value(const char* input) {
+    [[nodiscard]] constexpr const_utils::Expected<u8, std::string> single_hex_color_value(const char* input) {
 
         const auto first = single_hex_number(input[0]); //NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 
@@ -80,14 +80,14 @@ namespace { //NOLINT(cert-dcl59-cpp,google-build-namespaces)
 
         PROPAGATE(second, u8, std::string);
 
-        return const_utils::expected<u8, std::string>::good_result((first.value() << 4) | second.value());
+        return const_utils::Expected<u8, std::string>::good_result((first.value() << 4) | second.value());
     }
 
-    [[nodiscard]] constexpr const_utils::expected<sdl::GUID, std::string>
+    [[nodiscard]] constexpr const_utils::Expected<sdl::GUID, std::string>
     get_guid_from_string_impl(const char* input, std::size_t size) {
 
         if (size == 0) {
-            return const_utils::expected<sdl::GUID, std::string>::error_result(
+            return const_utils::Expected<sdl::GUID, std::string>::error_result(
                     "not enough data to determine the literal type"
             );
         }
@@ -102,7 +102,7 @@ namespace { //NOLINT(cert-dcl59-cpp,google-build-namespaces)
             width = 3;
         } else {
 
-            return const_utils::expected<sdl::GUID, std::string>::error_result("Unrecognized guid literal");
+            return const_utils::Expected<sdl::GUID, std::string>::error_result("Unrecognized guid literal");
         }
 
 
@@ -122,7 +122,7 @@ namespace { //NOLINT(cert-dcl59-cpp,google-build-namespaces)
             result.at(i) = value;
         }
 
-        return const_utils::expected<sdl::GUID, std::string>::good_result(sdl::GUID{ result });
+        return const_utils::Expected<sdl::GUID, std::string>::good_result(sdl::GUID{ result });
     }
 
 } // namespace
@@ -130,7 +130,7 @@ namespace { //NOLINT(cert-dcl59-cpp,google-build-namespaces)
 
 namespace detail {
 
-    [[nodiscard]] constexpr const_utils::expected<sdl::GUID, std::string> get_guid_from_string(const std::string& input
+    [[nodiscard]] constexpr const_utils::Expected<sdl::GUID, std::string> get_guid_from_string(const std::string& input
     ) {
         return get_guid_from_string_impl(input.c_str(), input.size());
     }

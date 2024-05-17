@@ -12,7 +12,7 @@ namespace scenes {
         service_provider,
         fmt::format(
             "Pause ({}: continue, {}: quit)",
-            game_input->describe_menu_event(input::MenuEvent::PAUSE),
+            game_input->describe_menu_event(input::MenuEvent::Pause),
           service_provider->input_manager().get_primary_input()->describe_navigation_event(input::NavigationEvent::BACK)
         ),
         service_provider->font_manager().get(FontId::Default), 
@@ -49,7 +49,7 @@ namespace scenes {
         const auto navigation_event = input_manager->get_navigation_event(event);
 
 
-        if (m_game_input->get_menu_event(event) == input::MenuEvent::OPEN_SETTINGS) {
+        if (m_game_input->get_menu_event(event) == input::MenuEvent::OpenSettings) {
             m_should_unpause = true;
             return true;
         }

@@ -120,7 +120,7 @@ namespace scenes {
         //TODO(Totto): re-add pause scene
         UNUSED(input_manager);
         UNUSED(event);
-        /*   if (utils::event_is_action(event, utils::CrossPlatformAction::PAUSE)) {
+        /*   if (utils::event_is_action(event, utils::CrossPlatformAction::Pause)) {
 
             for (auto& game : m_games) {
                 if (game->is_game_finished()) {
@@ -134,7 +134,7 @@ namespace scenes {
         }
 
 
-        if (utils::event_is_action(event, utils::CrossPlatformAction::OPEN_SETTINGS)) {
+        if (utils::event_is_action(event, utils::CrossPlatformAction::OpenSettings)) {
             m_next_scene = NextScene::Settings;
             return true;
         } */

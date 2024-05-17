@@ -27,7 +27,7 @@ namespace input {
 
     enum class GameInputType : u8 { Touch, Keyboard, Controller, Recording };
 
-    enum class MenuEvent : u8 { OPEN_SETTINGS, PAUSE };
+    enum class MenuEvent : u8 { OpenSettings, Pause };
 
 
     struct GameInput {
@@ -46,13 +46,22 @@ namespace input {
         std::unordered_map<HoldableKey, u64> m_keys_hold;
         GameInputType m_input_type;
 
-    protected:
+    private:
         Tetrion* m_target_tetrion{};
         OnEventCallback m_on_event_callback{};
 
+    protected:
         explicit GameInput(GameInputType input_type) : m_input_type{ input_type } { }
 
         void handle_event(InputEvent event, SimulationStep simulation_step_index);
+
+        [[nodiscard]] const Tetrion* target_tetrion() const {
+            return m_target_tetrion;
+        }
+
+        [[nodiscard]] const OnEventCallback& on_event_callback() const {
+            return m_on_event_callback;
+        }
 
     public:
         virtual void update(SimulationStep simulation_step_index);
@@ -81,6 +90,9 @@ namespace input {
 
         GameInput(const GameInput&) = delete;
         GameInput& operator=(const GameInput&) = delete;
+
+        GameInput(GameInput&&) = default;
+        GameInput& operator=(GameInput&&) = default;
 
         virtual ~GameInput() = default;
     };

@@ -84,7 +84,7 @@ namespace {
 #error "Unsupported platform"
 #endif
 
-    const auto result = system(shell_command.c_str());
+    const auto result = system(shell_command.c_str()); //NOLINT(cert-env33-c)
     if (result < 0) {
         spdlog::error("Error in opening url: {}", get_error_from_errno());
         return false;

@@ -182,7 +182,7 @@ namespace scenes {
 
 
         if (m_game_input.has_value()
-            and m_game_input.value()->get_menu_event(event) == input::MenuEvent::OPEN_SETTINGS) {
+            and m_game_input.value()->get_menu_event(event) == input::MenuEvent::OpenSettings) {
             m_next_command = Command{ Return{} };
             return true;
         }

@@ -813,10 +813,10 @@ helper::optional<InputEvent> input::ConsoleJoystickGameInput::sdl_event_to_input
         const auto button = event.jbutton.button;
 
         if (button == m_settings.pause) {
-            return MenuEvent::PAUSE;
+            return MenuEvent::Pause;
         }
         if (button == m_settings.open_settings) {
-            return MenuEvent::OPEN_SETTINGS;
+            return MenuEvent::OpenSettings;
         }
     }
 
@@ -826,9 +826,9 @@ helper::optional<InputEvent> input::ConsoleJoystickGameInput::sdl_event_to_input
 
 [[nodiscard]] std::string input::ConsoleJoystickGameInput::describe_menu_event(MenuEvent event) const {
     switch (event) {
-        case input::MenuEvent::PAUSE:
+        case input::MenuEvent::Pause:
             return m_underlying_joystick_input->key_to_string(m_settings.pause);
-        case input::MenuEvent::OPEN_SETTINGS:
+        case input::MenuEvent::OpenSettings:
             return m_underlying_joystick_input->key_to_string(m_settings.open_settings);
         default:
             utils::unreachable();

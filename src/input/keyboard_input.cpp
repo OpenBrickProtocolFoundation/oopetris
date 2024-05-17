@@ -191,10 +191,10 @@ SDL::Key json_helper::get_key(const nlohmann::json& j, const std::string& name) 
     if (event.type == SDL_KEYDOWN and event.key.repeat == 0) {
         const auto key = SDL::Key{ event.key.keysym };
         if (key == m_settings.pause) {
-            return MenuEvent::PAUSE;
+            return MenuEvent::Pause;
         }
         if (key == m_settings.open_settings) {
-            return MenuEvent::OPEN_SETTINGS;
+            return MenuEvent::OpenSettings;
         }
     }
 
@@ -203,9 +203,9 @@ SDL::Key json_helper::get_key(const nlohmann::json& j, const std::string& name) 
 
 [[nodiscard]] std::string input::KeyboardGameInput::describe_menu_event(MenuEvent event) const {
     switch (event) {
-        case input::MenuEvent::PAUSE:
+        case input::MenuEvent::Pause:
             return m_settings.pause.to_string();
-        case input::MenuEvent::OPEN_SETTINGS:
+        case input::MenuEvent::OpenSettings:
             return m_settings.open_settings.to_string();
         default:
             utils::unreachable();

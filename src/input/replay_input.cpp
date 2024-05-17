@@ -15,7 +15,7 @@ void input::ReplayGameInput::update(const SimulationStep simulation_step_index) 
 
         const auto& record = m_recording_reader->at(m_next_record_index);
 
-        if (record.tetrion_index != m_target_tetrion->tetrion_index()) {
+        if (record.tetrion_index != target_tetrion()->tetrion_index()) {
             // the current record is not for this tetrion => discard record and keep reading
             ++m_next_record_index;
             continue;
@@ -46,20 +46,20 @@ void input::ReplayGameInput::late_update(const SimulationStep simulation_step_in
         }
 
         const auto& snapshot = m_recording_reader->snapshots().at(m_next_snapshot_index);
-        if (snapshot.tetrion_index() != m_target_tetrion->tetrion_index()) {
+        if (snapshot.tetrion_index() != target_tetrion()->tetrion_index()) {
             ++m_next_snapshot_index;
             continue;
         }
 
         // the snapshot corresponds to this tetrion
-        assert(snapshot.tetrion_index() == m_target_tetrion->tetrion_index());
+        assert(snapshot.tetrion_index() == target_tetrion()->tetrion_index());
 
         if (snapshot.simulation_step_index() != simulation_step_index) {
             break;
         }
 
         // create a snapshot from the current state of the tetrion and compare it to the loaded snapshot
-        const auto current_snapshot = TetrionSnapshot{ m_target_tetrion->core_information(), simulation_step_index };
+        const auto current_snapshot = TetrionSnapshot{ target_tetrion()->core_information(), simulation_step_index };
 
 
         spdlog::info("comparing tetrion snapshots at simulation_step {}", simulation_step_index);

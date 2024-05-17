@@ -111,13 +111,13 @@ namespace scenes {
 
         const auto& game_input = m_game->game_input();
 
-        if (game_input->get_menu_event(event) == input::MenuEvent::PAUSE and not m_game->is_game_finished()) {
+        if (game_input->get_menu_event(event) == input::MenuEvent::Pause and not m_game->is_game_finished()) {
             m_next_scene = NextScene::Pause;
             m_game->set_paused(true);
             return true;
         }
 
-        if (game_input->get_menu_event(event) == input::MenuEvent::OPEN_SETTINGS) {
+        if (game_input->get_menu_event(event) == input::MenuEvent::OpenSettings) {
             m_next_scene = NextScene::Settings;
             return true;
         }
