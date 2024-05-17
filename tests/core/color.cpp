@@ -256,7 +256,7 @@ TEST(ColorConversion, HSVtoRGBtoHSV) {
 }
 
 
-TEST(ColorConversion, RGG_to_HSV_to_RGB) {
+TEST(ColorConversion, RGGtoHSVtoRGB) {
 
 #if COLOR_TEST_MODE == 0
     const std::vector<Color> colors{

@@ -330,7 +330,7 @@ namespace {
         if (auto primary_input = utils::is_child_class<PrimaryInputType>(input); primary_input.has_value()) {
             auto result = get_game_input_by_input(service_provider, input);
             if (result.has_value()) {
-                return result.value();
+                return result;
             }
         }
     }
