@@ -12,7 +12,7 @@
 				"rotate_left": "Left",
 				"rotate_right": "Right",
 				"menu": {
-					"pause": "Escape",
+					"pause": "Space",
 					"open_settings": "P"
 				}
 			},

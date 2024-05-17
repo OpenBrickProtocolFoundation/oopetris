@@ -1,5 +1,6 @@
 #pragma once
 
+#include "SDL_keycode.h"
 #include "game_input.hpp"
 #include "helper/expected.hpp"
 #include "helper/parse_json.hpp"
@@ -49,7 +50,7 @@ namespace input {
                                      .move_down = sdl::Key{ SDLK_s },
                                      .drop = sdl::Key{ SDLK_w },
                                      .hold = sdl::Key{ SDLK_TAB },
-                                     .pause = sdl::Key{ SDLK_ESCAPE },
+                                     .pause = sdl::Key{ SDLK_SPACE },
                                      .open_settings = sdl::Key{ SDLK_e } };
         }
     };
