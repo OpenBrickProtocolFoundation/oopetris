@@ -27,30 +27,30 @@ namespace input {
 
     //TODO(Totto):  don't default initialize all settings, but rather provide a static default setting, so that everything has to be set explicitly, or you can use the default explicitly
     struct KeyboardSettings {
-        SDL::Key rotate_left;
-        SDL::Key rotate_right;
-        SDL::Key move_left;
-        SDL::Key move_right;
-        SDL::Key move_down;
-        SDL::Key drop;
-        SDL::Key hold;
+        sdl::Key rotate_left;
+        sdl::Key rotate_right;
+        sdl::Key move_left;
+        sdl::Key move_right;
+        sdl::Key move_down;
+        sdl::Key drop;
+        sdl::Key hold;
 
-        SDL::Key pause;
-        SDL::Key open_settings;
+        sdl::Key pause;
+        sdl::Key open_settings;
 
 
         [[nodiscard]] helper::expected<bool, std::string> validate() const;
 
         [[nodiscard]] static KeyboardSettings default_settings() {
-            return KeyboardSettings{ .rotate_left = SDL::Key{ SDLK_LEFT },
-                                     .rotate_right = SDL::Key{ SDLK_RIGHT },
-                                     .move_left = SDL::Key{ SDLK_a },
-                                     .move_right = SDL::Key{ SDLK_d },
-                                     .move_down = SDL::Key{ SDLK_s },
-                                     .drop = SDL::Key{ SDLK_w },
-                                     .hold = SDL::Key{ SDLK_TAB },
-                                     .pause = SDL::Key{ SDLK_ESCAPE },
-                                     .open_settings = SDL::Key{ SDLK_e } };
+            return KeyboardSettings{ .rotate_left = sdl::Key{ SDLK_LEFT },
+                                     .rotate_right = sdl::Key{ SDLK_RIGHT },
+                                     .move_left = sdl::Key{ SDLK_a },
+                                     .move_right = sdl::Key{ SDLK_d },
+                                     .move_down = sdl::Key{ SDLK_s },
+                                     .drop = sdl::Key{ SDLK_w },
+                                     .hold = sdl::Key{ SDLK_TAB },
+                                     .pause = sdl::Key{ SDLK_ESCAPE },
+                                     .open_settings = sdl::Key{ SDLK_e } };
         }
     };
 
@@ -83,7 +83,7 @@ namespace input {
 namespace json_helper {
 
 
-    [[nodiscard]] SDL::Key get_key(const nlohmann::json& j, const std::string& name);
+    [[nodiscard]] sdl::Key get_key(const nlohmann::json& j, const std::string& name);
 
 } // namespace json_helper
 

@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 
-namespace SDL {
+namespace sdl {
 
     enum class Modifier : u8 {
         LSHIFT,
@@ -84,11 +84,11 @@ namespace SDL {
     };
 
 
-} // namespace SDL
+} // namespace sdl
 
 template<>
-struct fmt::formatter<SDL::Key> : formatter<std::string> {
-    auto format(const SDL::Key& key, format_context& ctx) {
+struct fmt::formatter<sdl::Key> : formatter<std::string> {
+    auto format(const sdl::Key& key, format_context& ctx) {
         return formatter<std::string>::format(key.to_string(), ctx);
     }
 };

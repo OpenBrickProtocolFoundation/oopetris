@@ -355,21 +355,21 @@ helper::optional<double> MusicManager::change_volume(const std::int8_t steps) {
 bool MusicManager::handle_event(const std::shared_ptr<input::InputManager>&, const SDL_Event& event) {
 
     if (event.type == SDL_KEYDOWN) {
-        const auto key = SDL::Key{ event.key.keysym };
+        const auto key = sdl::Key{ event.key.keysym };
 
 
-        if (key.is_key(SDL::Key{ SDLK_PLUS }) or key.is_key(SDL::Key{ SDLK_KP_PLUS })) {
-            const i8 steps = key.has_modifier(SDL::Modifier::CTRL)    ? 100
-                             : key.has_modifier(SDL::Modifier::SHIFT) ? 10
+        if (key.is_key(sdl::Key{ SDLK_PLUS }) or key.is_key(sdl::Key{ SDLK_KP_PLUS })) {
+            const i8 steps = key.has_modifier(sdl::Modifier::CTRL)    ? 100
+                             : key.has_modifier(sdl::Modifier::SHIFT) ? 10
                                                                       : 1;
 
             change_volume(steps);
             return true;
         }
 
-        if (key.is_key(SDL::Key{ SDLK_MINUS }) or key.is_key(SDL::Key{ SDLK_KP_MINUS })) {
-            const i8 steps = key.has_modifier(SDL::Modifier::CTRL)    ? -100
-                             : key.has_modifier(SDL::Modifier::SHIFT) ? -10
+        if (key.is_key(sdl::Key{ SDLK_MINUS }) or key.is_key(sdl::Key{ SDLK_KP_MINUS })) {
+            const i8 steps = key.has_modifier(sdl::Modifier::CTRL)    ? -100
+                             : key.has_modifier(sdl::Modifier::SHIFT) ? -10
                                                                       : -1;
             change_volume(steps);
             return true;

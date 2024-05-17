@@ -14,38 +14,38 @@ input::KeyboardInput::KeyboardInput() : input::Input{ "keyboard", InputType::Key
 
     if (event.type == SDL_KEYDOWN) {
 
-        const auto key = SDL::Key{ event.key.keysym };
+        const auto key = sdl::Key{ event.key.keysym };
 
-        if (key == SDL::Key{ SDLK_RETURN } or key == SDL::Key{ SDLK_SPACE }) {
+        if (key == sdl::Key{ SDLK_RETURN } or key == sdl::Key{ SDLK_SPACE }) {
             return NavigationEvent::OK;
         }
 
-        if (key == SDL::Key{ SDLK_DOWN } or key == SDL::Key{ SDLK_s }) {
+        if (key == sdl::Key{ SDLK_DOWN } or key == sdl::Key{ SDLK_s }) {
             return NavigationEvent::DOWN;
         }
 
 
-        if (key == SDL::Key{ SDLK_UP } or key == SDL::Key{ SDLK_w }) {
+        if (key == sdl::Key{ SDLK_UP } or key == sdl::Key{ SDLK_w }) {
             return NavigationEvent::UP;
         }
 
 
-        if (key == SDL::Key{ SDLK_LEFT } or key == SDL::Key{ SDLK_a }) {
+        if (key == sdl::Key{ SDLK_LEFT } or key == sdl::Key{ SDLK_a }) {
             return NavigationEvent::LEFT;
         }
 
 
-        if (key == SDL::Key{ SDLK_RIGHT } or key == SDL::Key{ SDLK_d }) {
+        if (key == sdl::Key{ SDLK_RIGHT } or key == sdl::Key{ SDLK_d }) {
             return NavigationEvent::RIGHT;
         }
 
 
-        if (key == SDL::Key{ SDLK_ESCAPE } or key == SDL::Key{ SDLK_BACKSPACE }) {
+        if (key == sdl::Key{ SDLK_ESCAPE } or key == sdl::Key{ SDLK_BACKSPACE }) {
             return NavigationEvent::BACK;
         }
 
 
-        if (key == SDL::Key{ SDLK_TAB }) {
+        if (key == sdl::Key{ SDLK_TAB }) {
             return NavigationEvent::TAB;
         }
     }
@@ -60,19 +60,19 @@ input::KeyboardInput::KeyboardInput() : input::Input{ "keyboard", InputType::Key
     switch (event) {
 
         case NavigationEvent::OK:
-            return fmt::format("{} or {}", SDL::Key{ SDLK_RETURN }, SDL::Key{ SDLK_SPACE });
+            return fmt::format("{} or {}", sdl::Key{ SDLK_RETURN }, sdl::Key{ SDLK_SPACE });
         case NavigationEvent::DOWN:
-            return fmt::format("{} or {}", SDL::Key{ SDLK_DOWN }, SDL::Key{ SDLK_s });
+            return fmt::format("{} or {}", sdl::Key{ SDLK_DOWN }, sdl::Key{ SDLK_s });
         case NavigationEvent::UP:
-            return fmt::format("{} or {}", SDL::Key{ SDLK_UP }, SDL::Key{ SDLK_w });
+            return fmt::format("{} or {}", sdl::Key{ SDLK_UP }, sdl::Key{ SDLK_w });
         case NavigationEvent::LEFT:
-            return fmt::format("{} or {}", SDL::Key{ SDLK_LEFT }, SDL::Key{ SDLK_a });
+            return fmt::format("{} or {}", sdl::Key{ SDLK_LEFT }, sdl::Key{ SDLK_a });
         case NavigationEvent::RIGHT:
-            return fmt::format("{} or {}", SDL::Key{ SDLK_RIGHT }, SDL::Key{ SDLK_d });
+            return fmt::format("{} or {}", sdl::Key{ SDLK_RIGHT }, sdl::Key{ SDLK_d });
         case NavigationEvent::BACK:
-            return fmt::format("{} or {}", SDL::Key{ SDLK_ESCAPE }, SDL::Key{ SDLK_BACKSPACE });
+            return fmt::format("{} or {}", sdl::Key{ SDLK_ESCAPE }, sdl::Key{ SDLK_BACKSPACE });
         case NavigationEvent::TAB:
-            return fmt::format("{}", SDL::Key{ SDLK_TAB });
+            return fmt::format("{}", sdl::Key{ SDLK_TAB });
         default:
             utils::unreachable();
     }
@@ -97,7 +97,7 @@ void input::KeyboardGameInput::update(SimulationStep simulation_step_index) {
 
 helper::optional<InputEvent> input::KeyboardGameInput::sdl_event_to_input_event(const SDL_Event& event) const {
     if (event.type == SDL_KEYDOWN and event.key.repeat == 0) {
-        const auto key = SDL::Key{ event.key.keysym };
+        const auto key = sdl::Key{ event.key.keysym };
         if (key == m_settings.rotate_left) {
             return InputEvent::RotateLeftPressed;
         }
@@ -120,7 +120,7 @@ helper::optional<InputEvent> input::KeyboardGameInput::sdl_event_to_input_event(
             return InputEvent::HoldPressed;
         }
     } else if (event.type == SDL_KEYUP) {
-        const auto key = SDL::Key{ event.key.keysym };
+        const auto key = sdl::Key{ event.key.keysym };
         if (key == m_settings.rotate_left) {
             return InputEvent::RotateLeftReleased;
         }
@@ -160,20 +160,20 @@ input::KeyboardGameInput::~KeyboardGameInput() {
 
 [[nodiscard]] helper::expected<bool, std::string> input::KeyboardSettings::validate() const {
 
-    const std::vector<SDL::Key> to_use{ rotate_left, rotate_right, move_left, move_right,   move_down,
+    const std::vector<sdl::Key> to_use{ rotate_left, rotate_right, move_left, move_right,   move_down,
                                         drop,        hold,         pause,     open_settings };
 
     return input::InputSettings::has_unique_members(to_use);
 }
 
-SDL::Key json_helper::get_key(const nlohmann::json& j, const std::string& name) {
+sdl::Key json_helper::get_key(const nlohmann::json& j, const std::string& name) {
 
     auto context = j.at(name);
 
     std::string input;
     context.get_to(input);
 
-    const auto& value = SDL::Key::from_string(input);
+    const auto& value = sdl::Key::from_string(input);
 
     if (not value.has_value()) {
         throw nlohmann::json::type_error::create(
@@ -189,7 +189,7 @@ SDL::Key json_helper::get_key(const nlohmann::json& j, const std::string& name) 
 ) const {
 
     if (event.type == SDL_KEYDOWN and event.key.repeat == 0) {
-        const auto key = SDL::Key{ event.key.keysym };
+        const auto key = sdl::Key{ event.key.keysym };
         if (key == m_settings.pause) {
             return MenuEvent::Pause;
         }

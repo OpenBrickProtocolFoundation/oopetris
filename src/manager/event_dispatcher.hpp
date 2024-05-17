@@ -16,18 +16,18 @@ private:
     bool m_enabled{ true };
 
     //TODO(Totto):  factor out to some other place!
-    std::vector<SDL::Key> allowed_input_keys{
-        SDL::Key{ SDLK_RETURN },
-        SDL::Key{ SDLK_BACKSPACE },
-        SDL::Key{ SDLK_BACKSPACE, { SDL::Modifier::CTRL } },
-        SDL::Key{ SDLK_DOWN },
-        SDL::Key{ SDLK_UP },
-        SDL::Key{ SDLK_LEFT },
-        SDL::Key{ SDLK_RIGHT },
-        SDL::Key{ SDLK_ESCAPE },
-        SDL::Key{ SDLK_TAB },
-        SDL::Key{ SDLK_c, { SDL::Modifier::CTRL } },
-        SDL::Key{ SDLK_v, { SDL::Modifier::CTRL } }
+    std::vector<sdl::Key> allowed_input_keys{
+        sdl::Key{ SDLK_RETURN },
+        sdl::Key{ SDLK_BACKSPACE },
+        sdl::Key{ SDLK_BACKSPACE, { sdl::Modifier::CTRL } },
+        sdl::Key{ SDLK_DOWN },
+        sdl::Key{ SDLK_UP },
+        sdl::Key{ SDLK_LEFT },
+        sdl::Key{ SDLK_RIGHT },
+        sdl::Key{ SDLK_ESCAPE },
+        sdl::Key{ SDLK_TAB },
+        sdl::Key{ SDLK_c, { sdl::Modifier::CTRL } },
+        sdl::Key{ SDLK_v, { sdl::Modifier::CTRL } }
     };
 
 public:
@@ -54,7 +54,7 @@ public:
                 switch (event.type) {
                     case SDL_KEYDOWN:
                     case SDL_KEYUP: {
-                        if (std::ranges::find(allowed_input_keys, SDL::Key{ event.key.keysym })
+                        if (std::ranges::find(allowed_input_keys, sdl::Key{ event.key.keysym })
                             == allowed_input_keys.cend()) {
                             return;
                         }

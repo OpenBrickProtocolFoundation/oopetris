@@ -16,133 +16,133 @@
 #include <vector>
 
 
-SDL::Key::Key(SDL_KeyCode keycode, UnderlyingModifierType modifiers)
+sdl::Key::Key(SDL_KeyCode keycode, UnderlyingModifierType modifiers)
     : m_keycode{ keycode },
       m_modifiers{ modifiers } { }
 
-SDL::Key::Key(SDL_KeyCode keycode, const std::vector<Modifier>& modifiers)
-    : Key{ keycode, SDL::Key::sdl_modifier_from_modifiers(modifiers) } { }
+sdl::Key::Key(SDL_KeyCode keycode, const std::vector<Modifier>& modifiers)
+    : Key{ keycode, sdl::Key::sdl_modifier_from_modifiers(modifiers) } { }
 
-SDL::Key::Key(const SDL_Keysym& keysym) : Key{ static_cast<SDL_KeyCode>(keysym.sym), keysym.mod } { }
+sdl::Key::Key(const SDL_Keysym& keysym) : Key{ static_cast<SDL_KeyCode>(keysym.sym), keysym.mod } { }
 
 
-[[nodiscard]] bool SDL::Key::is_key(const SDL::Key& other) const {
+[[nodiscard]] bool sdl::Key::is_key(const sdl::Key& other) const {
     return m_keycode == other.m_keycode;
 }
 
 namespace {
-    constexpr SDL_Keymod to_sdl_modifier(SDL::Modifier modifier) {
+    constexpr SDL_Keymod to_sdl_modifier(sdl::Modifier modifier) {
         switch (modifier) {
-            case SDL::Modifier::LSHIFT:
+            case sdl::Modifier::LSHIFT:
                 return KMOD_LSHIFT;
-            case SDL::Modifier::RSHIFT:
+            case sdl::Modifier::RSHIFT:
                 return KMOD_RSHIFT;
 
-            case SDL::Modifier::LCTRL:
+            case sdl::Modifier::LCTRL:
                 return KMOD_LCTRL;
-            case SDL::Modifier::RCTRL:
+            case sdl::Modifier::RCTRL:
                 return KMOD_RCTRL;
 
-            case SDL::Modifier::LALT:
+            case sdl::Modifier::LALT:
                 return KMOD_LALT;
-            case SDL::Modifier::RALT:
+            case sdl::Modifier::RALT:
                 return KMOD_RALT;
 
-            case SDL::Modifier::LGUI:
+            case sdl::Modifier::LGUI:
                 return KMOD_LGUI;
-            case SDL::Modifier::RGUI:
+            case sdl::Modifier::RGUI:
                 return KMOD_RGUI;
 
-            case SDL::Modifier::NUM:
+            case sdl::Modifier::NUM:
                 return KMOD_NUM;
-            case SDL::Modifier::CAPS:
+            case sdl::Modifier::CAPS:
                 return KMOD_CAPS;
-            case SDL::Modifier::MODE:
+            case sdl::Modifier::MODE:
                 return KMOD_MODE;
-            case SDL::Modifier::SCROLL:
+            case sdl::Modifier::SCROLL:
                 return KMOD_SCROLL;
 
-            case SDL::Modifier::CTRL:
+            case sdl::Modifier::CTRL:
                 return KMOD_CTRL;
-            case SDL::Modifier::SHIFT:
+            case sdl::Modifier::SHIFT:
                 return KMOD_SHIFT;
-            case SDL::Modifier::ALT:
+            case sdl::Modifier::ALT:
                 return KMOD_ALT;
-            case SDL::Modifier::GUI:
+            case sdl::Modifier::GUI:
                 return KMOD_GUI;
             default:
                 utils::unreachable();
         }
     }
 
-    [[maybe_unused]] constexpr SDL::Modifier from_sdl_modifier(SDL_Keymod modifier) {
+    [[maybe_unused]] constexpr sdl::Modifier from_sdl_modifier(SDL_Keymod modifier) {
         switch (modifier) {
             case KMOD_LSHIFT:
-                return SDL::Modifier::LSHIFT;
+                return sdl::Modifier::LSHIFT;
             case KMOD_RSHIFT:
-                return SDL::Modifier::RSHIFT;
+                return sdl::Modifier::RSHIFT;
 
             case KMOD_LCTRL:
-                return SDL::Modifier::LCTRL;
+                return sdl::Modifier::LCTRL;
             case KMOD_RCTRL:
-                return SDL::Modifier::RCTRL;
+                return sdl::Modifier::RCTRL;
 
             case KMOD_LALT:
-                return SDL::Modifier::LALT;
+                return sdl::Modifier::LALT;
             case KMOD_RALT:
-                return SDL::Modifier::RALT;
+                return sdl::Modifier::RALT;
 
             case KMOD_LGUI:
-                return SDL::Modifier::LGUI;
+                return sdl::Modifier::LGUI;
             case KMOD_RGUI:
-                return SDL::Modifier::RGUI;
+                return sdl::Modifier::RGUI;
 
             case KMOD_NUM:
-                return SDL::Modifier::NUM;
+                return sdl::Modifier::NUM;
             case KMOD_CAPS:
-                return SDL::Modifier::CAPS;
+                return sdl::Modifier::CAPS;
             case KMOD_MODE:
-                return SDL::Modifier::MODE;
+                return sdl::Modifier::MODE;
             case KMOD_SCROLL:
-                return SDL::Modifier::SCROLL;
+                return sdl::Modifier::SCROLL;
 
             case KMOD_CTRL:
-                return SDL::Modifier::CTRL;
+                return sdl::Modifier::CTRL;
             case KMOD_SHIFT:
-                return SDL::Modifier::SHIFT;
+                return sdl::Modifier::SHIFT;
             case KMOD_ALT:
-                return SDL::Modifier::ALT;
+                return sdl::Modifier::ALT;
             case KMOD_GUI:
-                return SDL::Modifier::GUI;
+                return sdl::Modifier::GUI;
             default:
                 utils::unreachable();
         }
     }
 
-    constexpr std::tuple<std::array<SDL::Modifier, 8>, std::array<SDL::Modifier, 4>, std::array<SDL::Modifier, 4>>
+    constexpr std::tuple<std::array<sdl::Modifier, 8>, std::array<sdl::Modifier, 4>, std::array<sdl::Modifier, 4>>
     get_modifier_type_array() {
         return {
             {
-             SDL::Modifier::LSHIFT,
-             SDL::Modifier::RSHIFT,
-             SDL::Modifier::LCTRL,
-             SDL::Modifier::RCTRL,
-             SDL::Modifier::LALT,
-             SDL::Modifier::RALT,
-             SDL::Modifier::LGUI,
-             SDL::Modifier::RGUI,
+             sdl::Modifier::LSHIFT,
+             sdl::Modifier::RSHIFT,
+             sdl::Modifier::LCTRL,
+             sdl::Modifier::RCTRL,
+             sdl::Modifier::LALT,
+             sdl::Modifier::RALT,
+             sdl::Modifier::LGUI,
+             sdl::Modifier::RGUI,
              },
             {
-             SDL::Modifier::NUM,
-             SDL::Modifier::CAPS,
-             SDL::Modifier::MODE,
-             SDL::Modifier::SCROLL,
+             sdl::Modifier::NUM,
+             sdl::Modifier::CAPS,
+             sdl::Modifier::MODE,
+             sdl::Modifier::SCROLL,
              },
             {
-             SDL::Modifier::CTRL,
-             SDL::Modifier::SHIFT,
-             SDL::Modifier::ALT,
-             SDL::Modifier::GUI,
+             sdl::Modifier::CTRL,
+             sdl::Modifier::SHIFT,
+             sdl::Modifier::ALT,
+             sdl::Modifier::GUI,
              }
         };
     }
@@ -159,63 +159,63 @@ namespace {
     }
 
 
-    [[maybe_unused]] SDL::ModifierType typeof_modifier(SDL::Modifier modifier) {
+    [[maybe_unused]] sdl::ModifierType typeof_modifier(sdl::Modifier modifier) {
         const auto& [normal, special, multiple] = get_modifier_type_array();
 
         if (std::ranges::find(normal, modifier) != normal.cend()) {
-            return SDL::ModifierType::Normal;
+            return sdl::ModifierType::Normal;
         }
 
         if (std::ranges::find(special, modifier) != special.cend()) {
-            return SDL::ModifierType::Special;
+            return sdl::ModifierType::Special;
         }
 
         if (std::ranges::find(multiple, modifier) != multiple.cend()) {
-            return SDL::ModifierType::Multiple;
+            return sdl::ModifierType::Multiple;
         }
 
         utils::unreachable();
     }
 
 
-    constexpr std::string modifier_to_string(SDL::Modifier modifier) {
+    constexpr std::string modifier_to_string(sdl::Modifier modifier) {
         switch (modifier) {
-            case SDL::Modifier::LSHIFT:
+            case sdl::Modifier::LSHIFT:
                 return "Shift-L";
-            case SDL::Modifier::RSHIFT:
+            case sdl::Modifier::RSHIFT:
                 return "Shift-R";
 
-            case SDL::Modifier::LCTRL:
+            case sdl::Modifier::LCTRL:
                 return "Ctrl-L";
-            case SDL::Modifier::RCTRL:
+            case sdl::Modifier::RCTRL:
                 return "Ctrl-R";
 
-            case SDL::Modifier::LALT:
+            case sdl::Modifier::LALT:
                 return "Alt-L";
-            case SDL::Modifier::RALT:
+            case sdl::Modifier::RALT:
                 return "Alt-R";
 
-            case SDL::Modifier::LGUI:
+            case sdl::Modifier::LGUI:
                 return "Gui-L";
-            case SDL::Modifier::RGUI:
+            case sdl::Modifier::RGUI:
                 return "Gui-R";
 
-            case SDL::Modifier::NUM:
+            case sdl::Modifier::NUM:
                 return "Num";
-            case SDL::Modifier::CAPS:
+            case sdl::Modifier::CAPS:
                 return "Caps";
-            case SDL::Modifier::MODE:
+            case sdl::Modifier::MODE:
                 return "Mode";
-            case SDL::Modifier::SCROLL:
+            case sdl::Modifier::SCROLL:
                 return "Scroll";
 
-            case SDL::Modifier::CTRL:
+            case sdl::Modifier::CTRL:
                 return "Ctrl";
-            case SDL::Modifier::SHIFT:
+            case sdl::Modifier::SHIFT:
                 return "Shift";
-            case SDL::Modifier::ALT:
+            case sdl::Modifier::ALT:
                 return "Alt";
-            case SDL::Modifier::GUI:
+            case sdl::Modifier::GUI:
                 return "Gui";
             default:
                 utils::unreachable();
@@ -223,7 +223,7 @@ namespace {
     }
 
 
-    helper::optional<SDL::Modifier> modifier_from_string(const std::string& modifier) {
+    helper::optional<sdl::Modifier> modifier_from_string(const std::string& modifier) {
 
         if (modifier.empty()) {
             return helper::nullopt;
@@ -232,23 +232,23 @@ namespace {
         const auto lower_case = string::to_lower_case(modifier);
 
 
-        const std::unordered_map<std::string, SDL::Modifier> map{
-            { "shift-l", SDL::Modifier::LSHIFT },
-            { "shift-r", SDL::Modifier::RSHIFT },
-            {  "ctrl-l",  SDL::Modifier::LCTRL },
-            {  "ctrl-r",  SDL::Modifier::RCTRL },
-            {   "alt-l",   SDL::Modifier::LALT },
-            {   "alt-r",   SDL::Modifier::RALT },
-            {   "gui-l",   SDL::Modifier::LGUI },
-            {   "gui-r",   SDL::Modifier::RGUI },
-            {     "num",    SDL::Modifier::NUM },
-            {    "caps",   SDL::Modifier::CAPS },
-            {    "mode",   SDL::Modifier::MODE },
-            {  "scroll", SDL::Modifier::SCROLL },
-            {    "ctrl",   SDL::Modifier::CTRL },
-            {   "shift",  SDL::Modifier::SHIFT },
-            {     "alt",    SDL::Modifier::ALT },
-            {     "gui",    SDL::Modifier::GUI },
+        const std::unordered_map<std::string, sdl::Modifier> map{
+            { "shift-l", sdl::Modifier::LSHIFT },
+            { "shift-r", sdl::Modifier::RSHIFT },
+            {  "ctrl-l",  sdl::Modifier::LCTRL },
+            {  "ctrl-r",  sdl::Modifier::RCTRL },
+            {   "alt-l",   sdl::Modifier::LALT },
+            {   "alt-r",   sdl::Modifier::RALT },
+            {   "gui-l",   sdl::Modifier::LGUI },
+            {   "gui-r",   sdl::Modifier::RGUI },
+            {     "num",    sdl::Modifier::NUM },
+            {    "caps",   sdl::Modifier::CAPS },
+            {    "mode",   sdl::Modifier::MODE },
+            {  "scroll", sdl::Modifier::SCROLL },
+            {    "ctrl",   sdl::Modifier::CTRL },
+            {   "shift",  sdl::Modifier::SHIFT },
+            {     "alt",    sdl::Modifier::ALT },
+            {     "gui",    sdl::Modifier::GUI },
         };
 
         if (map.contains(lower_case)) {
@@ -261,14 +261,14 @@ namespace {
 } // namespace
 
 
-helper::expected<SDL::Key, std::string> SDL::Key::from_string(const std::string& value) {
+helper::expected<sdl::Key, std::string> sdl::Key::from_string(const std::string& value) {
 
     auto tokens = string::split_string_by_char(value, "+");
     for (auto& token : tokens) {
         string::trim(token);
     }
 
-    std::vector<SDL::Modifier> modifiers{};
+    std::vector<sdl::Modifier> modifiers{};
 
     for (size_t i = 0; i < tokens.size(); ++i) {
         const auto& token = tokens.at(i);
@@ -278,7 +278,7 @@ helper::expected<SDL::Key, std::string> SDL::Key::from_string(const std::string&
         }
 
         if (i + 1 == tokens.size()) {
-            const auto keycode = SDL::Key::sdl_keycode_from_string(token);
+            const auto keycode = sdl::Key::sdl_keycode_from_string(token);
             if (not keycode.has_value()) {
                 const auto modifier = modifier_from_string(token);
                 if (modifier.has_value()) {
@@ -288,7 +288,7 @@ helper::expected<SDL::Key, std::string> SDL::Key::from_string(const std::string&
             }
 
             //search for duplicates
-            std::unordered_set<SDL::Modifier> values{};
+            std::unordered_set<sdl::Modifier> values{};
             for (const auto& modifier : modifiers) {
                 if (values.contains(modifier)) {
                     return helper::unexpected<std::string>{
@@ -298,7 +298,7 @@ helper::expected<SDL::Key, std::string> SDL::Key::from_string(const std::string&
                 values.insert(modifier);
             }
 
-            return SDL::Key{ keycode.value(), modifiers };
+            return sdl::Key{ keycode.value(), modifiers };
         }
 
         const auto modifier = modifier_from_string(token);
@@ -313,52 +313,52 @@ helper::expected<SDL::Key, std::string> SDL::Key::from_string(const std::string&
 }
 
 
-[[nodiscard]] bool SDL::Key::has_modifier(const Modifier& modifier) const {
+[[nodiscard]] bool sdl::Key::has_modifier(const Modifier& modifier) const {
     const auto sdl_modifier = to_sdl_modifier(modifier);
     ;
 
     return (m_modifiers & sdl_modifier) != 0;
 }
 
-[[nodiscard]] bool SDL::Key::has_modifier_exact(const Modifier& modifier) const {
+[[nodiscard]] bool sdl::Key::has_modifier_exact(const Modifier& modifier) const {
 
-    SDL::Modifier has_not;
+    sdl::Modifier has_not;
 
     switch (modifier) {
-        case SDL::Modifier::LSHIFT:
-            has_not = SDL::Modifier::RSHIFT;
+        case sdl::Modifier::LSHIFT:
+            has_not = sdl::Modifier::RSHIFT;
             break;
-        case SDL::Modifier::RSHIFT:
-            has_not = SDL::Modifier::LSHIFT;
+        case sdl::Modifier::RSHIFT:
+            has_not = sdl::Modifier::LSHIFT;
             break;
-        case SDL::Modifier::LCTRL:
-            has_not = SDL::Modifier::RCTRL;
+        case sdl::Modifier::LCTRL:
+            has_not = sdl::Modifier::RCTRL;
             break;
-        case SDL::Modifier::RCTRL:
-            has_not = SDL::Modifier::LCTRL;
+        case sdl::Modifier::RCTRL:
+            has_not = sdl::Modifier::LCTRL;
             break;
-        case SDL::Modifier::LALT:
-            has_not = SDL::Modifier::RALT;
+        case sdl::Modifier::LALT:
+            has_not = sdl::Modifier::RALT;
             break;
-        case SDL::Modifier::RALT:
-            has_not = SDL::Modifier::LALT;
+        case sdl::Modifier::RALT:
+            has_not = sdl::Modifier::LALT;
             break;
-        case SDL::Modifier::LGUI:
-            has_not = SDL::Modifier::RGUI;
+        case sdl::Modifier::LGUI:
+            has_not = sdl::Modifier::RGUI;
             break;
-        case SDL::Modifier::RGUI:
-            has_not = SDL::Modifier::LGUI;
+        case sdl::Modifier::RGUI:
+            has_not = sdl::Modifier::LGUI;
             break;
 
-        case SDL::Modifier::NUM:
-        case SDL::Modifier::CAPS:
-        case SDL::Modifier::MODE:
-        case SDL::Modifier::SCROLL:
+        case sdl::Modifier::NUM:
+        case sdl::Modifier::CAPS:
+        case sdl::Modifier::MODE:
+        case sdl::Modifier::SCROLL:
 
-        case SDL::Modifier::CTRL:
-        case SDL::Modifier::SHIFT:
-        case SDL::Modifier::ALT:
-        case SDL::Modifier::GUI: {
+        case sdl::Modifier::CTRL:
+        case sdl::Modifier::SHIFT:
+        case sdl::Modifier::ALT:
+        case sdl::Modifier::GUI: {
             const auto sdl_modifier = to_sdl_modifier(modifier);
             return (m_modifiers & sdl_modifier) == sdl_modifier;
         }
@@ -375,11 +375,11 @@ helper::expected<SDL::Key, std::string> SDL::Key::from_string(const std::string&
 }
 
 
-[[nodiscard]] bool SDL::Key::operator==(const Key& other) const {
+[[nodiscard]] bool sdl::Key::operator==(const Key& other) const {
     return is_equal(other, true);
 }
 
-[[nodiscard]] bool SDL::Key::is_equal(const Key& other, bool ignore_special_modifiers) const {
+[[nodiscard]] bool sdl::Key::is_equal(const Key& other, bool ignore_special_modifiers) const {
     if (not is_key(other)) {
         return false;
     }
@@ -415,7 +415,7 @@ helper::expected<SDL::Key, std::string> SDL::Key::from_string(const std::string&
     return true;
 }
 
-[[nodiscard]] std::string SDL::Key::to_string() const {
+[[nodiscard]] std::string sdl::Key::to_string() const {
     std::vector<std::string> parts{};
 
     const auto& [normal, special, multiple] = get_modifier_type_array();
@@ -445,7 +445,7 @@ helper::expected<SDL::Key, std::string> SDL::Key::from_string(const std::string&
 }
 
 
-[[nodiscard]] helper::expected<SDL_KeyCode, std::string> SDL::Key::sdl_keycode_from_string(const std::string& value) {
+[[nodiscard]] helper::expected<SDL_KeyCode, std::string> sdl::Key::sdl_keycode_from_string(const std::string& value) {
     const auto key = SDL_GetKeyFromName(value.c_str());
     if (key == SDLK_UNKNOWN) {
         return helper::unexpected<std::string>{
@@ -456,7 +456,7 @@ helper::expected<SDL::Key, std::string> SDL::Key::from_string(const std::string&
     return static_cast<SDL_KeyCode>(key);
 }
 
-[[nodiscard]] SDL::Key::UnderlyingModifierType SDL::Key::sdl_modifier_from_modifiers(
+[[nodiscard]] sdl::Key::UnderlyingModifierType sdl::Key::sdl_modifier_from_modifiers(
         const std::vector<Modifier>& modifiers
 ) {
     UnderlyingModifierType result = KMOD_NONE;
