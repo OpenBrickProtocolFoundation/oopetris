@@ -580,6 +580,10 @@ input::JoystickGameInput::JoystickGameInput(JoystickGameInput&& input) noexcept 
 [[nodiscard]] input::JoystickGameInput& input::JoystickGameInput::operator=(JoystickGameInput&& input
 ) noexcept = default;
 
+[[nodiscard]] const input::JoystickInput* input::JoystickGameInput::underlying_input() const {
+    return m_underlying_input;
+}
+
 void input::JoystickGameInput::handle_event(const SDL_Event& event) {
     m_event_buffer.push_back(event);
 }
@@ -764,7 +768,7 @@ input::ConsoleJoystickGameInput::~ConsoleJoystickGameInput() = default;
 helper::optional<InputEvent> input::ConsoleJoystickGameInput::sdl_event_to_input_event(const SDL_Event& event) const {
     if (event.type == SDL_JOYBUTTONDOWN) {
 
-        if (event.jbutton.which != m_underlying_input->instance_id()) {
+        if (event.jbutton.which != underlying_input()->instance_id()) {
             return helper::nullopt;
         }
 
@@ -793,7 +797,7 @@ helper::optional<InputEvent> input::ConsoleJoystickGameInput::sdl_event_to_input
         }
     } else if (event.type == SDL_JOYBUTTONUP) {
 
-        if (event.jbutton.which != m_underlying_input->instance_id()) {
+        if (event.jbutton.which != underlying_input()->instance_id()) {
             return helper::nullopt;
         }
 
@@ -828,7 +832,7 @@ helper::optional<InputEvent> input::ConsoleJoystickGameInput::sdl_event_to_input
 
     if (event.type == SDL_JOYBUTTONDOWN) {
 
-        if (event.jbutton.which != m_underlying_input->instance_id()) {
+        if (event.jbutton.which != underlying_input()->instance_id()) {
             return helper::nullopt;
         }
 

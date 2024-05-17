@@ -239,7 +239,6 @@ namespace input {
     protected:
         [[nodiscard]] const JoystickInput* underlying_input() const;
 
-
     public:
         JoystickGameInput(EventDispatcher* event_dispatcher, JoystickInput* underlying_input);
 
