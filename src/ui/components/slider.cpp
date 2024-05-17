@@ -56,8 +56,8 @@ ui::Slider::Slider(
 
 
     const auto slider_rect = shapes::URect{
-        shapes::UPoint{slider_start_x,     m_fill_rect.top_left.y},
-        shapes::UPoint{  slider_end_x, m_fill_rect.bottom_right.y}
+        shapes::UPoint{ slider_start_x,     m_fill_rect.top_left.y },
+        shapes::UPoint{   slider_end_x, m_fill_rect.bottom_right.y }
     };
 
     return { bar.get_rect(), slider_rect };

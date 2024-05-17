@@ -1,9 +1,10 @@
 #include "game_over.hpp"
 #include "graphics/renderer.hpp"
 #include "helper/music_utils.hpp"
+#include "helper/platform.hpp"
+#include "input/input.hpp"
 #include "manager/music_manager.hpp"
 #include "manager/resource_manager.hpp"
-#include "platform/capabilities.hpp"
 
 #include <fmt/format.h>
 
@@ -15,11 +16,11 @@ namespace scenes {
             service_provider,
               fmt::format(
                       "Game Over, Press {} to continue",
-                      utils::action_description(utils::CrossPlatformAction::EXIT)
+                     service_provider->input_manager().get_primary_input()->describe_navigation_event(input::NavigationEvent::BACK)
               ),
-               service_provider->fonts().get(FontId::Default),
+               service_provider->font_manager().get(FontId::Default),
               Color::white(),
-              utils::device_orientation() == utils::Orientation::Landscape
+              utils::get_orientation() == utils::Orientation::Landscape
                                        ? std::pair<double, double>{ 0.7, 0.07 }
                                        : std::pair<double, double>{ 0.95, 0.07 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
@@ -37,7 +38,7 @@ namespace scenes {
         if (m_should_exit) {
             return UpdateResult{
                 SceneUpdate::StopUpdating,
-                Scene::Switch{SceneId::MainMenu, ui::FullScreenLayout{ m_service_provider->window() }}
+                Scene::Switch{ SceneId::MainMenu, ui::FullScreenLayout{ m_service_provider->window() } }
             };
         }
         return UpdateResult{ SceneUpdate::StopUpdating, helper::nullopt };
@@ -48,8 +49,11 @@ namespace scenes {
         m_text.render(service_provider);
     }
 
-    bool GameOver::handle_event(const SDL_Event& event, const Window*) {
-        if (utils::event_is_action(event, utils::CrossPlatformAction::EXIT)) {
+    bool GameOver::handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) {
+
+        const auto navigation_event = input_manager->get_navigation_event(event);
+
+        if (navigation_event == input::NavigationEvent::BACK) {
             m_should_exit = true;
             return true;
         }

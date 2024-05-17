@@ -1,0 +1,71 @@
+name: Installer CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}-${{ matrix.config.os-version }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - name: Windows MSVC Installer
+            os: windows
+            os-version: 2022
+            msvc: true
+            buildtype: release
+            library_type: static
+            shell: pwsh
+    defaults:
+      run:
+        shell: ${{ matrix.config.shell }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: "0"
+
+      - name: Setup MSVC (Windows)
+        if: matrix.config.os == 'windows' && matrix.config.msvc == true
+        uses: TheMrMilchmann/setup-msvc-dev@v3
+        with:
+          arch: x64
+          toolset: 14.39
+
+      - name: Setup meson
+        if: matrix.config.os != 'macos'
+        run: |
+          pip install meson
+
+      - name: Configure
+        run: meson setup build -Dbuildtype=${{ matrix.config.buildtype }} -Ddefault_library=${{ matrix.config.library_type }} -Dclang_libcpp=${{ ( ( matrix.config.os == 'ubuntu' && matrix.config.use-clang == true && matrix.config.use-clang_stdlib ) || matrix.config.os == 'macos' )  && 'enabled' || 'disabled' }} -Dbuild_installer=true
+
+      - name: Build
+        run: meson compile -C build 
+
+      - name: Download EnVar plugin for NSIS
+        uses: carlosperate/download-file-action@v2
+        with:
+          file-url: https://nsis.sourceforge.io/mediawiki/images/7/7f/EnVar_plugin.zip
+          file-name: envar_plugin.zip
+          location: ${{ github.workspace }}
+  
+      - name: Extract EnVar plugin
+        run: 7z x "-oC:/Program Files (x86)/NSIS" "${{ github.workspace }}/envar_plugin.zip"
+
+      - name: Build installer (Windows)
+        run: |
+          meson compile -C build windows_installer
+
+      - name: Upload artifacts - Windows
+        uses: actions/upload-artifact@v4
+        if: matrix.config.os == 'windows'
+        with:
+          name: ${{ matrix.config.name }}
+          path: tools/installer/OOPetris Setup.exe

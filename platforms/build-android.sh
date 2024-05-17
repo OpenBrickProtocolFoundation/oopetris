@@ -4,8 +4,8 @@ set -e
 
 mkdir -p toolchains
 
-export NDK_VER_DOWNLOAD="r26d"
-export NDK_VER_DESC="r26d"
+export NDK_VER_DOWNLOAD="r27-beta1"
+export NDK_VER_DESC="r27-beta1"
 
 export BASE_PATH="$PWD/toolchains/android-ndk-$NDK_VER_DESC"
 export ANDROID_NDK_HOME="$BASE_PATH"
@@ -105,10 +105,10 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
     ARM_COMPILER_TRIPLE=$(echo "$RAW_JSON" | jq -M -r -c '."llvm_triple"')
     ARM_TOOL_TRIPLE=$(echo "$ARM_NAME_TRIPLE$SDK_VERSION" | sed s/$ARCH/$ARCH_VERSION/)
 
-    export SYM_LINK_PATH=sysroot_sym-$ARCH_VERSION
+    export SYM_LINK_PATH=sym-$ARCH_VERSION
 
     export HOST_ROOT="$BASE_PATH/toolchains/llvm/prebuilt/linux-x86_64"
-    export SYS_ROOT="${HOST_ROOT}/$SYM_LINK_PATH"
+    export SYS_ROOT="${HOST_ROOT}/$SYM_LINK_PATH/sysroot"
     export BIN_DIR="$HOST_ROOT/bin"
     export PATH="$BIN_DIR:$PATH"
 
@@ -150,13 +150,15 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
     export BUILD_DIR="build-$ARM_TARGET_ARCH"
 
-    export CC=$ARM_TOOL_TRIPLE-clang
-    export CXX=$ARM_TOOL_TRIPLE-clang++
-    export LD=llvm-ld
-    export AS=llvm-as
-    export AR=llvm-ar
-    export RANLIB=llvm-ranlib
-    export STRIP=llvm-strip
+    export CC="$ARM_TOOL_TRIPLE-clang"
+    export CXX="$ARM_TOOL_TRIPLE-clang++"
+    export LD="llvm-ld"
+    export AS="llvm-as"
+    export AR="llvm-ar"
+    export RANLIB="llvm-ranlib"
+    export STRIP="llvm-strip"
+    export OBJCOPY="llvm-objcop"
+    export LLVM_CONFIG="llvm-config"
     unset PKG_CONFIG
 
     ## BUILD dependencies not buildable with meson (to complicated to port)
@@ -177,47 +179,41 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
         cd "$BUILD_DIR_MPG123"
 
-        wget -q "https://www.mpg123.de/download/mpg123-1.32.4.tar.bz2"
-
-        tar -xf "mpg123-1.32.4.tar.bz2"
-
-        cd "mpg123-1.32.4"
-
-        BUILDYSTEM="cmake"
-
-        if [ $BUILDYSTEM = "autotools" ]; then
-
-            ./configure --prefix="$SYS_ROOT/usr" --oldincludedir="$SYS_ROOT/usr/include" --host="$ARM_NAME_TRIPLE" --with-sysroot="$SYS_ROOT" --with-audio="dummy"
-
-            make
-
-            make install
-
-        else
-
-            cd ports/cmake/
-
-            BUILD_DIR_MPG123="build-mpg123"
-
-            mkdir -p "$BUILD_DIR_MPG123"
-
-            cd "$BUILD_DIR_MPG123"
-
-            if [ "$ARCH_VERSION" = "i686" ]; then
-                #cmake .. -DCMAKE_TOOLCHAIN_FILE=linux_i686.toolchain.cmake --install-prefix "$SYS_ROOT/usr" "-DCMAKE_SYSROOT=$SYS_ROOT" -DOUTPUT_MODULES=dummy -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-                # cmake --build .
-
-                # cmake --install .
-                : # nop, for bash syntax
-
-            else
-                cmake .. --install-prefix "$SYS_ROOT/usr" "-DCMAKE_SYSROOT=$SYS_ROOT" -DOUTPUT_MODULES=dummy -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-                cmake --build .
-
-                cmake --install .
-            fi
-
+        if [ ! -e "mpg123-1.32.6.tar.bz2" ]; then
+            wget -q "https://www.mpg123.de/download/mpg123-1.32.6.tar.bz2"
         fi
+
+        if [ ! -d "mpg123-1.32.6" ]; then
+            tar -xf "mpg123-1.32.6.tar.bz2"
+        fi
+
+        cd "mpg123-1.32.6"
+
+        cd ports/cmake/
+
+        BUILD_DIR_MPG123="build-mpg123"
+
+        mkdir -p "$BUILD_DIR_MPG123"
+
+        cd "$BUILD_DIR_MPG123"
+
+        export MPG123_ANDROID_SSE_ENABLED="ON"
+
+        if [ "$ARCH_VERSION" = "i686" ]; then
+            MPG123_ANDROID_SSE_ENABLED="OFF"
+        fi
+
+        cmake .. --install-prefix "$SYS_ROOT/usr" "-DCMAKE_SYSROOT=$SYS_ROOT" -DOUTPUT_MODULES=dummy -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+            "-DCMAKE_SYSTEM_NAME=Android" \
+            "-DCMAKE_SYSTEM_VERSION=$SDK_VERSION" \
+            "-DCMAKE_ANDROID_ARCH_ABI=$KEY" \
+            "-DCMAKE_ANDROID_NDK=$ANDROID_NDK" \
+            "-DCMAKE_ANDROID_NDK_TOOLCHAIN_VERSION=clang" \
+            "-DWITH_SSE=$MPG123_ANDROID_SSE_ENABLED"
+
+        cmake --build .
+
+        cmake --install .
 
         touch "$BUILD_MPG123_FILE"
 
@@ -241,17 +237,39 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
         cd "$BUILD_DIR_OPENSSL"
 
-        wget -q "https://www.openssl.org/source/openssl-3.0.13.tar.gz"
+        if [ ! -e "openssl-3.3.0.tar.gz" ]; then
+            wget -q "https://github.com/openssl/openssl/releases/download/openssl-3.3.0/openssl-3.3.0.tar.gz"
+        fi
 
-        tar -xzf "openssl-3.0.13.tar.gz"
+        if [ ! -d "openssl-3.3.0" ]; then
+            tar -xzf "openssl-3.3.0.tar.gz"
+        fi
 
-        cd "openssl-3.0.13"
+        cd "openssl-3.3.0"
 
         OPENSSL_TARGET_ARCH="android-$ARCH"
 
         export ANDROID_NDK_ROOT="$ANDROID_NDK_HOME"
 
-        ./Configure --prefix="$SYS_ROOT/usr" no-tests no-shared "$OPENSSL_TARGET_ARCH" "-D__ANDROID_API__=$SDK_VERSION"
+        if [ "$ARCH_VERSION" = "armv7a" ]; then
+
+            ./Configure --prefix="$SYS_ROOT/usr" no-asm no-tests no-shared "$OPENSSL_TARGET_ARCH" "-D__ANDROID_API__=$SDK_VERSION"
+        else
+            ./Configure --prefix="$SYS_ROOT/usr" no-tests no-shared "$OPENSSL_TARGET_ARCH" "-D__ANDROID_API__=$SDK_VERSION"
+        fi
+
+        make clean
+
+        if [ "$ARCH_VERSION" = "armv7-a" ]; then
+
+            # fix an compile time error since openssl 3.1.0 >
+            # see https://github.com/android/ndk/issues/1992
+            # Apply patch that fixes the armcap instruction
+
+            # sed -e '/[.]hidden.*OPENSSL_armcap_P/d; /[.]extern.*OPENSSL_armcap_P/ {p; s/extern/hidden/ }' -i -- crypto/*arm*pl crypto/*/asm/*arm*pl
+            sed -E -i '' -e '/[.]hidden.*OPENSSL_armcap_P/d' -e '/[.]extern.*OPENSSL_armcap_P/ {p; s/extern/hidden/; }' crypto/*arm*pl crypto/*/asm/*arm*pl
+
+        fi
 
         make -j build_sw
 
@@ -284,16 +302,17 @@ android_ndk = '$BIN_DIR'
 toolchain = '$BIN_DIR/$ARM_TRIPLE'
 
 [binaries]
-c = '$ARM_TOOL_TRIPLE-clang'
-cpp = '$ARM_TOOL_TRIPLE-clang++'
-ar      = 'llvm-ar'
-as      = 'llvm-as'
-ranlib  = 'llvm-ranlib'
-ld      = 'llvm-link'
-strip   = 'llvm-strip'
-objcopy = 'llvm-objcop'
+c = '$CC'
+cpp = '$CXX'
+c_ld = 'lld'
+cpp_ld = 'lld'
+ar      = '$AR'
+as      = '$AS'
+ranlib  = '$RANLIB'
+strip   = '$STRIP'
+objcopy = '$OBJCOPY'
 pkg-config = 'false'
-llvm-config = 'llvm-config'
+llvm-config = '$LLVM_CONFIG'
 
 [built-in options]
 c_std = 'gnu11'
@@ -338,6 +357,7 @@ EOF
 
     if [ "$COMPILE_TYPE" == "complete_rebuild" ] || [ ! -e "$BUILD_DIR" ]; then
 
+        # TODO: enbale hidapi, by not dependening on libusb, that is not availbale on android
         meson setup "$BUILD_DIR" \
             "--prefix=$SYS_ROOT" \
             "--wipe" \
@@ -345,7 +365,7 @@ EOF
             "--libdir=usr/lib/$ARM_NAME_TRIPLE/$SDK_VERSION" \
             --cross-file "./platforms/crossbuild-android-$ARM_TARGET_ARCH.ini" \
             "-Dbuildtype=$BUILDTYPE" \
-            -Dsdl2:use_hidapi=disabled \
+            -Dsdl2:use_hidapi=enabled \
             -Dcpp_args=-DAUDIO_PREFER_MP3 \
             -Dclang_libcpp=disabled
 

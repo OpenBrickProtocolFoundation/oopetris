@@ -3,8 +3,8 @@
 #include "graphics/rect.hpp"
 #include "helper/optional.hpp"
 #include "manager/event_listener.hpp"
+#include "sdl_key.hpp"
 
-#include <SDL.h>
 #include <algorithm>
 #include <cassert>
 #include <vector>
@@ -12,21 +12,33 @@
 struct EventDispatcher final {
 private:
     std::vector<EventListener*> m_listeners;
-    Window* m_window;
     bool m_input_activated{ false };
     bool m_enabled{ true };
-    std::vector<SDL_Keycode> allowed_input_keys{ SDLK_RETURN, SDLK_BACKSPACE, SDLK_DOWN,   SDLK_UP,
-                                                 SDLK_LEFT,   SDLK_RIGHT,     SDLK_ESCAPE, SDLK_TAB };
+
+    //TODO(Totto):  factor out to some other place!
+    std::vector<sdl::Key> m_allowed_input_keys{
+        sdl::Key{ SDLK_RETURN },
+        sdl::Key{ SDLK_BACKSPACE },
+        sdl::Key{ SDLK_BACKSPACE, { sdl::Modifier::CTRL } },
+        sdl::Key{ SDLK_DOWN },
+        sdl::Key{ SDLK_UP },
+        sdl::Key{ SDLK_LEFT },
+        sdl::Key{ SDLK_RIGHT },
+        sdl::Key{ SDLK_ESCAPE },
+        sdl::Key{ SDLK_TAB },
+        sdl::Key{ SDLK_c, { sdl::Modifier::CTRL } },
+        sdl::Key{ SDLK_v, { sdl::Modifier::CTRL } }
+    };
 
 public:
-    EventDispatcher(Window* window) : m_window{ window } {};
+    explicit EventDispatcher() = default;
 
     void register_listener(EventListener* listener) {
         m_listeners.push_back(listener);
     }
 
     void unregister_listener(const EventListener* listener) {
-        const auto end = std::remove(m_listeners.begin(), m_listeners.end(), listener);
+        const auto end = std::ranges::remove(m_listeners, listener).begin();
         assert(end != m_listeners.end() and "listener to delete could not be found");
         m_listeners.erase(end, m_listeners.end());
     }
@@ -42,11 +54,8 @@ public:
                 switch (event.type) {
                     case SDL_KEYDOWN:
                     case SDL_KEYUP: {
-                        if (event.key.keysym.sym == SDLK_v and (event.key.keysym.mod & KMOD_CTRL) != 0) {
-                            break;
-                        }
-                        if (std::find(allowed_input_keys.cbegin(), allowed_input_keys.cend(), event.key.keysym.sym)
-                            == allowed_input_keys.cend()) {
+                        if (std::ranges::find(m_allowed_input_keys, sdl::Key{ event.key.keysym })
+                            == m_allowed_input_keys.cend()) {
                             return;
                         }
 
@@ -62,7 +71,7 @@ public:
                     continue;
                 }
 
-                listener->handle_event(event, m_window);
+                listener->handle_event(event);
             }
         }
     }

@@ -3,13 +3,12 @@
 #include "graphics/rect.hpp"
 #include "helper/bool_wrapper.hpp"
 #include "helper/types.hpp"
-#include "platform/capabilities.hpp"
-
-#include <cassert>
+#include "helper/utils.hpp"
+#include "input/input.hpp"
 
 namespace ui {
 
-    enum class ActionType : u8 { Hover, Clicked };
+    enum class ActionType : u8 { Hover, Clicked, Released };
 
     struct Hoverable {
 
@@ -37,26 +36,33 @@ namespace ui {
         }
 
 
-        [[nodiscard]] helper::BoolWrapper<ui::ActionType> detect_hover(const SDL_Event& event, const Window* window) {
+        [[nodiscard]] helper::BoolWrapper<ui::ActionType>
+        detect_hover(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) {
 
-            if (utils::device_supports_clicks()) {
 
-                if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::Any)) {
-                    if (utils::is_event_in(window, event, m_fill_rect)) {
+            if (const auto result = input_manager->get_pointer_event(event); result.has_value()) {
+                if (result->is_in(m_fill_rect)) {
 
-                        on_hover();
+                    on_hover();
 
-                        if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::ButtonDown)) {
+                    switch (result->event()) {
+                        case input::PointerEvent::PointerDown:
                             return { true, ActionType::Clicked };
-                        }
+                        case input::PointerEvent::PointerUp:
+                            return { true, ActionType::Released };
 
-                        return { true, ActionType::Hover };
+                        case input::PointerEvent::Motion:
+                            return { true, ActionType::Hover };
+
+                        default:
+                            utils::unreachable();
                     }
-
-                    on_unhover();
-                    return false;
                 }
+
+                on_unhover();
+                return false;
             }
+
 
             return false;
         }
@@ -66,7 +72,7 @@ namespace ui {
             m_is_hovered = true;
         }
 
-        //TODO: this has to be used correctly, a click or focus change isn't an event, where an unhover needs to happen!
+        //TODO(Totto): this has to be used correctly, a click or focus change isn't an event, where an unhover needs to happen!
         void on_unhover() {
             m_is_hovered = false;
         }

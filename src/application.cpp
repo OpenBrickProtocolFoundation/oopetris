@@ -1,16 +1,22 @@
 #include "application.hpp"
 #include "helper/errors.hpp"
+#include "helper/magic_enum_wrapper.hpp"
 #include "helper/message_box.hpp"
 #include "helper/sleep.hpp"
-#include "platform/capabilities.hpp"
+#include "input/input.hpp"
 #include "scenes/scene.hpp"
 
 #include <chrono>
+#include <memory>
 #include <ranges>
 #include <stdexcept>
 
 #if defined(__CONSOLE__)
 #include "helper/console_helpers.hpp"
+#endif
+
+#ifdef DEBUG_BUILD
+#include "graphics/text.hpp"
 #endif
 
 namespace {
@@ -24,14 +30,15 @@ namespace {
 } // namespace
 
 
-Application::Application(std::unique_ptr<Window>&& window, const std::vector<std::string>& arguments) try
+Application::Application(std::shared_ptr<Window>&& window, const std::vector<std::string>& arguments) try
     : m_command_line_arguments{ arguments },
       m_window{ std::move(window) },
       m_renderer{ *m_window, m_command_line_arguments.target_fps.has_value() ? Renderer::VSync::Disabled
                                                                              : Renderer::VSync::Enabled },
       m_music_manager{ this, num_audio_channels },
-      m_target_framerate{ m_command_line_arguments.target_fps },
-      m_event_dispatcher{ m_window.get() } {
+      m_input_manager{ std::make_shared<input::InputManager>(m_window) },
+      m_settings_manager{ this },
+      m_target_framerate{ m_command_line_arguments.target_fps } {
     initialize();
 } catch (const helper::GeneralError& general_error) {
     const auto severity = general_error.severity();
@@ -81,7 +88,7 @@ void Application::run() {
         const Uint64 current_time = SDL_GetPerformanceCounter();
 
         if (current_time - start_time >= update_time) {
-            double elapsed = static_cast<double>(current_time - start_time) / count_per_s;
+            const double elapsed = static_cast<double>(current_time - start_time) / count_per_s;
             m_fps_text->set_text(*this, fmt::format("FPS: {:.2f}", static_cast<double>(frame_counter) / elapsed));
             start_time = current_time;
             frame_counter = 0;
@@ -93,7 +100,7 @@ void Application::run() {
             const auto now = std::chrono::steady_clock::now();
             const auto runtime = (now - start_execution_time);
             if (runtime < sleep_time) {
-                //TODO: use SDL_DelayNS in sdl >= 3.0
+                //TODO(totto): use SDL_DelayNS in sdl >= 3.0
                 helper::sleep_nanoseconds(sleep_time - runtime);
                 start_execution_time = std::chrono::steady_clock::now();
             } else {
@@ -103,7 +110,7 @@ void Application::run() {
     }
 }
 
-void Application::handle_event(const SDL_Event& event, const Window* window) {
+void Application::handle_event(const SDL_Event& event) {
     if (event.type == SDL_QUIT) {
         m_is_running = false;
     }
@@ -111,7 +118,7 @@ void Application::handle_event(const SDL_Event& event, const Window* window) {
     auto handled = false;
 
     for (const auto& scene : std::ranges::views::reverse(m_scene_stack)) {
-        if (not handled and scene->handle_event(event, window)) {
+        if (not handled and scene->handle_event(m_input_manager, event)) {
             handled = true;
         }
 
@@ -122,8 +129,8 @@ void Application::handle_event(const SDL_Event& event, const Window* window) {
         }
 
         // if the scene is not covering the whole screen, it should give scenes in the background mouse events, but keyboard events are still only captured by the scene in focus, we also detect unhovers for whole scenes here
-        if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::Any)) {
-            if (not utils::is_event_in(window, event, scene->get_layout().get_rect())) {
+        if (const auto result = m_input_manager->get_pointer_event(event); result.has_value()) {
+            if (not result->is_in(scene->get_layout().get_rect())) {
                 scene->on_unhover();
             }
         }
@@ -134,29 +141,22 @@ void Application::handle_event(const SDL_Event& event, const Window* window) {
     }
 
     // handle some special events
+    const auto is_special_event = m_input_manager->process_special_inputs(event);
+    if (is_special_event) {
 
-    switch (event.type) {
-        case SDL_WINDOWEVENT:
-            switch (event.window.event) {
-                case SDL_WINDOWEVENT_HIDDEN:
-                case SDL_WINDOWEVENT_MINIMIZED:
-                case SDL_WINDOWEVENT_LEAVE: {
-                    for (const auto& scene : m_scene_stack) {
-                        scene->on_unhover();
-                    }
-                    break;
+        if (const auto special_event = is_special_event.get_additional(); special_event.has_value()) {
+            if (special_event.value() == input::SpecialRequest::WindowFocusLost) {
+                for (const auto& scene : m_scene_stack) {
+                    scene->on_unhover();
                 }
-                default:
-                    break;
             }
-            break;
-        default:
-            break;
+        }
     }
 
-    // this global event handlers (atm only one) are special cases, they receive all inputs if they are not handled by the scenes explicably
 
-    if (m_music_manager.handle_event(event)) {
+    // this global event handlers (atm only one) are special cases, they receive all inputs if they are not handled by the scenes explicitly
+
+    if (m_music_manager.handle_event(m_input_manager, event)) {
         return;
     }
 }
@@ -190,9 +190,12 @@ void Application::update() {
                                     spdlog::info("pushing back scene {}", raw_push.name);
                                     m_scene_stack.push_back(std::move(raw_push.scene));
                                 },
-                                [this](const scenes::Scene::Switch& switch_) {
-                                    spdlog::info("switching to scene {}", magic_enum::enum_name(switch_.target_scene));
-                                    auto scene = scenes::create_scene(*this, switch_.target_scene, switch_.layout);
+                                [this](const scenes::Scene::Switch& scene_switch) {
+                                    spdlog::info(
+                                            "switching to scene {}", magic_enum::enum_name(scene_switch.target_scene)
+                                    );
+                                    auto scene =
+                                            scenes::create_scene(*this, scene_switch.target_scene, scene_switch.layout);
 
                                     // only clear, after the construction was successful
                                     m_scene_stack.clear();
@@ -246,55 +249,46 @@ void Application::render() const {
 
 void Application::initialize() {
 
-#if defined(_HAVE_DISCORD_SDK)
-    auto discord_instance = DiscordInstance::initialize();
-    if (not discord_instance.has_value()) {
-        spdlog::warn("Error initializing the discord instance, it might not be running: {}", discord_instance.error());
-    } else {
-        m_discord_instance = std::move(discord_instance.value());
-        m_discord_instance->after_setup();
-    }
-
-#endif
-
-    try_load_settings();
     load_resources();
     push_scene(scenes::create_scene(*this, SceneId::MainMenu, ui::FullScreenLayout{ *m_window }));
 
 #ifdef DEBUG_BUILD
     m_fps_text = std::make_unique<ui::Label>(
-            this, "FPS: ?", fonts().get(FontId::Default), Color::white(), std::pair<double, double>{ 0.95, 0.95 },
+            this, "FPS: ?", font_manager().get(FontId::Default), Color::white(),
+            std::pair<double, double>{ 0.95, 0.95 },
             ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
             ui::RelativeLayout{ window(), 0.0, 0.0, 0.1, 0.05 }, false
     );
 #endif
-}
 
-void Application::try_load_settings() {
-    const std::filesystem::path settings_file = utils::get_root_folder() / settings_filename;
-
-    const auto result = json::try_parse_json_file<Settings>(settings_file);
-
-    if (result.has_value()) {
-        m_settings = result.value();
-    } else {
-        spdlog::error("unable to load settings from \"{}\": {}", settings_filename, result.error());
-        spdlog::warn("applying default settings");
+#if defined(_HAVE_DISCORD_SDK)
+    if (m_settings_manager.settings().discord) {
+        auto discord_instance = DiscordInstance::initialize();
+        if (not discord_instance.has_value()) {
+            spdlog::warn(
+                    "Error initializing the discord instance, it might not be running: {}", discord_instance.error()
+            );
+        } else {
+            m_discord_instance = std::move(discord_instance.value());
+            m_discord_instance->after_setup();
+        }
     }
+
+#endif
 }
 
 void Application::load_resources() {
     constexpr auto fonts_size = 128;
-    const std::vector<std::tuple<FontId, std::string>> fonts {
+    const std::vector<std::tuple<FontId, std::string>> fonts{
 #if defined(__3DS__)
-        //TODO: debug why the other font crashed, not on loading, but on trying to render text!
-        { FontId::Default, "LeroyLetteringLightBeta01.ttf" },
+        //TODO(Totto): debug why the other font crashed, not on loading, but on trying to render text!
+        {        FontId::Default, "LeroyLetteringLightBeta01.ttf" },
 #else
         { FontId::Default, "PressStart2P.ttf" },
 #endif
-                { FontId::Arial, "arial.ttf" }, { FontId::NotoColorEmoji, "NotoColorEmoji.ttf" }, {
-            FontId::Symbola, "Symbola.ttf"
-        }
+        {          FontId::Arial,                     "arial.ttf" },
+        { FontId::NotoColorEmoji,            "NotoColorEmoji.ttf" },
+        {        FontId::Symbola,                   "Symbola.ttf" }
     };
     for (const auto& [font_id, path] : fonts) {
         const auto font_path = utils::get_assets_folder() / "fonts" / path;

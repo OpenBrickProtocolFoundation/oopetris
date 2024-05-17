@@ -29,7 +29,7 @@ export CMAKE="$BIN_DIR/$TOOL_PREFIX-cmake"
 export PATH="$BIN_DIR:$PATH"
 
 export CC="$COMPILER_BIN/$TOOL_PREFIX-gcc"
-export CXX="$COMPILER_BIN/$TOOL_PREFIX-g"++
+export CXX="$COMPILER_BIN/$TOOL_PREFIX-g++"
 export AS="$COMPILER_BIN/$TOOL_PREFIX-as"
 export AR="$COMPILER_BIN/$TOOL_PREFIX-gcc-ar"
 export RANLIB="$COMPILER_BIN/$TOOL_PREFIX-gcc-ranlib"
@@ -71,6 +71,8 @@ devkitpro = '$DEVKITPRO'
 [binaries]
 c = '$CC'
 cpp = '$CXX'
+c_ld = 'bfd'
+cpp_ld = 'bfd'
 ar      = '$AR'
 as      = '$AS'
 ranlib  = '$RANLIB'
@@ -101,7 +103,7 @@ libnx='$LIBNX'
 
 APP_NAME	= 'oopetris'
 APP_AUTHOR 	= 'coder2k'
-APP_VERSION = '0.5.4'
+APP_VERSION = true
 
 USE_NACP    = true
 

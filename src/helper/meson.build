@@ -4,6 +4,7 @@ core_src_files += files(
     'color.hpp',
     'color_literals.hpp',
     'command_line_arguments.hpp',
+    'const_utils.hpp',
     'constants.hpp',
     'date.cpp',
     'date.hpp',
@@ -20,10 +21,11 @@ core_src_files += files(
     'sleep.cpp',
     'sleep.hpp',
     'static_string.hpp',
+    'string_manipulation.cpp',
+    'string_manipulation.hpp',
     'timer.hpp',
     'types.hpp',
     'utils.hpp',
-
 )
 
 graphics_src_files += files(
@@ -36,29 +38,21 @@ graphics_src_files += files(
     'message_box.cpp',
     'message_box.hpp',
     'music_utils.hpp',
+    'platform.cpp',
+    'platform.hpp',
 )
 
 if have_file_dialogs
     graphics_src_files += files('nfd.cpp', 'nfd_include.hpp')
 endif
 
-git = find_program('git', required: false)
+git = find_program('git')
 
-if git.found()
+vcs_dep = vcs_tag(
+    command: ['git', 'describe', '--tags', '--always', '--abbrev=12'],
+    input: 'git_version.hpp.in',
+    output: 'git_version.hpp',
+    replace_string: '@GIT_VERSION@',
+)
 
-    vcs_dep = vcs_tag(
-        command: ['git', 'describe', '--tags', '--always', '--abbrev=12'],
-        input: 'git_version.hpp.in',
-        output: 'git_version.hpp',
-        replace_string: '@GIT_VERSION@',
-    )
-
-    graphics_src_files += vcs_dep
-    graphics_lib += {
-        'compile_args': [
-            graphics_lib.get('compile_args'),
-            '-D_HAS_GIT_COMMIT_INFORMATION',
-        ],
-    }
-endif
-
+graphics_src_files += vcs_dep

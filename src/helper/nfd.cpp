@@ -20,22 +20,22 @@ namespace {
 
     [[nodiscard]] FilterItemType get_filter_items(const std::vector<helper::AllowedFile>& allowed_files) {
         const auto size = static_cast<nfdfiltersize_t>(allowed_files.size());
-        FilterItemType filterItem{ allowed_files.empty() ? nullptr : new nfdu8filteritem_t[size],
-                                   [size](const nfdu8filteritem_t* const value) {
-                                       if (value == nullptr) {
-                                           return;
-                                       }
+        FilterItemType filter_item{ allowed_files.empty() ? nullptr : new nfdu8filteritem_t[size],
+                                    [size](const nfdu8filteritem_t* const value) {
+                                        if (value == nullptr) {
+                                            return;
+                                        }
 
-                                       for (usize i = 0; i < size; ++i) {
-                                           const auto& item =
-                                                   value[i]; // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+                                        for (usize i = 0; i < size; ++i) {
+                                            const auto& item =
+                                                    value[i]; // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 
-                                           delete item.name; // NOLINT(cppcoreguidelines-owning-memory)
-                                           delete item.spec; // NOLINT(cppcoreguidelines-owning-memory)
-                                       }
+                                            delete item.name; // NOLINT(cppcoreguidelines-owning-memory)
+                                            delete item.spec; // NOLINT(cppcoreguidelines-owning-memory)
+                                        }
 
-                                       delete[] value; // NOLINT(cppcoreguidelines-owning-memory)
-                                   } };
+                                        delete[] value; // NOLINT(cppcoreguidelines-owning-memory)
+                                    } };
 
 
         if (not allowed_files.empty()) {
@@ -55,11 +55,11 @@ namespace {
                 auto* extensions = new nfdu8char_t[extension_list_size]; // NOLINT(cppcoreguidelines-owning-memory)
                 std::memcpy(extensions, extension_list.c_str(), extension_list_size * sizeof(nfdu8char_t));
 
-                filterItem.get()[i] = { name, extensions };
+                filter_item.get()[i] = { name, extensions };
             }
         }
 
-        return filterItem;
+        return filter_item;
 
     } // namespace
 
@@ -72,8 +72,8 @@ helper::expected<std::filesystem::path, std::string> helper::openFileDialog(
         helper::optional<std::filesystem::path> default_path
 ) {
 
-    NFD::UniquePathU8 outPath{};
-    auto filterItem = get_filter_items(allowed_files);
+    NFD::UniquePathU8 out_path{};
+    auto filter_item = get_filter_items(allowed_files);
 
     const auto path_deallocator = [](const nfdu8char_t* const char_value) {
         if (char_value == nullptr) {
@@ -93,10 +93,10 @@ helper::expected<std::filesystem::path, std::string> helper::openFileDialog(
     }
 
     const nfdresult_t result = NFD::OpenDialog(
-            outPath, filterItem.get(), static_cast<nfdfiltersize_t>(allowed_files.size()), default_path_value.get()
+            out_path, filter_item.get(), static_cast<nfdfiltersize_t>(allowed_files.size()), default_path_value.get()
     );
     if (result == NFD_OKAY) {
-        return std::filesystem::path{ outPath.get() };
+        return std::filesystem::path{ out_path.get() };
     }
 
     if (result == NFD_CANCEL) {
@@ -112,8 +112,8 @@ helper::expected<std::filesystem::path, std::string> helper::openFileDialog(
         helper::optional<std::filesystem::path> default_path
 ) {
 
-    NFD::UniquePathSet outPaths{};
-    auto filterItem = get_filter_items(allowed_files);
+    NFD::UniquePathSet out_paths{};
+    auto filter_item = get_filter_items(allowed_files);
 
     const auto path_deallocator = [](const nfdu8char_t* const char_value) {
         if (char_value == nullptr) {
@@ -133,20 +133,20 @@ helper::expected<std::filesystem::path, std::string> helper::openFileDialog(
     }
 
     const nfdresult_t result = NFD::OpenDialogMultiple(
-            outPaths, filterItem.get(), static_cast<nfdfiltersize_t>(allowed_files.size()), default_path_value.get()
+            out_paths, filter_item.get(), static_cast<nfdfiltersize_t>(allowed_files.size()), default_path_value.get()
     );
     if (result == NFD_OKAY) {
         std::vector<std::filesystem::path> result_vector{};
 
         nfdpathsetsize_t count_paths{};
-        const auto temp_result = NFD::PathSet::Count(outPaths, count_paths);
+        const auto temp_result = NFD::PathSet::Count(out_paths, count_paths);
         ASSERT(temp_result == NFD_OKAY && "PathSet get count is successful");
 
         for (nfdpathsetsize_t i = 0; i < count_paths; ++i) {
-            NFD::UniquePathSetPathU8 outPath{};
-            const auto temp_result2 = NFD::PathSet::GetPath(outPaths, i, outPath);
+            NFD::UniquePathSetPathU8 out_path{};
+            const auto temp_result2 = NFD::PathSet::GetPath(out_paths, i, out_path);
             ASSERT(temp_result2 == NFD_OKAY && "PathSet get path is successful");
-            result_vector.emplace_back(outPath.get());
+            result_vector.emplace_back(out_path.get());
         }
 
         return result_vector;
@@ -163,7 +163,7 @@ helper::expected<std::filesystem::path, std::string> helper::openFileDialog(
         helper::optional<std::filesystem::path> default_path
 ) {
 
-    NFD::UniquePathU8 outPath{};
+    NFD::UniquePathU8 out_path{};
 
     const auto path_deallocator = [](const nfdu8char_t* const char_value) {
         if (char_value == nullptr) {
@@ -183,9 +183,9 @@ helper::expected<std::filesystem::path, std::string> helper::openFileDialog(
         std::memcpy(default_path_value.get(), str.c_str(), str_size * sizeof(nfdu8char_t));
     }
 
-    const nfdresult_t result = NFD::PickFolder(outPath, default_path_value.get());
+    const nfdresult_t result = NFD::PickFolder(out_path, default_path_value.get());
     if (result == NFD_OKAY) {
-        return std::filesystem::path{ outPath.get() };
+        return std::filesystem::path{ out_path.get() };
     }
 
     if (result == NFD_CANCEL) {

@@ -14,7 +14,7 @@ ui::ImageButton::ImageButton(
         bool is_top_level
 )
     : Button<ImageView, ImageButton>{
-          ImageView{service_provider, image_path, size, respect_ratio, alignment, layout, false},
+          ImageView{ service_provider, image_path, size, respect_ratio, alignment, layout, false },
           focus_id,
           std::move(callback),
           size,
@@ -24,5 +24,5 @@ ui::ImageButton::ImageButton(
 } { }
 
 [[nodiscard]] bool ui::ImageButton::on_clicked() const {
-    return m_callback(*this);
+    return callback()(*this);
 }

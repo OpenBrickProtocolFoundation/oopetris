@@ -59,16 +59,16 @@ int main(int argc, char** argv) {
 
     constexpr auto window_name = constants::program_name.c_str();
 
-    std::unique_ptr<Window> window{ nullptr };
+    std::shared_ptr<Window> window{ nullptr };
 
     try {
 #if defined(__ANDROID__) or defined(__CONSOLE__)
-        window = std::make_unique<Window>(window_name, WindowPosition::Centered);
+        window = std::make_shared<Window>(window_name, WindowPosition::Centered);
 #else
         static constexpr int width = 1280;
         static constexpr int height = 720;
 
-        window = std::make_unique<Window>(window_name, WindowPosition::Centered, width, height);
+        window = std::make_shared<Window>(window_name, WindowPosition::Centered, width, height);
 #endif
     } catch (const helper::GeneralError& general_error) {
         spdlog::error("{}", general_error.message());

@@ -7,13 +7,13 @@ namespace constants {
 #define STRINGIFY(a) STRINGIFY_HELPER_(a) //NOLINT(cppcoreguidelines-macro-usage)
 #define STRINGIFY_HELPER_(a) #a           //NOLINT(cppcoreguidelines-macro-usage)
 
-#if !defined(OOPETRIS_VERSION)
-#define OOPETRIS_VERSION "Unknown"
+#if !defined(OOPETRIS_NAME) || !defined(OOPETRIS_AUTHOR) || !defined(OOPETRIS_VERSION)
+#error "not all needed OOPETRIS_* macros defined"
 #endif
 
 
-    constexpr auto program_name = StaticString{ "oopetris" };
-    constexpr auto author = StaticString{ "coder2k" };
+    constexpr auto program_name = StaticString{ STRINGIFY(OOPETRIS_NAME) };
+    constexpr auto author = StaticString{ STRINGIFY(OOPETRIS_AUTHOR) };
     constexpr auto version = StaticString{ STRINGIFY(OOPETRIS_VERSION) };
     constexpr auto music_change_level = 30;
     constexpr auto recordings_directory = "recordings";

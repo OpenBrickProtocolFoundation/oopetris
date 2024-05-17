@@ -1,20 +1,19 @@
 #include "renderer.hpp"
 #include "helper/errors.hpp"
 
-//TODO: assert return values of all sdl functions
+//TODO(Totto):  assert return values of all sdl functions
 
-Renderer::Renderer(const Window& window, const VSync v_sync) : m_renderer {
-    SDL_CreateRenderer(
-            window.get_sdl_window(), -1,
-            (v_sync == VSync::Enabled ? SDL_RENDERER_PRESENTVSYNC : 0) | SDL_RENDERER_TARGETTEXTURE
+Renderer::Renderer(const Window& window, const VSync v_sync)
+    : m_renderer{ SDL_CreateRenderer(
+              window.get_sdl_window(),
+              -1,
+              (v_sync == VSync::Enabled ? SDL_RENDERER_PRESENTVSYNC : 0) | SDL_RENDERER_TARGETTEXTURE
 #if defined(__3DS__)
-                    | SDL_RENDERER_SOFTWARE
+                      | SDL_RENDERER_SOFTWARE
 #else
-                    | SDL_RENDERER_ACCELERATED
+                      | SDL_RENDERER_ACCELERATED
 #endif
-    )
-}
-{
+      ) } {
 
     if (m_renderer == nullptr) {
         throw helper::InitializationError{ fmt::format("Failed creating a SDL Renderer: {}", SDL_GetError()) };

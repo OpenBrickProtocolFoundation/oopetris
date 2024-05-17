@@ -7,28 +7,30 @@ on:
 
 jobs:
   cpp-linter:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     permissions:
       pull-requests: write
       issues: write
     steps:
       - uses: actions/checkout@v4
 
+      # NOTE: meson has no dependencies, so --break-system-packages doesn't really break anything!  
       - name: Setup Meson
         run: |
-          python -m pip install --upgrade pip
-          pip install meson
+          pip install meson --break-system-packages
 
       - name: Setup Clang
         uses: egor-tensin/setup-clang@v1
         with:
-          version: 17
+          version: 18
           platform: x64
 
       - name: Prepare compile_commands.json
         run: |
           sudo apt-get update
+          sudo apt-get upgrade -y
           sudo apt-get install ninja-build libsdl2-2.0-0 libsdl2-dev libsdl2-ttf* libsdl2-mixer* libsdl2-image*  -y
+          
           meson setup build -Dbuildtype=release -Dclang_libcpp=disabled -Dtests=true
           meson compile -C build git_version.hpp
 
@@ -39,7 +41,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           style: file
-          version: 17
+          version: 18
           database: build
           files-changed-only: ${{ github.event_name != 'workflow_dispatch' }}
           lines-changed-only: ${{ github.event_name != 'workflow_dispatch' }}

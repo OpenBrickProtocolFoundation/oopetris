@@ -11,7 +11,7 @@ on:
 jobs:
   android-build:
     name: Build android apk for - ${{ matrix.config.arch }}
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -25,30 +25,32 @@ jobs:
         with:
           fetch-depth: "0"
 
+      # NOTE: meson has no dependencies, so --break-system-packages doesn't really break anything!
       - name: Setup Meson
         run: |
-          python -m pip install --upgrade pip
-          pip install meson
+          pip install meson --break-system-packages
 
       - name: Setup ninja
         run: |
             sudo apt-get update
-            sudo apt-get install ninja-build
+            sudo apt-get upgrade -y
+            sudo apt-get install ninja-build jq
 
       - name: Setup JDK
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
         
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
         
       - name: Setup NDK
         run: | 
-          sdkmanager --install "ndk;26.3.11579264"
+          sdkmanager --install "ndk;27.0.11718014"
 
-      - name: Build natibe libraries
+
+      - name: Build native libraries
         run: |
           bash ./platforms/build-android.sh ${{ matrix.config.arch }} complete_rebuild release
           cp -r ./assets/ platforms/android/app/src/main

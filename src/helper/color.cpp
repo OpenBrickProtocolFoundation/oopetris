@@ -81,7 +81,7 @@ namespace {
         if (value < static_cast<T>(0.0)) {
             // see https://math.stackexchange.com/questions/2179579/how-can-i-find-a-mod-with-negative-number
             T result = value;
-            //TODO: maybe this is possible faster?
+            //TODO(Totto): maybe this is possible faster?
             while (result < static_cast<T>(0.0)) {
                 result += divisor;
             }

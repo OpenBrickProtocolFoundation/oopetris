@@ -69,9 +69,9 @@ Tetromino::Pattern Tetromino::get_pattern(helper::TetrominoType type, Rotation r
 
 std::array<Mino, 4> Tetromino::create_minos(GridPoint position, Rotation rotation, helper::TetrominoType type) {
     return std::array<Mino, 4>{
-        Mino{position + get_pattern(type, rotation).at(0), type},
-        Mino{position + get_pattern(type, rotation).at(1), type},
-        Mino{position + get_pattern(type, rotation).at(2), type},
-        Mino{position + get_pattern(type, rotation).at(3), type},
+        Mino{ position + get_pattern(type, rotation).at(0), type },
+        Mino{ position + get_pattern(type, rotation).at(1), type },
+        Mino{ position + get_pattern(type, rotation).at(2), type },
+        Mino{ position + get_pattern(type, rotation).at(3), type },
     };
 }

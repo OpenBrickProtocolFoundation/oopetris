@@ -5,9 +5,9 @@
 #include "helper/optional.hpp"
 #include "helper/random.hpp"
 #include "helper/types.hpp"
+#include "input/game_input.hpp"
 #include "manager/service_provider.hpp"
 #include "mino_stack.hpp"
-#include "platform/input.hpp"
 #include "recordings/tetrion_core_information.hpp"
 #include "tetromino.hpp"
 #include "ui/layout.hpp"
@@ -57,14 +57,14 @@ private:
     bool m_down_key_pressed = false;
     bool m_allowed_to_hold = true;
     bool m_is_in_lock_delay = false;
+
     u32 m_num_executed_lock_delays = 0;
-    u64 m_next_gravity_simulation_step_index;
     u64 m_lock_delay_step_index;
     ServiceProvider* const m_service_provider;
     helper::optional<std::shared_ptr<recorder::RecordingWriter>> m_recording_writer;
     MinoStack m_mino_stack;
     Random m_random;
-    u32 m_level = 0;
+    u32 m_level;
     u32 m_lines_cleared = 0;
     GameState m_game_state = GameState::Playing;
     int m_sequence_index = 0;
@@ -75,7 +75,8 @@ private:
     helper::optional<Tetromino> m_tetromino_on_hold;
     std::array<helper::optional<Tetromino>, num_preview_tetrominos> m_preview_tetrominos{};
     u8 m_tetrion_index;
-    ui::TileLayout main_layout;
+    u64 m_next_gravity_simulation_step_index;
+    ui::TileLayout m_main_layout;
 
 
 public:
@@ -88,10 +89,11 @@ public:
             bool is_top_level);
     void update_step(SimulationStep simulation_step_index);
     void render(const ServiceProvider& service_provider) const override;
-    [[nodiscard]] Widget::EventHandleResult handle_event(const SDL_Event& event, const Window* window) override;
+    [[nodiscard]] Widget::EventHandleResult
+    handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override;
 
     // returns if the input event lead to a movement
-    bool handle_input_command(InputCommand command, SimulationStep simulation_step_index);
+    bool handle_input_command(input::GameInputCommand command, SimulationStep simulation_step_index);
     void spawn_next_tetromino(SimulationStep simulation_step_index);
     void spawn_next_tetromino(helper::TetrominoType type, SimulationStep simulation_step_index);
     bool rotate_tetromino_right();
@@ -149,7 +151,7 @@ private:
     static u8 rotation_to_index(Rotation from, Rotation to);
 
     static constexpr auto wall_kick_data_jltsz = WallKickTable{
-  // North -> East
+        // North -> East
         std::array{
                    WallKickPoint{ 0, 0 },
                    WallKickPoint{ -1, 0 },
@@ -157,7 +159,7 @@ private:
                    WallKickPoint{ 0, 2 },
                    WallKickPoint{ -1, 2 },
                    },
- // East -> North
+        // East -> North
         std::array{
                    WallKickPoint{ 0, 0 },
                    WallKickPoint{ 1, 0 },
@@ -165,7 +167,7 @@ private:
                    WallKickPoint{ 0, -2 },
                    WallKickPoint{ 1, -2 },
                    },
- // East -> South
+        // East -> South
         std::array{
                    WallKickPoint{ 0, 0 },
                    WallKickPoint{ 1, 0 },
@@ -173,7 +175,7 @@ private:
                    WallKickPoint{ 0, -2 },
                    WallKickPoint{ 1, -2 },
                    },
- // South -> East
+        // South -> East
         std::array{
                    WallKickPoint{ 0, 0 },
                    WallKickPoint{ -1, 0 },
@@ -181,7 +183,7 @@ private:
                    WallKickPoint{ 0, 2 },
                    WallKickPoint{ -1, 2 },
                    },
- // South -> West
+        // South -> West
         std::array{
                    WallKickPoint{ 0, 0 },
                    WallKickPoint{ 1, 0 },
@@ -189,7 +191,7 @@ private:
                    WallKickPoint{ 0, 2 },
                    WallKickPoint{ 1, 2 },
                    },
- // West -> South
+        // West -> South
         std::array{
                    WallKickPoint{ 0, 0 },
                    WallKickPoint{ -1, 0 },
@@ -197,7 +199,7 @@ private:
                    WallKickPoint{ 0, -2 },
                    WallKickPoint{ -1, -2 },
                    },
- // West -> North
+        // West -> North
         std::array{
                    WallKickPoint{ 0, 0 },
                    WallKickPoint{ -1, 0 },
@@ -205,7 +207,7 @@ private:
                    WallKickPoint{ 0, -2 },
                    WallKickPoint{ -1, -2 },
                    },
- // North -> West
+        // North -> West
         std::array{
                    WallKickPoint{ 0, 0 },
                    WallKickPoint{ 1, 0 },
@@ -216,7 +218,7 @@ private:
     };
 
     static constexpr auto wall_kick_data_i = WallKickTable{
-  // North -> East
+        // North -> East
         std::array{
                    WallKickPoint{ 0, 0 },
                    WallKickPoint{ -2, 0 },
@@ -224,7 +226,7 @@ private:
                    WallKickPoint{ -2, 1 },
                    WallKickPoint{ 1, -2 },
                    },
- // East -> North
+        // East -> North
         std::array{
                    WallKickPoint{ 0, 0 },
                    WallKickPoint{ 2, 0 },
@@ -232,7 +234,7 @@ private:
                    WallKickPoint{ 2, -1 },
                    WallKickPoint{ -1, 2 },
                    },
- // East -> South
+        // East -> South
         std::array{
                    WallKickPoint{ 0, 0 },
                    WallKickPoint{ -1, 0 },
@@ -240,7 +242,7 @@ private:
                    WallKickPoint{ -1, -2 },
                    WallKickPoint{ 2, 1 },
                    },
- // South -> East
+        // South -> East
         std::array{
                    WallKickPoint{ 0, 0 },
                    WallKickPoint{ 1, 0 },
@@ -248,7 +250,7 @@ private:
                    WallKickPoint{ 1, 2 },
                    WallKickPoint{ -2, -1 },
                    },
- // South -> West
+        // South -> West
         std::array{
                    WallKickPoint{ 0, 0 },
                    WallKickPoint{ 2, 0 },
@@ -256,7 +258,7 @@ private:
                    WallKickPoint{ 2, -1 },
                    WallKickPoint{ -1, 2 },
                    },
- // West -> South
+        // West -> South
         std::array{
                    WallKickPoint{ 0, 0 },
                    WallKickPoint{ -2, 0 },
@@ -264,7 +266,7 @@ private:
                    WallKickPoint{ -2, 1 },
                    WallKickPoint{ 1, -2 },
                    },
- // West -> North
+        // West -> North
         std::array{
                    WallKickPoint{ 0, 0 },
                    WallKickPoint{ 1, 0 },
@@ -272,7 +274,7 @@ private:
                    WallKickPoint{ 1, 2 },
                    WallKickPoint{ -2, -1 },
                    },
- // North -> West
+        // North -> West
         std::array{
                    WallKickPoint{ 0, 0 },
                    WallKickPoint{ -1, 0 },

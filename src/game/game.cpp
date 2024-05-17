@@ -1,17 +1,19 @@
 
 #include "game.hpp"
-#include "platform/replay_input.hpp"
+#include "helper/magic_enum_wrapper.hpp"
+#include "helper/utils.hpp"
+#include "input/replay_input.hpp"
 
 Game::Game(
         ServiceProvider* const service_provider,
-        std::unique_ptr<Input>&& input,
+        const std::shared_ptr<input::GameInput>& input,
         const tetrion::StartingParameters& starting_parameters,
         const ui::Layout& layout,
         bool is_top_level
 )
     : ui::Widget{ layout, ui::WidgetType::Component, is_top_level },
       m_clock_source{ std::make_unique<LocalClock>(starting_parameters.target_fps) },
-      m_input{ std::move(input) } {
+      m_input{ input } {
 
 
     spdlog::info("starting level for tetrion {}", starting_parameters.starting_level);
@@ -60,7 +62,7 @@ void Game::render(const ServiceProvider& service_provider) const {
 }
 
 [[nodiscard]] helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
-Game::handle_event(const SDL_Event&, const Window*) {
+Game::handle_event(const std::shared_ptr<input::InputManager>& /*input_manager*/, const SDL_Event& /*event*/) {
     return false;
 }
 
@@ -74,10 +76,10 @@ void Game::set_paused(bool paused) {
         m_clock_source->resume();
     }
 
-    auto* listener = dynamic_cast<EventListener*>(m_input.get());
+    auto listener = utils::is_child_class<EventListener>(m_input);
 
-    if (listener != nullptr) {
-        listener->set_paused(paused);
+    if (listener.has_value()) {
+        listener.value()->set_paused(paused);
     }
 }
 
@@ -91,10 +93,15 @@ void Game::set_paused(bool paused) {
         return true;
     };
 
-    auto* const input_as_replay = dynamic_cast<ReplayInput*>(m_input.get());
-    if (input_as_replay != nullptr) {
-        return input_as_replay->is_end_of_recording();
+    const auto input_as_replay = utils::is_child_class<input::ReplayGameInput>(m_input);
+    if (input_as_replay.has_value()) {
+        return input_as_replay.value()->is_end_of_recording();
     }
 
     return false;
+}
+
+
+[[nodiscard]] const std::shared_ptr<input::GameInput>& Game::game_input() const {
+    return m_input;
 }

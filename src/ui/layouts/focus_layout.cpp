@@ -1,7 +1,10 @@
 
 #include "focus_layout.hpp"
 #include "helper/optional.hpp"
+#include "input/input.hpp"
 #include "ui/widget.hpp"
+
+#include <ranges>
 
 
 ui::FocusLayout::FocusLayout(const Layout& layout, u32 focus_id, FocusOptions options, bool is_top_level)
@@ -28,25 +31,31 @@ void ui::FocusLayout::update() {
     return static_cast<u32>(m_widgets.size());
 }
 
-ui::Widget::EventHandleResult ui::FocusLayout::handle_focus_change_button_events(const SDL_Event& event) {
+ui::Widget::EventHandleResult ui::FocusLayout::handle_focus_change_button_events(
+        const std::shared_ptr<input::InputManager>& input_manager,
+        const SDL_Event& event
+) {
 
     Widget::EventHandleResult handled = false;
 
-    if (utils::device_supports_keys()) {
-        if (utils::event_is_action(event, utils::CrossPlatformAction::DOWN)
-            or (m_options.allow_tab and utils::event_is_action(event, utils::CrossPlatformAction::TAB))) {
-            handled = try_set_next_focus(FocusChangeDirection::Forward);
-        } else if (utils::event_is_action(event, utils::CrossPlatformAction::UP)) {
-            handled = try_set_next_focus(FocusChangeDirection::Backward);
-        }
+    const auto navigation_action = input_manager->get_navigation_event(event);
+
+    if (navigation_action == input::NavigationEvent::DOWN
+        or (m_options.allow_tab and navigation_action == input::NavigationEvent::TAB)) {
+        handled = try_set_next_focus(FocusChangeDirection::Forward);
+    } else if (navigation_action == input::NavigationEvent::UP) {
+        handled = try_set_next_focus(FocusChangeDirection::Backward);
     }
+
 
     return handled;
 }
 
 
-ui::Widget::EventHandleResult
-ui::FocusLayout::handle_focus_change_events(const SDL_Event& event, const Window* window) {
+ui::Widget::EventHandleResult ui::FocusLayout::handle_focus_change_events(
+        const std::shared_ptr<input::InputManager>& input_manager,
+        const SDL_Event& event
+) {
 
 
     if (not has_focus()) {
@@ -61,7 +70,7 @@ ui::FocusLayout::handle_focus_change_events(const SDL_Event& event, const Window
 
 
         if (widget->type() != WidgetType::Container) {
-            handled = handle_focus_change_button_events(event);
+            handled = handle_focus_change_button_events(input_manager, event);
         }
 
 
@@ -69,13 +78,13 @@ ui::FocusLayout::handle_focus_change_events(const SDL_Event& event, const Window
             return handled;
         }
 
-        if (const auto event_result = widget->handle_event(event, window); event_result) {
+        if (const auto event_result = widget->handle_event(input_manager, event); event_result) {
             return { true, handle_event_result(event_result.get_additional(), widget.get()) };
         }
 
 
         if (widget->type() == WidgetType::Container) {
-            handled = handle_focus_change_button_events(event);
+            handled = handle_focus_change_button_events(input_manager, event);
         }
     }
 
@@ -84,10 +93,7 @@ ui::FocusLayout::handle_focus_change_events(const SDL_Event& event, const Window
 }
 
 [[nodiscard]] helper::optional<ui::Widget::InnerState>
-ui::FocusLayout::handle_event_result( // NOLINT(readability-function-cognitive-complexity)
-        const helper::optional<ui::Widget::InnerState>& result,
-        Widget* widget
-) {
+ui::FocusLayout::handle_event_result(const helper::optional<ui::Widget::InnerState>& result, Widget* widget) {
 
     if (not result.has_value()) {
         return helper::nullopt;
@@ -167,16 +173,15 @@ ui::FocusLayout::handle_event_result( // NOLINT(readability-function-cognitive-c
             return ui::Widget::InnerState{ ui::EventHandleType::RequestAction, value.second };
         }
         default:
-            std::unreachable();
+            utils::unreachable();
     }
 }
 
 [[nodiscard]] u32 ui::FocusLayout::focusable_index_by_id(const u32 id) const {
-    const auto find_iterator =
-            std::find_if(m_widgets.begin(), m_widgets.end(), [id](const std::unique_ptr<Widget>& widget) {
-                const auto focusable = as_focusable(widget.get());
-                return focusable.has_value() and focusable.value()->focus_id() == id;
-            });
+    const auto find_iterator = std::ranges::find_if(m_widgets, [id](const std::unique_ptr<Widget>& widget) {
+        const auto focusable = as_focusable(widget.get());
+        return focusable.has_value() and focusable.value()->focus_id() == id;
+    });
     assert(find_iterator != m_widgets.end());
     const auto index = static_cast<u32>(std::distance(m_widgets.begin(), find_iterator));
     return index;
@@ -192,17 +197,18 @@ ui::FocusLayout::handle_event_result( // NOLINT(readability-function-cognitive-c
     }
 
 #ifdef DEBUG_BUILD
-    const auto duplicates = std::adjacent_find(result.cbegin(), result.cend());
+    // this works, since result is sorted already
+    const auto duplicates = std::ranges::adjacent_find(result);
     if (duplicates != result.cend()) {
         throw std::runtime_error("Focusables have duplicates: " + std::to_string(*duplicates));
     }
 #endif
-    std::sort(result.begin(), result.end());
+    std::ranges::sort(result);
     return result;
 }
 
 [[nodiscard]] u32 ui::FocusLayout::index_of(const std::vector<u32>& ids, const u32 needle) {
-    return static_cast<u32>(std::distance(ids.cbegin(), std::find(ids.cbegin(), ids.cend(), needle)));
+    return static_cast<u32>(std::distance(ids.cbegin(), std::ranges::find(ids, needle)));
 }
 
 [[nodiscard]] bool ui::FocusLayout::try_set_next_focus(const FocusChangeDirection focus_direction) {

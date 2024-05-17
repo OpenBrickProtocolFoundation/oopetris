@@ -15,12 +15,12 @@ ui::TextButton::TextButton(
         bool is_top_level
 )
     : Button<Text, TextButton>{
-          Text{service_provider,
+          Text{ service_provider,
                text, font,
                text_color, { fill_rect.top_left.x + static_cast<int>(margin.first),
- fill_rect.top_left.y + static_cast<int>(margin.second),
- fill_rect.width() - 2 * static_cast<int>(margin.first),
- fill_rect.height() - 2 * static_cast<int>(margin.second) }},
+                  fill_rect.top_left.y + static_cast<int>(margin.second),
+                  fill_rect.width() - 2 * static_cast<int>(margin.first),
+                  fill_rect.height() - 2 * static_cast<int>(margin.second) } },
           focus_id,
           std::move(callback),
           fill_rect,
@@ -51,16 +51,16 @@ ui::TextButton::TextButton(
           text_color,
           ui::get_rectangle_aligned(
                   layout,
-                  {               static_cast<u32>(size.first * layout.get_rect().width()),
+                  {                static_cast<u32>(size.first * layout.get_rect().width()),
                     static_cast<u32>(size.second * layout.get_rect().height())                },
                   alignment
           ),
-          {static_cast<u32>(margin.first * size.first * layout.get_rect().width()),
-                    static_cast<u32>(margin.second * size.second * layout.get_rect().height())},
+          { static_cast<u32>(margin.first * size.first * layout.get_rect().width()),
+                    static_cast<u32>(margin.second * size.second * layout.get_rect().height()) },
           layout,
           is_top_level
 } { }
 
 [[nodiscard]] bool ui::TextButton::on_clicked() const {
-    return m_callback(*this);
+    return callback()(*this);
 }

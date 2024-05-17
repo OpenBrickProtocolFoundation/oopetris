@@ -7,10 +7,11 @@
 #include <cassert>
 #include <climits>
 #include <exception>
-#include <filesystem>
-#include <string>
+#include <iostream>
+#include <limits>
+#include <memory>
 #include <type_traits>
-#include <vector>
+#include <utility>
 
 namespace helper {
 
@@ -58,11 +59,27 @@ namespace utils {
         return static_cast<std::underlying_type_t<Enum>>(enum_);
     }
 
+#if __cpp_lib_unreachable >= 202202L
     [[noreturn]] inline void unreachable() {
-        assert(false and "unreachable");
-        std::terminate();
-    }
+#if !defined(NDEBUG)
+        std::cerr << "UNREACHABLE\n";
+#endif
 
+        std::unreachable();
+    }
+#else
+    [[noreturn]] inline void unreachable() {
+#if !defined(NDEBUG)
+        std::cerr << "UNREACHABLE\n";
+#endif
+
+#if defined(_MSC_VER) && !defined(__clang__) // MSVC
+        __assume(false);
+#else                                        // GCC, Clang
+        __builtin_unreachable();
+#endif
+    }
+#endif
     template<size_t T>
     struct size_t_identity {
         //using type = T;
@@ -84,6 +101,28 @@ namespace utils {
     }
 
 
+    template<typename T, typename S>
+    constexpr helper::optional<T*> is_child_class(S* parent) {
+        auto* result = dynamic_cast<T*>(parent);
+
+        if (result == nullptr) {
+            return helper::nullopt;
+        }
+
+        return result;
+    }
+
+    template<typename T, typename S>
+    constexpr helper::optional<T*> is_child_class(const std::unique_ptr<S>& parent) {
+        return is_child_class<T, S>(parent.get());
+    }
+
+    template<typename T, typename S>
+    constexpr helper::optional<T*> is_child_class(const std::shared_ptr<S>& parent) {
+        return is_child_class<T, S>(parent.get());
+    }
+
+
 } // namespace utils
 
 
@@ -94,11 +133,3 @@ namespace utils {
 #else
 #define ASSERT(x) assert(x) // NOLINT(cppcoreguidelines-macro-usage)
 #endif
-
-// define a consteval assert, it isn't a pretty error message, but there's nothing we can do against that atm :(
-// this https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2024/p2758r2.html tries to fix it
-#define CONSTEVAL_STATIC_ASSERT(CHECK, MSG) /*NOLINT(cppcoreguidelines-macro-usage)*/                                                           \
-    ((CHECK) ? void(0) : [] {                                                                                                                   \
-        /* If you see this really bad c++ error message, follow the origin of MSG, to see the real error message, c++ error messages suck xD */ \
-        throw(MSG);                                                                                                                             \
-    }())

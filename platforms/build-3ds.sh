@@ -31,7 +31,7 @@ export CMAKE="$BIN_DIR/$TOOL_PREFIX-cmake"
 export PATH="$BIN_DIR:$PATH"
 
 export CC="$COMPILER_BIN/$TOOL_PREFIX-gcc"
-export CXX="$COMPILER_BIN/$TOOL_PREFIX-g"++
+export CXX="$COMPILER_BIN/$TOOL_PREFIX-g++"
 export AS="$COMPILER_BIN/$TOOL_PREFIX-as"
 export AR="$COMPILER_BIN/$TOOL_PREFIX-gcc-ar"
 export RANLIB="$COMPILER_BIN/$TOOL_PREFIX-gcc-ranlib"
@@ -73,6 +73,8 @@ devkitpro = '$DEVKITPRO'
 [binaries]
 c = '$CC'
 cpp = '$CXX'
+c_ld = 'bfd'
+cpp_ld = 'bfd'
 ar      = '$AR'
 as      = '$AS'
 ranlib  = '$RANLIB'
@@ -128,13 +130,13 @@ mkdir -p "$SDL_ROOT_DIR"
 
 # build sdl2
 
-export SDL2_SRC_DIR="SDL2-2.28.5"
+export SDL2_SRC_DIR="SDL2-2.30.3"
 
 if [ ! -d "$SDL2_SRC_DIR" ]; then
 
-    wget "https://github.com/libsdl-org/SDL/releases/download/release-2.28.5/SDL2-2.28.5.tar.gz"
-    tar xzf SDL2-2.28.5.tar.gz
-    rm -rf SDL2-2.28.5.tar.gz
+    wget "https://github.com/libsdl-org/SDL/releases/download/release-2.30.3/SDL2-2.30.3.tar.gz"
+    tar xzf SDL2-2.30.3.tar.gz
+    rm -rf SDL2-2.30.3.tar.gz
 
     cd $SDL2_SRC_DIR
 

@@ -36,7 +36,8 @@ namespace detail {
 
         void render(const ServiceProvider& service_provider) const override;
 
-        [[nodiscard]] Widget::EventHandleResult handle_event(const SDL_Event& event, const Window* window) override;
+        [[nodiscard]] Widget::EventHandleResult
+        handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override;
     };
 
 
@@ -59,7 +60,7 @@ namespace detail {
 
         void render(const ServiceProvider& service_provider) override;
 
-        bool handle_event(const SDL_Event& event, const Window* window) override;
+        bool handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override;
     };
 
 
@@ -92,7 +93,8 @@ namespace custom_ui {
 
         void render(const ServiceProvider& service_provider) const override;
 
-        [[nodiscard]] Widget::EventHandleResult handle_event(const SDL_Event& event, const Window* window) override;
+        [[nodiscard]] Widget::EventHandleResult
+        handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override;
 
         [[nodiscard]] scenes::Scene::Change get_details_scene() override;
 

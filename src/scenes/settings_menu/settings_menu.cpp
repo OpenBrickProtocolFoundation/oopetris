@@ -1,7 +1,8 @@
 #include "settings_menu.hpp"
 #include "color_setting_row.hpp"
-#include "graphics/window.hpp"
 #include "helper/color_literals.hpp"
+#include "helper/optional.hpp"
+#include "helper/utils.hpp"
 #include "manager/music_manager.hpp"
 #include "manager/resource_manager.hpp"
 #include "settings_details.hpp"
@@ -16,7 +17,18 @@ namespace scenes {
 
     using namespace details::settings::menu;
 
-    SettingsMenu::SettingsMenu(ServiceProvider* service_provider, const  ui::Layout& layout) : Scene{service_provider, layout}
+    SettingsMenu::SettingsMenu(ServiceProvider* service_provider, const ui::Layout& layout)
+        : SettingsMenu{ service_provider, layout, helper::nullopt } { }
+
+    SettingsMenu::SettingsMenu(
+            ServiceProvider* service_provider,
+            const ui::Layout& layout,
+            const std::shared_ptr<input::GameInput>& game_input
+    )
+        : SettingsMenu{ service_provider, layout, helper::optional<std::shared_ptr<input::GameInput>>{ game_input } } {
+    }
+
+    SettingsMenu::SettingsMenu(ServiceProvider* service_provider, const  ui::Layout& layout,  const helper::optional<std::shared_ptr<input::GameInput>>& game_input) : Scene{service_provider, layout}
     , m_main_layout{    utils::size_t_identity<3>(),
     0,
     ui::Direction::Vertical,
@@ -25,12 +37,12 @@ namespace scenes {
                     std::pair<double, double>{ 0.05, 0.03 },
                     layout
     },
-    m_colors{COLOR_LITERAL("#FF33FF"),  COLOR_LITERAL("hsv(281.71, 0.70085, 0.45882)"), COLOR_LITERAL("rgb(246, 255, 61)"),COLOR_LITERAL("hsv(103.12, 0.39024, 0.32157)")}
+    m_colors{COLOR_LITERAL("#FF33FF"),  COLOR_LITERAL("hsv(281.71, 0.70085, 0.45882)"), COLOR_LITERAL("rgb(246, 255, 61)"),COLOR_LITERAL("hsv(103.12, 0.39024, 0.32157)")},m_game_input{game_input}
 {
         auto focus_helper = ui::FocusHelper{ 1 };
 
         m_main_layout.add<ui::Label>(
-                service_provider, "Settings", service_provider->fonts().get(FontId::Default), Color::white(),
+                service_provider, "Settings", service_provider->font_manager().get(FontId::Default), Color::white(),
                 std::pair<double, double>{ 0.3, 0.6 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
         );
@@ -45,7 +57,8 @@ namespace scenes {
 
         scroll_layout->add<ui::Label>(
                 ui::RelativeItemSize{ scroll_layout->layout(), 0.2 }, service_provider, "Volume",
-                service_provider->fonts().get(FontId::Default), Color::white(), std::pair<double, double>{ 0.1, 0.3 },
+                service_provider->font_manager().get(FontId::Default), Color::white(),
+                std::pair<double, double>{ 0.1, 0.3 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Bottom }
         );
 
@@ -58,7 +71,7 @@ namespace scenes {
                 },
                 [service_provider](double amount) {
                     const auto mapped_amount = amount <= 0.0F ? helper::nullopt : helper::optional<double>{ amount };
-                    return service_provider->music_manager().set_volume(mapped_amount, false, false);
+                    service_provider->music_manager().set_volume(mapped_amount, false, false);
                 },
                 0.05F, std::pair<double, double>{ 0.6, 1.0 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
@@ -74,7 +87,8 @@ namespace scenes {
 
         scroll_layout->add<ui::Label>(
                 ui::RelativeItemSize{ scroll_layout->layout(), 0.2 }, service_provider, "Colors",
-                service_provider->fonts().get(FontId::Default), Color::white(), std::pair<double, double>{ 0.1, 0.3 },
+                service_provider->font_manager().get(FontId::Default), Color::white(),
+                std::pair<double, double>{ 0.1, 0.3 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Bottom }
         );
 
@@ -92,7 +106,7 @@ namespace scenes {
         }
 
         m_main_layout.add<ui::TextButton>(
-                service_provider, "Return", service_provider->fonts().get(FontId::Default), Color::white(),
+                service_provider, "Return", service_provider->font_manager().get(FontId::Default), Color::white(),
                 focus_helper.focus_id(),
                 [this](const ui::TextButton&) -> bool {
                     m_next_command = Command{ Return{} };
@@ -115,12 +129,14 @@ namespace scenes {
                                 return UpdateResult{ SceneUpdate::StopUpdating, Scene::Pop{} };
                             },
                             [this](const Action& action) {
-                                m_next_command = helper::nullopt;
+                                if (auto settings_details =
+                                            utils::is_child_class<settings::SettingsDetails>(action.widget);
+                                    settings_details.has_value()) {
 
-                                if (auto* settings_details = dynamic_cast<settings::SettingsDetails*>(action.widget);
-                                    settings_details != nullptr) {
+                                    auto change_scene = settings_details.value()->get_details_scene();
 
-                                    auto change_scene = settings_details->get_details_scene();
+                                    // action is a reference to a structure inside m_next_command, so resetting it means, we need to copy everything out of it
+                                    m_next_command = helper::nullopt;
 
                                     return UpdateResult{ SceneUpdate::StopUpdating, std::move(change_scene) };
                                 }
@@ -147,28 +163,30 @@ namespace scenes {
         m_main_layout.render(service_provider);
     }
 
-    bool SettingsMenu::handle_event(const SDL_Event& event, const Window* window) {
-        if (const auto event_result = m_main_layout.handle_event(event, window); event_result) {
+    bool SettingsMenu::handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) {
+        if (const auto event_result = m_main_layout.handle_event(input_manager, event); event_result) {
             if (const auto additional = event_result.get_additional();
                 additional.has_value() and additional.value().first == ui::EventHandleType::RequestAction) {
-                m_next_command = Command{ Action(additional.value().second) };
+                m_next_command = Command{ Action{ additional.value().second } };
             }
 
             return true;
         }
 
-        if (utils::event_is_action(event, utils::CrossPlatformAction::CLOSE)) {
+        const auto navigation_event = input_manager->get_navigation_event(event);
+
+        if (navigation_event == input::NavigationEvent::BACK) {
             m_next_command = Command{ Return{} };
             return true;
         }
 
-        if (utils::device_supports_keys()) {
 
-            if (utils::event_is_action(event, utils::CrossPlatformAction::OPEN_SETTINGS)) {
-                m_next_command = Command{ Return{} };
-                return true;
-            }
+        if (m_game_input.has_value()
+            and m_game_input.value()->get_menu_event(event) == input::MenuEvent::OpenSettings) {
+            m_next_command = Command{ Return{} };
+            return true;
         }
+
 
         return false;
     }

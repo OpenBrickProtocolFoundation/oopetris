@@ -26,17 +26,6 @@ SdlContext::SdlContext() {
 
 #if defined(__CONSOLE__)
     console::platform_init();
-
-    //TODO: factor out
-
-    // init joystick and other nintendo switch / 3ds specific things
-    SDL_InitSubSystem(SDL_INIT_JOYSTICK);
-    SDL_JoystickEventState(SDL_ENABLE);
-    // only use the first joystick!
-
-    //TODO, since local multiplayer on a switch / 3ds is possible, test here if there are more then one joysticks available (e.g. left and right controller) then ask the user if he wants to play local multiplayer, implement that in JoystickInput (in the SDL event the joystick index is present)
-    SDL_JoystickOpen(0);
-
 #endif
 
 #if defined(_HAVE_FILE_DIALOGS)

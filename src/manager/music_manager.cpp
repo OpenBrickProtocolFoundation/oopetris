@@ -4,7 +4,7 @@
 #include "helper/errors.hpp"
 #include "helper/optional.hpp"
 #include "helper/types.hpp"
-#include "platform/capabilities.hpp"
+#include "manager/sdl_key.hpp"
 
 #include <SDL.h>
 #include <SDL_mixer.h>
@@ -31,7 +31,7 @@ MusicManager::MusicManager(ServiceProvider* service_provider, u8 channel_size)
         throw helper::InitializationError{ fmt::format("Failed to initialize the audio system: {}", SDL_GetError()) };
     }
 
-    //TODO: dynamically handle codecs
+    //TODO(Totto): dynamically handle codecs
     const auto initialized_codecs = Mix_Init(MIX_INIT_FLAC | MIX_INIT_MP3);
     if (initialized_codecs == 0) {
         throw helper::InitializationError{ fmt::format("Failed to initialize any audio codec: {}", SDL_GetError()) };
@@ -352,18 +352,26 @@ helper::optional<double> MusicManager::change_volume(const std::int8_t steps) {
     return new_volume;
 }
 
-bool MusicManager::handle_event(const SDL_Event& event) {
+bool MusicManager::handle_event(const std::shared_ptr<input::InputManager> /*unused*/&, const SDL_Event& event) {
+
+    if (event.type == SDL_KEYDOWN) {
+        const auto key = sdl::Key{ event.key.keysym };
 
 
-    if (utils::device_supports_keys() && event.type == SDL_KEYDOWN) {
+        if (key.is_key(sdl::Key{ SDLK_PLUS }) or key.is_key(sdl::Key{ SDLK_KP_PLUS })) {
+            const i8 steps = key.has_modifier(sdl::Modifier::CTRL)    ? static_cast<i8>(100)
+                             : key.has_modifier(sdl::Modifier::SHIFT) ? static_cast<i8>(10)
+                                                                      : static_cast<i8>(1);
 
-        if (event.key.keysym.sym == SDLK_PLUS or event.key.keysym.sym == SDLK_KP_PLUS) {
-            change_volume(1);
+            change_volume(steps);
             return true;
         }
 
-        if (event.key.keysym.sym == SDLK_MINUS or event.key.keysym.sym == SDLK_KP_MINUS) {
-            change_volume(-1);
+        if (key.is_key(sdl::Key{ SDLK_MINUS }) or key.is_key(sdl::Key{ SDLK_KP_MINUS })) {
+            const i8 steps = key.has_modifier(sdl::Modifier::CTRL)    ? static_cast<i8>(-100)
+                             : key.has_modifier(sdl::Modifier::SHIFT) ? static_cast<i8>(-10)
+                                                                      : static_cast<i8>(-1);
+            change_volume(steps);
             return true;
         }
     }
