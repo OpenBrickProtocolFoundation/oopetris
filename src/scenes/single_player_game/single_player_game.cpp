@@ -4,6 +4,7 @@
 #include "helper/music_utils.hpp"
 #include "helper/platform.hpp"
 #include "input/game_input.hpp"
+#include "input/input.hpp"
 #include "magic_enum.hpp"
 #include "manager/music_manager.hpp"
 #include "scenes/scene.hpp"
@@ -104,14 +105,14 @@ namespace scenes {
         m_game->render(service_provider);
     }
 
-    [[nodiscard]] bool SinglePlayerGame::handle_event(
-            const std::shared_ptr<input::InputManager>& /*input_manager*/,
-            const SDL_Event& event
-    ) {
+    [[nodiscard]] bool
+    SinglePlayerGame::handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) {
 
         const auto& game_input = m_game->game_input();
 
-        if (game_input->get_menu_event(event) == input::MenuEvent::Pause and not m_game->is_game_finished()) {
+        if ((game_input->get_menu_event(event) == input::MenuEvent::Pause
+             or input_manager->get_navigation_event(event) == input::NavigationEvent::BACK)
+            and not m_game->is_game_finished()) {
             m_next_scene = NextScene::Pause;
             m_game->set_paused(true);
             return true;

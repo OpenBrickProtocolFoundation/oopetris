@@ -49,7 +49,7 @@ namespace scenes {
         const auto navigation_event = input_manager->get_navigation_event(event);
 
 
-        if (m_game_input->get_menu_event(event) == input::MenuEvent::OpenSettings) {
+        if (m_game_input->get_menu_event(event) == input::MenuEvent::Pause) {
             m_should_unpause = true;
             return true;
         }
