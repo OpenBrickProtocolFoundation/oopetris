@@ -15,7 +15,7 @@
 
 namespace data {
 
-    //TODO: add drop support
+    //TODO(Totto):  add drop support
     enum class RecordingSource : u8 { CommandLine, Folder, Manual, Online, Drop };
 
     struct RecordingMetadata {
@@ -46,7 +46,8 @@ namespace custom_ui {
 
         void render(const ServiceProvider& service_provider) const override;
 
-        [[nodiscard]] Widget::EventHandleResult handle_event(const SDL_Event& event, const Window* window) override;
+        [[nodiscard]] Widget::EventHandleResult
+        handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override;
 
         [[nodiscard]] data::RecordingMetadata metadata() const;
 

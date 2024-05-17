@@ -2,6 +2,7 @@
 #include "graphics/window.hpp"
 #include "helper/constants.hpp"
 #include "helper/music_utils.hpp"
+#include "helper/platform.hpp"
 #include "manager/music_manager.hpp"
 #include "manager/resource_manager.hpp"
 #include "ui/layout.hpp"
@@ -16,23 +17,23 @@ namespace scenes {
         auto focus_helper = ui::FocusHelper{ 1 };
 
         m_main_grid.add<ui::Label>(
-                service_provider, constants::program_name, service_provider->fonts().get(FontId::Default),
+                service_provider, constants::program_name, service_provider->font_manager().get(FontId::Default),
                 Color::white(), std::pair<double, double>{ 0.3, 1.0 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
         );
 
 
-        constexpr auto button_size = utils::device_orientation() == utils::Orientation::Landscape
+        constexpr auto button_size = utils::get_orientation() == utils::Orientation::Landscape
                                              ? std::pair<double, double>{ 0.15, 0.85 }
                                              : std::pair<double, double>{ 0.5, 0.85 };
         constexpr auto button_alignment =
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center };
-        constexpr auto button_margins = utils::device_orientation() == utils::Orientation::Landscape
+        constexpr auto button_margins = utils::get_orientation() == utils::Orientation::Landscape
                                                 ? std::pair<double, double>{ 0.1, 0.1 }
                                                 : std::pair<double, double>{ 0.2, 0.2 };
 
         m_main_grid.add<ui::TextButton>(
-                service_provider, "Play", service_provider->fonts().get(FontId::Default), Color::white(),
+                service_provider, "Play", service_provider->font_manager().get(FontId::Default), Color::white(),
                 focus_helper.focus_id(),
                 [this](const ui::TextButton&) -> bool {
                     m_next_command = Command::OpenPlaySelection;
@@ -42,7 +43,7 @@ namespace scenes {
         );
 
         m_main_grid.add<ui::TextButton>(
-                service_provider, "Settings", service_provider->fonts().get(FontId::Default), Color::white(),
+                service_provider, "Settings", service_provider->font_manager().get(FontId::Default), Color::white(),
                 focus_helper.focus_id(),
                 [this](const ui::TextButton&) -> bool {
                     m_next_command = Command::OpenSettingsMenu;
@@ -52,7 +53,7 @@ namespace scenes {
         );
 
         m_main_grid.add<ui::TextButton>(
-                service_provider, "About", service_provider->fonts().get(FontId::Default), Color::white(),
+                service_provider, "About", service_provider->font_manager().get(FontId::Default), Color::white(),
                 focus_helper.focus_id(),
                 [this](const ui::TextButton&) -> bool {
                     m_next_command = Command::OpenAboutPage;
@@ -62,7 +63,7 @@ namespace scenes {
         );
 
         m_main_grid.add<ui::TextButton>(
-                service_provider, "Achievements", service_provider->fonts().get(FontId::Default), Color::white(),
+                service_provider, "Achievements", service_provider->font_manager().get(FontId::Default), Color::white(),
                 focus_helper.focus_id(),
                 [this](const ui::TextButton&) -> bool {
                     m_next_command = Command::OpenAchievements;
@@ -73,7 +74,7 @@ namespace scenes {
         m_main_grid.get<ui::TextButton>(4)->disable();
 
         m_main_grid.add<ui::TextButton>(
-                service_provider, "Exit", service_provider->fonts().get(FontId::Default), Color::white(),
+                service_provider, "Exit", service_provider->font_manager().get(FontId::Default), Color::white(),
                 focus_helper.focus_id(),
                 [this](const ui::TextButton&) -> bool {
                     m_next_command = Command::Exit;
@@ -113,28 +114,28 @@ namespace scenes {
                     m_next_command = helper::nullopt;
                     return UpdateResult{
                         SceneUpdate::StopUpdating,
-                        Scene::Push{SceneId::PlaySelectMenu, ui::FullScreenLayout{ m_service_provider->window() }}
+                        Scene::Push{ SceneId::PlaySelectMenu, ui::FullScreenLayout{ m_service_provider->window() } }
                     };
                 case Command::OpenAboutPage:
                     // perform a push and reset the command, so that the music keeps playing the entire time
                     m_next_command = helper::nullopt;
                     return UpdateResult{
                         SceneUpdate::StopUpdating,
-                        Scene::Push{SceneId::AboutPage, ui::FullScreenLayout{ m_service_provider->window() }}
+                        Scene::Push{ SceneId::AboutPage, ui::FullScreenLayout{ m_service_provider->window() } }
                     };
                 case Command::OpenSettingsMenu:
                     // perform a push and reset the command, so that the music keeps playing the entire time
                     m_next_command = helper::nullopt;
                     return UpdateResult{
                         SceneUpdate::StopUpdating,
-                        Scene::Push{SceneId::SettingsMenu, ui::FullScreenLayout{ m_service_provider->window() }}
+                        Scene::Push{ SceneId::SettingsMenu, ui::FullScreenLayout{ m_service_provider->window() } }
                     };
                 case Command::OpenAchievements:
                     // perform a push and reset the command, so that the music keeps playing the entire time
                     m_next_command = helper::nullopt;
                     return UpdateResult{
                         SceneUpdate::StopUpdating,
-                        Scene::Push{SceneId::AchievementsPage, ui::FullScreenLayout{ m_service_provider->window() }}
+                        Scene::Push{ SceneId::AchievementsPage, ui::FullScreenLayout{ m_service_provider->window() } }
                     };
                 case Command::Exit:
                     return UpdateResult{ SceneUpdate::StopUpdating, Scene::Exit{} };
@@ -149,12 +150,14 @@ namespace scenes {
         m_main_grid.render(service_provider);
     }
 
-    bool MainMenu::handle_event(const SDL_Event& event, const Window* window) {
-        if (m_main_grid.handle_event(event, window)) {
+    bool MainMenu::handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) {
+        if (m_main_grid.handle_event(input_manager, event)) {
             return true;
         }
 
-        if (utils::event_is_action(event, utils::CrossPlatformAction::CLOSE)) {
+        const auto navigation_event = input_manager->get_navigation_event(event);
+
+        if (navigation_event == input::NavigationEvent::BACK) {
             m_next_command = Command::Exit;
             return true;
         }

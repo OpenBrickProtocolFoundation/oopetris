@@ -7,7 +7,7 @@
 #include "graphics/rect.hpp"
 #include "graphics/renderer.hpp"
 #include "helper/color_literals.hpp"
-#include "platform/capabilities.hpp"
+#include "input/input.hpp"
 #include "ui/focusable.hpp"
 #include "ui/hoverable.hpp"
 #include "ui/widget.hpp"
@@ -19,12 +19,13 @@ namespace ui {
     public:
         using Callback = std::function<bool(const CallBackType&)>;
 
-    protected:
+    private:
         Content m_content;
         Callback m_callback;
         shapes::URect m_fill_rect;
         bool m_enabled;
 
+    protected:
         explicit Button(
                 Content&& content,
                 u32 focus_id,
@@ -46,6 +47,10 @@ namespace ui {
                 focus();
             }
         }
+
+        [[nodiscard]] const Callback& callback() const {
+            return m_callback;
+        };
 
     public:
         explicit Button(
@@ -72,7 +77,7 @@ namespace ui {
 
         void render(const ServiceProvider& service_provider) const override {
 
-            //TODO: get as input a color palette and use that!
+            //TODO(Totto): get as input a color palette and use that!
             const auto color = not m_enabled ? (has_focus() ? "#A36A6A"_c : "#919191"_c)
                                              : (has_focus()    ? is_hovered() ? "#FF6A00"_c : Color::red()
                                                    : is_hovered() ? "#00BBFF"_c
@@ -82,30 +87,33 @@ namespace ui {
             m_content.render(service_provider);
         }
 
-        [[nodiscard]] Widget::EventHandleResult handle_event(const SDL_Event& event, const Window* window) override {
+        [[nodiscard]] Widget::EventHandleResult
+        handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override {
             if (not m_enabled) {
                 return false;
             }
 
-            if (utils::device_supports_keys()) {
-                if (has_focus() and utils::event_is_action(event, utils::CrossPlatformAction::OK)) {
-                    spdlog::info("Button pressed");
-                    if (on_clicked()) {
-                        return {
-                            true,
-                            {ui::EventHandleType::RequestAction, this}
-                        };
-                    }
-                    return true;
+
+            const auto navigation_event = input_manager->get_navigation_event(event);
+
+            if (has_focus() and navigation_event == input::NavigationEvent::OK) {
+                spdlog::info("Button pressed");
+                if (on_clicked()) {
+                    return {
+                        true,
+                        { ui::EventHandleType::RequestAction, this }
+                    };
                 }
+                return true;
             }
 
-            if (const auto hover_result = detect_hover(event, window); hover_result) {
+
+            if (const auto hover_result = detect_hover(input_manager, event); hover_result) {
                 if (hover_result.is(ActionType::Clicked)) {
                     if (on_clicked()) {
                         return {
                             true,
-                            {ui::EventHandleType::RequestAction, this}
+                            { ui::EventHandleType::RequestAction, this }
                         };
                     }
                 }

@@ -157,7 +157,7 @@ namespace lobby {
 
             const auto& version = server_version.value();
 
-            //TODO: if version is semver, support semver comparison
+            //TODO(Totto):  if version is semver, support semver comparison
             if (Client::supported_version.string() != version.version) {
                 return helper::unexpected<std::string>{ fmt::format(
                         "Connecting to unsupported server, version is {}, but we support only {}",
@@ -183,28 +183,24 @@ namespace lobby {
 
         explicit Client(const std::string& api_url) : m_client{ api_url } {
 
-
+            // clang-format off
             m_client.set_default_headers({
 #if defined(CPPHTTPLIB_ZLIB_SUPPORT) || defined(CPPHTTPLIB_BROTLI_SUPPORT)
-                {
-                    "Accept-Encoding",
+                    { "Accept-Encoding",
 
 #if defined(CPPHTTPLIB_ZLIB_SUPPORT)
-                            "gzip, deflate"
+                        "gzip, deflate"
 #endif
 #if defined(CPPHTTPLIB_ZLIB_SUPPORT) && defined(CPPHTTPLIB_BROTLI_SUPPORT)
-                            ", "
+                        ", "
 #endif
 #if defined(CPPHTTPLIB_BROTLI_SUPPORT)
-                            "br"
+                        "br"
 #endif
-                }
-                ,
+                        },
 #endif
-                {
-                    "Accept", constants::json_content_type
-                }
-            });
+                    // clang-format on
+                    { "Accept", constants::json_content_type } });
 
 #if defined(CPPHTTPLIB_ZLIB_SUPPORT) || defined(CPPHTTPLIB_BROTLI_SUPPORT)
             m_client.set_compress(true);
@@ -233,7 +229,7 @@ namespace lobby {
                 return helper::unexpected<std::string>{ reachable.error() };
             }
 
-            //TODO: once version is standard, check here if the version is supported
+            //TODO(Totto):  once version is standard, check here if the version is supported
 
             return client;
         }

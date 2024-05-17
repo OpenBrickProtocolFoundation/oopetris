@@ -3,12 +3,11 @@
 
 #include "helper/date.hpp"
 #include "helper/optional.hpp"
+#include "input/game_input.hpp"
 #include "manager/service_provider.hpp"
-#include "platform/input.hpp"
 #include "recordings/recording_writer.hpp"
 
 #include <memory>
-#include <vector>
 
 namespace tetrion {
     struct StartingParameters {
@@ -35,12 +34,12 @@ namespace tetrion {
 
 namespace input {
 
-    using AdditionalInfo = std::tuple<std::unique_ptr<Input>, tetrion::StartingParameters>;
+    using AdditionalInfo = std::tuple<std::shared_ptr<input::GameInput>, tetrion::StartingParameters>;
 
     [[nodiscard]] std::vector<input::AdditionalInfo>
     get_game_parameters_for_replay(ServiceProvider* service_provider, const std::filesystem::path& recording_path);
 
-    [[nodiscard]] AdditionalInfo get_single_player_game_parameters(
+    [[nodiscard]] helper::optional<input::AdditionalInfo> get_single_player_game_parameters(
             ServiceProvider* service_provider,
             recorder::AdditionalInformation&& information,
             const date::ISO8601Date& date

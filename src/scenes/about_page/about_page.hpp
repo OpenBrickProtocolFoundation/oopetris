@@ -15,8 +15,8 @@ namespace scenes {
 
         static constexpr std::initializer_list<std::tuple<const char* const, const char* const, const char* const>>
                 authors{
-                    {"mgerhold", "https://github.com/mgerhold", "mgerhold.jpg"},
-                    { "Totto16",  "https://github.com/Totto16",  "Totto16.png"}
+                    { "mgerhold", "https://github.com/mgerhold", "mgerhold.jpg" },
+                    {  "Totto16",  "https://github.com/Totto16",  "Totto16.png" }
         };
 
     public:
@@ -24,7 +24,7 @@ namespace scenes {
 
         [[nodiscard]] UpdateResult update() override;
         void render(const ServiceProvider& service_provider) override;
-        bool handle_event(const SDL_Event& event, const Window* window) override;
+        bool handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override;
     };
 
 } // namespace scenes

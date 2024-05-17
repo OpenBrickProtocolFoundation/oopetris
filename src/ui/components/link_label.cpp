@@ -1,5 +1,6 @@
 
 #include "link_label.hpp"
+#include "helper/platform.hpp"
 
 
 ui::LinkLabel::LinkLabel(
@@ -56,8 +57,8 @@ void ui::LinkLabel::render(const ServiceProvider& service_provider) const {
 }
 
 helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
-ui::LinkLabel::handle_event(const SDL_Event& event, const Window* window) {
-    if (const auto hover_result = detect_hover(event, window); hover_result) {
+ui::LinkLabel::handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) {
+    if (const auto hover_result = detect_hover(input_manager, event); hover_result) {
         if (hover_result.is(ActionType::Clicked)) {
             on_clicked();
         }

@@ -25,7 +25,7 @@ namespace helper {
         */
         static void show_simple(Type type, const std::string& title, const std::string& content, SDL_Window* window);
 
-        //TODO: add option to use the complicated API, that supports more buttons and also a result which button was pressed!
+        //TODO(Totto):  add option to use the complicated API, that supports more buttons and also a result which button was pressed!
     };
 
 

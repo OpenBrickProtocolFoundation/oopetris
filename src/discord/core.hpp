@@ -18,7 +18,7 @@
 namespace constants::discord {
     constexpr auto client_id = 1220147916371394650ULL;
 
-    //TODO: this isn't correct for all platforms and needs to be tested
+    //TODO(Totto):  this isn't correct for all platforms and needs to be tested
 #if defined(__ANDROID__)
     constexpr const char* platform_dependent_launch_arguments = "";
 #elif defined(__CONSOLE__)
@@ -49,7 +49,7 @@ private:
     discord::Activity m_activity{};
 
 public:
-    //TODO: Add support for party and invites / join / invitations / spectate
+    //TODO(Totto):  Add support for party and invites / join / invitations / spectate
 
     DiscordActivityWrapper(const std::string& details, discord::ActivityType type);
 

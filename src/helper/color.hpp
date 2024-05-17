@@ -1,5 +1,6 @@
 #pragma once
 
+#include "const_utils.hpp"
 #include "helper/expected.hpp"
 #include "helper/types.hpp"
 #include "helper/utils.hpp"
@@ -23,17 +24,23 @@ struct HSVColor {
     double v;
     u8 a;
 
-    constexpr HSVColor(double h, double s, double v, u8 a) // NOLINT(bugprone-easily-swappable-parameters)
-        : h{ h },
-          s{ s },
-          v{ v },
-          a{ a } {
+
+    constexpr HSVColor(
+            double hue, // NOLINT(bugprone-easily-swappable-parameters)
+            double saturation,
+            double value,
+            u8 alpha
+    )
+        : h{ hue },
+          s{ saturation },
+          v{ value },
+          a{ alpha } {
 
         if (utils::is_constant_evaluated()) {
 
-            CONSTEVAL_STATIC_ASSERT(h >= 0.0 && h <= 360.0, "h has to be in range 0.0 - 360.0");
-            CONSTEVAL_STATIC_ASSERT(s >= 0.0 && s <= 1.0, "s has to be in range 0.0 - 1.0");
-            CONSTEVAL_STATIC_ASSERT(v >= 0.0 && v <= 1.0, "v has to be in range 0.0 - 1.0");
+            CONSTEVAL_ONLY_STATIC_ASSERT(h >= 0.0 && h <= 360.0, "h has to be in range 0.0 - 360.0");
+            CONSTEVAL_ONLY_STATIC_ASSERT(s >= 0.0 && s <= 1.0, "s has to be in range 0.0 - 1.0");
+            CONSTEVAL_ONLY_STATIC_ASSERT(v >= 0.0 && v <= 1.0, "v has to be in range 0.0 - 1.0");
 
         } else {
 
@@ -50,9 +57,9 @@ struct HSVColor {
         }
     }
 
-    constexpr HSVColor() : HSVColor{ 0.0, 0.0, 0.0, 0 } { }
+    constexpr HSVColor(double hue, double saturation, double value) : HSVColor{ hue, saturation, value, 0xFF } { }
 
-    constexpr HSVColor(double h, double s, double v) : HSVColor{ h, s, v, 0xFF } { }
+    constexpr HSVColor() : HSVColor{ 0.0, 0.0, 0.0, 0 } { }
 
     [[nodiscard]] static helper::expected<HSVColor, std::string> from_string(const std::string& value);
 
@@ -67,8 +74,8 @@ struct HSVColor {
     std::ostream& operator<<(std::ostream& os) const;
 };
 
-namespace {
-    //TODO: if everything (also libc++ ) supports c++23 , the std functions are constexpr, so we can use them
+namespace { //NOLINT(cert-dcl59-cpp,google-build-namespaces)
+    //TODO(Totto):  if everything (also libc++ ) supports c++23 , the std functions are constexpr, so we can use them
     template<typename T>
     constexpr T fmod_constexpr(T value, T divisor) {
         if (not utils::is_constant_evaluated()) {
@@ -118,15 +125,15 @@ struct Color {
     u8 a;
 
 
-    constexpr Color(u8 r, u8 g, u8 b, u8 a) // NOLINT(bugprone-easily-swappable-parameters)
-        : r{ r },
-          g{ g },
-          b{ b },
-          a{ a } { }
+    constexpr Color(u8 red, u8 green, u8 blue, u8 alpha) // NOLINT(bugprone-easily-swappable-parameters)
+        : r{ red },
+          g{ green },
+          b{ blue },
+          a{ alpha } { }
 
     constexpr Color() : Color{ 0, 0, 0, 0 } { }
 
-    constexpr Color(u8 r, u8 g, u8 b) : Color{ r, g, b, 0xFF } { }
+    constexpr Color(u8 red, u8 green, u8 blue) : Color{ red, green, blue, 0xFF } { }
 
     [[nodiscard]] static helper::expected<Color, std::string> from_string(const std::string& value);
 
@@ -137,30 +144,31 @@ struct Color {
 
     [[nodiscard]] HSVColor to_hsv_color() const;
 
-    constexpr Color(const HSVColor& color) {
+    constexpr Color(const HSVColor& color) { //NOLINT(google-explicit-constructor)
 
         using FloatType = double; //for more precision use "long double" here
 
         // taken from https://scratch.mit.edu/discuss/topic/694772/
 
-        const auto h = static_cast<FloatType>(color.h);
-        const auto s = static_cast<FloatType>(color.s);
-        const auto v = static_cast<FloatType>(color.v);
+        auto hue = static_cast<FloatType>(color.h);
+        const auto saturation = static_cast<FloatType>(color.s);
+        const auto value = static_cast<FloatType>(color.v);
 
-        const FloatType chroma = v * s;
+        const FloatType chroma = value * saturation;
 
-        FloatType hue = h;
+
         if (hue >= static_cast<FloatType>(360.0)) {
             hue = static_cast<FloatType>(0.0);
         }
 
 
-        const FloatType x = chroma
-                            * (static_cast<FloatType>(1.0)
-                               - fabs_constexpr(
-                                       fmod_constexpr(hue / static_cast<FloatType>(60.0), static_cast<FloatType>(2.0))
-                                       - static_cast<FloatType>(1.0)
-                               ));
+        const FloatType x_offset =
+                chroma
+                * (static_cast<FloatType>(1.0)
+                   - fabs_constexpr(
+                           fmod_constexpr(hue / static_cast<FloatType>(60.0), static_cast<FloatType>(2.0))
+                           - static_cast<FloatType>(1.0)
+                   ));
 
         const u64 index = static_cast<u64>(hue / static_cast<FloatType>(60.0));
 
@@ -171,44 +179,44 @@ struct Color {
         switch (index) {
             case 0:
                 d_r = chroma;
-                d_g = x;
+                d_g = x_offset;
                 d_b = static_cast<FloatType>(0.0);
                 break;
             case 1:
-                d_r = x;
+                d_r = x_offset;
                 d_g = chroma;
                 d_b = static_cast<FloatType>(0.0);
                 break;
             case 2:
                 d_r = static_cast<FloatType>(0.0);
                 d_g = chroma;
-                d_b = x;
+                d_b = x_offset;
                 break;
             case 3:
                 d_r = static_cast<FloatType>(0.0);
-                d_g = x;
+                d_g = x_offset;
                 d_b = chroma;
                 break;
             case 4:
-                d_r = x;
+                d_r = x_offset;
                 d_g = static_cast<FloatType>(0.0);
                 d_b = chroma;
                 break;
             case 5:
                 d_r = chroma;
                 d_g = static_cast<FloatType>(0.0);
-                d_b = x;
+                d_b = x_offset;
                 break;
             default:
                 utils::unreachable();
         }
 
 
-        const FloatType m = v - chroma;
+        const FloatType offset = value - chroma;
 
-        const auto finish_value = [m](FloatType value) -> u8 {
+        const auto finish_value = [offset](FloatType value) -> u8 {
             const auto result =
-                    std::clamp<FloatType>(value + m, static_cast<FloatType>(0.0), static_cast<FloatType>(1.0))
+                    std::clamp<FloatType>(value + offset, static_cast<FloatType>(0.0), static_cast<FloatType>(1.0))
                     * static_cast<FloatType>(0xFF);
 
             return static_cast<u8>(round_constexpr(result));

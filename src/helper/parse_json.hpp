@@ -23,21 +23,21 @@
 NLOHMANN_JSON_NAMESPACE_BEGIN
 template<typename T>
 struct adl_serializer<helper::optional<T>> {
-    static void to_json(json& j, const helper::optional<T>& opt) {
+    static void to_json(json& obj, const helper::optional<T>& opt) {
         if (not opt) {
-            j = nullptr;
+            obj = nullptr;
         } else {
-            j = *opt; // this will call adl_serializer<T>::to_json which will
-                      // find the free function to_json in T's namespace!
+            obj = *opt; // this will call adl_serializer<T>::to_json which will
+                        // find the free function to_json in T's namespace!
         }
     }
 
-    static void from_json(const json& j, helper::optional<T>& opt) {
-        if (j.is_null()) {
+    static void from_json(const json& obj, helper::optional<T>& opt) {
+        if (obj.is_null()) {
             opt = helper::nullopt;
         } else {
-            opt = j.template get<T>(); // same as above, but with
-                                       // adl_serializer<T>::from_json
+            opt = obj.template get<T>(); // same as above, but with
+                                         // adl_serializer<T>::from_json
         }
     }
 };
@@ -111,7 +111,7 @@ namespace json {
 
     std::string get_json_type(const nlohmann::json::value_t& type);
 
-    void check_for_no_additional_keys(const nlohmann::json& j, const std::vector<std::string>& keys);
+    void check_for_no_additional_keys(const nlohmann::json& obj, const std::vector<std::string>& keys);
 
 
 } // namespace json

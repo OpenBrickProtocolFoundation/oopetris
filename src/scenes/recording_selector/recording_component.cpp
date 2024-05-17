@@ -2,6 +2,7 @@
 #include "recording_component.hpp"
 #include "helper/date.hpp"
 #include "helper/magic_enum_wrapper.hpp"
+#include "input/input.hpp"
 #include "manager/font.hpp"
 #include "manager/resource_manager.hpp"
 #include "ui/widget.hpp"
@@ -25,7 +26,7 @@ custom_ui::RecordingComponent::RecordingComponent(
        },m_metadata{std::move(metadata)}{
 
     m_main_layout.add<ui::Label>(
-            service_provider, "name: ?", service_provider->fonts().get(FontId::Default), Color::white(),
+            service_provider, "name: ?", service_provider->font_manager().get(FontId::Default), Color::white(),
             std::pair<double, double>{ 0.5, 0.5 },
             ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
     );
@@ -39,19 +40,19 @@ custom_ui::RecordingComponent::RecordingComponent(
 
 
     information_layout->add<ui::Label>(
-            service_provider, "source: ?", service_provider->fonts().get(FontId::Default), Color::white(),
+            service_provider, "source: ?", service_provider->font_manager().get(FontId::Default), Color::white(),
             std::pair<double, double>{ 0.9, 0.9 },
             ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
     );
 
     information_layout->add<ui::Label>(
-            service_provider, "date: ?", service_provider->fonts().get(FontId::Default), Color::white(),
+            service_provider, "date: ?", service_provider->font_manager().get(FontId::Default), Color::white(),
             std::pair<double, double>{ 0.9, 0.9 },
             ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
     );
 
     information_layout->add<ui::Label>(
-            service_provider, "playmode: ?", service_provider->fonts().get(FontId::Default), Color::white(),
+            service_provider, "playmode: ?", service_provider->font_manager().get(FontId::Default), Color::white(),
             std::pair<double, double>{ 0.9, 0.9 },
             ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
     );
@@ -70,24 +71,24 @@ void custom_ui::RecordingComponent::render(const ServiceProvider& service_provid
     m_main_layout.render(service_provider);
 }
 
-helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
-custom_ui::RecordingComponent::handle_event(const SDL_Event& event, const Window* window) {
+helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>> custom_ui::RecordingComponent::handle_event(
+        const std::shared_ptr<input::InputManager>& input_manager,
+        const SDL_Event& event
+) {
 
-    if (utils::device_supports_keys()) {
-        if (has_focus() and utils::event_is_action(event, utils::CrossPlatformAction::OK)) {
-            return {
-                true,
-                {ui::EventHandleType::RequestAction, this}
-            };
-        }
+    if (has_focus() and input_manager->get_navigation_event(event) == input::NavigationEvent::OK) {
+        return {
+            true,
+            { ui::EventHandleType::RequestAction, this }
+        };
     }
 
 
-    if (const auto hover_result = detect_hover(event, window); hover_result) {
+    if (const auto hover_result = detect_hover(input_manager, event); hover_result) {
         if (hover_result.is(ui::ActionType::Clicked)) {
             return {
                 true,
-                {has_focus() ? ui::EventHandleType::RequestAction : ui::EventHandleType::RequestFocus, this}
+                { has_focus() ? ui::EventHandleType::RequestAction : ui::EventHandleType::RequestFocus, this }
             };
         }
         return true;

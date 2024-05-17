@@ -55,7 +55,8 @@ namespace ui {
             // do nothing
         }
         virtual void render(const ServiceProvider& service_provider) const = 0;
-        [[nodiscard]] virtual EventHandleResult handle_event(const SDL_Event& event, const Window* window) = 0;
+        [[nodiscard]] virtual EventHandleResult
+        handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) = 0;
     };
 
     [[nodiscard]] helper::optional<Focusable*> as_focusable(Widget* widget);

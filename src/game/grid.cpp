@@ -42,7 +42,7 @@ void Grid::render(const ServiceProvider& service_provider) const {
 }
 
 [[nodiscard]] helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
-Grid::handle_event(const SDL_Event&, const Window*) {
+Grid::handle_event(const std::shared_ptr<input::InputManager>& /*input_manager*/, const SDL_Event& /*event*/) {
     return false;
 }
 
@@ -51,7 +51,7 @@ void Grid::draw_preview_background(const ServiceProvider& service_provider) cons
             service_provider,
             GridRect{
                     grid::preview_background_position,
-                    grid::preview_background_position + grid::preview_extends - GridPoint{1, 1},
+                    grid::preview_background_position + grid::preview_extends - GridPoint{ 1, 1 },
     }
     );
 }
@@ -61,7 +61,7 @@ void Grid::draw_hold_background(const ServiceProvider& service_provider) const {
             service_provider,
             GridRect{
                     grid::hold_background_position,
-                    grid::hold_background_position + grid::hold_background_extends - GridPoint{1, 1},
+                    grid::hold_background_position + grid::hold_background_extends - GridPoint{ 1, 1 },
     }
     );
 }
@@ -71,7 +71,7 @@ void Grid::draw_playing_field_background(const ServiceProvider& service_provider
             service_provider,
             GridRect{
                     grid::grid_position,
-                    grid::grid_position + shapes::UPoint{grid::width_in_tiles - 1, grid::height_in_tiles - 1},
+                    grid::grid_position + shapes::UPoint{ grid::width_in_tiles - 1, grid::height_in_tiles - 1 },
     }
     );
 }

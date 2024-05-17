@@ -9,6 +9,8 @@
 namespace shapes {
     template<typename T>
     struct AbstractPoint final {
+        using Type = T;
+
         T x;
         T y;
 

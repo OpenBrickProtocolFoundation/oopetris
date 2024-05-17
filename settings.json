@@ -1,14 +1,65 @@
 {
-	"platform": "pc",
 	"controls": {
-		"type": "keyboard",
-		"drop": "W",
-		"hold": "E",
-		"move_down": "S",
-		"move_left": "A",
-		"move_right": "D",
-		"rotate_left": "Left",
-		"rotate_right": "Right"
+		"selected": null,
+		"inputs": [
+			{
+				"type": "keyboard",
+				"drop": "W",
+				"hold": "E",
+				"move_down": "S",
+				"move_left": "A",
+				"move_right": "D",
+				"rotate_left": "Left",
+				"rotate_right": "Right",
+				"menu": {
+					"pause": "Space",
+					"open_settings": "P"
+				}
+			},
+			{
+				"type": "joystick",
+				"identification": {
+					"guid": "00:00:10:32:4e:69:6e:74:65:6e:64:6f:20:33:44:00",
+					"name": "Nintendo 3DS"
+				},
+				"drop": "X",
+				"hold": "B",
+				"move_down": "DPAD_DOWN",
+				"move_left": "DPAD_LEFT",
+				"move_right": "DPAD_RIGHT",
+				"rotate_left": "L",
+				"rotate_right": "R",
+				"menu": {
+					"pause": "START",
+					"open_settings": "SELECT"
+				}
+			},
+			{
+				"type": "joystick",
+				"identification": {
+					"guid": "00:00:38:f8:53:77:69:74:63:68:20:43:6f:6e:74:00",
+					"name": "Switch Controller"
+				},
+				"drop": "X",
+				"hold": "B",
+				"move_down": "LPAD_DOWN",
+				"move_left": "LPAD_LEFT",
+				"move_right": "LPAD_RIGHT",
+				"rotate_left": "DPAD_LEFT",
+				"rotate_right": "DPAD_RIGHT",
+				"menu": {
+					"pause": "MINUS",
+					"open_settings": "PLUS"
+				}
+			},
+			{
+				"type": "touch",
+				"move_x_threshold": 0.07,
+				"move_y_threshold": 0.37,
+				"rotation_duration_threshold": 500,
+				"drop_duration_threshold": 200
+			}
+		]
 	},
 	"volume": 0.2,
 	"discord": false

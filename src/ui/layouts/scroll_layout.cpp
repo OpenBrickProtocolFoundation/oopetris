@@ -1,6 +1,7 @@
 
 #include "scroll_layout.hpp"
 #include "helper/color_literals.hpp"
+#include "input/input.hpp"
 
 ui::ItemSize::ItemSize(const u32 height, ItemSizeType type) : height{ height }, type{ type } { }
 
@@ -106,118 +107,114 @@ void ui::ScrollLayout::render(const ServiceProvider& service_provider) const {
     }
 }
 
-ui::Widget::EventHandleResult ui::ScrollLayout::handle_event( // NOLINT(readability-function-cognitive-complexity)
-        const SDL_Event& event,
-        const Window* window
-) {
+ui::Widget::EventHandleResult
+ui::ScrollLayout::handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) {
 
-    Widget::EventHandleResult handled = handle_focus_change_events(event, window);
+    Widget::EventHandleResult handled = handle_focus_change_events(input_manager, event);
 
     if (handled) {
         auto_move_after_focus_change();
         return handled;
     }
 
-    if (utils::device_supports_clicks()) {
 
-        const u32 total_widgets_height = m_widgets.empty() ? 0 : m_widgets.back()->layout().get_rect().bottom_right.y;
+    const u32 total_widgets_height = m_widgets.empty() ? 0 : m_widgets.back()->layout().get_rect().bottom_right.y;
 
-        const auto change_value_on_scroll = [&window, &event, total_widgets_height, this]() {
-            const auto& [_, y] = utils::get_raw_coordinates(window, event);
+    const auto change_value_on_scroll = [total_widgets_height, this](const input::PointerEventHelper& pointer_event) {
+        const auto& [_, y] = pointer_event.position();
 
-            auto desired_scroll_height = 0;
-
-
-            if (y <= static_cast<i32>(scrollbar_rect.top_left.y)) {
-                desired_scroll_height = 0;
-            } else if (y >= static_cast<i32>(scrollbar_rect.bottom_right.y)) {
-                // this is to high, but recalculate_sizes reset it to the highest possible value!
-                desired_scroll_height = static_cast<int>(total_widgets_height);
-            } else {
-
-                const double percentage = static_cast<double>(y - scrollbar_rect.top_left.y)
-                                          / static_cast<double>(scrollbar_rect.height());
-
-                // we want the final point to be in the middle, but desired_scroll_height expects the top position.
-                desired_scroll_height = static_cast<int>(
-                        static_cast<int>(percentage * total_widgets_height) - scrollbar_rect.height() / 2
-                );
-                is_dragging = true;
-            }
+        auto desired_scroll_height = 0;
 
 
-            recalculate_sizes(desired_scroll_height);
-        };
+        if (y <= static_cast<i32>(scrollbar_rect.top_left.y)) {
+            desired_scroll_height = 0;
+        } else if (y >= static_cast<i32>(scrollbar_rect.bottom_right.y)) {
+            // this is to high, but recalculate_sizes reset it to the highest possible value!
+            desired_scroll_height = static_cast<int>(total_widgets_height);
+        } else {
+
+            const double percentage =
+                    static_cast<double>(y - scrollbar_rect.top_left.y) / static_cast<double>(scrollbar_rect.height());
+
+            // we want the final point to be in the middle, but desired_scroll_height expects the top position.
+            desired_scroll_height =
+                    static_cast<int>(static_cast<int>(percentage * total_widgets_height) - scrollbar_rect.height() / 2);
+            is_dragging = true;
+        }
 
 
-        if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::ButtonDown)) {
-            // note: this behaviour is intentional, namely, clicking into the scroll slider doesn't move it, it just "grabs" it for dragging
-            if (utils::is_event_in(window, event, scrollbar_mover_rect)) {
-                is_dragging = true;
-                handled = true;
-            } else if (utils::is_event_in(window, event, scrollbar_rect)) {
+        recalculate_sizes(desired_scroll_height);
+    };
 
-                change_value_on_scroll();
-                handled = true;
-            }
+    const auto pointer_event = input_manager->get_pointer_event(event);
 
-        } else if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::ButtonUp)) {
-            is_dragging = false;
+    if (pointer_event == input::PointerEvent::PointerDown) {
+        // note: this behaviour is intentional, namely, clicking into the scroll slider doesn't move it, it just "grabs" it for dragging
+        if (pointer_event->is_in(scrollbar_mover_rect)) {
+            is_dragging = true;
             handled = true;
+        } else if (pointer_event->is_in(scrollbar_rect)) {
 
-        } else if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::Motion)) {
-
-            if (is_dragging) {
-
-                change_value_on_scroll();
-                handled = true;
-            }
-
-            //TODO: support touch screen scrolling too!
-        } else if (event.type == SDL_MOUSEWHEEL) {
-
-            // attention the mouse direction changes (it's called natural scrolling on macos/ windows / linux) are not detected by sdl until restart, and here we use the correct scroll behaviour, as the user configured the mouse in it's OS
-            const bool direction_is_down =
-                    event.wheel.direction == SDL_MOUSEWHEEL_NORMAL ? event.wheel.y < 0 : event.wheel.y > 0;
-
-
-            auto desired_scroll_height = 0;
-
-            if (direction_is_down) {
-                desired_scroll_height = static_cast<int>(m_viewport.top_left.y + m_step_size);
-            } else {
-                desired_scroll_height = static_cast<int>(m_viewport.top_left.y - m_step_size);
-            }
-
-            recalculate_sizes(desired_scroll_height);
+            change_value_on_scroll(pointer_event.value());
             handled = true;
         }
 
-        if (utils::event_is_click_event(event, utils::CrossPlatformClickEvent::Any)) {
+    } else if (pointer_event == input::PointerEvent::PointerUp) {
+        is_dragging = false;
+        handled = true;
 
-            const auto offset_distance = main_rect.top_left.cast<i32>() - m_viewport.top_left.cast<i32>();
-            for (auto& widget : m_widgets) {
-                const auto& layout_rect = widget->layout().get_rect();
-                const auto& offset_rect = (layout_rect.cast<i32>()) >> offset_distance;
+    } else if (pointer_event == input::PointerEvent::Motion) {
 
-                if (not handled and utils::is_event_in(window, event, main_rect)
-                    and utils::is_event_in(window, event, offset_rect.cast<u32>())) {
-                    const auto offset_event = utils::offset_event(window, event, -offset_distance);
-                    if (const auto event_result = widget->handle_event(offset_event, window); event_result) {
-                        handled = { true, handle_event_result(event_result.get_additional(), widget.get()) };
-                        continue;
-                    }
-                } else {
-                    const auto hoverable = as_hoverable(widget.get());
-                    if (hoverable.has_value()) {
-                        hoverable.value()->on_unhover();
-                    }
+        if (is_dragging) {
+
+            change_value_on_scroll(pointer_event.value());
+            handled = true;
+        }
+
+        //TODO(Totto): support touch screen scrolling too, factor this out into the input manager
+    } else if (event.type == SDL_MOUSEWHEEL) {
+
+        // attention the mouse direction changes (it's called natural scrolling on macos/ windows / linux) are not detected by sdl until restart, and here we use the correct scroll behaviour, as the user configured the mouse in it's OS
+        const bool direction_is_down =
+                event.wheel.direction == SDL_MOUSEWHEEL_NORMAL ? event.wheel.y < 0 : event.wheel.y > 0;
+
+
+        auto desired_scroll_height = 0;
+
+        if (direction_is_down) {
+            desired_scroll_height = static_cast<int>(m_viewport.top_left.y + m_step_size);
+        } else {
+            desired_scroll_height = static_cast<int>(m_viewport.top_left.y - m_step_size);
+        }
+
+        recalculate_sizes(desired_scroll_height);
+        handled = true;
+    }
+
+    if (pointer_event.has_value()) {
+
+        const auto offset_distance = main_rect.top_left.cast<i32>() - m_viewport.top_left.cast<i32>();
+        for (auto& widget : m_widgets) {
+            const auto& layout_rect = widget->layout().get_rect();
+            const auto& offset_rect = (layout_rect.cast<i32>()) >> offset_distance;
+
+            if (not handled and pointer_event->is_in(main_rect) and pointer_event->is_in(offset_rect)) {
+                const auto offset_event = input_manager->offset_pointer_event(event, -offset_distance);
+                if (const auto event_result = widget->handle_event(input_manager, offset_event); event_result) {
+                    handled = { true, handle_event_result(event_result.get_additional(), widget.get()) };
+                    continue;
+                }
+            } else {
+                const auto hoverable = as_hoverable(widget.get());
+                if (hoverable.has_value()) {
+                    hoverable.value()->on_unhover();
                 }
             }
-
-            return handled;
         }
+
+        return handled;
     }
+
 
     return handled;
 }

@@ -3,7 +3,6 @@
 #include "game_over/game_over.hpp"
 #include "main_menu/main_menu.hpp"
 #include "multiplayer_menu/multiplayer_menu.hpp"
-#include "pause/pause.hpp"
 #include "play_select_menu/play_select_menu.hpp"
 #include "recording_selector/recording_selector.hpp"
 #include "replay_game/replay_game.hpp"
@@ -25,8 +24,6 @@ namespace scenes {
         switch (identifier) {
             case SceneId::MainMenu:
                 return std::make_unique<MainMenu>(&service_provider, layout);
-            case SceneId::Pause:
-                return std::make_unique<Pause>(&service_provider, layout);
             case SceneId::SinglePlayerGame:
                 return std::make_unique<SinglePlayerGame>(&service_provider, layout);
             case SceneId::GameOver:
@@ -45,7 +42,7 @@ namespace scenes {
             case SceneId::OnlineLobby:
                 return std::make_unique<OnlineLobby>(&service_provider, layout);
 #endif
-            //TODO
+            //TODO(Totto): implement those
             /*      
             case SceneId::LocalMultiPlayerGame:
                 return std::make_unique<TODO>(&service_provider, layout);

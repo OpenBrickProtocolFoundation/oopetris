@@ -12,7 +12,6 @@ enum class SceneId : u8 {
     MultiPlayerModeSelectMenu,
     OnlineLobby,
     OnlineMultiplayerGame,
-    Pause,
     PlaySelectMenu,
     SettingsMenu,
     SinglePlayerGame,

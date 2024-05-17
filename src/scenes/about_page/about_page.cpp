@@ -2,9 +2,9 @@
 #include "graphics/window.hpp"
 #include "helper/constants.hpp"
 #include "helper/git_helper.hpp"
+#include "helper/platform.hpp"
 #include "helper/utils.hpp"
 #include "manager/resource_manager.hpp"
-#include "platform/capabilities.hpp"
 #include "ui/components/image_view.hpp"
 #include "ui/components/link_label.hpp"
 #include "ui/layouts/tile_layout.hpp"
@@ -28,30 +28,34 @@ namespace scenes {
 #ifdef DEBUG_BUILD
         m_main_grid.add<ui::Label>(
                 service_provider, fmt::format("Git Commit: {}", utils::git_commit()),
-                service_provider->fonts().get(FontId::Default), Color::white(), std::pair<double, double>{ 0.3, 0.5 },
+                service_provider->font_manager().get(FontId::Default), Color::white(),
+                std::pair<double, double>{ 0.3, 0.5 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
         );
 #else
         m_main_grid.add<ui::Label>(
                 service_provider, fmt::format("Version: {}", constants::version.c_str()),
-                service_provider->fonts().get(FontId::Default), Color::white(), std::pair<double, double>{ 0.3, 0.5 },
+                service_provider->font_manager().get(FontId::Default), Color::white(),
+                std::pair<double, double>{ 0.3, 0.5 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
         );
 #endif
         m_main_grid.add<ui::Label>(
                 service_provider, fmt::format("Build for: {}", utils::built_for_platform()),
-                service_provider->fonts().get(FontId::Default), Color::white(), std::pair<double, double>{ 0.3, 0.5 },
+                service_provider->font_manager().get(FontId::Default), Color::white(),
+                std::pair<double, double>{ 0.3, 0.5 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
         );
 
         m_main_grid.add<ui::Label>(
                 service_provider, fmt::format("Features: {}", fmt::join(utils::supported_features(), ", ")),
-                service_provider->fonts().get(FontId::Default), Color::white(), std::pair<double, double>{ 0.95, 0.5 },
+                service_provider->font_manager().get(FontId::Default), Color::white(),
+                std::pair<double, double>{ 0.95, 0.5 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
         );
 
         m_main_grid.add<ui::Label>(
-                service_provider, "Authors:", service_provider->fonts().get(FontId::Default), Color::white(),
+                service_provider, "Authors:", service_provider->font_manager().get(FontId::Default), Color::white(),
                 std::pair<double, double>{ 0.2, 0.4 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Bottom }
         );
@@ -67,7 +71,7 @@ namespace scenes {
             auto* tile_layout = m_main_grid.get<ui::TileLayout>(tile_layout_index);
 
             tile_layout->add<ui::LinkLabel>(
-                    service_provider, name, link, service_provider->fonts().get(FontId::Default), Color::white(),
+                    service_provider, name, link, service_provider->font_manager().get(FontId::Default), Color::white(),
                     Color{ 0xA1, 0x9F, 0x9F }, std::pair<double, double>{ 0.9, 0.8 },
                     ui::Alignment{ ui::AlignmentHorizontal::Right, ui::AlignmentVertical::Center }
             );
@@ -98,12 +102,14 @@ namespace scenes {
         m_main_grid.render(service_provider);
     }
 
-    bool AboutPage::handle_event(const SDL_Event& event, const Window* window) {
-        if (m_main_grid.handle_event(event, window)) {
+    bool AboutPage::handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) {
+        if (m_main_grid.handle_event(input_manager, event)) {
             return true;
         }
 
-        if (utils::event_is_action(event, utils::CrossPlatformAction::CLOSE)) {
+        const auto navigation_event = input_manager->get_navigation_event(event);
+
+        if (navigation_event == input::NavigationEvent::BACK) {
             m_should_exit = true;
             return true;
         }

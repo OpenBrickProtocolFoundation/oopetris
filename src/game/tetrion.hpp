@@ -5,9 +5,9 @@
 #include "helper/optional.hpp"
 #include "helper/random.hpp"
 #include "helper/types.hpp"
+#include "input/game_input.hpp"
 #include "manager/service_provider.hpp"
 #include "mino_stack.hpp"
-#include "platform/input.hpp"
 #include "recordings/tetrion_core_information.hpp"
 #include "tetromino.hpp"
 #include "ui/layout.hpp"
@@ -76,7 +76,7 @@ private:
     std::array<helper::optional<Tetromino>, num_preview_tetrominos> m_preview_tetrominos{};
     u8 m_tetrion_index;
     u64 m_next_gravity_simulation_step_index;
-    ui::TileLayout main_layout;
+    ui::TileLayout m_main_layout;
 
 
 public:
@@ -89,10 +89,11 @@ public:
             bool is_top_level);
     void update_step(SimulationStep simulation_step_index);
     void render(const ServiceProvider& service_provider) const override;
-    [[nodiscard]] Widget::EventHandleResult handle_event(const SDL_Event& event, const Window* window) override;
+    [[nodiscard]] Widget::EventHandleResult
+    handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override;
 
     // returns if the input event lead to a movement
-    bool handle_input_command(InputCommand command, SimulationStep simulation_step_index);
+    bool handle_input_command(input::GameInputCommand command, SimulationStep simulation_step_index);
     void spawn_next_tetromino(SimulationStep simulation_step_index);
     void spawn_next_tetromino(helper::TetrominoType type, SimulationStep simulation_step_index);
     bool rotate_tetromino_right();
