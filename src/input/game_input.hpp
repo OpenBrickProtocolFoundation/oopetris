@@ -45,10 +45,8 @@ namespace input {
 
         std::unordered_map<HoldableKey, u64> m_keys_hold;
         GameInputType m_input_type;
-
-    private:
         Tetrion* m_target_tetrion{};
-        OnEventCallback m_on_event_callback{};
+        OnEventCallback m_on_event_callback;
 
     protected:
         explicit GameInput(GameInputType input_type) : m_input_type{ input_type } { }

@@ -61,8 +61,7 @@ namespace input {
  * @note regarding the NOLINT: the destructor just cleans up the SDL_Joystick, it has nothing to do with class members that would need special member functions to be explicitly defined
  * 
  */
-    struct JoystickInput //NOLINT(cppcoreguidelines-special-member-functions)
-        : Input {
+    struct JoystickInput : Input {
     private:
         SDL_Joystick* m_joystick;
         SDL_JoystickID m_instance_id;
@@ -76,7 +75,14 @@ namespace input {
 
     public:
         JoystickInput(SDL_Joystick* joystick, SDL_JoystickID instance_id, const std::string& name);
-        ~JoystickInput();
+
+        ~JoystickInput() override;
+
+        JoystickInput(const JoystickInput& input) noexcept;
+        JoystickInput& operator=(const JoystickInput& input) noexcept;
+
+        JoystickInput(JoystickInput&& input) noexcept;
+        JoystickInput& operator=(JoystickInput&& input) noexcept;
 
         [[nodiscard]] static helper::expected<std::unique_ptr<JoystickInput>, std::string> get_by_device_index(
                 int device_index
@@ -204,21 +210,21 @@ namespace input {
     X_LIST_MACRO(open_settings)
 
 
-#define TRY_CONVERT(original, target, map, key)                                                               \
-    do /*NOLINT(cppcoreguidelines-avoid-do-while)*/ {                                                         \
-        if (map.contains(original.key)) {                                                                     \
-            target.key = map.at(original.key);                                                                \
-        } else {                                                                                              \
-            return helper::unexpected<std::string>{                                                           \
-                fmt::format("While parsing key '{}': '{}' is not a valid joystick input", #key, original.key) \
-            };                                                                                                \
-        }                                                                                                     \
+#define TRY_CONVERT(original, target, map, key) /*NOLINT(cppcoreguidelines-macro-usage)*/                       \
+    do /*NOLINT(cppcoreguidelines-avoid-do-while)*/ {                                                           \
+        if ((map).contains((original).key)) {                                                                   \
+            (target).key = (map).at((original).key);                                                            \
+        } else {                                                                                                \
+            return helper::unexpected<std::string>{                                                             \
+                fmt::format("While parsing key '{}': '{}' is not a valid joystick input", #key, (original).key) \
+            };                                                                                                  \
+        }                                                                                                       \
     } while (false)
 
 
-#define SETTINGS_TO_STRING(original, target, fn, key) \
-    do /*NOLINT(cppcoreguidelines-avoid-do-while)*/ { \
-        target.key = fn(original.key);                \
+#define SETTINGS_TO_STRING(original, target, fn, key) /*NOLINT(cppcoreguidelines-macro-usage)*/ \
+    do /*NOLINT(cppcoreguidelines-avoid-do-while)*/ {                                           \
+        (target).key = fn((original).key);                                                      \
     } while (false)
 
 
@@ -227,20 +233,23 @@ namespace input {
         std::vector<SDL_Event> m_event_buffer;
         EventDispatcher* m_event_dispatcher;
 
-    protected:
+
         JoystickInput* m_underlying_input;
 
-    public:
-        JoystickGameInput(EventDispatcher* event_dispatcher, JoystickInput* underlying_input)
-            : GameInput{ GameInputType::Controller },
-              m_event_dispatcher{ event_dispatcher },
-              m_underlying_input{ underlying_input } {
-            m_event_dispatcher->register_listener(this);
-        }
+    protected:
+        [[nodiscard]] const JoystickInput* underlying_input() const;
 
-        ~JoystickGameInput() override {
-            m_event_dispatcher->unregister_listener(this);
-        }
+
+    public:
+        JoystickGameInput(EventDispatcher* event_dispatcher, JoystickInput* underlying_input);
+
+        ~JoystickGameInput() override;
+
+        JoystickGameInput(const JoystickGameInput& input) = delete;
+        [[nodiscard]] JoystickGameInput& operator=(const JoystickGameInput& input) = delete;
+
+        JoystickGameInput(JoystickGameInput&& input) noexcept;
+        [[nodiscard]] JoystickGameInput& operator=(JoystickGameInput&& input) noexcept;
 
         void handle_event(const SDL_Event& event) override;
 
@@ -264,7 +273,7 @@ namespace input {
             AbstractJoystickSettings<T> result{};
 
 
-#define X_LIST_MACRO(x) TRY_CONVERT(settings, result, map, x);
+#define X_LIST_MACRO(x) TRY_CONVERT(settings, result, map, x); //NOLINT(cppcoreguidelines-macro-usage)
 
             X_LIST_OF_SETTINGS_KEYS
 
@@ -343,8 +352,8 @@ namespace nlohmann {
             return input::JoystickIdentification{ .guid = value.value(), .name = name };
         }
 
-        static void to_json(json& j, const input::JoystickIdentification& identification) {
-            j = nlohmann::json{
+        static void to_json(json& obj, const input::JoystickIdentification& identification) {
+            obj = nlohmann::json{
                 { "guid", identification.guid.to_string(), { "name", identification.name } },
             };
         }
@@ -359,7 +368,7 @@ namespace nlohmann {
                            "move_down", "drop", "hold", "menu" }
             );
 
-            input::JoystickIdentification identification =
+            const input::JoystickIdentification identification =
                     adl_serializer<input::JoystickIdentification>::from_json(obj.at("identification"));
 
             const auto rotate_left = json_helper::get_key_from_object(obj, "rotate_left");

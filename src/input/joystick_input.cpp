@@ -22,6 +22,12 @@ input::JoystickInput::~JoystickInput() {
 }
 
 
+input::JoystickInput::JoystickInput(const JoystickInput& input) noexcept = default;
+input::JoystickInput& input::JoystickInput::operator=(const JoystickInput& input) noexcept = default;
+
+input::JoystickInput::JoystickInput(JoystickInput&& input) noexcept = default;
+input::JoystickInput& input::JoystickInput::operator=(JoystickInput&& input) noexcept = default;
+
 [[nodiscard]] helper::optional<std::unique_ptr<input::JoystickInput>> input::JoystickInput::get_joystick_by_guid(
         const sdl::GUID& guid,
         SDL_Joystick* joystick,
@@ -557,6 +563,22 @@ input::_3DSJoystickInput_Type1::default_settings_raw() const {
 
 #endif
 #endif
+
+input::JoystickGameInput::JoystickGameInput(EventDispatcher* event_dispatcher, JoystickInput* underlying_input)
+    : GameInput{ GameInputType::Controller },
+      m_event_dispatcher{ event_dispatcher },
+      m_underlying_input{ underlying_input } {
+    m_event_dispatcher->register_listener(this);
+}
+
+
+input::JoystickGameInput::~JoystickGameInput() {
+    m_event_dispatcher->unregister_listener(this);
+}
+
+input::JoystickGameInput::JoystickGameInput(JoystickGameInput&& input) noexcept = default;
+[[nodiscard]] input::JoystickGameInput& input::JoystickGameInput::operator=(JoystickGameInput&& input
+) noexcept = default;
 
 void input::JoystickGameInput::handle_event(const SDL_Event& event) {
     m_event_buffer.push_back(event);

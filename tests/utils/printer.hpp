@@ -44,7 +44,7 @@ namespace
 
     // make helper::optional printable
     template<typename T>
-    void PrintTo(const optional<T>& value, std::ostream* os) {
+    void PrintTo(const optional<T>& value, std::ostream* os) { //NOLINT(cert-dcl58-cpp)
         if (value.has_value()) {
             *os << "<Optional.Value>: " << ::testing::PrintToString<T>(value.value());
         } else {
@@ -53,7 +53,7 @@ namespace
     }
 
     template<typename T>
-    std::ostream& operator<<(std::ostream& os, const optional<T>& value) {
+    std::ostream& operator<<(std::ostream& os, const optional<T>& value) { //NOLINT(cert-dcl58-cpp)
         PrintTo<T>(value);
         return os;
     }

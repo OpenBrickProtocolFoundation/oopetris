@@ -33,7 +33,14 @@ namespace input {
 
     public:
         Input(std::string name, InputType type);
+
         virtual ~Input();
+
+        Input(const Input& input) noexcept;
+        Input& operator=(const Input& input) noexcept;
+
+        Input(Input&& input) noexcept;
+        Input& operator=(Input&& input) noexcept;
 
         [[nodiscard]] const std::string& name() const;
         [[nodiscard]] InputType type();
@@ -76,7 +83,7 @@ namespace input {
 
     struct InputManager {
     private:
-        std::vector<std::unique_ptr<Input>> m_inputs{};
+        std::vector<std::unique_ptr<Input>> m_inputs;
 
     public:
         explicit InputManager(const std::shared_ptr<Window>& window);

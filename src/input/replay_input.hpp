@@ -15,7 +15,7 @@ namespace input {
         usize m_next_snapshot_index{ 0 };
 
     public:
-        ReplayGameInput(std::shared_ptr<recorder::RecordingReader> recording_reader);
+        explicit ReplayGameInput(std::shared_ptr<recorder::RecordingReader> recording_reader);
 
         void update(SimulationStep simulation_step_index) override;
         void late_update(SimulationStep simulation_step_index) override;

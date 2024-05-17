@@ -156,9 +156,9 @@ detail::ColorCanvas::handle_event(const std::shared_ptr<input::InputManager>& in
 
     const auto pointer_event = input_manager->get_pointer_event(event);
 
-    if (pointer_event.has_value() and pointer_event.value() == input::PointerEvent::PointerDown) {
+    if (pointer_event == input::PointerEvent::PointerDown) {
 
-        if (pointer_event.value().is_in(fill_rect)) {
+        if (pointer_event->is_in(fill_rect)) {
 
             m_is_dragging = true;
             SDL_CaptureMouse(SDL_TRUE);
@@ -174,7 +174,7 @@ detail::ColorCanvas::handle_event(const std::shared_ptr<input::InputManager>& in
             SDL_CaptureMouse(SDL_FALSE);
             handled = true;
         }
-    } else if (pointer_event.value() == input::PointerEvent::Motion) {
+    } else if (pointer_event == input::PointerEvent::Motion) {
 
         if (m_is_dragging) {
             handled = true;

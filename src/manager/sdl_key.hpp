@@ -35,7 +35,7 @@ namespace sdl {
         GUI,
     };
 
-    enum class ModifierType { Normal, Multiple, Special };
+    enum class ModifierType : u8 { Normal, Multiple, Special };
 
     struct Key {
         // the difference between SDL_Keymod and ModifierType type is, that ModifierType is SDL_Keymod or-ed together, and supports arithmetic expressions out of the box (like & and |)

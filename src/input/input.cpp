@@ -20,6 +20,12 @@ input::Input::Input(std::string name, InputType type) : m_name{ std::move(name) 
 
 input::Input::~Input() = default;
 
+input::Input::Input(const Input& input) noexcept = default;
+[[nodiscard]] input::Input& input::Input::operator=(const Input& input) noexcept = default;
+
+input::Input::Input(Input&& input) noexcept = default;
+[[nodiscard]] input::Input& input::Input::operator=(Input&& input) noexcept = default;
+
 input::PointerEventHelper::PointerEventHelper(shapes::IPoint pos, PointerEvent event)
     : m_pos{ pos },
       m_event{ event } { }
@@ -306,7 +312,8 @@ namespace {
 } // namespace
 
 
-[[nodiscard]] helper::optional<std::shared_ptr<input::GameInput>> input::InputManager::get_game_input(
+[[nodiscard]] helper::optional<std::shared_ptr<input::GameInput>>
+input::InputManager::get_game_input( //NOLINT(readability-convert-member-functions-to-static)
         ServiceProvider* service_provider
 ) {
 

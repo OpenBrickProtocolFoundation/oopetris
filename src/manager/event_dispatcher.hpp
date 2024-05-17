@@ -16,7 +16,7 @@ private:
     bool m_enabled{ true };
 
     //TODO(Totto):  factor out to some other place!
-    std::vector<sdl::Key> allowed_input_keys{
+    std::vector<sdl::Key> m_allowed_input_keys{
         sdl::Key{ SDLK_RETURN },
         sdl::Key{ SDLK_BACKSPACE },
         sdl::Key{ SDLK_BACKSPACE, { sdl::Modifier::CTRL } },
@@ -54,8 +54,8 @@ public:
                 switch (event.type) {
                     case SDL_KEYDOWN:
                     case SDL_KEYUP: {
-                        if (std::ranges::find(allowed_input_keys, sdl::Key{ event.key.keysym })
-                            == allowed_input_keys.cend()) {
+                        if (std::ranges::find(m_allowed_input_keys, sdl::Key{ event.key.keysym })
+                            == m_allowed_input_keys.cend()) {
                             return;
                         }
 

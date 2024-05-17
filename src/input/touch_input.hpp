@@ -59,7 +59,10 @@ namespace input {
         Uint32 timestamp;
         float x;
         float y;
-        explicit PressedState(Uint32 timestamp, float x, float y) : timestamp{ timestamp }, x{ x }, y{ y } { }
+        explicit PressedState(Uint32 timestamp, float x_pos, float y_pos) //NOLINT(bugprone-easily-swappable-parameters)
+            : timestamp{ timestamp },
+              x{ x_pos },
+              y{ y_pos } { }
     };
 
     struct TouchGameInput final : public GameInput, public EventListener {
@@ -77,17 +80,16 @@ namespace input {
                 const TouchSettings& settings,
                 EventDispatcher* event_dispatcher,
                 TouchInput* underlying_input
-        )
-            : GameInput{ GameInputType::Touch },
-              m_settings{ settings },
-              m_event_dispatcher{ event_dispatcher },
-              m_underlying_input{ underlying_input } {
-            m_event_dispatcher->register_listener(this);
-        }
+        );
 
-        ~TouchGameInput() override {
-            m_event_dispatcher->unregister_listener(this);
-        }
+        ~TouchGameInput() override;
+
+
+        TouchGameInput(const TouchGameInput& input) = delete;
+        [[nodiscard]] TouchGameInput& operator=(const TouchGameInput& input) = delete;
+
+        TouchGameInput(TouchGameInput&& input) noexcept;
+        [[nodiscard]] TouchGameInput& operator=(TouchGameInput&& input) noexcept;
 
         void handle_event(const SDL_Event& event) override;
         void update(SimulationStep simulation_step_index) override;
@@ -110,11 +112,11 @@ namespace json_helper {
 
 
     template<IsNumeric T>
-    [[nodiscard]] T get_number(const nlohmann::json& j, const std::string& name) {
+    [[nodiscard]] T get_number(const nlohmann::json& obj, const std::string& name) {
 
         helper::expected<bool, std::string> error = true;
 
-        auto context = j.at(name);
+        auto context = obj.at(name);
 
 
         if (not context.is_number()) {
@@ -165,11 +167,11 @@ namespace json_helper {
 namespace nlohmann {
     template<>
     struct adl_serializer<input::TouchSettings> {
-        static input::TouchSettings from_json(const json& j) {
+        static input::TouchSettings from_json(const json& obj) {
 
 
             ::json::check_for_no_additional_keys(
-                    j,
+                    obj,
                     {
                             "type",
                             "move_x_threshold",
@@ -179,11 +181,11 @@ namespace nlohmann {
                     }
             );
 
-            const auto move_x_threshold = json_helper::get_number<double>(j, "move_x_threshold");
-            const auto move_y_threshold = json_helper::get_number<double>(j, "move_y_threshold");
+            const auto move_x_threshold = json_helper::get_number<double>(obj, "move_x_threshold");
+            const auto move_y_threshold = json_helper::get_number<double>(obj, "move_y_threshold");
 
-            const auto rotation_duration_threshold = json_helper::get_number<u32>(j, "rotation_duration_threshold");
-            const auto drop_duration_threshold = json_helper::get_number<u32>(j, "drop_duration_threshold");
+            const auto rotation_duration_threshold = json_helper::get_number<u32>(obj, "rotation_duration_threshold");
+            const auto drop_duration_threshold = json_helper::get_number<u32>(obj, "drop_duration_threshold");
 
             auto settings = input::TouchSettings{ .move_x_threshold = move_x_threshold,
                                                   .move_y_threshold = move_y_threshold,
@@ -199,9 +201,9 @@ namespace nlohmann {
             return settings;
         }
 
-        static void to_json(json& j, const input::TouchSettings& settings) {
+        static void to_json(json& obj, const input::TouchSettings& settings) {
 
-            j = nlohmann::json{
+            obj = nlohmann::json{
                 {            "move_x_threshold",            settings.move_x_threshold },
                 {            "move_y_threshold",            settings.move_y_threshold },
                 { "rotation_duration_threshold", settings.rotation_duration_threshold },

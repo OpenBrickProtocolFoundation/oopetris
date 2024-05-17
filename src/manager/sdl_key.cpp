@@ -322,7 +322,7 @@ helper::expected<sdl::Key, std::string> sdl::Key::from_string(const std::string&
 
 [[nodiscard]] bool sdl::Key::has_modifier_exact(const Modifier& modifier) const {
 
-    sdl::Modifier has_not;
+    sdl::Modifier has_not{};
 
     switch (modifier) {
         case sdl::Modifier::LSHIFT:
@@ -396,7 +396,7 @@ helper::expected<sdl::Key, std::string> sdl::Key::from_string(const std::string&
 
     for (const auto& modifier : multiple) {
         const auto sdl_modifier = to_sdl_modifier(modifier);
-        if (((other.m_modifiers & sdl_modifier) & (m_modifiers & sdl_modifier)) == 0) {
+        if (((other.m_modifiers & sdl_modifier) & (this->m_modifiers & sdl_modifier)) == 0) {
             return false;
         }
     }
@@ -405,14 +405,10 @@ helper::expected<sdl::Key, std::string> sdl::Key::from_string(const std::string&
         return true;
     }
 
-    for (const auto& modifier : special) {
+    return std::ranges::all_of(special, [this, &other](const auto& modifier) {
         const auto sdl_modifier = to_sdl_modifier(modifier);
-        if ((other.m_modifiers & sdl_modifier) != (m_modifiers & sdl_modifier)) {
-            return false;
-        }
-    }
-
-    return true;
+        return ((other.m_modifiers & sdl_modifier) == (m_modifiers & sdl_modifier));
+    });
 }
 
 [[nodiscard]] std::string sdl::Key::to_string() const {

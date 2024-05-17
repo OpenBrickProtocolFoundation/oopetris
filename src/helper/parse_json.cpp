@@ -34,21 +34,21 @@ std::string json::get_json_type(const nlohmann::json::value_t& type) {
     }
 }
 
-void json::check_for_no_additional_keys(const nlohmann::json& j, const std::vector<std::string>& keys) {
+void json::check_for_no_additional_keys(const nlohmann::json& obj, const std::vector<std::string>& keys) {
 
-    if (not j.is_object()) {
+    if (not obj.is_object()) {
         throw nlohmann::json::type_error::create(
-                302, fmt::format("expected an object, but got type '{}'", get_json_type(j.type())), &j
+                302, fmt::format("expected an object, but got type '{}'", get_json_type(obj.type())), &obj
         );
     }
 
-    const auto& object = j.get<nlohmann::json::object_t>();
+    const auto& object = obj.get<nlohmann::json::object_t>();
 
 
     for (const auto& [key, _] : object) {
         if (std::ranges::find(keys, key) == keys.cend()) {
             throw nlohmann::json::type_error::create(
-                    302, fmt::format("object may only contain expected keys, but contained '{}'", key), &j
+                    302, fmt::format("object may only contain expected keys, but contained '{}'", key), &obj
             );
         }
     }

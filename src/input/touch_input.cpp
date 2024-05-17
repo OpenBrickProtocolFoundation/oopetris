@@ -142,6 +142,26 @@ helper::optional<InputEvent> input::TouchGameInput::sdl_event_to_input_event(con
 }
 
 
+input::TouchGameInput::TouchGameInput(
+        const TouchSettings& settings,
+        EventDispatcher* event_dispatcher,
+        TouchInput* underlying_input
+)
+    : GameInput{ GameInputType::Touch },
+      m_settings{ settings },
+      m_event_dispatcher{ event_dispatcher },
+      m_underlying_input{ underlying_input } {
+    m_event_dispatcher->register_listener(this);
+}
+
+input::TouchGameInput::~TouchGameInput() {
+    m_event_dispatcher->unregister_listener(this);
+}
+
+
+input::TouchGameInput::TouchGameInput(TouchGameInput&& input) noexcept = default;
+[[nodiscard]] input::TouchGameInput& input::TouchGameInput::operator=(TouchGameInput&& input) noexcept = default;
+
 [[nodiscard]] helper::optional<input::MenuEvent> input::TouchGameInput::get_menu_event(const SDL_Event& event) const {
 
     if (event.type == SDL_KEYDOWN and event.key.keysym.sym == SDLK_AC_BACK) {

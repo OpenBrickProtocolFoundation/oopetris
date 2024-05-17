@@ -158,6 +158,11 @@ input::KeyboardGameInput::~KeyboardGameInput() {
 }
 
 
+input::KeyboardGameInput::KeyboardGameInput(KeyboardGameInput&& input) noexcept = default;
+[[nodiscard]] input::KeyboardGameInput& input::KeyboardGameInput::operator=(KeyboardGameInput&& input
+) noexcept = default;
+
+
 [[nodiscard]] helper::expected<bool, std::string> input::KeyboardSettings::validate() const {
 
     const std::vector<sdl::Key> to_use{ rotate_left, rotate_right, move_left, move_right,   move_down,
@@ -166,9 +171,9 @@ input::KeyboardGameInput::~KeyboardGameInput() {
     return input::InputSettings::has_unique_members(to_use);
 }
 
-sdl::Key json_helper::get_key(const nlohmann::json& j, const std::string& name) {
+sdl::Key json_helper::get_key(const nlohmann::json& obj, const std::string& name) {
 
-    auto context = j.at(name);
+    auto context = obj.at(name);
 
     std::string input;
     context.get_to(input);

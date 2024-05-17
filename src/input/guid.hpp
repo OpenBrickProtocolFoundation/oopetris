@@ -109,7 +109,7 @@ namespace { //NOLINT(cert-dcl59-cpp,google-build-namespaces)
         sdl::GUID::ArrayType result{};
 
         for (size_t i = 0; i < amount; ++i) {
-            size_t offset = i * (width);
+            const size_t offset = i * width;
 
 
             const auto temp_result =

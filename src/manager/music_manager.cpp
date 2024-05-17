@@ -352,25 +352,25 @@ helper::optional<double> MusicManager::change_volume(const std::int8_t steps) {
     return new_volume;
 }
 
-bool MusicManager::handle_event(const std::shared_ptr<input::InputManager>&, const SDL_Event& event) {
+bool MusicManager::handle_event(const std::shared_ptr<input::InputManager> /*unused*/&, const SDL_Event& event) {
 
     if (event.type == SDL_KEYDOWN) {
         const auto key = sdl::Key{ event.key.keysym };
 
 
         if (key.is_key(sdl::Key{ SDLK_PLUS }) or key.is_key(sdl::Key{ SDLK_KP_PLUS })) {
-            const i8 steps = key.has_modifier(sdl::Modifier::CTRL)    ? 100
-                             : key.has_modifier(sdl::Modifier::SHIFT) ? 10
-                                                                      : 1;
+            const i8 steps = key.has_modifier(sdl::Modifier::CTRL)    ? static_cast<i8>(100)
+                             : key.has_modifier(sdl::Modifier::SHIFT) ? static_cast<i8>(10)
+                                                                      : static_cast<i8>(1);
 
             change_volume(steps);
             return true;
         }
 
         if (key.is_key(sdl::Key{ SDLK_MINUS }) or key.is_key(sdl::Key{ SDLK_KP_MINUS })) {
-            const i8 steps = key.has_modifier(sdl::Modifier::CTRL)    ? -100
-                             : key.has_modifier(sdl::Modifier::SHIFT) ? -10
-                                                                      : -1;
+            const i8 steps = key.has_modifier(sdl::Modifier::CTRL)    ? static_cast<i8>(-100)
+                             : key.has_modifier(sdl::Modifier::SHIFT) ? static_cast<i8>(-10)
+                                                                      : static_cast<i8>(-1);
             change_volume(steps);
             return true;
         }

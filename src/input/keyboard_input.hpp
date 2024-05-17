@@ -66,6 +66,13 @@ namespace input {
 
         ~KeyboardGameInput() override;
 
+        KeyboardGameInput(const KeyboardGameInput& input) = delete;
+        [[nodiscard]] KeyboardGameInput& operator=(const KeyboardGameInput& input) = delete;
+
+        KeyboardGameInput(KeyboardGameInput&& input) noexcept;
+        [[nodiscard]] KeyboardGameInput& operator=(KeyboardGameInput&& input) noexcept;
+
+
         void handle_event(const SDL_Event& event) override;
 
         void update(SimulationStep simulation_step_index) override;
@@ -83,7 +90,7 @@ namespace input {
 namespace json_helper {
 
 
-    [[nodiscard]] sdl::Key get_key(const nlohmann::json& j, const std::string& name);
+    [[nodiscard]] sdl::Key get_key(const nlohmann::json& obj, const std::string& name);
 
 } // namespace json_helper
 
@@ -91,22 +98,22 @@ namespace json_helper {
 namespace nlohmann {
     template<>
     struct adl_serializer<input::KeyboardSettings> {
-        static input::KeyboardSettings from_json(const json& j) {
+        static input::KeyboardSettings from_json(const json& obj) {
 
             ::json::check_for_no_additional_keys(
-                    j, { "type", "rotate_left", "rotate_right", "move_left", "move_right", "move_down", "drop", "hold",
-                         "menu" }
+                    obj, { "type", "rotate_left", "rotate_right", "move_left", "move_right", "move_down", "drop",
+                           "hold", "menu" }
             );
 
-            const auto rotate_left = json_helper::get_key(j, "rotate_left");
-            const auto rotate_right = json_helper::get_key(j, "rotate_right");
-            const auto move_left = json_helper::get_key(j, "move_left");
-            const auto move_right = json_helper::get_key(j, "move_right");
-            const auto move_down = json_helper::get_key(j, "move_down");
-            const auto drop = json_helper::get_key(j, "drop");
-            const auto hold = json_helper::get_key(j, "hold");
+            const auto rotate_left = json_helper::get_key(obj, "rotate_left");
+            const auto rotate_right = json_helper::get_key(obj, "rotate_right");
+            const auto move_left = json_helper::get_key(obj, "move_left");
+            const auto move_right = json_helper::get_key(obj, "move_right");
+            const auto move_down = json_helper::get_key(obj, "move_down");
+            const auto drop = json_helper::get_key(obj, "drop");
+            const auto hold = json_helper::get_key(obj, "hold");
 
-            const auto& menu = j.at("menu");
+            const auto& menu = obj.at("menu");
 
             ::json::check_for_no_additional_keys(menu, { "pause", "open_settings" });
 

@@ -14,7 +14,6 @@ helper::GeneralError::GeneralError(const GeneralError& error) noexcept = default
 [[nodiscard]] helper::GeneralError& helper::GeneralError::operator=(const GeneralError& error) noexcept = default;
 
 helper::GeneralError::GeneralError(GeneralError&& error) noexcept = default;
-
 [[nodiscard]] helper::GeneralError& helper::GeneralError::operator=(GeneralError&& error) noexcept = default;
 
 
