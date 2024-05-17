@@ -110,7 +110,9 @@ namespace scenes {
 
         const auto& game_input = m_game->game_input();
 
-        if ((game_input->get_menu_event(event) == input::MenuEvent::Pause
+        const auto& menu_event = game_input->get_menu_event(event);
+
+        if ((menu_event == input::MenuEvent::Pause
              or input_manager->get_navigation_event(event) == input::NavigationEvent::BACK)
             and not m_game->is_game_finished()) {
             m_next_scene = NextScene::Pause;
@@ -118,7 +120,7 @@ namespace scenes {
             return true;
         }
 
-        if (game_input->get_menu_event(event) == input::MenuEvent::OpenSettings) {
+        if (menu_event == input::MenuEvent::OpenSettings) {
             m_next_scene = NextScene::Settings;
             return true;
         }

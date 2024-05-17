@@ -396,7 +396,9 @@ helper::expected<sdl::Key, std::string> sdl::Key::from_string(const std::string&
 
     for (const auto& modifier : multiple) {
         const auto sdl_modifier = to_sdl_modifier(modifier);
-        if (((other.m_modifiers & sdl_modifier) & (this->m_modifiers & sdl_modifier)) == 0) {
+        if (((other.m_modifiers & sdl_modifier) & (this->m_modifiers & sdl_modifier) //NOLINT(misc-redundant-expression)
+            )
+            == 0) {
             return false;
         }
     }
