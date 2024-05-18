@@ -81,28 +81,14 @@ fs = import('fs')
 
 if use_nacp
     nacptool = find_program('nacptool')
-    NACP_FLAGS = [nacptool, '--create']
-
-    APP_NAME = meson.get_external_property('APP_NAME', switch_exe_name)
-    NACP_FLAGS += APP_NAME
-
-    APP_AUTHOR = meson.get_external_property('APP_AUTHOR', '')
-    if APP_AUTHOR == ''
-        error('If USE_NACP is set, you have to provide an APP_AUTHOR')
-    endif
-    NACP_FLAGS += APP_AUTHOR
-
-    APP_VERSION = meson.get_external_property('APP_VERSION', '')
-    if APP_VERSION == true
-        APP_VERSION = meson.project_version()
-    endif
-
-    if APP_VERSION == ''
-        error('If USE_NACP is set, you have to provide an APP_VERSION')
-    endif
-    NACP_FLAGS += APP_VERSION
-
-    NACP_FLAGS += (switch_exe_name + '.nacp')
+    NACP_FLAGS = [
+        nacptool,
+        '--create',
+        oopetris_name,
+        oopetris_author,
+        meson.project_version(),
+        switch_exe_name + '.nacp',
+    ]
 
     APP_TITLEID = meson.get_external_property('APP_TITLEID', '')
 

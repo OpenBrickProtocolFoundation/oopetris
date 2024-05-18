@@ -101,10 +101,6 @@ needs_exe_wrapper = true
 library_dirs= ['$LIBNX_LIB','$PORTLIBS_LIB']
 libnx='$LIBNX'
 
-APP_NAME	= 'oopetris'
-APP_AUTHOR 	= 'coder2k'
-APP_VERSION = true
-
 USE_NACP    = true
 
 APP_ROMFS='$ROMFS'
