@@ -229,8 +229,11 @@ if build_application
 
     if (
         meson.is_cross_build()
-        and (host_machine.system() == 'switch'
-        or host_machine.system() == '3ds')
+        and (
+            host_machine.system() == 'switch'
+            or host_machine.system() == '3ds'
+            or host_machine.system() == 'wii'
+        )
     )
         online_multiplayer_supported = false
 
