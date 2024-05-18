@@ -103,10 +103,6 @@ needs_exe_wrapper = true
 library_dirs= ['$LIBCTRU_LIB','$PORTLIBS_LIB']
 libctru='$LIBCTRU'
 
-APP_NAME	= 'oopetris'
-APP_AUTHOR 	= 'coder2k'
-APP_DESC = 'A Tetris clone in OOP'
-
 USE_SMDH    = true
 
 APP_ROMFS='$ROMFS'

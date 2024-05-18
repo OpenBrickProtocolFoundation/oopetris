@@ -35,6 +35,13 @@ if build_application
                 [liboopetris_graphics_dep, graphic_application_deps],
             ]
             subdir('platforms/3ds')
+        elif host_machine.system() == 'wii'
+            wii_options = [
+                app_name,
+                main_files,
+                [liboopetris_graphics_dep, graphic_application_deps],
+            ]
+            subdir('platforms/wii')
         else
             error('not supported platform: ' + host_machine.system())
         endif

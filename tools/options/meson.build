@@ -1,5 +1,6 @@
 oopetris_author = 'Coder2k'
 oopetris_name = 'OOPetris'
+oopetris_desc = 'A Tetris clone in OOP'
 
 core_lib = {
     'inc_dirs': [],

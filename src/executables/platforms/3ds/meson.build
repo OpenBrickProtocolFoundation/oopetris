@@ -79,22 +79,13 @@ fs = import('fs')
 if use_smdh
 
     smdhtool = find_program('smdhtool')
-    SMDH_FLAGS = [smdhtool, '--create']
-
-    APP_NAME = meson.get_external_property('APP_NAME', _3ds_exe_name)
-    SMDH_FLAGS += APP_NAME
-
-    APP_DESC = meson.get_external_property('APP_DESC', '')
-    if APP_DESC == ''
-        error('If USE_SMDH is set, you have to provide an APP_DESC')
-    endif
-    SMDH_FLAGS += APP_DESC
-
-    APP_AUTHOR = meson.get_external_property('APP_AUTHOR', '')
-    if APP_AUTHOR == ''
-        error('If USE_SMDH is set, you have to provide an APP_AUTHOR')
-    endif
-    SMDH_FLAGS += APP_AUTHOR
+    SMDH_FLAGS = [
+        smdhtool,
+        '--create',
+        oopetris_name,
+        oopetris_desc,
+        oopetris_author,
+    ]
 
     LIBCTRU = meson.get_external_property('libctru', '')
     if LIBCTRU == ''
@@ -126,9 +117,8 @@ if use_smdh
 
         if not fs.exists(APP_SMALL_ICON)
             error(
-                'APP_SMALL_ICON should exist, but doesn\'t: \''
-                + APP_SMALL_ICON
-                + '\'',
+                'APP_SMALL_ICON should exist, but doesn\'t: \'' + APP_SMALL_ICON +
+                '\'',
             )
         endif
 
