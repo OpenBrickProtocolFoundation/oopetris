@@ -29,7 +29,6 @@ wii_dependencies_native = [
     'SDL2main',
     'wiikeyboard',
     'wiiuse',
-    'wut',
 ]
 
 foreach dep : wii_dependencies

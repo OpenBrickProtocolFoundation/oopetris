@@ -25,11 +25,20 @@ if meson.is_cross_build()
 
         c = meson.get_compiler('c')
 
-        deps += c.find_library(
-            'wut',
-            required: true,
-            dirs: library_dirs,
-        )
+        if host_machine.system() == 'wiiu'
+            deps += c.find_library(
+                'wut',
+                required: true,
+                dirs: library_dirs,
+            )
+        elif host_machine.system() == 'wii'
+
+            deps += c.find_library(
+                'ogc',
+                required: true,
+                dirs: library_dirs,
+            )
+        endif
 
     else
         error('not supported platform: ' + host_machine.system())
@@ -70,6 +79,16 @@ romfs_tar = custom_target(
     output: [romfs_tar_name],
 )
 
+binary_start_name = (
+    '_binary' + (
+        romfs_tar.full_path().replace(meson.global_build_root(), '').replace(
+            '/',
+            '_',
+        ).replace('.', '_').replace('-', '_')
+    )
+)
+binary_final_name = '_binary_romfs_tar'
+
 romfs_object = custom_target(
     romfs_obj_name,
     command: [
@@ -77,6 +96,9 @@ romfs_object = custom_target(
         '--input-target', 'binary',
         '--output-target', object_target,
         '--binary-architecture', binary_arch,
+        '--redefine-sym', binary_start_name + '_start=' + binary_final_name + '_start',
+        '--redefine-sym', binary_start_name + '_end=' + binary_final_name + '_end',
+        '--redefine-sym', binary_start_name + '_size=' + binary_final_name + '_size',
         '@INPUT@',
         '@OUTPUT@',
     ],
@@ -87,7 +109,7 @@ romfs_object = custom_target(
 inc_dirs = include_directories('include')
 
 libromfs_lib = library(
-    'libromfs',
+    'romfs',
     files('source/romfs.c'),
     c_args: ['-D_POSIX_C_SOURCE=200809'],
     include_directories: inc_dirs,

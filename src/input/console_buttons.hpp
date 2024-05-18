@@ -145,8 +145,7 @@ namespace {
 }; // namespace
 
 
-#include <wut.h>
-#include <padscore/wpad.h>
+#include <wiiuse/wpad.h>
 
 
 //using C enum (not enum class) on purpose
@@ -168,14 +167,14 @@ enum JOYCON {
     JOYCON_A = BIT_REVERSE(WPAD_BUTTON_A), ///! The A button.
     JOYCON_B = BIT_REVERSE(WPAD_BUTTON_B), ///! The B button.
 
-    JOYCON_C = BIT_REVERSE(WPAD_BUTTON_C), ///! The C button on the Nunchuk extension.
-    JOYCON_Z = BIT_REVERSE(WPAD_BUTTON_Z), ///! The Z button on the Nunchuk extension.
+    NUNCHUK_C = BIT_REVERSE(WPAD_NUNCHUK_BUTTON_C), ///! The C button on the Nunchuk extension.
+    NUNCHUK_Z = BIT_REVERSE(WPAD_NUNCHUK_BUTTON_Z), ///! The Z button on the Nunchuk extension.
 
     JOYCON_HOME = BIT_REVERSE(WPAD_BUTTON_HOME), ///! The HOME button.
 };
 
 /// Creates a bitmask from a bit number.
-#define BIT(n) (1U<<(n))
+#define BIT(n) (1U << (n))
 
 // some static asserts to check if BIT_REVERSE works as expected
 static_assert(BIT(JOYCON_LEFT) == WPAD_BUTTON_LEFT);
