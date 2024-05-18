@@ -59,7 +59,7 @@ input::JoystickInput& input::JoystickInput::operator=(JoystickInput&& input) noe
         return std::make_unique<_3DSJoystickInput_Type1>(joystick, instance_id, name);
     }
 
-#elif defined(__WII_)
+#elif defined(__WII__)
     if (guid == WiiJoystickInput_Type1::guid) {
         return std::make_unique<WiiJoystickInput_Type1>(joystick, instance_id, name);
     }
@@ -655,6 +655,157 @@ input::_3DSJoystickInput_Type1::default_settings_raw() const {
                 .hold = JOYCON_B,
                 .pause = JOYCON_START,
                 .open_settings = JOYCON_SELECT
+    };
+
+    return settings;
+}
+
+#elif defined(__WII__)
+
+input::WiiJoystickInput_Type1::WiiJoystickInput_Type1(
+        SDL_Joystick* joystick,
+        SDL_JoystickID instance_id,
+        const std::string& name
+)
+    : ConsoleJoystickInput{
+          joystick,
+          instance_id,
+          name,
+          //NOTE: this are not all, but atm only those, who can be checked with a SDL_JOYBUTTONDOWN event
+          {
+           { "LEFT", JOYCON_LEFT },
+           { "RIGHT", JOYCON_RIGHT },
+           { "DOWN", JOYCON_DOWN },
+           { "UP", JOYCON_UP },
+           { "PLUS", JOYCON_PLUS },
+           { "MINUS", JOYCON_MINUS },
+           { "1", JOYCON_1 },
+           { "2", JOYCON_2 },
+           { "A", JOYCON_A },
+           { "B", JOYCON_B },
+           { "NUNCHUCK_C", NUNCHUK_C },
+           { "NUNCHUCK_Z", NUNCHUK_Z },
+           { "HOME", JOYCON_HOME },
+           }
+} { }
+
+
+[[nodiscard]] helper::optional<input::NavigationEvent> input::WiiJoystickInput_Type1::get_navigation_event(
+        const SDL_Event& event
+) const {
+    if (event.type == SDL_JOYBUTTONDOWN) {
+
+        if (event.jbutton.which != instance_id()) {
+            return helper::nullopt;
+        }
+
+        switch (event.jbutton.button) {
+            case JOYCON_A:
+                return NavigationEvent::OK;
+            case JOYCON_DOWN:
+                return NavigationEvent::DOWN;
+            case JOYCON_UP:
+                return NavigationEvent::UP;
+            case JOYCON_LEFT:
+                return NavigationEvent::LEFT;
+            case JOYCON_RIGHT:
+                return NavigationEvent::RIGHT;
+            case JOYCON_B:
+                return NavigationEvent::BACK;
+            default:
+                return helper::nullopt;
+
+                //note, that  NavigationEvent::TAB is not supported
+        }
+    }
+
+    return handle_axis_navigation_event(event);
+}
+
+[[nodiscard]] std::string input::WiiJoystickInput_Type1::describe_navigation_event(NavigationEvent event) const {
+    switch (event) {
+        case NavigationEvent::OK:
+            return "A";
+        case NavigationEvent::BACK:
+            return "B";
+        case NavigationEvent::DOWN:
+            return "Down";
+        case NavigationEvent::UP:
+            return "Up";
+        case NavigationEvent::LEFT:
+            return "Left";
+        case NavigationEvent::RIGHT:
+            return "Right";
+        case NavigationEvent::TAB:
+            throw std::runtime_error("Tab is not supported");
+        default:
+            utils::unreachable();
+    }
+}
+
+
+[[nodiscard]] std::string input::WiiJoystickInput_Type1::key_to_string(console::SettingsType key) const {
+    switch (key) {
+        case JOYCON_LEFT:
+            return "LEFT";
+        case JOYCON_RIGHT:
+            return "RIGHT";
+        case JOYCON_DOWN:
+            return "DOWN";
+        case JOYCON_UP:
+            return "UP";
+        case JOYCON_PLUS:
+            return "PLUS";
+        case JOYCON_MINUS:
+            return "MINUS";
+        case JOYCON_1:
+            return "1";
+        case JOYCON_2:
+            return "2";
+        case JOYCON_A:
+            return "A";
+        case JOYCON_B:
+            return "B";
+        case NUNCHUK_C:
+            return "NUNCHUCK_C";
+        case NUNCHUK_Z:
+            return "NUNCHUCK_Z";
+        case JOYCON_HOME:
+            return "HOME";
+
+        default:
+            utils::unreachable();
+    }
+}
+
+[[nodiscard]] input::JoystickSettings input::WiiJoystickInput_Type1::to_normal_settings(
+        const AbstractJoystickSettings<input::console::SettingsType>& settings
+) const {
+
+    JoystickSettings result{};
+
+#define X_LIST_MACRO(x) SETTINGS_TO_STRING(settings, result, key_to_string, x);
+
+    X_LIST_OF_SETTINGS_KEYS
+
+#undef X_LIST_MACRO
+
+    return result;
+}
+[[nodiscard]] input::AbstractJoystickSettings<input::console::SettingsType>
+input::WiiJoystickInput_Type1::default_settings_raw() const {
+    const AbstractJoystickSettings<console::SettingsType> settings = //
+            {
+                .identification = JoystickIdentification{ .guid = WiiJoystickInput_Type1::guid, .name = "TODO" },
+                .rotate_left = JOYCON_1,
+                .rotate_right = JOYCON_2,
+                .move_left = JOYCON_LEFT,
+                .move_right = JOYCON_RIGHT,
+                .move_down = JOYCON_DOWN,
+                .drop = JOYCON_A,
+                .hold = JOYCON_B,
+                .pause = JOYCON_MINUS,
+                .open_settings = JOYCON_PLUS
     };
 
     return settings;
