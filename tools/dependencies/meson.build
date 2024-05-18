@@ -31,7 +31,8 @@ fmt_use_header_only = false
 
 if (
     meson.is_cross_build()
-    and (host_machine.system() == 'switch' or host_machine.system() == '3ds')
+    and (host_machine.system() == 'switch'
+    or host_machine.system() == '3ds')
 )
     fmt_use_header_only = true
 endif
@@ -214,9 +215,13 @@ if build_application
         'deps': [graphics_lib.get('deps'), spdlog_dep],
     }
 
+    # on the 3ds there is no thread local storage (TLS)
     if (meson.is_cross_build() and host_machine.system() == '3ds')
         graphics_lib += {
-            'compile_args': [graphics_lib.get('compile_args'), '-DSPDLOG_NO_TLS'],
+            'compile_args': [
+                graphics_lib.get('compile_args'),
+                '-DSPDLOG_NO_TLS',
+            ],
         }
     endif
 
@@ -224,10 +229,8 @@ if build_application
 
     if (
         meson.is_cross_build()
-        and (
-            host_machine.system() == 'switch'
-            or host_machine.system() == '3ds'
-        )
+        and (host_machine.system() == 'switch'
+        or host_machine.system() == '3ds')
     )
         online_multiplayer_supported = false
 
@@ -261,8 +264,8 @@ if build_application
     if build_installer
         if get_option('buildtype') != 'release'
             error(
-                'buildtype needs to be \'release\', when building the installer, but was: '
-                + get_option('buildtype'),
+                'buildtype needs to be \'release\', when building the installer, but was: ' +
+                get_option('buildtype'),
             )
         endif
 
@@ -279,8 +282,7 @@ if build_application
         else
             # TODO: create a proper installer for macOS : https://mesonbuild.com/Creating-OSX-packages.html
             error(
-                'unsuported system for building the installer: '
-                + host_machine.system(),
+                'unsuported system for building the installer: ' + host_machine.system(),
             )
 
         endif

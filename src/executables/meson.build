@@ -4,32 +4,41 @@ if build_application
 
     subdir('game')
 
-    if meson.is_cross_build() and host_machine.system() == 'android'
+    if meson.is_cross_build()
 
-        library(
-            'oopetris',
-            main_files,
-            dependencies: [liboopetris_graphics_dep, graphic_application_deps],
-            override_options: {
-                'warning_level': '3',
-                'werror': true,
-            },
-        )
+        if host_machine.system() == 'android'
 
-    elif meson.is_cross_build() and host_machine.system() == 'switch'
-        switch_options = [
-            app_name,
-            main_files,
-            [liboopetris_graphics_dep, graphic_application_deps],
-        ]
-        subdir('platforms/switch')
-    elif meson.is_cross_build() and host_machine.system() == '3ds'
-        _3ds_options = [
-            app_name,
-            main_files,
-            [liboopetris_graphics_dep, graphic_application_deps],
-        ]
-        subdir('platforms/3ds')
+            library(
+                'oopetris',
+                main_files,
+                dependencies: [
+                    liboopetris_graphics_dep,
+                    graphic_application_deps,
+                ],
+                override_options: {
+                    'warning_level': '3',
+                    'werror': true,
+                },
+            )
+
+        elif meson.is_cross_build() and host_machine.system() == 'switch'
+            switch_options = [
+                app_name,
+                main_files,
+                [liboopetris_graphics_dep, graphic_application_deps],
+            ]
+            subdir('platforms/switch')
+        elif meson.is_cross_build() and host_machine.system() == '3ds'
+            _3ds_options = [
+                app_name,
+                main_files,
+                [liboopetris_graphics_dep, graphic_application_deps],
+            ]
+            subdir('platforms/3ds')
+        else
+            error('not supported platform: ' + host_machine.system())
+        endif
+
     else
 
         if host_machine.system() == 'windows'
@@ -55,7 +64,10 @@ if build_application
         oopetris_recordings_utility_exe = executable(
             'oopetris_recordings_utility',
             recordings_main_files,
-            dependencies: [liboopetris_recordings_dep, recordings_application_deps],
+            dependencies: [
+                liboopetris_recordings_dep,
+                recordings_application_deps,
+            ],
             override_options: {
                 'warning_level': '3',
                 'werror': true,
@@ -69,7 +81,9 @@ if build_application
 
                 makensis = find_program('makensis')
 
-                nsis_script = meson.project_source_root() / 'tools' / 'installer' / 'setup.nsi'
+                nsis_script = (
+                    meson.project_source_root() / 'tools' / 'installer' / 'setup.nsi'
+                )
 
                 run_target(
                     'windows_installer',
@@ -78,8 +92,7 @@ if build_application
                         '-DVERSION=' + meson.project_version(),
                         '-DNAME=' + oopetris_name,
                         '-DAUTHOR=' + oopetris_author,
-                        '-DPROJECT_SOURCE_DIR='
-                        + meson.project_source_root(),
+                        '-DPROJECT_SOURCE_DIR=' + meson.project_source_root(),
                         '-DPROJECT_BUILD_DIR=' + meson.project_build_root(),
                         nsis_script,
                     ],
