@@ -105,6 +105,7 @@ if use_nacp
         output: [switch_exe_name + '.nacp'],
         depends: NACP_DEPS,
     )
+
     NRO_FLAGS += '--nacp=' + switch_exe_name + '.nacp'
     NRO_DEPS += nacp_file
 

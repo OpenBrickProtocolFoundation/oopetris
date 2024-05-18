@@ -130,7 +130,6 @@ if use_meta_xml
         input: 'meta.xml.in',
         output: 'meta.xml',
         configuration: wii_meta_xml_conf,
-        install: true,
     )
 
 endif
