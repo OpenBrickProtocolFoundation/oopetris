@@ -43,6 +43,8 @@ namespace {
     return "Nintendo Switch";
 #elif defined(__3DS__)
     return "Nintendo 3DS";
+#elif defined(__WII__)
+    return "Wii";
 #elif defined(FLATPAK_BUILD)
     return "Linux (Flatpak)";
 #elif defined(__linux__)

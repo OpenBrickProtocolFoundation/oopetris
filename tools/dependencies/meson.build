@@ -206,6 +206,18 @@ if build_application
         'compile_args': [graphics_lib.get('compile_args'), sdl2_mixer_defines],
     }
 
+
+    # on the wii the option to enable thread is '-fpthread' and not '-pthread'
+    if (meson.is_cross_build() and host_machine.system() == 'wii')
+        thread_dep = declare_dependency(
+            link_args: ['-fpthread'],
+            compile_args: [],
+        )
+
+        meson.override_dependency('threads', thread_dep)
+
+    endif
+
     spdlog_dep = dependency(
         'spdlog',
         required: true,
@@ -346,4 +358,38 @@ if build_application
 
     graphic_application_deps += argparse_dep
     recordings_application_deps += argparse_dep
+endif
+
+
+
+if (meson.is_cross_build() and host_machine.system() == 'wii')
+
+    ## ROMFS handling, this is special in the case of the wii
+
+    APP_ROMFS = meson.get_external_property('APP_ROMFS', '')
+
+    if APP_ROMFS != ''
+        fs = import('fs')
+
+        if not fs.is_absolute(APP_ROMFS)
+            APP_ROMFS = meson.project_source_root() / APP_ROMFS
+        endif
+
+        if not fs.exists(APP_ROMFS)
+            error('APP_ROMFS should exist, but doesn\'t: \'' + APP_ROMFS + '\'')
+        endif
+
+        libromfs_dep = dependency(
+            'libromfs',
+            required: true,
+            allow_fallback: true,
+            native: false,
+            default_options: {'romfs_dir': APP_ROMFS},
+        )
+
+        graphics_lib += {
+            'deps': [graphics_lib.get('deps'), libromfs_dep],
+        }
+    endif
+
 endif

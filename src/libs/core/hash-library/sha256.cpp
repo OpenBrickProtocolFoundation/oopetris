@@ -27,6 +27,13 @@
 #define __BYTE_ORDER __BYTE_ORDER__
 #define __BIG_ENDIAN __ORDER_BIG_ENDIAN__
 #endif
+#elif defined(__WII__)
+#if !(defined(__BYTE_ORDER__) or defined(__ORDER_BIG_ENDIAN__))
+#error "__BYTE_ORDER__ or __ORDER_BIG_ENDIAN__ not defined"!
+#else
+#define __BYTE_ORDER __BYTE_ORDER__
+#define __BIG_ENDIAN __ORDER_BIG_ENDIAN__
+#endif
 #elif defined(__APPLE__)
 #include <machine/endian.h>
 #else

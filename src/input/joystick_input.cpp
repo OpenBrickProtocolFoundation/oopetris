@@ -59,6 +59,11 @@ input::JoystickInput& input::JoystickInput::operator=(JoystickInput&& input) noe
         return std::make_unique<_3DSJoystickInput_Type1>(joystick, instance_id, name);
     }
 
+#elif defined(__WII_)
+    if (guid == WiiJoystickInput_Type1::guid) {
+        return std::make_unique<WiiJoystickInput_Type1>(joystick, instance_id, name);
+    }
+
 #endif
 #endif
 

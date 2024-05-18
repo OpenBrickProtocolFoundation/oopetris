@@ -12,6 +12,11 @@
 #elif defined(__3DS__)
 #include <3ds.h>
 #include <cstdlib>
+#elif defined(__WII__)
+#include <coreinit/debug.h>
+#include <wut.h>
+
+#include <romfs-wiiu.h>
 #endif
 
 #include <fmt/format.h>
@@ -21,6 +26,9 @@ void console::debug_write(const char* text, size_t size) {
     svcOutputDebugString(text, size);
 #elif defined(__SWITCH__)
     svcOutputDebugString(text, size);
+#elif defined(__WII__)
+    //TODO: maybe use OSReportVerbose
+    OSConsoleWrite(text, size);
 #else
 #error "not implemented"
 #endif
@@ -47,14 +55,23 @@ void console::debug_write(const char* text, size_t size) {
 #elif defined(__SWITCH__)
     UNUSED(url);
     return "";
+#elif defined(__WII__)
+    UNUSED(url);
+    return "";
 #else
 #error "not implemented"
 #endif
 }
 
 
+#if defined(__WII__)
+#define R_FAILED(x) ((x) != 0)
+#define Result int
+#endif
+
+
 void console::platform_init() {
-#if defined(__3DS__) || defined(__SWITCH__)
+#if defined(__3DS__) || defined(__SWITCH__) || defined(__WII__)
     Result ret = romfsInit();
     if (R_FAILED(ret)) {
         throw helper::InitializationError(fmt::format("romfsInit() failed: {:#2x}", static_cast<unsigned int>(ret)));
@@ -65,7 +82,7 @@ void console::platform_init() {
 }
 
 void console::platform_exit() {
-#if defined(__3DS__) || defined(__SWITCH__)
+#if defined(__3DS__) || defined(__SWITCH__) || defined(__WII__)
     Result ret = romfsExit();
     if (R_FAILED(ret)) {
         throw helper::InitializationError(fmt::format("romfsExit() failed: {:#2x}", static_cast<unsigned int>(ret)));
@@ -80,6 +97,9 @@ bool console::inMainLoop() {
     return aptMainLoop();
 #elif defined(__SWITCH__)
     return appletMainLoop();
+#elif defined(__WII__)
+    // the wii has no such logic
+    return true;
 #else
 #error "not implemented"
 #endif

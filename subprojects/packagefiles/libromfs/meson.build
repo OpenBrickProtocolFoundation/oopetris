@@ -12,16 +12,24 @@ deps = []
 
 
 if meson.is_cross_build()
-    if host_machine.system() == 'wiiu'
+    if host_machine.system() == 'wiiu' or host_machine.system() == 'wii'
 
         object_target = 'elf32-powerpc'
         binary_arch = 'powerpc:common'
-        ## deps +='wut' 
 
-    elif host_machine.system() == 'wii'
 
-        object_target = 'elf32-powerpc'
-        binary_arch = 'powerpc:common'
+        library_dirs = meson.get_external_property('library_dirs', [''])
+        if library_dirs.length() == 0
+            error('property \'library_dirs\' has to be set!')
+        endif
+
+        c = meson.get_compiler('c')
+
+        deps += c.find_library(
+            'wut',
+            required: true,
+            dirs: library_dirs,
+        )
 
     else
         error('not supported platform: ' + host_machine.system())
@@ -81,6 +89,7 @@ inc_dirs = include_directories('include')
 libromfs_lib = library(
     'libromfs',
     files('source/romfs.c'),
+    c_args: ['-D_POSIX_C_SOURCE=200809'],
     include_directories: inc_dirs,
     dependencies: deps,
     install: true,

@@ -29,6 +29,7 @@ wii_dependencies_native = [
     'SDL2main',
     'wiikeyboard',
     'wiiuse',
+    'wut',
 ]
 
 foreach dep : wii_dependencies
@@ -53,34 +54,6 @@ foreach dep : wii_dependencies_native
         dirs: wii_library_dirs,
     )
 endforeach
-
-## ROMFS handling, this is special in the case of the wii
-
-APP_ROMFS = meson.get_external_property('APP_ROMFS', '')
-
-if APP_ROMFS != ''
-    fs = import('fs')
-
-    if not fs.is_absolute(APP_ROMFS)
-        APP_ROMFS = meson.project_source_root() / APP_ROMFS
-    endif
-
-    if not fs.exists(APP_ROMFS)
-        error('APP_ROMFS should exist, but doesn\'t: \'' + APP_ROMFS + '\'')
-    endif
-
-    wii_deps = dependency(
-        'libromfs',
-        required: true,
-        allow_fallback: true,
-        native: false,
-        default_options: {'romfs_dir': APP_ROMFS},
-    )
-
-
-endif
-
-
 
 ## compilation
 

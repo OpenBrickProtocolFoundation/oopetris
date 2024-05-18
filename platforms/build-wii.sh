@@ -13,6 +13,7 @@ export OGC_MACHINE="rvl"
 
 export PORTLIBS_PATH="$DEVKITPRO/portlibs"
 export LIBOGC="$DEVKITPRO/libogc"
+export WUT="$DEVKITPRO/wut"
 
 export PORTLIBS_PATH_OGC="$PORTLIBS_PATH/$OGC_CONSOLE"
 export PORTLIBS_PATH_PPC="$PORTLIBS_PATH/ppc"
@@ -55,9 +56,9 @@ export ENDIANESS="big"
 
 export COMMON_FLAGS="'-m${OGC_MACHINE}','-mcpu=750','-meabi','-mhard-float','-ffunction-sections','-fdata-sections'"
 
-export COMPILE_FLAGS="'-D__WII__','-D__CONSOLE__','-D__NINTENDO_CONSOLE__','-D_OGC_','-DGEKKO','-isystem', '$LIBOGC/include', '-I$PORTLIBS_PATH_PPC/include', '-I$PORTLIBS_PATH_OGC/include'"
+export COMPILE_FLAGS="'-D__WII__','-D__CONSOLE__','-D__NINTENDO_CONSOLE__','-D_OGC_','-DGEKKO','-isystem', '$LIBOGC/include', '-isystem', '$WUT/include', '-I$PORTLIBS_PATH_PPC/include', '-I$PORTLIBS_PATH_OGC/include'"
 
-export LINK_FLAGS="'-L$LIBOGC/lib','-L$PORTLIBS_LIB_PPC','-L$PORTLIBS_LIB_OGC'"
+export LINK_FLAGS="'-L$LIBOGC_LIB','-L$WUT/lib','-L$PORTLIBS_LIB_PPC','-L$PORTLIBS_LIB_OGC'"
 
 export CROSS_FILE="./platforms/crossbuild-wii.ini"
 
@@ -107,7 +108,7 @@ cpp_link_args = [$COMMON_FLAGS, $LINK_FLAGS]
 [properties]
 pkg_config_libdir = '$PKG_CONFIG_PATH'
 needs_exe_wrapper = true
-library_dirs= ['$LIBOGC_LIB', '$PORTLIBS_LIB_OGC','$PORTLIBS_LIB_PPC']
+library_dirs= ['$LIBOGC_LIB', '$WUT/lib', '$PORTLIBS_LIB_OGC','$PORTLIBS_LIB_PPC']
 
 USE_META_XML    = true
 
