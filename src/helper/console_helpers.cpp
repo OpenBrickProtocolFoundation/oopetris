@@ -14,6 +14,7 @@
 #include <cstdlib>
 #elif defined(__WII__)
 #include <debug.h>
+#include <ogc/system.h>
 
 #include <romfs-wiiu.h>
 #endif
@@ -26,8 +27,7 @@ void console::debug_write(const char* text, size_t size) {
 #elif defined(__SWITCH__)
     svcOutputDebugString(text, size);
 #elif defined(__WII__)
-    UNUSED(text);
-    UNUSED(size);
+    SYS_Report("%.*s", size, text);
 #else
 #error "not implemented"
 #endif
