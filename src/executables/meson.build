@@ -22,7 +22,7 @@ if build_application
             )
 
         elif meson.is_cross_build() and host_machine.system() == 'switch'
-            switch_options = [
+            nintendo_options = [
                 app_name,
                 main_files,
                 [liboopetris_graphics_dep, graphic_application_deps],

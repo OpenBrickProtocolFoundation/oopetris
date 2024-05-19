@@ -104,6 +104,7 @@ libnx='$LIBNX'
 USE_NACP    = true
 
 APP_ROMFS='$ROMFS'
+APP_ICON = './assets/icon/1024x1024.png'
 
 EOF
 
