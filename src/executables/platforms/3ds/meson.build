@@ -1,12 +1,12 @@
 ## get the options object and "unpack" it
 
-_3ds_exe_name = _3ds_options[0]
-_3ds_src_files = _3ds_options[1]
-_3ds_deps = _3ds_options[2]
+exe_name = nintendo_options[0]
+src_files = nintendo_options[1]
+deps = nintendo_options[2]
 
 # libraries
 
-_3ds_dependencies = [
+dependencies = [
     'flac',
     'freetype2',
     'ogg',
@@ -17,7 +17,7 @@ _3ds_dependencies = [
     'zlib',
 ]
 
-_3ds_dependencies_native = [
+dependencies_native = [
     'bz2',
     'ctru',
     'mad',
@@ -27,13 +27,13 @@ _3ds_dependencies_native = [
     'SDL2main',
 ]
 
-_3ds_library_dirs = meson.get_external_property('library_dirs', [''])
-if _3ds_library_dirs.length() == 0
+library_dirs = meson.get_external_property('library_dirs', [''])
+if library_dirs.length() == 0
     error('property \'library_dirs\' has to be set!')
 endif
 
-foreach dep : _3ds_dependencies
-    _3ds_deps += dependency(
+foreach dep : dependencies
+    deps += dependency(
         dep,
         required: true,
         allow_fallback: false,
@@ -42,20 +42,20 @@ foreach dep : _3ds_dependencies
 endforeach
 
 c = meson.get_compiler('c')
-foreach dep : _3ds_dependencies_native
-    _3ds_deps += c.find_library(
+foreach dep : dependencies_native
+    deps += c.find_library(
         dep,
         required: true,
-        dirs: _3ds_library_dirs,
+        dirs: library_dirs,
     )
 endforeach
 
 ## compilation
 
-_3ds_elf_file = build_target(
-    _3ds_exe_name + '.elf',
-    _3ds_src_files,
-    dependencies: _3ds_deps,
+elf_file = build_target(
+    exe_name + '.elf',
+    src_files,
+    dependencies: deps,
     override_options: {
         'warning_level': '3',
         'werror': true,
@@ -70,8 +70,8 @@ use_smdh = ['true', 'True', '1', true].contains(
 
 _3dsxtool = find_program('3dsxtool')
 
-_3DSX_FLAGS = [_3dsxtool, _3ds_elf_file.full_path(), _3ds_exe_name + '.3dsx']
-_3DSX_DEPS = [_3ds_elf_file]
+_3DSX_FLAGS = [_3dsxtool, elf_file.full_path(), exe_name + '.3dsx']
+_3DSX_DEPS = [elf_file]
 SMDH_DEPS = _3DSX_DEPS
 
 fs = import('fs')
@@ -81,8 +81,7 @@ if use_smdh
     smdhtool = find_program('smdhtool')
     SMDH_FLAGS = [
         smdhtool,
-        '--create',
-        oopetris_name,
+        '--create', oopetris_name,
         oopetris_desc,
         oopetris_author,
     ]
@@ -92,9 +91,9 @@ if use_smdh
         error('property \'libctru\' has to be set!')
     endif
 
-    _3ds_default_icon = LIBCTRU / 'default_icon.png'
+    default_icon = LIBCTRU / 'default_icon.png'
 
-    APP_ICON = meson.get_external_property('APP_ICON', _3ds_default_icon)
+    APP_ICON = meson.get_external_property('APP_ICON', default_icon)
 
     if not fs.is_absolute(APP_ICON)
         APP_ICON = meson.project_source_root() / APP_ICON
@@ -106,7 +105,7 @@ if use_smdh
 
     SMDH_FLAGS += APP_ICON
 
-    SMDH_FLAGS += (_3ds_exe_name + '.smdh')
+    SMDH_FLAGS += (exe_name + '.smdh')
 
     APP_SMALL_ICON = meson.get_external_property('APP_SMALL_ICON', '')
 
@@ -117,22 +116,23 @@ if use_smdh
 
         if not fs.exists(APP_SMALL_ICON)
             error(
-                'APP_SMALL_ICON should exist, but doesn\'t: \'' + APP_SMALL_ICON +
-                '\'',
+                'APP_SMALL_ICON should exist, but doesn\'t: \''
+                + APP_SMALL_ICON
+                + '\'',
             )
         endif
 
         SMDH_FLAGS += APP_SMALL_ICON
     endif
 
-    # smdhtool --create <name> <long description> <author> <icon.png> <_3ds_exe_name>.smdh [<smallicon.png>]
+    # smdhtool --create <name> <long description> <author> <icon.png> <exe_name>.smdh [<smallicon.png>]
     smdh_file = custom_target(
-        _3ds_exe_name + '.smdh',
+        exe_name + '.smdh',
         command: SMDH_FLAGS,
-        output: [_3ds_exe_name + '.smdh'],
+        output: [exe_name + '.smdh'],
         depends: SMDH_DEPS,
     )
-    _3DSX_FLAGS += '--smdh=' + _3ds_exe_name + '.smdh'
+    _3DSX_FLAGS += '--smdh=' + exe_name + '.smdh'
     _3DSX_DEPS += smdh_file
 
 endif
@@ -153,11 +153,11 @@ if APP_ROMFS != ''
 
 endif
 
-# 3dsxtool <_3ds_exe_name>.elf <_3ds_exe_name>.3dsx <_3DSX_FLAGS>
+# 3dsxtool <exe_name>.elf <exe_name>.3dsx <_3DSX_FLAGS>
 custom_target(
-    _3ds_exe_name + '.3dsx',
+    exe_name + '.3dsx',
     command: _3DSX_FLAGS,
     depends: _3DSX_DEPS,
-    output: [_3ds_exe_name + '.3dsx'],
+    output: [exe_name + '.3dsx'],
     build_by_default: true,
 )

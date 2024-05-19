@@ -29,7 +29,7 @@ if build_application
             ]
             subdir('platforms/switch')
         elif meson.is_cross_build() and host_machine.system() == '3ds'
-            _3ds_options = [
+            nintendo_options = [
                 app_name,
                 main_files,
                 [liboopetris_graphics_dep, graphic_application_deps],
