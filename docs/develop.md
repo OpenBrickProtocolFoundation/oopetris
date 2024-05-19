@@ -28,6 +28,10 @@ For concrete instructions, see the list below:
 [switch](3ds.md)
 
 
+## Nintendo Wii
+
+[wii](wii.md)
+
 ## Android
 
 [android](android.md)
