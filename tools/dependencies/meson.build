@@ -1,7 +1,11 @@
 only_allow_native_libs = false
 
 if meson.is_cross_build()
-    if host_machine.system() == 'switch' or host_machine.system() == '3ds' or host_machine.system() == 'wii'
+    if (
+        host_machine.system() == 'switch'
+        or host_machine.system() == '3ds'
+        or host_machine.system() == 'wii'
+    )
         # we do not link to code that was compiled with gcc 10.1 / gcc 7.1, the code we link with is all compiled with gcc 13.2
         core_lib += {
             'compile_args': [core_lib.get('compile_args'), '-Wno-psabi'],
@@ -31,9 +35,10 @@ fmt_use_header_only = false
 
 if (
     meson.is_cross_build()
-    and (host_machine.system() == 'switch'
-    or host_machine.system() == '3ds'
-    or host_machine.system() == 'wii'
+    and (
+        host_machine.system() == 'switch'
+        or host_machine.system() == '3ds'
+        or host_machine.system() == 'wii'
     )
 )
     fmt_use_header_only = true
@@ -229,8 +234,13 @@ if build_application
         'deps': [graphics_lib.get('deps'), spdlog_dep],
     }
 
+    # TODO: solve this in teh spdlog meson.build, not here!
     # on the 3ds there is no thread local storage (TLS)
-    if (meson.is_cross_build() and host_machine.system() == '3ds')
+    if (
+        meson.is_cross_build()
+        and (host_machine.system() == '3ds'
+        or host_machine.system() == 'wii')
+    )
         graphics_lib += {
             'compile_args': [
                 graphics_lib.get('compile_args'),
