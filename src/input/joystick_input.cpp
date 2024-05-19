@@ -7,7 +7,9 @@
 #include "input/game_input.hpp"
 #include "input/input.hpp"
 
+#include <algorithm>
 #include <exception>
+#include <ranges>
 #include <spdlog/spdlog.h>
 
 
@@ -175,11 +177,29 @@ void input::JoyStickInputManager::discover_devices(std::vector<std::unique_ptr<I
     switch (event.type) {
         case SDL_JOYDEVICEADDED: {
             const auto device_id = event.jdevice.which;
+
+
             auto joystick = JoystickInput::get_by_device_index(device_id);
             if (joystick.has_value()) {
+
+
+                // sometimes, when initializing the subsystem, we scan the devices, add them, but a device added event is fired after that, so we don't need to add it twice
+                if (std::ranges::find_if(
+                            inputs,
+                            [&joystick](const auto& input) -> bool {
+                                if (const auto joystick_input = utils::is_child_class<input::JoystickInput>(input)) {
+                                    return joystick_input.value()->instance_id() == joystick.value()->instance_id();
+                                }
+                                return false;
+                            }
+                    )
+                    != inputs.end()) {
+                    return true;
+                }
+
                 inputs.push_back(std::move(joystick.value()));
             } else {
-                spdlog::warn("Failed to add newly added joystick: {}", joystick.error());
+                spdlog::warn("Failed to add newly attached joystick: {}", joystick.error());
             }
             return true;
         }
@@ -199,7 +219,10 @@ void input::JoyStickInputManager::discover_devices(std::vector<std::unique_ptr<I
                 }
             }
 
-            spdlog::warn("Failed to remove removed joystick from internal joystick vector");
+            spdlog::warn(
+                    "Failed to remove removed joystick from internal joystick vector (he was not recognized in the "
+                    "first place)"
+            );
 
             return true;
         }
