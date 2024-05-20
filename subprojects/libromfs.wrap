@@ -6,7 +6,7 @@ url = https://github.com/yawut/libromfs-wiiu.git
 revision = master
 depth = 1
 patch_directory = libromfs
-diff_files = libromfs-0.7_wii.diff
+diff_files = libromfs-0.7_patches.diff
 
 [provide]
 libromfs = libromfs_dep

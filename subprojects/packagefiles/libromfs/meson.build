@@ -4,19 +4,17 @@ project(
     version: '0.7.0',
     meson_version: '>=1.2.0',
     default_options: {
-        'c_std': ['c11'],
+        'c_std': ['gnu11'],
     },
 )
 
 deps = []
 
-
 if meson.is_cross_build()
-    if host_machine.system() == 'wiiu' or host_machine.system() == 'wii'
+    if host_machine.system() == 'wiiu' or host_machine.system() == 'wii' or host_machine.system() == 'gamecube'
 
         object_target = 'elf32-powerpc'
         binary_arch = 'powerpc:common'
-
 
         library_dirs = meson.get_external_property('library_dirs', [''])
         if library_dirs.length() == 0
@@ -31,7 +29,7 @@ if meson.is_cross_build()
                 required: true,
                 dirs: library_dirs,
             )
-        elif host_machine.system() == 'wii'
+        elif host_machine.system() == 'wii' or host_machine.system() == 'gamecube'
 
             deps += c.find_library(
                 'ogc',
@@ -66,7 +64,6 @@ objcopy = find_program('objcopy', native: false)
 romfs_tar_name = 'romfs.tar'
 romfs_obj_name = 'romfs.o'
 
-
 romfs_tar = custom_target(
     romfs_tar_name,
     command: [
@@ -80,7 +77,8 @@ romfs_tar = custom_target(
 )
 
 binary_start_name = (
-    '_binary' + (
+    '_binary'
+    + (
         romfs_tar.full_path().replace(meson.global_build_root(), '').replace(
             '/',
             '_',
@@ -111,7 +109,6 @@ inc_dirs = include_directories('include')
 libromfs_lib = library(
     'romfs',
     files('source/romfs.c'),
-    c_args: ['-D_POSIX_C_SOURCE=200809'],
     include_directories: inc_dirs,
     dependencies: deps,
     install: true,
