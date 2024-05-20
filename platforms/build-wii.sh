@@ -96,7 +96,7 @@ libpng-config='$BIN_DIR_PPC/libpng-config'
 sdl2-config='$BIN_DIR_OGC/sdl2-config'
 
 [built-in options]
-c_std = 'c11'
+c_std = 'gnu11'
 cpp_std = 'c++23'
 c_args = [$COMMON_FLAGS, $COMPILE_FLAGS]
 cpp_args = [$COMMON_FLAGS, $COMPILE_FLAGS]

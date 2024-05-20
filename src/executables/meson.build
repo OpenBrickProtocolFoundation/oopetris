@@ -36,7 +36,7 @@ if build_application
             ]
             subdir('platforms/3ds')
         elif host_machine.system() == 'wii'
-            wii_options = [
+            nintendo_options = [
                 app_name,
                 main_files,
                 [liboopetris_graphics_dep, graphic_application_deps],

@@ -1,13 +1,13 @@
 ## get the options object and "unpack" it
 
-wii_exe_name = wii_options[0]
-wii_src_files = wii_options[1]
-wii_deps = wii_options[2]
+exe_name = nintendo_options[0]
+src_files = nintendo_options[1]
+deps = nintendo_options[2]
 
 
 # libraries
 
-wii_dependencies = [
+dependencies = [
     'freetype2',
     'harfbuzz',
     'ogg',
@@ -17,7 +17,7 @@ wii_dependencies = [
     'zlib',
 ]
 
-wii_dependencies_native = [
+dependencies_native = [
     'bte',
     'bz2',
     'fat',
@@ -31,8 +31,8 @@ wii_dependencies_native = [
     'wiiuse',
 ]
 
-foreach dep : wii_dependencies
-    wii_deps += dependency(
+foreach dep : dependencies
+    deps += dependency(
         dep,
         required: true,
         allow_fallback: false,
@@ -40,26 +40,26 @@ foreach dep : wii_dependencies
     )
 endforeach
 
-wii_library_dirs = meson.get_external_property('library_dirs', [''])
-if wii_library_dirs.length() == 0
+library_dirs = meson.get_external_property('library_dirs', [''])
+if library_dirs.length() == 0
     error('property \'library_dirs\' has to be set!')
 endif
 
 c = meson.get_compiler('c')
-foreach dep : wii_dependencies_native
-    wii_deps += c.find_library(
+foreach dep : dependencies_native
+    deps += c.find_library(
         dep,
         required: true,
-        dirs: wii_library_dirs,
+        dirs: library_dirs,
     )
 endforeach
 
 ## compilation
 
-wii_elf_file = build_target(
-    wii_exe_name + '.elf',
-    wii_src_files,
-    dependencies: wii_deps,
+elf_file = build_target(
+    exe_name + '.elf',
+    src_files,
+    dependencies: deps,
     override_options: {
         'warning_level': '3',
         'werror': true,
@@ -68,17 +68,17 @@ wii_elf_file = build_target(
     target_type: 'executable',
 )
 
-DOL_DEPS = [wii_elf_file]
+DOL_DEPS = [elf_file]
 
 
 elf2dol = find_program('elf2dol')
 
 # elf2dol <exe_name>.elf <exe_name>.dol 
 custom_target(
-    wii_exe_name + '.dol',
-    command: [elf2dol, wii_elf_file.full_path(), wii_exe_name + '.dol'],
+    exe_name + '.dol',
+    command: [elf2dol, elf_file.full_path(), exe_name + '.dol'],
     depends: DOL_DEPS,
-    output: [wii_exe_name + '.dol'],
+    output: [exe_name + '.dol'],
     build_by_default: true,
 )
 
@@ -88,7 +88,7 @@ use_meta_xml = ['true', 'True', '1', true].contains(
 
 if use_meta_xml
 
-    wii_meta_xml_conf = configuration_data(
+    meta_xml_conf = configuration_data(
         {
             'OOPETRIS_VERSION': meson.project_version(),
             'OOPETRIS_NAME': oopetris_name,
@@ -98,10 +98,10 @@ if use_meta_xml
         },
     )
 
-    wii_meta_xml = configure_file(
+    meta_xml = configure_file(
         input: 'meta.xml.in',
         output: 'meta.xml',
-        configuration: wii_meta_xml_conf,
+        configuration: meta_xml_conf,
     )
 
 endif
