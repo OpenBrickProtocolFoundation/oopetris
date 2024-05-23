@@ -77,7 +77,7 @@ namespace scenes {
         }
 
         if (all_games_finished) {
-            //TODOO(Totto): the game input we use here for the game over is not guarantteed to work, better wul dbe to get one for this system at the tart of this scene!
+            //TODO(Totto): the game input we use here for the game over is not guarantteed to work, better wul dbe to get one for this system at the tart of this scene!
             return UpdateResult{
                 SceneUpdate::StopUpdating,
                 Scene::RawPush{ "GameOver",
