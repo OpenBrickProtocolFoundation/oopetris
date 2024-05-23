@@ -171,7 +171,6 @@ jobs:
         if: matrix.config.os == 'ubuntu'
         run: |
           sudo apt-get update
-          sudo apt-get upgrade -y
           sudo apt-get install ninja-build libsdl2-2.0-0 libsdl2-dev libsdl2-ttf* libsdl2-mixer* libsdl2-image* -y
 
       - name: Install dependencies (MacOS)
