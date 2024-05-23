@@ -1,4 +1,6 @@
 #include "replay_game.hpp"
+#include "../single_player_game/game_over.hpp"
+#include "../single_player_game/pause.hpp"
 #include "helper/music_utils.hpp"
 #include "manager/music_manager.hpp"
 #include "scenes/scene.hpp"
@@ -75,9 +77,14 @@ namespace scenes {
         }
 
         if (all_games_finished) {
+            //TODO(Totto): the game input we use here for the game over is not guarantteed to work, better wul dbe to get one for this system at the tart of this scene!
             return UpdateResult{
                 SceneUpdate::StopUpdating,
-                Scene::Push{ SceneId::GameOver, ui::FullScreenLayout{ m_service_provider->window() } }
+                Scene::RawPush{ "GameOver",
+                               std::make_unique<scenes::SinglePlayerGameOver>(
+                                        m_service_provider, ui::FullScreenLayout{ m_service_provider->window() },
+                               m_games.at(0)->game_input()
+                                ) }
             };
         }
 
@@ -89,11 +96,15 @@ namespace scenes {
             }
 
             switch (next_scene) {
-                    /*    case NextScene::Pause:
+                case NextScene::Pause:
+                    //TODO(Totto): the game input we use here for the Pauseis not guarantteed to work, better wul dbe to get one for this system at the tart of this scene!
                     return UpdateResult{
                         SceneUpdate::StopUpdating,
-                        Scene::Push{ SceneId::Pause, ui::FullScreenLayout{ m_service_provider->window() } }
-                    }; */
+                        Scene::RawPush{ "Pause", std::make_unique<scenes::SinglePlayerPause>(
+                                                         m_service_provider, ui::FullScreenLayout{ m_service_provider->window() },
+                                       m_games.at(0)->game_input()
+                                                 ) }
+                    };
                 case NextScene::Settings:
                     return UpdateResult{
                         SceneUpdate::StopUpdating,

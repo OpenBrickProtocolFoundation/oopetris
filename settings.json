@@ -58,6 +58,20 @@
 				"move_y_threshold": 0.37,
 				"rotation_duration_threshold": 500,
 				"drop_duration_threshold": 200
+			},
+			{
+				"type": "controller",
+				"drop": "A",
+				"hold": "B",
+				"move_down": "DPDown",
+				"move_left": "DPLeft",
+				"move_right": "DPRight",
+				"rotate_left": "LeftShoulder",
+				"rotate_right": "RightShoulder",
+				"menu": {
+					"pause": "Start",
+					"open_settings": "Guide"
+				}
 			}
 		]
 	},

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "SDL_keycode.h"
 #include "game_input.hpp"
 #include "helper/expected.hpp"
 #include "helper/parse_json.hpp"
@@ -26,7 +25,6 @@ namespace input {
     };
 
 
-    //TODO(Totto):  don't default initialize all settings, but rather provide a static default setting, so that everything has to be set explicitly, or you can use the default explicitly
     struct KeyboardSettings {
         sdl::Key rotate_left;
         sdl::Key rotate_right;
@@ -61,6 +59,7 @@ namespace input {
         KeyboardSettings m_settings;
         std::vector<SDL_Event> m_event_buffer;
         EventDispatcher* m_event_dispatcher;
+        KeyboardInput m_underlying_input;
 
     public:
         KeyboardGameInput(const KeyboardSettings& settings, EventDispatcher* event_dispatcher);
@@ -81,6 +80,8 @@ namespace input {
         [[nodiscard]] helper::optional<MenuEvent> get_menu_event(const SDL_Event& event) const override;
 
         [[nodiscard]] std::string describe_menu_event(MenuEvent event) const override;
+
+        [[nodiscard]] const KeyboardInput* underlying_input() const override;
 
     private:
         [[nodiscard]] helper::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event) const;

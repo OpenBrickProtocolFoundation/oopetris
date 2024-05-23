@@ -55,23 +55,23 @@ namespace input {
     using JoystickSettings = AbstractJoystickSettings<std::string>;
 
 
-    /**
- * @brief 
- *
- * @note regarding the NOLINT: the destructor just cleans up the SDL_Joystick, it has nothing to do with class members that would need special member functions to be explicitly defined
- * 
- */
-    struct JoystickInput : Input {
+    enum class JoystickLikeType : u8 { Joystick, Controller };
+
+
+    struct JoystickLikeInput : Input {
     private:
-        SDL_Joystick* m_joystick;
         SDL_JoystickID m_instance_id;
 
-        [[nodiscard]] static helper::optional<std::unique_ptr<JoystickInput>> get_joystick_by_guid(
-                const sdl::GUID& guid,
-                SDL_Joystick* joystick,
-                SDL_JoystickID instance_id,
-                const std::string& name
-        );
+    public:
+        JoystickLikeInput(SDL_JoystickID instance_id, const std::string& name, JoystickLikeType type);
+
+        [[nodiscard]] SDL_JoystickID instance_id() const;
+    };
+
+
+    struct JoystickInput : JoystickLikeInput {
+    private:
+        SDL_Joystick* m_joystick;
 
     public:
         JoystickInput(SDL_Joystick* joystick, SDL_JoystickID instance_id, const std::string& name);
@@ -84,28 +84,32 @@ namespace input {
         JoystickInput(JoystickInput&& input) noexcept;
         JoystickInput& operator=(JoystickInput&& input) noexcept;
 
-        [[nodiscard]] static helper::expected<std::unique_ptr<JoystickInput>, std::string> get_by_device_index(
-                int device_index
-        );
-
-        [[nodiscard]] SDL_JoystickID instance_id() const;
-
         [[nodiscard]] sdl::GUID guid() const;
 
         [[nodiscard]] virtual JoystickSettings default_settings() const = 0;
 
-        // Add get_game_input method!
+        [[nodiscard]] static helper::optional<std::unique_ptr<JoystickInput>> get_joystick_by_guid(
+                const sdl::GUID& guid,
+                SDL_Joystick* joystick,
+                SDL_JoystickID instance_id,
+                const std::string& name
+        );
     };
-
-
-    //TODO(Totto):  also support gamecontroller API
-    // see: https://github.com/mdqinc/SDL_GameControllerDB?tab=readme-ov-file
 
     struct JoyStickInputManager {
         static void discover_devices(std::vector<std::unique_ptr<Input>>& inputs);
 
+        [[nodiscard]] static helper::expected<std::unique_ptr<JoystickLikeInput>, std::string> get_by_device_index(
+                int device_index
+        );
+
         [[nodiscard]] static bool
         process_special_inputs(const SDL_Event& event, std::vector<std::unique_ptr<Input>>& inputs);
+
+    private:
+        static void add_new_device(i32 device_id, std::vector<std::unique_ptr<Input>>& inputs, JoystickLikeType type);
+
+        static void remove_device(i32 instance_id, std::vector<std::unique_ptr<Input>>& inputs, JoystickLikeType type);
     };
 
 
@@ -228,31 +232,38 @@ namespace input {
     } while (false)
 
 
-    struct JoystickGameInput : public GameInput, public EventListener {
+    struct JoystickLikeGameInput : public GameInput, public EventListener {
     private:
         std::vector<SDL_Event> m_event_buffer;
         EventDispatcher* m_event_dispatcher;
 
-
-        JoystickInput* m_underlying_input;
-
-    protected:
-        [[nodiscard]] const JoystickInput* underlying_input() const;
-
     public:
-        JoystickGameInput(EventDispatcher* event_dispatcher, JoystickInput* underlying_input);
+        explicit JoystickLikeGameInput(EventDispatcher* event_dispatcher, JoystickLikeType type);
 
-        ~JoystickGameInput() override;
+        ~JoystickLikeGameInput() override;
 
-        JoystickGameInput(const JoystickGameInput& input) = delete;
-        [[nodiscard]] JoystickGameInput& operator=(const JoystickGameInput& input) = delete;
+        JoystickLikeGameInput(const JoystickLikeGameInput& input) = delete;
+        [[nodiscard]] JoystickLikeGameInput& operator=(const JoystickLikeGameInput& input) = delete;
 
-        JoystickGameInput(JoystickGameInput&& input) noexcept;
-        [[nodiscard]] JoystickGameInput& operator=(JoystickGameInput&& input) noexcept;
+        JoystickLikeGameInput(JoystickLikeGameInput&& input) noexcept;
+        [[nodiscard]] JoystickLikeGameInput& operator=(JoystickLikeGameInput&& input) noexcept;
 
         void handle_event(const SDL_Event& event) override;
 
         void update(SimulationStep simulation_step_index) override;
+
+    protected:
+        [[nodiscard]] virtual helper::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event) const = 0;
+    };
+
+
+    struct JoystickGameInput : public JoystickLikeGameInput {
+    private:
+        JoystickInput* m_underlying_input;
+
+    public:
+        JoystickGameInput(EventDispatcher* event_dispatcher, JoystickInput* underlying_input);
+
 
         [[nodiscard]] static helper::expected<std::shared_ptr<input::JoystickGameInput>, std::string>
         get_game_input_by_settings(
@@ -261,9 +272,9 @@ namespace input {
                 const JoystickSettings& settings
         );
 
-    protected:
-        [[nodiscard]] virtual helper::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event) const = 0;
+        [[nodiscard]] const JoystickInput* underlying_input() const override;
 
+    protected:
         template<typename T>
         [[nodiscard]] static helper::expected<AbstractJoystickSettings<T>, std::string>
         try_resolve_settings(const JoystickSettings& settings, const MappingType<T>& map) {
@@ -287,7 +298,7 @@ namespace input {
     struct ConsoleJoystickGameInput : public JoystickGameInput {
     private:
         AbstractJoystickSettings<console::SettingsType> m_settings;
-        ConsoleJoystickInput* m_underlying_joystick_input;
+        ConsoleJoystickInput* m_underlying_input;
 
     public:
         ConsoleJoystickGameInput(

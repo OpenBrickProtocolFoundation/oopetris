@@ -1,5 +1,7 @@
 graphics_src_files += files(
     'console_buttons.hpp',
+    'controller_input.cpp',
+    'controller_input.hpp',
     'game_input.cpp',
     'game_input.hpp',
     'guid.cpp',

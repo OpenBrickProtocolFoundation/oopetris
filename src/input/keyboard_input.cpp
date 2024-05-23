@@ -216,3 +216,7 @@ sdl::Key json_helper::get_key(const nlohmann::json& obj, const std::string& name
             utils::unreachable();
     }
 }
+
+[[nodiscard]] const input::KeyboardInput* input::KeyboardGameInput::underlying_input() const {
+    return &m_underlying_input;
+}

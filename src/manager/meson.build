@@ -6,6 +6,8 @@ graphics_src_files += files(
     'input_event.hpp',
     'music_manager.cpp',
     'music_manager.hpp',
+    'sdl_controller_key.cpp',
+    'sdl_controller_key.hpp',
     'sdl_key.cpp',
     'sdl_key.hpp',
     'settings_manager.cpp',

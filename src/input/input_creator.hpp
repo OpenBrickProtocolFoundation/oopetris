@@ -39,7 +39,7 @@ namespace input {
     [[nodiscard]] std::vector<input::AdditionalInfo>
     get_game_parameters_for_replay(ServiceProvider* service_provider, const std::filesystem::path& recording_path);
 
-    [[nodiscard]] helper::optional<input::AdditionalInfo> get_single_player_game_parameters(
+    [[nodiscard]] helper::expected<input::AdditionalInfo, std::string> get_single_player_game_parameters(
             ServiceProvider* service_provider,
             recorder::AdditionalInformation&& information,
             const date::ISO8601Date& date
