@@ -2,6 +2,7 @@
 
 #include "gamecontroller_input.hpp"
 #include "input/input.hpp"
+#include "manager/sdl_controller_key.hpp"
 
 
 #include <spdlog/spdlog.h>
@@ -176,4 +177,23 @@ input::ControllerInput::get_by_device_index(int device_index) {
     }
 
     return helper::nullopt;
+}
+
+
+sdl::ControllerKey json_helper::get_key(const nlohmann::json& obj, const std::string& name) {
+
+    auto context = obj.at(name);
+
+    std::string input;
+    context.get_to(input);
+
+    const auto& value = sdl::ControllerKey::from_string(input);
+
+    if (not value.has_value()) {
+        throw nlohmann::json::type_error::create(
+                302, fmt::format("Expected a valid Key for key '{}', but got '{}': {}", name, input, value.error()),
+                &context
+        );
+    }
+    return value.value();
 }
