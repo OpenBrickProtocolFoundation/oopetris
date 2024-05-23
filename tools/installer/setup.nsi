@@ -105,6 +105,9 @@ Section "Core App" CoreApp
     SetOutPath "$INSTDIR\assets\authors"
     File /r "${PROJECT_SOURCE_DIR}\assets\authors\*.*"
 
+    SetOutPath "$INSTDIR\assets\mappings"
+    File /r "${PROJECT_SOURCE_DIR}\assets\mappings\*.*"
+
     SetOutPath "$INSTDIR\assets\fonts"
     File /r "${PROJECT_SOURCE_DIR}\assets\fonts\*.*"
 
