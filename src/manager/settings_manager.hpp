@@ -42,19 +42,19 @@ namespace nlohmann {
             std::visit(
                     helper::overloaded{
                             [&](const input::KeyboardSettings& keyboard_settings) { // NOLINT(misc-no-recursion)
-                                to_json(obj, keyboard_settings);
+                                nlohmann::adl_serializer<input::KeyboardSettings>::to_json(obj, keyboard_settings);
                                 obj["type"] = "keyboard";
                             },
                             [&](const input::JoystickSettings& joystick_settings) { // NOLINT(misc-no-recursion)
-                                to_json(obj, joystick_settings);
+                                nlohmann::adl_serializer<input::JoystickSettings>::to_json(obj, joystick_settings);
                                 obj["type"] = "joystick";
                             },
                             [&](const input::ControllerSettings& controller_settings) { // NOLINT(misc-no-recursion)
-                                to_json(obj, controller_settings);
-                                obj["type"] = "joystick";
+                                nlohmann::adl_serializer<input::ControllerSettings>::to_json(obj, controller_settings);
+                                obj["type"] = "controller";
                             },
                             [&](const input::TouchSettings& touch_settings) { // NOLINT(misc-no-recursion)
-                                to_json(obj, touch_settings);
+                                nlohmann::adl_serializer<input::TouchSettings>::to_json(obj, touch_settings);
                                 obj["type"] = "touch";
                             } },
                     controls

@@ -1,6 +1,7 @@
 
 
 #include "controller_input.hpp"
+#include "helper/string_manipulation.hpp"
 #include "input/input.hpp"
 #include "input/joystick_input.hpp"
 #include "manager/sdl_controller_key.hpp"
@@ -312,7 +313,7 @@ sdl::ControllerKey json_helper::get_controller_key(const nlohmann::json& obj, co
     std::string input;
     context.get_to(input);
 
-    const auto& value = sdl::ControllerKey::from_string(input);
+    const auto& value = sdl::ControllerKey::from_string(string::to_lower_case(input));
 
     if (not value.has_value()) {
         throw nlohmann::json::type_error::create(
