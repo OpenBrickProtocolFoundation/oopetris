@@ -27,6 +27,15 @@ input::Input::Input(const Input& input) noexcept = default;
 input::Input::Input(Input&& input) noexcept = default;
 [[nodiscard]] input::Input& input::Input::operator=(Input&& input) noexcept = default;
 
+[[nodiscard]] const std::string& input::Input::name() const {
+    return m_name;
+}
+
+[[nodiscard]] input::InputType input::Input::type() const {
+    return m_type;
+}
+
+
 input::PointerEventHelper::PointerEventHelper(shapes::IPoint pos, PointerEvent event)
     : m_pos{ pos },
       m_event{ event } { }
@@ -169,7 +178,7 @@ namespace {
 
 namespace {
     //TODO(Totto): use smart pointer for the event dispatcher
-    helper::optional<std::shared_ptr<input::GameInput>>
+    helper::expected<std::shared_ptr<input::GameInput>, std::string>
     get_game_input_by_setting(ServiceProvider* service_provider, const Controls& control) {
 
         using ReturnType = helper::expected<std::shared_ptr<input::GameInput>, std::string>;
@@ -237,7 +246,7 @@ namespace {
             return std::move(result.value());
         }
 
-        return helper::nullopt;
+        return helper::unexpected<std::string>(result.error());
     }
 
 
@@ -338,7 +347,7 @@ namespace {
 } // namespace
 
 
-[[nodiscard]] helper::optional<std::shared_ptr<input::GameInput>>
+[[nodiscard]] helper::expected<std::shared_ptr<input::GameInput>, std::string>
 input::InputManager::get_game_input( //NOLINT(readability-convert-member-functions-to-static)
         ServiceProvider* service_provider
 ) {
@@ -349,8 +358,10 @@ input::InputManager::get_game_input( //NOLINT(readability-convert-member-functio
 
     if (settings.selected.has_value()) {
         const auto index = settings.selected.value();
-        if (settings.controls.size() >= index) {
-            return helper::nullopt;
+        if (settings.controls.size() <= index) {
+            return helper::unexpected<std::string>{
+                fmt::format("selected index out of bounds: {} >= {}", index, settings.controls.size())
+            };
         }
 
         return get_game_input_by_setting(service_provider, settings.controls.at(index));
@@ -363,7 +374,7 @@ input::InputManager::get_game_input( //NOLINT(readability-convert-member-functio
         if (auto primary_input = utils::is_child_class<PrimaryInputType>(input); primary_input.has_value()) {
             auto result = get_game_input_by_input(service_provider, input);
             if (result.has_value()) {
-                return result;
+                return result.value();
             }
         }
     }
@@ -371,7 +382,7 @@ input::InputManager::get_game_input( //NOLINT(readability-convert-member-functio
 
     // 3. we fail, since no suitable input could be found
 
-    return helper::nullopt;
+    return helper::unexpected<std::string>{ "No input was found, failed to get by settings and by primary input" };
 }
 
 [[nodiscard]] const std::unique_ptr<input::Input>& input::InputManager::get_primary_input() {

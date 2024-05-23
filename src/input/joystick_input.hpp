@@ -55,7 +55,7 @@ namespace input {
     using JoystickSettings = AbstractJoystickSettings<std::string>;
 
 
-    enum class JoystickLikeType { Joystick, Controller };
+    enum class JoystickLikeType : u8 { Joystick, Controller };
 
 
     struct JoystickLikeInput : Input {

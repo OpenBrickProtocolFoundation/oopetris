@@ -4,10 +4,10 @@
 #include "helper/command_line_arguments.hpp"
 #include "helper/date.hpp"
 #include "helper/errors.hpp"
+#include "helper/expected.hpp"
 #include "helper/optional.hpp"
 #include "input.hpp"
 #include "input/replay_input.hpp"
-
 
 #include <fmt/format.h>
 #include <stdexcept>
@@ -89,7 +89,7 @@ namespace {
 }
 
 
-[[nodiscard]] helper::optional<input::AdditionalInfo> input::get_single_player_game_parameters(
+[[nodiscard]] helper::expected<input::AdditionalInfo, std::string> input::get_single_player_game_parameters(
         ServiceProvider* const service_provider,
         recorder::AdditionalInformation&& information,
         const date::ISO8601Date& date
@@ -97,7 +97,7 @@ namespace {
 
     auto input = service_provider->input_manager().get_game_input(service_provider);
     if (not input.has_value()) {
-        return helper::nullopt;
+        return helper::unexpected<std::string>{ input.error() };
     }
 
     const auto starting_level = service_provider->command_line_arguments().starting_level;

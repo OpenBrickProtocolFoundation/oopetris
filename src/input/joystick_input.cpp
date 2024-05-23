@@ -131,6 +131,11 @@ void input::JoyStickInputManager::discover_devices(std::vector<std::unique_ptr<I
 
         auto joystick = JoyStickInputManager::get_by_device_index(i);
         if (joystick.has_value()) {
+            spdlog::debug(
+                    "Found {} with name: {}",
+                    joystick.value()->type() == InputType::JoyStick ? "joystick" : "controller",
+                    joystick.value()->name()
+            );
             inputs.push_back(std::move(joystick.value()));
         } else {
             spdlog::warn("Failed to configure joystick: {}", joystick.error());

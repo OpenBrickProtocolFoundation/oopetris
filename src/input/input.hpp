@@ -43,7 +43,7 @@ namespace input {
         Input& operator=(Input&& input) noexcept;
 
         [[nodiscard]] const std::string& name() const;
-        [[nodiscard]] InputType type();
+        [[nodiscard]] InputType type() const;
 
         [[nodiscard]] virtual helper::optional<NavigationEvent> get_navigation_event(const SDL_Event& event) const = 0;
 
@@ -105,7 +105,7 @@ namespace input {
 
         [[nodiscard]] helper::BoolWrapper<SpecialRequest> process_special_inputs(const SDL_Event& event);
 
-        [[nodiscard]] helper::optional<std::shared_ptr<input::GameInput>> get_game_input(
+        [[nodiscard]] helper::expected<std::shared_ptr<input::GameInput>, std::string> get_game_input(
                 ServiceProvider* service_provider
         );
 

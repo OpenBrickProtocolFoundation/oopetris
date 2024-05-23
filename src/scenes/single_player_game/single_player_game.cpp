@@ -29,9 +29,10 @@ namespace scenes {
                 input::get_single_player_game_parameters(service_provider, std::move(additional_information), date);
 
         if (not result.has_value()) {
-            throw helper::MajorError(
-                    "No suitable input was configured, go into the settings to select a suitable input! "
-            );
+            throw helper::MajorError(fmt::format(
+                    "No suitable input was configured, go into the settings to select a suitable input: {}",
+                    result.error()
+            ));
         }
 
         auto [input, starting_parameters] = result.value();
