@@ -149,7 +149,8 @@ helper::optional<InputEvent> input::KeyboardGameInput::sdl_event_to_input_event(
 input::KeyboardGameInput::KeyboardGameInput(const KeyboardSettings& settings, EventDispatcher* event_dispatcher)
     : GameInput{ GameInputType::Keyboard },
       m_settings{ settings },
-      m_event_dispatcher{ event_dispatcher } {
+      m_event_dispatcher{ event_dispatcher },
+      m_underlying_input{} {
     m_event_dispatcher->register_listener(this);
 }
 
@@ -215,4 +216,8 @@ sdl::Key json_helper::get_key(const nlohmann::json& obj, const std::string& name
         default:
             utils::unreachable();
     }
+}
+
+[[nodiscard]] const input::KeyboardInput* input::KeyboardGameInput::underlying_input() const {
+    return &m_underlying_input;
 }

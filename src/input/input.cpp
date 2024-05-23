@@ -385,17 +385,17 @@ input::InputManager::get_game_input( //NOLINT(readability-convert-member-functio
     return helper::unexpected<std::string>{ "No input was found, failed to get by settings and by primary input" };
 }
 
-[[nodiscard]] const std::unique_ptr<input::Input>& input::InputManager::get_primary_input() {
+[[nodiscard]] const input::Input* input::InputManager::get_primary_input() {
 
     for (const auto& input : m_inputs) {
         if (const auto pointer_input = utils::is_child_class<PrimaryInputType>(input); pointer_input.has_value()) {
-            return input;
+            return input.get();
         }
     }
 
     // this should always be true, since in the initialization the first one, that is ALWAYS added is the KeyboardInput
     assert(not m_inputs.empty() && "at least one input has to be given");
-    return m_inputs.at(0);
+    return m_inputs.at(0).get();
 }
 
 input::PointerInput::PointerInput(const std::string& name) : Input{ name, input::InputType::Pointer } { }

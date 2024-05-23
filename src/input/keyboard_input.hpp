@@ -59,6 +59,7 @@ namespace input {
         KeyboardSettings m_settings;
         std::vector<SDL_Event> m_event_buffer;
         EventDispatcher* m_event_dispatcher;
+        KeyboardInput m_underlying_input;
 
     public:
         KeyboardGameInput(const KeyboardSettings& settings, EventDispatcher* event_dispatcher);
@@ -79,6 +80,8 @@ namespace input {
         [[nodiscard]] helper::optional<MenuEvent> get_menu_event(const SDL_Event& event) const override;
 
         [[nodiscard]] std::string describe_menu_event(MenuEvent event) const override;
+
+        [[nodiscard]] const KeyboardInput* underlying_input() const override;
 
     private:
         [[nodiscard]] helper::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event) const;

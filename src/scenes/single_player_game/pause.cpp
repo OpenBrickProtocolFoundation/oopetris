@@ -13,7 +13,7 @@ namespace scenes {
         fmt::format(
             "Pause ({}: continue, {}: quit)",
             game_input->describe_menu_event(input::MenuEvent::Pause),
-          service_provider->input_manager().get_primary_input()->describe_navigation_event(input::NavigationEvent::BACK)
+         game_input->underlying_input()->describe_navigation_event(input::NavigationEvent::BACK)
         ),
         service_provider->font_manager().get(FontId::Default), 
            Color::white(),utils::get_orientation() == utils::Orientation::Landscape

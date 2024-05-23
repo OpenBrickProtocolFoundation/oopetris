@@ -71,7 +71,9 @@ namespace {
 
     for (u8 tetrion_index = 0; tetrion_index < static_cast<u8>(tetrion_headers.size()); ++tetrion_index) {
 
-        auto input = std::make_unique<ReplayGameInput>(recording_reader);
+        const auto* primary_input = service_provider->input_manager().get_primary_input();
+
+        auto input = std::make_unique<ReplayGameInput>(recording_reader, primary_input);
 
         const auto& header = tetrion_headers.at(tetrion_index);
 

@@ -30,16 +30,19 @@ namespace input {
     enum class MenuEvent : u8 { OpenSettings, Pause };
 
 
+    enum class HoldableKey : u8 {
+        Left,
+        Right,
+    };
+
+    // forward declaration
+    struct Input;
+
     struct GameInput {
     public:
         using OnEventCallback = std::function<void(InputEvent, SimulationStep)>;
 
     private:
-        enum class HoldableKey : u8 {
-            Left,
-            Right,
-        };
-
         static constexpr u64 delayed_auto_shift_frames = 10;
         static constexpr u64 auto_repeat_rate_frames = 2;
 
@@ -62,6 +65,15 @@ namespace input {
         }
 
     public:
+        GameInput(const GameInput&) = delete;
+        GameInput& operator=(const GameInput&) = delete;
+
+        GameInput(GameInput&&) = default;
+        GameInput& operator=(GameInput&&) = default;
+
+        virtual ~GameInput() = default;
+
+
         virtual void update(SimulationStep simulation_step_index);
         virtual void late_update(SimulationStep /*simulation_step*/){};
 
@@ -86,12 +98,7 @@ namespace input {
             m_on_event_callback = std::move(on_event_callback);
         }
 
-        GameInput(const GameInput&) = delete;
-        GameInput& operator=(const GameInput&) = delete;
 
-        GameInput(GameInput&&) = default;
-        GameInput& operator=(GameInput&&) = default;
-
-        virtual ~GameInput() = default;
+        [[nodiscard]] virtual const Input* underlying_input() const = 0;
     };
 } // namespace input

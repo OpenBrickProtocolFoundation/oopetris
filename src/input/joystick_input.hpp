@@ -261,9 +261,6 @@ namespace input {
     private:
         JoystickInput* m_underlying_input;
 
-    protected:
-        [[nodiscard]] const JoystickInput* underlying_input() const;
-
     public:
         JoystickGameInput(EventDispatcher* event_dispatcher, JoystickInput* underlying_input);
 
@@ -274,6 +271,8 @@ namespace input {
                 EventDispatcher* event_dispatcher,
                 const JoystickSettings& settings
         );
+
+        [[nodiscard]] const JoystickInput* underlying_input() const override;
 
     protected:
         template<typename T>

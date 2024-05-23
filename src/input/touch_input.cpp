@@ -182,6 +182,10 @@ input::TouchGameInput::TouchGameInput(TouchGameInput&& input) noexcept = default
     }
 }
 
+[[nodiscard]] const input::TouchInput* input::TouchGameInput::underlying_input() const {
+    return m_underlying_input;
+}
+
 input::TouchInput::TouchInput(const std::shared_ptr<Window>& window, SDL_TouchID touch_id, const std::string& name)
     : PointerInput{ name },
       m_window{ window },

@@ -3,9 +3,13 @@
 #include "helper/magic_enum_wrapper.hpp"
 #include "helper/optional.hpp"
 
-input::ReplayGameInput::ReplayGameInput(std::shared_ptr<recorder::RecordingReader> recording_reader)
+input::ReplayGameInput::ReplayGameInput(
+        std::shared_ptr<recorder::RecordingReader> recording_reader,
+        const Input* underlying_input
+)
     : GameInput{ GameInputType::Recording },
-      m_recording_reader{ std::move(recording_reader) } { }
+      m_recording_reader{ std::move(recording_reader) },
+      m_underlying_input{ underlying_input } { }
 
 void input::ReplayGameInput::update(const SimulationStep simulation_step_index) {
     while (true) {
@@ -88,4 +92,8 @@ void input::ReplayGameInput::late_update(const SimulationStep simulation_step_in
 
 [[nodiscard]] bool input::ReplayGameInput::is_end_of_recording() const {
     return m_next_record_index >= m_recording_reader->num_records();
+}
+
+[[nodiscard]] const input::Input* input::ReplayGameInput::underlying_input() const {
+    return m_underlying_input;
 }

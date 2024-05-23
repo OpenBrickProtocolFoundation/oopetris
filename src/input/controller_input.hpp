@@ -72,9 +72,6 @@ namespace input {
         ControllerInput* m_underlying_input;
 
 
-    protected:
-        [[nodiscard]] const ControllerInput* underlying_input() const;
-
     public:
         ControllerGameInput(
                 ControllerSettings settings,
@@ -85,6 +82,8 @@ namespace input {
         [[nodiscard]] helper::optional<MenuEvent> get_menu_event(const SDL_Event& event) const override;
 
         [[nodiscard]] std::string describe_menu_event(MenuEvent event) const override;
+
+        [[nodiscard]] const ControllerInput* underlying_input() const override;
 
     protected:
         [[nodiscard]] helper::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event) const override;

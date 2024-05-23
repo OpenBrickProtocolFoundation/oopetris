@@ -109,7 +109,7 @@ namespace input {
                 ServiceProvider* service_provider
         );
 
-        [[nodiscard]] const std::unique_ptr<input::Input>& get_primary_input();
+        [[nodiscard]] const input::Input* get_primary_input();
     };
 
 
