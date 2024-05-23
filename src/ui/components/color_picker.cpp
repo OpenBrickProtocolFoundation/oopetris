@@ -376,7 +376,7 @@ ui::ColorPicker::ColorPicker(
 
     const auto focus_id_unused = FocusHelper::focus_id_unused();
 
-    const auto rgb_image_path = utils::get_assets_folder() / "icons" / "rgb_color_selector.png";
+    const auto rgb_image_path = utils::get_assets_folder() / "images" / "rgb_color_selector.png";
 
     m_rgb_button = std::make_unique<ui::ImageButton>(
             service_provider, rgb_image_path, true, focus_id_unused,
@@ -389,7 +389,7 @@ ui::ColorPicker::ColorPicker(
             ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }, toggle_button_layout, false
     );
 
-    const auto hsv_image_path = utils::get_assets_folder() / "icons" / "hsv_color_selector.png";
+    const auto hsv_image_path = utils::get_assets_folder() / "images" / "hsv_color_selector.png";
 
     m_hsv_button = std::make_unique<ui::ImageButton>(
             service_provider, hsv_image_path, true, focus_id_unused,
