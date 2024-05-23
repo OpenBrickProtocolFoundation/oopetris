@@ -8,10 +8,6 @@
 
 namespace input {
 
-
-    //TODO(Totto): use these additional mappings!
-    // see: https://github.com/mdqinc/SDL_GameControllerDB?tab=readme-ov-file
-
     struct ControllerInput : JoystickLikeInput {
     private:
         SDL_GameController* m_controller;

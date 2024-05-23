@@ -3,6 +3,7 @@
 #include "joystick_input.hpp"
 #include "controller_input.hpp"
 #include "helper/expected.hpp"
+#include "helper/graphic_utils.hpp"
 #include "helper/optional.hpp"
 #include "helper/utils.hpp"
 #include "input/game_input.hpp"
@@ -115,6 +116,17 @@ void input::JoyStickInputManager::discover_devices(std::vector<std::unique_ptr<I
         spdlog::warn("Failed to set the JOYSTICK_ALLOW_BACKGROUND_EVENTS hint: {}", SDL_GetError());
 
         return;
+    }
+
+    const auto mappings_file = utils::get_assets_folder() / "mappings" / "gamecontrollerdb.txt";
+
+    const auto mapped_number = SDL_GameControllerAddMappingsFromFile(mappings_file.string().c_str());
+
+    if (mapped_number < 0) {
+        // this is just a warning, no need to abort here, since we just have less mappings
+        spdlog::warn("Failed to add new Controller mappings: {}", SDL_GetError());
+    } else {
+        spdlog::debug("Added {} new Controller mappings!", mapped_number);
     }
 
 
