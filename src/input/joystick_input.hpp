@@ -232,12 +232,33 @@ namespace input {
     } while (false)
 
 
-    struct JoystickGameInput : public GameInput, public EventListener {
+    struct JoystickLikeGameInput : public GameInput, public EventListener {
     private:
         std::vector<SDL_Event> m_event_buffer;
         EventDispatcher* m_event_dispatcher;
 
+    public:
+        explicit JoystickLikeGameInput(EventDispatcher* event_dispatcher, JoystickLikeType type);
 
+        ~JoystickLikeGameInput() override;
+
+        JoystickLikeGameInput(const JoystickLikeGameInput& input) = delete;
+        [[nodiscard]] JoystickLikeGameInput& operator=(const JoystickLikeGameInput& input) = delete;
+
+        JoystickLikeGameInput(JoystickLikeGameInput&& input) noexcept;
+        [[nodiscard]] JoystickLikeGameInput& operator=(JoystickLikeGameInput&& input) noexcept;
+
+        void handle_event(const SDL_Event& event) override;
+
+        void update(SimulationStep simulation_step_index) override;
+
+    protected:
+        [[nodiscard]] virtual helper::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event) const = 0;
+    };
+
+
+    struct JoystickGameInput : public JoystickLikeGameInput {
+    private:
         JoystickInput* m_underlying_input;
 
     protected:
@@ -246,17 +267,6 @@ namespace input {
     public:
         JoystickGameInput(EventDispatcher* event_dispatcher, JoystickInput* underlying_input);
 
-        ~JoystickGameInput() override;
-
-        JoystickGameInput(const JoystickGameInput& input) = delete;
-        [[nodiscard]] JoystickGameInput& operator=(const JoystickGameInput& input) = delete;
-
-        JoystickGameInput(JoystickGameInput&& input) noexcept;
-        [[nodiscard]] JoystickGameInput& operator=(JoystickGameInput&& input) noexcept;
-
-        void handle_event(const SDL_Event& event) override;
-
-        void update(SimulationStep simulation_step_index) override;
 
         [[nodiscard]] static helper::expected<std::shared_ptr<input::JoystickGameInput>, std::string>
         get_game_input_by_settings(
@@ -266,8 +276,6 @@ namespace input {
         );
 
     protected:
-        [[nodiscard]] virtual helper::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event) const = 0;
-
         template<typename T>
         [[nodiscard]] static helper::expected<AbstractJoystickSettings<T>, std::string>
         try_resolve_settings(const JoystickSettings& settings, const MappingType<T>& map) {
@@ -291,7 +299,7 @@ namespace input {
     struct ConsoleJoystickGameInput : public JoystickGameInput {
     private:
         AbstractJoystickSettings<console::SettingsType> m_settings;
-        ConsoleJoystickInput* m_underlying_joystick_input;
+        ConsoleJoystickInput* m_underlying_input;
 
     public:
         ConsoleJoystickGameInput(

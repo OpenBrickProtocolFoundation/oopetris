@@ -17,8 +17,8 @@
 
 
 input::JoystickLikeInput::JoystickLikeInput(SDL_JoystickID instance_id, const std::string& name, JoystickLikeType type)
-    : input::Input{ name, type == JoystickLikeType::Joystick ? input::InputType::JoyStick
-                                                             : input::InputType::GameController },
+    : input::Input{ name,
+                    type == JoystickLikeType::Joystick ? input::InputType::JoyStick : input::InputType::Controller },
       m_instance_id{ instance_id } { }
 
 
@@ -633,31 +633,28 @@ input::_3DSJoystickInput_Type1::default_settings_raw() const {
 #endif
 #endif
 
-input::JoystickGameInput::JoystickGameInput(EventDispatcher* event_dispatcher, JoystickInput* underlying_input)
-    : GameInput{ GameInputType::Controller },
-      m_event_dispatcher{ event_dispatcher },
-      m_underlying_input{ underlying_input } {
+
+input::JoystickLikeGameInput::JoystickLikeGameInput(EventDispatcher* event_dispatcher, JoystickLikeType type)
+    : GameInput{ type == JoystickLikeType::Joystick ? input::GameInputType::JoyStick
+                                                    : input::GameInputType::Controller },
+      m_event_dispatcher{ event_dispatcher } {
     m_event_dispatcher->register_listener(this);
 }
 
 
-input::JoystickGameInput::~JoystickGameInput() {
+input::JoystickLikeGameInput::~JoystickLikeGameInput() {
     m_event_dispatcher->unregister_listener(this);
 }
 
-input::JoystickGameInput::JoystickGameInput(JoystickGameInput&& input) noexcept = default;
-[[nodiscard]] input::JoystickGameInput& input::JoystickGameInput::operator=(JoystickGameInput&& input
+input::JoystickLikeGameInput::JoystickLikeGameInput(JoystickLikeGameInput&& input) noexcept = default;
+[[nodiscard]] input::JoystickLikeGameInput& input::JoystickLikeGameInput::operator=(JoystickLikeGameInput&& input
 ) noexcept = default;
 
-[[nodiscard]] const input::JoystickInput* input::JoystickGameInput::underlying_input() const {
-    return m_underlying_input;
-}
-
-void input::JoystickGameInput::handle_event(const SDL_Event& event) {
+void input::JoystickLikeGameInput::handle_event(const SDL_Event& event) {
     m_event_buffer.push_back(event);
 }
 
-void input::JoystickGameInput::update(SimulationStep simulation_step_index) {
+void input::JoystickLikeGameInput::update(SimulationStep simulation_step_index) {
     for (const auto& event : m_event_buffer) {
         const auto input_event = sdl_event_to_input_event(event);
         if (input_event.has_value()) {
@@ -669,6 +666,14 @@ void input::JoystickGameInput::update(SimulationStep simulation_step_index) {
     GameInput::update(simulation_step_index);
 }
 
+
+input::JoystickGameInput::JoystickGameInput(EventDispatcher* event_dispatcher, JoystickInput* underlying_input)
+    : JoystickLikeGameInput{ event_dispatcher, JoystickLikeType::Joystick },
+      m_underlying_input{ underlying_input } { }
+
+[[nodiscard]] const input::JoystickInput* input::JoystickGameInput::underlying_input() const {
+    return m_underlying_input;
+}
 
 namespace {
     [[nodiscard]] helper::optional<std::shared_ptr<input::JoystickGameInput>> get_game_joystick_by_guid(
@@ -814,10 +819,9 @@ input::ConsoleJoystickGameInput::ConsoleJoystickGameInput(
         throw std::runtime_error("Invalid input received");
     }
 
-    m_underlying_joystick_input = console_input.value();
+    m_underlying_input = console_input.value();
 
-    auto validate_settings =
-            JoystickGameInput::try_resolve_settings(settings, m_underlying_joystick_input->key_mappings());
+    auto validate_settings = JoystickGameInput::try_resolve_settings(settings, m_underlying_input->key_mappings());
     if (validate_settings.has_value()) {
         m_settings = validate_settings.value();
     } else {
@@ -825,7 +829,7 @@ input::ConsoleJoystickGameInput::ConsoleJoystickGameInput(
         spdlog::warn("Invalid settings: {}", validate_settings.error());
         spdlog::warn("using default settings");
 
-        m_settings = m_underlying_joystick_input->default_settings_raw();
+        m_settings = m_underlying_input->default_settings_raw();
     }
 }
 
@@ -920,9 +924,9 @@ helper::optional<InputEvent> input::ConsoleJoystickGameInput::sdl_event_to_input
 [[nodiscard]] std::string input::ConsoleJoystickGameInput::describe_menu_event(MenuEvent event) const {
     switch (event) {
         case input::MenuEvent::Pause:
-            return m_underlying_joystick_input->key_to_string(m_settings.pause);
+            return m_underlying_input->key_to_string(m_settings.pause);
         case input::MenuEvent::OpenSettings:
-            return m_underlying_joystick_input->key_to_string(m_settings.open_settings);
+            return m_underlying_input->key_to_string(m_settings.open_settings);
         default:
             utils::unreachable();
     }

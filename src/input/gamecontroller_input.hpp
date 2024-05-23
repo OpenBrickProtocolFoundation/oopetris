@@ -8,6 +8,38 @@
 
 namespace input {
 
+
+    //TODO(Totto): use these additional mappings!
+    // see: https://github.com/mdqinc/SDL_GameControllerDB?tab=readme-ov-file
+
+    struct ControllerInput : JoystickLikeInput {
+    private:
+        SDL_GameController* m_controller;
+
+    public:
+        ControllerInput(SDL_GameController* m_controller, SDL_JoystickID instance_id, const std::string& name);
+
+        ~ControllerInput() override;
+
+        ControllerInput(const ControllerInput& input) noexcept;
+        ControllerInput& operator=(const ControllerInput& input) noexcept;
+
+        ControllerInput(ControllerInput&& input) noexcept;
+        ControllerInput& operator=(ControllerInput&& input) noexcept;
+
+        [[nodiscard]] static helper::expected<std::unique_ptr<ControllerInput>, std::string> get_by_device_index(
+                int device_index
+        );
+
+        [[nodiscard]] helper::optional<NavigationEvent> get_navigation_event(const SDL_Event& event) const override;
+
+        [[nodiscard]] std::string describe_navigation_event(NavigationEvent event) const override;
+
+    private:
+        [[nodiscard]] helper::optional<input::NavigationEvent> handle_axis_navigation_event(const SDL_Event& event
+        ) const;
+    };
+
     struct ControllerSettings {
         sdl::ControllerKey rotate_left;
         sdl::ControllerKey rotate_right;
@@ -38,39 +70,30 @@ namespace input {
     };
 
 
-    //TODO(Totto): use these additional mappings!
-    // see: https://github.com/mdqinc/SDL_GameControllerDB?tab=readme-ov-file
-
-
-    struct ControllerInput : JoystickLikeInput {
+    struct ControllerGameInput : public JoystickLikeGameInput {
     private:
-        SDL_GameController* m_controller;
+        ControllerSettings m_settings;
+        ControllerInput* m_underlying_input;
+
+
+    protected:
+        [[nodiscard]] const ControllerInput* underlying_input() const;
 
     public:
-        ControllerInput(SDL_GameController* m_controller, SDL_JoystickID instance_id, const std::string& name);
-
-        ~ControllerInput() override;
-
-        ControllerInput(const ControllerInput& input) noexcept;
-        ControllerInput& operator=(const ControllerInput& input) noexcept;
-
-        ControllerInput(ControllerInput&& input) noexcept;
-        ControllerInput& operator=(ControllerInput&& input) noexcept;
-
-        [[nodiscard]] static helper::expected<std::unique_ptr<ControllerInput>, std::string> get_by_device_index(
-                int device_index
+        ControllerGameInput(
+                ControllerSettings settings,
+                EventDispatcher* event_dispatcher,
+                ControllerInput* underlying_input
         );
 
-        [[nodiscard]] helper::optional<NavigationEvent> get_navigation_event(const SDL_Event& event) const override;
+        [[nodiscard]] helper::optional<MenuEvent> get_menu_event(const SDL_Event& event) const override;
 
-        [[nodiscard]] std::string describe_navigation_event(NavigationEvent event) const override;
+        [[nodiscard]] std::string describe_menu_event(MenuEvent event) const override;
 
-    private:
-        [[nodiscard]] helper::optional<input::NavigationEvent> handle_axis_navigation_event(const SDL_Event& event
-        ) const;
-
-        // Add get_game_input method!
+    protected:
+        [[nodiscard]] helper::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event) const override;
     };
+
 
 } // namespace input
 
@@ -78,7 +101,7 @@ namespace input {
 namespace json_helper {
 
 
-    [[nodiscard]] sdl::ControllerKey get_key(const nlohmann::json& obj, const std::string& name);
+    [[nodiscard]] sdl::ControllerKey get_controller_key(const nlohmann::json& obj, const std::string& name);
 
 } // namespace json_helper
 
@@ -93,20 +116,20 @@ namespace nlohmann {
                            "hold", "menu" }
             );
 
-            const auto rotate_left = json_helper::get_key(obj, "rotate_left");
-            const auto rotate_right = json_helper::get_key(obj, "rotate_right");
-            const auto move_left = json_helper::get_key(obj, "move_left");
-            const auto move_right = json_helper::get_key(obj, "move_right");
-            const auto move_down = json_helper::get_key(obj, "move_down");
-            const auto drop = json_helper::get_key(obj, "drop");
-            const auto hold = json_helper::get_key(obj, "hold");
+            const auto rotate_left = json_helper::get_controller_key(obj, "rotate_left");
+            const auto rotate_right = json_helper::get_controller_key(obj, "rotate_right");
+            const auto move_left = json_helper::get_controller_key(obj, "move_left");
+            const auto move_right = json_helper::get_controller_key(obj, "move_right");
+            const auto move_down = json_helper::get_controller_key(obj, "move_down");
+            const auto drop = json_helper::get_controller_key(obj, "drop");
+            const auto hold = json_helper::get_controller_key(obj, "hold");
 
             const auto& menu = obj.at("menu");
 
             ::json::check_for_no_additional_keys(menu, { "pause", "open_settings" });
 
-            const auto pause = json_helper::get_key(menu, "pause");
-            const auto open_settings = json_helper::get_key(menu, "open_settings");
+            const auto pause = json_helper::get_controller_key(menu, "pause");
+            const auto open_settings = json_helper::get_controller_key(menu, "open_settings");
 
             auto settings = input::ControllerSettings{ .rotate_left = rotate_left,
                                                        .rotate_right = rotate_right,

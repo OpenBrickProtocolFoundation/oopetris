@@ -1,7 +1,9 @@
 
 
 #include "gamecontroller_input.hpp"
+#include "SDL_gamecontroller.h"
 #include "input/input.hpp"
+#include "input/joystick_input.hpp"
 #include "manager/sdl_controller_key.hpp"
 
 
@@ -180,7 +182,131 @@ input::ControllerInput::get_by_device_index(int device_index) {
 }
 
 
-sdl::ControllerKey json_helper::get_key(const nlohmann::json& obj, const std::string& name) {
+[[nodiscard]] helper::expected<bool, std::string> input::ControllerSettings::validate() const {
+
+    const std::vector<sdl::ControllerKey> to_use{ rotate_left, rotate_right, move_left, move_right,   move_down,
+                                                  drop,        hold,         pause,     open_settings };
+
+    return input::InputSettings::has_unique_members(to_use);
+}
+
+
+input::ControllerGameInput::ControllerGameInput(
+        ControllerSettings settings,
+        EventDispatcher* event_dispatcher,
+        ControllerInput* underlying_input
+)
+    : JoystickLikeGameInput{ event_dispatcher, JoystickLikeType::Controller },
+      m_settings{ settings },
+      m_underlying_input{ underlying_input } { }
+
+[[nodiscard]] const input::ControllerInput* input::ControllerGameInput::underlying_input() const {
+    return m_underlying_input;
+}
+
+
+[[nodiscard]] helper::optional<input::MenuEvent> input::ControllerGameInput::get_menu_event(const SDL_Event& event
+) const {
+    if (event.type == SDL_CONTROLLERBUTTONDOWN) {
+
+        if (event.cbutton.which != underlying_input()->instance_id()) {
+            return helper::nullopt;
+        }
+
+        const auto button = sdl::ControllerKey{ static_cast<SDL_GameControllerButton>(event.cbutton.button) };
+
+        if (button == m_settings.pause) {
+            return MenuEvent::Pause;
+        }
+        if (button == m_settings.open_settings) {
+            return MenuEvent::OpenSettings;
+        }
+    }
+
+    return helper::nullopt;
+    //
+}
+
+[[nodiscard]] std::string input::ControllerGameInput::describe_menu_event(MenuEvent event) const {
+    switch (event) {
+        case input::MenuEvent::Pause:
+            return m_settings.pause.to_string();
+        case input::MenuEvent::OpenSettings:
+            return m_settings.open_settings.to_string();
+        default:
+            utils::unreachable();
+    }
+    //
+}
+
+
+[[nodiscard]] helper::optional<InputEvent> input::ControllerGameInput::sdl_event_to_input_event(const SDL_Event& event
+) const {
+    if (event.type == SDL_CONTROLLERBUTTONDOWN) {
+
+        if (event.cbutton.which != underlying_input()->instance_id()) {
+            return helper::nullopt;
+        }
+
+        //TODO(Totto): use switch case
+        const auto button = sdl::ControllerKey{ static_cast<SDL_GameControllerButton>(event.cbutton.button) };
+
+        if (button == m_settings.rotate_left) {
+            return InputEvent::RotateLeftPressed;
+        }
+        if (button == m_settings.rotate_right) {
+            return InputEvent::RotateRightPressed;
+        }
+        if (button == m_settings.move_down) {
+            return InputEvent::MoveDownPressed;
+        }
+        if (button == m_settings.move_left) {
+            return InputEvent::MoveLeftPressed;
+        }
+        if (button == m_settings.move_right) {
+            return InputEvent::MoveRightPressed;
+        }
+        if (button == m_settings.drop) {
+            return InputEvent::DropPressed;
+        }
+        if (button == m_settings.hold) {
+            return InputEvent::HoldPressed;
+        }
+    } else if (event.type == SDL_CONTROLLERBUTTONUP) {
+
+        if (event.cbutton.which != underlying_input()->instance_id()) {
+            return helper::nullopt;
+        }
+
+        const auto button = sdl::ControllerKey{ static_cast<SDL_GameControllerButton>(event.cbutton.button) };
+
+        if (button == m_settings.rotate_left) {
+            return InputEvent::RotateLeftReleased;
+        }
+        if (button == m_settings.rotate_right) {
+            return InputEvent::RotateRightReleased;
+        }
+        if (button == m_settings.move_down) {
+            return InputEvent::MoveDownReleased;
+        }
+        if (button == m_settings.move_left) {
+            return InputEvent::MoveLeftReleased;
+        }
+        if (button == m_settings.move_right) {
+            return InputEvent::MoveRightReleased;
+        }
+        if (button == m_settings.drop) {
+            return InputEvent::DropReleased;
+        }
+        if (button == m_settings.hold) {
+            return InputEvent::HoldReleased;
+        }
+    }
+    return helper::nullopt;
+}
+
+
+sdl::ControllerKey json_helper::get_controller_key(const nlohmann::json& obj, const std::string& name) {
 
     auto context = obj.at(name);
 

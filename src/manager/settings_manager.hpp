@@ -1,6 +1,7 @@
 #pragma once
 
 #include "helper/optional.hpp"
+#include "input/gamecontroller_input.hpp"
 #include "input/joystick_input.hpp"
 #include "input/keyboard_input.hpp"
 #include "input/touch_input.hpp"
@@ -9,7 +10,8 @@
 #include <fmt/format.h>
 #include <variant>
 
-using Controls = std::variant<input::KeyboardSettings, input::JoystickSettings, input::TouchSettings>;
+using Controls =
+        std::variant<input::KeyboardSettings, input::JoystickSettings, input::TouchSettings, input::ControllerSettings>;
 
 namespace nlohmann {
     template<>
@@ -23,6 +25,10 @@ namespace nlohmann {
 
             if (type == "joystick") {
                 return Controls{ nlohmann::adl_serializer<input::JoystickSettings>::from_json(obj) };
+            }
+
+            if (type == "controller") {
+                return Controls{ nlohmann::adl_serializer<input::ControllerSettings>::from_json(obj) };
             }
 
             if (type == "touch") {
@@ -41,6 +47,10 @@ namespace nlohmann {
                             },
                             [&](const input::JoystickSettings& joystick_settings) { // NOLINT(misc-no-recursion)
                                 to_json(obj, joystick_settings);
+                                obj["type"] = "joystick";
+                            },
+                            [&](const input::ControllerSettings& controller_settings) { // NOLINT(misc-no-recursion)
+                                to_json(obj, controller_settings);
                                 obj["type"] = "joystick";
                             },
                             [&](const input::TouchSettings& touch_settings) { // NOLINT(misc-no-recursion)
