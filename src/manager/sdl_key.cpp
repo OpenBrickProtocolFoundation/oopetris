@@ -149,9 +149,9 @@ namespace {
 
     [[nodiscard]] std::string sdl_key_name(SDL_KeyCode keycode) {
         const auto* name = SDL_GetKeyName(keycode);
-        if (std::strlen(name) == 0) {
+        if (name == nullptr or std::strlen(name) == 0) {
             throw std::runtime_error(fmt::format(
-                    "No name for the sdl key {}: {}", static_cast<std::underlying_type_t<decltype(keycode)>>(keycode),
+                    "No name for the SDL key {}: {}", static_cast<std::underlying_type_t<decltype(keycode)>>(keycode),
                     SDL_GetError()
             ));
         }
@@ -447,7 +447,7 @@ helper::expected<sdl::Key, std::string> sdl::Key::from_string(const std::string&
     const auto key = SDL_GetKeyFromName(value.c_str());
     if (key == SDLK_UNKNOWN) {
         return helper::unexpected<std::string>{
-            fmt::format("No sdl key for the name '{}': {}", value, SDL_GetError())
+            fmt::format("No SDL key for the name '{}': {}", value, SDL_GetError())
         };
     }
 

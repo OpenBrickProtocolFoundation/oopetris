@@ -19,7 +19,7 @@
 
 namespace input {
 
-    enum class InputType : u8 { Keyboard, Pointer, JoyStick };
+    enum class InputType : u8 { Keyboard, Pointer, JoyStick, GameController };
 
     enum class NavigationEvent : u8 { OK, DOWN, UP, LEFT, RIGHT, BACK, TAB };
 

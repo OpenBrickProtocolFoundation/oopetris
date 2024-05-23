@@ -1,6 +1,10 @@
 
 
 #include "joystick_input.hpp"
+#include "SDL.h"
+#include "SDL_gamecontroller.h"
+#include "SDL_stdinc.h"
+#include "gamecontroller_input.hpp"
 #include "helper/expected.hpp"
 #include "helper/optional.hpp"
 #include "helper/utils.hpp"
@@ -9,14 +13,23 @@
 
 #include <algorithm>
 #include <exception>
-#include <ranges>
 #include <spdlog/spdlog.h>
 
 
-input::JoystickInput::JoystickInput(SDL_Joystick* joystick, SDL_JoystickID instance_id, const std::string& name)
-    : input::Input{ name, input::InputType::JoyStick },
-      m_joystick{ joystick },
+input::JoystickLikeInput::JoystickLikeInput(SDL_JoystickID instance_id, const std::string& name, JoystickLikeType type)
+    : input::Input{ name, type == JoystickLikeType::Joystick ? input::InputType::JoyStick
+                                                             : input::InputType::GameController },
       m_instance_id{ instance_id } { }
+
+
+[[nodiscard]] SDL_JoystickID input::JoystickLikeInput::instance_id() const {
+    return m_instance_id;
+}
+
+
+input::JoystickInput::JoystickInput(SDL_Joystick* joystick, SDL_JoystickID instance_id, const std::string& name)
+    : input::JoystickLikeInput{ instance_id, name, JoystickLikeType::Joystick },
+      m_joystick{ joystick } { }
 
 
 input::JoystickInput::~JoystickInput() {
@@ -59,8 +72,84 @@ input::JoystickInput& input::JoystickInput::operator=(JoystickInput&& input) noe
 }
 
 
-[[nodiscard]] helper::expected<std::unique_ptr<input::JoystickInput>, std::string>
-input::JoystickInput::get_by_device_index(int device_index) {
+[[nodiscard]] sdl::GUID input::JoystickInput::guid() const {
+    const auto guid = sdl::GUID{ SDL_JoystickGetGUID(m_joystick) };
+
+    if (guid == sdl::GUID{}) {
+        throw std::runtime_error{ fmt::format("Failed to get joystick GUID: {}", SDL_GetError()) };
+    }
+
+    return guid;
+}
+
+void input::JoyStickInputManager::discover_devices(std::vector<std::unique_ptr<Input>>& inputs) {
+    //initialize joystick input, this needs to call some sdl things
+
+    const auto result = SDL_InitSubSystem(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER);
+
+    if (result != 0) {
+        spdlog::warn("Failed to initialize the joystick / game controller system: {}", SDL_GetError());
+        return;
+    }
+
+
+    const auto enable_result = SDL_JoystickEventState(SDL_ENABLE);
+
+    if (enable_result != 1) {
+        const auto* const error = enable_result == 0 ? "it was disabled" : SDL_GetError();
+        spdlog::warn("Failed to set JoystickEventState (automatic polling by SDL): {}", error);
+
+        return;
+    }
+
+    const auto enable_controller_result = SDL_GameControllerEventState(SDL_ENABLE);
+
+    if (enable_controller_result != 1) {
+        const auto* const error = enable_result == 0 ? "it was disabled" : SDL_GetError();
+        spdlog::warn("Failed to set GameControllerEventState (automatic polling by SDL): {}", error);
+
+        return;
+    }
+
+
+    const auto allow_background_events_result = SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
+
+    if (allow_background_events_result != SDL_TRUE) {
+        spdlog::warn("Failed to set the JOYSTICK_ALLOW_BACKGROUND_EVENTS hint: {}", SDL_GetError());
+
+        return;
+    }
+
+
+    const auto num_of_joysticks = SDL_NumJoysticks();
+
+    if (num_of_joysticks < 0) {
+        spdlog::warn("Failed to get number of joysticks: {}", SDL_GetError());
+        return;
+    }
+
+    spdlog::debug("Found {} Joysticks", num_of_joysticks);
+
+    for (auto i = 0; i < num_of_joysticks; ++i) {
+
+        auto joystick = JoyStickInputManager::get_by_device_index(i);
+        if (joystick.has_value()) {
+            inputs.push_back(std::move(joystick.value()));
+        } else {
+            spdlog::warn("Failed to configure joystick: {}", joystick.error());
+        }
+    }
+}
+
+
+[[nodiscard]] helper::expected<std::unique_ptr<input::JoystickLikeInput>, std::string>
+input::JoyStickInputManager::get_by_device_index(int device_index) {
+    const auto is_game_controller = SDL_IsGameController(device_index);
+
+
+    if (is_game_controller == SDL_TRUE) {
+        return input::ControllerInput::get_by_device_index(device_index);
+    }
 
     auto* joystick = SDL_JoystickOpen(device_index);
 
@@ -70,7 +159,6 @@ input::JoystickInput::get_by_device_index(int device_index) {
         };
     }
 
-    //TODO(Totto): add support for gamecontrollers (SDL_IsGameController)
 
     const auto instance_id = SDL_JoystickInstanceID(joystick);
 
@@ -103,129 +191,90 @@ input::JoystickInput::get_by_device_index(int device_index) {
     ) };
 }
 
-[[nodiscard]] SDL_JoystickID input::JoystickInput::instance_id() const {
-    return m_instance_id;
+
+void input::JoyStickInputManager::add_new_device(
+        i32 device_id,
+        std::vector<std::unique_ptr<Input>>& inputs,
+        JoystickLikeType type
+) {
+    auto joystick = input::JoyStickInputManager::get_by_device_index(device_id);
+    if (joystick.has_value()) {
+
+        // sometimes, when initializing the subsystem, we scan the devices, add them, but a device added event is fired after that, so we don't need to add it twice
+        if (std::ranges::find_if(
+                    inputs,
+                    [&joystick](const auto& input) -> bool {
+                        if (const auto joystick_input = utils::is_child_class<input::JoystickLikeInput>(input)) {
+                            return joystick_input.value()->instance_id() == joystick.value()->instance_id();
+                        }
+                        return false;
+                    }
+            )
+            != inputs.end()) {
+            return;
+        }
+
+        inputs.push_back(std::move(joystick.value()));
+    } else {
+        spdlog::warn(
+                "Failed to add newly attached {}: {}",
+                type == input::JoystickLikeType::Joystick ? "joystick" : "controller", joystick.error()
+        );
+    }
 }
 
-[[nodiscard]] sdl::GUID input::JoystickInput::guid() const {
-    const auto guid = sdl::GUID{ SDL_JoystickGetGUID(m_joystick) };
 
-    if (guid == sdl::GUID{}) {
-        throw std::runtime_error{ fmt::format("Failed to get joystick GUID: {}", SDL_GetError()) };
-    }
+void input::JoyStickInputManager::remove_device(
+        i32 instance_id,
+        std::vector<std::unique_ptr<Input>>& inputs,
+        JoystickLikeType type
+) {
+    for (auto it = inputs.cbegin(); it != inputs.cend(); it++) {
 
-    return guid;
-}
+        if (const auto joystick_input = utils::is_child_class<input::JoystickInput>(*it); joystick_input.has_value()) {
 
-void input::JoyStickInputManager::discover_devices(std::vector<std::unique_ptr<Input>>& inputs) {
+            if (joystick_input.value()->instance_id() == instance_id) {
+                //TODO(Totto): if we use this joystick as game input we have to notify the user about it,and pause the game, until he is inserted again
 
-    //initialize joystick input, this needs to call some sdl things
-
-    const auto result = SDL_InitSubSystem(SDL_INIT_JOYSTICK);
-
-    if (result != 0) {
-        spdlog::warn("Failed to initialize the joystick system: {}", SDL_GetError());
-        return;
-    }
-
-
-    const auto enable_result = SDL_JoystickEventState(SDL_ENABLE);
-
-    if (enable_result != 1) {
-        const auto* const error = enable_result == 0 ? "it was disabled" : SDL_GetError();
-        spdlog::warn("Failed to set JoystickEventState (automatic polling by SDL): {}", error);
-
-        return;
-    }
-
-
-    const auto allow_background_events_result = SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
-
-    if (allow_background_events_result != SDL_TRUE) {
-        spdlog::warn("Failed to set the JOYSTICK_ALLOW_BACKGROUND_EVENTS hint: {}", SDL_GetError());
-
-        return;
-    }
-
-
-    const auto num_of_joysticks = SDL_NumJoysticks();
-
-    if (num_of_joysticks < 0) {
-        spdlog::warn("Failed to get number of joysticks: {}", SDL_GetError());
-        return;
-    }
-
-    spdlog::debug("Found {} Joysticks", num_of_joysticks);
-
-    for (auto i = 0; i < num_of_joysticks; ++i) {
-
-        auto joystick = JoystickInput::get_by_device_index(i);
-        if (joystick.has_value()) {
-            inputs.push_back(std::move(joystick.value()));
-        } else {
-            spdlog::warn("Failed to configure joystick: {}", joystick.error());
+                inputs.erase(it);
+                return;
+            }
         }
     }
-}
 
+    spdlog::warn(fmt::format(
+            "Failed to remove removed {} from internal input vector (maybe he was not recognized in the first place)",
+            type == input::JoystickLikeType::Joystick ? "joystick" : "controller"
+    ));
+}
 
 [[nodiscard]] bool input::JoyStickInputManager::process_special_inputs(
         const SDL_Event& event,
         std::vector<std::unique_ptr<Input>>& inputs
 ) {
-
     switch (event.type) {
         case SDL_JOYDEVICEADDED: {
             const auto device_id = event.jdevice.which;
-
-
-            auto joystick = JoystickInput::get_by_device_index(device_id);
-            if (joystick.has_value()) {
-
-
-                // sometimes, when initializing the subsystem, we scan the devices, add them, but a device added event is fired after that, so we don't need to add it twice
-                if (std::ranges::find_if(
-                            inputs,
-                            [&joystick](const auto& input) -> bool {
-                                if (const auto joystick_input = utils::is_child_class<input::JoystickInput>(input)) {
-                                    return joystick_input.value()->instance_id() == joystick.value()->instance_id();
-                                }
-                                return false;
-                            }
-                    )
-                    != inputs.end()) {
-                    return true;
-                }
-
-                inputs.push_back(std::move(joystick.value()));
-            } else {
-                spdlog::warn("Failed to add newly attached joystick: {}", joystick.error());
-            }
+            add_new_device(device_id, inputs, JoystickLikeType::Joystick);
             return true;
         }
         case SDL_JOYDEVICEREMOVED: {
             const auto instance_id = event.jdevice.which;
-            for (auto it = inputs.cbegin(); it != inputs.cend(); it++) {
-
-                if (const auto joystick_input = utils::is_child_class<input::JoystickInput>(*it);
-                    joystick_input.has_value()) {
-
-                    if (joystick_input.value()->instance_id() == instance_id) {
-                        //TODO(Totto): if we use this joystick as game input we have to notify the user about it,and pause the game, until he is inserted again
-
-                        inputs.erase(it);
-                        return true;
-                    }
-                }
-            }
-
-            spdlog::warn(
-                    "Failed to remove removed joystick from internal joystick vector (he was not recognized in the "
-                    "first place)"
-            );
-
+            remove_device(instance_id, inputs, JoystickLikeType::Joystick);
             return true;
         }
+
+        case SDL_CONTROLLERDEVICEADDED: {
+            const auto device_id = event.cdevice.which;
+            add_new_device(device_id, inputs, JoystickLikeType::Controller);
+            return true;
+        }
+        case SDL_CONTROLLERDEVICEREMOVED: {
+            const auto instance_id = event.cdevice.which;
+            remove_device(instance_id, inputs, JoystickLikeType::Controller);
+            return true;
+        }
+
         default:
             return false;
     }
@@ -274,7 +323,6 @@ input::SwitchJoystickInput_Type1::SwitchJoystickInput_Type1(
 [[nodiscard]] helper::optional<input::NavigationEvent> input::SwitchJoystickInput_Type1::get_navigation_event(
         const SDL_Event& event
 ) const {
-
     if (event.type == SDL_JOYBUTTONDOWN) {
 
         if (event.jbutton.which != instance_id()) {
@@ -390,7 +438,6 @@ input::SwitchJoystickInput_Type1::SwitchJoystickInput_Type1(
 [[nodiscard]] input::JoystickSettings input::SwitchJoystickInput_Type1::to_normal_settings(
         const AbstractJoystickSettings<input::console::SettingsType>& settings
 ) const {
-
     JoystickSettings result{};
 
 #define X_LIST_MACRO(x) SETTINGS_TO_STRING(settings, result, key_to_string, x);
@@ -552,7 +599,6 @@ input::_3DSJoystickInput_Type1::_3DSJoystickInput_Type1(
 [[nodiscard]] input::JoystickSettings input::_3DSJoystickInput_Type1::to_normal_settings(
         const AbstractJoystickSettings<input::console::SettingsType>& settings
 ) const {
-
     JoystickSettings result{};
 
 #define X_LIST_MACRO(x) SETTINGS_TO_STRING(settings, result, key_to_string, x);
@@ -625,7 +671,6 @@ void input::JoystickGameInput::update(SimulationStep simulation_step_index) {
 
 
 namespace {
-
     [[nodiscard]] helper::optional<std::shared_ptr<input::JoystickGameInput>> get_game_joystick_by_guid(
             const sdl::GUID& guid,
             const input::JoystickSettings& settings,
@@ -662,8 +707,6 @@ input::JoystickGameInput::get_game_input_by_settings(
         EventDispatcher* event_dispatcher,
         const JoystickSettings& settings
 ) {
-
-
     for (const auto& input : input_manager.inputs()) {
         if (const auto joystick_input = utils::is_child_class<input::JoystickInput>(input);
             joystick_input.has_value()) {
@@ -717,7 +760,10 @@ input::ConsoleJoystickInput::ConsoleJoystickInput(
 
         //TODO(Totto). maybe make this configurable
         // this constant is here, that slight touches aren't counted as inputs ( really slight wiggles might occur unintentinoally) NOTE: that most inputs use all 16 bits for a normal press, so that this value can be that "big"!
-        constexpr auto axis_threshold = 1000;
+        //note: most implementations for a specific controller emit SDL_JOYSTICK_AXIS_MAX or 0 most of the time
+        constexpr double axis_threshold_percentage = 0.7;
+        constexpr auto axis_threshold =
+                static_cast<i16>(static_cast<double>(SDL_JOYSTICK_AXIS_MAX) * axis_threshold_percentage);
 
         if (event.jaxis.which != instance_id()) {
             return helper::nullopt;
@@ -762,7 +808,6 @@ input::ConsoleJoystickGameInput::ConsoleJoystickGameInput(
         JoystickInput* underlying_input
 )
     : JoystickGameInput{ event_dispatcher, underlying_input } {
-
     auto console_input = utils::is_child_class<ConsoleJoystickInput>(underlying_input);
 
     if (not console_input.has_value()) {
@@ -852,7 +897,6 @@ helper::optional<InputEvent> input::ConsoleJoystickGameInput::sdl_event_to_input
 
 [[nodiscard]] helper::optional<input::MenuEvent> input::ConsoleJoystickGameInput::get_menu_event(const SDL_Event& event
 ) const {
-
     if (event.type == SDL_JOYBUTTONDOWN) {
 
         if (event.jbutton.which != underlying_input()->instance_id()) {
@@ -889,7 +933,6 @@ helper::optional<InputEvent> input::ConsoleJoystickGameInput::sdl_event_to_input
 
 
 std::string json_helper::get_key_from_object(const nlohmann::json& obj, const std::string& name) {
-
     std::string input;
     obj.at(name).get_to(input);
 

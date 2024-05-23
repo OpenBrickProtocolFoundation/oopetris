@@ -55,23 +55,23 @@ namespace input {
     using JoystickSettings = AbstractJoystickSettings<std::string>;
 
 
-    /**
- * @brief 
- *
- * @note regarding the NOLINT: the destructor just cleans up the SDL_Joystick, it has nothing to do with class members that would need special member functions to be explicitly defined
- * 
- */
-    struct JoystickInput : Input {
+    enum class JoystickLikeType { Joystick, Controller };
+
+
+    struct JoystickLikeInput : Input {
     private:
-        SDL_Joystick* m_joystick;
         SDL_JoystickID m_instance_id;
 
-        [[nodiscard]] static helper::optional<std::unique_ptr<JoystickInput>> get_joystick_by_guid(
-                const sdl::GUID& guid,
-                SDL_Joystick* joystick,
-                SDL_JoystickID instance_id,
-                const std::string& name
-        );
+    public:
+        JoystickLikeInput(SDL_JoystickID instance_id, const std::string& name, JoystickLikeType type);
+
+        [[nodiscard]] SDL_JoystickID instance_id() const;
+    };
+
+
+    struct JoystickInput : JoystickLikeInput {
+    private:
+        SDL_Joystick* m_joystick;
 
     public:
         JoystickInput(SDL_Joystick* joystick, SDL_JoystickID instance_id, const std::string& name);
@@ -84,28 +84,32 @@ namespace input {
         JoystickInput(JoystickInput&& input) noexcept;
         JoystickInput& operator=(JoystickInput&& input) noexcept;
 
-        [[nodiscard]] static helper::expected<std::unique_ptr<JoystickInput>, std::string> get_by_device_index(
-                int device_index
-        );
-
-        [[nodiscard]] SDL_JoystickID instance_id() const;
-
         [[nodiscard]] sdl::GUID guid() const;
 
         [[nodiscard]] virtual JoystickSettings default_settings() const = 0;
 
-        // Add get_game_input method!
+        [[nodiscard]] static helper::optional<std::unique_ptr<JoystickInput>> get_joystick_by_guid(
+                const sdl::GUID& guid,
+                SDL_Joystick* joystick,
+                SDL_JoystickID instance_id,
+                const std::string& name
+        );
     };
-
-
-    //TODO(Totto):  also support gamecontroller API
-    // see: https://github.com/mdqinc/SDL_GameControllerDB?tab=readme-ov-file
 
     struct JoyStickInputManager {
         static void discover_devices(std::vector<std::unique_ptr<Input>>& inputs);
 
+        [[nodiscard]] static helper::expected<std::unique_ptr<JoystickLikeInput>, std::string> get_by_device_index(
+                int device_index
+        );
+
         [[nodiscard]] static bool
         process_special_inputs(const SDL_Event& event, std::vector<std::unique_ptr<Input>>& inputs);
+
+    private:
+        static void add_new_device(i32 device_id, std::vector<std::unique_ptr<Input>>& inputs, JoystickLikeType type);
+
+        static void remove_device(i32 instance_id, std::vector<std::unique_ptr<Input>>& inputs, JoystickLikeType type);
     };
 
 
