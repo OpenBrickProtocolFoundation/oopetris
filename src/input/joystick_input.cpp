@@ -11,6 +11,7 @@
 
 #include <algorithm>
 #include <exception>
+#include <filesystem>
 #include <spdlog/spdlog.h>
 
 
@@ -120,13 +121,17 @@ void input::JoyStickInputManager::discover_devices(std::vector<std::unique_ptr<I
 
     const auto mappings_file = utils::get_assets_folder() / "mappings" / "gamecontrollerdb.txt";
 
-    const auto mapped_number = SDL_GameControllerAddMappingsFromFile(mappings_file.string().c_str());
-
-    if (mapped_number < 0) {
-        // this is just a warning, no need to abort here, since we just have less mappings
-        spdlog::warn("Failed to add new Controller mappings: {}", SDL_GetError());
+    if (not std::filesystem::exists(mappings_file)) {
+        spdlog::warn("Mappings file doesn't exist: {}", mappings_file.string());
     } else {
-        spdlog::debug("Added {} new Controller mappings!", mapped_number);
+        const auto mapped_number = SDL_GameControllerAddMappingsFromFile(mappings_file.string().c_str());
+
+        if (mapped_number < 0) {
+            // this is just a warning, no need to abort here, since we just have less mappings
+            spdlog::warn("Failed to add new Controller mappings: {}", SDL_GetError());
+        } else {
+            spdlog::debug("Added {} new Controller mappings!", mapped_number);
+        }
     }
 
 
