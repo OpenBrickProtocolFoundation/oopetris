@@ -1,7 +1,6 @@
 
 
 #include "gamecontroller_input.hpp"
-#include "SDL_gamecontroller.h"
 #include "input/input.hpp"
 #include "input/joystick_input.hpp"
 #include "manager/sdl_controller_key.hpp"
