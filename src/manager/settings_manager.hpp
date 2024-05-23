@@ -1,7 +1,7 @@
 #pragma once
 
 #include "helper/optional.hpp"
-#include "input/gamecontroller_input.hpp"
+#include "input/controller_input.hpp"
 #include "input/joystick_input.hpp"
 #include "input/keyboard_input.hpp"
 #include "input/touch_input.hpp"

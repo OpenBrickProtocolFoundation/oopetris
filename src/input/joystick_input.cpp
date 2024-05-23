@@ -1,10 +1,7 @@
 
 
 #include "joystick_input.hpp"
-#include "SDL.h"
-#include "SDL_gamecontroller.h"
-#include "SDL_stdinc.h"
-#include "gamecontroller_input.hpp"
+#include "controller_input.hpp"
 #include "helper/expected.hpp"
 #include "helper/optional.hpp"
 #include "helper/utils.hpp"

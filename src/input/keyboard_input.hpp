@@ -1,6 +1,5 @@
 #pragma once
 
-#include "SDL_keycode.h"
 #include "game_input.hpp"
 #include "helper/expected.hpp"
 #include "helper/parse_json.hpp"

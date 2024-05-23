@@ -2,7 +2,7 @@
 #include "helper/expected.hpp"
 #include "helper/optional.hpp"
 #include "helper/utils.hpp"
-#include "input/gamecontroller_input.hpp"
+#include "input/controller_input.hpp"
 #include "joystick_input.hpp"
 #include "keyboard_input.hpp"
 #include "manager/settings_manager.hpp"
