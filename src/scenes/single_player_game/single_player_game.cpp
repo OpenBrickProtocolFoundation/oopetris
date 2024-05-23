@@ -9,6 +9,7 @@
 #include "manager/music_manager.hpp"
 #include "scenes/scene.hpp"
 #include "scenes/settings_menu/settings_menu.hpp"
+#include "scenes/single_player_game/game_over.hpp"
 #include "scenes/single_player_game/pause.hpp"
 
 namespace scenes {
@@ -64,7 +65,11 @@ namespace scenes {
         if (m_game->is_game_finished()) {
             return UpdateResult{
                 SceneUpdate::StopUpdating,
-                Scene::Push{ SceneId::GameOver, ui::FullScreenLayout{ m_service_provider->window() } }
+                Scene::RawPush{ "GameOver",
+                               std::make_unique<scenes::SinglePlayerGameOver>(
+                                        m_service_provider, ui::FullScreenLayout{ m_service_provider->window() },
+                               m_game->game_input()
+                                ) }
             };
         }
 

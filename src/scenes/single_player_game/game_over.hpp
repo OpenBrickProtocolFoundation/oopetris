@@ -5,13 +5,18 @@
 
 namespace scenes {
 
-    struct GameOver : public Scene {
+    struct SinglePlayerGameOver : public Scene {
     private:
         bool m_should_exit{ false };
         ui::Label m_text;
+        std::shared_ptr<input::GameInput> m_game_input;
 
     public:
-        explicit GameOver(ServiceProvider* service_provider, const ui::Layout& layout);
+        explicit SinglePlayerGameOver(
+                ServiceProvider* service_provider,
+                const ui::Layout& layout,
+                const std::shared_ptr<input::GameInput>& game_input
+        );
 
         [[nodiscard]] UpdateResult update() override;
 

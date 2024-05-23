@@ -1,6 +1,5 @@
 #include "scenes/scene.hpp"
 #include "about_page/about_page.hpp"
-#include "game_over/game_over.hpp"
 #include "main_menu/main_menu.hpp"
 #include "multiplayer_menu/multiplayer_menu.hpp"
 #include "play_select_menu/play_select_menu.hpp"
@@ -26,8 +25,6 @@ namespace scenes {
                 return std::make_unique<MainMenu>(&service_provider, layout);
             case SceneId::SinglePlayerGame:
                 return std::make_unique<SinglePlayerGame>(&service_provider, layout);
-            case SceneId::GameOver:
-                return std::make_unique<GameOver>(&service_provider, layout);
             case SceneId::SettingsMenu:
                 return std::make_unique<SettingsMenu>(&service_provider, layout);
             case SceneId::AboutPage:
