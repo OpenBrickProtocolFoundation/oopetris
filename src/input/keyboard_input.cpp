@@ -74,7 +74,7 @@ input::KeyboardInput::KeyboardInput() : input::Input{ "keyboard", InputType::Key
         case NavigationEvent::TAB:
             return fmt::format("{}", sdl::Key{ SDLK_TAB });
         default:
-            utils::unreachable();
+            UNREACHABLE();
     }
 }
 
@@ -213,7 +213,7 @@ sdl::Key json_helper::get_key(const nlohmann::json& obj, const std::string& name
         case input::MenuEvent::OpenSettings:
             return m_settings.open_settings.to_string();
         default:
-            utils::unreachable();
+            UNREACHABLE();
     }
 }
 

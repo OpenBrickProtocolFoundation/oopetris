@@ -561,7 +561,7 @@ u8 Tetrion::rotation_to_index(const Rotation from, const Rotation rotation_to) {
     if (from == Rotation::North and rotation_to == Rotation::West) {
         return 7;
     }
-    utils::unreachable();
+    UNREACHABLE();
 }
 
 bool Tetrion::is_tetromino_position_valid(const Tetromino& tetromino) const {
@@ -628,7 +628,7 @@ bool Tetrion::move(const Tetrion::MoveDirection move_direction) {
             return true;
     }
 
-    utils::unreachable();
+    UNREACHABLE();
 }
 
 helper::optional<const Tetrion::WallKickTable*> Tetrion::get_wall_kick_table() const {
@@ -646,6 +646,6 @@ helper::optional<const Tetrion::WallKickTable*> Tetrion::get_wall_kick_table() c
         case helper::TetrominoType::O:
             return {};
         default:
-            utils::unreachable();
+            UNREACHABLE();
     }
 }

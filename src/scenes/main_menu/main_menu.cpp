@@ -140,7 +140,7 @@ namespace scenes {
                 case Command::Exit:
                     return UpdateResult{ SceneUpdate::StopUpdating, Scene::Exit{} };
                 default:
-                    utils::unreachable();
+                    UNREACHABLE();
             }
         }
         return UpdateResult{ SceneUpdate::StopUpdating, helper::nullopt };

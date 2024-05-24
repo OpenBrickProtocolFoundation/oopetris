@@ -208,7 +208,7 @@ struct Color {
                 d_b = x_offset;
                 break;
             default:
-                utils::unreachable();
+                UNREACHABLE();
         }
 
 

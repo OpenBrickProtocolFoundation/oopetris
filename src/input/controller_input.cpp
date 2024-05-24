@@ -126,7 +126,7 @@ input::ControllerInput::get_by_device_index(int device_index) {
         case NavigationEvent::TAB:
             throw std::runtime_error("Tab is not supported");
         default:
-            utils::unreachable();
+            UNREACHABLE();
     }
 }
 
@@ -234,7 +234,7 @@ input::ControllerGameInput::ControllerGameInput(
         case input::MenuEvent::OpenSettings:
             return m_settings.open_settings.to_string();
         default:
-            utils::unreachable();
+            UNREACHABLE();
     }
     //
 }

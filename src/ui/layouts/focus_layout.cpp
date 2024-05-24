@@ -208,7 +208,7 @@ ui::FocusLayout::handle_event_result(const helper::optional<ui::Widget::InnerSta
             return ui::Widget::InnerState{ ui::EventHandleType::RequestAction, value.second };
         }
         default:
-            utils::unreachable();
+            UNREACHABLE();
     }
 }
 

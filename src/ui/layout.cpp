@@ -11,7 +11,7 @@
         case AlignmentHorizontal::Right:
             return layout.get_rect().bottom_right.x - width;
         default:
-            utils::unreachable();
+            UNREACHABLE();
     }
 }
 
@@ -24,7 +24,7 @@
         case AlignmentVertical::Bottom:
             return layout.get_rect().bottom_right.y - height;
         default:
-            utils::unreachable();
+            UNREACHABLE();
     }
 }
 

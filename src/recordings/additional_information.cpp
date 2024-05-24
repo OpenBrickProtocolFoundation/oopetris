@@ -180,7 +180,7 @@ recorder::InformationValue::to_bytes( // NOLINT(misc-no-recursion)
         return bytes;
     }
 
-    utils::unreachable();
+    UNREACHABLE();
 }
 
 [[nodiscard]] std::vector<char> recorder::InformationValue::string_to_bytes(const std::string& value) {

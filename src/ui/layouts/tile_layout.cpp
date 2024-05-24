@@ -9,7 +9,6 @@ void ui::TileLayout::render(const ServiceProvider& service_provider) const {
 }
 
 
-
 [[nodiscard]] ui::Layout ui::TileLayout::get_layout_for_index(u32 index) {
     if (index >= this->size) {
         throw std::runtime_error("TileLayout is already full");

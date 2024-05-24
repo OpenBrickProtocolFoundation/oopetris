@@ -55,7 +55,7 @@ namespace ui {
                             return { true, ActionType::Hover };
 
                         default:
-                            utils::unreachable();
+                            UNREACHABLE();
                     }
                 }
 

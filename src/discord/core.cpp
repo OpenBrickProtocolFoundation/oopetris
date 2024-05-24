@@ -15,7 +15,7 @@
         case ArtAsset::logo:
             return "logo";
         default:
-            utils::unreachable();
+            UNREACHABLE();
     }
 }
 

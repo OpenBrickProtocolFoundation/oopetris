@@ -101,7 +101,7 @@ namespace scenes {
                         }
                     };
                 default:
-                    utils::unreachable();
+                    UNREACHABLE();
             }
         }
         return UpdateResult{ SceneUpdate::StopUpdating, helper::nullopt };

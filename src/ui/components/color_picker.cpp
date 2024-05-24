@@ -233,7 +233,7 @@ void detail::ColorCanvas::on_change(ColorChangeOrigin origin, const HSVColor& co
         }
         case detail::ColorChangeOrigin::Canvas: {
             //nothing to do, shouldn't be reached
-            utils::unreachable();
+            UNREACHABLE();
             break;
         }
         case detail::ColorChangeOrigin::Slider: {
@@ -242,7 +242,7 @@ void detail::ColorCanvas::on_change(ColorChangeOrigin origin, const HSVColor& co
             break;
         }
         default:
-            utils::unreachable();
+            UNREACHABLE();
     }
 
     redraw_texture();
@@ -522,7 +522,7 @@ ui::ColorPicker::handle_event(const std::shared_ptr<input::InputManager>& input_
                     break;
                 }
                 default:
-                    utils::unreachable();
+                    UNREACHABLE();
             }
         }
 
@@ -551,7 +551,7 @@ void ui::ColorPicker::after_color_change(detail::ColorChangeOrigin origin, const
             break;
         }
         default:
-            utils::unreachable();
+            UNREACHABLE();
     }
 
     m_callback(m_color);

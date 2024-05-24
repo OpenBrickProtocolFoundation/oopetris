@@ -112,7 +112,7 @@ namespace scenes {
                                     ui::RelativeLayout{ m_service_provider->window(), 0.15, 0.15, 0.7, 0.7 } }
                     };
                 default:
-                    utils::unreachable();
+                    UNREACHABLE();
             }
         }
         return UpdateResult{ SceneUpdate::StopUpdating, helper::nullopt };
