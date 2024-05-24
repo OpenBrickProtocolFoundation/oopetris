@@ -16,7 +16,7 @@ namespace scenes {
         shapes::UPoint m_start_offset;
 
     public:
-        explicit LoadingScreen(ServiceProvider* service_provider);
+        explicit LoadingScreen(Window* window);
 
         void update();
 

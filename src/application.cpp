@@ -252,6 +252,9 @@ void Application::render() const {
 
 void Application::initialize() {
 
+    // this window MUSTN'T be stored, since it is not safe
+    auto loading_screen = scenes::LoadingScreen{ m_window.get() };
+
     std::future<void> load_everything = std::async(std::launch::async, [this] {
         m_input_manager->initialize(m_window);
 
@@ -282,7 +285,6 @@ void Application::initialize() {
 #endif
     });
 
-    auto loading_screen = scenes::LoadingScreen{ this };
 
     using namespace std::chrono_literals;
 
@@ -317,6 +319,7 @@ void Application::initialize() {
         }
 
         loading_screen.update();
+        // this service_provider only guarantees the renderer + the window to be accessible without race conditions
         loading_screen.render(*this);
 
         // present and  wait (depending if vsync is on or not, this has to be done manually)

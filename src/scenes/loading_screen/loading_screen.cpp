@@ -8,7 +8,7 @@
 
 #include <numbers>
 
-scenes::LoadingScreen::LoadingScreen(ServiceProvider* service_provider)
+scenes::LoadingScreen::LoadingScreen(Window* window)
     : m_segments{
           { Mino{ Mino::GridPoint{ 0, 0 }, helper::TetrominoType::J }, 1.0 },
           { Mino{ Mino::GridPoint{ 1, 0 }, helper::TetrominoType::L }, 1.0 },
@@ -26,7 +26,7 @@ scenes::LoadingScreen::LoadingScreen(ServiceProvider* service_provider)
 
     constexpr auto loading_segments_size = 3;
 
-    const auto layout = service_provider->window().size();
+    const auto layout = window->size();
 
     const u32 tile_size_x = layout.x / total_x_tiles;
     const u32 tile_size_y = layout.y / total_y_tiles;
