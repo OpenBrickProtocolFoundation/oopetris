@@ -250,8 +250,7 @@ void Application::render() const {
 
 void Application::initialize() {
 
-    // this window MUSTN'T be stored, since it is not safe
-    auto loading_screen = scenes::LoadingScreen{ m_window.get() };
+    auto loading_screen = scenes::LoadingScreen{ this };
 
     const std::future<void> load_everything = std::async(std::launch::async, [this] {
         this->m_music_manager = std::make_unique<MusicManager>(this, num_audio_channels);

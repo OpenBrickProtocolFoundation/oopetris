@@ -8,10 +8,7 @@
 #include <vector>
 
 
-[[nodiscard]] Texture utils::get_logo(const ServiceProvider* service_provider, double scale) {
-
-    constexpr auto width = 32;
-    constexpr auto height = 5;
+[[nodiscard]] Texture logo::get_logo(const ServiceProvider* service_provider, double scale) {
 
     constexpr const Mino::GridPoint offset_o2{ 5, 0 };
     constexpr const auto offset_p3 = offset_o2 + Mino::GridPoint{ 5, 0 };
@@ -121,7 +118,7 @@
     const auto tile_size = static_cast<u32>(static_cast<double>(grid::original_tile_size) * scale);
 
 
-    const shapes::UPoint total_size{ tile_size * width, tile_size * height };
+    const shapes::UPoint total_size{ tile_size * logo::width, tile_size * logo::height };
 
     const auto original_scale = static_cast<double>(tile_size) / static_cast<double>(grid::original_tile_size);
 
