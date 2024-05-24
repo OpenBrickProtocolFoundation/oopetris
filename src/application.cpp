@@ -4,9 +4,14 @@
 #include "helper/message_box.hpp"
 #include "helper/sleep.hpp"
 #include "input/input.hpp"
+#include "manager/music_manager.hpp"
+#include "scenes/loading_screen/loading_screen.hpp"
 #include "scenes/scene.hpp"
+#include "ui/layout.hpp"
 
 #include <chrono>
+#include <fmt/chrono.h>
+#include <future>
 #include <memory>
 #include <ranges>
 #include <stdexcept>
@@ -35,9 +40,6 @@ Application::Application(std::shared_ptr<Window>&& window, const std::vector<std
       m_window{ std::move(window) },
       m_renderer{ *m_window, m_command_line_arguments.target_fps.has_value() ? Renderer::VSync::Disabled
                                                                              : Renderer::VSync::Enabled },
-      m_music_manager{ this, num_audio_channels },
-      m_input_manager{ std::make_shared<input::InputManager>(m_window) },
-      m_settings_manager{ this },
       m_target_framerate{ m_command_line_arguments.target_fps } {
     initialize();
 } catch (const helper::GeneralError& general_error) {
@@ -156,7 +158,7 @@ void Application::handle_event(const SDL_Event& event) {
 
     // this global event handlers (atm only one) are special cases, they receive all inputs if they are not handled by the scenes explicitly
 
-    if (m_music_manager.handle_event(m_input_manager, event)) {
+    if (m_music_manager->handle_event(m_input_manager, event)) {
         return;
     }
 }
@@ -249,32 +251,121 @@ void Application::render() const {
 
 void Application::initialize() {
 
-    load_resources();
-    push_scene(scenes::create_scene(*this, SceneId::MainMenu, ui::FullScreenLayout{ *m_window }));
+    auto loading_screen = scenes::LoadingScreen{ this };
+
+    const auto start_time = SDL_GetTicks64();
+
+    const std::future<void> load_everything = std::async(std::launch::async, [this] {
+        this->m_music_manager = std::make_unique<MusicManager>(this, num_audio_channels);
+
+        this->m_input_manager = std::make_shared<input::InputManager>(this->m_window);
+
+        this->m_settings_manager = std::make_unique<SettingsManager>(this);
+
+        this->m_font_manager = std::make_unique<FontManager>();
+
+        this->load_resources();
 
 #ifdef DEBUG_BUILD
-    m_fps_text = std::make_unique<ui::Label>(
-            this, "FPS: ?", font_manager().get(FontId::Default), Color::white(),
-            std::pair<double, double>{ 0.95, 0.95 },
-            ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
-            ui::RelativeLayout{ window(), 0.0, 0.0, 0.1, 0.05 }, false
-    );
+        m_fps_text = std::make_unique<ui::Label>(
+                this, "FPS: ?", font_manager().get(FontId::Default), Color::white(),
+                std::pair<double, double>{ 0.95, 0.95 },
+                ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
+                ui::RelativeLayout{ window(), 0.0, 0.0, 0.1, 0.05 }, false
+        );
 #endif
 
 #if defined(_HAVE_DISCORD_SDK)
-    if (m_settings_manager.settings().discord) {
-        auto discord_instance = DiscordInstance::initialize();
-        if (not discord_instance.has_value()) {
-            spdlog::warn(
-                    "Error initializing the discord instance, it might not be running: {}", discord_instance.error()
-            );
-        } else {
-            m_discord_instance = std::move(discord_instance.value());
-            m_discord_instance->after_setup();
+        if (m_settings_manager->settings().discord) {
+            auto discord_instance = DiscordInstance::initialize();
+            if (not discord_instance.has_value()) {
+                spdlog::warn(
+                        "Error initializing the discord instance, it might not be running: {}", discord_instance.error()
+                );
+            } else {
+                m_discord_instance = std::move(discord_instance.value());
+                m_discord_instance->after_setup();
+            }
         }
-    }
 
 #endif
+    });
+
+
+    using namespace std::chrono_literals;
+
+    const auto sleep_time = m_target_framerate.has_value() ? std::chrono::duration_cast<std::chrono::nanoseconds>(1s)
+                                                                     / m_target_framerate.value()
+                                                           : 0s;
+    auto start_execution_time = std::chrono::steady_clock::now();
+
+
+    bool finished_loading = false;
+
+    // this is a duplicate of below in some cases, but it's just for the loading screen and can't be factored out easily
+    // this also only uses a subset of all things, the real event loop uses, so that nothing breaks while doing multithreading
+    // the only things usable are: (since NOT accessed (writing) via the loading thread and already initialized):
+    // - m_command_line_arguments
+    // - m_window
+    // - m_renderer
+    // - m_target_framerate
+
+    while ((not finished_loading) and m_is_running
+#if defined(__CONSOLE__)
+           and console::inMainLoop()
+#endif
+    ) {
+
+        // we can't use the normal event loop, so we have to do it manually
+        SDL_Event event;
+        while (SDL_PollEvent(&event) != 0) {
+            if (event.type == SDL_QUIT) {
+                m_is_running = false;
+            }
+        }
+
+        loading_screen.update();
+        // this service_provider only guarantees the renderer + the window to be accessible without race conditions
+        loading_screen.render(*this);
+
+        // present and  wait (depending if vsync is on or not, this has to be done manually)
+        m_renderer.present();
+
+        if (m_target_framerate.has_value()) {
+
+            const auto now = std::chrono::steady_clock::now();
+            const auto runtime = (now - start_execution_time);
+            if (runtime < sleep_time) {
+                //TODO(totto): use SDL_DelayNS in sdl >= 3.0
+                helper::sleep_nanoseconds(sleep_time - runtime);
+                start_execution_time = std::chrono::steady_clock::now();
+            } else {
+                start_execution_time = now;
+            }
+        }
+        // end waiting
+
+        // wait until is faster, since it just compares two time_points instead of getting now() and than adding the wait-for argument
+        finished_loading =
+                load_everything.wait_until(std::chrono::system_clock::time_point::min()) == std::future_status::ready;
+    }
+
+
+    const auto duration = std::chrono::milliseconds(SDL_GetTicks64() - start_time);
+
+    // we can reach this via SDL_QUIT or (not console::inMainLoop())
+    if (not finished_loading) {
+
+        spdlog::debug("Aborted loading after {}", duration);
+
+        // just exit immediately, without cleaning up, since than we would have to cancel the loading thread somehow, which is way rto complicated, let the OS clean up our mess we create her xD
+        std::exit(0);
+    }
+
+
+    spdlog::debug("Took {} to load", duration);
+
+    push_scene(scenes::create_scene(*this, SceneId::MainMenu, ui::FullScreenLayout{ *m_window }));
 }
 
 void Application::load_resources() {
@@ -292,7 +383,7 @@ void Application::load_resources() {
     };
     for (const auto& [font_id, path] : fonts) {
         const auto font_path = utils::get_assets_folder() / "fonts" / path;
-        m_font_manager.load(font_id, font_path, fonts_size);
+        m_font_manager->load(font_id, font_path, fonts_size);
     }
 }
 

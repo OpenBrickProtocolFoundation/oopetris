@@ -1,6 +1,8 @@
 graphics_src_files += files('scene.cpp', 'scene.hpp', 'scene_id.hpp')
 
 subdir('about_page')
+subdir('loading_screen')
+subdir('logo')
 subdir('main_menu')
 subdir('multiplayer_menu')
 subdir('play_select_menu')
