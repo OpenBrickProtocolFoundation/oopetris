@@ -57,11 +57,6 @@ Application::Application(std::shared_ptr<Window>&& window, const std::vector<std
 
 
 void Application::run() {
-    // if the loader returned (due to SDL_QUIT or similar), we end up here, and just return immediately, ending it gracefully
-    if (not m_is_running) {
-        return;
-    }
-
     m_event_dispatcher.register_listener(this);
 
 #ifdef DEBUG_BUILD
@@ -349,8 +344,10 @@ void Application::initialize() {
                 load_everything.wait_until(std::chrono::system_clock::time_point::min()) == std::future_status::ready;
     }
 
+    // we can reach this via SDL_QUiT or (not console::inMainLoop())
     if (not finished_loading) {
-        return;
+        // just exit immediately, without cleaning up, since than we would have to cancel the loading thread somehow, which is way rto complicated, let the OS clean up our mess we create her xD
+        std::exit(0);
     }
 
 
