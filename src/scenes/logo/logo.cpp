@@ -18,7 +18,7 @@
     constexpr const auto offset_i7 = offset_r6 + Mino::GridPoint{ 4, 0 };
     constexpr const auto offset_s8 = offset_i7 + Mino::GridPoint{ 2, 0 };
 
-    std::vector<Mino> minos{
+    const std::vector<Mino> minos{
         // O
         Mino{             Mino::GridPoint{ 0, 0 }, helper::TetrominoType::J },
         Mino{             Mino::GridPoint{ 1, 0 }, helper::TetrominoType::J },

@@ -11,7 +11,7 @@ namespace scenes {
 
     struct LoadingScreen {
     private:
-        std::vector<std::tuple<Mino, double>> m_segments{};
+        std::vector<std::tuple<Mino, double>> m_segments;
         Texture m_logo;
         shapes::URect m_logo_rect;
 
