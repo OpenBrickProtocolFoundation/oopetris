@@ -107,6 +107,7 @@ void ui::ScrollLayout::render(const ServiceProvider& service_provider) const {
     }
 }
 
+
 ui::Widget::EventHandleResult
 ui::ScrollLayout::handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) {
 
@@ -218,6 +219,58 @@ ui::ScrollLayout::handle_event(const std::shared_ptr<input::InputManager>& input
 
     return handled;
 }
+
+
+ui::Widget::EventHandleResult ui::ScrollLayout::handle_focus_change_events(
+        const std::shared_ptr<input::InputManager>& input_manager,
+        const SDL_Event& event
+) {
+
+
+    if (not has_focus()) {
+        return false;
+    }
+
+    Widget::EventHandleResult handled = false;
+
+
+    if (m_focus_id.has_value()) {
+        const auto& widget = m_widgets.at(focusable_index_by_id(m_focus_id.value()));
+
+
+        if (widget->type() != WidgetType::Container) {
+            handled = handle_focus_change_button_events(input_manager, event);
+        }
+
+
+        if (handled) {
+            return handled;
+        }
+
+
+        auto new_event = event;
+
+        if (const auto pointer_event = input_manager->get_pointer_event(event); pointer_event.has_value()) {
+
+            const auto offset_distance = main_rect.top_left.cast<i32>() - m_viewport.top_left.cast<i32>();
+            new_event = input_manager->offset_pointer_event(event, -offset_distance);
+        }
+
+        if (const auto event_result = widget->handle_event(input_manager, new_event); event_result) {
+
+            return { true, handle_event_result(event_result.get_additional(), widget.get()) };
+        }
+
+
+        if (widget->type() == WidgetType::Container) {
+            handled = handle_focus_change_button_events(input_manager, event);
+        }
+    }
+
+
+    return handled;
+}
+
 
 void ui::ScrollLayout::clear_widgets() {
 

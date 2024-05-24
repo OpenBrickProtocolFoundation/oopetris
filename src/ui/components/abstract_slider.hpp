@@ -28,8 +28,15 @@ namespace ui {
         bool m_is_dragging{ false };
         shapes::URect m_bar_rect;
         shapes::URect m_slider_rect;
+        bool m_mouse_captured{ false };
 
         [[nodiscard]] virtual std::pair<shapes::URect, shapes::URect> get_rectangles() const = 0;
+
+        void capture_mouse(bool value) {
+            assert(m_mouse_captured != value);
+            m_mouse_captured = value;
+            SDL_CaptureMouse(value ? SDL_TRUE : SDL_FALSE);
+        }
 
     protected:
         void change_layout() {
@@ -86,7 +93,9 @@ namespace ui {
         }
 
         ~AbstractSlider() override {
-            SDL_CaptureMouse(SDL_FALSE);
+            if (m_mouse_captured) {
+                capture_mouse(false);
+            }
         }
 
 
@@ -95,6 +104,10 @@ namespace ui {
 
         AbstractSlider(AbstractSlider&&) noexcept = default;
         AbstractSlider& operator=(AbstractSlider&&) noexcept = default;
+
+        [[nodiscard]] bool has_mouse_captured() {
+            return m_mouse_captured;
+        }
 
 
         Widget::EventHandleResult
@@ -149,16 +162,20 @@ namespace ui {
                     if (pointer_event->is_in(m_bar_rect)) {
 
                         change_value_on_scroll();
+
                         m_is_dragging = true;
-                        SDL_CaptureMouse(SDL_TRUE);
+                        capture_mouse(true);
+
                         handled = {
                             true,
                             { ui::EventHandleType::RequestFocus, this }
                         };
 
                     } else if (pointer_event->is_in(m_slider_rect)) {
+
                         m_is_dragging = true;
-                        SDL_CaptureMouse(SDL_TRUE);
+                        capture_mouse(true);
+
                         handled = {
                             true,
                             { ui::EventHandleType::RequestFocus, this }
@@ -169,7 +186,7 @@ namespace ui {
                     // only handle this, if already dragging, otherwise it's a button down from previously or some other widget
                     if (m_is_dragging) {
                         m_is_dragging = false;
-                        SDL_CaptureMouse(SDL_FALSE);
+                        capture_mouse(false);
                         handled = true;
                     }
                 } else if (pointer_event == input::PointerEvent::Motion) {

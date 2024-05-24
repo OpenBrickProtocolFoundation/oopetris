@@ -29,38 +29,6 @@ void ui::GridLayout::render(const ServiceProvider& service_provider) const {
     }
 }
 
-ui::Widget::EventHandleResult
-ui::GridLayout::handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) {
-    Widget::EventHandleResult handled = handle_focus_change_events(input_manager, event);
-
-    if (handled) {
-        return handled;
-    }
-
-
-    if (const auto point_event = input_manager->get_pointer_event(event); point_event.has_value()) {
-
-        for (auto& widget : m_widgets) {
-            const auto layout = widget->layout();
-            if (not handled and point_event->is_in(layout.get_rect())) {
-                if (const auto event_result = widget->handle_event(input_manager, event); event_result) {
-                    handled = { true, handle_event_result(event_result.get_additional(), widget.get()) };
-                    continue;
-                }
-            } else {
-                const auto hoverable = as_hoverable(widget.get());
-                if (hoverable.has_value()) {
-                    hoverable.value()->on_unhover();
-                }
-            }
-        }
-        return handled;
-    }
-
-
-    return handled;
-}
-
 
 [[nodiscard]] ui::Layout ui::GridLayout::get_layout_for_index(u32 index) {
     if (index >= this->size) {
@@ -69,8 +37,8 @@ ui::GridLayout::handle_event(const std::shared_ptr<input::InputManager>& input_m
 
     const auto start_point = layout().get_rect().top_left;
 
-    u32 x = start_point.x + margin.first;
-    u32 y = start_point.y + margin.second;
+    u32 x_pos = start_point.x + margin.first;
+    u32 y_pos = start_point.y + margin.second;
     u32 width = layout().get_rect().width() - (margin.first * 2);
     u32 height = layout().get_rect().height() - (margin.second * 2);
 
@@ -80,20 +48,20 @@ ui::GridLayout::handle_event(const std::shared_ptr<input::InputManager>& input_m
 
         const u32 margin_x = index * gap.get_margin();
         const u32 total_width = width * index;
-        x += margin_x + total_width;
+        x_pos += margin_x + total_width;
     } else {
         const u32 total_margin = this->size <= 1 ? 0 : (this->size - 1) * gap.get_margin();
         height = (layout().get_rect().height() - total_margin - (margin.second * 2)) / this->size;
 
         const u32 margin_y = index * gap.get_margin();
         const u32 total_height = height * index;
-        y += margin_y + total_height;
+        y_pos += margin_y + total_height;
     }
 
 
     return AbsolutLayout{
-        x,
-        y,
+        x_pos,
+        y_pos,
         width,
         height,
     };

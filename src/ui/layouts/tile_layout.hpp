@@ -48,11 +48,7 @@ namespace ui {
             static_assert(S != 0 and "TileLayout has to hold at least one child");
         }
 
-
         void render(const ServiceProvider& service_provider) const override;
-
-        Widget::EventHandleResult
-        handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override;
 
     private:
         [[nodiscard]] Layout get_layout_for_index(u32 index) override;

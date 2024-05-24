@@ -67,6 +67,7 @@ namespace ui {
 
         Widget::EventHandleResult
         handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override;
+
         //TODO(Totto):  with some template paramater and magic make this an option in the base class, so that only get_layout_for_new needs to be overwritten!
         template<typename T, typename... Args>
         u32 add(ItemSize size, Args... args) {
@@ -90,6 +91,12 @@ namespace ui {
         }
 
         void clear_widgets();
+
+    protected:
+        Widget::EventHandleResult handle_focus_change_events(
+                const std::shared_ptr<input::InputManager>& input_manager,
+                const SDL_Event& event
+        ) override;
 
 
     private:
