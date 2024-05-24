@@ -231,7 +231,7 @@ ui::FocusLayout::handle_event_result(const helper::optional<ui::Widget::InnerSta
         }
     }
 
-#ifdef DEBUG_BUILD
+#if !defined(NDEBUG)
     // this works, since result is sorted already
     const auto duplicates = std::ranges::adjacent_find(result);
     if (duplicates != result.cend()) {

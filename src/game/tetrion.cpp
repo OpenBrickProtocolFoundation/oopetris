@@ -452,7 +452,7 @@ void Tetrion::lock_active_tetromino(const SimulationStep simulation_step_index) 
     reset_lock_delay(simulation_step_index);
 
     // save a snapshot on every freeze (only in debug builds)
-#ifdef DEBUG_BUILD
+#if !defined(NDEBUG)
     if (m_recording_writer) {
         spdlog::debug("adding snapshot at step {}", simulation_step_index);
         (*m_recording_writer)->add_snapshot(m_tetrion_index, simulation_step_index, core_information());

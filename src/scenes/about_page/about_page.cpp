@@ -25,7 +25,7 @@ namespace scenes {
 
         auto focus_helper = ui::FocusHelper{ 1 };
 
-#ifdef DEBUG_BUILD
+#if !defined(NDEBUG)
         m_main_grid.add<ui::Label>(
                 service_provider, fmt::format("Git Commit: {}", utils::git_commit()),
                 service_provider->font_manager().get(FontId::Default), Color::white(),

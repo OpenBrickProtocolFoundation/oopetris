@@ -61,13 +61,3 @@ elif cpp.get_id() == 'clang'
     endif
 
 endif
-
-if (
-    get_option('buildtype') == 'debug'
-    or get_option('buildtype') == 'debugoptimized'
-)
-    #TODO: replace with ! NDEBUG in cpp files and remove this
-    core_lib += {
-        'compile_args': [core_lib.get('compile_args'), '-DDEBUG_BUILD'],
-    }
-endif
