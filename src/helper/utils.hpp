@@ -129,7 +129,7 @@ namespace utils {
         utils::unreachable();                                                                                      \
     } while (false)
 #else
-#define UNREACHABLE() utils::unreachable // NOLINT(cppcoreguidelines-macro-usage)
+#define UNREACHABLE() utils::unreachable() // NOLINT(cppcoreguidelines-macro-usage)
 #endif
 // NOLINT(cppcoreguidelines-macro-usage)
 
