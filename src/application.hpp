@@ -21,15 +21,17 @@ struct Application final : public EventListener, public ServiceProvider {
 private:
     static constexpr auto num_audio_channels = u8{ 2 };
 
+    bool m_is_running{ true };
     CommandLineArguments m_command_line_arguments;
     std::shared_ptr<Window> m_window;
     Renderer m_renderer;
-    bool m_is_running{ true };
-    MusicManager m_music_manager;
-    std::shared_ptr<input::InputManager> m_input_manager;
-    SettingsManager m_settings_manager;
-    FontManager m_font_manager;
     helper::optional<u32> m_target_framerate;
+
+    // these fields are initalized asynchronously in a separate thread
+    std::unique_ptr<MusicManager> m_music_manager;
+    std::shared_ptr<input::InputManager> m_input_manager;
+    std::unique_ptr<SettingsManager> m_settings_manager;
+    std::unique_ptr<FontManager> m_font_manager;
 
 
 #ifdef DEBUG_BUILD
@@ -74,29 +76,35 @@ public:
     }
 
     FontManager& font_manager() override {
-        return m_font_manager;
+        return *m_font_manager;
     }
-    const FontManager& font_manager() const override {
-        return m_font_manager;
+
+    [[nodiscard]] const FontManager& font_manager() const override {
+        return *m_font_manager;
     }
 
     CommandLineArguments& command_line_arguments() override {
         return m_command_line_arguments;
     }
-    const CommandLineArguments& command_line_arguments() const override {
+
+    [[nodiscard]] const CommandLineArguments& command_line_arguments() const override {
         return m_command_line_arguments;
     }
+
     SettingsManager& settings_manager() override {
-        return m_settings_manager;
+        return *m_settings_manager;
     }
-    const SettingsManager& settings_manager() const override {
-        return m_settings_manager;
+
+    [[nodiscard]] const SettingsManager& settings_manager() const override {
+        return *m_settings_manager;
     }
+
     MusicManager& music_manager() override {
-        return m_music_manager;
+        return *m_music_manager;
     }
-    const MusicManager& music_manager() const override {
-        return m_music_manager;
+
+    [[nodiscard]] const MusicManager& music_manager() const override {
+        return *m_music_manager;
     }
 
     [[nodiscard]] const Renderer& renderer() const override {

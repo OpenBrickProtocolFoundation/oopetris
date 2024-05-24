@@ -93,7 +93,7 @@ void scenes::LoadingScreen::render(const ServiceProvider& service_provider) cons
             );
         }
 
-        //TODO: render text here, but than we need to load the fonts before this, not in the loading thread (not that they take that long)
+        //TODO(Totto): render text here, but than we need to load the fonts before this, not in the loading thread (not that they take that long)
     }
 }
 

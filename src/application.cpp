@@ -4,6 +4,7 @@
 #include "helper/message_box.hpp"
 #include "helper/sleep.hpp"
 #include "input/input.hpp"
+#include "manager/music_manager.hpp"
 #include "scenes/loading_screen/loading_screen.hpp"
 #include "scenes/scene.hpp"
 #include "ui/layout.hpp"
@@ -38,9 +39,6 @@ Application::Application(std::shared_ptr<Window>&& window, const std::vector<std
       m_window{ std::move(window) },
       m_renderer{ *m_window, m_command_line_arguments.target_fps.has_value() ? Renderer::VSync::Disabled
                                                                              : Renderer::VSync::Enabled },
-      m_music_manager{ this, num_audio_channels },
-      m_input_manager{ std::make_shared<input::InputManager>() },
-      m_settings_manager{ this }, //TODO: also initiliaze in the loading thread
       m_target_framerate{ m_command_line_arguments.target_fps } {
     initialize();
 } catch (const helper::GeneralError& general_error) {
@@ -159,7 +157,7 @@ void Application::handle_event(const SDL_Event& event) {
 
     // this global event handlers (atm only one) are special cases, they receive all inputs if they are not handled by the scenes explicitly
 
-    if (m_music_manager.handle_event(m_input_manager, event)) {
+    if (m_music_manager->handle_event(m_input_manager, event)) {
         return;
     }
 }
@@ -255,10 +253,16 @@ void Application::initialize() {
     // this window MUSTN'T be stored, since it is not safe
     auto loading_screen = scenes::LoadingScreen{ m_window.get() };
 
-    std::future<void> load_everything = std::async(std::launch::async, [this] {
-        m_input_manager->initialize(m_window);
+    const std::future<void> load_everything = std::async(std::launch::async, [this] {
+        this->m_music_manager = std::make_unique<MusicManager>(this, num_audio_channels);
 
-        load_resources();
+        this->m_input_manager = std::make_shared<input::InputManager>(this->m_window);
+
+        this->m_settings_manager = std::make_unique<SettingsManager>(this);
+
+        this->m_font_manager = std::make_unique<FontManager>();
+
+        this->load_resources();
 
 #ifdef DEBUG_BUILD
         m_fps_text = std::make_unique<ui::Label>(
@@ -270,7 +274,7 @@ void Application::initialize() {
 #endif
 
 #if defined(_HAVE_DISCORD_SDK)
-        if (m_settings_manager.settings().discord) {
+        if (m_settings_manager->settings().discord) {
             auto discord_instance = DiscordInstance::initialize();
             if (not discord_instance.has_value()) {
                 spdlog::warn(
@@ -298,11 +302,11 @@ void Application::initialize() {
 
     // this is a duplicate of below in some cases, but it's just for the loading screen and can't be factored out easily
     // this also only uses a subset of all things, the real event loop uses, so that nothing breaks while doing multithreading
-    // not usable: (since accessed via the loading thread):
-    // - m_input_manager
-    // - m_fps_text
-    // - m_font_manager
-    // - m_discord_instance
+    // the only things usable are: (since NOT accessed (writing) via the loading thread and already initialized):
+    // - m_command_line_arguments
+    // - m_window
+    // - m_renderer
+    // - m_target_framerate
 
     while ((not finished_loading) and m_is_running
 #if defined(__CONSOLE__)
@@ -369,7 +373,7 @@ void Application::load_resources() {
     };
     for (const auto& [font_id, path] : fonts) {
         const auto font_path = utils::get_assets_folder() / "fonts" / path;
-        m_font_manager.load(font_id, font_path, fonts_size);
+        m_font_manager->load(font_id, font_path, fonts_size);
     }
 }
 

@@ -86,9 +86,7 @@ namespace input {
         std::vector<std::unique_ptr<Input>> m_inputs;
 
     public:
-        explicit InputManager();
-
-        void initialize(const std::shared_ptr<Window>& window);
+        explicit InputManager(const std::shared_ptr<Window>& window);
 
         [[nodiscard]] const std::vector<std::unique_ptr<Input>>& inputs() const;
 
