@@ -21,6 +21,7 @@ public:
             ServiceProvider* service_provider,
             const std::shared_ptr<input::GameInput>& input,
             const tetrion::StartingParameters& starting_parameters,
+            u32 simulation_frequency,
             const ui::Layout& layout,
             bool is_top_level
     );

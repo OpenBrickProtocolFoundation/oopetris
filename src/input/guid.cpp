@@ -34,6 +34,6 @@ sdl::GUID::GUID(const SDL_GUID& data) : m_guid{} {
             return fmt::format("{:02x}", fmt::join(m_guid, ""));
         }
         default:
-            utils::unreachable();
+            UNREACHABLE();
     }
 }

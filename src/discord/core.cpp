@@ -15,7 +15,7 @@
         case ArtAsset::logo:
             return "logo";
         default:
-            utils::unreachable();
+            UNREACHABLE();
     }
 }
 
@@ -50,7 +50,7 @@ void DiscordInstance::after_setup() {
 
 
     core->SetLogHook(
-#ifdef DEBUG_BUILD
+#if !defined(NDEBUG)
             discord::LogLevel::Debug
 #else
             discord::LogLevel::Error

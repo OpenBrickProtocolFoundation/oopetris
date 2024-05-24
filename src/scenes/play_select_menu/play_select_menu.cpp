@@ -100,7 +100,7 @@ namespace scenes {
                 case Command::Return:
                     return UpdateResult{ SceneUpdate::StopUpdating, Scene::Pop{} };
                 default:
-                    utils::unreachable();
+                    UNREACHABLE();
             }
         }
         return UpdateResult{ SceneUpdate::StopUpdating, helper::nullopt };

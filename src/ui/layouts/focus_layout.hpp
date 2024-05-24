@@ -96,17 +96,23 @@ namespace ui {
             return item.value();
         }
 
-    private:
+        Widget::EventHandleResult
+        handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override;
+
+
+    protected:
         Widget::EventHandleResult handle_focus_change_button_events(
                 const std::shared_ptr<input::InputManager>& input_manager,
                 const SDL_Event& event
         );
 
-    protected:
+
         [[nodiscard]] virtual Layout get_layout_for_index(u32 index) = 0;
 
-        Widget::EventHandleResult
-        handle_focus_change_events(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event);
+        Widget::EventHandleResult virtual handle_focus_change_events(
+                const std::shared_ptr<input::InputManager>& input_manager,
+                const SDL_Event& event
+        );
 
         [[nodiscard]] helper::optional<ui::Widget::InnerState>
         handle_event_result(const helper::optional<ui::Widget::InnerState>& result, Widget* widget);

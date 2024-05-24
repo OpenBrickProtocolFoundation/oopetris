@@ -241,7 +241,7 @@ void MusicManager::hook_music_finished() {
 
 
 [[nodiscard]] helper::optional<double> MusicManager::get_volume() const {
-#ifdef DEBUG_BUILD
+#if !defined(NDEBUG)
     int result = Mix_VolumeMusic(-1);
     if (result == 0) {
         return helper::nullopt;

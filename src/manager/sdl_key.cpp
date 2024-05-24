@@ -71,7 +71,7 @@ namespace {
             case sdl::Modifier::GUI:
                 return KMOD_GUI;
             default:
-                utils::unreachable();
+                UNREACHABLE();
         }
     }
 
@@ -115,7 +115,7 @@ namespace {
             case KMOD_GUI:
                 return sdl::Modifier::GUI;
             default:
-                utils::unreachable();
+                UNREACHABLE();
         }
     }
 
@@ -174,7 +174,7 @@ namespace {
             return sdl::ModifierType::Multiple;
         }
 
-        utils::unreachable();
+        UNREACHABLE();
     }
 
 
@@ -218,7 +218,7 @@ namespace {
             case sdl::Modifier::GUI:
                 return "Gui";
             default:
-                utils::unreachable();
+                UNREACHABLE();
         }
     }
 
@@ -364,7 +364,7 @@ helper::expected<sdl::Key, std::string> sdl::Key::from_string(const std::string&
         }
 
         default:
-            utils::unreachable();
+            UNREACHABLE();
     }
 
 

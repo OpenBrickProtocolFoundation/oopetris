@@ -178,7 +178,7 @@ input::TouchGameInput::TouchGameInput(TouchGameInput&& input) noexcept = default
         case input::MenuEvent::OpenSettings:
             throw std::runtime_error("Open Settings is not supported");
         default:
-            utils::unreachable();
+            UNREACHABLE();
     }
 }
 
@@ -235,7 +235,7 @@ input::TouchInput::get_by_device_index(const std::shared_ptr<Window>& window, in
         case NavigationEvent::TAB:
             return "Unsupported";
         default:
-            utils::unreachable();
+            UNREACHABLE();
     }
 }
 

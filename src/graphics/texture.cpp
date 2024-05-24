@@ -37,7 +37,7 @@ Texture Texture::prerender_text(
                 font.get(), text.c_str(), text_color, utils::sdl_color_from_color(background_color)
         );
     } else {
-        utils::unreachable();
+        UNREACHABLE();
     }
     if (surface == nullptr) {
         throw std::runtime_error(fmt::format("Failed to pre-render text into surface with error: {}", SDL_GetError()));

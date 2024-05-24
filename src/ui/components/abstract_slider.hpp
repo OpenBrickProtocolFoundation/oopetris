@@ -28,8 +28,15 @@ namespace ui {
         bool m_is_dragging{ false };
         shapes::URect m_bar_rect;
         shapes::URect m_slider_rect;
+        bool m_mouse_captured{ false };
 
         [[nodiscard]] virtual std::pair<shapes::URect, shapes::URect> get_rectangles() const = 0;
+
+        void capture_mouse(bool value) {
+            assert(m_mouse_captured != value);
+            m_mouse_captured = value;
+            SDL_CaptureMouse(value ? SDL_TRUE : SDL_FALSE);
+        }
 
     protected:
         void change_layout() {
@@ -86,7 +93,9 @@ namespace ui {
         }
 
         ~AbstractSlider() override {
-            SDL_CaptureMouse(SDL_FALSE);
+            if (m_mouse_captured) {
+                capture_mouse(false);
+            }
         }
 
 
@@ -96,9 +105,15 @@ namespace ui {
         AbstractSlider(AbstractSlider&&) noexcept = default;
         AbstractSlider& operator=(AbstractSlider&&) noexcept = default;
 
+        [[nodiscard]] bool has_mouse_captured() {
+            return m_mouse_captured;
+        }
 
-        Widget::EventHandleResult
-        handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override {
+
+        Widget::EventHandleResult handle_event( // NOLINT(readability-function-cognitive-complexity)
+                const std::shared_ptr<input::InputManager>& input_manager,
+                const SDL_Event& event
+        ) override {
             Widget::EventHandleResult handled = false;
 
             const auto navigation_event = input_manager->get_navigation_event(event);
@@ -149,16 +164,20 @@ namespace ui {
                     if (pointer_event->is_in(m_bar_rect)) {
 
                         change_value_on_scroll();
+
                         m_is_dragging = true;
-                        SDL_CaptureMouse(SDL_TRUE);
+                        capture_mouse(true);
+
                         handled = {
                             true,
                             { ui::EventHandleType::RequestFocus, this }
                         };
 
                     } else if (pointer_event->is_in(m_slider_rect)) {
+
                         m_is_dragging = true;
-                        SDL_CaptureMouse(SDL_TRUE);
+                        capture_mouse(true);
+
                         handled = {
                             true,
                             { ui::EventHandleType::RequestFocus, this }
@@ -169,7 +188,7 @@ namespace ui {
                     // only handle this, if already dragging, otherwise it's a button down from previously or some other widget
                     if (m_is_dragging) {
                         m_is_dragging = false;
-                        SDL_CaptureMouse(SDL_FALSE);
+                        capture_mouse(false);
                         handled = true;
                     }
                 } else if (pointer_event == input::PointerEvent::Motion) {
@@ -178,31 +197,36 @@ namespace ui {
                         change_value_on_scroll();
                         handled = true;
                     }
+                } else if (has_focus() and pointer_event == input::PointerEvent::Wheel) {
 
-                    //TODO(Totto): this is not working, since pointer_event.has_value() is wrong in this case
-                } else if (event.type == SDL_MOUSEWHEEL && has_focus()) {
+                    if (pointer_event->is_in(layout().get_rect())) {
 
-                    // here we use a reverse scroll behaviour, since moving the mouse up is always considered increasing the volume, regardless of you OS setting about natural scrolling or not
-                    const bool direction_is_up =
-                            event.wheel.direction == SDL_MOUSEWHEEL_NORMAL ? event.wheel.y > 0 : event.wheel.y < 0;
+                        // if we should support more in teh future, we would have to abstract this better ways, since  accessing event.wheel is not abstracted away atm
+                        if (event.type == SDL_MOUSEWHEEL) {
 
-                    if (direction_is_up) {
-                        m_current_value = m_current_value + m_step;
-                        if (m_current_value >= m_range.second) {
-                            m_current_value = m_range.second;
-                        }
+                            // here we use a reverse scroll behaviour, since moving the mouse up is always considered increasing the volume, regardless of you OS setting about natural scrolling or not
+                            const bool direction_is_up = event.wheel.direction == SDL_MOUSEWHEEL_NORMAL
+                                                                 ? event.wheel.y > 0
+                                                                 : event.wheel.y < 0;
 
-                    } else {
-                        m_current_value = m_current_value - m_step;
-                        if (m_current_value <= m_range.first) {
-                            m_current_value = m_range.first;
+                            if (direction_is_up) {
+                                m_current_value = m_current_value + m_step;
+                                if (m_current_value >= m_range.second) {
+                                    m_current_value = m_range.second;
+                                }
+
+                            } else {
+                                m_current_value = m_current_value - m_step;
+                                if (m_current_value <= m_range.first) {
+                                    m_current_value = m_range.first;
+                                }
+                            }
+
+                            handled = true;
                         }
                     }
-
-                    handled = true;
                 }
             }
-
 
             if (handled) {
                 m_setter(m_current_value);

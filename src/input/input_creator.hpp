@@ -36,7 +36,7 @@ namespace input {
 
     using AdditionalInfo = std::tuple<std::shared_ptr<input::GameInput>, tetrion::StartingParameters>;
 
-    [[nodiscard]] std::vector<input::AdditionalInfo>
+    [[nodiscard]] std::pair<std::vector<input::AdditionalInfo>, recorder::AdditionalInformation>
     get_game_parameters_for_replay(ServiceProvider* service_provider, const std::filesystem::path& recording_path);
 
     [[nodiscard]] helper::expected<input::AdditionalInfo, std::string> get_single_player_game_parameters(

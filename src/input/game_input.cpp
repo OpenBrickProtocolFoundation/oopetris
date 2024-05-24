@@ -69,7 +69,7 @@ void input::GameInput::handle_event(const InputEvent event, const SimulationStep
         case InputEvent::HoldReleased:
             break;
         default:
-            utils::unreachable();
+            UNREACHABLE();
     }
 }
 

@@ -1,6 +1,7 @@
 
 
 #include "input_creator.hpp"
+#include "additional_information.hpp"
 #include "helper/command_line_arguments.hpp"
 #include "helper/date.hpp"
 #include "helper/errors.hpp"
@@ -44,7 +45,8 @@ namespace {
 } // namespace
 
 
-[[nodiscard]] std::vector<input::AdditionalInfo> input::get_game_parameters_for_replay(
+[[nodiscard]] std::pair<std::vector<input::AdditionalInfo>, recorder::AdditionalInformation>
+input::get_game_parameters_for_replay(
         ServiceProvider* const service_provider,
         const std::filesystem::path& recording_path
 ) {
@@ -67,6 +69,7 @@ namespace {
 
     const auto tetrion_headers = recording_reader->tetrion_headers();
 
+
     result.reserve(tetrion_headers.size());
 
     for (u8 tetrion_index = 0; tetrion_index < static_cast<u8>(tetrion_headers.size()); ++tetrion_index) {
@@ -87,7 +90,7 @@ namespace {
     }
 
 
-    return result;
+    return { result, recording_reader->information() };
 }
 
 

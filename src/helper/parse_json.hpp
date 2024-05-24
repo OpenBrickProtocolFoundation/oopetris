@@ -1,10 +1,11 @@
 
 #pragma once
 
-#ifdef DEBUG_BUILD
+#if !defined(NDEBUG)
 // better json error messages, see https://json.nlohmann.me/api/macros/json_diagnostics/
 #define JSON_DIAGNOSTICS 1 // NOLINT(cppcoreguidelines-macro-usage)
 #endif
+
 #include <nlohmann/json.hpp>
 
 #include "helper/expected.hpp"

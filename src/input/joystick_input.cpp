@@ -396,7 +396,7 @@ input::SwitchJoystickInput_Type1::SwitchJoystickInput_Type1(
         case NavigationEvent::TAB:
             throw std::runtime_error("Tab is not supported");
         default:
-            utils::unreachable();
+            UNREACHABLE();
     }
 }
 
@@ -450,7 +450,7 @@ input::SwitchJoystickInput_Type1::SwitchJoystickInput_Type1(
 
 
         default:
-            utils::unreachable();
+            UNREACHABLE();
     }
 }
 
@@ -575,7 +575,7 @@ input::_3DSJoystickInput_Type1::_3DSJoystickInput_Type1(
         case NavigationEvent::TAB:
             throw std::runtime_error("Tab is not supported");
         default:
-            utils::unreachable();
+            UNREACHABLE();
     }
 }
 
@@ -611,7 +611,7 @@ input::_3DSJoystickInput_Type1::_3DSJoystickInput_Type1(
         case JOYCON_ZR:
             return "ZR";
         default:
-            utils::unreachable();
+            UNREACHABLE();
     }
 }
 
@@ -947,7 +947,7 @@ helper::optional<InputEvent> input::ConsoleJoystickGameInput::sdl_event_to_input
         case input::MenuEvent::OpenSettings:
             return m_underlying_input->key_to_string(m_settings.open_settings);
         default:
-            utils::unreachable();
+            UNREACHABLE();
     }
 }
 

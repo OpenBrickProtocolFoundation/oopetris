@@ -452,7 +452,7 @@ void Tetrion::lock_active_tetromino(const SimulationStep simulation_step_index) 
     reset_lock_delay(simulation_step_index);
 
     // save a snapshot on every freeze (only in debug builds)
-#ifdef DEBUG_BUILD
+#if !defined(NDEBUG)
     if (m_recording_writer) {
         spdlog::debug("adding snapshot at step {}", simulation_step_index);
         (*m_recording_writer)->add_snapshot(m_tetrion_index, simulation_step_index, core_information());
@@ -561,7 +561,7 @@ u8 Tetrion::rotation_to_index(const Rotation from, const Rotation rotation_to) {
     if (from == Rotation::North and rotation_to == Rotation::West) {
         return 7;
     }
-    utils::unreachable();
+    UNREACHABLE();
 }
 
 bool Tetrion::is_tetromino_position_valid(const Tetromino& tetromino) const {
@@ -628,7 +628,7 @@ bool Tetrion::move(const Tetrion::MoveDirection move_direction) {
             return true;
     }
 
-    utils::unreachable();
+    UNREACHABLE();
 }
 
 helper::optional<const Tetrion::WallKickTable*> Tetrion::get_wall_kick_table() const {
@@ -646,6 +646,6 @@ helper::optional<const Tetrion::WallKickTable*> Tetrion::get_wall_kick_table() c
         case helper::TetrominoType::O:
             return {};
         default:
-            utils::unreachable();
+            UNREACHABLE();
     }
 }

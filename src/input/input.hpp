@@ -50,7 +50,7 @@ namespace input {
         [[nodiscard]] virtual std::string describe_navigation_event(NavigationEvent event) const = 0;
     };
 
-    enum class PointerEvent : u8 { Motion, PointerDown, PointerUp };
+    enum class PointerEvent : u8 { Motion, PointerDown, PointerUp, Wheel };
 
     struct PointerEventHelper {
     private:

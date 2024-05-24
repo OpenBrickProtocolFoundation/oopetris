@@ -153,7 +153,7 @@ namespace {
             return color.to_string(force_alpha);
         }
         default:
-            utils::unreachable();
+            UNREACHABLE();
     }
 }
 

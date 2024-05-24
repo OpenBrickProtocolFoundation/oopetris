@@ -61,18 +61,10 @@ namespace utils {
 
 #if __cpp_lib_unreachable >= 202202L
     [[noreturn]] inline void unreachable() {
-#if !defined(NDEBUG)
-        std::cerr << "UNREACHABLE\n";
-#endif
-
         std::unreachable();
     }
 #else
     [[noreturn]] inline void unreachable() {
-#if !defined(NDEBUG)
-        std::cerr << "UNREACHABLE\n";
-#endif
-
 #if defined(_MSC_VER) && !defined(__clang__) // MSVC
         __assume(false);
 #else                                        // GCC, Clang
@@ -125,8 +117,22 @@ namespace utils {
 
 } // namespace utils
 
-
 #define UNUSED(x) (void(x)) // NOLINT(cppcoreguidelines-macro-usage)
+
+#if !defined(NDEBUG)
+#define UNREACHABLE()                             /* NOLINT(cppcoreguidelines-macro-usage)*/                       \
+    do {                                          /* NOLINT(cppcoreguidelines-avoid-do-while)*/                    \
+        std::cerr << "UNREACHABLE " << (__FILE__) /* NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay)*/ \
+                  << ":" << (__LINE__) << " - "                                                                    \
+                  << (__FUNCTION__) /* NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay)*/               \
+                  << "\n";                                                                                         \
+        utils::unreachable();                                                                                      \
+    } while (false)
+#else
+#define UNREACHABLE() utils::unreachable() // NOLINT(cppcoreguidelines-macro-usage)
+#endif
+// NOLINT(cppcoreguidelines-macro-usage)
+
 
 #if defined(NDEBUG)
 #define ASSERT(x) (UNUSED(x)) // NOLINT(cppcoreguidelines-macro-usage)

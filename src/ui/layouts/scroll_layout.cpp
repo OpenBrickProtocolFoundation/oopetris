@@ -107,6 +107,7 @@ void ui::ScrollLayout::render(const ServiceProvider& service_provider) const {
     }
 }
 
+
 ui::Widget::EventHandleResult
 ui::ScrollLayout::handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) {
 
@@ -172,23 +173,31 @@ ui::ScrollLayout::handle_event(const std::shared_ptr<input::InputManager>& input
         }
 
         //TODO(Totto): support touch screen scrolling too, factor this out into the input manager
-    } else if (event.type == SDL_MOUSEWHEEL) {
+    } else if (pointer_event == input::PointerEvent::Wheel) {
 
-        // attention the mouse direction changes (it's called natural scrolling on macos/ windows / linux) are not detected by sdl until restart, and here we use the correct scroll behaviour, as the user configured the mouse in it's OS
-        const bool direction_is_down =
-                event.wheel.direction == SDL_MOUSEWHEEL_NORMAL ? event.wheel.y < 0 : event.wheel.y > 0;
+        if (pointer_event->is_in(layout().get_rect())) {
+
+            // if we should support more in teh future, we would have to abstract this better ways, since  accessing event.wheel is not abstracted away atm
+            if (event.type == SDL_MOUSEWHEEL) {
 
 
-        auto desired_scroll_height = 0;
+                // attention the mouse direction changes (it's called natural scrolling on macos/ windows / linux) are not detected by sdl until restart, and here we use the correct scroll behaviour, as the user configured the mouse in it's OS
+                const bool direction_is_down =
+                        event.wheel.direction == SDL_MOUSEWHEEL_NORMAL ? event.wheel.y < 0 : event.wheel.y > 0;
 
-        if (direction_is_down) {
-            desired_scroll_height = static_cast<int>(m_viewport.top_left.y + m_step_size);
-        } else {
-            desired_scroll_height = static_cast<int>(m_viewport.top_left.y - m_step_size);
+
+                auto desired_scroll_height = 0;
+
+                if (direction_is_down) {
+                    desired_scroll_height = static_cast<int>(m_viewport.top_left.y + m_step_size);
+                } else {
+                    desired_scroll_height = static_cast<int>(m_viewport.top_left.y - m_step_size);
+                }
+
+                recalculate_sizes(desired_scroll_height);
+                handled = true;
+            }
         }
-
-        recalculate_sizes(desired_scroll_height);
-        handled = true;
     }
 
     if (pointer_event.has_value()) {
@@ -218,6 +227,58 @@ ui::ScrollLayout::handle_event(const std::shared_ptr<input::InputManager>& input
 
     return handled;
 }
+
+
+ui::Widget::EventHandleResult ui::ScrollLayout::handle_focus_change_events(
+        const std::shared_ptr<input::InputManager>& input_manager,
+        const SDL_Event& event
+) {
+
+
+    if (not has_focus()) {
+        return false;
+    }
+
+    Widget::EventHandleResult handled = false;
+
+
+    if (m_focus_id.has_value()) {
+        const auto& widget = m_widgets.at(focusable_index_by_id(m_focus_id.value()));
+
+
+        if (widget->type() != WidgetType::Container) {
+            handled = handle_focus_change_button_events(input_manager, event);
+        }
+
+
+        if (handled) {
+            return handled;
+        }
+
+
+        auto new_event = event;
+
+        if (const auto pointer_event = input_manager->get_pointer_event(event); pointer_event.has_value()) {
+
+            const auto offset_distance = main_rect.top_left.cast<i32>() - m_viewport.top_left.cast<i32>();
+            new_event = input_manager->offset_pointer_event(event, -offset_distance);
+        }
+
+        if (const auto event_result = widget->handle_event(input_manager, new_event); event_result) {
+
+            return { true, handle_event_result(event_result.get_additional(), widget.get()) };
+        }
+
+
+        if (widget->type() == WidgetType::Container) {
+            handled = handle_focus_change_button_events(input_manager, event);
+        }
+    }
+
+
+    return handled;
+}
+
 
 void ui::ScrollLayout::clear_widgets() {
 

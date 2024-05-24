@@ -34,7 +34,7 @@ private:
     std::unique_ptr<FontManager> m_font_manager;
 
 
-#ifdef DEBUG_BUILD
+#if !defined(NDEBUG)
     std::unique_ptr<ui::Label> m_fps_text{ nullptr };
 #endif
 

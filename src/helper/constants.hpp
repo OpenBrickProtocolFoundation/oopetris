@@ -15,8 +15,9 @@ namespace constants {
     constexpr auto program_name = StaticString{ STRINGIFY(OOPETRIS_NAME) };
     constexpr auto author = StaticString{ STRINGIFY(OOPETRIS_AUTHOR) };
     constexpr auto version = StaticString{ STRINGIFY(OOPETRIS_VERSION) };
-    constexpr auto music_change_level = 30;
+    constexpr u32 music_change_level = 30;
     constexpr auto recordings_directory = "recordings";
+    constexpr u32 simulation_frequency = 60;
 
 #if not defined(AUDIO_QUALITY)
 #define AUDIO_QUALITY 0 // NOLINT(cppcoreguidelines-macro-usage)

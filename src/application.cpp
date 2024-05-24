@@ -20,7 +20,7 @@
 #include "helper/console_helpers.hpp"
 #endif
 
-#ifdef DEBUG_BUILD
+#if !defined(NDEBUG)
 #include "graphics/text.hpp"
 #endif
 
@@ -58,7 +58,7 @@ Application::Application(std::shared_ptr<Window>&& window, const std::vector<std
 void Application::run() {
     m_event_dispatcher.register_listener(this);
 
-#ifdef DEBUG_BUILD
+#if !defined(NDEBUG)
     auto start_time = SDL_GetPerformanceCounter();
     const auto update_time = SDL_GetPerformanceFrequency() / 2; //0.5 s
     const auto count_per_s = static_cast<double>(SDL_GetPerformanceFrequency());
@@ -84,7 +84,7 @@ void Application::run() {
         render();
         m_renderer.present();
 
-#ifdef DEBUG_BUILD
+#if !defined(NDEBUG)
         ++frame_counter;
 
         const Uint64 current_time = SDL_GetPerformanceCounter();
@@ -244,7 +244,7 @@ void Application::render() const {
     for (const auto& scene : m_scene_stack) {
         scene->render(*this);
     }
-#ifdef DEBUG_BUILD
+#if !defined(NDEBUG)
     m_fps_text->render(*this);
 #endif
 }
@@ -266,7 +266,7 @@ void Application::initialize() {
 
         this->load_resources();
 
-#ifdef DEBUG_BUILD
+#if !defined(NDEBUG)
         m_fps_text = std::make_unique<ui::Label>(
                 this, "FPS: ?", font_manager().get(FontId::Default), Color::white(),
                 std::pair<double, double>{ 0.95, 0.95 },

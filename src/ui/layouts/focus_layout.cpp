@@ -31,6 +31,40 @@ void ui::FocusLayout::update() {
     return static_cast<u32>(m_widgets.size());
 }
 
+
+ui::Widget::EventHandleResult
+ui::FocusLayout::handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) {
+    Widget::EventHandleResult handled = handle_focus_change_events(input_manager, event);
+
+    if (handled) {
+        return handled;
+    }
+
+
+    if (const auto pointer_event = input_manager->get_pointer_event(event); pointer_event.has_value()) {
+
+        for (auto& widget : m_widgets) {
+            const auto layout = widget->layout();
+            if (not handled and pointer_event->is_in(layout.get_rect())) {
+                if (const auto event_result = widget->handle_event(input_manager, event); event_result) {
+                    handled = { true, handle_event_result(event_result.get_additional(), widget.get()) };
+                    continue;
+                }
+            } else {
+                const auto hoverable = as_hoverable(widget.get());
+                if (hoverable.has_value()) {
+                    hoverable.value()->on_unhover();
+                }
+            }
+        }
+        return handled;
+    }
+
+
+    return handled;
+}
+
+
 ui::Widget::EventHandleResult ui::FocusLayout::handle_focus_change_button_events(
         const std::shared_ptr<input::InputManager>& input_manager,
         const SDL_Event& event
@@ -79,6 +113,7 @@ ui::Widget::EventHandleResult ui::FocusLayout::handle_focus_change_events(
         }
 
         if (const auto event_result = widget->handle_event(input_manager, event); event_result) {
+
             return { true, handle_event_result(event_result.get_additional(), widget.get()) };
         }
 
@@ -173,7 +208,7 @@ ui::FocusLayout::handle_event_result(const helper::optional<ui::Widget::InnerSta
             return ui::Widget::InnerState{ ui::EventHandleType::RequestAction, value.second };
         }
         default:
-            utils::unreachable();
+            UNREACHABLE();
     }
 }
 
@@ -196,7 +231,7 @@ ui::FocusLayout::handle_event_result(const helper::optional<ui::Widget::InnerSta
         }
     }
 
-#ifdef DEBUG_BUILD
+#if !defined(NDEBUG)
     // this works, since result is sorted already
     const auto duplicates = std::ranges::adjacent_find(result);
     if (duplicates != result.cend()) {
