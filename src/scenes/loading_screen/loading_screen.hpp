@@ -12,7 +12,7 @@ namespace scenes {
     private:
         std::vector<std::tuple<Mino, double>> m_segments{};
 
-        shapes::UPoint m_tile_size;
+        u32 m_tile_size;
         shapes::UPoint m_start_offset;
 
     public:
@@ -23,7 +23,7 @@ namespace scenes {
         void render(const ServiceProvider& service_provider) const;
 
     private:
-        [[nodiscard]] shapes::UPoint to_screen_coords(const Mino::GridPoint& point) const;
+        [[nodiscard]] shapes::UPoint to_screen_coords(const Mino::GridPoint& point, u32 tile_size) const;
     };
 
 } // namespace scenes

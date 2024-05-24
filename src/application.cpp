@@ -252,13 +252,10 @@ void Application::render() const {
 
 void Application::initialize() {
 
-
-    //TODO(Totto): is this safe?!
     std::future<void> load_everything = std::async(std::launch::async, [this] {
         m_input_manager->initialize(m_window);
 
         load_resources();
-
 
 #ifdef DEBUG_BUILD
         m_fps_text = std::make_unique<ui::Label>(
