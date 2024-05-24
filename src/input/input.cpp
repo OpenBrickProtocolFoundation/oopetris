@@ -76,7 +76,10 @@ input::PointerEventHelper::PointerEventHelper(shapes::IPoint pos, PointerEvent e
     return m_event == event;
 }
 
-input::InputManager::InputManager(const std::shared_ptr<Window>& window) {
+input::InputManager::InputManager() = default;
+
+
+void input::InputManager::initialize(const std::shared_ptr<Window>& window) {
 
     //initialize mouse input
     m_inputs.push_back(std::make_unique<input::MouseInput>());

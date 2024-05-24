@@ -6,7 +6,7 @@
 
 namespace {
     [[nodiscard]] double elapsed_time() {
-        return static_cast<double>(SDL_GetTicks()) / 1000.0;
+        return static_cast<double>(SDL_GetTicks64()) / 1000.0;
     }
 
 } // namespace

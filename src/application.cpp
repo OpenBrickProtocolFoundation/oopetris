@@ -4,9 +4,12 @@
 #include "helper/message_box.hpp"
 #include "helper/sleep.hpp"
 #include "input/input.hpp"
+#include "scenes/loading_screen/loading_screen.hpp"
 #include "scenes/scene.hpp"
+#include "ui/layout.hpp"
 
 #include <chrono>
+#include <future>
 #include <memory>
 #include <ranges>
 #include <stdexcept>
@@ -36,7 +39,7 @@ Application::Application(std::shared_ptr<Window>&& window, const std::vector<std
       m_renderer{ *m_window, m_command_line_arguments.target_fps.has_value() ? Renderer::VSync::Disabled
                                                                              : Renderer::VSync::Enabled },
       m_music_manager{ this, num_audio_channels },
-      m_input_manager{ std::make_shared<input::InputManager>(m_window) },
+      m_input_manager{ std::make_shared<input::InputManager>() },
       m_settings_manager{ this },
       m_target_framerate{ m_command_line_arguments.target_fps } {
     initialize();
@@ -249,32 +252,80 @@ void Application::render() const {
 
 void Application::initialize() {
 
-    load_resources();
-    push_scene(scenes::create_scene(*this, SceneId::MainMenu, ui::FullScreenLayout{ *m_window }));
+
+    //TODO(Totto): is this safe?!
+    std::future<void> load_everything = std::async(std::launch::async, [this] {
+        m_input_manager->initialize(m_window);
+
+        load_resources();
+
 
 #ifdef DEBUG_BUILD
-    m_fps_text = std::make_unique<ui::Label>(
-            this, "FPS: ?", font_manager().get(FontId::Default), Color::white(),
-            std::pair<double, double>{ 0.95, 0.95 },
-            ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
-            ui::RelativeLayout{ window(), 0.0, 0.0, 0.1, 0.05 }, false
-    );
+        m_fps_text = std::make_unique<ui::Label>(
+                this, "FPS: ?", font_manager().get(FontId::Default), Color::white(),
+                std::pair<double, double>{ 0.95, 0.95 },
+                ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
+                ui::RelativeLayout{ window(), 0.0, 0.0, 0.1, 0.05 }, false
+        );
 #endif
 
 #if defined(_HAVE_DISCORD_SDK)
-    if (m_settings_manager.settings().discord) {
-        auto discord_instance = DiscordInstance::initialize();
-        if (not discord_instance.has_value()) {
-            spdlog::warn(
-                    "Error initializing the discord instance, it might not be running: {}", discord_instance.error()
-            );
-        } else {
-            m_discord_instance = std::move(discord_instance.value());
-            m_discord_instance->after_setup();
+        if (m_settings_manager.settings().discord) {
+            auto discord_instance = DiscordInstance::initialize();
+            if (not discord_instance.has_value()) {
+                spdlog::warn(
+                        "Error initializing the discord instance, it might not be running: {}", discord_instance.error()
+                );
+            } else {
+                m_discord_instance = std::move(discord_instance.value());
+                m_discord_instance->after_setup();
+            }
         }
-    }
 
 #endif
+    });
+
+    auto loading_screen = scenes::LoadingScreen{ this };
+
+    using namespace std::chrono_literals;
+
+    const auto sleep_time = m_target_framerate.has_value() ? std::chrono::duration_cast<std::chrono::nanoseconds>(1s)
+                                                                     / m_target_framerate.value()
+                                                           : 0s;
+    auto start_execution_time = std::chrono::steady_clock::now();
+
+
+    bool finished_loading = false;
+
+    while (not finished_loading) {
+
+        loading_screen.update();
+        loading_screen.render(*this);
+
+        // present and  wait (depending if vsync is on or not, this has to be done manually)
+        m_renderer.present();
+
+        if (m_target_framerate.has_value()) {
+
+            const auto now = std::chrono::steady_clock::now();
+            const auto runtime = (now - start_execution_time);
+            if (runtime < sleep_time) {
+                //TODO(totto): use SDL_DelayNS in sdl >= 3.0
+                helper::sleep_nanoseconds(sleep_time - runtime);
+                start_execution_time = std::chrono::steady_clock::now();
+            } else {
+                start_execution_time = now;
+            }
+        }
+        // end waiting
+
+        // wait until is faster, since it just compares two time_points instead of getting now() and than adding the wait-for argument
+        finished_loading =
+                load_everything.wait_until(std::chrono::system_clock::time_point::min()) == std::future_status::ready;
+    }
+
+
+    push_scene(scenes::create_scene(*this, SceneId::MainMenu, ui::FullScreenLayout{ *m_window }));
 }
 
 void Application::load_resources() {
