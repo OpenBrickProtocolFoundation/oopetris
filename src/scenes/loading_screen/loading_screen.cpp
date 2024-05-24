@@ -63,7 +63,7 @@ void scenes::LoadingScreen::update() {
 
         auto& scale = std::get<1>(segment);
 
-        const auto offset = std::numbers::pi_v<double> * 2.0 * static_cast<double>(i) / length_d;
+        const auto offset = std::numbers::pi_v<double> * 2.0 * static_cast<double>(length - i - 1) / length_d;
 
         scale = std::min(amplitude * std::sin(time * speed + offset) + scale_offset, 1.0);
     }
@@ -92,6 +92,8 @@ void scenes::LoadingScreen::render(const ServiceProvider& service_provider) cons
                     { tile_size, tile_size }
             );
         }
+
+        //TODO: render text here, but than we need to load the fonts before this, not in the loading thread (not that they take that long)
     }
 }
 
