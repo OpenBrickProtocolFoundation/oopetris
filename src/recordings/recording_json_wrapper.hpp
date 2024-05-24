@@ -44,9 +44,13 @@ namespace nlohmann {
 
         static void to_json(json& obj, const recorder::AdditionalInformation& information) {
 
+            obj = nlohmann::json::object();
+
             for (const auto& [key, value] : information) {
-                auto& context = obj.at(key);
-                nlohmann::adl_serializer<recorder::InformationValue>::to_json(context, value);
+
+                json value_json;
+                nlohmann::adl_serializer<recorder::InformationValue>::to_json(value_json, value);
+                obj[key] = value_json;
             }
         }
     };
