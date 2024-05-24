@@ -252,6 +252,8 @@ void Application::initialize() {
 
     auto loading_screen = scenes::LoadingScreen{ this };
 
+    const auto start_time = SDL_GetTicks64();
+
     const std::future<void> load_everything = std::async(std::launch::async, [this] {
         this->m_music_manager = std::make_unique<MusicManager>(this, num_audio_channels);
 
@@ -347,12 +349,20 @@ void Application::initialize() {
                 load_everything.wait_until(std::chrono::system_clock::time_point::min()) == std::future_status::ready;
     }
 
-    // we can reach this via SDL_QUiT or (not console::inMainLoop())
+
+    const auto duration = std::chrono::milliseconds(SDL_GetTicks64() - start_time);
+
+    // we can reach this via SDL_QUIT or (not console::inMainLoop())
     if (not finished_loading) {
+
+        spdlog::debug("Aborted loading after {}", duration);
+
         // just exit immediately, without cleaning up, since than we would have to cancel the loading thread somehow, which is way rto complicated, let the OS clean up our mess we create her xD
         std::exit(0);
     }
 
+
+    spdlog::debug("Took {} to load", duration);
 
     push_scene(scenes::create_scene(*this, SceneId::MainMenu, ui::FullScreenLayout{ *m_window }));
 }
