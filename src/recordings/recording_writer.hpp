@@ -13,7 +13,6 @@ namespace recorder {
     struct RecordingWriter : public Recording {
     private:
         std::ofstream m_output_file;
-        constexpr static u8 version_number = 1;
 
         explicit RecordingWriter(
                 std::ofstream&& output_file,

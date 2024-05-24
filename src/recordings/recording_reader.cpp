@@ -50,10 +50,11 @@ recorder::RecordingReader::get_header_from_path(const std::filesystem::path& pat
     if (not version_number.has_value()) {
         return helper::unexpected<std::string>{ "unable to read recording version from recorded game" };
     }
-    if (version_number.value() != 1) {
-        return helper::unexpected<std::string>{
-            fmt::format("only supported version at the moment is {}, but got {}", 1, version_number.value())
-        };
+    if (version_number.value() != Recording::version_number) {
+        return helper::unexpected<std::string>{ fmt::format(
+                "only supported version at the moment is {}, but got {}", Recording::version_number,
+                version_number.value()
+        ) };
     }
 
     const auto num_tetrions = helper::reader::read_integral_from_file<u8>(file);
@@ -172,11 +173,8 @@ helper::expected<recorder::RecordingReader, std::string> recorder::RecordingRead
     return m_records.cend();
 }
 
-[[nodiscard]] const std::vector<recorder::Record>& recorder::RecordingReader::records() {
+[[nodiscard]] const std::vector<recorder::Record>& recorder::RecordingReader::records() const {
     return m_records;
-}
-[[nodiscard]] const std::vector<TetrionSnapshot>& recorder::RecordingReader::snapshots() {
-    return m_snapshots;
 }
 
 [[nodiscard]] const std::vector<TetrionSnapshot>& recorder::RecordingReader::snapshots() const {

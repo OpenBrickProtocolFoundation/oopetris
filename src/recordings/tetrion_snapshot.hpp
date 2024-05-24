@@ -45,7 +45,15 @@ public:
 
     [[nodiscard]] u8 tetrion_index() const;
 
+    [[nodiscard]] Level level() const;
+
+    [[nodiscard]] Score score() const;
+
+    [[nodiscard]] LineCount lines_cleared() const;
+
     [[nodiscard]] u64 simulation_step_index() const;
+
+    [[nodiscard]] const MinoStack& mino_stack() const;
 
     [[nodiscard]] std::vector<char> to_bytes() const;
 

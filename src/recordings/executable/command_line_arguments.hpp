@@ -1,13 +1,11 @@
 #pragma once
 
-#include "helper/optional.hpp"
 
 #include <argparse/argparse.hpp>
 #include <filesystem>
 #include <fmt/format.h>
 #include <stdexcept>
 #include <string>
-#include <type_traits>
 
 enum class Command { Info, Dump };
 

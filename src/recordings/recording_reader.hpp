@@ -32,8 +32,7 @@ namespace recorder {
         [[nodiscard]] auto begin() const;
         [[nodiscard]] auto end() const;
 
-        [[nodiscard]] const std::vector<Record>& records();
-        [[nodiscard]] const std::vector<TetrionSnapshot>& snapshots();
+        [[nodiscard]] const std::vector<Record>& records() const;
 
         [[nodiscard]] const std::vector<TetrionSnapshot>& snapshots() const;
 

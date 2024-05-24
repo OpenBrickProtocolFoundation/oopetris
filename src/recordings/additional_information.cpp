@@ -390,8 +390,7 @@ recorder::InformationValue::read_value_from_istream( // NOLINT(misc-no-recursion
     };
 }
 
-recorder::AdditionalInformation::AdditionalInformation(std::unordered_map<std::string, InformationValue>&& values)
-    : m_values{ std::move(values) } { }
+recorder::AdditionalInformation::AdditionalInformation(UnderlyingContainer&& values) : m_values{ std::move(values) } { }
 
 recorder::AdditionalInformation::AdditionalInformation() = default;
 
@@ -414,7 +413,7 @@ helper::expected<recorder::AdditionalInformation, std::string> recorder::Additio
         return helper::unexpected<std::string>{ "unable to read number of pairs" };
     }
 
-    std::unordered_map<std::string, InformationValue> values{};
+    UnderlyingContainer values{};
 
     values.reserve(num_pairs.value());
     for (u32 i = 0; i < num_pairs.value(); ++i) {
@@ -546,4 +545,21 @@ helper::optional<recorder::InformationValue> recorder::AdditionalInformation::ge
     }
 
     return sha256_creator.get_hash();
+}
+
+
+recorder::AdditionalInformation::iterator recorder::AdditionalInformation::begin() {
+    return m_values.begin();
+}
+
+recorder::AdditionalInformation::const_iterator recorder::AdditionalInformation::begin() const {
+    return m_values.begin();
+}
+
+recorder::AdditionalInformation::iterator recorder::AdditionalInformation::end() {
+    return m_values.end();
+}
+
+recorder::AdditionalInformation::const_iterator recorder::AdditionalInformation::end() const {
+    return m_values.end();
 }

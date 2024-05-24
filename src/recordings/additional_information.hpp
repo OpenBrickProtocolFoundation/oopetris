@@ -20,9 +20,11 @@
 namespace recorder {
 
     struct InformationValue {
+        using UnderlyingType = std::
+                variant<std::string, float, double, bool, u8, i8, u32, i32, u64, i64, std::vector<InformationValue>>;
+
     private:
-        std::variant<std::string, float, double, bool, u8, i8, u32, i32, u64, i64, std::vector<InformationValue>>
-                m_value;
+        UnderlyingType m_value;
 
         enum class ValueType : u8 { String = 0, Float, Double, Bool, U8, I8, U32, I32, U64, I64, Vector };
         constexpr static u32 max_recursion_depth = 15;
@@ -59,6 +61,9 @@ namespace recorder {
             return std::get<T>(m_value);
         }
 
+        [[nodiscard]] const UnderlyingType& underlying() const {
+            return m_value;
+        }
 
         [[nodiscard]] std::string to_string(u32 recursion_depth = 0) const;
 
@@ -129,9 +134,12 @@ namespace recorder {
     struct AdditionalInformation {
     private:
         static constexpr u32 magic_start_byte = 0xABCDEF01;
-        std::unordered_map<std::string, InformationValue> m_values{};
 
-        AdditionalInformation(std::unordered_map<std::string, InformationValue>&& values);
+        using UnderlyingContainer = std::unordered_map<std::string, InformationValue>;
+
+        UnderlyingContainer m_values{};
+
+        explicit AdditionalInformation(UnderlyingContainer&& values);
 
     public:
         explicit AdditionalInformation();
@@ -170,7 +178,30 @@ namespace recorder {
         [[nodiscard]] helper::expected<std::vector<char>, std::string> to_bytes() const;
 
         [[nodiscard]] helper::expected<Sha256Stream::Checksum, std::string> get_checksum() const;
+
+        // iterator trait
+        using iterator = UnderlyingContainer::iterator;               //NOLINT(readability-identifier-naming)
+        using const_iterator = UnderlyingContainer::const_iterator;   //NOLINT(readability-identifier-naming)
+        using difference_type = UnderlyingContainer::difference_type; //NOLINT(readability-identifier-naming)
+        using value_type = UnderlyingContainer::value_type;           //NOLINT(readability-identifier-naming)
+        using pointer = UnderlyingContainer::pointer;                 //NOLINT(readability-identifier-naming)
+        using reference = UnderlyingContainer::reference;             //NOLINT(readability-identifier-naming)
+        using iterator_category = std::bidirectional_iterator_tag;    //NOLINT(readability-identifier-naming)
+
+
+        [[nodiscard]] iterator begin();
+
+        [[nodiscard]] const_iterator begin() const;
+
+        [[nodiscard]] iterator end();
+
+        [[nodiscard]] const_iterator end() const;
     };
+
+    STATIC_ASSERT_WITH_MESSAGE(
+            utils::IsIterator<AdditionalInformation>::value,
+            "AdditionalInformation has to be an iterator"
+    );
 
 
 } // namespace recorder

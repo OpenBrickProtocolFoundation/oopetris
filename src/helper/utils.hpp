@@ -114,6 +114,18 @@ namespace utils {
         return is_child_class<T, S>(parent.get());
     }
 
+    template<class T, class = void>
+    struct IsIterator : std::false_type { };
+
+    template<class T>
+    struct IsIterator<T, std::void_t<typename std::iterator_traits<T>::iterator_category>> : std::true_type { };
+
+#if __cpp_static_assert >= 202306L
+#define STATIC_ASSERT_WITH_MESSAGE(check, msg) static_assert(check, msg); // NOLINT(cppcoreguidelines-macro-usage)
+#else
+#define STATIC_ASSERT_WITH_MESSAGE(check, msg) static_assert(check); // NOLINT(cppcoreguidelines-macro-usage)
+#endif
+
 
 } // namespace utils
 

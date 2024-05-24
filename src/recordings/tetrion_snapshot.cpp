@@ -103,8 +103,24 @@ TetrionSnapshot::TetrionSnapshot(
     return m_tetrion_index;
 }
 
+[[nodiscard]] TetrionSnapshot::Level TetrionSnapshot::level() const {
+    return m_level;
+}
+
+[[nodiscard]] TetrionSnapshot::Score TetrionSnapshot::score() const {
+    return m_score;
+}
+
+[[nodiscard]] TetrionSnapshot::LineCount TetrionSnapshot::lines_cleared() const {
+    return m_lines_cleared;
+}
+
 [[nodiscard]] u64 TetrionSnapshot::simulation_step_index() const {
     return m_simulation_step_index;
+}
+
+[[nodiscard]] const MinoStack& TetrionSnapshot::mino_stack() const {
+    return m_mino_stack;
 }
 
 [[nodiscard]] std::vector<char> TetrionSnapshot::to_bytes() const {
