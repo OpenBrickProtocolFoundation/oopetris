@@ -470,12 +470,17 @@ void recorder::AdditionalInformation::add_value(const std::string& key, const In
 
 helper::optional<recorder::InformationValue> recorder::AdditionalInformation::get(const std::string& key) const {
 
-    if (not m_values.contains(key)) {
+    if (not has(key)) {
         return helper::nullopt;
     }
 
     return m_values.at(key);
 }
+
+[[nodiscard]] bool recorder::AdditionalInformation::has(const std::string& key) const {
+    return m_values.contains(key);
+}
+
 
 [[nodiscard]] helper::expected<std::vector<char>, std::string> recorder::AdditionalInformation::to_bytes() const {
     auto bytes = std::vector<char>{};

@@ -8,11 +8,12 @@ Game::Game(
         ServiceProvider* const service_provider,
         const std::shared_ptr<input::GameInput>& input,
         const tetrion::StartingParameters& starting_parameters,
+        u32 simulation_frequency,
         const ui::Layout& layout,
         bool is_top_level
 )
     : ui::Widget{ layout, ui::WidgetType::Component, is_top_level },
-      m_clock_source{ std::make_unique<LocalClock>(starting_parameters.target_fps) },
+      m_clock_source{ std::make_unique<LocalClock>(simulation_frequency) },
       m_input{ input } {
 
 

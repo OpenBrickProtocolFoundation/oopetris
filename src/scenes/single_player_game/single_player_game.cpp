@@ -18,13 +18,15 @@ namespace scenes {
         : Scene{ service_provider, layout } {
 
         const auto date = date::ISO8601Date::now();
+        const auto simulation_frequency = constants::simulation_frequency;
+
 
         recorder::AdditionalInformation additional_information{};
+        additional_information.add<u32>("simulation_frequency", simulation_frequency);
         additional_information.add("mode", "single_player");
         additional_information.add("platform", std::string{ magic_enum::enum_name(utils::get_platform()) });
         additional_information.add("date", date.value());
         //TODO(Totto): add more information, if logged in
-
 
         auto result =
                 input::get_single_player_game_parameters(service_provider, std::move(additional_information), date);
@@ -38,7 +40,9 @@ namespace scenes {
 
         auto [input, starting_parameters] = result.value();
 
-        m_game = std::make_unique<Game>(service_provider, std::move(input), starting_parameters, layout, true);
+        m_game = std::make_unique<Game>(
+                service_provider, std::move(input), starting_parameters, simulation_frequency, layout, true
+        );
 
 
 #if defined(_HAVE_DISCORD_SDK)

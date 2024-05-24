@@ -16,7 +16,7 @@ namespace scenes {
     )
         : Scene{ service_provider, layout } {
 
-        auto parameters = input::get_game_parameters_for_replay(service_provider, recording_path);
+        auto [parameters, information] = input::get_game_parameters_for_replay(service_provider, recording_path);
 
 
         std::vector<ui::Layout> layouts{};
@@ -35,11 +35,18 @@ namespace scenes {
             throw std::runtime_error("At the moment only replays from up to two players are supported");
         }
 
+        u32 simulation_frequency = constants::simulation_frequency;
+        if (const auto stored_simulation_frequency = information.get_if<u32>("simulation_frequency");
+            stored_simulation_frequency.has_value()) {
+            simulation_frequency = stored_simulation_frequency.value();
+        }
+
+
         for (decltype(parameters.size()) i = 0; i < parameters.size(); ++i) {
             auto [input, starting_parameters] = std::move(parameters.at(i));
 
             m_games.emplace_back(std::make_unique<Game>(
-                    service_provider, std::move(input), starting_parameters, layouts.at(i), false
+                    service_provider, std::move(input), starting_parameters, simulation_frequency, layouts.at(i), false
             ));
         }
 

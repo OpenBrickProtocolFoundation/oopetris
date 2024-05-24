@@ -149,10 +149,12 @@ namespace recorder {
 
         [[nodiscard]] helper::optional<InformationValue> get(const std::string& key) const;
 
+        [[nodiscard]] bool has(const std::string& key) const;
+
         template<typename T>
         [[nodiscard]] helper::optional<T> get_if(const std::string& key) const {
 
-            if (not m_values.contains(key)) {
+            if (not has(key)) {
                 return helper::nullopt;
             }
 
