@@ -31,7 +31,7 @@ sdl2_dep = dependency(
     'SDL2',
     allow_fallback: false,
     required: only_allow_native_libs,
-    version: '>=2.24.0',
+    version: '>=2.26.0',
 )
 
 if sdl2_dep.found()

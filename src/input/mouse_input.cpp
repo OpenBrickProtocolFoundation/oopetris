@@ -18,6 +18,10 @@ input::MouseInput::MouseInput() : PointerInput("mouse") { }
             new_event.motion.x = event.motion.x + point.x;
             new_event.motion.y = event.motion.y + point.y;
             break;
+        case SDL_MOUSEWHEEL:
+            new_event.wheel.mouseX = event.wheel.mouseX + point.x;
+            new_event.wheel.mouseY = event.wheel.mouseY + point.y;
+            break;
         case SDL_MOUSEBUTTONDOWN:
         case SDL_MOUSEBUTTONUP:
             new_event.button.x = event.button.x + point.x;
@@ -50,6 +54,11 @@ input::MouseInput::get_navigation_event(const SDL_Event& /*event*/) const {
             return input::PointerEventHelper{
                 shapes::IPoint{ event.motion.x, event.motion.y },
                 input::PointerEvent::Motion
+            };
+        case SDL_MOUSEWHEEL:
+            return input::PointerEventHelper{
+                shapes::IPoint{ event.wheel.mouseX, event.wheel.mouseY },
+                input::PointerEvent::Wheel
             };
         case SDL_MOUSEBUTTONDOWN:
             pointer_event = input::PointerEvent::PointerDown;

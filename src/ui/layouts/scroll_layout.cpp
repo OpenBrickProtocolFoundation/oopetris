@@ -173,23 +173,31 @@ ui::ScrollLayout::handle_event(const std::shared_ptr<input::InputManager>& input
         }
 
         //TODO(Totto): support touch screen scrolling too, factor this out into the input manager
-    } else if (event.type == SDL_MOUSEWHEEL) {
+    } else if (pointer_event == input::PointerEvent::Wheel) {
 
-        // attention the mouse direction changes (it's called natural scrolling on macos/ windows / linux) are not detected by sdl until restart, and here we use the correct scroll behaviour, as the user configured the mouse in it's OS
-        const bool direction_is_down =
-                event.wheel.direction == SDL_MOUSEWHEEL_NORMAL ? event.wheel.y < 0 : event.wheel.y > 0;
+        if (pointer_event->is_in(layout().get_rect())) {
+
+            // if we should support more in teh future, we would have to abstract this better ways, since  accessing event.wheel is not abstracted away atm
+            if (event.type == SDL_MOUSEWHEEL) {
 
 
-        auto desired_scroll_height = 0;
+                // attention the mouse direction changes (it's called natural scrolling on macos/ windows / linux) are not detected by sdl until restart, and here we use the correct scroll behaviour, as the user configured the mouse in it's OS
+                const bool direction_is_down =
+                        event.wheel.direction == SDL_MOUSEWHEEL_NORMAL ? event.wheel.y < 0 : event.wheel.y > 0;
 
-        if (direction_is_down) {
-            desired_scroll_height = static_cast<int>(m_viewport.top_left.y + m_step_size);
-        } else {
-            desired_scroll_height = static_cast<int>(m_viewport.top_left.y - m_step_size);
+
+                auto desired_scroll_height = 0;
+
+                if (direction_is_down) {
+                    desired_scroll_height = static_cast<int>(m_viewport.top_left.y + m_step_size);
+                } else {
+                    desired_scroll_height = static_cast<int>(m_viewport.top_left.y - m_step_size);
+                }
+
+                recalculate_sizes(desired_scroll_height);
+                handled = true;
+            }
         }
-
-        recalculate_sizes(desired_scroll_height);
-        handled = true;
     }
 
     if (pointer_event.has_value()) {

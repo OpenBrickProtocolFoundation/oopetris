@@ -195,31 +195,36 @@ namespace ui {
                         change_value_on_scroll();
                         handled = true;
                     }
+                } else if (has_focus() and pointer_event == input::PointerEvent::Wheel) {
+
+                    if (pointer_event->is_in(layout().get_rect())) {
+
+                        // if we should support more in teh future, we would have to abstract this better ways, since  accessing event.wheel is not abstracted away atm
+                        if (event.type == SDL_MOUSEWHEEL) {
+
+                            // here we use a reverse scroll behaviour, since moving the mouse up is always considered increasing the volume, regardless of you OS setting about natural scrolling or not
+                            const bool direction_is_up = event.wheel.direction == SDL_MOUSEWHEEL_NORMAL
+                                                                 ? event.wheel.y > 0
+                                                                 : event.wheel.y < 0;
+
+                            if (direction_is_up) {
+                                m_current_value = m_current_value + m_step;
+                                if (m_current_value >= m_range.second) {
+                                    m_current_value = m_range.second;
+                                }
+
+                            } else {
+                                m_current_value = m_current_value - m_step;
+                                if (m_current_value <= m_range.first) {
+                                    m_current_value = m_range.first;
+                                }
+                            }
+
+                            handled = true;
+                        }
+                    }
                 }
             }
-
-            if (not handled and has_focus() and event.type == SDL_MOUSEWHEEL) {
-
-                // here we use a reverse scroll behaviour, since moving the mouse up is always considered increasing the volume, regardless of you OS setting about natural scrolling or not
-                const bool direction_is_up =
-                        event.wheel.direction == SDL_MOUSEWHEEL_NORMAL ? event.wheel.y > 0 : event.wheel.y < 0;
-
-                if (direction_is_up) {
-                    m_current_value = m_current_value + m_step;
-                    if (m_current_value >= m_range.second) {
-                        m_current_value = m_range.second;
-                    }
-
-                } else {
-                    m_current_value = m_current_value - m_step;
-                    if (m_current_value <= m_range.first) {
-                        m_current_value = m_range.first;
-                    }
-                }
-
-                handled = true;
-            }
-
 
             if (handled) {
                 m_setter(m_current_value);
