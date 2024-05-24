@@ -50,9 +50,10 @@ namespace ui {
                             return { true, ActionType::Clicked };
                         case input::PointerEvent::PointerUp:
                             return { true, ActionType::Released };
-
                         case input::PointerEvent::Motion:
                             return { true, ActionType::Hover };
+                        case input::PointerEvent::Wheel:
+                            return false;
 
                         default:
                             UNREACHABLE();
