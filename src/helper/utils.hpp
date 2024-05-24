@@ -120,10 +120,13 @@ namespace utils {
 #define UNUSED(x) (void(x)) // NOLINT(cppcoreguidelines-macro-usage)
 
 #if !defined(NDEBUG)
-#define UNREACHABLE() /* NOLINT(cppcoreguidelines-macro-usage)*/                                           \
-    do {                                                                                                   \
-        std::cerr << "UNREACHABLE " << (__FILE__) << ":" << (__LINE__) << " - " << (__FUNCTION__) << "\n"; \
-        utils::unreachable();                                                                              \
+#define UNREACHABLE()                             /* NOLINT(cppcoreguidelines-macro-usage)*/                       \
+    do {                                          /* NOLINT(cppcoreguidelines-avoid-do-while)*/                    \
+        std::cerr << "UNREACHABLE " << (__FILE__) /* NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay)*/ \
+                  << ":" << (__LINE__) << " - "                                                                    \
+                  << (__FUNCTION__) /* NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay)*/               \
+                  << "\n";                                                                                         \
+        utils::unreachable();                                                                                      \
     } while (false)
 #else
 #define UNREACHABLE() utils::unreachable // NOLINT(cppcoreguidelines-macro-usage)
