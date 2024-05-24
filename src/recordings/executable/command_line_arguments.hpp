@@ -7,44 +7,65 @@
 #include <stdexcept>
 #include <string>
 
-enum class Command { Info, Dump };
+
+struct Dump {
+    bool ensure_ascii;
+    bool pretty_print;
+};
+
+struct Info { };
+
 
 struct CommandLineArguments final {
 private:
 public:
     std::filesystem::path recording_path{};
-    Command command{ Command::Info };
+    std::variant<Dump, Info> value;
+
 
     CommandLineArguments(int argc, char** argv) {
         argparse::ArgumentParser parser{ argc >= 1 ? argv[0] //NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
                                                    : "oopetris_recording_utility",
                                          "0.0.1", argparse::default_arguments::all };
 
-        parser.add_argument("command")
-                .help("specify the command")
-                .default_value(std::string{ "info" })
-                .choices("info", "i", "dump", "d")
-                .required();
 
         parser.add_argument("-r", "--recording").help("the path of a recorded game file").required();
+
+
+        // git add subparser
+        argparse::ArgumentParser dump_parser("dump");
+        dump_parser.add_description("Dump JSON value");
+        dump_parser.add_argument("-a", "--ensure-ascii")
+                .help("Only use ASCII characters and escape sequences (\\uXXXX)")
+                .flag();
+        dump_parser.add_argument("-p", "--pretty-print").help("Pretty print the JSON").flag();
+
+        argparse::ArgumentParser info_parser("info");
+        info_parser.add_description("Print hHuman readable Info");
+
+
+        parser.add_subparser(dump_parser);
+        parser.add_subparser(info_parser);
+
         try {
 
             parser.parse_args(argc, argv);
 
-            recording_path = parser.get("--recording");
+            this->recording_path = parser.get("--recording");
 
-            const auto command_string = parser.get<std::string>("command");
+            if (parser.is_subcommand_used(dump_parser)) {
+                const auto ensure_ascii = dump_parser.get<bool>("--ensure-ascii");
+                const auto pretty_print = dump_parser.get<bool>("--pretty-print");
 
+                this->value = Dump{ .ensure_ascii = ensure_ascii, .pretty_print = pretty_print };
 
-            if (command_string == "info" or command_string == "i") {
-                command = Command::Info;
-            } else if (command_string == "dump" || command_string == "d") {
-                command = Command::Dump;
+            } else if (parser.is_subcommand_used(info_parser)) {
+                this->value = Info{};
             } else {
-                throw std::runtime_error(fmt::format("Unknown command: '{}'", command_string));
+                throw std::runtime_error("Unknown or no subcommand used");
             }
-        } catch (const std::exception& err) {
-            std::cerr << err.what();
+        } catch (const std::exception& error) {
+            std::cerr << error.what();
             std::exit(1);
         }
     }

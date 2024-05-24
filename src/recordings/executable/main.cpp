@@ -12,13 +12,23 @@ void print_info(const recorder::RecordingReader& recording_reader) {
     std::cerr << "NOT IMPLEMENTED\n";
 }
 
-void dump_json(const recorder::RecordingReader& recording_reader) {
+void dump_json(const recorder::RecordingReader& recording_reader, bool pretty_print, bool ensure_ascii) {
 
     nlohmann::json json_value;
 
     nlohmann::adl_serializer<recorder::RecordingReader>::to_json(json_value, recording_reader);
 
-    json_value.dump();
+    int indent = -1;
+    char indent_char = ' ';
+    if (pretty_print) {
+        indent = 4;
+    }
+
+    std::cout << json_value.dump(indent, indent_char, ensure_ascii);
+
+    if (pretty_print) {
+        std::cout << "\n";
+    }
 }
 
 
@@ -45,18 +55,13 @@ int main(int argc, char** argv) noexcept {
 
     const auto recording_reader = std::move(parsed.value());
 
-    switch (arguments.command) {
-        case Command::Info:
-            print_info(recording_reader);
-            return 0;
-        case Command::Dump:
-            dump_json(recording_reader);
-            return 0;
-        default:
-            std::cerr << "Unknown command: ?\n";
-
-            return 1;
-    }
+    std::visit(
+            helper::overloaded{ [&recording_reader](const Dump& dump) {
+                                   dump_json(recording_reader, dump.pretty_print, dump.ensure_ascii);
+                               },
+                                [&recording_reader](const Info& /* info */) { print_info(recording_reader); } },
+            arguments.value
+    );
 
 
     return 0;
