@@ -40,7 +40,7 @@ Application::Application(std::shared_ptr<Window>&& window, const std::vector<std
                                                                              : Renderer::VSync::Enabled },
       m_music_manager{ this, num_audio_channels },
       m_input_manager{ std::make_shared<input::InputManager>() },
-      m_settings_manager{ this },
+      m_settings_manager{ this }, //TODO: also initiliaze in the loading thread
       m_target_framerate{ m_command_line_arguments.target_fps } {
     initialize();
 } catch (const helper::GeneralError& general_error) {
@@ -57,6 +57,11 @@ Application::Application(std::shared_ptr<Window>&& window, const std::vector<std
 
 
 void Application::run() {
+    // if the loader returned (due to SDL_QUIT or similar), we end up here, and just return immediately, ending it gracefully
+    if (not m_is_running) {
+        return;
+    }
+
     m_event_dispatcher.register_listener(this);
 
 #ifdef DEBUG_BUILD
@@ -297,7 +302,27 @@ void Application::initialize() {
 
     bool finished_loading = false;
 
-    while (not finished_loading) {
+    // this is a duplicate of below in some cases, but it's just for the loading screen and can't be factored out easily
+    // this also only uses a subset of all things, the real event loop uses, so that nothing breaks while doing multithreading
+    // not usable: (since accessed via the loading thread):
+    // - m_input_manager
+    // - m_fps_text
+    // - m_font_manager
+    // - m_discord_instance
+
+    while ((not finished_loading) and m_is_running
+#if defined(__CONSOLE__)
+           and console::inMainLoop()
+#endif
+    ) {
+
+        // we can't use the normal event loop, so we have to do it manually
+        SDL_Event event;
+        while (SDL_PollEvent(&event) != 0) {
+            if (event.type == SDL_QUIT) {
+                m_is_running = false;
+            }
+        }
 
         loading_screen.update();
         loading_screen.render(*this);
@@ -322,6 +347,10 @@ void Application::initialize() {
         // wait until is faster, since it just compares two time_points instead of getting now() and than adding the wait-for argument
         finished_loading =
                 load_everything.wait_until(std::chrono::system_clock::time_point::min()) == std::future_status::ready;
+    }
+
+    if (not finished_loading) {
+        return;
     }
 
 
