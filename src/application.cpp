@@ -10,6 +10,7 @@
 #include "ui/layout.hpp"
 
 #include <chrono>
+#include <fmt/chrono.h>
 #include <future>
 #include <memory>
 #include <ranges>
