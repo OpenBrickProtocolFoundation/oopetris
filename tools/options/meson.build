@@ -55,8 +55,15 @@ elif cpp.get_id() == 'clang'
     endif
 
     if build_with_libcpp
-        add_global_link_arguments('-stdlib=libc++', language: ['cpp'])
-        add_global_arguments('-stdlib=libc++', language: ['cpp'])
+        if not meson.is_subproject()
+            add_global_link_arguments('-stdlib=libc++', language: ['cpp'])
+            add_global_arguments('-stdlib=libc++', language: ['cpp'])
+        else
+            add_project_link_arguments('-stdlib=libc++', language: ['cpp'])
+            add_project_arguments('-stdlib=libc++', language: ['cpp'])
+
+        endif
+
         global_deps += [cpp.find_library('c++'), cpp.find_library('c++abi')]
     endif
 
