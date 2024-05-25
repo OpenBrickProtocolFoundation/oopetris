@@ -81,7 +81,7 @@ namespace scenes {
 
         if (m_next_scene.has_value()) {
             const auto next_scene = m_next_scene.value();
-            m_next_scene = helper::nullopt;
+            m_next_scene = std::nullopt;
             m_game->set_paused(true);
 
             switch (next_scene) {
@@ -108,7 +108,7 @@ namespace scenes {
                     UNREACHABLE();
             }
         }
-        return UpdateResult{ SceneUpdate::StopUpdating, helper::nullopt };
+        return UpdateResult{ SceneUpdate::StopUpdating, std::nullopt };
     }
 
     void SinglePlayerGame::render(const ServiceProvider& service_provider) {

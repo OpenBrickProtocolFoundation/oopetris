@@ -59,7 +59,7 @@ namespace scenes {
         struct Exit { };
 
         using Change = std::variant<Pop, Push, RawPush, Switch, RawSwitch, Exit>;
-        using UpdateResult = std::pair<SceneUpdate, helper::optional<Change>>;
+        using UpdateResult = std::pair<SceneUpdate, std::optional<Change>>;
 
     protected:
         ServiceProvider* m_service_provider;

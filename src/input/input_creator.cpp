@@ -6,7 +6,7 @@
 #include "helper/date.hpp"
 #include "helper/errors.hpp"
 #include "helper/expected.hpp"
-#include "helper/optional.hpp"
+
 #include "input.hpp"
 #include "input/replay_input.hpp"
 
@@ -84,7 +84,7 @@ input::get_game_parameters_for_replay(
         const auto starting_level = header.starting_level;
 
         const tetrion::StartingParameters starting_parameters = { target_fps, seed, starting_level, tetrion_index,
-                                                                  helper::nullopt };
+                                                                  std::nullopt };
 
         result.emplace_back(std::move(input), starting_parameters);
     }

@@ -19,7 +19,7 @@ namespace input {
     public:
         KeyboardInput();
 
-        [[nodiscard]] helper::optional<NavigationEvent> get_navigation_event(const SDL_Event& event) const override;
+        [[nodiscard]] std::optional<NavigationEvent> get_navigation_event(const SDL_Event& event) const override;
 
         [[nodiscard]] std::string describe_navigation_event(NavigationEvent event) const override;
     };
@@ -77,14 +77,14 @@ namespace input {
 
         void update(SimulationStep simulation_step_index) override;
 
-        [[nodiscard]] helper::optional<MenuEvent> get_menu_event(const SDL_Event& event) const override;
+        [[nodiscard]] std::optional<MenuEvent> get_menu_event(const SDL_Event& event) const override;
 
         [[nodiscard]] std::string describe_menu_event(MenuEvent event) const override;
 
         [[nodiscard]] const KeyboardInput* underlying_input() const override;
 
     private:
-        [[nodiscard]] helper::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event) const;
+        [[nodiscard]] std::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event) const;
     };
 } // namespace input
 

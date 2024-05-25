@@ -3,7 +3,7 @@
 
 #include "color.hpp"
 #include "helper/constants.hpp"
-#include "helper/optional.hpp"
+
 
 #include <SDL.h>
 #include <spdlog/spdlog.h>
@@ -18,5 +18,5 @@ namespace utils {
 
     [[nodiscard]] std::filesystem::path get_root_folder();
 
-    helper::optional<bool> log_error(const std::string& error);
+    std::optional<bool> log_error(const std::string& error);
 } // namespace utils

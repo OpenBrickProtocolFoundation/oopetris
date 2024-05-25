@@ -39,7 +39,7 @@ ui::ScrollLayout::ScrollLayout(
             : FocusLayout{
                   layout, focus_id, FocusOptions{ is_top_level, is_top_level }, is_top_level}, // if on top, we support tab and wrap around, otherwise not
                   gap{ gap },
-                  m_texture{ helper::nullopt },
+                  m_texture{ std::nullopt },
                   m_service_provider{ service_provider },
                   m_step_size{ static_cast<u32>(layout.get_rect().height() * 0.05) } {
 
@@ -283,8 +283,8 @@ ui::Widget::EventHandleResult ui::ScrollLayout::handle_focus_change_events(
 void ui::ScrollLayout::clear_widgets() {
 
     m_widgets.clear();
-    m_texture = helper::nullopt;
-    m_focus_id = helper::nullopt;
+    m_texture = std::nullopt;
+    m_focus_id = std::nullopt;
 
     recalculate_sizes(0);
 }

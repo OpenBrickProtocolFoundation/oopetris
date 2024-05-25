@@ -8,7 +8,7 @@
 
 #include "graphics/window.hpp"
 #include "helper/constants.hpp"
-#include "helper/optional.hpp"
+
 #include "manager/resource_manager.hpp"
 #include "recording_component.hpp"
 #include "recording_selector.hpp"
@@ -87,7 +87,7 @@ namespace scenes {
                                     const auto recording_path = recording_component.value()->metadata().path;
 
                                     // action is a reference to a structure inside m_next_command, so resetting it means, we need to copy everything out of it
-                                    m_next_command = helper::nullopt;
+                                    m_next_command = std::nullopt;
 
                                     return UpdateResult{
                                         SceneUpdate::StopUpdating,
@@ -111,9 +111,9 @@ namespace scenes {
                                     add_all_recordings();
 
                                     // action is a reference to a structure inside m_next_command, so resetting it means, we need to copy everything out of it
-                                    m_next_command = helper::nullopt;
+                                    m_next_command = std::nullopt;
 
-                                    return UpdateResult{ SceneUpdate::StopUpdating, helper::nullopt };
+                                    return UpdateResult{ SceneUpdate::StopUpdating, std::nullopt };
                                 }
 
 #endif
@@ -123,7 +123,7 @@ namespace scenes {
             );
         }
 
-        return UpdateResult{ SceneUpdate::StopUpdating, helper::nullopt };
+        return UpdateResult{ SceneUpdate::StopUpdating, std::nullopt };
     }
 
     void RecordingSelector::render(const ServiceProvider& service_provider) {

@@ -1,6 +1,6 @@
 #include "touch_input.hpp"
 #include "graphics/point.hpp"
-#include "helper/optional.hpp"
+
 #include "helper/utils.hpp"
 #include "input/game_input.hpp"
 #include "input/input.hpp"
@@ -26,11 +26,11 @@ void input::TouchGameInput::update(SimulationStep simulation_step_index) {
     GameInput::update(simulation_step_index);
 }
 
-helper::optional<InputEvent> input::TouchGameInput::sdl_event_to_input_event(const SDL_Event& event) {
+std::optional<InputEvent> input::TouchGameInput::sdl_event_to_input_event(const SDL_Event& event) {
 
 
     if (event.tfinger.touchId != m_underlying_input->m_id) {
-        return helper::nullopt;
+        return std::nullopt;
     }
 
     //TODO(Totto): to handle those things better, holding has to be supported
@@ -44,7 +44,7 @@ helper::optional<InputEvent> input::TouchGameInput::sdl_event_to_input_event(con
 
         if (m_finger_state.contains(finger_id) and m_finger_state.at(finger_id).has_value()) {
             // there are some valid reasons, this can occur now
-            return helper::nullopt;
+            return std::nullopt;
         }
 
         const auto x_pos = event.tfinger.x;
@@ -53,7 +53,7 @@ helper::optional<InputEvent> input::TouchGameInput::sdl_event_to_input_event(con
 
         m_finger_state.insert_or_assign(
                 finger_id,
-                helper::optional<PressedState>{
+                std::optional<PressedState>{
                         PressedState{ timestamp, x_pos, y_pos }
         }
         );
@@ -68,13 +68,13 @@ helper::optional<InputEvent> input::TouchGameInput::sdl_event_to_input_event(con
 
         if (!m_finger_state.contains(finger_id)) {
             // there are some valid reasons, this can occur now
-            return helper::nullopt;
+            return std::nullopt;
         }
 
         const auto& finger_state = m_finger_state.at(finger_id);
 
         if (!finger_state.has_value()) {
-            return helper::nullopt;
+            return std::nullopt;
         }
 
         const auto& pressed_state = finger_state.value();
@@ -95,7 +95,7 @@ helper::optional<InputEvent> input::TouchGameInput::sdl_event_to_input_event(con
         const auto threshold_x = m_settings.move_x_threshold;
         const auto threshold_y = m_settings.move_y_threshold;
 
-        m_finger_state.insert_or_assign(finger_id, helper::nullopt);
+        m_finger_state.insert_or_assign(finger_id, std::nullopt);
         if (duration < m_settings.rotation_duration_threshold) {
             if (dx_abs < threshold_x and dy_abs < threshold_y) {
                 // tap on the right side of the screen
@@ -138,7 +138,7 @@ helper::optional<InputEvent> input::TouchGameInput::sdl_event_to_input_event(con
     }
 
 
-    return helper::nullopt;
+    return std::nullopt;
 }
 
 
@@ -162,13 +162,13 @@ input::TouchGameInput::~TouchGameInput() {
 input::TouchGameInput::TouchGameInput(TouchGameInput&& input) noexcept = default;
 [[nodiscard]] input::TouchGameInput& input::TouchGameInput::operator=(TouchGameInput&& input) noexcept = default;
 
-[[nodiscard]] helper::optional<input::MenuEvent> input::TouchGameInput::get_menu_event(const SDL_Event& event) const {
+[[nodiscard]] std::optional<input::MenuEvent> input::TouchGameInput::get_menu_event(const SDL_Event& event) const {
 
     if (event.type == SDL_KEYDOWN and event.key.keysym.sym == SDLK_AC_BACK) {
         return MenuEvent::Pause;
     }
 
-    return helper::nullopt;
+    return std::nullopt;
 }
 
 [[nodiscard]] std::string input::TouchGameInput::describe_menu_event(MenuEvent event) const {
@@ -213,14 +213,14 @@ input::TouchInput::get_by_device_index(const std::shared_ptr<Window>& window, in
 }
 
 
-[[nodiscard]] helper::optional<input::NavigationEvent> input::TouchInput::get_navigation_event(const SDL_Event& event
+[[nodiscard]] std::optional<input::NavigationEvent> input::TouchInput::get_navigation_event(const SDL_Event& event
 ) const {
     //technically no touch event, but it's a navigation event, and by APi design it can also handle those
     if (event.type == SDL_KEYDOWN and event.key.keysym.sym == SDLK_AC_BACK) {
         return input::NavigationEvent::BACK;
     }
 
-    return helper::nullopt;
+    return std::nullopt;
 }
 
 [[nodiscard]] std::string input::TouchInput::describe_navigation_event(NavigationEvent event) const {
@@ -239,7 +239,7 @@ input::TouchInput::get_by_device_index(const std::shared_ptr<Window>& window, in
     }
 }
 
-[[nodiscard]] helper::optional<input::PointerEventHelper> input::TouchInput::get_pointer_event(const SDL_Event& event
+[[nodiscard]] std::optional<input::PointerEventHelper> input::TouchInput::get_pointer_event(const SDL_Event& event
 ) const {
 
     auto pointer_event = input::PointerEvent::PointerUp;
@@ -254,11 +254,11 @@ input::TouchInput::get_by_device_index(const std::shared_ptr<Window>& window, in
         case SDL_FINGERUP:
             break;
         default:
-            return helper::nullopt;
+            return std::nullopt;
     }
 
     if (event.tfinger.touchId != m_id) {
-        return helper::nullopt;
+        return std::nullopt;
     }
 
     // These are doubles, from 0-1 (or if using virtual layouts > 0) in percent, the have to be casted to absolut x coordinates!

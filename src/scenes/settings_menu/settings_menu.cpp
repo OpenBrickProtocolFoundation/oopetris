@@ -1,7 +1,7 @@
 #include "settings_menu.hpp"
 #include "color_setting_row.hpp"
 #include "helper/color_literals.hpp"
-#include "helper/optional.hpp"
+
 #include "helper/utils.hpp"
 #include "manager/music_manager.hpp"
 #include "manager/resource_manager.hpp"
@@ -18,17 +18,16 @@ namespace scenes {
     using namespace details::settings::menu;
 
     SettingsMenu::SettingsMenu(ServiceProvider* service_provider, const ui::Layout& layout)
-        : SettingsMenu{ service_provider, layout, helper::nullopt } { }
+        : SettingsMenu{ service_provider, layout, std::nullopt } { }
 
     SettingsMenu::SettingsMenu(
             ServiceProvider* service_provider,
             const ui::Layout& layout,
             const std::shared_ptr<input::GameInput>& game_input
     )
-        : SettingsMenu{ service_provider, layout, helper::optional<std::shared_ptr<input::GameInput>>{ game_input } } {
-    }
+        : SettingsMenu{ service_provider, layout, std::optional<std::shared_ptr<input::GameInput>>{ game_input } } { }
 
-    SettingsMenu::SettingsMenu(ServiceProvider* service_provider, const  ui::Layout& layout,  const helper::optional<std::shared_ptr<input::GameInput>>& game_input) : Scene{service_provider, layout}
+    SettingsMenu::SettingsMenu(ServiceProvider* service_provider, const  ui::Layout& layout,  const std::optional<std::shared_ptr<input::GameInput>>& game_input) : Scene{service_provider, layout}
     , m_main_layout{    utils::size_t_identity<3>(),
     0,
     ui::Direction::Vertical,
@@ -70,7 +69,7 @@ namespace scenes {
                     return value.has_value() ? value.value() : 0.0F;
                 },
                 [service_provider](double amount) {
-                    const auto mapped_amount = amount <= 0.0F ? helper::nullopt : helper::optional<double>{ amount };
+                    const auto mapped_amount = amount <= 0.0F ? std::nullopt : std::optional<double>{ amount };
                     service_provider->music_manager().set_volume(mapped_amount, false, false);
                 },
                 0.05F, std::pair<double, double>{ 0.6, 1.0 },
@@ -79,7 +78,7 @@ namespace scenes {
 
         service_provider->music_manager().add_volume_listener(
                 listener_name,
-                [this, scroll_layout_index, slider_index](helper::optional<double>) {
+                [this, scroll_layout_index, slider_index](std::optional<double>) {
                     auto* scroll_layout = this->m_main_layout.get<ui::ScrollLayout>(scroll_layout_index);
                     scroll_layout->get<ui::Slider>(slider_index)->on_change();
                 }
@@ -136,7 +135,7 @@ namespace scenes {
                                     auto change_scene = settings_details.value()->get_details_scene();
 
                                     // action is a reference to a structure inside m_next_command, so resetting it means, we need to copy everything out of it
-                                    m_next_command = helper::nullopt;
+                                    m_next_command = std::nullopt;
 
                                     return UpdateResult{ SceneUpdate::StopUpdating, std::move(change_scene) };
                                 }
@@ -148,7 +147,7 @@ namespace scenes {
             );
         }
 
-        return UpdateResult{ SceneUpdate::StopUpdating, helper::nullopt };
+        return UpdateResult{ SceneUpdate::StopUpdating, std::nullopt };
     }
 
     void SettingsMenu::render(const ServiceProvider& service_provider) {

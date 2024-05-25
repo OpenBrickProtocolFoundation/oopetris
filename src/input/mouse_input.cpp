@@ -2,7 +2,7 @@
 
 #include "mouse_input.hpp"
 #include "graphics/point.hpp"
-#include "helper/optional.hpp"
+
 #include "input/input.hpp"
 
 
@@ -35,16 +35,16 @@ input::MouseInput::MouseInput() : PointerInput("mouse") { }
 }
 
 
-[[nodiscard]] helper::optional<input::NavigationEvent>
-input::MouseInput::get_navigation_event(const SDL_Event& /*event*/) const {
-    return helper::nullopt;
+[[nodiscard]] std::optional<input::NavigationEvent> input::MouseInput::get_navigation_event(const SDL_Event& /*event*/)
+        const {
+    return std::nullopt;
 }
 
 [[nodiscard]] std::string input::MouseInput::describe_navigation_event(NavigationEvent /*event*/) const {
     throw std::runtime_error("not supported");
 }
 
-[[nodiscard]] helper::optional<input::PointerEventHelper> input::MouseInput::get_pointer_event(const SDL_Event& event
+[[nodiscard]] std::optional<input::PointerEventHelper> input::MouseInput::get_pointer_event(const SDL_Event& event
 ) const {
 
     auto pointer_event = input::PointerEvent::PointerUp;
@@ -66,11 +66,11 @@ input::MouseInput::get_navigation_event(const SDL_Event& /*event*/) const {
         case SDL_MOUSEBUTTONUP:
             break;
         default:
-            return helper::nullopt;
+            return std::nullopt;
     }
 
     if (event.button.button != SDL_BUTTON_LEFT) {
-        return helper::nullopt;
+        return std::nullopt;
     }
 
     const shapes::IPoint pos{ event.button.x, event.button.y };

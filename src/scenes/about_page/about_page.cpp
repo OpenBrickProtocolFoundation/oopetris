@@ -91,7 +91,7 @@ namespace scenes {
         if (m_should_exit) {
             return UpdateResult{ SceneUpdate::StopUpdating, Scene::Pop{} };
         }
-        return UpdateResult{ SceneUpdate::StopUpdating, helper::nullopt };
+        return UpdateResult{ SceneUpdate::StopUpdating, std::nullopt };
     }
 
     void AboutPage::render(const ServiceProvider& service_provider) {

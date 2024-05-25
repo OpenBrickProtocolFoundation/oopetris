@@ -6,7 +6,7 @@
 #if defined(_HAVE_DISCORD_SDK) && !defined(_OOPETRIS_RECORDING_UTILITY)
 
 #include "discord/core.hpp"
-#include "helper/optional.hpp"
+
 
 #endif
 
@@ -55,8 +55,8 @@ struct ServiceProvider {
 
 #if defined(_HAVE_DISCORD_SDK) && !defined(_OOPETRIS_RECORDING_UTILITY)
 
-    [[nodiscard]] virtual helper::optional<DiscordInstance>& discord_instance() = 0;
-    [[nodiscard]] virtual const helper::optional<DiscordInstance>& discord_instance() const = 0;
+    [[nodiscard]] virtual std::optional<DiscordInstance>& discord_instance() = 0;
+    [[nodiscard]] virtual const std::optional<DiscordInstance>& discord_instance() const = 0;
 
 #endif
 };

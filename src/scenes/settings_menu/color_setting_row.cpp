@@ -97,7 +97,7 @@ detail::ColorPickerScene::ColorPickerScene(
     if (m_should_exit) {
         return UpdateResult{ scenes::SceneUpdate::StopUpdating, Scene::Pop{} };
     }
-    return UpdateResult{ scenes::SceneUpdate::StopUpdating, helper::nullopt };
+    return UpdateResult{ scenes::SceneUpdate::StopUpdating, std::nullopt };
 }
 
 void detail::ColorPickerScene::render(const ServiceProvider& service_provider) {

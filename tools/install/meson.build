@@ -81,24 +81,3 @@ foreach logo : logos
         rename: [app_name + '.' + ext],
     )
 endforeach
-
-# generate pkgconfig filres
-pkg = import('pkgconfig')
-pkg.generate(
-    liboopetris_core,
-    name: 'oopetris-core',
-    filebase: 'oopetris-core',
-
-)
-
-pkg.generate(
-    liboopetris_recordings,
-    name: 'oopetris-recordings',
-    filebase: 'oopetris-recordings',
-)
-
-pkg.generate(
-    liboopetris_graphics,
-    name: 'oopetris-graphics',
-    filebase: 'oopetris-graphics',
-)

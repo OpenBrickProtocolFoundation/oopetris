@@ -1,6 +1,6 @@
 #include "input.hpp"
 #include "helper/expected.hpp"
-#include "helper/optional.hpp"
+
 #include "helper/utils.hpp"
 #include "input/controller_input.hpp"
 #include "joystick_input.hpp"
@@ -96,7 +96,7 @@ input::InputManager::InputManager(const std::shared_ptr<Window>& window) {
 }
 
 
-[[nodiscard]] helper::optional<input::NavigationEvent> input::InputManager::get_navigation_event(const SDL_Event& event
+[[nodiscard]] std::optional<input::NavigationEvent> input::InputManager::get_navigation_event(const SDL_Event& event
 ) const {
     for (const auto& input : m_inputs) {
 
@@ -105,10 +105,10 @@ input::InputManager::InputManager(const std::shared_ptr<Window>& window) {
         }
     }
 
-    return helper::nullopt;
+    return std::nullopt;
 }
 
-[[nodiscard]] helper::optional<input::PointerEventHelper> input::InputManager::get_pointer_event(const SDL_Event& event
+[[nodiscard]] std::optional<input::PointerEventHelper> input::InputManager::get_pointer_event(const SDL_Event& event
 ) const {
     for (const auto& input : m_inputs) {
         if (const auto pointer_input = utils::is_child_class<input::PointerInput>(input); pointer_input.has_value()) {
@@ -118,7 +118,7 @@ input::InputManager::InputManager(const std::shared_ptr<Window>& window) {
         }
     }
 
-    return helper::nullopt;
+    return std::nullopt;
 }
 
 
@@ -284,7 +284,7 @@ namespace {
     }
 
 
-    helper::optional<std::shared_ptr<input::GameInput>>
+    std::optional<std::shared_ptr<input::GameInput>>
     get_game_input_by_input(ServiceProvider* service_provider, const std::unique_ptr<input::Input>& input) {
         const auto& settings = service_provider->settings_manager().settings();
 
@@ -311,7 +311,7 @@ namespace {
 
             if (not game_input.has_value()) {
                 spdlog::warn("Not possible to get joystick by settings: {}", game_input.error());
-                return helper::nullopt;
+                return std::nullopt;
             }
 
 
@@ -340,7 +340,7 @@ namespace {
         }
 
 
-        return helper::nullopt;
+        return std::nullopt;
     }
 
 

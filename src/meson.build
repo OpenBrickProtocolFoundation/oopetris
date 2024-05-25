@@ -1,117 +1,54 @@
-core_src_files = []
-recordings_src_files = []
-graphics_src_files = []
+subdir('libs')
 
-graphics_src_files += files(
-    'application.cpp',
-    'application.hpp',
-)
+if build_application
 
-main_files = files(
-    'main.cpp',
-)
+    graphics_src_files = []
 
-subdir('game')
-subdir('graphics')
-subdir('helper')
-subdir('input')
-subdir('manager')
-subdir('recordings')
-subdir('scenes')
-subdir('thirdparty')
-subdir('ui')
+    subdir('game')
+    subdir('graphics')
+    subdir('helper')
+    subdir('input')
+    subdir('manager')
+    subdir('scenes')
+    subdir('ui')
 
-if online_multiplayer_supported
-    subdir('lobby')
+    if online_multiplayer_supported
+        subdir('lobby')
+    endif
+
+    if have_discord_sdk
+        subdir('discord')
+    endif
+
+    graphics_lib += {
+        'deps': [graphics_lib.get('deps'), liboopetris_recordings_dep],
+        'inc_dirs': [graphics_lib.get('inc_dirs'), include_directories('.')],
+    }
+
+    liboopetris_graphics = library(
+        'oopetris_graphics',
+        graphics_src_files,
+        include_directories: graphics_lib.get('inc_dirs'),
+        dependencies: graphics_lib.get('deps'),
+        cpp_args: graphics_lib.get('compile_args'),
+        override_options: {
+            'warning_level': '3',
+            'werror': true,
+        },
+        version: meson.project_version(),
+        install: true,
+    )
+
+    liboopetris_graphics_dep = declare_dependency(
+        link_with: liboopetris_graphics,
+        include_directories: graphics_lib.get('inc_dirs'),
+        compile_args: graphics_lib.get('compile_args'),
+        dependencies: graphics_lib.get('deps'),
+        version: meson.project_version(),
+    )
+    meson.override_dependency('liboopetris-graphics', liboopetris_graphics_dep)
+
+    # setting this to strings, so += {...} gets detected as an error, if it is done after that
+    graphics_lib = 'undefined'
+
 endif
-
-if have_discord_sdk
-    subdir('discord')
-endif
-
-core_lib += {
-    'inc_dirs': [core_lib.get('inc_dirs'), include_directories('.')],
-    'deps': [core_lib.get('deps'), global_deps],
-}
-
-liboopetris_core = library(
-    'oopetris_core',
-    core_src_files,
-    include_directories: core_lib.get('inc_dirs'),
-    dependencies: core_lib.get('deps'),
-    cpp_args: core_lib.get('compile_args'),
-    override_options: {
-        'warning_level': '3',
-        'werror': true,
-    },
-    version: meson.project_version(),
-    install: true,
-)
-
-liboopetris_core_dep = declare_dependency(
-    link_with: liboopetris_core,
-    include_directories: core_lib.get('inc_dirs'),
-    compile_args: core_lib.get('compile_args'),
-    dependencies: core_lib.get('deps'),
-    version: meson.project_version(),
-)
-meson.override_dependency('liboopetris-core', liboopetris_core_dep)
-
-recordings_lib += {
-    'deps': [recordings_lib.get('deps'), liboopetris_core_dep, global_deps],
-}
-
-liboopetris_recordings = library(
-    'oopetris_recordings',
-    recordings_src_files,
-    include_directories: recordings_lib.get('inc_dirs'),
-    dependencies: recordings_lib.get('deps'),
-    cpp_args: recordings_lib.get('compile_args'),
-    override_options: {
-        'warning_level': '3',
-        'werror': true,
-    },
-    version: meson.project_version(),
-    install: true,
-)
-
-liboopetris_recordings_dep = declare_dependency(
-    link_with: liboopetris_recordings,
-    include_directories: recordings_lib.get('inc_dirs'),
-    compile_args: recordings_lib.get('compile_args'),
-    dependencies: recordings_lib.get('deps'),
-    version: meson.project_version(),
-)
-meson.override_dependency('liboopetris-recordings', liboopetris_recordings_dep)
-
-graphics_lib += {
-    'deps': [graphics_lib.get('deps'), liboopetris_recordings_dep, global_deps],
-}
-
-liboopetris_graphics = library(
-    'oopetris_graphics',
-    graphics_src_files,
-    include_directories: graphics_lib.get('inc_dirs'),
-    dependencies: graphics_lib.get('deps'),
-    cpp_args: graphics_lib.get('compile_args'),
-    override_options: {
-        'warning_level': '3',
-        'werror': true,
-    },
-    version: meson.project_version(),
-    install: true,
-)
-
-liboopetris_graphics_dep = declare_dependency(
-    link_with: liboopetris_graphics,
-    include_directories: graphics_lib.get('inc_dirs'),
-    compile_args: graphics_lib.get('compile_args'),
-    dependencies: graphics_lib.get('deps'),
-    version: meson.project_version(),
-)
-meson.override_dependency('liboopetris-graphics', liboopetris_graphics_dep)
-
-# setting this to strings, so += {...} gets detected as an error, if it is done after that
-core_lib = 'undefined'
-recordings_lib = 'undefined'
-graphics_lib = 'undefined'

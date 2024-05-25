@@ -2,7 +2,7 @@
 #include "helper/command_line_arguments.hpp"
 #include "helper/constants.hpp"
 #include "helper/errors.hpp"
-#include "helper/optional.hpp"
+
 #include "helper/types.hpp"
 #include "manager/sdl_key.hpp"
 
@@ -20,7 +20,7 @@ MusicManager::MusicManager(ServiceProvider* service_provider, u8 channel_size)
       m_channel_size{ channel_size },
       m_chunk_map{ std::unordered_map<std::string, Mix_Chunk*>{} },
       m_service_provider{ service_provider },
-      volume{ m_service_provider->command_line_arguments().silent ? helper::nullopt : std::optional{ 1.0F } } {
+      volume{ m_service_provider->command_line_arguments().silent ? std::nullopt : std::optional{ 1.0F } } {
     if (s_instance != nullptr) {
         spdlog::error("it's not allowed to create more than one MusicManager instance");
         return;
@@ -83,10 +83,9 @@ MusicManager::~MusicManager() noexcept {
     Mix_Quit();
 }
 
-helper::optional<std::string>
-MusicManager::load_and_play_music(const std::filesystem::path& location, const usize delay) {
+std::optional<std::string> MusicManager::load_and_play_music(const std::filesystem::path& location, const usize delay) {
     if (not validate_instance()) {
-        return helper::nullopt;
+        return std::nullopt;
     }
 
     Mix_Music* music = Mix_LoadMUS(location.string().c_str());
@@ -102,7 +101,7 @@ MusicManager::load_and_play_music(const std::filesystem::path& location, const u
             Mix_FreeMusic(m_music);
         }
         m_music = music;
-        return helper::nullopt;
+        return std::nullopt;
     }
 
 
@@ -128,7 +127,7 @@ MusicManager::load_and_play_music(const std::filesystem::path& location, const u
             return ("an error occurred while trying to play the music: " + std::string{ Mix_GetError() });
         }
 
-        return helper::nullopt;
+        return std::nullopt;
     }
 
 
@@ -151,7 +150,7 @@ MusicManager::load_and_play_music(const std::filesystem::path& location, const u
         if (result == 0) {
             return "UNREACHABLE: m_music was not null but not playing, this is an implementation error!";
         }
-        return helper::nullopt;
+        return std::nullopt;
     }
 
     const int result = Mix_PlayMusic(music, -1);
@@ -159,13 +158,13 @@ MusicManager::load_and_play_music(const std::filesystem::path& location, const u
         return ("an error occurred while trying to play the music: " + std::string{ Mix_GetError() });
     }
 
-    return helper::nullopt;
+    return std::nullopt;
 }
 
 
-helper::optional<std::string> MusicManager::load_effect(const std::string& name, std::filesystem::path& location) {
+std::optional<std::string> MusicManager::load_effect(const std::string& name, std::filesystem::path& location) {
     if (not validate_instance()) {
-        return helper::nullopt;
+        return std::nullopt;
     }
 
     if (m_chunk_map.contains(name)) {
@@ -178,12 +177,12 @@ helper::optional<std::string> MusicManager::load_effect(const std::string& name,
     }
 
     m_chunk_map.insert({ name, chunk });
-    return helper::nullopt;
+    return std::nullopt;
 }
 
-helper::optional<std::string> MusicManager::play_effect(const std::string& name, u8 channel_num, int loop) {
+std::optional<std::string> MusicManager::play_effect(const std::string& name, u8 channel_num, int loop) {
     if (not validate_instance()) {
-        return helper::nullopt;
+        return std::nullopt;
     }
 
     if (m_chunk_map.contains(name)) {
@@ -201,7 +200,7 @@ helper::optional<std::string> MusicManager::play_effect(const std::string& name,
         return "couldn't play on channel: " + std::to_string(channel_num);
     }
 
-    return helper::nullopt;
+    return std::nullopt;
 }
 
 void MusicManager::hook_music_finished() {
@@ -240,11 +239,11 @@ void MusicManager::hook_music_finished() {
 }
 
 
-[[nodiscard]] helper::optional<double> MusicManager::get_volume() const {
+[[nodiscard]] std::optional<double> MusicManager::get_volume() const {
 #if !defined(NDEBUG)
     int result = Mix_VolumeMusic(-1);
     if (result == 0) {
-        return helper::nullopt;
+        return std::nullopt;
     }
 
     return static_cast<double>(result) / MIX_MAX_VOLUME;
@@ -254,7 +253,7 @@ void MusicManager::hook_music_finished() {
 }
 
 void MusicManager::set_volume(
-        const helper::optional<double> new_volume,
+        const std::optional<double> new_volume,
         const bool force_update,
         const bool notify_listeners
 ) {
@@ -269,7 +268,7 @@ void MusicManager::set_volume(
             Mix_HaltMusic();
         }
 
-        volume = helper::nullopt;
+        volume = std::nullopt;
     }
 
 
@@ -298,14 +297,14 @@ void MusicManager::set_volume(
     }
 }
 
-helper::optional<double> MusicManager::change_volume(const std::int8_t steps) {
+std::optional<double> MusicManager::change_volume(const std::int8_t steps) {
     const auto current_volume = get_volume();
 
     if (steps == 0) {
         return current_volume;
     }
 
-    helper::optional<double> new_volume = current_volume;
+    std::optional<double> new_volume = current_volume;
 
     if (steps > 0) {
 
@@ -330,18 +329,18 @@ helper::optional<double> MusicManager::change_volume(const std::int8_t steps) {
 
 
         if (not current_volume.has_value()) {
-            return helper::nullopt;
+            return std::nullopt;
         }
 
         if (current_volume <= 0.0F) {
-            new_volume = helper::nullopt;
+            new_volume = std::nullopt;
         } else {
 
             new_volume = current_volume.value() + MusicManager::step_width * static_cast<double>(steps);
 
 
             if (new_volume <= 0.0F) {
-                new_volume = helper::nullopt;
+                new_volume = std::nullopt;
             }
         }
     }

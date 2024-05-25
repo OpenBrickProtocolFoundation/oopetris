@@ -111,28 +111,28 @@ namespace scenes {
             switch (m_next_command.value()) {
                 case Command::OpenPlaySelection:
                     // perform a push and reset the command, so that the music keeps playing the entire time
-                    m_next_command = helper::nullopt;
+                    m_next_command = std::nullopt;
                     return UpdateResult{
                         SceneUpdate::StopUpdating,
                         Scene::Push{ SceneId::PlaySelectMenu, ui::FullScreenLayout{ m_service_provider->window() } }
                     };
                 case Command::OpenAboutPage:
                     // perform a push and reset the command, so that the music keeps playing the entire time
-                    m_next_command = helper::nullopt;
+                    m_next_command = std::nullopt;
                     return UpdateResult{
                         SceneUpdate::StopUpdating,
                         Scene::Push{ SceneId::AboutPage, ui::FullScreenLayout{ m_service_provider->window() } }
                     };
                 case Command::OpenSettingsMenu:
                     // perform a push and reset the command, so that the music keeps playing the entire time
-                    m_next_command = helper::nullopt;
+                    m_next_command = std::nullopt;
                     return UpdateResult{
                         SceneUpdate::StopUpdating,
                         Scene::Push{ SceneId::SettingsMenu, ui::FullScreenLayout{ m_service_provider->window() } }
                     };
                 case Command::OpenAchievements:
                     // perform a push and reset the command, so that the music keeps playing the entire time
-                    m_next_command = helper::nullopt;
+                    m_next_command = std::nullopt;
                     return UpdateResult{
                         SceneUpdate::StopUpdating,
                         Scene::Push{ SceneId::AchievementsPage, ui::FullScreenLayout{ m_service_provider->window() } }
@@ -143,7 +143,7 @@ namespace scenes {
                     UNREACHABLE();
             }
         }
-        return UpdateResult{ SceneUpdate::StopUpdating, helper::nullopt };
+        return UpdateResult{ SceneUpdate::StopUpdating, std::nullopt };
     }
 
     void MainMenu::render(const ServiceProvider& service_provider) {

@@ -1,9 +1,9 @@
+oopetris_author = 'Coder2k'
+oopetris_name = 'OOPetris'
+
 core_lib = {
     'inc_dirs': [],
     'compile_args': [
-        '-DOOPETRIS_VERSION=' + meson.project_version(),
-        '-DOOPETRIS_NAME=' + oopetris_name,
-        '-DOOPETRIS_AUTHOR=' + oopetris_author,
     ],
     'deps': [],
 }
@@ -16,12 +16,13 @@ recordings_lib = {
 
 graphics_lib = {
     'inc_dirs': [],
-    'compile_args': [],
+    'compile_args': [
+        '-DOOPETRIS_VERSION=' + meson.project_version(),
+        '-DOOPETRIS_NAME=' + oopetris_name,
+        '-DOOPETRIS_AUTHOR=' + oopetris_author,
+    ],
     'deps': [],
 }
-
-global_deps = []
-graphic_application_deps = []
 
 cpp = meson.get_compiler('cpp')
 
@@ -57,6 +58,11 @@ elif cpp.get_id() == 'clang'
 
         core_lib += {
             'compile_args': [core_lib.get('compile_args'), '-stdlib=libc++'],
+            'deps': [
+                core_lib.get('deps'),
+                cpp.find_library('c++'),
+                cpp.find_library('c++abi'),
+            ],
         }
 
         if not meson.is_subproject()
@@ -68,10 +74,16 @@ elif cpp.get_id() == 'clang'
 
         endif
 
-        global_deps += [cpp.find_library('c++'), cpp.find_library('c++abi')]
     else
         # TODO: once clang with libstdc++ (gcc c++ stdlib) supports std::expectedt, remove this special behaviour
         allow_tl_expected_fallback = true
     endif
 
+endif
+
+build_application = true
+
+## only build, if we are at the root, not if this is used as subproject in e.g. wrap files
+if meson.is_subproject()
+    build_application = false
 endif

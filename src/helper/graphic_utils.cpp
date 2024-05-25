@@ -90,7 +90,7 @@ std::vector<std::string> utils::supported_features() {
 #endif
 }
 
-helper::optional<bool> utils::log_error(const std::string& error) {
+std::optional<bool> utils::log_error(const std::string& error) {
     spdlog::error(error);
-    return helper::nullopt;
+    return std::nullopt;
 }

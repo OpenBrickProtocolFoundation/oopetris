@@ -20,7 +20,7 @@ Tetrion::Tetrion(
         const Random::Seed random_seed,
         const u32 starting_level,
         ServiceProvider* const service_provider,
-        helper::optional<std::shared_ptr<recorder::RecordingWriter>> recording_writer,
+        std::optional<std::shared_ptr<recorder::RecordingWriter>> recording_writer,
         const ui::Layout& layout,
         bool is_top_level
 )
@@ -631,7 +631,7 @@ bool Tetrion::move(const Tetrion::MoveDirection move_direction) {
     UNREACHABLE();
 }
 
-helper::optional<const Tetrion::WallKickTable*> Tetrion::get_wall_kick_table() const {
+std::optional<const Tetrion::WallKickTable*> Tetrion::get_wall_kick_table() const {
     assert(m_active_tetromino.has_value() and "no active tetromino");
     const auto type = m_active_tetromino->type(); // NOLINT(bugprone-unchecked-optional-access)
     switch (type) {

@@ -77,13 +77,12 @@ input::ControllerInput::get_by_device_index(int device_index) {
 }
 
 
-[[nodiscard]] helper::optional<input::NavigationEvent> input::ControllerInput::get_navigation_event(
-        const SDL_Event& event
+[[nodiscard]] std::optional<input::NavigationEvent> input::ControllerInput::get_navigation_event(const SDL_Event& event
 ) const {
     if (event.type == SDL_CONTROLLERBUTTONDOWN) {
 
         if (event.cbutton.which != instance_id()) {
-            return helper::nullopt;
+            return std::nullopt;
         }
 
         switch (event.cbutton.button) {
@@ -100,7 +99,7 @@ input::ControllerInput::get_by_device_index(int device_index) {
             case SDL_CONTROLLER_BUTTON_BACK:
                 return NavigationEvent::BACK;
             default:
-                return helper::nullopt;
+                return std::nullopt;
 
                 //note, that  NavigationEvent::TAB is not supported
         }
@@ -131,7 +130,7 @@ input::ControllerInput::get_by_device_index(int device_index) {
 }
 
 
-[[nodiscard]] helper::optional<input::NavigationEvent> input::ControllerInput::handle_axis_navigation_event(
+[[nodiscard]] std::optional<input::NavigationEvent> input::ControllerInput::handle_axis_navigation_event(
         const SDL_Event& event
 ) const {
     if (event.type == SDL_CONTROLLERAXISMOTION) {
@@ -144,7 +143,7 @@ input::ControllerInput::get_by_device_index(int device_index) {
                 static_cast<i16>(static_cast<double>(SDL_JOYSTICK_AXIS_MAX) * axis_threshold_percentage);
 
         if (event.caxis.which != instance_id()) {
-            return helper::nullopt;
+            return std::nullopt;
         }
 
         // x axis movement
@@ -157,7 +156,7 @@ input::ControllerInput::get_by_device_index(int device_index) {
                 return NavigationEvent::LEFT;
             }
 
-            return helper::nullopt;
+            return std::nullopt;
         }
 
         // y axis movement
@@ -170,15 +169,15 @@ input::ControllerInput::get_by_device_index(int device_index) {
                 return NavigationEvent::UP;
             }
 
-            return helper::nullopt;
+            return std::nullopt;
         }
 
         //Note: not all types of SDL_GameControllerAxis are handled, since they are not needed for navigation events
 
-        return helper::nullopt;
+        return std::nullopt;
     }
 
-    return helper::nullopt;
+    return std::nullopt;
 }
 
 
@@ -205,12 +204,11 @@ input::ControllerGameInput::ControllerGameInput(
 }
 
 
-[[nodiscard]] helper::optional<input::MenuEvent> input::ControllerGameInput::get_menu_event(const SDL_Event& event
-) const {
+[[nodiscard]] std::optional<input::MenuEvent> input::ControllerGameInput::get_menu_event(const SDL_Event& event) const {
     if (event.type == SDL_CONTROLLERBUTTONDOWN) {
 
         if (event.cbutton.which != underlying_input()->instance_id()) {
-            return helper::nullopt;
+            return std::nullopt;
         }
 
         const auto button = sdl::ControllerKey{ static_cast<SDL_GameControllerButton>(event.cbutton.button) };
@@ -223,7 +221,7 @@ input::ControllerGameInput::ControllerGameInput(
         }
     }
 
-    return helper::nullopt;
+    return std::nullopt;
     //
 }
 
@@ -240,12 +238,12 @@ input::ControllerGameInput::ControllerGameInput(
 }
 
 
-[[nodiscard]] helper::optional<InputEvent> input::ControllerGameInput::sdl_event_to_input_event(const SDL_Event& event
+[[nodiscard]] std::optional<InputEvent> input::ControllerGameInput::sdl_event_to_input_event(const SDL_Event& event
 ) const {
     if (event.type == SDL_CONTROLLERBUTTONDOWN) {
 
         if (event.cbutton.which != underlying_input()->instance_id()) {
-            return helper::nullopt;
+            return std::nullopt;
         }
 
         //TODO(Totto): use switch case
@@ -275,7 +273,7 @@ input::ControllerGameInput::ControllerGameInput(
     } else if (event.type == SDL_CONTROLLERBUTTONUP) {
 
         if (event.cbutton.which != underlying_input()->instance_id()) {
-            return helper::nullopt;
+            return std::nullopt;
         }
 
         const auto button = sdl::ControllerKey{ static_cast<SDL_GameControllerButton>(event.cbutton.button) };
@@ -302,7 +300,7 @@ input::ControllerGameInput::ControllerGameInput(
             return InputEvent::HoldReleased;
         }
     }
-    return helper::nullopt;
+    return std::nullopt;
 }
 
 

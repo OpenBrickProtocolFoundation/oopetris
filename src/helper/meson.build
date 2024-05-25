@@ -1,33 +1,3 @@
-core_src_files += files(
-    'bool_wrapper.hpp',
-    'color.cpp',
-    'color.hpp',
-    'color_literals.hpp',
-    'command_line_arguments.hpp',
-    'const_utils.hpp',
-    'constants.hpp',
-    'date.cpp',
-    'date.hpp',
-    'errors.cpp',
-    'errors.hpp',
-    'expected.hpp',
-    'git_helper.hpp',
-    'magic_enum_wrapper.hpp',
-    'optional.hpp',
-    'parse_json.cpp',
-    'parse_json.hpp',
-    'random.cpp',
-    'random.hpp',
-    'sleep.cpp',
-    'sleep.hpp',
-    'static_string.hpp',
-    'string_manipulation.cpp',
-    'string_manipulation.hpp',
-    'timer.hpp',
-    'types.hpp',
-    'utils.hpp',
-)
-
 graphics_src_files += files(
     'clock_source.cpp',
     'clock_source.hpp',
@@ -39,7 +9,9 @@ graphics_src_files += files(
     'message_box.hpp',
     'music_utils.hpp',
     'platform.cpp',
+    'git_helper.hpp',
     'platform.hpp',
+    'constants.hpp'
 )
 
 if have_file_dialogs

@@ -18,7 +18,7 @@ SettingsManager::SettingsManager(ServiceProvider* service_provider) : m_service_
         spdlog::warn("applying default settings");
 
         m_settings = {
-            detail::Settings{ {}, helper::nullopt, 1.0, false }
+            detail::Settings{ {}, std::nullopt, 1.0, false }
         };
     }
 }

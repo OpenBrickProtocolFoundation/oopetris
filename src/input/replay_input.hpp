@@ -21,7 +21,7 @@ namespace input {
         void update(SimulationStep simulation_step_index) override;
         void late_update(SimulationStep simulation_step_index) override;
 
-        [[nodiscard]] helper::optional<MenuEvent> get_menu_event(const SDL_Event& event) const override;
+        [[nodiscard]] std::optional<MenuEvent> get_menu_event(const SDL_Event& event) const override;
 
         [[nodiscard]] std::string describe_menu_event(MenuEvent event) const override;
 

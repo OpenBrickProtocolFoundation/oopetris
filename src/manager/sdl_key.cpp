@@ -1,6 +1,6 @@
 
 #include "sdl_key.hpp"
-#include "helper/optional.hpp"
+
 #include "helper/string_manipulation.hpp"
 #include "helper/utils.hpp"
 
@@ -223,10 +223,10 @@ namespace {
     }
 
 
-    helper::optional<sdl::Modifier> modifier_from_string(const std::string& modifier) {
+    std::optional<sdl::Modifier> modifier_from_string(const std::string& modifier) {
 
         if (modifier.empty()) {
-            return helper::nullopt;
+            return std::nullopt;
         }
 
         const auto lower_case = string::to_lower_case(modifier);
@@ -255,7 +255,7 @@ namespace {
             return map.at(lower_case);
         }
 
-        return helper::nullopt;
+        return std::nullopt;
     }
 
 } // namespace

@@ -33,7 +33,7 @@ namespace scenes {
     struct RecordingSelector : public Scene {
     private:
         ui::TileLayout m_main_layout;
-        helper::optional<details::recording::selector::Command> m_next_command{ helper::nullopt };
+        std::optional<details::recording::selector::Command> m_next_command{ std::nullopt };
         std::vector<std::filesystem::path> m_chosen_paths{};
 
     public:

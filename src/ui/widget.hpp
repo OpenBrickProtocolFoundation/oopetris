@@ -1,7 +1,7 @@
 #pragma once
 
 #include "helper/bool_wrapper.hpp"
-#include "helper/optional.hpp"
+
 #include "manager/service_provider.hpp"
 #include "ui/focusable.hpp"
 #include "ui/hoverable.hpp"
@@ -59,9 +59,9 @@ namespace ui {
         handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) = 0;
     };
 
-    [[nodiscard]] helper::optional<Focusable*> as_focusable(Widget* widget);
+    [[nodiscard]] std::optional<Focusable*> as_focusable(Widget* widget);
 
-    [[nodiscard]] helper::optional<Hoverable*> as_hoverable(Widget* widget);
+    [[nodiscard]] std::optional<Hoverable*> as_hoverable(Widget* widget);
 
 
 } // namespace ui
