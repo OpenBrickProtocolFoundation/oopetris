@@ -46,14 +46,14 @@ recorder::RecordingReader::get_header_from_path(const std::filesystem::path& pat
         };
     }
 
-    const auto version_number = helper::reader::read_integral_from_file<u8>(file);
-    if (not version_number.has_value()) {
+    const auto read_version_number = helper::reader::read_integral_from_file<u8>(file);
+    if (not read_version_number.has_value()) {
         return helper::unexpected<std::string>{ "unable to read recording version from recorded game" };
     }
-    if (version_number.value() != Recording::version_number) {
+    if (read_version_number.value() != Recording::version_number) {
         return helper::unexpected<std::string>{ fmt::format(
                 "only supported version at the moment is {}, but got {}", Recording::version_number,
-                version_number.value()
+                read_version_number.value()
         ) };
     }
 
