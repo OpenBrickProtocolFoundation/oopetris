@@ -71,7 +71,7 @@ int main(int argc, char** argv) {
         // calling exit() in android doesn't do the correct job, it completely avoids resource cleanup by the underlying SDLActivity.java
         // (java wrapper), that calls the main and expects it to return ALWAYS and throwing an exception in a catch statement is bad,
         // but is required here
-        throw std::runtime_error{ "exit with status code 1: " + std::string{ err.what() } };
+        throw std::runtime_error{ "exit with status code 1: " + parsed_arguments.error() };
 #else
         std::exit(1);
 #endif
