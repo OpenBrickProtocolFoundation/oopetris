@@ -197,12 +197,11 @@ jobs:
         if: matrix.config.os == 'macos'
         with:
           name: ${{ matrix.config.name }} Executable
-          path: build/oopetris
-          # TODO: create a proper installer: https://mesonbuild.com/Creating-OSX-packages.html
+          path: build/src/executables/oopetris
 
       - name: Upload artifacts - Windows
         uses: actions/upload-artifact@v4
         if: matrix.config.os == 'windows'
         with:
           name: ${{ matrix.config.name }} Executable
-          path: build/oopetris.exe
+          path: build/src/executables/oopetris.exe  

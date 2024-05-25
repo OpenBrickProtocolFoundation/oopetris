@@ -278,6 +278,7 @@ if build_application
         elif host_machine.system() == 'windows'
             message('Adding a windows installer target: \'windows_installer\'')
         else
+            # TODO: create a proper installer for macOS : https://mesonbuild.com/Creating-OSX-packages.html
             error(
                 'unsuported system for building the installer: '
                 + host_machine.system(),
