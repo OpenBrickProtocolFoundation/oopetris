@@ -49,7 +49,7 @@ namespace recorder {
               m_information{ std::move(information) } { }
 
     public:
-        constexpr const static u8 version_number = 1;
+        constexpr const static u8 current_supported_version_number = 1;
 
         Recording(const Recording&) = delete;
         Recording(Recording&&) = delete;

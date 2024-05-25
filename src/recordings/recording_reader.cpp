@@ -46,14 +46,14 @@ recorder::RecordingReader::get_header_from_path(const std::filesystem::path& pat
         };
     }
 
-    const auto read_version_number = helper::reader::read_integral_from_file<u8>(file);
-    if (not read_version_number.has_value()) {
+    const auto version_number = helper::reader::read_integral_from_file<u8>(file);
+    if (not version_number.has_value()) {
         return helper::unexpected<std::string>{ "unable to read recording version from recorded game" };
     }
-    if (read_version_number.value() != Recording::version_number) {
+    if (version_number.value() != Recording::current_supported_version_number) {
         return helper::unexpected<std::string>{ fmt::format(
-                "only supported version at the moment is {}, but got {}", Recording::version_number,
-                read_version_number.value()
+                "only supported version at the moment is {}, but got {}", Recording::current_supported_version_number,
+                version_number.value()
         ) };
     }
 
@@ -81,7 +81,7 @@ recorder::RecordingReader::get_header_from_path(const std::filesystem::path& pat
 
 
     const auto calculated_checksum =
-            Recording::get_header_checksum(read_version_number.value(), tetrion_headers, information.value());
+            Recording::get_header_checksum(version_number.value(), tetrion_headers, information.value());
 
     const auto read_checksum =
             helper::reader::read_array_from_file<decltype(calculated_checksum)::value_type, Sha256Stream::ChecksumSize>(

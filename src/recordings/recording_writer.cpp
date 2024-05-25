@@ -1,4 +1,5 @@
 #include "recording_writer.hpp"
+#include "recording.hpp"
 #include "tetrion_snapshot.hpp"
 
 recorder::RecordingWriter::RecordingWriter(
@@ -35,8 +36,8 @@ helper::expected<recorder::RecordingWriter, std::string> recorder::RecordingWrit
         return helper::unexpected<std::string>{ fmt::format("error while writing: {}", result.error()) };
     }
 
-    static_assert(sizeof(RecordingWriter::version_number) == 1);
-    result = helper::writer::write_integral_to_file(output_file, RecordingWriter::version_number);
+    static_assert(sizeof(Recording::current_supported_version_number) == 1);
+    result = helper::writer::write_integral_to_file(output_file, Recording::current_supported_version_number);
     if (not result.has_value()) {
         return helper::unexpected<std::string>{ fmt::format("error while writing: {}", result.error()) };
     }
@@ -156,7 +157,8 @@ helper::expected<bool, std::string> recorder::RecordingWriter::write_checksum_to
         const AdditionalInformation& information
 ) {
 
-    const auto checksum = Recording::get_header_checksum(RecordingWriter::version_number, tetrion_headers, information);
+    const auto checksum =
+            Recording::get_header_checksum(Recording::current_supported_version_number, tetrion_headers, information);
     static_assert(sizeof(decltype(checksum)) == 32);
 
     helper::expected<bool, std::string> result{ true };

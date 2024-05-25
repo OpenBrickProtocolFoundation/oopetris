@@ -199,11 +199,11 @@ namespace nlohmann {
             );
 
             obj = nlohmann::json{
-                {         "version", recorder::Recording::version_number },
-                {     "information",                    information_json },
-                { "tetrion_headers",                tetrion_headers_json },
-                {         "records",                        records_json },
-                {       "snapshots",                      snapshots_json },
+                {         "version", recorder::Recording::current_supported_version_number },
+                {     "information",                                      information_json },
+                { "tetrion_headers",                                  tetrion_headers_json },
+                {         "records",                                          records_json },
+                {       "snapshots",                                        snapshots_json },
             };
         }
     };
