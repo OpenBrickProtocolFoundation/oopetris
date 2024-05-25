@@ -1,3 +1,9 @@
+
+#if !defined(_ONLINE_MULTIPLAYER_NOT_SUPPORTED)
+#include "online_lobby/online_lobby.hpp"
+#endif
+
+
 #include "scenes/scene.hpp"
 #include "about_page/about_page.hpp"
 #include "main_menu/main_menu.hpp"
@@ -8,9 +14,6 @@
 #include "settings_menu/settings_menu.hpp"
 #include "single_player_game/single_player_game.hpp"
 
-#if !defined(_ONLINE_MULTIPLAYER_NOT_SUPPORTED)
-#include "online_lobby/online_lobby.hpp"
-#endif
 
 
 namespace scenes {

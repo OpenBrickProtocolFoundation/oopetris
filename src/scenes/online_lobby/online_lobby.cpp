@@ -1,3 +1,5 @@
+#include "online_lobby.hpp"
+
 #include <core/helper/errors.hpp>
 #include <core/helper/magic_enum_wrapper.hpp>
 #include <core/helper/utils.hpp>
@@ -7,7 +9,7 @@
 #include "helper/platform.hpp"
 #include "manager/music_manager.hpp"
 #include "manager/resource_manager.hpp"
-#include "online_lobby.hpp"
+
 #include "ui/components/textinput.hpp"
 #include "ui/layout.hpp"
 #include "ui/layouts/scroll_layout.hpp"
