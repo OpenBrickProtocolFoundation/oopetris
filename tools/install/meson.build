@@ -1,4 +1,3 @@
-
 ## TODO: only install needed ones, since sometimes we only need e.g. flacs or mp3 and no icons etc.
 ## install assets
 install_subdir(
@@ -18,16 +17,13 @@ conf.set('APP_NAME', app_name)
 
 datadir = get_option('prefix') / get_option('datadir')
 
-
 if host_machine.system() == 'linux'
 
     fs = import('fs')
 
     magic_dir = datadir / 'misc'
     magic_file = magic_dir / 'magic'
-    oopetris_magic_file = (
-        meson.project_source_root() / 'assets' / 'recordings.magic'
-    )
+    oopetris_magic_file = (meson.project_source_root() / 'assets' / 'recordings.magic')
 
     if fs.exists(magic_file)
 
@@ -85,3 +81,24 @@ foreach logo : logos
         rename: [app_name + '.' + ext],
     )
 endforeach
+
+# generate pkgconfig filres
+pkg = import('pkgconfig')
+pkg.generate(
+    liboopetris_core,
+    name: 'oopetris-core',
+    filebase: 'oopetris-core',
+
+)
+
+pkg.generate(
+    liboopetris_recordings,
+    name: 'oopetris-recordings',
+    filebase: 'oopetris-recordings',
+)
+
+pkg.generate(
+    liboopetris_graphics,
+    name: 'oopetris-graphics',
+    filebase: 'oopetris-graphics',
+)

@@ -30,16 +30,16 @@ if have_discord_sdk
 endif
 
 core_lib += {
-    'src_files': [core_lib.get('src_files'), core_src_files],
+    'src_files': [core_src_files],
     'inc_dirs': [core_lib.get('inc_dirs'), include_directories('.')],
 }
 
 recordings_lib += {
-    'src_files': [recordings_lib.get('src_files'), recordings_src_files],
+    'src_files': [recordings_src_files],
 }
 
 graphics_lib += {
-    'src_files': [graphics_lib.get('src_files'), graphics_src_files],
+    'src_files': [graphics_src_files],
 }
 
 core_lib += {
@@ -122,6 +122,7 @@ liboopetris_graphics_dep = declare_dependency(
     version: meson.project_version(),
 )
 meson.override_dependency('oopetris-graphics', liboopetris_graphics_dep)
+
 
 # setting this to strings, so += {...} gets detected as an error, if it is done after that
 core_lib = 'undefined'

@@ -1,5 +1,4 @@
 core_lib = {
-    'src_files': [],
     'inc_dirs': [],
     'compile_args': [
         '-DOOPETRIS_VERSION=' + meson.project_version(),
@@ -10,14 +9,12 @@ core_lib = {
 }
 
 recordings_lib = {
-    'src_files': [],
     'inc_dirs': [],
     'compile_args': [],
     'deps': [],
 }
 
 graphics_lib = {
-    'src_files': [],
     'inc_dirs': [],
     'compile_args': [],
     'deps': [],

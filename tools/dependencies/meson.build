@@ -243,7 +243,7 @@ else
             'cpp-httplib_zlib': 'enabled',
         },
     )
-    core_lib += {'deps': [core_lib.get('deps'), cpp_httlib_dep]}
+    graphics_lib += {'deps': [graphics_lib.get('deps'), cpp_httlib_dep]}
 endif
 
 utf8cpp_dep = dependency(
@@ -296,10 +296,7 @@ endif
 if is_flatpak_build
     app_name = 'com.github.mgerhold.OOPetris'
     core_lib += {
-        'compile_args': [
-            core_lib.get('compile_args'),
-            '-DFLATPAK_BUILD'
-        ],
+        'compile_args': [core_lib.get('compile_args'), '-DFLATPAK_BUILD'],
     }
 endif
 
