@@ -81,7 +81,7 @@ recorder::RecordingReader::get_header_from_path(const std::filesystem::path& pat
 
 
     const auto calculated_checksum =
-            Recording::get_header_checksum(version_number.value(), tetrion_headers, information.value());
+            Recording::get_header_checksum(read_version_number.value(), tetrion_headers, information.value());
 
     const auto read_checksum =
             helper::reader::read_array_from_file<decltype(calculated_checksum)::value_type, Sha256Stream::ChecksumSize>(
