@@ -172,7 +172,11 @@ int main() {
 )
 
 if not have_std_expected
-    error('Compiler doesn\'t support std::expected, using fallback')
+    if not allow_tl_expected_fallback
+        error('Compiler doesn\'t support std::expected')
+    endif
+
+    message('Compiler doesn\'t support std::expected, using fallback')
 
     tl_exp_dep = dependency('tl-expected', required: true)
     core_lib += {

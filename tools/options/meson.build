@@ -27,6 +27,8 @@ cpp = meson.get_compiler('cpp')
 
 build_with_libcpp = false
 
+allow_tl_expected_fallback = false
+
 if cpp.get_id() == 'gcc'
     add_project_arguments('-Wold-style-cast', language: ['cpp'])
 elif cpp.get_id() == 'clang'
@@ -67,6 +69,9 @@ elif cpp.get_id() == 'clang'
         endif
 
         global_deps += [cpp.find_library('c++'), cpp.find_library('c++abi')]
+    else
+        # TODO: once clang with libstdc++ (gcc c++ stdlib) supports std::expectedt, remove this special behaviour
+        allow_tl_expected_fallback = true
     endif
 
 endif
