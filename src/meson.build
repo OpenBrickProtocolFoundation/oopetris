@@ -30,25 +30,13 @@ if have_discord_sdk
 endif
 
 core_lib += {
-    'src_files': [core_src_files],
     'inc_dirs': [core_lib.get('inc_dirs'), include_directories('.')],
-}
-
-recordings_lib += {
-    'src_files': [recordings_src_files],
-}
-
-graphics_lib += {
-    'src_files': [graphics_src_files],
-}
-
-core_lib += {
     'deps': [core_lib.get('deps'), global_deps],
 }
 
 liboopetris_core = library(
     'oopetris_core',
-    core_lib.get('src_files'),
+    core_src_files,
     include_directories: core_lib.get('inc_dirs'),
     dependencies: core_lib.get('deps'),
     cpp_args: core_lib.get('compile_args'),
@@ -75,7 +63,7 @@ recordings_lib += {
 
 liboopetris_recordings = library(
     'oopetris_recordings',
-    recordings_lib.get('src_files'),
+    recordings_src_files,
     include_directories: recordings_lib.get('inc_dirs'),
     dependencies: recordings_lib.get('deps'),
     cpp_args: recordings_lib.get('compile_args'),
@@ -102,7 +90,7 @@ graphics_lib += {
 
 liboopetris_graphics = library(
     'oopetris_graphics',
-    graphics_lib.get('src_files'),
+    graphics_src_files,
     include_directories: graphics_lib.get('inc_dirs'),
     dependencies: graphics_lib.get('deps'),
     cpp_args: graphics_lib.get('compile_args'),
@@ -122,7 +110,6 @@ liboopetris_graphics_dep = declare_dependency(
     version: meson.project_version(),
 )
 meson.override_dependency('oopetris-graphics', liboopetris_graphics_dep)
-
 
 # setting this to strings, so += {...} gets detected as an error, if it is done after that
 core_lib = 'undefined'
