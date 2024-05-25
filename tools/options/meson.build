@@ -52,6 +52,11 @@ elif cpp.get_id() == 'clang'
     endif
 
     if build_with_libcpp
+
+        core_lib += {
+            'compile_args': [core_lib.get('compile_args'), '-stdlib=libc++'],
+        }
+
         if not meson.is_subproject()
             add_global_link_arguments('-stdlib=libc++', language: ['cpp'])
             add_global_arguments('-stdlib=libc++', language: ['cpp'])
