@@ -172,7 +172,7 @@ int main() {
 )
 
 if not have_std_expected
-    message('Compiler doesn\'t support std::expected, using fallback')
+    error('Compiler doesn\'t support std::expected, using fallback')
 
     tl_exp_dep = dependency('tl-expected', required: true)
     core_lib += {
@@ -196,7 +196,7 @@ int main() {
 )
 
 if not have_std_optional
-    message('Compiler doesn\'t support std::optional, using fallback')
+    error('Compiler doesn\'t support std::optional, using fallback')
     tl_opt_dep = dependency('tl-optional', required: true)
     core_lib += {
         'compile_args': [core_lib.get('compile_args'), '-D_USE_TL_OPTIONAL'],
