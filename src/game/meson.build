@@ -1,6 +1,8 @@
 graphics_src_files += files(
     'bag.cpp',
     'bag.hpp',
+    'command_line_arguments.cpp',
+    'command_line_arguments.hpp',
     'game.cpp',
     'game.hpp',
     'graphic_helpers.cpp',
@@ -13,6 +15,4 @@ graphics_src_files += files(
     'tetrion.hpp',
     'tetromino.cpp',
     'tetromino.hpp',
-    'command_line_arguments.hpp',
-     'command_line_arguments.cpp',
 )

@@ -1,10 +1,8 @@
-
 ## get the options object and "unpack" it
 
 _3ds_exe_name = _3ds_options[0]
 _3ds_src_files = _3ds_options[1]
 _3ds_deps = _3ds_options[2]
-
 
 # libraries
 
@@ -29,7 +27,6 @@ _3ds_dependencies_native = [
     'SDL2main',
 ]
 
-
 _3ds_library_dirs = meson.get_external_property('library_dirs', [''])
 if _3ds_library_dirs.length() == 0
     error('property \'library_dirs\' has to be set!')
@@ -53,7 +50,6 @@ foreach dep : _3ds_dependencies_native
     )
 endforeach
 
-
 ## compilation
 
 _3ds_elf_file = build_target(
@@ -71,7 +67,6 @@ _3ds_elf_file = build_target(
 use_smdh = ['true', 'True', '1', true].contains(
     meson.get_external_property('USE_SMDH', ''),
 )
-
 
 _3dsxtool = find_program('3dsxtool')
 
@@ -95,7 +90,6 @@ if use_smdh
     endif
     SMDH_FLAGS += APP_DESC
 
-
     APP_AUTHOR = meson.get_external_property('APP_AUTHOR', '')
     if APP_AUTHOR == ''
         error('If USE_SMDH is set, you have to provide an APP_AUTHOR')
@@ -115,19 +109,13 @@ if use_smdh
         APP_ICON = meson.project_source_root() / APP_ICON
     endif
 
-
     if not fs.exists(APP_ICON)
         error('APP_ICON should exist, but doesn\'t: \'' + APP_ICON + '\'')
     endif
 
     SMDH_FLAGS += APP_ICON
 
-
-    SMDH_FLAGS += (
-        _3ds_exe_name + '.smdh' # outfile
-    )
-
-
+    SMDH_FLAGS += (_3ds_exe_name + '.smdh')
 
     APP_SMALL_ICON = meson.get_external_property('APP_SMALL_ICON', '')
 
@@ -136,18 +124,16 @@ if use_smdh
             APP_SMALL_ICON = meson.project_source_root() / APP_SMALL_ICON
         endif
 
-
         if not fs.exists(APP_SMALL_ICON)
             error(
-                'APP_SMALL_ICON should exist, but doesn\'t: \'' + APP_SMALL_ICON +
-                '\'',
+                'APP_SMALL_ICON should exist, but doesn\'t: \''
+                + APP_SMALL_ICON
+                + '\'',
             )
         endif
 
         SMDH_FLAGS += APP_SMALL_ICON
     endif
-
-
 
     # smdhtool --create <name> <long description> <author> <icon.png> <_3ds_exe_name>.smdh [<smallicon.png>]
     smdh_file = custom_target(
@@ -160,8 +146,6 @@ if use_smdh
     _3DSX_DEPS += smdh_file
 
 endif
-
-
 
 APP_ROMFS = meson.get_external_property('APP_ROMFS', '')
 

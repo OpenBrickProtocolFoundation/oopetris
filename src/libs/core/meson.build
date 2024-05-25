@@ -31,9 +31,6 @@ liboopetris_core_dep = declare_dependency(
 )
 meson.override_dependency('liboopetris-core', liboopetris_core_dep)
 
-# setting this to strings, so += {...} gets detected as an error, if it is done after that
-core_lib = 'undefined'
-
 install_headers(
     files('core.hpp'),
     install_dir: core_include_dir,
@@ -44,6 +41,13 @@ install_headers(
 pkg = import('pkgconfig')
 pkg.generate(
     liboopetris_core,
+    description: 'The core library for oopetris',
+    libraries: core_lib.get('deps'),
     name: 'oopetris-core',
     filebase: 'oopetris-core',
+    subdirs: 'oopetris',
+    extra_cflags: core_lib.get('compile_args'),
 )
+
+# setting this to strings, so += {...} gets detected as an error, if it is done after that
+core_lib = 'undefined'
