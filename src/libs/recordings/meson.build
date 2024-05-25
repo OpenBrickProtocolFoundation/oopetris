@@ -1,5 +1,7 @@
 recordings_src_files = []
-recordings_header_files = []
+recordings_header_files = [files('recordings.hpp')]
+
+recordings_include_dir = include_dir / 'oopetris' / 'recordings'
 
 subdir('utility')
 
@@ -36,8 +38,8 @@ meson.override_dependency('liboopetris-recordings', liboopetris_recordings_dep)
 recordings_lib = 'undefined'
 
 install_headers(
-    recordings_header_files,
-    subdir: 'oopetris/recordings',
+    files('recordings.hpp'),
+    install_dir: recordings_include_dir,
     preserve_path: true,
 )
 

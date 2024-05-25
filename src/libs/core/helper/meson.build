@@ -8,7 +8,7 @@ core_src_files += files(
     'string_manipulation.cpp',
 )
 
-core_header_files += files(
+_header_files = files(
     'bool_wrapper.hpp',
     'color.hpp',
     'color_literals.hpp',
@@ -27,4 +27,11 @@ core_header_files += files(
     'timer.hpp',
     'types.hpp',
     'utils.hpp',
+)
+core_header_files += _header_files
+
+install_headers(
+    _header_files,
+    install_dir: core_include_dir / 'helper',
+    preserve_path: true,
 )

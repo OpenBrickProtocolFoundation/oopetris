@@ -4,9 +4,17 @@ core_src_files += files(
     'tetromino_type.cpp',
 )
 
-core_header_files += files(
+_header_files = files(
     'grid_properties.hpp',
     'mino.hpp',
     'mino_stack.hpp',
     'tetromino_type.hpp',
+)
+
+core_header_files += _header_files
+
+install_headers(
+    _header_files,
+    install_dir: core_include_dir / 'game',
+    preserve_path: true,
 )

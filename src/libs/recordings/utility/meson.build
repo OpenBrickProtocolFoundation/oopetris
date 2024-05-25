@@ -7,15 +7,22 @@ recordings_src_files = files(
     'tetrion_snapshot.cpp',
 )
 
-
-recordings_header_files = files(
+_header_files = files(
     'additional_information.hpp',
     'checksum_helper.hpp',
+    'helper.hpp',
     'recording.hpp',
     'recording_json_wrapper.hpp',
     'recording_reader.hpp',
     'recording_writer.hpp',
-    'tetrion_snapshot.hpp',
-    'helper.hpp',
     'tetrion_core_information.hpp',
+    'tetrion_snapshot.hpp',
+)
+
+recordings_header_files += _header_files
+
+install_headers(
+    _header_files,
+    install_dir: recordings_include_dir / 'utility',
+    preserve_path: true,
 )
