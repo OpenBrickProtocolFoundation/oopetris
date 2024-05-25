@@ -6,7 +6,7 @@
 #include <filesystem>
 #include <iostream>
 
-void print_info(const recorder::RecordingReader& recording_reader) {
+void print_info(const recorder::RecordingReader& recording_reader) noexcept {
     //TODO(Totto): Implement
     UNUSED(recording_reader);
     std::cerr << "NOT IMPLEMENTED\n";
@@ -20,8 +20,10 @@ void dump_json(const recorder::RecordingReader& recording_reader, bool pretty_pr
 
     int indent = -1;
     char indent_char = ' ';
+
     if (pretty_print) {
-        indent = 4;
+        indent = 1;
+        indent_char = '\t';
     }
 
     std::cout << json_value.dump(indent, indent_char, ensure_ascii);
@@ -32,7 +34,7 @@ void dump_json(const recorder::RecordingReader& recording_reader, bool pretty_pr
 }
 
 
-int main(int argc, char** argv) noexcept {
+int main(int argc, char** argv) {
 
     const auto arguments = CommandLineArguments(argc, argv);
 

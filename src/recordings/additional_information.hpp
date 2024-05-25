@@ -137,7 +137,7 @@ namespace recorder {
 
         using UnderlyingContainer = std::unordered_map<std::string, InformationValue>;
 
-        UnderlyingContainer m_values{};
+        UnderlyingContainer m_values;
 
         explicit AdditionalInformation(UnderlyingContainer&& values);
 

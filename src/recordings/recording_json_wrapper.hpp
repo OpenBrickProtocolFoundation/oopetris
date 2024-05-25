@@ -18,7 +18,7 @@ namespace nlohmann {
             throw std::runtime_error{ "NOT IMPLEMENTED" };
         }
 
-        static void to_json(json& obj, const recorder::InformationValue& information) {
+        static void to_json(json& obj, const recorder::InformationValue& information) { // NOLINT(misc-no-recursion)
             std::visit(
                     helper::overloaded{
                             [&obj](const std::string& value) { obj = value; },
