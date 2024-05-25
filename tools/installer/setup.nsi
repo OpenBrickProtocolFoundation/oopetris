@@ -120,7 +120,7 @@ Section "Core App" CoreApp
 
     ; install executable
     SetOutPath "$INSTDIR"
-    File /a "${PROJECT_BUILD_DIR}\${APPFILE}"
+    File /a "${PROJECT_BUILD_DIR}\src\executables\${APPFILE}"
 
     ; install dynamic libraries
     SetOutPath "$INSTDIR"
