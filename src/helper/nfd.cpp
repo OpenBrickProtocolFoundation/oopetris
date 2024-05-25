@@ -1,9 +1,10 @@
 
-#include "nfd.hpp"
-#include "helper/utils.hpp"
+
 #if defined(_HAVE_FILE_DIALOGS)
 
-#include "helper/types.hpp"
+#include <core/helper/types.hpp>
+#include <core/helper/utils.hpp>
+
 #include "nfd_include.hpp"
 
 #include <filesystem>

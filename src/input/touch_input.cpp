@@ -1,9 +1,9 @@
-#include "touch_input.hpp"
-#include "graphics/point.hpp"
+#include <core/helper/point.hpp>
+#include <core/helper/utils.hpp>
 
-#include "helper/utils.hpp"
 #include "input/game_input.hpp"
 #include "input/input.hpp"
+#include "touch_input.hpp"
 
 #include <cmath>
 #include <memory>

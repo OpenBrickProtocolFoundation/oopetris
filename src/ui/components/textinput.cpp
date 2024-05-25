@@ -1,10 +1,10 @@
 
+#include <core/helper/color_literals.hpp>
+#include <core/helper/errors.hpp>
 
-#include "textinput.hpp"
 #include "graphics/renderer.hpp"
-#include "helper/color_literals.hpp"
-#include "helper/errors.hpp"
 #include "manager/event_dispatcher.hpp"
+#include "textinput.hpp"
 
 
 using namespace std::chrono_literals;

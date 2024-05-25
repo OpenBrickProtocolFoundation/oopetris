@@ -1,6 +1,6 @@
 #include "replay_input.hpp"
 #include "game/tetrion.hpp"
-#include "helper/magic_enum_wrapper.hpp"
+#include <core/helper/magic_enum_wrapper.hpp>
 
 
 input::ReplayGameInput::ReplayGameInput(

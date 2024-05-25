@@ -1,8 +1,8 @@
-#include "keyboard_input.hpp"
+#include <core/helper/utils.hpp>
 
-#include "helper/utils.hpp"
 #include "input/game_input.hpp"
 #include "input/input.hpp"
+#include "keyboard_input.hpp"
 
 
 input::KeyboardInput::KeyboardInput() : input::Input{ "keyboard", InputType::Keyboard } { }

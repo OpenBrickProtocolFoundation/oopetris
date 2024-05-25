@@ -1,9 +1,10 @@
 #pragma once
 
+#include <core/helper/types.hpp>
+#include <core/helper/utils.hpp>
+
 #include "graphics/rect.hpp"
 #include "graphics/window.hpp"
-#include "helper/types.hpp"
-#include "helper/utils.hpp"
 
 #include <cassert>
 

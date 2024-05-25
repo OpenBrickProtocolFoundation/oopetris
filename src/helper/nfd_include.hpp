@@ -3,7 +3,7 @@
 
 #if defined(_HAVE_FILE_DIALOGS)
 
-#include "helper/expected.hpp"
+#include <core/helper/expected.hpp>
 
 
 #define NFD_THROWS_EXCEPTIONS

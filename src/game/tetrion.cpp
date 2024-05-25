@@ -1,13 +1,14 @@
-#include "tetrion.hpp"
+#include <core/helper/magic_enum_wrapper.hpp>
+#include <core/helper/utils.hpp>
+#include <recordings/utility/recording_writer.hpp>
+
 #include "helper/constants.hpp"
 #include "helper/graphic_utils.hpp"
-#include "helper/magic_enum_wrapper.hpp"
 #include "helper/music_utils.hpp"
 #include "helper/platform.hpp"
-#include "helper/utils.hpp"
 #include "manager/music_manager.hpp"
 #include "manager/resource_manager.hpp"
-#include "recordings/recording_writer.hpp"
+#include "tetrion.hpp"
 #include "ui/components/label.hpp"
 
 #include <cassert>

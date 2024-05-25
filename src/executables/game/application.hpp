@@ -1,9 +1,9 @@
 #pragma once
 
+#include <core/helper/types.hpp>
+
 #include "graphics/renderer.hpp"
 #include "graphics/window.hpp"
-#include "helper/command_line_arguments.hpp"
-#include "helper/types.hpp"
 #include "input/input.hpp"
 #include "manager/event_dispatcher.hpp"
 #include "manager/event_listener.hpp"
@@ -49,7 +49,7 @@ private:
     std::vector<std::unique_ptr<scenes::Scene>> m_scene_stack;
 
 public:
-    Application(std::shared_ptr<Window>&& window, const std::vector<std::string>& arguments);
+    Application(std::shared_ptr<Window>&& window, CommandLineArguments&& arguments);
     Application(const Application&) = delete;
     Application& operator=(const Application&) = delete;
 

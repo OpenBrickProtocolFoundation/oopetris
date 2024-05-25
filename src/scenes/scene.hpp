@@ -1,6 +1,6 @@
 #pragma once
 
-#include "helper/command_line_arguments.hpp"
+#include "game/command_line_arguments.hpp"
 #include "input/input.hpp"
 #include "manager/event_listener.hpp"
 #include "manager/service_provider.hpp"

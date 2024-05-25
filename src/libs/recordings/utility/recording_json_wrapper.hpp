@@ -2,10 +2,11 @@
 
 #pragma once
 
+#include <core/game/mino_stack.hpp>
+#include <core/helper/magic_enum_wrapper.hpp>
+#include <core/helper/parse_json.hpp>
+
 #include "./additional_information.hpp"
-#include "./game/mino_stack.hpp"
-#include "./helper/magic_enum_wrapper.hpp"
-#include "./helper/parse_json.hpp"
 #include "./recording.hpp"
 #include "./recording_reader.hpp"
 #include "./tetrion_snapshot.hpp"

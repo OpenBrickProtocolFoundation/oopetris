@@ -3,6 +3,7 @@
 
 #include <core/helper/types.hpp>
 
+#include <optional>
 #include <stdexcept>
 
 struct ClockSource {

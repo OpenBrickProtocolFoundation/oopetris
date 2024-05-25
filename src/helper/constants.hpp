@@ -1,6 +1,6 @@
 #pragma once
 
-#include "./helper/static_string.hpp"
+#include <core/helper/static_string.hpp>
 
 namespace constants {
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "./helper/expected.hpp"
-#include "./helper/types.hpp"
+#include "./expected.hpp"
+#include "./types.hpp"
 
 #include <ctime>
 #include <string>

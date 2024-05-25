@@ -1,7 +1,7 @@
 
+#include <core/helper/point.hpp>
 
 #include "mouse_input.hpp"
-#include "graphics/point.hpp"
 
 #include "input/input.hpp"
 

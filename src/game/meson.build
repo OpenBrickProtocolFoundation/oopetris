@@ -13,4 +13,6 @@ graphics_src_files += files(
     'tetrion.hpp',
     'tetromino.cpp',
     'tetromino.hpp',
+    'command_line_arguments.hpp',
+     'command_line_arguments.cpp',
 )

@@ -1,9 +1,9 @@
+#include <core/game/mino.hpp>
+#include <core/helper/point.hpp>
 
-#include "logo.hpp"
 #include "game/graphic_helpers.hpp"
-#include "game/mino.hpp"
-#include "graphics/point.hpp"
 #include "graphics/renderer.hpp"
+#include "logo.hpp"
 
 #include <vector>
 

@@ -2,13 +2,13 @@
 
 #pragma once
 
+#include <core/helper/bool_wrapper.hpp>
+#include <core/helper/expected.hpp>
+#include <core/helper/point.hpp>
 
 #include "game_input.hpp"
-#include "graphics/point.hpp"
 #include "graphics/rect.hpp"
 #include "graphics/window.hpp"
-#include "helper/bool_wrapper.hpp"
-#include "helper/expected.hpp"
 
 #include "manager/service_provider.hpp"
 

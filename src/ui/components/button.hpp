@@ -1,12 +1,13 @@
 #pragma once
 
+#include <core/helper/color_literals.hpp>
+
 #include <functional>
 #include <spdlog/spdlog.h>
 #include <utility>
 
 #include "graphics/rect.hpp"
 #include "graphics/renderer.hpp"
-#include "helper/color_literals.hpp"
 #include "input/input.hpp"
 #include "ui/focusable.hpp"
 #include "ui/hoverable.hpp"

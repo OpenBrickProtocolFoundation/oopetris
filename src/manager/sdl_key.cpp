@@ -1,8 +1,9 @@
 
-#include "sdl_key.hpp"
 
-#include "helper/string_manipulation.hpp"
-#include "helper/utils.hpp"
+#include <core/helper/string_manipulation.hpp>
+#include <core/helper/utils.hpp>
+
+#include "sdl_key.hpp"
 
 #include <algorithm>
 #include <array>

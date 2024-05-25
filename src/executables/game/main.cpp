@@ -1,7 +1,12 @@
+
+
+#include "./parser.hpp"
+
+#include <core/helper/errors.hpp>
+#include <core/helper/utils.hpp>
+
 #include "application.hpp"
-#include "helper/errors.hpp"
 #include "helper/message_box.hpp"
-#include "helper/utils.hpp"
 
 #include <filesystem>
 #include <fmt/format.h>
@@ -47,15 +52,32 @@ int main(int argc, char** argv) {
     spdlog::set_level(spdlog::level::err);
 #endif
 
-    std::vector<std::string> arguments{};
-    arguments.reserve(argc);
+    std::vector<std::string> arguments_vector{};
+    arguments_vector.reserve(argc);
     for (auto i = 0; i < argc; ++i) {
-        arguments.emplace_back(argv[i]); //NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        arguments_vector.emplace_back(argv[i]); //NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     }
 
-    if (arguments.empty()) {
-        arguments.emplace_back("oopetris");
+    if (arguments_vector.empty()) {
+        arguments_vector.emplace_back("oopetris");
     }
+
+    auto parsed_arguments = helper::parse_args(arguments_vector);
+
+    if (not parsed_arguments.has_value()) {
+
+        spdlog::error("error parsing command line arguments: {}", parsed_arguments.error());
+#if defined(__ANDROID__)
+        // calling exit() in android doesn't do the correct job, it completely avoids resource cleanup by the underlying SDLActivity.java
+        // (java wrapper), that calls the main and expects it to return ALWAYS and throwing an exception in a catch statement is bad,
+        // but is required here
+        throw std::runtime_error{ "exit with status code 1: " + std::string{ err.what() } };
+#else
+        std::exit(1);
+#endif
+    }
+
+    auto arguments = std::move(parsed_arguments.value());
 
     constexpr auto window_name = constants::program_name.c_str();
 
@@ -83,7 +105,7 @@ int main(int argc, char** argv) {
 
 
     try {
-        Application app{ std::move(window), arguments };
+        Application app{ std::move(window), std::move(arguments) };
 
         app.run();
         return EXIT_SUCCESS;

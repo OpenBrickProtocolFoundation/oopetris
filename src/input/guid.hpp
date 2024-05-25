@@ -1,9 +1,9 @@
 #pragma once
 
 
-#include "helper/const_utils.hpp"
-#include "helper/expected.hpp"
-#include "helper/types.hpp"
+#include <core/helper/const_utils.hpp>
+#include <core/helper/expected.hpp>
+#include <core/helper/types.hpp>
 
 #include <SDL.h>
 #include <array>

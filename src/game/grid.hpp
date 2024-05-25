@@ -1,9 +1,9 @@
 #pragma once
 
-#include "graphics/point.hpp"
+#include <core/core.hpp>
+#include <core/helper/color.hpp>
+
 #include "graphics/rect.hpp"
-#include "grid_properties.hpp"
-#include "helper/color.hpp"
 #include "manager/service_provider.hpp"
 #include "ui/layout.hpp"
 #include "ui/widget.hpp"

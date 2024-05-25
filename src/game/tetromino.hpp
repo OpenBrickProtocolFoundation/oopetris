@@ -1,10 +1,9 @@
 #pragma once
 
+#include <core/core.hpp>
+
 #include "graphic_helpers.hpp"
-#include "graphics/point.hpp"
-#include "mino.hpp"
 #include "rotation.hpp"
-#include "tetromino_type.hpp"
 
 #include <array>
 

@@ -1,12 +1,12 @@
 #pragma once
 
 
+#include <core/helper/types.hpp>
+
 #include "focus_layout.hpp"
 #include "graphics/rect.hpp"
 #include "graphics/renderer.hpp"
 #include "graphics/texture.hpp"
-
-#include "helper/types.hpp"
 
 #include <vector>
 

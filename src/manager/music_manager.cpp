@@ -1,9 +1,9 @@
-#include "manager/music_manager.hpp"
-#include "helper/command_line_arguments.hpp"
-#include "helper/constants.hpp"
-#include "helper/errors.hpp"
+#include <core/helper/errors.hpp>
+#include <core/helper/types.hpp>
 
-#include "helper/types.hpp"
+#include "game/command_line_arguments.hpp"
+#include "helper/constants.hpp"
+#include "manager/music_manager.hpp"
 #include "manager/sdl_key.hpp"
 
 #include <SDL.h>
@@ -12,7 +12,7 @@
 #include <fmt/format.h>
 #include <stdexcept>
 #include <string>
-
+#include <spdlog/spdlog.h>
 
 MusicManager::MusicManager(ServiceProvider* service_provider, u8 channel_size)
     : m_music{ nullptr },

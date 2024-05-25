@@ -1,7 +1,8 @@
 #pragma once
 
+#include <recordings/utility/recording_reader.hpp>
+
 #include "game_input.hpp"
-#include "recordings/recording_reader.hpp"
 
 #include <memory>
 

@@ -1,6 +1,8 @@
 #include "replay_game.hpp"
 #include "../single_player_game/game_over.hpp"
 #include "../single_player_game/pause.hpp"
+#include "helper/constants.hpp"
+#include "helper/graphic_utils.hpp"
 #include "helper/music_utils.hpp"
 #include "manager/music_manager.hpp"
 #include "scenes/scene.hpp"

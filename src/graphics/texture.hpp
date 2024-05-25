@@ -2,10 +2,11 @@
 #pragma once
 
 
-#include "helper/color.hpp"
-#include "helper/utils.hpp"
+#include <core/helper/color.hpp>
+#include <core/helper/point.hpp>
+#include <core/helper/utils.hpp>
+
 #include "manager/font.hpp"
-#include "point.hpp"
 #include "rect.hpp"
 
 #include <SDL.h>

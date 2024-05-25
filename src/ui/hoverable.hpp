@@ -1,9 +1,10 @@
 #pragma once
 
+#include <core/helper/bool_wrapper.hpp>
+#include <core/helper/types.hpp>
+#include <core/helper/utils.hpp>
+
 #include "graphics/rect.hpp"
-#include "helper/bool_wrapper.hpp"
-#include "helper/types.hpp"
-#include "helper/utils.hpp"
 #include "input/input.hpp"
 
 namespace ui {

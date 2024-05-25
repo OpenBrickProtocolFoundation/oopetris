@@ -1,9 +1,10 @@
 #pragma once
 
 
-#include "graphics/point.hpp"
+#include <core/helper/color.hpp>
+#include <core/helper/point.hpp>
+
 #include "graphics/rect.hpp"
-#include "helper/color.hpp"
 #include "ui/components/abstract_slider.hpp"
 #include "ui/components/image_button.hpp"
 #include "ui/components/textinput.hpp"

@@ -1,6 +1,7 @@
 #include "main_menu.hpp"
 #include "graphics/window.hpp"
 #include "helper/constants.hpp"
+#include "helper/graphic_utils.hpp"
 #include "helper/music_utils.hpp"
 #include "helper/platform.hpp"
 #include "manager/music_manager.hpp"

@@ -1,6 +1,7 @@
 #pragma once
 
-#include "helper/color.hpp"
+#include <core/helper/color.hpp>
+
 #include "scenes/scene.hpp"
 #include "ui/layouts/tile_layout.hpp"
 #include "ui/widget.hpp"

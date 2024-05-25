@@ -1,9 +1,11 @@
+#include <core/helper/utils.hpp>
+
 #include "about_page.hpp"
 #include "graphics/window.hpp"
 #include "helper/constants.hpp"
 #include "helper/git_helper.hpp"
+#include "helper/graphic_utils.hpp"
 #include "helper/platform.hpp"
-#include "helper/utils.hpp"
 #include "manager/resource_manager.hpp"
 #include "ui/components/image_view.hpp"
 #include "ui/components/link_label.hpp"
@@ -11,6 +13,7 @@
 
 #include <fmt/format.h>
 #include <fmt/ranges.h>
+
 namespace scenes {
 
     AboutPage::AboutPage(ServiceProvider* service_provider, const  ui::Layout& layout) : Scene{service_provider, layout}

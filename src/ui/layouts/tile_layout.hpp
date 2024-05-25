@@ -1,9 +1,9 @@
 #pragma once
 
+#include <core/helper/types.hpp>
 
 #include "focus_layout.hpp"
 #include "graphics/renderer.hpp"
-#include "helper/types.hpp"
 #include "ui/focusable.hpp"
 #include "ui/hoverable.hpp"
 #include "ui/layouts/grid_layout.hpp"

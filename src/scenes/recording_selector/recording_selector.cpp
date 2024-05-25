@@ -1,18 +1,19 @@
-#include "helper/platform.hpp"
-#include "helper/utils.hpp"
+#include <core/helper/utils.hpp>
 
+#include "helper/platform.hpp"
 
 #if defined(_HAVE_FILE_DIALOGS)
 #include "recording_chooser.hpp"
 #endif
 
+#include <recordings/utility/recording_reader.hpp>
+
 #include "graphics/window.hpp"
 #include "helper/constants.hpp"
-
+#include "helper/graphic_utils.hpp"
 #include "manager/resource_manager.hpp"
 #include "recording_component.hpp"
 #include "recording_selector.hpp"
-#include "recordings/recording_reader.hpp"
 #include "scenes/replay_game/replay_game.hpp"
 #include "ui/components/text_button.hpp"
 #include "ui/layout.hpp"

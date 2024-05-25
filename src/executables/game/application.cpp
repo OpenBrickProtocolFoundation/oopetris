@@ -1,8 +1,10 @@
+#include <core/helper/errors.hpp>
+#include <core/helper/magic_enum_wrapper.hpp>
+#include <core/helper/sleep.hpp>
+
 #include "application.hpp"
-#include "helper/errors.hpp"
-#include "helper/magic_enum_wrapper.hpp"
+#include "helper/graphic_utils.hpp"
 #include "helper/message_box.hpp"
-#include "helper/sleep.hpp"
 #include "input/input.hpp"
 #include "manager/music_manager.hpp"
 #include "scenes/loading_screen/loading_screen.hpp"
@@ -35,7 +37,7 @@ namespace {
 } // namespace
 
 
-Application::Application(std::shared_ptr<Window>&& window, const std::vector<std::string>& arguments) try
+Application::Application(std::shared_ptr<Window>&& window, CommandLineArguments&& arguments) try
     : m_command_line_arguments{ arguments },
       m_window{ std::move(window) },
       m_renderer{ *m_window, m_command_line_arguments.target_fps.has_value() ? Renderer::VSync::Disabled

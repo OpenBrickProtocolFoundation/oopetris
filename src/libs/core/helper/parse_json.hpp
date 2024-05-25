@@ -8,7 +8,7 @@
 
 #include <nlohmann/json.hpp>
 
-#include "./helper/expected.hpp"
+#include "./expected.hpp"
 
 
 #include <filesystem>
@@ -51,7 +51,7 @@ namespace json {
 
 
     template<typename T>
-    [[nodiscard]] helper::expected<T, std::string> try_parse_json(const std::string& content) {
+    [[nodiscard]] helper::expected<T, std::string> try_parse_json(const std::string& content) noexcept {
 
         try {
             T result = nlohmann::json::parse(content);
@@ -69,7 +69,7 @@ namespace json {
     }
 
     template<typename T>
-    [[nodiscard]] helper::expected<T, std::string> try_parse_json_file(const std::filesystem::path& file) {
+    [[nodiscard]] helper::expected<T, std::string> try_parse_json_file(const std::filesystem::path& file) noexcept {
 
         if (not std::filesystem::exists(file)) {
             return helper::unexpected<std::string>{ fmt::format("File '{}' doesn't exist", file.string()) };
@@ -90,7 +90,7 @@ namespace json {
 
     template<typename T>
     [[nodiscard]] helper::expected<std::string, std::string>
-    try_json_to_string(const T& type, const bool pretty = false) {
+    try_json_to_string(const T& type, const bool pretty = false) noexcept {
         try {
 
             const nlohmann::json value = type;

@@ -1,8 +1,7 @@
 
-#include "command_line_arguments.hpp"
+#include "./command_line_arguments.hpp"
 
-#include <recording_json_wrapper.hpp>
-#include <recording_reader.hpp>
+#include <recordings/recordings.hpp>
 
 #include <filesystem>
 #include <iostream>
@@ -39,7 +38,15 @@ void dump_json(const recorder::RecordingReader& recording_reader, bool pretty_pr
 
 int main(int argc, char** argv) noexcept {
 
-    const auto arguments = CommandLineArguments(argc, argv);
+    const auto arguments_result = CommandLineArguments::from_args(argc, argv);
+
+    if (not arguments_result.has_value()) {
+        std::cerr << arguments_result.error();
+        std::exit(1);
+    }
+
+    const auto arguments = arguments_result.value();
+
 
     if (not std::filesystem::exists(arguments.recording_path)) {
         std::cerr << arguments.recording_path << " does not exist!\n";

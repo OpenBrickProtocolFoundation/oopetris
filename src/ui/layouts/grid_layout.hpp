@@ -1,8 +1,8 @@
 #pragma once
 
+#include <core/helper/types.hpp>
 
 #include "focus_layout.hpp"
-#include "helper/types.hpp"
 
 namespace ui {
     struct GridLayout : public FocusLayout {

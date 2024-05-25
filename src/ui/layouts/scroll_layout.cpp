@@ -1,7 +1,7 @@
+#include <core/helper/color_literals.hpp>
 
-#include "scroll_layout.hpp"
-#include "helper/color_literals.hpp"
 #include "input/input.hpp"
+#include "scroll_layout.hpp"
 
 ui::ItemSize::ItemSize(const u32 height, ItemSizeType type) : height{ height }, type{ type } { }
 

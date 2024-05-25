@@ -1,14 +1,14 @@
 #pragma once
 
+#include <core/game/mino_stack.hpp>
+#include <core/helper/random.hpp>
+#include <core/helper/types.hpp>
+#include <recordings/utility/tetrion_core_information.hpp>
+
 #include "bag.hpp"
 #include "grid.hpp"
-
-#include "helper/random.hpp"
-#include "helper/types.hpp"
 #include "input/game_input.hpp"
 #include "manager/service_provider.hpp"
-#include "mino_stack.hpp"
-#include "recordings/tetrion_core_information.hpp"
 #include "tetromino.hpp"
 #include "ui/layout.hpp"
 #include "ui/layouts/grid_layout.hpp"

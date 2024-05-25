@@ -1,7 +1,7 @@
 
+#include <core/helper/string_manipulation.hpp>
 
 #include "controller_input.hpp"
-#include "helper/string_manipulation.hpp"
 #include "input/input.hpp"
 #include "input/joystick_input.hpp"
 #include "manager/sdl_controller_key.hpp"

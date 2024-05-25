@@ -2,7 +2,7 @@
 
 #include "./color.hpp"
 #include "./const_utils.hpp"
-#include "./helper/types.hpp"
+#include "./types.hpp"
 
 #include <limits>
 #include <string>

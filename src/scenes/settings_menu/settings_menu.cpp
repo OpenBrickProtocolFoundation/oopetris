@@ -1,11 +1,11 @@
-#include "settings_menu.hpp"
-#include "color_setting_row.hpp"
-#include "helper/color_literals.hpp"
+#include <core/helper/color_literals.hpp>
+#include <core/helper/utils.hpp>
 
-#include "helper/utils.hpp"
+#include "color_setting_row.hpp"
 #include "manager/music_manager.hpp"
 #include "manager/resource_manager.hpp"
 #include "settings_details.hpp"
+#include "settings_menu.hpp"
 #include "ui/components/label.hpp"
 #include "ui/components/slider.hpp"
 #include "ui/components/text_button.hpp"

@@ -1,5 +1,6 @@
 #include "game_over.hpp"
 #include "graphics/renderer.hpp"
+#include "helper/graphic_utils.hpp"
 #include "helper/music_utils.hpp"
 #include "helper/platform.hpp"
 #include "input/input.hpp"

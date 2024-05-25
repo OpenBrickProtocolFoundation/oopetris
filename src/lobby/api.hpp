@@ -25,8 +25,9 @@
 #include <fmt/format.h>
 #include <spdlog/spdlog.h>
 
-#include "helper/expected.hpp"
-#include "helper/static_string.hpp"
+#include <core/helper/expected.hpp>
+#include <core/helper/static_string.hpp>
+
 #include "lobby/types.hpp"
 
 namespace constants {

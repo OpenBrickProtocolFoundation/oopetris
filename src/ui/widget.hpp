@@ -1,6 +1,6 @@
 #pragma once
 
-#include "helper/bool_wrapper.hpp"
+#include <core/helper/bool_wrapper.hpp>
 
 #include "manager/service_provider.hpp"
 #include "ui/focusable.hpp"

@@ -1,6 +1,8 @@
 #pragma once
 
 
+#include <optional>
+
 namespace helper {
 
     template<typename T>

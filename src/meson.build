@@ -51,4 +51,6 @@ if build_application
     # setting this to strings, so += {...} gets detected as an error, if it is done after that
     graphics_lib = 'undefined'
 
+    subdir('executables')
+
 endif

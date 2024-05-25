@@ -1,8 +1,9 @@
 
+#include <core/helper/errors.hpp>
+#include <core/helper/magic_enum_wrapper.hpp>
+#include <core/helper/utils.hpp>
+
 #include "color_setting_row.hpp"
-#include "helper/errors.hpp"
-#include "helper/magic_enum_wrapper.hpp"
-#include "helper/utils.hpp"
 #include "input/input.hpp"
 #include "ui/components/label.hpp"
 #include "ui/focusable.hpp"

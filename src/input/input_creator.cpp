@@ -1,14 +1,16 @@
 
 
-#include "input_creator.hpp"
-#include "additional_information.hpp"
-#include "helper/command_line_arguments.hpp"
-#include "helper/date.hpp"
-#include "helper/errors.hpp"
-#include "helper/expected.hpp"
+#include <core/helper/date.hpp>
+#include <core/helper/errors.hpp>
+#include <core/helper/expected.hpp>
+#include <recordings/utility/additional_information.hpp>
 
+#include "game/command_line_arguments.hpp"
+#include "helper/constants.hpp"
+#include "helper/graphic_utils.hpp"
 #include "input.hpp"
 #include "input/replay_input.hpp"
+#include "input_creator.hpp"
 
 #include <fmt/format.h>
 #include <stdexcept>

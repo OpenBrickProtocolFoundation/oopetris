@@ -1,6 +1,6 @@
 if build_application
 
-    main_filers = []
+    main_files = []
 
     subdir('game')
 
@@ -35,7 +35,7 @@ if build_application
         if host_machine.system() == 'windows'
             subdir('../../platforms/windows')
         endif
-
+        
         oopetris_exe = executable(
             'oopetris',
             main_files,

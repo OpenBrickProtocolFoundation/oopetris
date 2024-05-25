@@ -1,7 +1,8 @@
 
 #pragma once
 
-#include "color.hpp"
+#include <core/helper/color.hpp>
+
 #include "helper/constants.hpp"
 
 

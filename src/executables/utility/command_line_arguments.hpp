@@ -1,5 +1,6 @@
 #pragma once
 
+#include <core/helper/expected.hpp>
 
 #include <argparse/argparse.hpp>
 #include <filesystem>
@@ -19,11 +20,22 @@ struct Info { };
 struct CommandLineArguments final {
 private:
 public:
-    std::filesystem::path recording_path{};
+    std::filesystem::path recording_path;
     std::variant<Dump, Info> value;
 
 
-    CommandLineArguments(int argc, char** argv) {
+    template<typename T>
+    CommandLineArguments(std::filesystem::path recording_path, T&& type)
+        : recording_path{ recording_path },
+          value{ std::move(type) } { }
+
+    template<typename T>
+    CommandLineArguments(std::filesystem::path recording_path, const T& type)
+        : recording_path{ recording_path },
+          value{ type } { }
+
+
+    [[nodiscard]] static helper::expected<CommandLineArguments, std::string> from_args(int argc, char** argv) noexcept {
         argparse::ArgumentParser parser{ argc >= 1 ? argv[0] //NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
                                                    : "oopetris_recording_utility",
                                          "0.0.1", argparse::default_arguments::all };
@@ -51,22 +63,27 @@ public:
 
             parser.parse_args(argc, argv);
 
-            this->recording_path = parser.get("--recording");
+            const auto recording_path = parser.get("--recording");
 
             if (parser.is_subcommand_used(dump_parser)) {
                 const auto ensure_ascii = dump_parser.get<bool>("--ensure-ascii");
                 const auto pretty_print = dump_parser.get<bool>("--pretty-print");
 
-                this->value = Dump{ .ensure_ascii = ensure_ascii, .pretty_print = pretty_print };
+
+                return CommandLineArguments{
+                    recording_path, Dump{ .ensure_ascii = ensure_ascii, .pretty_print = pretty_print }
+                };
 
             } else if (parser.is_subcommand_used(info_parser)) {
-                this->value = Info{};
+                return CommandLineArguments{
+                    recording_path,
+                    Info{},
+                };
             } else {
-                throw std::runtime_error("Unknown or no subcommand used");
+                return helper::unexpected<std::string>{ "Unknown or no subcommand used" };
             }
         } catch (const std::exception& error) {
-            std::cerr << error.what();
-            std::exit(1);
+            return helper::unexpected<std::string>{ error.what() };
         }
     }
 };

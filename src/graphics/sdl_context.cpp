@@ -1,5 +1,6 @@
+#include <core/helper/errors.hpp>
+
 #include "graphics/sdl_context.hpp"
-#include "helper/errors.hpp"
 
 #include <SDL.h>
 #include <SDL_ttf.h>

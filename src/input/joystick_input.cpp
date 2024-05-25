@@ -1,13 +1,13 @@
 
 
-#include "joystick_input.hpp"
-#include "controller_input.hpp"
-#include "helper/expected.hpp"
-#include "helper/graphic_utils.hpp"
+#include <core/helper/expected.hpp>
+#include <core/helper/utils.hpp>
 
-#include "helper/utils.hpp"
+#include "controller_input.hpp"
+#include "helper/graphic_utils.hpp"
 #include "input/game_input.hpp"
 #include "input/input.hpp"
+#include "joystick_input.hpp"
 
 #include <algorithm>
 #include <exception>

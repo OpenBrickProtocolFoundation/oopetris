@@ -2,8 +2,9 @@
 
 #pragma once
 
-#include "helper/color_literals.hpp"
-#include "recordings/recording.hpp"
+#include <core/helper/color_literals.hpp>
+#include <recordings/recordings.hpp>
+
 #include "ui/components/label.hpp"
 #include "ui/focusable.hpp"
 #include "ui/hoverable.hpp"
