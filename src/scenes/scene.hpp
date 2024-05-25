@@ -8,7 +8,7 @@
 #include "ui/layout.hpp"
 
 #include <functional>
-
+#include <variant>
 
 namespace scenes {
     enum class SceneUpdate : u8 {

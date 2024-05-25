@@ -22,6 +22,8 @@ subdir('src')
 
 subdir('tools/install')
 
+subdir('src/executables')
+
 if get_option('tests')
     subdir('tests')
 endif

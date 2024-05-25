@@ -22,18 +22,18 @@ if build_application
             main_files,
             [liboopetris_graphics_dep, graphic_application_deps],
         ]
-        subdir('../../platforms/switch')
+        subdir('platforms/switch')
     elif meson.is_cross_build() and host_machine.system() == '3ds'
         _3ds_options = [
             app_name,
             main_files,
             [liboopetris_graphics_dep, graphic_application_deps],
         ]
-        subdir('../../platforms/3ds')
+        subdir('platforms/3ds')
     else
 
         if host_machine.system() == 'windows'
-            subdir('../../platforms/windows')
+            subdir('platforms/windows')
         endif
         
         oopetris_exe = executable(
