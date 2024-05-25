@@ -1,6 +1,7 @@
 
+#include <core/helper/expected.hpp>
+
 #include "manager/sdl_key.hpp"
-#include "helper/expected.hpp"
 #include "utils/helper.hpp"
 
 #include <gmock/gmock.h>
