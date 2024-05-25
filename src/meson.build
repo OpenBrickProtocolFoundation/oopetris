@@ -55,7 +55,7 @@ liboopetris_core_dep = declare_dependency(
     dependencies: core_lib.get('deps'),
     version: meson.project_version(),
 )
-meson.override_dependency('oopetris-core', liboopetris_core_dep)
+meson.override_dependency('liboopetris-core', liboopetris_core_dep)
 
 recordings_lib += {
     'deps': [recordings_lib.get('deps'), liboopetris_core_dep, global_deps],
@@ -82,7 +82,7 @@ liboopetris_recordings_dep = declare_dependency(
     dependencies: recordings_lib.get('deps'),
     version: meson.project_version(),
 )
-meson.override_dependency('oopetris-recordings', liboopetris_recordings_dep)
+meson.override_dependency('liboopetris-recordings', liboopetris_recordings_dep)
 
 graphics_lib += {
     'deps': [graphics_lib.get('deps'), liboopetris_recordings_dep, global_deps],
@@ -109,7 +109,7 @@ liboopetris_graphics_dep = declare_dependency(
     dependencies: graphics_lib.get('deps'),
     version: meson.project_version(),
 )
-meson.override_dependency('oopetris-graphics', liboopetris_graphics_dep)
+meson.override_dependency('liboopetris-graphics', liboopetris_graphics_dep)
 
 # setting this to strings, so += {...} gets detected as an error, if it is done after that
 core_lib = 'undefined'
