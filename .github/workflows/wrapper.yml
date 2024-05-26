@@ -85,6 +85,13 @@ jobs:
           sudo apt-get install ninja-build -y
           sudo pip install meson --break-system-packages
 
+      - name: Fix pkg-config (Windows)
+        if: matrix.config.os == 'windows'
+        run: |
+          Remove-Item -Path C:\Strawberry\ -Recurse 
+          choco install pkgconfiglite
+          echo "PKG_CONFIG_PATH=C:/lib/pkgconfig" >> "$GITHUB_ENV"
+          
       - name: Configure
         run: meson setup build -Dbuildtype=release -Ddefault_library=static -Dclang_libcpp=disabled -Donly_build_libs=true
 
@@ -95,12 +102,6 @@ jobs:
       - name: Build and install Libs (Linux)
         if: matrix.config.os == 'ubuntu'
         run: sudo meson install -C build 
-
-      - name: Remove Strawberry perl pkg-config
-        if: matrix.config.os == 'windows'
-        uses: JesseTG/rm@v1.0.3
-        with:
-          path: C:/Strawberry/
 
       - name: Install Node.js
         uses: actions/setup-node@v4
