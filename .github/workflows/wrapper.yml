@@ -83,6 +83,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install ninja-build -y
+          sudo pip install meson --break-system-packages
 
       - name: Configure
         run: meson setup build -Dbuildtype=release -Ddefault_library=static -Dclang_libcpp=disabled -Donly_build_libs=true
@@ -97,7 +98,7 @@ jobs:
 
       - name: Build and install Libs (Linux)
         if: matrix.config.os == 'ubuntu'
-        run: sudo meson install -C build 
+        run: meson install -C build 
 
       - name: Fix pkg-config PATH on Windows
         if: matrix.config.os == 'windows'
