@@ -2,6 +2,7 @@
 {
     "targets": [
         {
+            "target_name": "oopetris",
             "cflags_cc": [
                 "-std=c++23",
                 "-Wall",
@@ -16,7 +17,6 @@
                 "<!@(pkg-config oopetris-recordings --cflags-only-other)",
             ],
             "defines": ["V8_DEPRECATION_WARNINGS=1"],
-            "target_name": "oopetris",
             "sources": ["src/cpp/wrapper.cpp"],
             "include_dirs": [
                 "<!@(node -e \"require('nan')\")",

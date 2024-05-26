@@ -11,7 +11,9 @@ global.fail = fail
 function getFilePath(name: string): string {
 	return path.join(__dirname, `files`, name)
 }
-const oopetris = require("bindings")("oopetris")
+
+const rootDir = path.join(__dirname, "..")
+const oopetris = require("node-gyp-build")(rootDir)
 
 describe("isRecordingFile", () => {
 	it("should throw an error, when no first argument was given", async () => {
@@ -95,7 +97,6 @@ describe("exported properties", () => {
 			"getInformation",
 			"version",
 			"properties",
-			"path",
 		]
 
 		const keys = Object.keys(oopetris)

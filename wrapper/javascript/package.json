@@ -7,21 +7,20 @@
 	"types": "./dist/index.d.ts",
 	"private": false,
 	"scripts": {
-		"install": "npm run build",
-		"configure": "node-gyp clean && node-gyp configure",
-		"build": "npm run build:gyp",
-		"build:gyp": "npm run configure && node-gyp build",
-		"build:debug": "npm run configure && node-gyp build --debug",
+		"build": "npm run build:gyp && npm run compile",
+		"build:gyp": "node-gyp-build --all --strip",
+		"build:debug": " node-gyp-build --debug",
 		"compile": "npm run build:tsc",
 		"build:tsc": "tsc",
 		"test": "npx jest",
-		"build:test": "npm run build && npm run test"
+		"build:test": "npm run build && npm run test",
+		"publish": "npm run build:test && npm publish --tag latest --access public"
 	},
-	"install": "node-gyp configure build",
+	"install": "node-gyp-build",
 	"keywords": [
 		"oopetris",
 		"cpp",
-		"noe-gyp"
+		"node-gyp"
 	],
 	"author": {
 		"name": "Totto16",
@@ -33,10 +32,10 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/Totto16/imdb-dataset-parser.git"
+		"url": "git+https://github.com/OpenBrickProtocolFoundation/oopetris"
 	},
 	"dependencies": {
-		"bindings": "^1.5.0"
+		"node-gyp-build": "^4.8.1"
 	},
 	"devDependencies": {
 		"@types/jest": "^29.5.12",

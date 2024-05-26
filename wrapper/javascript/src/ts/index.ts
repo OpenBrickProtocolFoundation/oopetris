@@ -1,6 +1,8 @@
 import fs from "fs"
+import path from "path"
 
-const oopetris = require("bindings")("oopetris") //require("./build/Release/oopetris.node")
+const rootDir = path.join(__dirname, "..", "..")
+const oopetris = require("node-gyp-build")(rootDir)
 
 export type AdditionalInformation = Record<string, any>
 
@@ -102,9 +104,5 @@ export class RecordingsUtility {
 
 	static get version(): string {
 		return oopetris.version
-	}
-
-	private get cppModulePath(): string {
-		return oopetris.path
 	}
 }
