@@ -1,10 +1,10 @@
 #pragma once
 
-#include "./helper.hpp"
-#include <core/helper/expected.hpp>
-#include "./recording.hpp"
 #include "./additional_information.hpp"
+#include "./helper.hpp"
+#include "./recording.hpp"
 #include "./tetrion_core_information.hpp"
+#include <core/helper/expected.hpp>
 
 #include <filesystem>
 

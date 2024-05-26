@@ -10,9 +10,9 @@
 #include <SDL_mixer.h>
 #include <filesystem>
 #include <fmt/format.h>
+#include <spdlog/spdlog.h>
 #include <stdexcept>
 #include <string>
-#include <spdlog/spdlog.h>
 
 MusicManager::MusicManager(ServiceProvider* service_provider, u8 channel_size)
     : m_music{ nullptr },

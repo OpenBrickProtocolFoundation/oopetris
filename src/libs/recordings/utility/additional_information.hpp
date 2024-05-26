@@ -3,8 +3,8 @@
 
 #include "./checksum_helper.hpp"
 #include "./helper.hpp"
-#include <core/helper/types.hpp>
 #include <core/helper/expected.hpp>
+#include <core/helper/types.hpp>
 
 #include <fmt/format.h>
 #include <fmt/ranges.h>

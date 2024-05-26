@@ -8,10 +8,9 @@ namespace utils {
 #define STRINGIFY_HELPER_(a) #a           //NOLINT(cppcoreguidelines-macro-usage)
 
 
-#if  !defined(OOPETRIS_VERSION)
+#if !defined(OOPETRIS_VERSION)
 #error "OOPETRIS_VERSION not defined"
 #endif
-
 
 
     [[nodiscard]] inline std::string version() {
