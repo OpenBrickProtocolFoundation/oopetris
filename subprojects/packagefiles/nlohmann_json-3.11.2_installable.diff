@@ -1,0 +1,20 @@
+diff --git a/meson.build b/meson.build
+index e2fb86f..4ddae11 100644
+--- a/meson.build
++++ b/meson.build
+@@ -12,13 +12,12 @@ nlohmann_json_multiple_headers = declare_dependency(
+     include_directories: include_directories('include')
+ )
+ 
+-if not meson.is_subproject()
++
+ install_headers('single_include/nlohmann/json.hpp', subdir: 'nlohmann')
+-install_headers('single_include/nlohmann/json_fwd.hpp', subdir: 'nlohmann')
+ 
+ pkgc = import('pkgconfig')
+ pkgc.generate(name: 'nlohmann_json',
+     version: meson.project_version(),
+     description: 'JSON for Modern C++'
+ )
+-endif
++
