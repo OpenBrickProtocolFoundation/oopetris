@@ -8,4 +8,4 @@
 #define MAGIC_ENUM_RANGE_MAX 256 // NOLINT(cppcoreguidelines-macro-usage)
 #endif
 
-#include <magic_enum.hpp>
+#include <magic_enum/magic_enum.hpp>
