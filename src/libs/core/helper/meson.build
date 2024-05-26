@@ -27,6 +27,7 @@ _header_files = files(
     'timer.hpp',
     'types.hpp',
     'utils.hpp',
+    'versions.hpp',
 )
 core_header_files += _header_files
 

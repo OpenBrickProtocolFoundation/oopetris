@@ -3,7 +3,9 @@ oopetris_name = 'OOPetris'
 
 core_lib = {
     'inc_dirs': [],
-    'compile_args': [],
+    'compile_args': [
+        '-DOOPETRIS_VERSION=' + meson.project_version(),
+    ],
     'deps': [],
 }
 

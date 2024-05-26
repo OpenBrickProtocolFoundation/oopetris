@@ -19,6 +19,9 @@ namespace constants {
     constexpr auto recordings_directory = "recordings";
     constexpr u32 simulation_frequency = 60;
 
+#undef STRINGIFY
+#undef STRINGIFY_HELPER_
+
 #if not defined(AUDIO_QUALITY)
 #define AUDIO_QUALITY 0 // NOLINT(cppcoreguidelines-macro-usage)
 #endif
