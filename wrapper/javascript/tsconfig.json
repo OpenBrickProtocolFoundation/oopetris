@@ -1,0 +1,26 @@
+{
+	"include": ["src/ts/*.ts"],
+	"exclude": ["node_modules"],
+	"compilerOptions": {
+		"target": "es2021",
+		"module": "CommonJS",
+		"moduleResolution": "node",
+		"lib": ["es2021"],
+		"outDir": "dist",
+		"allowJs": true,
+		"rootDir": "src/ts/",
+		"strict": true,
+		"noImplicitAny": true,
+		"esModuleInterop": true,
+		"resolveJsonModule": true,
+		"strictNullChecks": true,
+		"strictFunctionTypes": true,
+		"declaration": true
+	},
+	"rules": {
+		"triple-equals": true,
+		"curly": true,
+		"strict-boolean-expressions": true,
+		"no-unnecessary-condition": true
+	}
+}
