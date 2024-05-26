@@ -112,6 +112,8 @@ utf8cpp_dep = dependency(
 )
 core_lib += {'deps': [core_lib.get('deps'), utf8cpp_dep]}
 
+is_flatpak_build = false
+
 if build_application
 
     graphic_application_deps = []

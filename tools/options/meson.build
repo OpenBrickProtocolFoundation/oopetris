@@ -85,6 +85,10 @@ endif
 build_application = true
 
 ## only build, if we are at the root, not if this is used as subproject in e.g. wrap files
-if meson.is_subproject()
+if meson.is_subproject() or get_option('only_build_libs')
     build_application = false
+
+    if get_option('build_installer') and get_option('only_build_libs')
+        error('Can\'t build installer when \'only_build_libs\' is enabled')
+    endif
 endif
