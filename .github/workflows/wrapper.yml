@@ -102,13 +102,15 @@ jobs:
 
       - name: Build package
         run: | 
+          cd wrapper/javascript
           npm install -D
           npm run build
+          npm run test
           npm pack
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.config.name }} Node.js Wrapper
-          path: oopetris*.tgz
+          path: wrapper/javascript/oopetris*.tgz
   
