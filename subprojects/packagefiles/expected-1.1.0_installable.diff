@@ -1,0 +1,14 @@
+diff --git a/meson.build b/meson.build
+index cf5efb7..4882184 100644
+--- a/meson.build
++++ b/meson.build
+@@ -12,3 +12,9 @@ tl_expected_dep = declare_dependency(
+ if meson.version().version_compare('>=0.54.0')
+   meson.override_dependency('tl-expected', tl_expected_dep)
+ endif
++
++
++install_headers(
++    files('include/tl/expected.hpp'),
++    subdir: 'tl',
++)

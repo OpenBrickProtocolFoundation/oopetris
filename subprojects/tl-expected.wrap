@@ -9,5 +9,7 @@ patch_hash = 8b1aa60a1ddd604494628f0c6b0ed569b9e1e2dc17dfdc09d5de5563ae8adfe3
 source_fallback_url = https://github.com/mesonbuild/wrapdb/releases/download/tl-expected_1.1.0-1/expected-1.1.0.tar.gz
 wrapdb_version = 1.1.0-1
 
+diff_files = expected-1.1.0_installable.diff
+
 [provide]
 tl-expected = tl_expected_dep
