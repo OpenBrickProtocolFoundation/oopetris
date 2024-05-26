@@ -7,18 +7,20 @@
 #include <iostream>
 
 void print_info(const recorder::RecordingReader& recording_reader) noexcept {
-    //TODO(Totto): Implement
+    //TODO(Totto): Implement, print basic information and final result for each simulation
     UNUSED(recording_reader);
     std::cerr << "NOT IMPLEMENTED\n";
 }
 
 void dump_json(const recorder::RecordingReader& recording_reader, bool pretty_print, bool ensure_ascii) noexcept {
 
-    nlohmann::json json_value;
+    auto result = json::try_convert_to_json<recorder::RecordingReader>(recording_reader);
 
-    //TODO: use parse_json helper
+    if (not result.has_value()) {
+        std::cerr << fmt::format("An error occurred during converting to json: {}\n", result.error());
+        std::exit(1);
+    }
 
-    nlohmann::adl_serializer<recorder::RecordingReader>::to_json(json_value, recording_reader);
 
     int indent = -1;
     char indent_char = ' ';
@@ -28,7 +30,7 @@ void dump_json(const recorder::RecordingReader& recording_reader, bool pretty_pr
         indent_char = '\t';
     }
 
-    std::cout << json_value.dump(indent, indent_char, ensure_ascii);
+    std::cout << result.value().dump(indent, indent_char, ensure_ascii);
 
     if (pretty_print) {
         std::cout << "\n";

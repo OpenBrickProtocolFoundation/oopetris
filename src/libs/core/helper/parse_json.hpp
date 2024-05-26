@@ -49,7 +49,6 @@ NLOHMANN_JSON_NAMESPACE_END
 
 namespace json {
 
-
     template<typename T>
     [[nodiscard]] helper::expected<T, std::string> try_parse_json(const std::string& content) noexcept {
 
@@ -89,16 +88,37 @@ namespace json {
 
 
     template<typename T>
+    [[nodiscard]] helper::expected<nlohmann::json, std::string> try_convert_to_json(const T& input) noexcept {
+
+        try {
+            nlohmann::json value = input;
+            return value;
+        } catch (nlohmann::json::type_error& type_error) {
+            return helper::unexpected<std::string>{ fmt::format("type error: {}", type_error.what()) };
+        } catch (nlohmann::json::exception& exception) {
+            return helper::unexpected<std::string>{ fmt::format("unknown json exception: {}", exception.what()) };
+        } catch (std::exception& exception) {
+            return helper::unexpected<std::string>{ fmt::format("unknown exception: {}", exception.what()) };
+        }
+    }
+
+
+    template<typename T>
     [[nodiscard]] helper::expected<std::string, std::string>
     try_json_to_string(const T& type, const bool pretty = false) noexcept {
         try {
 
-            const nlohmann::json value = type;
-            if (pretty) {
-                return value.dump(1, '\t');
+            auto value = try_convert_to_json<T>(type);
+
+            if (not value.has_value()) {
+                return helper::unexpected<std::string>{ value.error() };
             }
 
-            return value.dump(-1, ' ');
+            if (pretty) {
+                return value.value().dump(1, '\t');
+            }
+
+            return value.value().dump(-1, ' ');
 
         } catch (nlohmann::json::type_error& type_error) {
             return helper::unexpected<std::string>{ fmt::format("type error: {}", type_error.what()) };
