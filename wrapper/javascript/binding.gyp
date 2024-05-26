@@ -16,6 +16,12 @@
                 "-Wno-cast-function-type",  # since nan.h -> node.h has some warnings regarding that
                 "<!@(pkg-config oopetris-recordings --cflags-only-other)",
             ],
+            "conditions": [
+                [
+                    'OS == "mac"',
+                    {"cflags_cc!": ["-std=c++23"], "cflags_cc+": ["-std=c++20"]},
+                ]
+            ],
             "defines": ["V8_DEPRECATION_WARNINGS=1"],
             "sources": ["src/cpp/wrapper.cpp"],
             "include_dirs": [
