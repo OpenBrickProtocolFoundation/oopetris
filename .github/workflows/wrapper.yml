@@ -95,6 +95,15 @@ jobs:
         if: matrix.config.os == 'ubuntu'
         run: sudo meson install -C build 
 
+      - name: Build and install Libs (Linux)
+        if: matrix.config.os == 'ubuntu'
+        run: sudo meson install -C build 
+
+      - name: Fix pkg-config PATH on Windows
+        if: matrix.config.os == 'windows'
+        run: | 
+          echo "PKG_CONFIG_PATH=c:/lib/pkgconfig" >> "$GITHUB_ENV"
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
