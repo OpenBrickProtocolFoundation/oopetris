@@ -94,7 +94,12 @@ jobs:
         run: meson setup build -Dbuildtype=release -Ddefault_library=static -Dclang_libcpp=disabled -Donly_build_libs=true
 
       - name: Build and install Libs
+        if: matrix.config.os != 'ubuntu'
         run: meson install -C build 
+
+      - name: Build and install Libs (Linux)
+        if: matrix.config.os == 'ubuntu'
+        run: sudo meson install -C build 
 
       - uses: actions/setup-node@v4
         with:
