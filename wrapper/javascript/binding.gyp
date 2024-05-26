@@ -14,6 +14,7 @@
                 "-fexceptions",
                 "-frtti",
                 "-Wno-cast-function-type",  # since nan.h -> node.h has some warnings regarding that
+                "-Wno-template-id-cdtor",  # since nan.h -> node.h has some warnings regarding that
                 "<!@(pkg-config oopetris-recordings --cflags-only-other)",
             ],
             "conditions": [

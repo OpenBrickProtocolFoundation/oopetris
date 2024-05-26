@@ -17,8 +17,8 @@
 	"scripts": {
 		"install": "node-gyp-build",
 		"build": "npm run build:gyp && npm run compile",
-		"build:gyp": "prebuildify -t 18.20.3 -t 19.9.0 -t 20.13.1 -t 21.7.3 --strip",
-		"build:debug": "prebuildify -t 18.20.3 -t 19.9.0 -t 20.13.1 -t 21.7.3 --debug",
+		"build:gyp": "prebuildify -t 18.20.3 -t 19.9.0 -t 20.13.1 -t 21.7.3 -t 22.2.0 --strip",
+		"build:debug": "prebuildify -t 18.20.3 -t 19.9.0 -t 20.13.1 -t 21.7.3 -t 22.2.0 --debug",
 		"compile": "npm run build:tsc",
 		"build:tsc": "tsc",
 		"test": "npx jest",
@@ -36,7 +36,7 @@
 	},
 	"license": "MIT",
 	"engines": {
-		"node": "^18.0.0 || ^19.0.0 || ^20.0.0 || ^21.0.0 "
+		"node": "^18.0.0 || ^19.0.0 || ^20.0.0 || ^21.0.0 || ^22.0.0"
 	},
 	"os": [
 		"darwin",
