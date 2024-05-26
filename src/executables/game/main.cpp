@@ -6,6 +6,8 @@
 #include <core/helper/utils.hpp>
 
 #include "application.hpp"
+#include "helper/constants.hpp"
+#include "helper/graphic_utils.hpp"
 #include "helper/message_box.hpp"
 
 #include <filesystem>

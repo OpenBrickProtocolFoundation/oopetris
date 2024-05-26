@@ -38,7 +38,7 @@ namespace {
 
 
 Application::Application(std::shared_ptr<Window>&& window, CommandLineArguments&& arguments) try
-    : m_command_line_arguments{ arguments },
+    : m_command_line_arguments{ std::move(arguments) },
       m_window{ std::move(window) },
       m_renderer{ *m_window, m_command_line_arguments.target_fps.has_value() ? Renderer::VSync::Disabled
                                                                              : Renderer::VSync::Enabled },

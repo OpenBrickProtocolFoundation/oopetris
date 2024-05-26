@@ -25,14 +25,14 @@ public:
 
 
     template<typename T>
-    CommandLineArguments(std::filesystem::path recording_path, T&& type)
-        : recording_path{ recording_path },
-          value{ std::move(type) } { }
+    CommandLineArguments(std::filesystem::path&& recording_path, T&& value)
+        : recording_path{ std::move(recording_path) },
+          value{ std::forward<T>(value) } { }
 
     template<typename T>
-    CommandLineArguments(std::filesystem::path recording_path, const T& type)
-        : recording_path{ recording_path },
-          value{ type } { }
+    CommandLineArguments(std::filesystem::path&& recording_path, const T& value)
+        : recording_path{ std::move(recording_path) },
+          value{ value } { }
 
 
     [[nodiscard]] static helper::expected<CommandLineArguments, std::string> from_args(int argc, char** argv) noexcept {
@@ -63,7 +63,7 @@ public:
 
             parser.parse_args(argc, argv);
 
-            const auto recording_path = parser.get("--recording");
+            auto recording_path = parser.get("--recording");
 
             if (parser.is_subcommand_used(dump_parser)) {
                 const auto ensure_ascii = dump_parser.get<bool>("--ensure-ascii");
@@ -71,17 +71,20 @@ public:
 
 
                 return CommandLineArguments{
-                    recording_path, Dump{ .ensure_ascii = ensure_ascii, .pretty_print = pretty_print }
+                    std::move(recording_path), Dump{ .ensure_ascii = ensure_ascii, .pretty_print = pretty_print }
                 };
+            }
 
-            } else if (parser.is_subcommand_used(info_parser)) {
+            if (parser.is_subcommand_used(info_parser)) {
                 return CommandLineArguments{
-                    recording_path,
+                    std::move(recording_path),
                     Info{},
                 };
-            } else {
-                return helper::unexpected<std::string>{ "Unknown or no subcommand used" };
             }
+
+
+            return helper::unexpected<std::string>{ "Unknown or no subcommand used" };
+
         } catch (const std::exception& error) {
             return helper::unexpected<std::string>{ error.what() };
         }
