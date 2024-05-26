@@ -34,9 +34,6 @@ liboopetris_recordings_dep = declare_dependency(
 )
 meson.override_dependency('liboopetris-recordings', liboopetris_recordings_dep)
 
-# setting this to strings, so += {...} gets detected as an error, if it is done after that
-recordings_lib = 'undefined'
-
 install_headers(
     files('recordings.hpp'),
     install_dir: recordings_include_dir,
@@ -47,6 +44,12 @@ install_headers(
 pkg = import('pkgconfig')
 pkg.generate(
     liboopetris_recordings,
+    description: 'The recordings library for oopetris',
     name: 'oopetris-recordings',
     filebase: 'oopetris-recordings',
+    subdirs: 'oopetris',
+    extra_cflags: recordings_lib.get('compile_args'),
 )
+
+# setting this to strings, so += {...} gets detected as an error, if it is done after that
+recordings_lib = 'undefined'
