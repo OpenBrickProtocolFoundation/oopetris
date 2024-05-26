@@ -39,10 +39,10 @@ install_headers(
 
 # generate pkgconfig files
 pkg = import('pkgconfig')
+
 pkg.generate(
     liboopetris_core,
     description: 'The core library for oopetris',
-    libraries: core_lib.get('deps'),
     name: 'oopetris-core',
     filebase: 'oopetris-core',
     subdirs: 'oopetris',

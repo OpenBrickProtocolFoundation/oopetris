@@ -34,9 +34,6 @@ if (
     and (host_machine.system() == 'switch' or host_machine.system() == '3ds')
 )
     fmt_use_header_only = true
-    # clang with libc++ creates some really long and confusing linker errors, so just use the header only library
-elif cpp.get_id() == 'clang' and build_with_libcpp
-    fmt_use_header_only = true
 endif
 
 if fmt_use_header_only
