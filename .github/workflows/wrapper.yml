@@ -1,0 +1,114 @@
+name: Wrapper CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}-${{ matrix.config.os-version }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - name: Windows
+            os: windows
+            os-version: 2022
+
+          - name: Linux
+            os: ubuntu
+            os-version: 24.04
+
+          - name: MacOS 
+            os: macos
+            os-version: 13
+
+          - name: MacOS (Arm64)
+            os: macos
+            os-version: 14
+
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: "0"
+
+      - name: Setup MSVC (Windows)
+        if: matrix.config.os == 'windows'
+        uses: TheMrMilchmann/setup-msvc-dev@v3
+        with:
+          arch: x64
+          toolset: 14.39
+
+      - name: Setup GCC (Linux)
+        if: matrix.config.os == 'ubuntu'
+        uses: egor-tensin/setup-gcc@v1
+        with:
+          version: 14
+          platform: x64
+
+      - name: Setup Clang (MacOS)
+        if: matrix.config.os == 'macos'
+        run: |
+          brew update
+          brew install llvm@18
+          echo "$(brew --prefix)/opt/llvm/bin" >> $GITHUB_PATH
+          echo "LDFLAGS=-L$(brew --prefix)/opt/llvm/lib -L$(brew --prefix)/opt/llvm/lib/c++ -Wl,-rpath,$(brew --prefix)/opt/llvm/lib/c++" >> "$GITHUB_ENV"
+          echo "CPPFLAGS=-I$(brew --prefix)/opt/llvm/include" >> "$GITHUB_ENV"
+          echo "CC=clang" >> "$GITHUB_ENV"
+          echo "CXX=clang++" >> "$GITHUB_ENV"
+          echo "OBJC=clang" >> "$GITHUB_ENV"
+          echo "CC_LD=lld" >> "$GITHUB_ENV"
+          echo "CXX_LD=lld" >> "$GITHUB_ENV"
+          echo "OBJC_LD=lld" >> "$GITHUB_ENV"
+
+      - name: Setup meson (MacOS)
+        if: matrix.config.os == 'macos' 
+        run: |
+          brew update
+          brew install meson
+  
+      # NOTE: meson has no dependencies, so --break-system-packages doesn't really break anything!
+      - name: Setup meson
+        if: matrix.config.os != 'macos'
+        run: |
+          pip install meson --break-system-packages
+
+      - name: Install dependencies (Linux)
+        if: matrix.config.os == 'ubuntu'
+        run: |
+          sudo apt-get update
+          sudo apt-get install ninja-build -y
+
+      - name: Install dependencies (MacOS)
+        if: matrix.config.os == 'macos'
+        run: |
+          brew update
+          brew install ninja
+
+      - name: Configure
+        run: meson setup build -Dbuildtype=release -Ddefault_library=static -Dclang_libcpp=disabled -Donly_build_libs=true
+
+      - name: Build and install Libs
+        run: meson install -C build 
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Build package
+        run: | 
+          npm install -D
+          npm run build
+          npm pack
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.config.name }} Node.js Wrapper
+          path: oopetris*.tgz
+  
