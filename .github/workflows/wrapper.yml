@@ -111,7 +111,7 @@ jobs:
         run: | 
           cd wrapper/javascript
           npm install -D
-          npm run build
+          npm run build --verbose
           npm run test
           npm pack
 
