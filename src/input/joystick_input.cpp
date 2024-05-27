@@ -114,9 +114,8 @@ void input::JoyStickInputManager::discover_devices(std::vector<std::unique_ptr<I
     const auto allow_background_events_result = SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
 
     if (allow_background_events_result != SDL_TRUE) {
+        // this is non fatal, so not returning
         spdlog::warn("Failed to set the JOYSTICK_ALLOW_BACKGROUND_EVENTS hint: {}", SDL_GetError());
-
-        return;
     }
 
     const auto mappings_file = utils::get_assets_folder() / "mappings" / "gamecontrollerdb.txt";
@@ -233,7 +232,13 @@ void input::JoyStickInputManager::add_new_device(
             return;
         }
 
+        spdlog::info(
+                "Added new device ({}): {}", type == input::JoystickLikeType::Joystick ? "joystick" : "controller",
+                joystick->get()->name()
+        );
+
         inputs.push_back(std::move(joystick.value()));
+
     } else {
         spdlog::warn(
                 "Failed to add newly attached {}: {}",
@@ -250,7 +255,8 @@ void input::JoyStickInputManager::remove_device(
 ) {
     for (auto it = inputs.cbegin(); it != inputs.cend(); it++) {
 
-        if (const auto joystick_input = utils::is_child_class<input::JoystickInput>(*it); joystick_input.has_value()) {
+        if (const auto joystick_input = utils::is_child_class<input::JoystickLikeInput>(*it);
+            joystick_input.has_value()) {
 
             if (joystick_input.value()->instance_id() == instance_id) {
                 //TODO(Totto): if we use this joystick as game input we have to notify the user about it,and pause the game, until he is inserted again
@@ -261,8 +267,9 @@ void input::JoyStickInputManager::remove_device(
         }
     }
 
-    spdlog::warn(fmt::format(
-            "Failed to remove removed {} from internal input vector (maybe he was not recognized in the first place)",
+    //this happens way to often, since Sdl outputs both  SDL_JOYDEVICEREMOVED and SDL_CONTROLLERDEVICEREMOVED at the same time, in case of a controller, so the second time, this is reached :(
+    spdlog::debug(fmt::format(
+            "Failed to remove removed {} from internal input vector",
             type == input::JoystickLikeType::Joystick ? "joystick" : "controller"
     ));
 }
