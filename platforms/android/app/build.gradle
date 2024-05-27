@@ -73,6 +73,13 @@ static boolean isValidVersion(String version) {
 }
 
 /**
+ * Internal helper function
+ */
+static List<String> getSupportedABIs() {
+    return ["armeabi-v7a", "arm64-v8a", "x86", "x86_64"];
+}
+
+/**
  * Read the Android ABI from user input.
  * supported ANDROID_ABIs are 'arm64-v8a', 'armeabi-v7a', 'x86', 'x86_64'
  * @return List<String>
@@ -80,7 +87,7 @@ static boolean isValidVersion(String version) {
 List getAndroidABIs() {
     String property = project.findProperty('ANDROID_ABI')
 
-    List<String> supportedABIs = ["armeabi-v7a", "arm64-v8a", "x86", "x86_64"];
+    List<String> supportedABIs = getSupportedABIs()
 
     List<String> AbiFilters = new ArrayList<String>()
     if (property == null) {
@@ -193,8 +200,37 @@ String getVersion() {
 
 }
 
+/**
+ * Detect if we need to build an universal apk
+ * this first checks, if this is manually request by the cli args, than it checks, if all supported ABIs are given, if that is the case, enable it too
+ * @return Boolean
+ */
+Boolean shouldBuildUniversalApk(List<String> abisToUse) {
+    String property = project.findProperty('BUILD_UNIVERSAL_APK')
+
+
+    if (property != null) {
+        return true
+    }
+
+    List<String> supportedABIs = getSupportedABIs()
+
+    // return true, if all abis, we support are specified
+    for (abi in supportedABIs) {
+        if (!abisToUse.contains(abi)) {
+            return false;
+        }
+    }
+
+    return true;
+
+
+}
+
+
 List<String> abisToUse = getAndroidABIs()
 String versionString = getVersion()
+Boolean buildUniversalApk = shouldBuildUniversalApk(abisToUse)
 
 System.out.printf("DEBUG: Using abis: %s%n", abisToUse.join(", "))
 System.out.printf("DEBUG: Using version: %s%n", versionString)
@@ -271,7 +307,7 @@ android {
             // Specifies a list of ABIs for Gradle to create APKs for.
             include(*abisToUse)
             // Specifies that you don't want to also generate a universal APK that includes all ABIs.
-            universalApk false
+            universalApk(buildUniversalApk)
         }
     }
 
