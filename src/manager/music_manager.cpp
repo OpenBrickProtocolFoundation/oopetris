@@ -248,7 +248,7 @@ void MusicManager::hook_music_finished() {
 
     return static_cast<double>(result) / MIX_MAX_VOLUME;
 #else
-    return volume;
+    return m_volume;
 #endif
 }
 
