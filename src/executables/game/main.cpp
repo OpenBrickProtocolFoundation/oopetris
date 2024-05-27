@@ -60,80 +60,86 @@ namespace {
     }
 
 
-} // namespace
+    int main_no_sdl_replace(int argc, char** argv) noexcept {
 
-int main(int argc, char** argv) noexcept {
-
-    std::shared_ptr<Window> window{ nullptr };
-
-    try {
-
-        initialize_spdlog();
-
-        std::vector<std::string> arguments_vector{};
-        arguments_vector.reserve(argc);
-        for (auto i = 0; i < argc; ++i) {
-            arguments_vector.emplace_back(argv[i]); //NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-        }
-
-        if (arguments_vector.empty()) {
-            arguments_vector.emplace_back("oopetris");
-        }
-
-        auto parsed_arguments = helper::parse_args(arguments_vector);
-
-        if (not parsed_arguments.has_value()) {
-
-            spdlog::error("error parsing command line arguments: {}", parsed_arguments.error());
-            return EXIT_FAILURE;
-        }
-
-        auto arguments = std::move(parsed_arguments.value());
-
-        [[maybe_unused]] constexpr auto window_name = constants::program_name.c_str();
-
+        std::shared_ptr<Window> window{ nullptr };
 
         try {
-#if defined(__ANDROID__) or defined(__CONSOLE__)
-            window = std::make_shared<Window>(window_name, WindowPosition::Centered);
-#else
-            [[maybe_unused]] static constexpr int width = 1280;
-            [[maybe_unused]] static constexpr int height = 720;
-            window = std::make_shared<Window>(window_name, WindowPosition::Centered, width, height);
-#endif
-        } catch (const helper::GeneralError& general_error) {
-            spdlog::error("Couldn't initialize window: {}", general_error.message());
-        }
 
-        if (window == nullptr) {
-            helper::MessageBox::show_simple(
-                    helper::MessageBox::Type::Error, "Initialization Error", "failed to create SDL window", nullptr
-            );
+            initialize_spdlog();
+
+            std::vector<std::string> arguments_vector{};
+            arguments_vector.reserve(argc);
+            for (auto i = 0; i < argc; ++i) {
+                arguments_vector.emplace_back(argv[i]); //NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+            }
+
+            if (arguments_vector.empty()) {
+                arguments_vector.emplace_back("oopetris");
+            }
+
+            auto parsed_arguments = helper::parse_args(arguments_vector);
+
+            if (not parsed_arguments.has_value()) {
+
+                spdlog::error("error parsing command line arguments: {}", parsed_arguments.error());
+                return EXIT_FAILURE;
+            }
+
+            auto arguments = std::move(parsed_arguments.value());
+
+            [[maybe_unused]] constexpr auto window_name = constants::program_name.c_str();
+
+
+            try {
+#if defined(__ANDROID__) or defined(__CONSOLE__)
+                window = std::make_shared<Window>(window_name, WindowPosition::Centered);
+#else
+                [[maybe_unused]] static constexpr int width = 1280;
+                [[maybe_unused]] static constexpr int height = 720;
+                window = std::make_shared<Window>(window_name, WindowPosition::Centered, width, height);
+#endif
+            } catch (const helper::GeneralError& general_error) {
+                spdlog::error("Couldn't initialize window: {}", general_error.message());
+            }
+
+            if (window == nullptr) {
+                helper::MessageBox::show_simple(
+                        helper::MessageBox::Type::Error, "Initialization Error", "failed to create SDL window", nullptr
+                );
+                return EXIT_FAILURE;
+            }
+
+            Application app{ std::move(window), std::move(arguments) };
+
+            app.run();
+            return EXIT_SUCCESS;
+
+        } catch (const helper::GeneralError& general_error) {
+            spdlog::error("{}", general_error.message());
+
+
+            if (window == nullptr) {
+                helper::MessageBox::show_simple(
+                        helper::MessageBox::Type::Error, "Initialization Error", general_error.message(), nullptr
+                );
+            } else {
+                window->show_simple(helper::MessageBox::Type::Error, "Initialization Error", general_error.message());
+            }
+
+
+            return EXIT_FAILURE;
+        } catch (const std::exception& error) {
+            // this is the last resort, so using std::cerr and no sdl show_simple messagebox!
+            std::cerr << error.what();
             return EXIT_FAILURE;
         }
-
-        Application app{ std::move(window), std::move(arguments) };
-
-        app.run();
-        return EXIT_SUCCESS;
-
-    } catch (const helper::GeneralError& general_error) {
-        spdlog::error("{}", general_error.message());
-
-
-        if (window == nullptr) {
-            helper::MessageBox::show_simple(
-                    helper::MessageBox::Type::Error, "Initialization Error", general_error.message(), nullptr
-            );
-        } else {
-            window->show_simple(helper::MessageBox::Type::Error, "Initialization Error", general_error.message());
-        }
-
-
-        return EXIT_FAILURE;
-    } catch (const std::exception& error) {
-        // this is the last resort, so using std::cerr and no sdl show_simple messagebox!
-        std::cerr << error.what();
-        return EXIT_FAILURE;
     }
+
+
+} // namespace
+
+
+int main(int argc, char** argv) {
+    return main_no_sdl_replace(argc, argv);
 }
