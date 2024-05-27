@@ -40,7 +40,7 @@ MusicManager::MusicManager(ServiceProvider* service_provider, u8 channel_size)
     }
 
     // retrieve allocated channels
-    auto allocated_channels = Mix_AllocateChannels(-1);
+    const auto allocated_channels = Mix_AllocateChannels(-1);
 
     spdlog::debug("SDL_MIX: allocated_channels = {}", allocated_channels);
 
@@ -76,7 +76,8 @@ MusicManager::~MusicManager() noexcept {
     }
 
     // stop sounds and free loaded data
-    int result = Mix_HaltChannel(-1);
+    const int result = Mix_HaltChannel(-1);
+
     if (result != 0) {
         spdlog::warn("Mix_HaltChannel failed with error: {}", SDL_GetError());
     }
@@ -264,7 +265,7 @@ void MusicManager::hook_music_finished() {
 
 [[nodiscard]] std::optional<double> MusicManager::get_volume() const {
 #if !defined(NDEBUG)
-    int result = Mix_VolumeMusic(-1);
+    const int result = Mix_VolumeMusic(-1);
     if (result == 0) {
         return std::nullopt;
     }
