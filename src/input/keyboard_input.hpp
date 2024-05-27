@@ -39,7 +39,7 @@ namespace input {
         sdl::Key open_settings;
 
 
-        [[nodiscard]] helper::expected<bool, std::string> validate() const;
+        [[nodiscard]] helper::expected<void, std::string> validate() const;
 
         [[nodiscard]] static KeyboardSettings default_settings() {
             return KeyboardSettings{ .rotate_left = sdl::Key{ SDLK_LEFT },

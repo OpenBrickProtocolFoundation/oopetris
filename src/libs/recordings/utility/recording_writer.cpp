@@ -28,7 +28,7 @@ helper::expected<recorder::RecordingWriter, std::string> recorder::RecordingWrit
         return helper::unexpected<std::string>{ fmt::format("failed to open output file \"{}\"", path.string()) };
     }
 
-    helper::expected<bool, std::string> result{ true };
+    helper::expected<void, std::string> result{};
 
     static_assert(sizeof(constants::recording::magic_file_byte) == 4);
     result = helper::writer::write_integral_to_file(output_file, constants::recording::magic_file_byte);
@@ -74,14 +74,14 @@ helper::expected<recorder::RecordingWriter, std::string> recorder::RecordingWrit
     return RecordingWriter{ std::move(output_file), std::move(tetrion_headers), std::move(information) };
 }
 
-helper::expected<bool, std::string> recorder::RecordingWriter::add_event(
+helper::expected<void, std::string> recorder::RecordingWriter::add_event(
         const u8 tetrion_index, // NOLINT(bugprone-easily-swappable-parameters)
         const u64 simulation_step_index,
         const InputEvent event
 ) {
     assert(tetrion_index < m_tetrion_headers.size());
 
-    helper::expected<bool, std::string> result{ true };
+    helper::expected<void, std::string> result{};
 
     static_assert(sizeof(std::underlying_type_t<MagicByte>) == 1);
     result = write(utils::to_underlying(MagicByte::Record));
@@ -107,13 +107,13 @@ helper::expected<bool, std::string> recorder::RecordingWriter::add_event(
     return result;
 }
 
-helper::expected<bool, std::string> recorder::RecordingWriter::add_snapshot(
+helper::expected<void, std::string> recorder::RecordingWriter::add_snapshot(
         const u8 tetrion_index,
         const u64 simulation_step_index,
         std::unique_ptr<TetrionCoreInformation> information
 ) {
 
-    helper::expected<bool, std::string> result{ true };
+    helper::expected<void, std::string> result{};
 
     static_assert(sizeof(std::underlying_type_t<MagicByte>) == 1);
     result = write(utils::to_underlying(MagicByte::Snapshot));
@@ -132,9 +132,9 @@ helper::expected<bool, std::string> recorder::RecordingWriter::add_snapshot(
 }
 
 
-helper::expected<bool, std::string>
+helper::expected<void, std::string>
 recorder::RecordingWriter::write_tetrion_header_to_file(std::ofstream& file, const TetrionHeader& header) {
-    helper::expected<bool, std::string> result{ true };
+    helper::expected<void, std::string> result{};
 
     static_assert(sizeof(decltype(header.seed)) == 8);
     result = helper::writer::write_integral_to_file(file, header.seed);
@@ -151,7 +151,7 @@ recorder::RecordingWriter::write_tetrion_header_to_file(std::ofstream& file, con
     return result;
 }
 
-helper::expected<bool, std::string> recorder::RecordingWriter::write_checksum_to_file(
+helper::expected<void, std::string> recorder::RecordingWriter::write_checksum_to_file(
         std::ofstream& file,
         const std::vector<TetrionHeader>& tetrion_headers,
         const AdditionalInformation& information
@@ -161,7 +161,7 @@ helper::expected<bool, std::string> recorder::RecordingWriter::write_checksum_to
             Recording::get_header_checksum(Recording::current_supported_version_number, tetrion_headers, information);
     static_assert(sizeof(decltype(checksum)) == 32);
 
-    helper::expected<bool, std::string> result{ true };
+    helper::expected<void, std::string> result{};
 
     for (const auto& checksum_byte : checksum) {
         result = helper::writer::write_integral_to_file<u8>(file, checksum_byte);

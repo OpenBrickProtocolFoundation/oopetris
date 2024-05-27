@@ -9,29 +9,31 @@ namespace helper {
     struct BoolWrapper {
     private:
         bool m_value;
-        std::optional<T> additional;
+        std::optional<T> m_additional;
 
     public:
-        BoolWrapper(bool value) : m_value{ value }, additional{ std::nullopt } { }
+        BoolWrapper(bool value) //NOLINT(google-explicit-constructor)
+            : m_value{ value },
+              m_additional{ std::nullopt } { }
 
-        BoolWrapper(bool value, const T& additional) : m_value{ value }, additional{ additional } { }
+        BoolWrapper(bool value, const T& additional) : m_value{ value }, m_additional{ additional } { }
 
-        BoolWrapper(bool value, const std::optional<T>& additional) : m_value{ value }, additional{ additional } { }
+        BoolWrapper(bool value, const std::optional<T>& additional) : m_value{ value }, m_additional{ additional } { }
 
         const std::optional<T>& get_additional() const {
-            return additional;
+            return m_additional;
         }
 
         [[nodiscard]] bool has_additional() const {
-            return additional.has_value();
+            return m_additional.has_value();
         }
 
 
         bool is(const T& value) const {
-            return value == additional;
+            return value == m_additional;
         }
 
-        operator bool() const {
+        operator bool() const { //NOLINT(google-explicit-constructor)
             return m_value;
         }
     };

@@ -299,7 +299,7 @@ input::TouchInput::get_by_device_index(const std::shared_ptr<Window>& window, in
     return new_event;
 }
 
-[[nodiscard]] helper::expected<bool, std::string> input::TouchSettings::validate() const {
+[[nodiscard]] helper::expected<void, std::string> input::TouchSettings::validate() const {
 
     if (move_x_threshold > 1.0 || move_x_threshold < 0.0) {
         return helper::unexpected<std::string>{
@@ -313,7 +313,7 @@ input::TouchInput::get_by_device_index(const std::shared_ptr<Window>& window, in
         };
     }
 
-    return true;
+    return {};
 }
 
 

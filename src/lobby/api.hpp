@@ -34,7 +34,7 @@ namespace constants {
     const std::string json_content_type = "application/json";
 }
 
-namespace {
+namespace { //NOLINT(cert-dcl59-cpp, google-build-namespaces)
 
 
     inline helper::expected<std::string, std::string> is_json_response(const httplib::Result& result) {
@@ -67,7 +67,7 @@ namespace {
         return helper::unexpected<std::string>{ fmt::format("Couldn't parse json with error: {}", parsed.error()) };
     }
 
-    inline helper::expected<bool, std::string> is_request_ok(const httplib::Result& result, int ok_code = 200) {
+    inline helper::expected<void, std::string> is_request_ok(const httplib::Result& result, int ok_code = 200) {
 
         if (not result) {
             return helper::unexpected<std::string>{
@@ -105,7 +105,7 @@ namespace {
             ) };
         }
 
-        return true;
+        return {};
     };
 
 
@@ -146,7 +146,7 @@ namespace lobby {
         // lobby commit used: https://github.com/OpenBrickProtocolFoundation/lobby/commit/2e0c8d05592f4e4d08437e6cb754a30f02c4e97c
         static constexpr StaticString supported_version{ "0.1.0" };
 
-        helper::expected<bool, std::string> check_compatibility() {
+        helper::expected<void, std::string> check_compatibility() {
             const auto server_version = get_version();
 
             if (not server_version.has_value()) {
@@ -166,10 +166,10 @@ namespace lobby {
                 ) };
             }
 
-            return true;
+            return {};
         }
 
-        helper::expected<bool, std::string> check_reachability() {
+        helper::expected<void, std::string> check_reachability() {
 
             auto result = m_client.Get("/");
 
@@ -179,7 +179,7 @@ namespace lobby {
                 };
             }
 
-            return true;
+            return {};
         }
 
         explicit Client(const std::string& api_url) : m_client{ api_url } {
@@ -277,7 +277,7 @@ namespace lobby {
         }
 
 
-        helper::expected<bool, std::string> join_lobby(int lobby_id) {
+        helper::expected<void, std::string> join_lobby(int lobby_id) {
             if (not is_authenticated()) {
                 return helper::unexpected<std::string>{
                     "Authentication needed for this "
@@ -303,7 +303,7 @@ namespace lobby {
             return get_json_from_request<LobbyDetail>(res);
         }
 
-        helper::expected<bool, std::string> delete_lobby(int lobby_id) {
+        helper::expected<void, std::string> delete_lobby(int lobby_id) {
             if (not is_authenticated()) {
                 return helper::unexpected<std::string>{
                     "Authentication needed for this "
@@ -316,7 +316,7 @@ namespace lobby {
             return is_request_ok(res, 204);
         }
 
-        helper::expected<bool, std::string> leave_lobby(int lobby_id) {
+        helper::expected<void, std::string> leave_lobby(int lobby_id) {
             if (not is_authenticated()) {
                 return helper::unexpected<std::string>{
                     "Authentication needed for this "
@@ -329,7 +329,7 @@ namespace lobby {
             return is_request_ok(res, 204);
         }
 
-        helper::expected<bool, std::string> start_lobby(int lobby_id) {
+        helper::expected<void, std::string> start_lobby(int lobby_id) {
             if (not is_authenticated()) {
                 return helper::unexpected<std::string>{
                     "Authentication needed for this "
@@ -367,7 +367,7 @@ namespace lobby {
             return get_json_from_request<std::vector<PlayerInfo>>(res);
         }
 
-        helper::expected<bool, std::string> register_user(const RegisterRequest& register_request) {
+        helper::expected<void, std::string> register_user(const RegisterRequest& register_request) {
             const auto json_result = json::try_json_to_string(register_request);
             if (not json_result.has_value()) {
                 return helper::unexpected<std::string>{ json_result.error() };

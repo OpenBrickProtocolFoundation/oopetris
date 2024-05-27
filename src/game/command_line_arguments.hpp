@@ -11,8 +11,8 @@
 
 struct CommandLineArguments final {
 
-    static inline const constexpr auto default_starting_level = u32{ 0 };
-    static inline const constexpr auto default_silent = bool{ true };
+    static const constexpr auto default_starting_level = u32{ 0 };
+    static const constexpr auto default_silent = true;
 
     std::optional<std::filesystem::path> recording_path;
     std::optional<u32> target_fps;

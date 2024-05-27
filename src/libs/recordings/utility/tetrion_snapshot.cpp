@@ -165,19 +165,19 @@ TetrionSnapshot::TetrionSnapshot(
 namespace {
 
     template<typename Value>
-    helper::expected<bool, std::string>
+    helper::expected<void, std::string>
     compare_values(const std::string_view name, const Value& this_value, const Value& other_value) {
         if (this_value != other_value) {
             return helper::unexpected<std::string>{
                 fmt::format("{} do not match:\n {} vs. {}", name, this_value, other_value)
             };
         }
-        return true;
+        return {};
     }
 } // namespace
 
-helper::expected<bool, std::string> TetrionSnapshot::compare_to(const TetrionSnapshot& other) const {
-    helper::expected<bool, std::string> result{ true };
+helper::expected<void, std::string> TetrionSnapshot::compare_to(const TetrionSnapshot& other) const {
+    helper::expected<void, std::string> result{};
 
     result = compare_values("tetrion indices", m_tetrion_index, other.m_tetrion_index);
     if (not result.has_value()) {
@@ -214,5 +214,5 @@ helper::expected<bool, std::string> TetrionSnapshot::compare_to(const TetrionSna
         return helper::unexpected<std::string>{ fmt::format("mino stacks do not match:\n {}", string_stream.str()) };
     }
 
-    return true;
+    return {};
 }

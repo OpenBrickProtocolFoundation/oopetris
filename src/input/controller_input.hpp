@@ -48,7 +48,7 @@ namespace input {
         sdl::ControllerKey open_settings;
 
 
-        [[nodiscard]] helper::expected<bool, std::string> validate() const;
+        [[nodiscard]] helper::expected<void, std::string> validate() const;
 
 
         [[nodiscard]] static ControllerSettings default_settings() {

@@ -44,7 +44,7 @@ namespace input {
         T open_settings;
 
 
-        [[nodiscard]] helper::expected<bool, std::string> validate() const {
+        [[nodiscard]] helper::expected<void, std::string> validate() const {
             const std::vector<std::string> to_use{ rotate_left, rotate_right, move_left, move_right,   move_down,
                                                    drop,        hold,         pause,     open_settings };
 

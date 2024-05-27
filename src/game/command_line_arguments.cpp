@@ -10,7 +10,7 @@ CommandLineArguments::CommandLineArguments(
         Level starting_level,
         bool silent
 )
-    : recording_path{ recording_path },
+    : recording_path{ std::move(recording_path) },
       target_fps{ target_fps },
       starting_level{ starting_level },
       silent{ silent } { }

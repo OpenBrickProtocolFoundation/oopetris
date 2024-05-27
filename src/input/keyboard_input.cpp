@@ -163,7 +163,7 @@ input::KeyboardGameInput::KeyboardGameInput(KeyboardGameInput&& input) noexcept 
 ) noexcept = default;
 
 
-[[nodiscard]] helper::expected<bool, std::string> input::KeyboardSettings::validate() const {
+[[nodiscard]] helper::expected<void, std::string> input::KeyboardSettings::validate() const {
 
     const std::vector<sdl::Key> to_use{ rotate_left, rotate_right, move_left, move_right,   move_down,
                                         drop,        hold,         pause,     open_settings };

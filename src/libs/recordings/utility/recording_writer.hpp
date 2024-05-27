@@ -29,32 +29,32 @@ namespace recorder {
                 AdditionalInformation&& information
         );
 
-        helper::expected<bool, std::string> add_event(
+        helper::expected<void, std::string> add_event(
                 u8 tetrion_index, // NOLINT(bugprone-easily-swappable-parameters)
                 u64 simulation_step_index,
                 InputEvent event
         );
-        helper::expected<bool, std::string>
+        helper::expected<void, std::string>
         add_snapshot(u8 tetrion_index, u64 simulation_step_index, std::unique_ptr<TetrionCoreInformation> information);
 
     private:
-        static helper::expected<bool, std::string>
+        static helper::expected<void, std::string>
         write_tetrion_header_to_file(std::ofstream& file, const TetrionHeader& header);
 
-        static helper::expected<bool, std::string> write_checksum_to_file(
+        static helper::expected<void, std::string> write_checksum_to_file(
                 std::ofstream& file,
                 const std::vector<TetrionHeader>& tetrion_headers,
                 const AdditionalInformation& information
         );
 
         template<utils::integral Integral>
-        helper::expected<bool, std::string> write(Integral data) {
+        helper::expected<void, std::string> write(Integral data) {
             const auto result = helper::writer::write_integral_to_file(m_output_file, data);
             if (not result.has_value()) {
                 return helper::unexpected<std::string>{ fmt::format("error while writing: {}", result.error()) };
             }
 
-            return true;
+            return {};
         }
     };
 

@@ -124,7 +124,7 @@ namespace helper {
     namespace writer {
 
         template<utils::integral Integral>
-        helper::expected<bool, std::string> write_integral_to_file(std::ofstream& file, const Integral data) {
+        helper::expected<void, std::string> write_integral_to_file(std::ofstream& file, const Integral data) {
             if (not file) {
                 return helper::unexpected<std::string>{ fmt::format("failed to write data \"{}\"", data) };
             }
@@ -137,12 +137,12 @@ namespace helper {
                     sizeof(little_endian_data)
             );
 
-            return true;
+            return {};
         }
 
         template<typename T>
-        helper::expected<bool, std::string> write_vector_to_file(std::ofstream& file, const std::vector<T>& values) {
-            helper::expected<bool, std::string> result{ true };
+        helper::expected<void, std::string> write_vector_to_file(std::ofstream& file, const std::vector<T>& values) {
+            helper::expected<void, std::string> result{};
             for (const auto& value : values) {
                 result = write_integral_to_file<T>(file, value);
                 if (not result.has_value()) {

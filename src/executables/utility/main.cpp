@@ -3,6 +3,7 @@
 
 #include <recordings/recordings.hpp>
 
+#include <exception>
 #include <filesystem>
 #include <iostream>
 
@@ -30,7 +31,14 @@ void dump_json(const recorder::RecordingReader& recording_reader, bool pretty_pr
         indent_char = '\t';
     }
 
-    std::cout << result.value().dump(indent, indent_char, ensure_ascii);
+    try {
+
+        std::cout << result.value().dump(indent, indent_char, ensure_ascii);
+
+    } catch (const std::exception& error) {
+        std::cerr << error.what();
+        std::exit(1);
+    }
 
     if (pretty_print) {
         std::cout << "\n";
@@ -40,43 +48,49 @@ void dump_json(const recorder::RecordingReader& recording_reader, bool pretty_pr
 
 int main(int argc, char** argv) noexcept {
 
-    const auto arguments_result = CommandLineArguments::from_args(argc, argv);
-
-    if (not arguments_result.has_value()) {
-        std::cerr << arguments_result.error();
-        std::exit(1);
-    }
-
-    const auto arguments = arguments_result.value();
+    try {
 
 
-    if (not std::filesystem::exists(arguments.recording_path)) {
-        std::cerr << arguments.recording_path << " does not exist!\n";
-        return 1;
-    }
+        auto arguments_result = CommandLineArguments::from_args(argc, argv);
+
+        if (not arguments_result.has_value()) {
+            std::cerr << arguments_result.error();
+            std::exit(1);
+        }
+
+        auto arguments = std::move(arguments_result.value());
+
+        if (not std::filesystem::exists(arguments.recording_path)) {
+            std::cerr << arguments.recording_path << " does not exist!\n";
+            return 1;
+        }
 
 
-    auto parsed = recorder::RecordingReader::from_path(arguments.recording_path);
+        auto parsed = recorder::RecordingReader::from_path(arguments.recording_path);
 
-    if (not parsed.has_value()) {
-        std::cerr << fmt::format(
-                "An error occurred during parsing of the recording file '{}': {}\n", arguments.recording_path.string(),
-                parsed.error()
+        if (not parsed.has_value()) {
+            std::cerr << fmt::format(
+                    "An error occurred during parsing of the recording file '{}': {}\n",
+                    arguments.recording_path.string(), parsed.error()
+            );
+            return 1;
+        }
+
+
+        const auto recording_reader = std::move(parsed.value());
+
+        std::visit(
+                helper::overloaded{ [&recording_reader](const Dump& dump) {
+                                       dump_json(recording_reader, dump.pretty_print, dump.ensure_ascii);
+                                   },
+                                    [&recording_reader](const Info& /* info */) { print_info(recording_reader); } },
+                arguments.value
         );
+
+    } catch (const std::exception& error) {
+        std::cerr << error.what();
         return 1;
     }
-
-
-    const auto recording_reader = std::move(parsed.value());
-
-    std::visit(
-            helper::overloaded{ [&recording_reader](const Dump& dump) {
-                                   dump_json(recording_reader, dump.pretty_print, dump.ensure_ascii);
-                               },
-                                [&recording_reader](const Info& /* info */) { print_info(recording_reader); } },
-            arguments.value
-    );
-
 
     return 0;
 }

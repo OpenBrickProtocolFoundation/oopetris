@@ -116,7 +116,7 @@ namespace input {
     struct InputSettings {
 
         template<typename T>
-        [[nodiscard]] static helper::expected<bool, std::string> has_unique_members(const std::vector<T>& to_check) {
+        [[nodiscard]] static helper::expected<void, std::string> has_unique_members(const std::vector<T>& to_check) {
             std::vector<T> already_bound{};
 
 
@@ -129,7 +129,7 @@ namespace input {
                 already_bound.push_back(single_check);
             }
 
-            return true;
+            return {};
         }
     };
 

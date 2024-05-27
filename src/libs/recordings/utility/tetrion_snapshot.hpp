@@ -56,5 +56,5 @@ public:
 
     [[nodiscard]] std::vector<char> to_bytes() const;
 
-    [[nodiscard]] helper::expected<bool, std::string> compare_to(const TetrionSnapshot& other) const;
+    [[nodiscard]] helper::expected<void, std::string> compare_to(const TetrionSnapshot& other) const;
 };

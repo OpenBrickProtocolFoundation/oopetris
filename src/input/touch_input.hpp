@@ -45,7 +45,7 @@ namespace input {
         u32 rotation_duration_threshold;
         u32 drop_duration_threshold;
 
-        [[nodiscard]] helper::expected<bool, std::string> validate() const;
+        [[nodiscard]] helper::expected<void, std::string> validate() const;
 
         [[nodiscard]] static TouchSettings default_settings() {
             return TouchSettings{ .move_x_threshold = 150.0 / 2160.0,
@@ -116,7 +116,7 @@ namespace json_helper {
     template<IsNumeric T>
     [[nodiscard]] T get_number(const nlohmann::json& obj, const std::string& name) {
 
-        helper::expected<bool, std::string> error = true;
+        helper::expected<void, std::string> error{};
 
         auto context = obj.at(name);
 

@@ -181,7 +181,7 @@ input::ControllerInput::get_by_device_index(int device_index) {
 }
 
 
-[[nodiscard]] helper::expected<bool, std::string> input::ControllerSettings::validate() const {
+[[nodiscard]] helper::expected<void, std::string> input::ControllerSettings::validate() const {
 
     const std::vector<sdl::ControllerKey> to_use{ rotate_left, rotate_right, move_left, move_right,   move_down,
                                                   drop,        hold,         pause,     open_settings };
