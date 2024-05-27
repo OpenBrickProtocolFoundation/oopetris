@@ -13,6 +13,7 @@
 #include <filesystem>
 #include <fmt/format.h>
 #include <memory>
+#include <vector>
 
 #if defined(__ANDROID__)
 #include <spdlog/sinks/android_sink.h>
