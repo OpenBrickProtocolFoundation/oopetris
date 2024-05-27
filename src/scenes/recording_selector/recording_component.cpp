@@ -1,10 +1,10 @@
+#include <core/helper/date.hpp>
+#include <core/helper/magic_enum_wrapper.hpp>
 
-#include "recording_component.hpp"
-#include "helper/date.hpp"
-#include "helper/magic_enum_wrapper.hpp"
 #include "input/input.hpp"
 #include "manager/font.hpp"
 #include "manager/resource_manager.hpp"
+#include "recording_component.hpp"
 #include "ui/widget.hpp"
 
 #include <fmt/format.h>

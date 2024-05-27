@@ -1,0 +1,12 @@
+node_modules
+lib/binding
+build
+tests
+*.tgz
+npm-debug.log
+.npmignore
+.gitignore
+.helper
+jest.config.ts
+tsconfig.json
+src/ts/

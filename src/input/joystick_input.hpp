@@ -1,9 +1,9 @@
 #pragma once
 
+#include <core/helper/expected.hpp>
+#include <core/helper/parse_json.hpp>
 
 #include "guid.hpp"
-#include "helper/expected.hpp"
-#include "helper/parse_json.hpp"
 #include "input.hpp"
 #include "input/console_buttons.hpp"
 #include "input/game_input.hpp"
@@ -44,7 +44,7 @@ namespace input {
         T open_settings;
 
 
-        [[nodiscard]] helper::expected<bool, std::string> validate() const {
+        [[nodiscard]] helper::expected<void, std::string> validate() const {
             const std::vector<std::string> to_use{ rotate_left, rotate_right, move_left, move_right,   move_down,
                                                    drop,        hold,         pause,     open_settings };
 
@@ -88,7 +88,7 @@ namespace input {
 
         [[nodiscard]] virtual JoystickSettings default_settings() const = 0;
 
-        [[nodiscard]] static helper::optional<std::unique_ptr<JoystickInput>> get_joystick_by_guid(
+        [[nodiscard]] static std::optional<std::unique_ptr<JoystickInput>> get_joystick_by_guid(
                 const sdl::GUID& guid,
                 SDL_Joystick* joystick,
                 SDL_JoystickID instance_id,
@@ -147,8 +147,7 @@ namespace input {
 
         [[nodiscard]] virtual AbstractJoystickSettings<console::SettingsType> default_settings_raw() const = 0;
 
-        [[nodiscard]] helper::optional<input::NavigationEvent> handle_axis_navigation_event(const SDL_Event& event
-        ) const;
+        [[nodiscard]] std::optional<input::NavigationEvent> handle_axis_navigation_event(const SDL_Event& event) const;
     };
 
 #if defined(__SWITCH__)
@@ -159,7 +158,7 @@ namespace input {
         };
         SwitchJoystickInput_Type1(SDL_Joystick* joystick, SDL_JoystickID instance_id, const std::string& name);
 
-        [[nodiscard]] helper::optional<NavigationEvent> get_navigation_event(const SDL_Event& event) const override;
+        [[nodiscard]] std::optional<NavigationEvent> get_navigation_event(const SDL_Event& event) const override;
 
         [[nodiscard]] std::string describe_navigation_event(NavigationEvent event) const override;
 
@@ -183,7 +182,7 @@ namespace input {
         };
         _3DSJoystickInput_Type1(SDL_Joystick* joystick, SDL_JoystickID instance_id, const std::string& name);
 
-        [[nodiscard]] helper::optional<NavigationEvent> get_navigation_event(const SDL_Event& event) const override;
+        [[nodiscard]] std::optional<NavigationEvent> get_navigation_event(const SDL_Event& event) const override;
 
         [[nodiscard]] std::string describe_navigation_event(NavigationEvent event) const override;
 
@@ -253,7 +252,7 @@ namespace input {
         void update(SimulationStep simulation_step_index) override;
 
     protected:
-        [[nodiscard]] virtual helper::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event) const = 0;
+        [[nodiscard]] virtual std::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event) const = 0;
     };
 
 
@@ -309,12 +308,12 @@ namespace input {
 
         virtual ~ConsoleJoystickGameInput();
 
-        [[nodiscard]] helper::optional<MenuEvent> get_menu_event(const SDL_Event& event) const override;
+        [[nodiscard]] std::optional<MenuEvent> get_menu_event(const SDL_Event& event) const override;
 
         [[nodiscard]] std::string describe_menu_event(MenuEvent event) const override;
 
     protected:
-        [[nodiscard]] helper::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event) const override;
+        [[nodiscard]] std::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event) const override;
     };
 #if !defined(__SWITCH__) && !defined(__3DS__)
 #error "unsupported console"

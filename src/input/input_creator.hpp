@@ -1,11 +1,12 @@
 
 #pragma once
 
-#include "helper/date.hpp"
-#include "helper/optional.hpp"
+#include <core/helper/date.hpp>
+#include <recordings/utility/recording_writer.hpp>
+
 #include "input/game_input.hpp"
 #include "manager/service_provider.hpp"
-#include "recordings/recording_writer.hpp"
+
 
 #include <memory>
 
@@ -15,14 +16,14 @@ namespace tetrion {
         Random::Seed seed;
         u32 starting_level;
         u8 tetrion_index;
-        helper::optional<std::shared_ptr<recorder::RecordingWriter>> recording_writer;
+        std::optional<std::shared_ptr<recorder::RecordingWriter>> recording_writer;
 
         StartingParameters(
                 u32 target_fps,
                 Random::Seed seed,
                 u32 starting_level, // NOLINT(bugprone-easily-swappable-parameters)
                 u8 tetrion_index,
-                helper::optional<std::shared_ptr<recorder::RecordingWriter>> recording_writer = helper::nullopt
+                std::optional<std::shared_ptr<recorder::RecordingWriter>> recording_writer = std::nullopt
         )
             : target_fps{ target_fps },
               seed{ seed },

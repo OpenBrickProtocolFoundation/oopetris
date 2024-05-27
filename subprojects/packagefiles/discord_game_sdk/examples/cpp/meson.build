@@ -1,5 +1,3 @@
-
-
 executable(
     'main',
     files('main.cpp'),

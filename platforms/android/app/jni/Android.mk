@@ -84,14 +84,14 @@ include $(PREBUILT_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := liboopetris_core
-LIB_PATH := $(BUILD_PATH)/src
+LIB_PATH := $(BUILD_PATH)/src/libs/core
 LOCAL_SRC_FILES := $(LIB_PATH)/liboopetris_core.so
 include $(PREBUILT_SHARED_LIBRARY)
 
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := liboopetris_recordings
-LIB_PATH := $(BUILD_PATH)/src
+LIB_PATH := $(BUILD_PATH)/src/libs/recordings
 LOCAL_SRC_FILES := $(LIB_PATH)/liboopetris_recordings.so
 include $(PREBUILT_SHARED_LIBRARY)
 
@@ -105,7 +105,8 @@ include $(PREBUILT_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := liboopetris
-LOCAL_SRC_FILES := $(BUILD_PATH)/liboopetris.so
+LIB_PATH := $(BUILD_PATH)/src/executables
+LOCAL_SRC_FILES := $(LIB_PATH)/liboopetris.so
 include $(PREBUILT_SHARED_LIBRARY)
 
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "graphics/rect.hpp"
-#include "helper/optional.hpp"
+
 #include "manager/event_listener.hpp"
 #include "sdl_key.hpp"
 
@@ -76,7 +76,7 @@ public:
         }
     }
 
-    void start_text_input(const helper::optional<shapes::URect>& rect) {
+    void start_text_input(const std::optional<shapes::URect>& rect) {
         if (m_input_activated) {
             return;
         }

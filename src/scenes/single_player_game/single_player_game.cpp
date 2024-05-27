@@ -1,16 +1,19 @@
-#include "single_player_game.hpp"
-#include "helper/date.hpp"
-#include "helper/errors.hpp"
+#include <core/helper/date.hpp>
+#include <core/helper/errors.hpp>
+#include <core/helper/magic_enum_wrapper.hpp>
+
+#include "helper/constants.hpp"
+#include "helper/graphic_utils.hpp"
 #include "helper/music_utils.hpp"
 #include "helper/platform.hpp"
 #include "input/game_input.hpp"
 #include "input/input.hpp"
-#include "magic_enum.hpp"
 #include "manager/music_manager.hpp"
 #include "scenes/scene.hpp"
 #include "scenes/settings_menu/settings_menu.hpp"
 #include "scenes/single_player_game/game_over.hpp"
 #include "scenes/single_player_game/pause.hpp"
+#include "single_player_game.hpp"
 
 namespace scenes {
 
@@ -81,7 +84,7 @@ namespace scenes {
 
         if (m_next_scene.has_value()) {
             const auto next_scene = m_next_scene.value();
-            m_next_scene = helper::nullopt;
+            m_next_scene = std::nullopt;
             m_game->set_paused(true);
 
             switch (next_scene) {
@@ -108,7 +111,7 @@ namespace scenes {
                     UNREACHABLE();
             }
         }
-        return UpdateResult{ SceneUpdate::StopUpdating, helper::nullopt };
+        return UpdateResult{ SceneUpdate::StopUpdating, std::nullopt };
     }
 
     void SinglePlayerGame::render(const ServiceProvider& service_provider) {

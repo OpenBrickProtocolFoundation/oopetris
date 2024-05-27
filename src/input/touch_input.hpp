@@ -1,8 +1,8 @@
 #pragma once
 
+#include <core/helper/expected.hpp>
+#include <core/helper/parse_json.hpp>
 
-#include "helper/expected.hpp"
-#include "helper/parse_json.hpp"
 #include "input.hpp"
 #include "input/game_input.hpp"
 #include "manager/event_dispatcher.hpp"
@@ -20,11 +20,11 @@ namespace input {
         [[nodiscard]] static helper::expected<std::unique_ptr<TouchInput>, std::string>
         get_by_device_index(const std::shared_ptr<Window>& window, int device_index);
 
-        [[nodiscard]] helper::optional<NavigationEvent> get_navigation_event(const SDL_Event& event) const override;
+        [[nodiscard]] std::optional<NavigationEvent> get_navigation_event(const SDL_Event& event) const override;
 
         [[nodiscard]] std::string describe_navigation_event(NavigationEvent event) const override;
 
-        [[nodiscard]] helper::optional<PointerEventHelper> get_pointer_event(const SDL_Event& event) const override;
+        [[nodiscard]] std::optional<PointerEventHelper> get_pointer_event(const SDL_Event& event) const override;
 
         [[nodiscard]] SDL_Event offset_pointer_event(const SDL_Event& event, const shapes::IPoint& point)
                 const override;
@@ -45,7 +45,7 @@ namespace input {
         u32 rotation_duration_threshold;
         u32 drop_duration_threshold;
 
-        [[nodiscard]] helper::expected<bool, std::string> validate() const;
+        [[nodiscard]] helper::expected<void, std::string> validate() const;
 
         [[nodiscard]] static TouchSettings default_settings() {
             return TouchSettings{ .move_x_threshold = 150.0 / 2160.0,
@@ -70,7 +70,7 @@ namespace input {
     private:
         TouchSettings m_settings;
 
-        std::unordered_map<SDL_FingerID, helper::optional<PressedState>> m_finger_state;
+        std::unordered_map<SDL_FingerID, std::optional<PressedState>> m_finger_state;
         std::vector<SDL_Event> m_event_buffer;
         EventDispatcher* m_event_dispatcher;
         TouchInput* m_underlying_input;
@@ -94,14 +94,14 @@ namespace input {
         void handle_event(const SDL_Event& event) override;
         void update(SimulationStep simulation_step_index) override;
 
-        [[nodiscard]] helper::optional<MenuEvent> get_menu_event(const SDL_Event& event) const override;
+        [[nodiscard]] std::optional<MenuEvent> get_menu_event(const SDL_Event& event) const override;
 
         [[nodiscard]] std::string describe_menu_event(MenuEvent event) const override;
 
         [[nodiscard]] const TouchInput* underlying_input() const override;
 
     private:
-        [[nodiscard]] helper::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event);
+        [[nodiscard]] std::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event);
     };
 
 } // namespace input
@@ -116,7 +116,7 @@ namespace json_helper {
     template<IsNumeric T>
     [[nodiscard]] T get_number(const nlohmann::json& obj, const std::string& name) {
 
-        helper::expected<bool, std::string> error = true;
+        helper::expected<void, std::string> error{};
 
         auto context = obj.at(name);
 

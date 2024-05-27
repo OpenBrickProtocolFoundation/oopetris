@@ -1,7 +1,8 @@
 #pragma once
 
+#include <core/game/mino.hpp>
+
 #include "../logo/logo.hpp"
-#include "game/mino.hpp"
 #include "graphics/rect.hpp"
 #include "manager/service_provider.hpp"
 

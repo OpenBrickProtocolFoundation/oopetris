@@ -1,7 +1,7 @@
 #include "replay_input.hpp"
 #include "game/tetrion.hpp"
-#include "helper/magic_enum_wrapper.hpp"
-#include "helper/optional.hpp"
+#include <core/helper/magic_enum_wrapper.hpp>
+
 
 input::ReplayGameInput::ReplayGameInput(
         std::shared_ptr<recorder::RecordingReader> recording_reader,
@@ -81,9 +81,8 @@ void input::ReplayGameInput::late_update(const SimulationStep simulation_step_in
 }
 
 
-[[nodiscard]] helper::optional<input::MenuEvent> input::ReplayGameInput::get_menu_event(const SDL_Event& /*event*/)
-        const {
-    return helper::nullopt;
+[[nodiscard]] std::optional<input::MenuEvent> input::ReplayGameInput::get_menu_event(const SDL_Event& /*event*/) const {
+    return std::nullopt;
 }
 
 [[nodiscard]] std::string input::ReplayGameInput::describe_menu_event(MenuEvent /*event*/) const {

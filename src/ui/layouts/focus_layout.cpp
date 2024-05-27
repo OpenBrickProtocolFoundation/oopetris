@@ -1,6 +1,6 @@
 
 #include "focus_layout.hpp"
-#include "helper/optional.hpp"
+
 #include "input/input.hpp"
 #include "ui/widget.hpp"
 
@@ -127,11 +127,11 @@ ui::Widget::EventHandleResult ui::FocusLayout::handle_focus_change_events(
     return handled;
 }
 
-[[nodiscard]] helper::optional<ui::Widget::InnerState>
-ui::FocusLayout::handle_event_result(const helper::optional<ui::Widget::InnerState>& result, Widget* widget) {
+[[nodiscard]] std::optional<ui::Widget::InnerState>
+ui::FocusLayout::handle_event_result(const std::optional<ui::Widget::InnerState>& result, Widget* widget) {
 
     if (not result.has_value()) {
-        return helper::nullopt;
+        return std::nullopt;
     }
 
     auto value = result.value();
@@ -144,13 +144,13 @@ ui::FocusLayout::handle_event_result(const helper::optional<ui::Widget::InnerSta
             }
 
             if (not m_focus_id.has_value()) {
-                return helper::nullopt;
+                return std::nullopt;
             }
 
             const auto widget_focus_id = focusable.value()->focus_id();
 
             if (m_focus_id.value() == widget_focus_id) {
-                return helper::nullopt;
+                return std::nullopt;
             }
 
             auto current_focusable = as_focusable(m_widgets.at(focusable_index_by_id(m_focus_id.value())).get());
@@ -165,11 +165,11 @@ ui::FocusLayout::handle_event_result(const helper::optional<ui::Widget::InnerSta
             }
 
 
-            return helper::nullopt;
+            return std::nullopt;
         }
         case ui::EventHandleType::RequestUnFocus: {
             if (not has_focus()) {
-                return helper::nullopt;
+                return std::nullopt;
             }
 
             const auto focusable = as_focusable(widget);
@@ -179,13 +179,13 @@ ui::FocusLayout::handle_event_result(const helper::optional<ui::Widget::InnerSta
 
 
             if (not m_focus_id.has_value()) {
-                return helper::nullopt;
+                return std::nullopt;
             }
 
             const auto widget_focus_id = focusable.value()->focus_id();
 
             if (m_focus_id.value() != widget_focus_id) {
-                return helper::nullopt;
+                return std::nullopt;
             }
 
             // try to unfocus, in forward direction, if that fails request unfocus of they container / layout itself, also test backwards, if not wrapping!
@@ -201,7 +201,7 @@ ui::FocusLayout::handle_event_result(const helper::optional<ui::Widget::InnerSta
                 }
             }
 
-            return helper::nullopt;
+            return std::nullopt;
         }
         case ui::EventHandleType::RequestAction: {
             // just forward it

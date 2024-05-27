@@ -21,3 +21,4 @@ jobs:
         with:
           bundle: oopetris.flatpak
           manifest-path: com.github.mgerhold.OOPetris.yml
+          verbose: ${{ runner.debug == '1' && 'true' || 'false' }}

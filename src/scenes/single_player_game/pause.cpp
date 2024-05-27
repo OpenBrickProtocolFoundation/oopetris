@@ -35,7 +35,7 @@ namespace scenes {
                 Scene::Switch{ SceneId::MainMenu, ui::FullScreenLayout{ m_service_provider->window() } }
             };
         }
-        return UpdateResult{ SceneUpdate::StopUpdating, helper::nullopt };
+        return UpdateResult{ SceneUpdate::StopUpdating, std::nullopt };
     }
 
     void SinglePlayerPause::render(const ServiceProvider& service_provider) {

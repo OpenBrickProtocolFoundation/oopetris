@@ -1,14 +1,16 @@
 
 
-#include "input_creator.hpp"
-#include "additional_information.hpp"
-#include "helper/command_line_arguments.hpp"
-#include "helper/date.hpp"
-#include "helper/errors.hpp"
-#include "helper/expected.hpp"
-#include "helper/optional.hpp"
+#include <core/helper/date.hpp>
+#include <core/helper/errors.hpp>
+#include <core/helper/expected.hpp>
+#include <recordings/utility/additional_information.hpp>
+
+#include "game/command_line_arguments.hpp"
+#include "helper/constants.hpp"
+#include "helper/graphic_utils.hpp"
 #include "input.hpp"
 #include "input/replay_input.hpp"
+#include "input_creator.hpp"
 
 #include <fmt/format.h>
 #include <stdexcept>
@@ -84,7 +86,7 @@ input::get_game_parameters_for_replay(
         const auto starting_level = header.starting_level;
 
         const tetrion::StartingParameters starting_parameters = { target_fps, seed, starting_level, tetrion_index,
-                                                                  helper::nullopt };
+                                                                  std::nullopt };
 
         result.emplace_back(std::move(input), starting_parameters);
     }

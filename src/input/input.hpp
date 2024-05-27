@@ -2,14 +2,14 @@
 
 #pragma once
 
+#include <core/helper/bool_wrapper.hpp>
+#include <core/helper/expected.hpp>
+#include <core/helper/point.hpp>
 
 #include "game_input.hpp"
-#include "graphics/point.hpp"
 #include "graphics/rect.hpp"
 #include "graphics/window.hpp"
-#include "helper/bool_wrapper.hpp"
-#include "helper/expected.hpp"
-#include "helper/optional.hpp"
+
 #include "manager/service_provider.hpp"
 
 
@@ -45,7 +45,7 @@ namespace input {
         [[nodiscard]] const std::string& name() const;
         [[nodiscard]] InputType type() const;
 
-        [[nodiscard]] virtual helper::optional<NavigationEvent> get_navigation_event(const SDL_Event& event) const = 0;
+        [[nodiscard]] virtual std::optional<NavigationEvent> get_navigation_event(const SDL_Event& event) const = 0;
 
         [[nodiscard]] virtual std::string describe_navigation_event(NavigationEvent event) const = 0;
     };
@@ -75,7 +75,7 @@ namespace input {
     struct PointerInput : Input {
         explicit PointerInput(const std::string& name);
 
-        [[nodiscard]] virtual helper::optional<PointerEventHelper> get_pointer_event(const SDL_Event& event) const = 0;
+        [[nodiscard]] virtual std::optional<PointerEventHelper> get_pointer_event(const SDL_Event& event) const = 0;
 
         [[nodiscard]] virtual SDL_Event offset_pointer_event(const SDL_Event& event, const shapes::IPoint& point)
                 const = 0;
@@ -90,9 +90,9 @@ namespace input {
 
         [[nodiscard]] const std::vector<std::unique_ptr<Input>>& inputs() const;
 
-        [[nodiscard]] helper::optional<NavigationEvent> get_navigation_event(const SDL_Event& event) const;
+        [[nodiscard]] std::optional<NavigationEvent> get_navigation_event(const SDL_Event& event) const;
 
-        [[nodiscard]] helper::optional<PointerEventHelper> get_pointer_event(const SDL_Event& event) const;
+        [[nodiscard]] std::optional<PointerEventHelper> get_pointer_event(const SDL_Event& event) const;
 
         /**
         * @brief Offsets a pointer event, only safe to call, if get_pointer_event returns a non null optional
@@ -116,7 +116,7 @@ namespace input {
     struct InputSettings {
 
         template<typename T>
-        [[nodiscard]] static helper::expected<bool, std::string> has_unique_members(const std::vector<T>& to_check) {
+        [[nodiscard]] static helper::expected<void, std::string> has_unique_members(const std::vector<T>& to_check) {
             std::vector<T> already_bound{};
 
 
@@ -129,7 +129,7 @@ namespace input {
                 already_bound.push_back(single_check);
             }
 
-            return true;
+            return {};
         }
     };
 

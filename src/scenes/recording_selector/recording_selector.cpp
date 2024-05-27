@@ -1,18 +1,19 @@
-#include "helper/platform.hpp"
-#include "helper/utils.hpp"
+#include <core/helper/utils.hpp>
 
+#include "helper/platform.hpp"
 
 #if defined(_HAVE_FILE_DIALOGS)
 #include "recording_chooser.hpp"
 #endif
 
+#include <recordings/utility/recording_reader.hpp>
+
 #include "graphics/window.hpp"
 #include "helper/constants.hpp"
-#include "helper/optional.hpp"
+#include "helper/graphic_utils.hpp"
 #include "manager/resource_manager.hpp"
 #include "recording_component.hpp"
 #include "recording_selector.hpp"
-#include "recordings/recording_reader.hpp"
 #include "scenes/replay_game/replay_game.hpp"
 #include "ui/components/text_button.hpp"
 #include "ui/layout.hpp"
@@ -87,7 +88,7 @@ namespace scenes {
                                     const auto recording_path = recording_component.value()->metadata().path;
 
                                     // action is a reference to a structure inside m_next_command, so resetting it means, we need to copy everything out of it
-                                    m_next_command = helper::nullopt;
+                                    m_next_command = std::nullopt;
 
                                     return UpdateResult{
                                         SceneUpdate::StopUpdating,
@@ -111,9 +112,9 @@ namespace scenes {
                                     add_all_recordings();
 
                                     // action is a reference to a structure inside m_next_command, so resetting it means, we need to copy everything out of it
-                                    m_next_command = helper::nullopt;
+                                    m_next_command = std::nullopt;
 
-                                    return UpdateResult{ SceneUpdate::StopUpdating, helper::nullopt };
+                                    return UpdateResult{ SceneUpdate::StopUpdating, std::nullopt };
                                 }
 
 #endif
@@ -123,7 +124,7 @@ namespace scenes {
             );
         }
 
-        return UpdateResult{ SceneUpdate::StopUpdating, helper::nullopt };
+        return UpdateResult{ SceneUpdate::StopUpdating, std::nullopt };
     }
 
     void RecordingSelector::render(const ServiceProvider& service_provider) {

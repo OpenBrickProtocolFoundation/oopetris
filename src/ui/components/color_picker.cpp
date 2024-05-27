@@ -1,11 +1,11 @@
 
+#include <core/helper/color.hpp>
+#include <core/helper/point.hpp>
+#include <core/helper/utils.hpp>
 
 #include "color_picker.hpp"
-#include "graphics/point.hpp"
 #include "graphics/rect.hpp"
-#include "helper/color.hpp"
 #include "helper/graphic_utils.hpp"
-#include "helper/utils.hpp"
 #include "input/input.hpp"
 #include "manager/resource_manager.hpp"
 #include "ui/components/textinput.hpp"

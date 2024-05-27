@@ -2,7 +2,8 @@
 
 #pragma once
 
-#include "helper/color_literals.hpp"
+#include <core/helper/color_literals.hpp>
+
 #include "ui/components/label.hpp"
 #include "ui/focusable.hpp"
 #include "ui/hoverable.hpp"

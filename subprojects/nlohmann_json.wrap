@@ -6,5 +6,7 @@ source_filename = nlohmann_json-3.11.2.zip
 source_hash = e5c7a9f49a16814be27e4ed0ee900ecd0092bfb7dbfca65b5a421b774dccaaed
 wrapdb_version = 3.11.2-1
 
+diff_files = nlohmann_json-3.11.2_installable.diff
+
 [provide]
 nlohmann_json = nlohmann_json_dep

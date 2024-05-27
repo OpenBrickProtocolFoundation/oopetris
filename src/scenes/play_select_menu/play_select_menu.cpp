@@ -78,21 +78,21 @@ namespace scenes {
         if (m_next_command.has_value()) {
             switch (m_next_command.value()) {
                 case Command::SinglePlayer:
-                    m_next_command = helper::nullopt;
+                    m_next_command = std::nullopt;
                     return UpdateResult{
                         SceneUpdate::StopUpdating,
                         Scene::Switch{ SceneId::SinglePlayerGame, ui::FullScreenLayout{ m_service_provider->window() } }
                     };
                 case Command::MultiPlayer:
                     // perform a push and reset the command, so that the music keeps playing the entire time
-                    m_next_command = helper::nullopt;
+                    m_next_command = std::nullopt;
                     return UpdateResult{
                         SceneUpdate::StopUpdating, Scene::Push{ SceneId::MultiPlayerModeSelectMenu,
                                                                ui::FullScreenLayout{ m_service_provider->window() } }
                     };
                 case Command::RecordingSelector:
                     // perform a push and reset the command, so that the music keeps playing the entire time
-                    m_next_command = helper::nullopt;
+                    m_next_command = std::nullopt;
                     return UpdateResult{
                         SceneUpdate::StopUpdating, Scene::Push{ SceneId::RecordingSelectorMenu,
                                                                ui::FullScreenLayout{ m_service_provider->window() } }
@@ -103,7 +103,7 @@ namespace scenes {
                     UNREACHABLE();
             }
         }
-        return UpdateResult{ SceneUpdate::StopUpdating, helper::nullopt };
+        return UpdateResult{ SceneUpdate::StopUpdating, std::nullopt };
     }
 
     void PlaySelectMenu::render(const ServiceProvider& service_provider) {

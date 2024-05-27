@@ -1,5 +1,6 @@
 #include "game_over.hpp"
 #include "graphics/renderer.hpp"
+#include "helper/graphic_utils.hpp"
 #include "helper/music_utils.hpp"
 #include "helper/platform.hpp"
 #include "input/input.hpp"
@@ -41,7 +42,7 @@ namespace scenes {
                 Scene::Switch{ SceneId::MainMenu, ui::FullScreenLayout{ m_service_provider->window() } }
             };
         }
-        return UpdateResult{ SceneUpdate::StopUpdating, helper::nullopt };
+        return UpdateResult{ SceneUpdate::StopUpdating, std::nullopt };
     }
 
     void SinglePlayerGameOver::render(const ServiceProvider& service_provider) {

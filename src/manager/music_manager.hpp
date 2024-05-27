@@ -1,7 +1,8 @@
 #pragma once
 
-#include "helper/optional.hpp"
-#include "helper/types.hpp"
+
+#include <core/helper/types.hpp>
+
 #include "input/input.hpp"
 #include "manager/service_provider.hpp"
 
@@ -21,7 +22,7 @@ private:
     static inline MusicManager* s_instance{ nullptr }; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
     static const constexpr double step_width = 0.05F;
 
-    using VolumeChangeFunction = std::function<void(helper::optional<double> volume)>;
+    using VolumeChangeFunction = std::function<void(std::optional<double> volume)>;
 
     Mix_Music* m_music;
     std::atomic<Mix_Music*> m_queued_music;
@@ -29,48 +30,51 @@ private:
     std::unordered_map<std::string, Mix_Chunk*> m_chunk_map;
     static constexpr unsigned fade_ms = 500;
     usize m_delay = MusicManager::fade_ms;
-    ServiceProvider* m_service_provider;
-    helper::optional<double> volume;
-    std::unordered_map<std::string, VolumeChangeFunction> volume_listeners;
+
+    std::optional<double> m_volume;
+    std::unordered_map<std::string, VolumeChangeFunction> m_volume_listeners;
 
 public:
     explicit MusicManager(ServiceProvider* service_provider, u8 channel_size = 2);
+
     MusicManager(const MusicManager&) = delete;
     MusicManager& operator=(const MusicManager&) = delete;
+
     MusicManager(const MusicManager&&) = delete;
     MusicManager& operator=(MusicManager&&) = delete;
+
     ~MusicManager() noexcept;
 
-    helper::optional<std::string>
+    std::optional<std::string>
     load_and_play_music(const std::filesystem::path& location, usize delay = MusicManager::fade_ms);
 
-    helper::optional<std::string> load_effect(const std::string& name, std::filesystem::path& location);
-    helper::optional<std::string> play_effect(const std::string& name, u8 channel_num = 1, int loop = 0);
+    std::optional<std::string> load_effect(const std::string& name, std::filesystem::path& location);
+    std::optional<std::string> play_effect(const std::string& name, u8 channel_num = 1, int loop = 0);
 
     //TODO(Totto):  atm the volume changers only work on the music channel, when adding more effects, this should support channels via  https://wiki.libsdl.org/SDL2_mixer/Mix_Volume
-    [[nodiscard]] helper::optional<double> get_volume() const;
-    void set_volume(helper::optional<double> new_volume, bool force_update = false, bool notify_listeners = true);
+    [[nodiscard]] std::optional<double> get_volume() const;
+    void set_volume(std::optional<double> new_volume, bool force_update = false, bool notify_listeners = true);
     // no nodiscard, since the return value is only a side effect, that is maybe useful
-    helper::optional<double> change_volume(std::int8_t steps);
+    std::optional<double> change_volume(std::int8_t steps);
 
     bool handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event);
 
     bool add_volume_listener(const std::string& name, VolumeChangeFunction change_function) {
 
-        if (volume_listeners.contains(name)) {
+        if (m_volume_listeners.contains(name)) {
             return false;
         }
 
-        volume_listeners.insert_or_assign(name, std::move(change_function));
+        m_volume_listeners.insert_or_assign(name, std::move(change_function));
         return true;
     }
 
     bool remove_volume_listener(const std::string& name) {
-        if (not volume_listeners.contains(name)) {
+        if (not m_volume_listeners.contains(name)) {
             return false;
         }
 
-        volume_listeners.erase(name);
+        m_volume_listeners.erase(name);
         return true;
     }
 

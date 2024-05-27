@@ -1,6 +1,7 @@
 #pragma once
 
-#include "graphics/point.hpp"
+#include <core/helper/point.hpp>
+
 #include "graphics/rect.hpp"
 #include "helper/message_box.hpp"
 #include "sdl_context.hpp"

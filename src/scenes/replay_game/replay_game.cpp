@@ -1,6 +1,8 @@
 #include "replay_game.hpp"
 #include "../single_player_game/game_over.hpp"
 #include "../single_player_game/pause.hpp"
+#include "helper/constants.hpp"
+#include "helper/graphic_utils.hpp"
 #include "helper/music_utils.hpp"
 #include "manager/music_manager.hpp"
 #include "scenes/scene.hpp"
@@ -97,7 +99,7 @@ namespace scenes {
 
         if (m_next_scene.has_value()) {
             const auto next_scene = m_next_scene.value();
-            m_next_scene = helper::nullopt;
+            m_next_scene = std::nullopt;
             for (auto& game : m_games) {
                 game->set_paused(true);
             }
@@ -122,7 +124,7 @@ namespace scenes {
                     UNREACHABLE();
             }
         }
-        return UpdateResult{ SceneUpdate::StopUpdating, helper::nullopt };
+        return UpdateResult{ SceneUpdate::StopUpdating, std::nullopt };
     }
 
     void ReplayGame::render(const ServiceProvider& service_provider) {

@@ -1,12 +1,15 @@
 #include "online_lobby.hpp"
+
+#include <core/helper/errors.hpp>
+#include <core/helper/magic_enum_wrapper.hpp>
+#include <core/helper/utils.hpp>
+
 #include "graphics/window.hpp"
 #include "helper/constants.hpp"
-#include "helper/errors.hpp"
-#include "helper/magic_enum_wrapper.hpp"
 #include "helper/platform.hpp"
-#include "helper/utils.hpp"
 #include "manager/music_manager.hpp"
 #include "manager/resource_manager.hpp"
+
 #include "ui/components/textinput.hpp"
 #include "ui/layout.hpp"
 #include "ui/layouts/scroll_layout.hpp"
@@ -28,7 +31,7 @@ namespace scenes {
         //TODO(Totto): after the settings have been reworked, make this url changeable!
         auto maybe_client = lobby::Client::get_client("http://127.0.0.1:5000");
         if (maybe_client.has_value()) {
-            client = std::make_unique<lobby::Client>(std::move(maybe_client.value()));
+            m_client = std::make_unique<lobby::Client>(std::move(maybe_client.value()));
         } else {
             spdlog::error("Error in connecting to lobby client: {}", maybe_client.error());
         }
@@ -109,7 +112,7 @@ namespace scenes {
                     UNREACHABLE();
             }
         }
-        return UpdateResult{ SceneUpdate::StopUpdating, helper::nullopt };
+        return UpdateResult{ SceneUpdate::StopUpdating, std::nullopt };
     }
 
     void OnlineLobby::render(const ServiceProvider& service_provider) {

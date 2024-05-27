@@ -1,11 +1,12 @@
-#include "loading_screen.hpp"
+#include <core/game/tetromino_type.hpp>
+#include <core/helper/point.hpp>
+
 #include "game/graphic_helpers.hpp"
-#include "game/tetromino_type.hpp"
-#include "graphics/point.hpp"
 #include "graphics/rect.hpp"
 #include "graphics/renderer.hpp"
 #include "graphics/window.hpp"
 #include "helper/platform.hpp"
+#include "loading_screen.hpp"
 #include "manager/service_provider.hpp"
 #include "scenes/logo/logo.hpp"
 #include "ui/layout.hpp"

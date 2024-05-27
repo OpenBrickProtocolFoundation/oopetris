@@ -3,7 +3,6 @@ graphics_src_files += files(
     'event_listener.hpp',
     'font.cpp',
     'font.hpp',
-    'input_event.hpp',
     'music_manager.cpp',
     'music_manager.hpp',
     'sdl_controller_key.cpp',

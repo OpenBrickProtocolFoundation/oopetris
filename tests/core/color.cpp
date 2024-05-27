@@ -1,6 +1,7 @@
 
-#include "helper/color.hpp"
-#include "helper/magic_enum_wrapper.hpp"
+#include <core/helper/color.hpp>
+#include <core/helper/magic_enum_wrapper.hpp>
+
 #include "utils/helper.hpp"
 
 #include <gmock/gmock.h>

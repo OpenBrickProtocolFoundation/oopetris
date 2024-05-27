@@ -1,6 +1,7 @@
 #pragma once
 
 #include "lobby/api.hpp"
+
 #include "scenes/scene.hpp"
 #include "ui/components/label.hpp"
 #include "ui/components/text_button.hpp"
@@ -15,8 +16,8 @@ namespace scenes {
         enum class Command : u8 { Play, Return };
 
         ui::TileLayout m_main_layout;
-        helper::optional<Command> m_next_command;
-        std::unique_ptr<lobby::Client> client{ nullptr };
+        std::optional<Command> m_next_command;
+        std::unique_ptr<lobby::Client> m_client{ nullptr };
 
     public:
         explicit OnlineLobby(ServiceProvider* service_provider, const ui::Layout& layout);

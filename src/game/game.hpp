@@ -1,8 +1,9 @@
 #pragma once
 
+#include <recordings/utility/recording.hpp>
+
 #include "helper/clock_source.hpp"
 #include "input/input_creator.hpp"
-#include "recordings/recording.hpp"
 #include "tetrion.hpp"
 #include "ui/widget.hpp"
 

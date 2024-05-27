@@ -1,4 +1,3 @@
-
 inc_dirs = include_directories('.')
 
 header_files = files(
@@ -85,7 +84,6 @@ if c.get_id() == 'msvc'
     lib_name = 'discord_game_sdk.dll'
 endif
 
-
 discord_lib_c = c.find_library(
     lib_name,
     dirs: [meson.project_source_root() / lib_dir],
@@ -110,8 +108,7 @@ else
 
         objdump_result = run_command(
             objdump,
-            '-p',
-            meson.project_source_root() / lib_dir / dynamic_lib,
+            '-p', meson.project_source_root() / lib_dir / dynamic_lib,
             check: true,
         ).stdout().strip()
 
@@ -123,11 +120,10 @@ else
 
             patchelf = find_program('patchelf')
 
-            #TODO: file issue to discord, to set SONAME 
+            #TODO: file issue to discord, to set SONAME
             run_command(
                 patchelf,
-                '--set-soname',
-                dynamic_lib_rename,
+                '--set-soname', dynamic_lib_rename,
                 meson.project_source_root() / lib_dir / dynamic_lib,
                 check: true,
             )
@@ -150,7 +146,6 @@ else
 
 endif
 
-
 discord_lib = library(
     'discord-game-sdk',
     src_files,
@@ -165,4 +160,3 @@ discord_dep = declare_dependency(
     version: meson.project_version(),
     link_with: discord_lib,
 )
-

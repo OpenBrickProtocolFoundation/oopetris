@@ -27,13 +27,12 @@ namespace input {
                 int device_index
         );
 
-        [[nodiscard]] helper::optional<NavigationEvent> get_navigation_event(const SDL_Event& event) const override;
+        [[nodiscard]] std::optional<NavigationEvent> get_navigation_event(const SDL_Event& event) const override;
 
         [[nodiscard]] std::string describe_navigation_event(NavigationEvent event) const override;
 
     private:
-        [[nodiscard]] helper::optional<input::NavigationEvent> handle_axis_navigation_event(const SDL_Event& event
-        ) const;
+        [[nodiscard]] std::optional<input::NavigationEvent> handle_axis_navigation_event(const SDL_Event& event) const;
     };
 
     struct ControllerSettings {
@@ -49,7 +48,7 @@ namespace input {
         sdl::ControllerKey open_settings;
 
 
-        [[nodiscard]] helper::expected<bool, std::string> validate() const;
+        [[nodiscard]] helper::expected<void, std::string> validate() const;
 
 
         [[nodiscard]] static ControllerSettings default_settings() {
@@ -79,14 +78,14 @@ namespace input {
                 ControllerInput* underlying_input
         );
 
-        [[nodiscard]] helper::optional<MenuEvent> get_menu_event(const SDL_Event& event) const override;
+        [[nodiscard]] std::optional<MenuEvent> get_menu_event(const SDL_Event& event) const override;
 
         [[nodiscard]] std::string describe_menu_event(MenuEvent event) const override;
 
         [[nodiscard]] const ControllerInput* underlying_input() const override;
 
     protected:
-        [[nodiscard]] helper::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event) const override;
+        [[nodiscard]] std::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event) const override;
     };
 
 

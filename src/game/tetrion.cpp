@@ -1,13 +1,14 @@
-#include "tetrion.hpp"
+#include <core/helper/magic_enum_wrapper.hpp>
+#include <core/helper/utils.hpp>
+#include <recordings/utility/recording_writer.hpp>
+
 #include "helper/constants.hpp"
 #include "helper/graphic_utils.hpp"
-#include "helper/magic_enum_wrapper.hpp"
 #include "helper/music_utils.hpp"
 #include "helper/platform.hpp"
-#include "helper/utils.hpp"
 #include "manager/music_manager.hpp"
 #include "manager/resource_manager.hpp"
-#include "recordings/recording_writer.hpp"
+#include "tetrion.hpp"
 #include "ui/components/label.hpp"
 
 #include <cassert>
@@ -20,7 +21,7 @@ Tetrion::Tetrion(
         const Random::Seed random_seed,
         const u32 starting_level,
         ServiceProvider* const service_provider,
-        helper::optional<std::shared_ptr<recorder::RecordingWriter>> recording_writer,
+        std::optional<std::shared_ptr<recorder::RecordingWriter>> recording_writer,
         const ui::Layout& layout,
         bool is_top_level
 )
@@ -631,7 +632,7 @@ bool Tetrion::move(const Tetrion::MoveDirection move_direction) {
     UNREACHABLE();
 }
 
-helper::optional<const Tetrion::WallKickTable*> Tetrion::get_wall_kick_table() const {
+std::optional<const Tetrion::WallKickTable*> Tetrion::get_wall_kick_table() const {
     assert(m_active_tetromino.has_value() and "no active tetromino");
     const auto type = m_active_tetromino->type(); // NOLINT(bugprone-unchecked-optional-access)
     switch (type) {

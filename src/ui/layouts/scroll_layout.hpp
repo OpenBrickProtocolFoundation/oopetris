@@ -1,12 +1,12 @@
 #pragma once
 
 
+#include <core/helper/types.hpp>
+
 #include "focus_layout.hpp"
 #include "graphics/rect.hpp"
 #include "graphics/renderer.hpp"
 #include "graphics/texture.hpp"
-#include "helper/optional.hpp"
-#include "helper/types.hpp"
 
 #include <vector>
 
@@ -44,7 +44,7 @@ namespace ui {
     struct ScrollLayout : public FocusLayout {
     private:
         Margin gap;
-        helper::optional<Texture> m_texture;
+        std::optional<Texture> m_texture;
         ServiceProvider* m_service_provider;
         shapes::URect main_rect;
         shapes::URect scrollbar_rect;

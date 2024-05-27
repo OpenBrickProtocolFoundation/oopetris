@@ -1,6 +1,7 @@
 #pragma once
 
-#include "helper/types.hpp"
+#include <core/helper/types.hpp>
+
 #include "manager/font.hpp"
 
 #include <SDL_ttf.h>

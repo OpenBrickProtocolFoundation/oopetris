@@ -1,5 +1,7 @@
+#include <core/helper/errors.hpp>
+
 #include "renderer.hpp"
-#include "helper/errors.hpp"
+
 
 //TODO(Totto):  assert return values of all sdl functions
 

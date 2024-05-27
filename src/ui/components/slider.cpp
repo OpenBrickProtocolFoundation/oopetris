@@ -1,8 +1,8 @@
+#include <core/helper/color.hpp>
+#include <core/helper/color_literals.hpp>
 
-#include "slider.hpp"
 #include "graphics/renderer.hpp"
-#include "helper/color.hpp"
-#include "helper/color_literals.hpp"
+#include "slider.hpp"
 
 ui::Slider::Slider(
         u32 focus_id,

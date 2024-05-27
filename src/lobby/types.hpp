@@ -3,8 +3,8 @@
 
 #include <string>
 
-#include "helper/optional.hpp"
-#include "helper/parse_json.hpp"
+
+#include <core/helper/parse_json.hpp>
 
 namespace lobby {
 
@@ -42,7 +42,7 @@ namespace lobby {
         int size;
         PlayerInfo host_info;
         std::vector<PlayerInfo> player_infos;
-        helper::optional<int> gameserver_port;
+        std::optional<int> gameserver_port;
     };
 
 

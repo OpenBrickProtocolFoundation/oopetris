@@ -1,6 +1,6 @@
 #pragma once
 
-#include "helper/command_line_arguments.hpp"
+#include "game/command_line_arguments.hpp"
 #include "input/input.hpp"
 #include "manager/event_listener.hpp"
 #include "manager/service_provider.hpp"
@@ -8,7 +8,7 @@
 #include "ui/layout.hpp"
 
 #include <functional>
-
+#include <variant>
 
 namespace scenes {
     enum class SceneUpdate : u8 {
@@ -59,7 +59,7 @@ namespace scenes {
         struct Exit { };
 
         using Change = std::variant<Pop, Push, RawPush, Switch, RawSwitch, Exit>;
-        using UpdateResult = std::pair<SceneUpdate, helper::optional<Change>>;
+        using UpdateResult = std::pair<SceneUpdate, std::optional<Change>>;
 
     protected:
         ServiceProvider* m_service_provider;

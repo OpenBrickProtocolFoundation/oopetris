@@ -1,5 +1,6 @@
 
 #include "graphic_utils.hpp"
+#include <exception>
 
 SDL_Color utils::sdl_color_from_color(const Color& color) {
     return SDL_Color{ color.r, color.g, color.b, color.a };
@@ -90,7 +91,29 @@ std::vector<std::string> utils::supported_features() {
 #endif
 }
 
-helper::optional<bool> utils::log_error(const std::string& error) {
+std::optional<bool> utils::log_error(const std::string& error) {
     spdlog::error(error);
-    return helper::nullopt;
+    return std::nullopt;
+}
+
+utils::ExitException::ExitException(int status_code) noexcept : m_status_code{ status_code } { }
+
+[[nodiscard]] int utils::ExitException::status_code() const {
+    return m_status_code;
+}
+
+[[nodiscard]] const char* utils::ExitException::what() const noexcept {
+    return "An exit exception occurred";
+}
+
+void utils::exit(int status_code) {
+#if defined(__ANDROID__)
+    // calling exit() in android doesn't do the correct job, it completely avoids resource cleanup by the underlying SDLActivity.java
+    // (java wrapper), that calls the main and expects it to return ALWAYS and throwing an exception in a catch statement is bad,
+    // but is required here
+    // see: https://github.com/libsdl-org/SDL/blob/main/docs/README-android.md
+    throw utils::ExitException{ status_code };
+#else
+    std::exit(status_code);
+#endif
 }

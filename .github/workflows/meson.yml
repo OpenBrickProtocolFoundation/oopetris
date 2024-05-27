@@ -177,7 +177,7 @@ jobs:
         if: matrix.config.os == 'macos'
         run: |
           brew update
-          brew install ninja sdl2 sdl2_ttf sdl2_mixer sdl2_image
+          brew install sdl2 sdl2_ttf sdl2_mixer sdl2_image
 
       - name: Configure
         run: meson setup build -Dbuildtype=${{ matrix.config.buildtype }} -Ddefault_library=${{ matrix.config.library_type }} -Dclang_libcpp=${{ ( ( matrix.config.os == 'ubuntu' && matrix.config.use-clang == true && matrix.config.use-clang_stdlib ) || matrix.config.os == 'macos' )  && 'enabled' || 'disabled' }} 
@@ -185,24 +185,8 @@ jobs:
       - name: Build
         run: meson compile -C build 
 
-      - name: Upload artifacts - Linux
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
-        if: matrix.config.os == 'ubuntu'
         with:
           name: ${{ matrix.config.name }} Executable
-          path: build/oopetris
-
-      - name: Upload artifacts - MacOS
-        uses: actions/upload-artifact@v4
-        if: matrix.config.os == 'macos'
-        with:
-          name: ${{ matrix.config.name }} Executable
-          path: build/oopetris
-          # TODO: create a proper installer: https://mesonbuild.com/Creating-OSX-packages.html
-
-      - name: Upload artifacts - Windows
-        uses: actions/upload-artifact@v4
-        if: matrix.config.os == 'windows'
-        with:
-          name: ${{ matrix.config.name }} Executable
-          path: build/oopetris.exe
+          path: build/src/executables/oopetris*

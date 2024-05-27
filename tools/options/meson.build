@@ -1,5 +1,21 @@
+oopetris_author = 'Coder2k'
+oopetris_name = 'OOPetris'
+
 core_lib = {
-    'src_files': [],
+    'inc_dirs': [],
+    'compile_args': [
+        '-DOOPETRIS_VERSION=' + meson.project_version(),
+    ],
+    'deps': [],
+}
+
+recordings_lib = {
+    'inc_dirs': [],
+    'compile_args': [],
+    'deps': [],
+}
+
+graphics_lib = {
     'inc_dirs': [],
     'compile_args': [
         '-DOOPETRIS_VERSION=' + meson.project_version(),
@@ -9,26 +25,11 @@ core_lib = {
     'deps': [],
 }
 
-recordings_lib = {
-    'src_files': [],
-    'inc_dirs': [],
-    'compile_args': [],
-    'deps': [],
-}
-
-graphics_lib = {
-    'src_files': [],
-    'inc_dirs': [],
-    'compile_args': [],
-    'deps': [],
-}
-
-global_deps = []
-graphic_application_deps = []
-
 cpp = meson.get_compiler('cpp')
 
 build_with_libcpp = false
+
+allow_tl_expected_fallback = false
 
 if cpp.get_id() == 'gcc'
     add_project_arguments('-Wold-style-cast', language: ['cpp'])
@@ -55,9 +56,39 @@ elif cpp.get_id() == 'clang'
     endif
 
     if build_with_libcpp
-        add_global_link_arguments('-stdlib=libc++', language: ['cpp'])
-        add_global_arguments('-stdlib=libc++', language: ['cpp'])
-        global_deps += [cpp.find_library('c++'), cpp.find_library('c++abi')]
+
+        core_lib += {
+            'compile_args': [core_lib.get('compile_args'), '-stdlib=libc++'],
+            'deps': [
+                core_lib.get('deps'),
+                cpp.find_library('c++'),
+                cpp.find_library('c++abi'),
+            ],
+        }
+
+        if not meson.is_subproject()
+            add_global_link_arguments('-stdlib=libc++', language: ['cpp'])
+            add_global_arguments('-stdlib=libc++', language: ['cpp'])
+        else
+            add_project_link_arguments('-stdlib=libc++', language: ['cpp'])
+            add_project_arguments('-stdlib=libc++', language: ['cpp'])
+
+        endif
+
+    else
+        # TODO: once clang with libstdc++ (gcc c++ stdlib) supports std::expectedt, remove this special behaviour
+        allow_tl_expected_fallback = true
     endif
 
+endif
+
+build_application = true
+
+## only build, if we are at the root, not if this is used as subproject in e.g. wrap files
+if meson.is_subproject() or get_option('only_build_libs')
+    build_application = false
+
+    if get_option('build_installer') and get_option('only_build_libs')
+        error('Can\'t build installer when \'only_build_libs\' is enabled')
+    endif
 endif

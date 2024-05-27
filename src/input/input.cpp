@@ -1,7 +1,7 @@
+#include <core/helper/expected.hpp>
+#include <core/helper/utils.hpp>
+
 #include "input.hpp"
-#include "helper/expected.hpp"
-#include "helper/optional.hpp"
-#include "helper/utils.hpp"
 #include "input/controller_input.hpp"
 #include "joystick_input.hpp"
 #include "keyboard_input.hpp"
@@ -96,7 +96,7 @@ input::InputManager::InputManager(const std::shared_ptr<Window>& window) {
 }
 
 
-[[nodiscard]] helper::optional<input::NavigationEvent> input::InputManager::get_navigation_event(const SDL_Event& event
+[[nodiscard]] std::optional<input::NavigationEvent> input::InputManager::get_navigation_event(const SDL_Event& event
 ) const {
     for (const auto& input : m_inputs) {
 
@@ -105,10 +105,10 @@ input::InputManager::InputManager(const std::shared_ptr<Window>& window) {
         }
     }
 
-    return helper::nullopt;
+    return std::nullopt;
 }
 
-[[nodiscard]] helper::optional<input::PointerEventHelper> input::InputManager::get_pointer_event(const SDL_Event& event
+[[nodiscard]] std::optional<input::PointerEventHelper> input::InputManager::get_pointer_event(const SDL_Event& event
 ) const {
     for (const auto& input : m_inputs) {
         if (const auto pointer_input = utils::is_child_class<input::PointerInput>(input); pointer_input.has_value()) {
@@ -118,7 +118,7 @@ input::InputManager::InputManager(const std::shared_ptr<Window>& window) {
         }
     }
 
-    return helper::nullopt;
+    return std::nullopt;
 }
 
 
@@ -151,6 +151,32 @@ input::InputManager::InputManager(const std::shared_ptr<Window>& window) {
                     break;
             }
             break;
+            //TODO(Totto): handle those types correctly, to e.g. pause the game automatically on background enter
+        case SDL_APP_TERMINATING:
+            /* Terminate the app.
+               Shut everything down before returning from this function.
+            */
+        case SDL_APP_LOWMEMORY:
+            /* You will get this when your app is paused and iOS wants more memory.
+               Release as much memory as possible.
+            */
+
+        case SDL_APP_WILLENTERBACKGROUND:
+            /* Prepare your app to go into the background.  Stop loops, etc.
+               This gets called when the user hits the home button, or gets a call.
+            */
+        case SDL_APP_DIDENTERBACKGROUND:
+            /* This will get called if the user accepted whatever sent your app to the background.
+               If the user got a phone call and canceled it, you'll instead get an SDL_APP_DID_ENTER_FOREGROUND event and restart your loops.
+               When you get this, you have 5 seconds to save all your state or the app will be terminated.
+               Your app is NOT active at this point.
+            */
+        case SDL_APP_WILLENTERFOREGROUND:
+            /* This call happens when your app is coming back to the foreground.
+               Restore all your state here.
+            */
+        case SDL_APP_DIDENTERFOREGROUND:
+            return true;
         default:
             break;
     }
@@ -284,7 +310,7 @@ namespace {
     }
 
 
-    helper::optional<std::shared_ptr<input::GameInput>>
+    std::optional<std::shared_ptr<input::GameInput>>
     get_game_input_by_input(ServiceProvider* service_provider, const std::unique_ptr<input::Input>& input) {
         const auto& settings = service_provider->settings_manager().settings();
 
@@ -311,7 +337,7 @@ namespace {
 
             if (not game_input.has_value()) {
                 spdlog::warn("Not possible to get joystick by settings: {}", game_input.error());
-                return helper::nullopt;
+                return std::nullopt;
             }
 
 
@@ -340,7 +366,7 @@ namespace {
         }
 
 
-        return helper::nullopt;
+        return std::nullopt;
     }
 
 

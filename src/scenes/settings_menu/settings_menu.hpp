@@ -1,6 +1,7 @@
 #pragma once
 
-#include "helper/color.hpp"
+#include <core/helper/color.hpp>
+
 #include "scenes/scene.hpp"
 #include "ui/layouts/tile_layout.hpp"
 #include "ui/widget.hpp"
@@ -32,18 +33,18 @@ namespace scenes {
 
     struct SettingsMenu : public Scene {
     private:
-        helper::optional<details::settings::menu::Command> m_next_command{ helper::nullopt };
+        std::optional<details::settings::menu::Command> m_next_command{ std::nullopt };
         ui::TileLayout m_main_layout;
         //todo migrate to settings state
         std::vector<Color> m_colors;
-        helper::optional<std::shared_ptr<input::GameInput>> m_game_input;
+        std::optional<std::shared_ptr<input::GameInput>> m_game_input;
 
         const std::string listener_name = "settings_menu";
 
         explicit SettingsMenu(
                 ServiceProvider* service_provider,
                 const ui::Layout& layout,
-                const helper::optional<std::shared_ptr<input::GameInput>>& game_input
+                const std::optional<std::shared_ptr<input::GameInput>>& game_input
         );
 
     public:

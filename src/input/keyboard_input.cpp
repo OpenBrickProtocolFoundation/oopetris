@@ -1,14 +1,14 @@
-#include "keyboard_input.hpp"
-#include "helper/optional.hpp"
-#include "helper/utils.hpp"
+#include <core/helper/utils.hpp>
+
 #include "input/game_input.hpp"
 #include "input/input.hpp"
+#include "keyboard_input.hpp"
 
 
 input::KeyboardInput::KeyboardInput() : input::Input{ "keyboard", InputType::Keyboard } { }
 
 
-[[nodiscard]] helper::optional<input::NavigationEvent> input::KeyboardInput::get_navigation_event(const SDL_Event& event
+[[nodiscard]] std::optional<input::NavigationEvent> input::KeyboardInput::get_navigation_event(const SDL_Event& event
 ) const {
 
 
@@ -50,7 +50,7 @@ input::KeyboardInput::KeyboardInput() : input::Input{ "keyboard", InputType::Key
         }
     }
 
-    return helper::nullopt;
+    return std::nullopt;
 }
 
 
@@ -95,7 +95,7 @@ void input::KeyboardGameInput::update(SimulationStep simulation_step_index) {
     GameInput::update(simulation_step_index);
 }
 
-helper::optional<InputEvent> input::KeyboardGameInput::sdl_event_to_input_event(const SDL_Event& event) const {
+std::optional<InputEvent> input::KeyboardGameInput::sdl_event_to_input_event(const SDL_Event& event) const {
     if (event.type == SDL_KEYDOWN and event.key.repeat == 0) {
         const auto key = sdl::Key{ event.key.keysym };
         if (key == m_settings.rotate_left) {
@@ -143,7 +143,7 @@ helper::optional<InputEvent> input::KeyboardGameInput::sdl_event_to_input_event(
             return InputEvent::HoldReleased;
         }
     }
-    return helper::nullopt;
+    return std::nullopt;
 }
 
 input::KeyboardGameInput::KeyboardGameInput(const KeyboardSettings& settings, EventDispatcher* event_dispatcher)
@@ -163,7 +163,7 @@ input::KeyboardGameInput::KeyboardGameInput(KeyboardGameInput&& input) noexcept 
 ) noexcept = default;
 
 
-[[nodiscard]] helper::expected<bool, std::string> input::KeyboardSettings::validate() const {
+[[nodiscard]] helper::expected<void, std::string> input::KeyboardSettings::validate() const {
 
     const std::vector<sdl::Key> to_use{ rotate_left, rotate_right, move_left, move_right,   move_down,
                                         drop,        hold,         pause,     open_settings };
@@ -190,8 +190,7 @@ sdl::Key json_helper::get_key(const nlohmann::json& obj, const std::string& name
 }
 
 
-[[nodiscard]] helper::optional<input::MenuEvent> input::KeyboardGameInput::get_menu_event(const SDL_Event& event
-) const {
+[[nodiscard]] std::optional<input::MenuEvent> input::KeyboardGameInput::get_menu_event(const SDL_Event& event) const {
 
     if (event.type == SDL_KEYDOWN and event.key.repeat == 0) {
         const auto key = sdl::Key{ event.key.keysym };
@@ -203,7 +202,7 @@ sdl::Key json_helper::get_key(const nlohmann::json& obj, const std::string& name
         }
     }
 
-    return helper::nullopt;
+    return std::nullopt;
 }
 
 [[nodiscard]] std::string input::KeyboardGameInput::describe_menu_event(MenuEvent event) const {

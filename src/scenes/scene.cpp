@@ -1,16 +1,18 @@
-#include "scenes/scene.hpp"
+
+#if !defined(_ONLINE_MULTIPLAYER_NOT_SUPPORTED)
+#include "online_lobby/online_lobby.hpp"
+#endif
+
+
 #include "about_page/about_page.hpp"
 #include "main_menu/main_menu.hpp"
 #include "multiplayer_menu/multiplayer_menu.hpp"
 #include "play_select_menu/play_select_menu.hpp"
 #include "recording_selector/recording_selector.hpp"
 #include "replay_game/replay_game.hpp"
+#include "scenes/scene.hpp"
 #include "settings_menu/settings_menu.hpp"
 #include "single_player_game/single_player_game.hpp"
-
-#if !defined(_ONLINE_MULTIPLAYER_NOT_SUPPORTED)
-#include "online_lobby/online_lobby.hpp"
-#endif
 
 
 namespace scenes {

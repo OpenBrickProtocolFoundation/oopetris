@@ -1,5 +1,3 @@
-
-
 option(
     'examples',
     type: 'boolean',

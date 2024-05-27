@@ -18,3 +18,11 @@ option(
     value: false,
     description: 'whether or not tests should be built',
 )
+
+option(
+    'only_build_libs',
+    type: 'boolean',
+    value: false,
+    description: 'if you only want to build the libs, enable this',
+)
+

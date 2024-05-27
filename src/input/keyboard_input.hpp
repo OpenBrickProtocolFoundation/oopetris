@@ -1,8 +1,9 @@
 #pragma once
 
+#include <core/helper/expected.hpp>
+#include <core/helper/parse_json.hpp>
+
 #include "game_input.hpp"
-#include "helper/expected.hpp"
-#include "helper/parse_json.hpp"
 #include "input.hpp"
 #include "manager/event_dispatcher.hpp"
 #include "manager/sdl_key.hpp"
@@ -19,7 +20,7 @@ namespace input {
     public:
         KeyboardInput();
 
-        [[nodiscard]] helper::optional<NavigationEvent> get_navigation_event(const SDL_Event& event) const override;
+        [[nodiscard]] std::optional<NavigationEvent> get_navigation_event(const SDL_Event& event) const override;
 
         [[nodiscard]] std::string describe_navigation_event(NavigationEvent event) const override;
     };
@@ -38,7 +39,7 @@ namespace input {
         sdl::Key open_settings;
 
 
-        [[nodiscard]] helper::expected<bool, std::string> validate() const;
+        [[nodiscard]] helper::expected<void, std::string> validate() const;
 
         [[nodiscard]] static KeyboardSettings default_settings() {
             return KeyboardSettings{ .rotate_left = sdl::Key{ SDLK_LEFT },
@@ -77,14 +78,14 @@ namespace input {
 
         void update(SimulationStep simulation_step_index) override;
 
-        [[nodiscard]] helper::optional<MenuEvent> get_menu_event(const SDL_Event& event) const override;
+        [[nodiscard]] std::optional<MenuEvent> get_menu_event(const SDL_Event& event) const override;
 
         [[nodiscard]] std::string describe_menu_event(MenuEvent event) const override;
 
         [[nodiscard]] const KeyboardInput* underlying_input() const override;
 
     private:
-        [[nodiscard]] helper::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event) const;
+        [[nodiscard]] std::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event) const;
     };
 } // namespace input
 

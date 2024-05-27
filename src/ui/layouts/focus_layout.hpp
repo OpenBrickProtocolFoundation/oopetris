@@ -1,7 +1,8 @@
 
 #pragma once
 
-#include "helper/utils.hpp"
+#include <core/helper/utils.hpp>
+
 #include "ui/focusable.hpp"
 #include "ui/widget.hpp"
 
@@ -25,8 +26,10 @@ namespace ui {
         FocusOptions m_options;
 
     protected:
-        helper::optional<u32> m_focus_id{};
-        std::vector<std::unique_ptr<Widget>> m_widgets{};
+        std::optional<u32>
+                m_focus_id; // NOLINT(misc-non-private-member-variables-in-classes,cppcoreguidelines-non-private-member-variables-in-classes)
+        std::vector<std::unique_ptr<Widget>>
+                m_widgets; // NOLINT(misc-non-private-member-variables-in-classes,cppcoreguidelines-non-private-member-variables-in-classes)
 
     public:
         explicit FocusLayout(const Layout& layout, u32 focus_id, FocusOptions options, bool is_top_level);
@@ -114,8 +117,8 @@ namespace ui {
                 const SDL_Event& event
         );
 
-        [[nodiscard]] helper::optional<ui::Widget::InnerState>
-        handle_event_result(const helper::optional<ui::Widget::InnerState>& result, Widget* widget);
+        [[nodiscard]] std::optional<ui::Widget::InnerState>
+        handle_event_result(const std::optional<ui::Widget::InnerState>& result, Widget* widget);
 
         [[nodiscard]] u32 focusable_index_by_id(u32 id) const;
 

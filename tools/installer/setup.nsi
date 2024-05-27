@@ -120,7 +120,7 @@ Section "Core App" CoreApp
 
     ; install executable
     SetOutPath "$INSTDIR"
-    File /a "${PROJECT_BUILD_DIR}\${APPFILE}"
+    File /a "${PROJECT_BUILD_DIR}\src\executables\${APPFILE}"
 
     ; install dynamic libraries
     SetOutPath "$INSTDIR"
@@ -214,7 +214,7 @@ SectionEnd
 Section "Additional Binaries" AdditionalBinaries
     ; install helper binaries
     SetOutPath "$INSTDIR\bin"
-    File /a "${PROJECT_BUILD_DIR}\oopetris_recordings_utility.exe"
+    File /a "${PROJECT_BUILD_DIR}\src\executables\oopetris_recordings_utility.exe"
     
     ; add the bin dir to the path
     EnVar::SetHKCU 

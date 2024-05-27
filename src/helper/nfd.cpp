@@ -1,9 +1,10 @@
 
-#include "nfd.hpp"
-#include "helper/utils.hpp"
+
 #if defined(_HAVE_FILE_DIALOGS)
 
-#include "helper/types.hpp"
+#include <core/helper/types.hpp>
+#include <core/helper/utils.hpp>
+
 #include "nfd_include.hpp"
 
 #include <filesystem>
@@ -69,7 +70,7 @@ namespace {
 
 helper::expected<std::filesystem::path, std::string> helper::openFileDialog(
         const std::vector<AllowedFile>& allowed_files,
-        helper::optional<std::filesystem::path> default_path
+        std::optional<std::filesystem::path> default_path
 ) {
 
     NFD::UniquePathU8 out_path{};
@@ -109,7 +110,7 @@ helper::expected<std::filesystem::path, std::string> helper::openFileDialog(
 
 [[nodiscard]] helper::expected<std::vector<std::filesystem::path>, std::string> helper::openMultipleFilesDialog(
         const std::vector<AllowedFile>& allowed_files,
-        helper::optional<std::filesystem::path> default_path
+        std::optional<std::filesystem::path> default_path
 ) {
 
     NFD::UniquePathSet out_paths{};
@@ -160,7 +161,7 @@ helper::expected<std::filesystem::path, std::string> helper::openFileDialog(
 }
 
 [[nodiscard]] helper::expected<std::filesystem::path, std::string> helper::openFolderDialog(
-        helper::optional<std::filesystem::path> default_path
+        std::optional<std::filesystem::path> default_path
 ) {
 
     NFD::UniquePathU8 out_path{};

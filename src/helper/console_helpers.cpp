@@ -1,10 +1,11 @@
 
-#include "helper/errors.hpp"
+#include <core/helper/errors.hpp>
+
 #if defined(__NINTENDO_CONSOLE__)
 
 #include "console_helpers.hpp"
 
-#include "helper/utils.hpp"
+#include <core/helper/utils.hpp>
 
 #if defined(__SWITCH__)
 #include <switch.h>

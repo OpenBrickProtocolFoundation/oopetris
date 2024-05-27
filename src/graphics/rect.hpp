@@ -1,6 +1,6 @@
 #pragma once
 
-#include "graphics/point.hpp"
+#include <core/helper/point.hpp>
 
 #include <SDL.h>
 #include <utility>

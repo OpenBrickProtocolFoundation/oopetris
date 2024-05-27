@@ -1,13 +1,12 @@
 
 #include "recording_chooser.hpp"
 
+#include <recordings/recordings.hpp>
 
 #include "helper/nfd_include.hpp"
 #include "manager/event_dispatcher.hpp"
 #include "manager/font.hpp"
 #include "manager/resource_manager.hpp"
-#include "recordings/recording.hpp"
-#include "recordings/recording_reader.hpp"
 #include "ui/components/text_button.hpp"
 
 custom_ui::RecordingFileChooser::RecordingFileChooser(

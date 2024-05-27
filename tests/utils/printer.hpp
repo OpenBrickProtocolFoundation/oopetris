@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include "helper/expected.hpp"
-#include "helper/optional.hpp"
+#include <core/helper/expected.hpp>
+
 
 #include <gtest/gtest.h>
 
@@ -42,7 +42,7 @@ namespace
 #endif
 {
 
-    // make helper::optional printable
+    // make std::optional printable
     template<typename T>
     void PrintTo(const optional<T>& value, std::ostream* os) { //NOLINT(cert-dcl58-cpp)
         if (value.has_value()) {

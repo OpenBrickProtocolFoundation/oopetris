@@ -1,11 +1,11 @@
 #pragma once
 
+#include <core/helper/input_event.hpp>
+#include <core/helper/random.hpp>
+#include <core/helper/types.hpp>
+
 #include "helper/clock_source.hpp"
-#include "helper/optional.hpp"
-#include "helper/random.hpp"
-#include "helper/types.hpp"
 #include "manager/event_listener.hpp"
-#include "manager/input_event.hpp"
 
 #include <functional>
 #include <unordered_map>
@@ -77,7 +77,7 @@ namespace input {
         virtual void update(SimulationStep simulation_step_index);
         virtual void late_update(SimulationStep /*simulation_step*/){};
 
-        [[nodiscard]] virtual helper::optional<MenuEvent> get_menu_event(const SDL_Event& event) const = 0;
+        [[nodiscard]] virtual std::optional<MenuEvent> get_menu_event(const SDL_Event& event) const = 0;
 
         [[nodiscard]] virtual std::string describe_menu_event(MenuEvent event) const = 0;
 

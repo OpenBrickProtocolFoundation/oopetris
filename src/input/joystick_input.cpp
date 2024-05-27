@@ -1,13 +1,13 @@
 
 
-#include "joystick_input.hpp"
+#include <core/helper/expected.hpp>
+#include <core/helper/utils.hpp>
+
 #include "controller_input.hpp"
-#include "helper/expected.hpp"
 #include "helper/graphic_utils.hpp"
-#include "helper/optional.hpp"
-#include "helper/utils.hpp"
 #include "input/game_input.hpp"
 #include "input/input.hpp"
+#include "joystick_input.hpp"
 
 #include <algorithm>
 #include <exception>
@@ -42,7 +42,7 @@ input::JoystickInput& input::JoystickInput::operator=(const JoystickInput& input
 input::JoystickInput::JoystickInput(JoystickInput&& input) noexcept = default;
 input::JoystickInput& input::JoystickInput::operator=(JoystickInput&& input) noexcept = default;
 
-[[nodiscard]] helper::optional<std::unique_ptr<input::JoystickInput>> input::JoystickInput::get_joystick_by_guid(
+[[nodiscard]] std::optional<std::unique_ptr<input::JoystickInput>> input::JoystickInput::get_joystick_by_guid(
         const sdl::GUID& guid,
         SDL_Joystick* joystick,
         SDL_JoystickID instance_id,
@@ -67,7 +67,7 @@ input::JoystickInput& input::JoystickInput::operator=(JoystickInput&& input) noe
     UNUSED(instance_id);
     UNUSED(name);
 
-    return helper::nullopt;
+    return std::nullopt;
 }
 
 
@@ -114,9 +114,8 @@ void input::JoyStickInputManager::discover_devices(std::vector<std::unique_ptr<I
     const auto allow_background_events_result = SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
 
     if (allow_background_events_result != SDL_TRUE) {
+        // this is non fatal, so not returning
         spdlog::warn("Failed to set the JOYSTICK_ALLOW_BACKGROUND_EVENTS hint: {}", SDL_GetError());
-
-        return;
     }
 
     const auto mappings_file = utils::get_assets_folder() / "mappings" / "gamecontrollerdb.txt";
@@ -233,7 +232,13 @@ void input::JoyStickInputManager::add_new_device(
             return;
         }
 
+        spdlog::info(
+                "Added new device ({}): {}", type == input::JoystickLikeType::Joystick ? "joystick" : "controller",
+                joystick->get()->name()
+        );
+
         inputs.push_back(std::move(joystick.value()));
+
     } else {
         spdlog::warn(
                 "Failed to add newly attached {}: {}",
@@ -250,7 +255,8 @@ void input::JoyStickInputManager::remove_device(
 ) {
     for (auto it = inputs.cbegin(); it != inputs.cend(); it++) {
 
-        if (const auto joystick_input = utils::is_child_class<input::JoystickInput>(*it); joystick_input.has_value()) {
+        if (const auto joystick_input = utils::is_child_class<input::JoystickLikeInput>(*it);
+            joystick_input.has_value()) {
 
             if (joystick_input.value()->instance_id() == instance_id) {
                 //TODO(Totto): if we use this joystick as game input we have to notify the user about it,and pause the game, until he is inserted again
@@ -261,8 +267,9 @@ void input::JoyStickInputManager::remove_device(
         }
     }
 
-    spdlog::warn(fmt::format(
-            "Failed to remove removed {} from internal input vector (maybe he was not recognized in the first place)",
+    //this happens way to often, since Sdl outputs both  SDL_JOYDEVICEREMOVED and SDL_CONTROLLERDEVICEREMOVED at the same time, in case of a controller, so the second time, this is reached :(
+    spdlog::debug(fmt::format(
+            "Failed to remove removed {} from internal input vector",
             type == input::JoystickLikeType::Joystick ? "joystick" : "controller"
     ));
 }
@@ -339,13 +346,13 @@ input::SwitchJoystickInput_Type1::SwitchJoystickInput_Type1(
 } { }
 
 
-[[nodiscard]] helper::optional<input::NavigationEvent> input::SwitchJoystickInput_Type1::get_navigation_event(
+[[nodiscard]] std::optional<input::NavigationEvent> input::SwitchJoystickInput_Type1::get_navigation_event(
         const SDL_Event& event
 ) const {
     if (event.type == SDL_JOYBUTTONDOWN) {
 
         if (event.jbutton.which != instance_id()) {
-            return helper::nullopt;
+            return std::nullopt;
         }
 
         switch (event.jbutton.button) {
@@ -370,7 +377,7 @@ input::SwitchJoystickInput_Type1::SwitchJoystickInput_Type1(
             case JOYCON_MINUS:
                 return NavigationEvent::BACK;
             default:
-                return helper::nullopt;
+                return std::nullopt;
 
                 //note, that  NavigationEvent::TAB is not supported
         }
@@ -518,13 +525,13 @@ input::_3DSJoystickInput_Type1::_3DSJoystickInput_Type1(
 } { }
 
 
-[[nodiscard]] helper::optional<input::NavigationEvent> input::_3DSJoystickInput_Type1::get_navigation_event(
+[[nodiscard]] std::optional<input::NavigationEvent> input::_3DSJoystickInput_Type1::get_navigation_event(
         const SDL_Event& event
 ) const {
     if (event.type == SDL_JOYBUTTONDOWN) {
 
         if (event.jbutton.which != instance_id()) {
-            return helper::nullopt;
+            return std::nullopt;
         }
 
         switch (event.jbutton.button) {
@@ -549,7 +556,7 @@ input::_3DSJoystickInput_Type1::_3DSJoystickInput_Type1(
             case JOYCON_B:
                 return NavigationEvent::BACK;
             default:
-                return helper::nullopt;
+                return std::nullopt;
 
                 //note, that  NavigationEvent::TAB is not supported
         }
@@ -695,7 +702,7 @@ input::JoystickGameInput::JoystickGameInput(EventDispatcher* event_dispatcher, J
 }
 
 namespace {
-    [[nodiscard]] helper::optional<std::shared_ptr<input::JoystickGameInput>> get_game_joystick_by_guid(
+    [[nodiscard]] std::optional<std::shared_ptr<input::JoystickGameInput>> get_game_joystick_by_guid(
             const sdl::GUID& guid,
             const input::JoystickSettings& settings,
             EventDispatcher* event_dispatcher,
@@ -719,7 +726,7 @@ namespace {
         UNUSED(event_dispatcher);
         UNUSED(underlying_input);
 
-        return helper::nullopt;
+        return std::nullopt;
     }
 
 
@@ -777,7 +784,7 @@ input::ConsoleJoystickInput::ConsoleJoystickInput(
     return to_normal_settings(default_settings_raw());
 }
 
-[[nodiscard]] helper::optional<input::NavigationEvent> input::ConsoleJoystickInput::handle_axis_navigation_event(
+[[nodiscard]] std::optional<input::NavigationEvent> input::ConsoleJoystickInput::handle_axis_navigation_event(
         const SDL_Event& event
 ) const {
     if (event.type == SDL_JOYAXISMOTION) {
@@ -790,7 +797,7 @@ input::ConsoleJoystickInput::ConsoleJoystickInput(
                 static_cast<i16>(static_cast<double>(SDL_JOYSTICK_AXIS_MAX) * axis_threshold_percentage);
 
         if (event.jaxis.which != instance_id()) {
-            return helper::nullopt;
+            return std::nullopt;
         }
 
         // x axis movement
@@ -803,7 +810,7 @@ input::ConsoleJoystickInput::ConsoleJoystickInput(
                 return NavigationEvent::LEFT;
             }
 
-            return helper::nullopt;
+            return std::nullopt;
         }
 
         // y axis movement
@@ -816,13 +823,13 @@ input::ConsoleJoystickInput::ConsoleJoystickInput(
                 return NavigationEvent::UP;
             }
 
-            return helper::nullopt;
+            return std::nullopt;
         }
 
         throw std::runtime_error(fmt::format("Reached unsupported axis for SDL_JOYAXISMOTION {}", event.jaxis.axis));
     }
 
-    return helper::nullopt;
+    return std::nullopt;
 }
 
 
@@ -856,11 +863,11 @@ input::ConsoleJoystickGameInput::~ConsoleJoystickGameInput() = default;
 
 // game_input uses Input to handle events, but stores the config settings for the specific button
 
-helper::optional<InputEvent> input::ConsoleJoystickGameInput::sdl_event_to_input_event(const SDL_Event& event) const {
+std::optional<InputEvent> input::ConsoleJoystickGameInput::sdl_event_to_input_event(const SDL_Event& event) const {
     if (event.type == SDL_JOYBUTTONDOWN) {
 
         if (event.jbutton.which != underlying_input()->instance_id()) {
-            return helper::nullopt;
+            return std::nullopt;
         }
 
         //TODO(Totto): use switch case
@@ -889,7 +896,7 @@ helper::optional<InputEvent> input::ConsoleJoystickGameInput::sdl_event_to_input
     } else if (event.type == SDL_JOYBUTTONUP) {
 
         if (event.jbutton.which != underlying_input()->instance_id()) {
-            return helper::nullopt;
+            return std::nullopt;
         }
 
         const auto button = event.jbutton.button;
@@ -915,15 +922,15 @@ helper::optional<InputEvent> input::ConsoleJoystickGameInput::sdl_event_to_input
             return InputEvent::HoldReleased;
         }
     }
-    return helper::nullopt;
+    return std::nullopt;
 }
 
-[[nodiscard]] helper::optional<input::MenuEvent> input::ConsoleJoystickGameInput::get_menu_event(const SDL_Event& event
+[[nodiscard]] std::optional<input::MenuEvent> input::ConsoleJoystickGameInput::get_menu_event(const SDL_Event& event
 ) const {
     if (event.type == SDL_JOYBUTTONDOWN) {
 
         if (event.jbutton.which != underlying_input()->instance_id()) {
-            return helper::nullopt;
+            return std::nullopt;
         }
 
         const auto button = event.jbutton.button;
@@ -936,7 +943,7 @@ helper::optional<InputEvent> input::ConsoleJoystickGameInput::sdl_event_to_input
         }
     }
 
-    return helper::nullopt;
+    return std::nullopt;
 }
 
 

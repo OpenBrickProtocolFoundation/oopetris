@@ -1,8 +1,7 @@
 #pragma once
 
-#include "helper/expected.hpp"
-
-#include "helper/types.hpp"
+#include <core/helper/expected.hpp>
+#include <core/helper/types.hpp>
 
 #include <SDL.h>
 #include <fmt/format.h>

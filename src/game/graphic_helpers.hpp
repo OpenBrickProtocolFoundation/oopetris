@@ -1,10 +1,9 @@
 #pragma once
 
-#include "graphics/point.hpp"
-#include "helper/types.hpp"
+#include <core/core.hpp>
+
 #include "manager/service_provider.hpp"
-#include "mino.hpp"
-#include "mino_stack.hpp"
+
 
 enum class MinoTransparency : u8 {
     // here the enum value is used as index into the preview alpha array

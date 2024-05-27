@@ -1,6 +1,6 @@
 #pragma once
 
-#include "helper/optional.hpp"
+
 #include "input/controller_input.hpp"
 #include "input/joystick_input.hpp"
 #include "input/keyboard_input.hpp"
@@ -71,7 +71,7 @@ namespace detail {
 
     struct Settings {
         std::vector<Controls> controls;
-        helper::optional<u32> selected;
+        std::optional<u32> selected;
         float volume{ 0.2F };
         bool discord{ false }; //changing this requires a restart
     };
