@@ -48,7 +48,7 @@ jobs:
           tidy-checks: ""
           step-summary: true
           file-annotations: true
-          ignore: subprojects|build|android|assets|recordings|docs|toolchains|platforms|src/libs/core/hash-library|wrapper/javascript/
+          ignore: subprojects|build|android|assets|recordings|docs|toolchains|platforms|wrapper|src/libs/core/hash-library
 
       - name: Fail CI run if linter checks failed
         if: steps.linter.outputs.checks-failed != 0
