@@ -6,6 +6,7 @@
 
 
 #include <string>
+#include <vector>
 
 
 namespace helper {
