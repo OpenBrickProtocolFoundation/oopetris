@@ -20,7 +20,25 @@
             "conditions": [
                 [
                     'OS == "mac"',
-                    {"cflags_cc!": ["-std=c++23"], "cflags_cc+": ["-std=c++20"]},
+                    {
+                        "xcode_settings": {
+                            "OTHER_CFLAGS+": [
+                                "-std=c++23",
+                                "-Wall",
+                                "-Wextra",
+                                "-Wno-unused-parameter",
+                                "-O3",
+                                "-Werror",
+                                "-Wpedantic",
+                                "-fexceptions",
+                                "-frtti",
+                                "-Wno-cast-function-type",  # since nan.h -> node.h has some warnings regarding that
+                                "<!@(pkg-config oopetris-recordings --cflags-only-other)",
+                                "-static",  # statically link this, as we do on windows ( it's the default as per node-gyp )
+                                "-I/usr/local/include",  # this is and error with magic_enum in mac, but this small hack fixes it :)
+                            ]
+                        }
+                    },
                 ],
                 [
                     'OS != "win"',
