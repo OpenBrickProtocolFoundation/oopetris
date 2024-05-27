@@ -93,7 +93,7 @@ jobs:
           echo "PKG_CONFIG_PATH=C:/lib/pkgconfig" | Out-File -FilePath $env:GITHUB_ENV -Append
           
       - name: Configure
-        run: meson setup build -Dbuildtype=release -Ddefault_library=static -Dclang_libcpp=-Dclang_libcpp=${{ matrix.config.os == 'macos'  && 'enabled' || 'disabled' }}  -Donly_build_libs=true ${{ matrix.config.os == 'windows' &&  '-Db_vscrt=static_from_buildtype' || '' }} 
+        run: meson setup build -Dbuildtype=release -Ddefault_library=static -Dclang_libcpp=${{ matrix.config.os == 'macos'  && 'enabled' || 'disabled' }}  -Donly_build_libs=true ${{ matrix.config.os == 'windows' &&  '-Db_vscrt=static_from_buildtype' || '' }} 
 
       - name: Build and install Libs
         if: matrix.config.os != 'ubuntu'
