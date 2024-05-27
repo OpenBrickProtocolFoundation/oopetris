@@ -119,6 +119,11 @@ void Application::handle_event(const SDL_Event& event) {
         m_is_running = false;
     }
 
+    // special event for android and IOS
+    if (event.type == SDL_APP_TERMINATING) {
+        m_is_running = false;
+    }
+
     auto handled = false;
 
     for (const auto& scene : std::ranges::views::reverse(m_scene_stack)) {
@@ -301,7 +306,6 @@ void Application::initialize() {
                                                            : 0s;
     auto start_execution_time = std::chrono::steady_clock::now();
 
-
     bool finished_loading = false;
 
     // this is a duplicate of below in some cases, but it's just for the loading screen and can't be factored out easily
@@ -324,6 +328,15 @@ void Application::initialize() {
             if (event.type == SDL_QUIT) {
                 m_is_running = false;
             }
+
+            // special event for android and IOS
+            if (event.type == SDL_APP_TERMINATING) {
+                m_is_running = false;
+            }
+        }
+
+        if (not m_is_running) {
+            break;
         }
 
         loading_screen.update();
@@ -355,12 +368,12 @@ void Application::initialize() {
 
     const auto duration = std::chrono::milliseconds(SDL_GetTicks64() - start_time);
 
-    // we can reach this via SDL_QUIT or (not console::inMainLoop())
-    if (not finished_loading) {
+    // we can reach this via SDL_QUIT, SDL_APP_TERMINATING or (not console::inMainLoop())
+    if (not finished_loading or not m_is_running) {
 
         spdlog::debug("Aborted loading after {}", duration);
 
-        // just exit immediately, without cleaning up, since than we would have to cancel the loading thread somehow, which is way rto complicated, let the OS clean up our mess we create her xD
+        // just exit immediately, without cleaning up, since than we would have to cancel the loading thread somehow, which is way to complicated, let the OS clean up our mess we created here xD
 
         utils::exit(0);
     }

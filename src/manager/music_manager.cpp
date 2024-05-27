@@ -19,10 +19,12 @@ MusicManager::MusicManager(ServiceProvider* service_provider, u8 channel_size)
       m_queued_music{ nullptr },
       m_channel_size{ channel_size },
       m_chunk_map{ std::unordered_map<std::string, Mix_Chunk*>{} },
-      m_service_provider{ service_provider },
-      m_volume{ m_service_provider->command_line_arguments().silent ? std::nullopt : std::optional{ 1.0F } } {
+      m_volume{ service_provider->command_line_arguments().silent ? std::nullopt : std::optional{ 1.0F } } {
     if (s_instance != nullptr) {
-        spdlog::error("it's not allowed to create more than one MusicManager instance");
+        spdlog::error(
+                "it's not allowed to create more than one MusicManager instance: {} != {}",
+                static_cast<void*>(s_instance), static_cast<void*>(this)
+        );
         return;
     }
 
@@ -37,13 +39,21 @@ MusicManager::MusicManager(ServiceProvider* service_provider, u8 channel_size)
         throw helper::InitializationError{ fmt::format("Failed to initialize any audio codec: {}", SDL_GetError()) };
     }
 
-    // see: https://wiki.libsdl.org/SDL2_mixer/Mix_AllocateChannels
-    auto allocated_channels = Mix_AllocateChannels(channel_size);
-    if (allocated_channels != channel_size) {
-        throw helper::InitializationError{ fmt::format(
-                "Failed to initialize the requested channels, requested {} but only got {}: {}", channel_size,
-                allocated_channels, SDL_GetError()
-        ) };
+    // retrieve allocated channels
+    auto allocated_channels = Mix_AllocateChannels(-1);
+
+    spdlog::debug("SDL_MIX: allocated_channels = {}", allocated_channels);
+
+    if (allocated_channels == 0) {
+
+        // see: https://wiki.libsdl.org/SDL2_mixer/Mix_AllocateChannels
+        auto newly_allocated_channels = Mix_AllocateChannels(channel_size);
+        if (newly_allocated_channels != channel_size) {
+            throw helper::InitializationError{ fmt::format(
+                    "Failed to initialize the requested channels, requested {} but only got {}: {}", channel_size,
+                    newly_allocated_channels, SDL_GetError()
+            ) };
+        }
     }
 
     // 2 here means STEREO, note that channels above means tracks, e.g. simultaneous playing source that are mixed,
@@ -66,7 +76,10 @@ MusicManager::~MusicManager() noexcept {
     }
 
     // stop sounds and free loaded data
-    Mix_HaltChannel(-1);
+    int result = Mix_HaltChannel(-1);
+    if (result != 0) {
+        spdlog::warn("Mix_HaltChannel failed with error: {}", SDL_GetError());
+    }
 
     if (m_music != nullptr) {
         Mix_FreeMusic(m_music);
@@ -79,8 +92,11 @@ MusicManager::~MusicManager() noexcept {
     for (const auto& [_, value] : m_chunk_map) {
         Mix_FreeChunk(value);
     }
+
     Mix_CloseAudio();
     Mix_Quit();
+
+    s_instance = nullptr;
 }
 
 std::optional<std::string> MusicManager::load_and_play_music(const std::filesystem::path& location, const usize delay) {
@@ -141,7 +157,11 @@ std::optional<std::string> MusicManager::load_and_play_music(const std::filesyst
         m_queued_music = music;
         m_delay = delay;
         Mix_HookMusicFinished([]() {
-            assert(s_instance != nullptr and "there must be a MusicManager instance");
+            // this can happen on e.g. android, where if we exit the application, we don't close the window, so its reused, but the music manager is destroyed, but the hook is called later xD
+            /* if (s_instance == nullptr) {
+                return;
+            } */
+
             s_instance->hook_music_finished();
         });
 
@@ -232,7 +252,10 @@ void MusicManager::hook_music_finished() {
 
 [[nodiscard]] bool MusicManager::validate_instance() {
     if (s_instance != this) {
-        spdlog::error("this MusicManager instance is not the instance that is used globally");
+        spdlog::error(
+                "this MusicManager instance is not the instance that is used globally: {} != {}",
+                static_cast<void*>(s_instance), static_cast<void*>(this)
+        );
         return false;
     }
     return true;

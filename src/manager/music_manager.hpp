@@ -30,16 +30,19 @@ private:
     std::unordered_map<std::string, Mix_Chunk*> m_chunk_map;
     static constexpr unsigned fade_ms = 500;
     usize m_delay = MusicManager::fade_ms;
-    ServiceProvider* m_service_provider;
+
     std::optional<double> m_volume;
     std::unordered_map<std::string, VolumeChangeFunction> m_volume_listeners;
 
 public:
     explicit MusicManager(ServiceProvider* service_provider, u8 channel_size = 2);
+
     MusicManager(const MusicManager&) = delete;
     MusicManager& operator=(const MusicManager&) = delete;
+
     MusicManager(const MusicManager&&) = delete;
     MusicManager& operator=(MusicManager&&) = delete;
+
     ~MusicManager() noexcept;
 
     std::optional<std::string>
