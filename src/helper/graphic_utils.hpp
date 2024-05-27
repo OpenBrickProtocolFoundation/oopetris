@@ -20,4 +20,20 @@ namespace utils {
     [[nodiscard]] std::filesystem::path get_root_folder();
 
     std::optional<bool> log_error(const std::string& error);
+
+    struct ExitException : std::exception {
+    private:
+        int m_status_code;
+
+    public:
+        explicit ExitException(int status_code) noexcept;
+
+        [[nodiscard]] int status_code() const;
+
+        [[nodiscard]] const char* what() const noexcept override;
+    };
+
+
+    [[noreturn]] void exit(int status_code);
+
 } // namespace utils

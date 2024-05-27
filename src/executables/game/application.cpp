@@ -361,7 +361,8 @@ void Application::initialize() {
         spdlog::debug("Aborted loading after {}", duration);
 
         // just exit immediately, without cleaning up, since than we would have to cancel the loading thread somehow, which is way rto complicated, let the OS clean up our mess we create her xD
-        std::exit(0);
+
+        utils::exit(0);
     }
 
 

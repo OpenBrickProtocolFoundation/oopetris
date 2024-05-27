@@ -31,6 +31,8 @@ namespace helper {
 
         [[nodiscard]] const std::string& message() const;
         [[nodiscard]] error::Severity severity() const;
+
+        [[nodiscard]] const char* what() const noexcept override;
     };
 
     struct FatalError : public GeneralError {

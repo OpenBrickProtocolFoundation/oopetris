@@ -129,6 +129,9 @@ namespace {
 
 
             return EXIT_FAILURE;
+        } catch (const utils::ExitException& exit_exception) {
+            spdlog::debug("Requested exit with status code {}", exit_exception.status_code());
+            return exit_exception.status_code();
         } catch (const std::exception& error) {
             // this is the last resort, so using std::cerr and no sdl show_simple messagebox!
             std::cerr << error.what();

@@ -21,6 +21,11 @@ helper::GeneralError::GeneralError(GeneralError&& error) noexcept = default;
     return m_message;
 }
 
+[[nodiscard]] const char* helper::GeneralError::what() const noexcept {
+    return m_message.c_str();
+}
+
+
 [[nodiscard]] helper::error::Severity helper::GeneralError::severity() const {
     return m_severity;
 }
