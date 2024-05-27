@@ -26,8 +26,10 @@ namespace ui {
         FocusOptions m_options;
 
     protected:
-        std::optional<u32> m_focus_id{};
-        std::vector<std::unique_ptr<Widget>> m_widgets{};
+        std::optional<u32>
+                m_focus_id; // NOLINT(misc-non-private-member-variables-in-classes,cppcoreguidelines-non-private-member-variables-in-classes)
+        std::vector<std::unique_ptr<Widget>>
+                m_widgets; // NOLINT(misc-non-private-member-variables-in-classes,cppcoreguidelines-non-private-member-variables-in-classes)
 
     public:
         explicit FocusLayout(const Layout& layout, u32 focus_id, FocusOptions options, bool is_top_level);

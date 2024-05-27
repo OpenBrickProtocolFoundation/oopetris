@@ -34,7 +34,7 @@ namespace scenes {
     private:
         ui::TileLayout m_main_layout;
         std::optional<details::recording::selector::Command> m_next_command{ std::nullopt };
-        std::vector<std::filesystem::path> m_chosen_paths{};
+        std::vector<std::filesystem::path> m_chosen_paths;
 
     public:
         explicit RecordingSelector(ServiceProvider* service_provider, const ui::Layout& layout);

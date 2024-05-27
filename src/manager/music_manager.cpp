@@ -20,7 +20,7 @@ MusicManager::MusicManager(ServiceProvider* service_provider, u8 channel_size)
       m_channel_size{ channel_size },
       m_chunk_map{ std::unordered_map<std::string, Mix_Chunk*>{} },
       m_service_provider{ service_provider },
-      volume{ m_service_provider->command_line_arguments().silent ? std::nullopt : std::optional{ 1.0F } } {
+      m_volume{ m_service_provider->command_line_arguments().silent ? std::nullopt : std::optional{ 1.0F } } {
     if (s_instance != nullptr) {
         spdlog::error("it's not allowed to create more than one MusicManager instance");
         return;
@@ -57,7 +57,7 @@ MusicManager::MusicManager(ServiceProvider* service_provider, u8 channel_size)
 
     s_instance = this;
 
-    set_volume(volume, true);
+    set_volume(m_volume, true);
 }
 
 MusicManager::~MusicManager() noexcept {
@@ -95,7 +95,7 @@ std::optional<std::string> MusicManager::load_and_play_music(const std::filesyst
     }
 
     // if we are mute, set the current music to this
-    if (not volume.has_value()) {
+    if (not m_volume.has_value()) {
         assert(m_queued_music == nullptr && "No queued music is possible, when muted!");
         if (m_music != nullptr) {
             Mix_FreeMusic(m_music);
@@ -258,7 +258,7 @@ void MusicManager::set_volume(
         const bool notify_listeners
 ) {
 
-    if (volume == new_volume and not force_update) {
+    if (m_volume == new_volume and not force_update) {
         return;
     }
 
@@ -268,7 +268,7 @@ void MusicManager::set_volume(
             Mix_HaltMusic();
         }
 
-        volume = std::nullopt;
+        m_volume = std::nullopt;
     }
 
 
@@ -276,7 +276,7 @@ void MusicManager::set_volume(
             not new_volume.has_value() ? 0 : static_cast<int>(MIX_MAX_VOLUME * new_volume.value());
     Mix_VolumeMusic(new_volume_mapped);
 
-    if (not volume.has_value()) {
+    if (not m_volume.has_value()) {
 
         if (m_music != nullptr) {
             const int result = Mix_PlayMusic(m_music, -1);
@@ -289,10 +289,10 @@ void MusicManager::set_volume(
     }
 
 
-    volume = new_volume;
+    m_volume = new_volume;
     if (notify_listeners) {
-        for (const auto& [_, listener] : volume_listeners) {
-            listener(volume);
+        for (const auto& [_, listener] : m_volume_listeners) {
+            listener(m_volume);
         }
     }
 }

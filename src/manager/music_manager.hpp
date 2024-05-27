@@ -31,8 +31,8 @@ private:
     static constexpr unsigned fade_ms = 500;
     usize m_delay = MusicManager::fade_ms;
     ServiceProvider* m_service_provider;
-    std::optional<double> volume;
-    std::unordered_map<std::string, VolumeChangeFunction> volume_listeners;
+    std::optional<double> m_volume;
+    std::unordered_map<std::string, VolumeChangeFunction> m_volume_listeners;
 
 public:
     explicit MusicManager(ServiceProvider* service_provider, u8 channel_size = 2);
@@ -58,20 +58,20 @@ public:
 
     bool add_volume_listener(const std::string& name, VolumeChangeFunction change_function) {
 
-        if (volume_listeners.contains(name)) {
+        if (m_volume_listeners.contains(name)) {
             return false;
         }
 
-        volume_listeners.insert_or_assign(name, std::move(change_function));
+        m_volume_listeners.insert_or_assign(name, std::move(change_function));
         return true;
     }
 
     bool remove_volume_listener(const std::string& name) {
-        if (not volume_listeners.contains(name)) {
+        if (not m_volume_listeners.contains(name)) {
             return false;
         }
 
-        volume_listeners.erase(name);
+        m_volume_listeners.erase(name);
         return true;
     }
 

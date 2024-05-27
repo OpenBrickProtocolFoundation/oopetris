@@ -11,7 +11,7 @@ namespace scenes {
         enum class NextScene : u8 { Pause, Settings };
 
 
-        std::optional<NextScene> m_next_scene{};
+        std::optional<NextScene> m_next_scene;
         std::unique_ptr<Game> m_game;
 
     public:
