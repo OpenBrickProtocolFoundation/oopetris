@@ -690,13 +690,13 @@ input::WiiJoystickInput_Type1::WiiJoystickInput_Type1(
 } { }
 
 
-[[nodiscard]] helper::optional<input::NavigationEvent> input::WiiJoystickInput_Type1::get_navigation_event(
+[[nodiscard]] std::optional<input::NavigationEvent> input::WiiJoystickInput_Type1::get_navigation_event(
         const SDL_Event& event
 ) const {
     if (event.type == SDL_JOYBUTTONDOWN) {
 
         if (event.jbutton.which != instance_id()) {
-            return helper::nullopt;
+            return std::nullopt;
         }
 
         switch (event.jbutton.button) {
@@ -713,7 +713,7 @@ input::WiiJoystickInput_Type1::WiiJoystickInput_Type1(
             case JOYCON_B:
                 return NavigationEvent::BACK;
             default:
-                return helper::nullopt;
+                return std::nullopt;
 
                 //note, that  NavigationEvent::TAB is not supported
         }

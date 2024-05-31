@@ -205,7 +205,7 @@ namespace input {
 
         WiiJoystickInput_Type1(SDL_Joystick* joystick, SDL_JoystickID instance_id, const std::string& name);
 
-        [[nodiscard]] helper::optional<NavigationEvent> get_navigation_event(const SDL_Event& event) const override;
+        [[nodiscard]] std::optional<NavigationEvent> get_navigation_event(const SDL_Event& event) const override;
 
         [[nodiscard]] std::string describe_navigation_event(NavigationEvent event) const override;
 
