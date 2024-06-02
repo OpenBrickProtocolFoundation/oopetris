@@ -1,0 +1,817 @@
+diff --git a/include/spdlog/common.h b/include/spdlog/common.h
+index aca483c..a265945 100644
+--- a/include/spdlog/common.h
++++ b/include/spdlog/common.h
+@@ -93,6 +93,42 @@
+     #define SPDLOG_DEPRECATED
+ #endif
+ 
++#if defined(__WII__)
++    #include <debug.h>
++    #include <ogc/system.h>
++    #include <ogc/mutex.h>
++
++    #include <system_error>
++
++namespace console {
++
++inline void assert_mutex_result_success(int res) {
++    if (res != 0) {
++        throw std::system_error(std::make_error_code(std::errc::no_lock_available), "mutex error");
++    }
++}
++
++struct mutex {
++private:
++    mutex_t m_mutex;
++
++public:
++    mutex() { assert_mutex_result_success(LWP_MutexInit(&this->m_mutex, false)); }
++
++    ~mutex() { assert_mutex_result_success(LWP_MutexDestroy(this->m_mutex)); }
++
++    inline void lock() { assert_mutex_result_success(LWP_MutexLock(this->m_mutex)); }
++
++    inline void unlock() { assert_mutex_result_success(LWP_MutexUnlock(this->m_mutex)); }
++};
++}  // namespace console
++
++    #define MUTEX console::mutex
++
++#else
++    #define MUTEX std::mutex
++#endif
++
+ // disable thread local on msvc 2013
+ #ifndef SPDLOG_NO_TLS
+     #if (defined(_MSC_VER) && (_MSC_VER < 1900)) || defined(__cplusplus_winrt)
+diff --git a/include/spdlog/details/backtracer-inl.h b/include/spdlog/details/backtracer-inl.h
+index 43d1002..95e05e7 100644
+--- a/include/spdlog/details/backtracer-inl.h
++++ b/include/spdlog/details/backtracer-inl.h
+@@ -9,50 +9,50 @@
+ namespace spdlog {
+ namespace details {
+ SPDLOG_INLINE backtracer::backtracer(const backtracer &other) {
+-    std::lock_guard<std::mutex> lock(other.mutex_);
++    std::lock_guard<MUTEX> lock(other.mutex_);
+     enabled_ = other.enabled();
+     messages_ = other.messages_;
+ }
+ 
+ SPDLOG_INLINE backtracer::backtracer(backtracer &&other) SPDLOG_NOEXCEPT {
+-    std::lock_guard<std::mutex> lock(other.mutex_);
++    std::lock_guard<MUTEX> lock(other.mutex_);
+     enabled_ = other.enabled();
+     messages_ = std::move(other.messages_);
+ }
+ 
+ SPDLOG_INLINE backtracer &backtracer::operator=(backtracer other) {
+-    std::lock_guard<std::mutex> lock(mutex_);
++    std::lock_guard<MUTEX> lock(mutex_);
+     enabled_ = other.enabled();
+     messages_ = std::move(other.messages_);
+     return *this;
+ }
+ 
+ SPDLOG_INLINE void backtracer::enable(size_t size) {
+-    std::lock_guard<std::mutex> lock{mutex_};
++    std::lock_guard<MUTEX> lock{mutex_};
+     enabled_.store(true, std::memory_order_relaxed);
+     messages_ = circular_q<log_msg_buffer>{size};
+ }
+ 
+ SPDLOG_INLINE void backtracer::disable() {
+-    std::lock_guard<std::mutex> lock{mutex_};
++    std::lock_guard<MUTEX> lock{mutex_};
+     enabled_.store(false, std::memory_order_relaxed);
+ }
+ 
+ SPDLOG_INLINE bool backtracer::enabled() const { return enabled_.load(std::memory_order_relaxed); }
+ 
+ SPDLOG_INLINE void backtracer::push_back(const log_msg &msg) {
+-    std::lock_guard<std::mutex> lock{mutex_};
++    std::lock_guard<MUTEX> lock{mutex_};
+     messages_.push_back(log_msg_buffer{msg});
+ }
+ 
+ SPDLOG_INLINE bool backtracer::empty() const {
+-    std::lock_guard<std::mutex> lock{mutex_};
++    std::lock_guard<MUTEX> lock{mutex_};
+     return messages_.empty();
+ }
+ 
+ // pop all items in the q and apply the given fun on each of them.
+ SPDLOG_INLINE void backtracer::foreach_pop(std::function<void(const details::log_msg &)> fun) {
+-    std::lock_guard<std::mutex> lock{mutex_};
++    std::lock_guard<MUTEX> lock{mutex_};
+     while (!messages_.empty()) {
+         auto &front_msg = messages_.front();
+         fun(front_msg);
+diff --git a/include/spdlog/details/backtracer.h b/include/spdlog/details/backtracer.h
+index 541339c..3dc300c 100644
+--- a/include/spdlog/details/backtracer.h
++++ b/include/spdlog/details/backtracer.h
+@@ -16,7 +16,7 @@
+ namespace spdlog {
+ namespace details {
+ class SPDLOG_API backtracer {
+-    mutable std::mutex mutex_;
++    mutable MUTEX mutex_;
+     std::atomic<bool> enabled_{false};
+     circular_q<log_msg_buffer> messages_;
+ 
+diff --git a/include/spdlog/details/console_globals.h b/include/spdlog/details/console_globals.h
+index 9c55210..e74b310 100644
+--- a/include/spdlog/details/console_globals.h
++++ b/include/spdlog/details/console_globals.h
+@@ -10,7 +10,7 @@ namespace spdlog {
+ namespace details {
+ 
+ struct console_mutex {
+-    using mutex_t = std::mutex;
++    using mutex_t = MUTEX;
+     static mutex_t &mutex() {
+         static mutex_t s_mutex;
+         return s_mutex;
+diff --git a/include/spdlog/details/mpmc_blocking_q.h b/include/spdlog/details/mpmc_blocking_q.h
+index 5a474bf..516837f 100644
+--- a/include/spdlog/details/mpmc_blocking_q.h
++++ b/include/spdlog/details/mpmc_blocking_q.h
+@@ -30,7 +30,7 @@ public:
+     // try to enqueue and block if no room left
+     void enqueue(T &&item) {
+         {
+-            std::unique_lock<std::mutex> lock(queue_mutex_);
++            std::unique_lock<MUTEX> lock(queue_mutex_);
+             pop_cv_.wait(lock, [this] { return !this->q_.full(); });
+             q_.push_back(std::move(item));
+         }
+@@ -40,7 +40,7 @@ public:
+     // enqueue immediately. overrun oldest message in the queue if no room left.
+     void enqueue_nowait(T &&item) {
+         {
+-            std::unique_lock<std::mutex> lock(queue_mutex_);
++            std::unique_lock<MUTEX> lock(queue_mutex_);
+             q_.push_back(std::move(item));
+         }
+         push_cv_.notify_one();
+@@ -49,7 +49,7 @@ public:
+     void enqueue_if_have_room(T &&item) {
+         bool pushed = false;
+         {
+-            std::unique_lock<std::mutex> lock(queue_mutex_);
++            std::unique_lock<MUTEX> lock(queue_mutex_);
+             if (!q_.full()) {
+                 q_.push_back(std::move(item));
+                 pushed = true;
+@@ -67,7 +67,7 @@ public:
+     // Return true, if succeeded dequeue item, false otherwise
+     bool dequeue_for(T &popped_item, std::chrono::milliseconds wait_duration) {
+         {
+-            std::unique_lock<std::mutex> lock(queue_mutex_);
++            std::unique_lock<MUTEX> lock(queue_mutex_);
+             if (!push_cv_.wait_for(lock, wait_duration, [this] { return !this->q_.empty(); })) {
+                 return false;
+             }
+@@ -81,7 +81,7 @@ public:
+     // blocking dequeue without a timeout.
+     void dequeue(T &popped_item) {
+         {
+-            std::unique_lock<std::mutex> lock(queue_mutex_);
++            std::unique_lock<MUTEX> lock(queue_mutex_);
+             push_cv_.wait(lock, [this] { return !this->q_.empty(); });
+             popped_item = std::move(q_.front());
+             q_.pop_front();
+@@ -95,7 +95,7 @@ public:
+ 
+     // try to enqueue and block if no room left
+     void enqueue(T &&item) {
+-        std::unique_lock<std::mutex> lock(queue_mutex_);
++        std::unique_lock<MUTEX> lock(queue_mutex_);
+         pop_cv_.wait(lock, [this] { return !this->q_.full(); });
+         q_.push_back(std::move(item));
+         push_cv_.notify_one();
+@@ -103,14 +103,14 @@ public:
+ 
+     // enqueue immediately. overrun oldest message in the queue if no room left.
+     void enqueue_nowait(T &&item) {
+-        std::unique_lock<std::mutex> lock(queue_mutex_);
++        std::unique_lock<MUTEX> lock(queue_mutex_);
+         q_.push_back(std::move(item));
+         push_cv_.notify_one();
+     }
+ 
+     void enqueue_if_have_room(T &&item) {
+         bool pushed = false;
+-        std::unique_lock<std::mutex> lock(queue_mutex_);
++        std::unique_lock<MUTEX> lock(queue_mutex_);
+         if (!q_.full()) {
+             q_.push_back(std::move(item));
+             pushed = true;
+@@ -126,7 +126,7 @@ public:
+     // dequeue with a timeout.
+     // Return true, if succeeded dequeue item, false otherwise
+     bool dequeue_for(T &popped_item, std::chrono::milliseconds wait_duration) {
+-        std::unique_lock<std::mutex> lock(queue_mutex_);
++        std::unique_lock<MUTEX> lock(queue_mutex_);
+         if (!push_cv_.wait_for(lock, wait_duration, [this] { return !this->q_.empty(); })) {
+             return false;
+         }
+@@ -138,7 +138,7 @@ public:
+ 
+     // blocking dequeue without a timeout.
+     void dequeue(T &popped_item) {
+-        std::unique_lock<std::mutex> lock(queue_mutex_);
++        std::unique_lock<MUTEX> lock(queue_mutex_);
+         push_cv_.wait(lock, [this] { return !this->q_.empty(); });
+         popped_item = std::move(q_.front());
+         q_.pop_front();
+@@ -148,26 +148,26 @@ public:
+ #endif
+ 
+     size_t overrun_counter() {
+-        std::unique_lock<std::mutex> lock(queue_mutex_);
++        std::unique_lock<MUTEX> lock(queue_mutex_);
+         return q_.overrun_counter();
+     }
+ 
+     size_t discard_counter() { return discard_counter_.load(std::memory_order_relaxed); }
+ 
+     size_t size() {
+-        std::unique_lock<std::mutex> lock(queue_mutex_);
++        std::unique_lock<MUTEX> lock(queue_mutex_);
+         return q_.size();
+     }
+ 
+     void reset_overrun_counter() {
+-        std::unique_lock<std::mutex> lock(queue_mutex_);
++        std::unique_lock<MUTEX> lock(queue_mutex_);
+         q_.reset_overrun_counter();
+     }
+ 
+     void reset_discard_counter() { discard_counter_.store(0, std::memory_order_relaxed); }
+ 
+ private:
+-    std::mutex queue_mutex_;
++    MUTEX queue_mutex_;
+     std::condition_variable push_cv_;
+     std::condition_variable pop_cv_;
+     spdlog::details::circular_q<T> q_;
+diff --git a/include/spdlog/details/periodic_worker-inl.h b/include/spdlog/details/periodic_worker-inl.h
+index 18f11fb..db9d712 100644
+--- a/include/spdlog/details/periodic_worker-inl.h
++++ b/include/spdlog/details/periodic_worker-inl.h
+@@ -14,7 +14,7 @@ namespace details {
+ SPDLOG_INLINE periodic_worker::~periodic_worker() {
+     if (worker_thread_.joinable()) {
+         {
+-            std::lock_guard<std::mutex> lock(mutex_);
++            std::lock_guard<MUTEX> lock(mutex_);
+             active_ = false;
+         }
+         cv_.notify_one();
+diff --git a/include/spdlog/details/periodic_worker.h b/include/spdlog/details/periodic_worker.h
+index d647b66..914cccc 100644
+--- a/include/spdlog/details/periodic_worker.h
++++ b/include/spdlog/details/periodic_worker.h
+@@ -30,7 +30,7 @@ public:
+ 
+         worker_thread_ = std::thread([this, callback_fun, interval]() {
+             for (;;) {
+-                std::unique_lock<std::mutex> lock(this->mutex_);
++                std::unique_lock<MUTEX> lock(this->mutex_);
+                 if (this->cv_.wait_for(lock, interval, [this] { return !this->active_; })) {
+                     return;  // active_ == false, so exit this thread
+                 }
+@@ -47,7 +47,7 @@ public:
+ private:
+     bool active_;
+     std::thread worker_thread_;
+-    std::mutex mutex_;
++    MUTEX mutex_;
+     std::condition_variable cv_;
+ };
+ }  // namespace details
+diff --git a/include/spdlog/details/registry-inl.h b/include/spdlog/details/registry-inl.h
+index f447848..b06cce8 100644
+--- a/include/spdlog/details/registry-inl.h
++++ b/include/spdlog/details/registry-inl.h
+@@ -50,12 +50,12 @@ SPDLOG_INLINE registry::registry()
+ SPDLOG_INLINE registry::~registry() = default;
+ 
+ SPDLOG_INLINE void registry::register_logger(std::shared_ptr<logger> new_logger) {
+-    std::lock_guard<std::mutex> lock(logger_map_mutex_);
++    std::lock_guard<MUTEX> lock(logger_map_mutex_);
+     register_logger_(std::move(new_logger));
+ }
+ 
+ SPDLOG_INLINE void registry::initialize_logger(std::shared_ptr<logger> new_logger) {
+-    std::lock_guard<std::mutex> lock(logger_map_mutex_);
++    std::lock_guard<MUTEX> lock(logger_map_mutex_);
+     new_logger->set_formatter(formatter_->clone());
+ 
+     if (err_handler_) {
+@@ -79,13 +79,13 @@ SPDLOG_INLINE void registry::initialize_logger(std::shared_ptr<logger> new_logge
+ }
+ 
+ SPDLOG_INLINE std::shared_ptr<logger> registry::get(const std::string &logger_name) {
+-    std::lock_guard<std::mutex> lock(logger_map_mutex_);
++    std::lock_guard<MUTEX> lock(logger_map_mutex_);
+     auto found = loggers_.find(logger_name);
+     return found == loggers_.end() ? nullptr : found->second;
+ }
+ 
+ SPDLOG_INLINE std::shared_ptr<logger> registry::default_logger() {
+-    std::lock_guard<std::mutex> lock(logger_map_mutex_);
++    std::lock_guard<MUTEX> lock(logger_map_mutex_);
+     return default_logger_;
+ }
+ 
+@@ -98,7 +98,7 @@ SPDLOG_INLINE logger *registry::get_default_raw() { return default_logger_.get()
+ // set default logger.
+ // default logger is stored in default_logger_ (for faster retrieval) and in the loggers_ map.
+ SPDLOG_INLINE void registry::set_default_logger(std::shared_ptr<logger> new_default_logger) {
+-    std::lock_guard<std::mutex> lock(logger_map_mutex_);
++    std::lock_guard<MUTEX> lock(logger_map_mutex_);
+     if (new_default_logger != nullptr) {
+         loggers_[new_default_logger->name()] = new_default_logger;
+     }
+@@ -117,7 +117,7 @@ SPDLOG_INLINE std::shared_ptr<thread_pool> registry::get_tp() {
+ 
+ // Set global formatter. Each sink in each logger will get a clone of this object
+ SPDLOG_INLINE void registry::set_formatter(std::unique_ptr<formatter> formatter) {
+-    std::lock_guard<std::mutex> lock(logger_map_mutex_);
++    std::lock_guard<MUTEX> lock(logger_map_mutex_);
+     formatter_ = std::move(formatter);
+     for (auto &l : loggers_) {
+         l.second->set_formatter(formatter_->clone());
+@@ -125,7 +125,7 @@ SPDLOG_INLINE void registry::set_formatter(std::unique_ptr<formatter> formatter)
+ }
+ 
+ SPDLOG_INLINE void registry::enable_backtrace(size_t n_messages) {
+-    std::lock_guard<std::mutex> lock(logger_map_mutex_);
++    std::lock_guard<MUTEX> lock(logger_map_mutex_);
+     backtrace_n_messages_ = n_messages;
+ 
+     for (auto &l : loggers_) {
+@@ -134,7 +134,7 @@ SPDLOG_INLINE void registry::enable_backtrace(size_t n_messages) {
+ }
+ 
+ SPDLOG_INLINE void registry::disable_backtrace() {
+-    std::lock_guard<std::mutex> lock(logger_map_mutex_);
++    std::lock_guard<MUTEX> lock(logger_map_mutex_);
+     backtrace_n_messages_ = 0;
+     for (auto &l : loggers_) {
+         l.second->disable_backtrace();
+@@ -142,7 +142,7 @@ SPDLOG_INLINE void registry::disable_backtrace() {
+ }
+ 
+ SPDLOG_INLINE void registry::set_level(level::level_enum log_level) {
+-    std::lock_guard<std::mutex> lock(logger_map_mutex_);
++    std::lock_guard<MUTEX> lock(logger_map_mutex_);
+     for (auto &l : loggers_) {
+         l.second->set_level(log_level);
+     }
+@@ -150,7 +150,7 @@ SPDLOG_INLINE void registry::set_level(level::level_enum log_level) {
+ }
+ 
+ SPDLOG_INLINE void registry::flush_on(level::level_enum log_level) {
+-    std::lock_guard<std::mutex> lock(logger_map_mutex_);
++    std::lock_guard<MUTEX> lock(logger_map_mutex_);
+     for (auto &l : loggers_) {
+         l.second->flush_on(log_level);
+     }
+@@ -158,7 +158,7 @@ SPDLOG_INLINE void registry::flush_on(level::level_enum log_level) {
+ }
+ 
+ SPDLOG_INLINE void registry::set_error_handler(err_handler handler) {
+-    std::lock_guard<std::mutex> lock(logger_map_mutex_);
++    std::lock_guard<MUTEX> lock(logger_map_mutex_);
+     for (auto &l : loggers_) {
+         l.second->set_error_handler(handler);
+     }
+@@ -167,21 +167,21 @@ SPDLOG_INLINE void registry::set_error_handler(err_handler handler) {
+ 
+ SPDLOG_INLINE void registry::apply_all(
+     const std::function<void(const std::shared_ptr<logger>)> &fun) {
+-    std::lock_guard<std::mutex> lock(logger_map_mutex_);
++    std::lock_guard<MUTEX> lock(logger_map_mutex_);
+     for (auto &l : loggers_) {
+         fun(l.second);
+     }
+ }
+ 
+ SPDLOG_INLINE void registry::flush_all() {
+-    std::lock_guard<std::mutex> lock(logger_map_mutex_);
++    std::lock_guard<MUTEX> lock(logger_map_mutex_);
+     for (auto &l : loggers_) {
+         l.second->flush();
+     }
+ }
+ 
+ SPDLOG_INLINE void registry::drop(const std::string &logger_name) {
+-    std::lock_guard<std::mutex> lock(logger_map_mutex_);
++    std::lock_guard<MUTEX> lock(logger_map_mutex_);
+     auto is_default_logger = default_logger_ && default_logger_->name() == logger_name;
+     loggers_.erase(logger_name);
+     if (is_default_logger) {
+@@ -190,7 +190,7 @@ SPDLOG_INLINE void registry::drop(const std::string &logger_name) {
+ }
+ 
+ SPDLOG_INLINE void registry::drop_all() {
+-    std::lock_guard<std::mutex> lock(logger_map_mutex_);
++    std::lock_guard<MUTEX> lock(logger_map_mutex_);
+     loggers_.clear();
+     default_logger_.reset();
+ }
+@@ -198,7 +198,7 @@ SPDLOG_INLINE void registry::drop_all() {
+ // clean all resources and threads started by the registry
+ SPDLOG_INLINE void registry::shutdown() {
+     {
+-        std::lock_guard<std::mutex> lock(flusher_mutex_);
++        std::lock_guard<MUTEX> lock(flusher_mutex_);
+         periodic_flusher_.reset();
+     }
+ 
+@@ -213,12 +213,12 @@ SPDLOG_INLINE void registry::shutdown() {
+ SPDLOG_INLINE std::recursive_mutex &registry::tp_mutex() { return tp_mutex_; }
+ 
+ SPDLOG_INLINE void registry::set_automatic_registration(bool automatic_registration) {
+-    std::lock_guard<std::mutex> lock(logger_map_mutex_);
++    std::lock_guard<MUTEX> lock(logger_map_mutex_);
+     automatic_registration_ = automatic_registration;
+ }
+ 
+ SPDLOG_INLINE void registry::set_levels(log_levels levels, level::level_enum *global_level) {
+-    std::lock_guard<std::mutex> lock(logger_map_mutex_);
++    std::lock_guard<MUTEX> lock(logger_map_mutex_);
+     log_levels_ = std::move(levels);
+     auto global_level_requested = global_level != nullptr;
+     global_log_level_ = global_level_requested ? *global_level : global_log_level_;
+@@ -239,7 +239,7 @@ SPDLOG_INLINE registry &registry::instance() {
+ }
+ 
+ SPDLOG_INLINE void registry::apply_logger_env_levels(std::shared_ptr<logger> new_logger) {
+-    std::lock_guard<std::mutex> lock(logger_map_mutex_);
++    std::lock_guard<MUTEX> lock(logger_map_mutex_);
+     auto it = log_levels_.find(new_logger->name());
+     auto new_level = it != log_levels_.end() ? it->second : global_log_level_;
+     new_logger->set_level(new_level);
+diff --git a/include/spdlog/details/registry.h b/include/spdlog/details/registry.h
+index 8afcbd6..2339a49 100644
+--- a/include/spdlog/details/registry.h
++++ b/include/spdlog/details/registry.h
+@@ -65,13 +65,13 @@ public:
+ 
+     template <typename Rep, typename Period>
+     void flush_every(std::chrono::duration<Rep, Period> interval) {
+-        std::lock_guard<std::mutex> lock(flusher_mutex_);
++        std::lock_guard<MUTEX> lock(flusher_mutex_);
+         auto clbk = [this]() { this->flush_all(); };
+         periodic_flusher_ = details::make_unique<periodic_worker>(clbk, interval);
+     }
+ 
+     std::unique_ptr<periodic_worker> &get_flusher() {
+-        std::lock_guard<std::mutex> lock(flusher_mutex_);
++        std::lock_guard<MUTEX> lock(flusher_mutex_);
+         return periodic_flusher_;
+     }
+ 
+@@ -106,7 +106,7 @@ private:
+     void throw_if_exists_(const std::string &logger_name);
+     void register_logger_(std::shared_ptr<logger> new_logger);
+     bool set_level_from_cfg_(logger *logger);
+-    std::mutex logger_map_mutex_, flusher_mutex_;
++    MUTEX logger_map_mutex_, flusher_mutex_;
+     std::recursive_mutex tp_mutex_;
+     std::unordered_map<std::string, std::shared_ptr<logger>> loggers_;
+     log_levels log_levels_;
+diff --git a/include/spdlog/logger-inl.h b/include/spdlog/logger-inl.h
+index 5218fe4..0dd4e76 100644
+--- a/include/spdlog/logger-inl.h
++++ b/include/spdlog/logger-inl.h
+@@ -173,10 +173,10 @@ SPDLOG_INLINE void logger::err_handler_(const std::string &msg) {
+         custom_err_handler_(msg);
+     } else {
+         using std::chrono::system_clock;
+-        static std::mutex mutex;
++        static MUTEX mutex;
+         static std::chrono::system_clock::time_point last_report_time;
+         static size_t err_counter = 0;
+-        std::lock_guard<std::mutex> lk{mutex};
++        std::lock_guard<MUTEX> lk{mutex};
+         auto now = system_clock::now();
+         err_counter++;
+         if (now - last_report_time < std::chrono::seconds(1)) {
+diff --git a/include/spdlog/sinks/android_sink.h b/include/spdlog/sinks/android_sink.h
+index 4435a56..b063654 100644
+--- a/include/spdlog/sinks/android_sink.h
++++ b/include/spdlog/sinks/android_sink.h
+@@ -108,11 +108,11 @@ private:
+     bool use_raw_msg_;
+ };
+ 
+-using android_sink_mt = android_sink<std::mutex>;
++using android_sink_mt = android_sink<MUTEX>;
+ using android_sink_st = android_sink<details::null_mutex>;
+ 
+ template <int BufferId = log_id::LOG_ID_MAIN>
+-using android_sink_buf_mt = android_sink<std::mutex, BufferId>;
++using android_sink_buf_mt = android_sink<MUTEX, BufferId>;
+ template <int BufferId = log_id::LOG_ID_MAIN>
+ using android_sink_buf_st = android_sink<details::null_mutex, BufferId>;
+ 
+diff --git a/include/spdlog/sinks/basic_file_sink.h b/include/spdlog/sinks/basic_file_sink.h
+index 699caa1..72d3da7 100644
+--- a/include/spdlog/sinks/basic_file_sink.h
++++ b/include/spdlog/sinks/basic_file_sink.h
+@@ -32,7 +32,7 @@ private:
+     details::file_helper file_helper_;
+ };
+ 
+-using basic_file_sink_mt = basic_file_sink<std::mutex>;
++using basic_file_sink_mt = basic_file_sink<MUTEX>;
+ using basic_file_sink_st = basic_file_sink<details::null_mutex>;
+ 
+ }  // namespace sinks
+diff --git a/include/spdlog/sinks/callback_sink.h b/include/spdlog/sinks/callback_sink.h
+index 71668ef..5afda8c 100644
+--- a/include/spdlog/sinks/callback_sink.h
++++ b/include/spdlog/sinks/callback_sink.h
+@@ -33,7 +33,7 @@ private:
+     custom_log_callback callback_;
+ };
+ 
+-using callback_sink_mt = callback_sink<std::mutex>;
++using callback_sink_mt = callback_sink<MUTEX>;
+ using callback_sink_st = callback_sink<details::null_mutex>;
+ 
+ }  // namespace sinks
+diff --git a/include/spdlog/sinks/daily_file_sink.h b/include/spdlog/sinks/daily_file_sink.h
+index 1b1dc44..a43436b 100644
+--- a/include/spdlog/sinks/daily_file_sink.h
++++ b/include/spdlog/sinks/daily_file_sink.h
+@@ -189,9 +189,9 @@ private:
+     details::circular_q<filename_t> filenames_q_;
+ };
+ 
+-using daily_file_sink_mt = daily_file_sink<std::mutex>;
++using daily_file_sink_mt = daily_file_sink<MUTEX>;
+ using daily_file_sink_st = daily_file_sink<details::null_mutex>;
+-using daily_file_format_sink_mt = daily_file_sink<std::mutex, daily_filename_format_calculator>;
++using daily_file_format_sink_mt = daily_file_sink<MUTEX, daily_filename_format_calculator>;
+ using daily_file_format_sink_st =
+     daily_file_sink<details::null_mutex, daily_filename_format_calculator>;
+ 
+diff --git a/include/spdlog/sinks/dist_sink.h b/include/spdlog/sinks/dist_sink.h
+index 69c4971..78ca5d2 100644
+--- a/include/spdlog/sinks/dist_sink.h
++++ b/include/spdlog/sinks/dist_sink.h
+@@ -74,7 +74,7 @@ protected:
+     std::vector<std::shared_ptr<sink>> sinks_;
+ };
+ 
+-using dist_sink_mt = dist_sink<std::mutex>;
++using dist_sink_mt = dist_sink<MUTEX>;
+ using dist_sink_st = dist_sink<details::null_mutex>;
+ 
+ }  // namespace sinks
+diff --git a/include/spdlog/sinks/dup_filter_sink.h b/include/spdlog/sinks/dup_filter_sink.h
+index 1498142..29d53b4 100644
+--- a/include/spdlog/sinks/dup_filter_sink.h
++++ b/include/spdlog/sinks/dup_filter_sink.h
+@@ -85,7 +85,7 @@ protected:
+     }
+ };
+ 
+-using dup_filter_sink_mt = dup_filter_sink<std::mutex>;
++using dup_filter_sink_mt = dup_filter_sink<MUTEX>;
+ using dup_filter_sink_st = dup_filter_sink<details::null_mutex>;
+ 
+ }  // namespace sinks
+diff --git a/include/spdlog/sinks/hourly_file_sink.h b/include/spdlog/sinks/hourly_file_sink.h
+index 1f13892..554a42d 100644
+--- a/include/spdlog/sinks/hourly_file_sink.h
++++ b/include/spdlog/sinks/hourly_file_sink.h
+@@ -161,7 +161,7 @@ private:
+     bool remove_init_file_;
+ };
+ 
+-using hourly_file_sink_mt = hourly_file_sink<std::mutex>;
++using hourly_file_sink_mt = hourly_file_sink<MUTEX>;
+ using hourly_file_sink_st = hourly_file_sink<details::null_mutex>;
+ 
+ }  // namespace sinks
+diff --git a/include/spdlog/sinks/kafka_sink.h b/include/spdlog/sinks/kafka_sink.h
+index 91e9878..e845ef0 100644
+--- a/include/spdlog/sinks/kafka_sink.h
++++ b/include/spdlog/sinks/kafka_sink.h
+@@ -87,7 +87,7 @@ private:
+     std::unique_ptr<RdKafka::Topic> topic_ = nullptr;
+ };
+ 
+-using kafka_sink_mt = kafka_sink<std::mutex>;
++using kafka_sink_mt = kafka_sink<MUTEX>;
+ using kafka_sink_st = kafka_sink<spdlog::details::null_mutex>;
+ 
+ }  // namespace sinks
+diff --git a/include/spdlog/sinks/mongo_sink.h b/include/spdlog/sinks/mongo_sink.h
+index c5b38ab..917c0f3 100644
+--- a/include/spdlog/sinks/mongo_sink.h
++++ b/include/spdlog/sinks/mongo_sink.h
+@@ -80,7 +80,7 @@ private:
+ 
+ #include "spdlog/details/null_mutex.h"
+ #include <mutex>
+-using mongo_sink_mt = mongo_sink<std::mutex>;
++using mongo_sink_mt = mongo_sink<MUTEX>;
+ using mongo_sink_st = mongo_sink<spdlog::details::null_mutex>;
+ 
+ }  // namespace sinks
+diff --git a/include/spdlog/sinks/msvc_sink.h b/include/spdlog/sinks/msvc_sink.h
+index 2e5f687..cee97ad 100644
+--- a/include/spdlog/sinks/msvc_sink.h
++++ b/include/spdlog/sinks/msvc_sink.h
+@@ -56,7 +56,7 @@ protected:
+     bool check_debugger_present_ = true;
+ };
+ 
+-using msvc_sink_mt = msvc_sink<std::mutex>;
++using msvc_sink_mt = msvc_sink<MUTEX>;
+ using msvc_sink_st = msvc_sink<details::null_mutex>;
+ 
+ using windebug_sink_mt = msvc_sink_mt;
+diff --git a/include/spdlog/sinks/ostream_sink.h b/include/spdlog/sinks/ostream_sink.h
+index 6af9dd0..ba365ab 100644
+--- a/include/spdlog/sinks/ostream_sink.h
++++ b/include/spdlog/sinks/ostream_sink.h
+@@ -36,7 +36,7 @@ protected:
+     bool force_flush_;
+ };
+ 
+-using ostream_sink_mt = ostream_sink<std::mutex>;
++using ostream_sink_mt = ostream_sink<MUTEX>;
+ using ostream_sink_st = ostream_sink<details::null_mutex>;
+ 
+ }  // namespace sinks
+diff --git a/include/spdlog/sinks/qt_sinks.h b/include/spdlog/sinks/qt_sinks.h
+index d319e84..9fd66a1 100644
+--- a/include/spdlog/sinks/qt_sinks.h
++++ b/include/spdlog/sinks/qt_sinks.h
+@@ -228,9 +228,9 @@ protected:
+ #include "spdlog/details/null_mutex.h"
+ #include <mutex>
+ 
+-using qt_sink_mt = qt_sink<std::mutex>;
++using qt_sink_mt = qt_sink<MUTEX>;
+ using qt_sink_st = qt_sink<details::null_mutex>;
+-using qt_color_sink_mt = qt_color_sink<std::mutex>;
++using qt_color_sink_mt = qt_color_sink<MUTEX>;
+ using qt_color_sink_st = qt_color_sink<details::null_mutex>;
+ }  // namespace sinks
+ 
+diff --git a/include/spdlog/sinks/ringbuffer_sink.h b/include/spdlog/sinks/ringbuffer_sink.h
+index 6156c6a..72d7b5d 100644
+--- a/include/spdlog/sinks/ringbuffer_sink.h
++++ b/include/spdlog/sinks/ringbuffer_sink.h
+@@ -59,7 +59,7 @@ private:
+     details::circular_q<details::log_msg_buffer> q_;
+ };
+ 
+-using ringbuffer_sink_mt = ringbuffer_sink<std::mutex>;
++using ringbuffer_sink_mt = ringbuffer_sink<MUTEX>;
+ using ringbuffer_sink_st = ringbuffer_sink<details::null_mutex>;
+ 
+ }  // namespace sinks
+diff --git a/include/spdlog/sinks/rotating_file_sink.h b/include/spdlog/sinks/rotating_file_sink.h
+index cd43d34..f8855c4 100644
+--- a/include/spdlog/sinks/rotating_file_sink.h
++++ b/include/spdlog/sinks/rotating_file_sink.h
+@@ -52,7 +52,7 @@ private:
+     details::file_helper file_helper_;
+ };
+ 
+-using rotating_file_sink_mt = rotating_file_sink<std::mutex>;
++using rotating_file_sink_mt = rotating_file_sink<MUTEX>;
+ using rotating_file_sink_st = rotating_file_sink<details::null_mutex>;
+ 
+ }  // namespace sinks
+diff --git a/include/spdlog/sinks/syslog_sink.h b/include/spdlog/sinks/syslog_sink.h
+index a2df3b4..e05cafc 100644
+--- a/include/spdlog/sinks/syslog_sink.h
++++ b/include/spdlog/sinks/syslog_sink.h
+@@ -76,7 +76,7 @@ private:
+     const std::string ident_;
+ };
+ 
+-using syslog_sink_mt = syslog_sink<std::mutex>;
++using syslog_sink_mt = syslog_sink<MUTEX>;
+ using syslog_sink_st = syslog_sink<details::null_mutex>;
+ }  // namespace sinks
+ 
+diff --git a/include/spdlog/sinks/systemd_sink.h b/include/spdlog/sinks/systemd_sink.h
+index d2cd55f..c99cef6 100644
+--- a/include/spdlog/sinks/systemd_sink.h
++++ b/include/spdlog/sinks/systemd_sink.h
+@@ -100,7 +100,7 @@ protected:
+     void flush_() override {}
+ };
+ 
+-using systemd_sink_mt = systemd_sink<std::mutex>;
++using systemd_sink_mt = systemd_sink<MUTEX>;
+ using systemd_sink_st = systemd_sink<details::null_mutex>;
+ }  // namespace sinks
+ 
+diff --git a/include/spdlog/sinks/tcp_sink.h b/include/spdlog/sinks/tcp_sink.h
+index 2534964..312d311 100644
+--- a/include/spdlog/sinks/tcp_sink.h
++++ b/include/spdlog/sinks/tcp_sink.h
+@@ -68,7 +68,7 @@ protected:
+     details::tcp_client client_;
+ };
+ 
+-using tcp_sink_mt = tcp_sink<std::mutex>;
++using tcp_sink_mt = tcp_sink<MUTEX>;
+ using tcp_sink_st = tcp_sink<spdlog::details::null_mutex>;
+ 
+ }  // namespace sinks
+diff --git a/include/spdlog/sinks/udp_sink.h b/include/spdlog/sinks/udp_sink.h
+index 4bff0fd..8d07543 100644
+--- a/include/spdlog/sinks/udp_sink.h
++++ b/include/spdlog/sinks/udp_sink.h
+@@ -52,7 +52,7 @@ protected:
+     details::udp_client client_;
+ };
+ 
+-using udp_sink_mt = udp_sink<std::mutex>;
++using udp_sink_mt = udp_sink<MUTEX>;
+ using udp_sink_st = udp_sink<spdlog::details::null_mutex>;
+ 
+ }  // namespace sinks
+diff --git a/include/spdlog/sinks/win_eventlog_sink.h b/include/spdlog/sinks/win_eventlog_sink.h
+index 2c9b582..5e641fc 100644
+--- a/include/spdlog/sinks/win_eventlog_sink.h
++++ b/include/spdlog/sinks/win_eventlog_sink.h
+@@ -253,7 +253,7 @@ public:
+ 
+ }  // namespace win_eventlog
+ 
+-using win_eventlog_sink_mt = win_eventlog::win_eventlog_sink<std::mutex>;
++using win_eventlog_sink_mt = win_eventlog::win_eventlog_sink<MUTEX>;
+ using win_eventlog_sink_st = win_eventlog::win_eventlog_sink<details::null_mutex>;
+ 
+ }  // namespace sinks
+diff --git a/meson.build b/meson.build
+index 86c59f8..fcd8253 100644
+--- a/meson.build
++++ b/meson.build
+@@ -24,6 +24,11 @@ else
+   endif
+ endif
+ 
++
++if get_option('no_tls')
++  spdlog_compile_args += '-DSPDLOG_NO_TLS'
++endif
++
+ if get_option('compile_library')
+   spdlog_compile_args += '-DSPDLOG_COMPILED_LIB'
+   if get_option('default_library') != 'static'
+diff --git a/meson_options.txt b/meson_options.txt
+index 76d46f5..223110f 100644
+--- a/meson_options.txt
++++ b/meson_options.txt
+@@ -3,3 +3,5 @@ option('tests', type: 'feature', description: 'Build the unit tests')
+ option('compile_library', type: 'boolean', value: false, description: 'Builds a static/shared lib for faster compile times')
+ option('external_fmt', type: 'feature', description: 'Builds with external fmt lib instead of internal')
+ option('std_format', type: 'feature', description: 'Use std::format instead of internal fmt lib')
++
++option('no_tls',  type: 'boolean', value: false, description: 'prevent spdlog from using thread local storage')
+diff --git a/src/file_sinks.cpp b/src/file_sinks.cpp
+index 04cb6c1..c957983 100644
+--- a/src/file_sinks.cpp
++++ b/src/file_sinks.cpp
+@@ -12,9 +12,9 @@
+ 
+ #include <mutex>
+ 
+-template class SPDLOG_API spdlog::sinks::basic_file_sink<std::mutex>;
++template class SPDLOG_API spdlog::sinks::basic_file_sink<MUTEX>;
+ template class SPDLOG_API spdlog::sinks::basic_file_sink<spdlog::details::null_mutex>;
+ 
+ #include <spdlog/sinks/rotating_file_sink-inl.h>
+-template class SPDLOG_API spdlog::sinks::rotating_file_sink<std::mutex>;
++template class SPDLOG_API spdlog::sinks::rotating_file_sink<MUTEX>;
+ template class SPDLOG_API spdlog::sinks::rotating_file_sink<spdlog::details::null_mutex>;
+diff --git a/src/spdlog.cpp b/src/spdlog.cpp
+index 9f8390b..fc13f9f 100644
+--- a/src/spdlog.cpp
++++ b/src/spdlog.cpp
+@@ -24,5 +24,5 @@
+ template SPDLOG_API spdlog::logger::logger(std::string name,
+                                            sinks_init_list::iterator begin,
+                                            sinks_init_list::iterator end);
+-template class SPDLOG_API spdlog::sinks::base_sink<std::mutex>;
++template class SPDLOG_API spdlog::sinks::base_sink<MUTEX>;
+ template class SPDLOG_API spdlog::sinks::base_sink<spdlog::details::null_mutex>;
