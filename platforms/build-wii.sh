@@ -25,11 +25,9 @@ export PKG_CONFIG_PATH_OGC="$PORTLIBS_LIB_OGC/pkgconfig/"
 export PKG_CONFIG_PATH_PPC="$PORTLIBS_LIB_PPC/pkgconfig/"
 export PKG_CONFIG_PATH="$PKG_CONFIG_PATH_OGC:$PKG_CONFIG_PATH_PPC"
 
-export ROMFS="romfs"
+export ROMFS="platforms/romfs"
 
 export BUILD_DIR="build-wii"
-
-export ROMFS="platforms/romfs"
 
 export TOOL_PREFIX="powerpc-eabi"
 
@@ -161,4 +159,4 @@ if [ "$COMPILE_TYPE" == "complete_rebuild" ] || [ ! -e "$BUILD_DIR" ]; then
 
 fi
 
-meson compile -C "$BUILD_DIR"
+meson compile -C "$BUILD_DIR" -j 3
