@@ -7,6 +7,8 @@ graphics_src_files += files(
     'git_helper.hpp',
     'graphic_utils.cpp',
     'graphic_utils.hpp',
+    'logger.cpp',
+    'logger.hpp',
     'message_box.cpp',
     'message_box.hpp',
     'music_utils.hpp',

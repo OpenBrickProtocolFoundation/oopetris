@@ -9,6 +9,9 @@
 #include <cassert>
 #include <vector>
 
+#include <debug.h>
+#include <ogc/system.h>
+
 struct EventDispatcher final {
 private:
     std::vector<EventListener*> m_listeners;
@@ -54,6 +57,10 @@ public:
                 switch (event.type) {
                     case SDL_KEYDOWN:
                     case SDL_KEYUP: {
+
+                        const auto key = sdl::Key{ event.key.keysym };
+
+                        SYS_Report("%s %s\n", "KEYUP or down", key.to_string().c_str());
                         if (std::ranges::find(m_allowed_input_keys, sdl::Key{ event.key.keysym })
                             == m_allowed_input_keys.cend()) {
                             return;

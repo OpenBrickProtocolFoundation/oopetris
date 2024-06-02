@@ -25,10 +25,19 @@ dependencies_native = [
     'm',
     'modplug',
     'ogc',
+    'fat',
     'png16',
     'SDL2main',
     'wiikeyboard',
     'wiiuse',
+    'aesnd',
+    'stdc++',
+    'mpg123',
+    'opusfile',
+    'opus',
+    'FLAC',
+    'ogg',
+    'db',
 ]
 
 foreach dep : dependencies

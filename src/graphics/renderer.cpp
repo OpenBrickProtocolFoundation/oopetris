@@ -10,7 +10,7 @@ Renderer::Renderer(const Window& window, const VSync v_sync)
               window.get_sdl_window(),
               -1,
               (v_sync == VSync::Enabled ? SDL_RENDERER_PRESENTVSYNC : 0) | SDL_RENDERER_TARGETTEXTURE
-#if defined(__3DS__)
+#if defined(__3DS__) || defined(__WII__)
                       | SDL_RENDERER_SOFTWARE
 #else
                       | SDL_RENDERER_ACCELERATED

@@ -16,6 +16,8 @@
 #include <debug.h>
 #include <ogc/system.h>
 
+#include <fat.h>
+#include <sdcard/wiisd_io.h>
 #include <romfs-wiiu.h>
 #endif
 
@@ -78,6 +80,26 @@ void console::platform_init() {
 #else
 #error "not implemented"
 #endif
+
+
+#if defined(_WII__)
+
+    debug_write("IO WIISD startup\n");
+
+    // Initialize FAT so we can write to SD.
+    int res1 = __io_wiisd.startup();
+
+   debug_write("IO WIISD startup 2 \n");
+
+   // int res = fatInitDefault();
+    int res2 = fatMountSimple("sd", &__io_wiisd);
+
+   debug_write("IO WIISD startup 3\n");
+
+    if (res1 || res || res2) {
+        throw helper::InitializationError("fatInitDefault() failed!");
+    }
+#endif
 }
 
 void console::platform_exit() {
@@ -88,6 +110,13 @@ void console::platform_exit() {
     }
 #else
 #error "not implemented"
+#endif
+
+#if defined(__WII__)
+
+    fatUnmount("sd");
+    __io_wiisd.shutdown();
+
 #endif
 }
 

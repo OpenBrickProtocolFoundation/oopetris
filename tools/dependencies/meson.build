@@ -217,12 +217,22 @@ if build_application
     # on the wii the option to enable thread is '-fpthread' and not '-pthread'
     if (meson.is_cross_build() and host_machine.system() == 'wii')
         thread_dep = declare_dependency(
-            link_args: ['-fpthread'],
+            link_args: [
+                ##    '-fpthread',
+            ],
             compile_args: [],
         )
 
         meson.override_dependency('threads', thread_dep)
 
+        ## use single thread for spdlog loggers
+
+        graphics_lib += {
+            'compile_args': [
+                graphics_lib.get('compile_args'),
+                '-DSPDLOG_THREAD_USAGE=1',
+            ],
+        }
     endif
 
     spdlog_dep = dependency(
@@ -236,11 +246,8 @@ if build_application
 
     # TODO: solve this in teh spdlog meson.build, not here!
     # on the 3ds there is no thread local storage (TLS)
-    if (
-        meson.is_cross_build()
-        and (host_machine.system() == '3ds'
-        or host_machine.system() == 'wii')
-    )
+    if (meson.is_cross_build() and (host_machine.system() == '3ds'))
+        ##TODO: use no_tls as option!
         graphics_lib += {
             'compile_args': [
                 graphics_lib.get('compile_args'),

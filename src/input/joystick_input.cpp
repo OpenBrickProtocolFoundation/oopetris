@@ -14,6 +14,8 @@
 #include <filesystem>
 #include <spdlog/spdlog.h>
 
+#include "helper/console_helpers.hpp"
+
 
 input::JoystickLikeInput::JoystickLikeInput(SDL_JoystickID instance_id, const std::string& name, JoystickLikeType type)
     : input::Input{ name,
@@ -89,22 +91,33 @@ input::JoystickInput& input::JoystickInput::operator=(JoystickInput&& input) noe
 void input::JoyStickInputManager::discover_devices(std::vector<std::unique_ptr<Input>>& inputs) {
     //initialize joystick input, this needs to call some sdl things
 
+    ::console::debug_print(fmt::format("joyman: 1 \n"));
+
     const auto result = SDL_InitSubSystem(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER);
 
+    ::console::debug_print(fmt::format("joyman: 2 \n"));
+
     if (result != 0) {
-        spdlog::warn("Failed to initialize the joystick / game controller system: {}", SDL_GetError());
+        ::console::debug_print(
+                fmt::format("Failed to initialize the joystick / game controller system: {}\n", SDL_GetError())
+        );
+        // spdlog::warn("Failed to initialize the joystick / game controller system: {}", SDL_GetError());
         return;
     }
 
+    ::console::debug_print(fmt::format("joyman: 3 \n"));
 
     const auto enable_result = SDL_JoystickEventState(SDL_ENABLE);
 
     if (enable_result != 1) {
         const auto* const error = enable_result == 0 ? "it was disabled" : SDL_GetError();
-        spdlog::warn("Failed to set JoystickEventState (automatic polling by SDL): {}", error);
+        //  spdlog::warn("Failed to set JoystickEventState (automatic polling by SDL): {}", error);
+        ::console::debug_print(fmt::format("Failed to set JoystickEventState (automatic polling by SDL): {}\n", error));
 
         return;
     }
+
+    ::console::debug_print(fmt::format("joyman: 4 \n"));
 
     const auto enable_controller_result = SDL_GameControllerEventState(SDL_ENABLE);
 
@@ -115,28 +128,36 @@ void input::JoyStickInputManager::discover_devices(std::vector<std::unique_ptr<I
         return;
     }
 
+    ::console::debug_print(fmt::format("joyman: 5 \n"));
 
     const auto allow_background_events_result = SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
 
     if (allow_background_events_result != SDL_TRUE) {
         // this is non fatal, so not returning
-        spdlog::warn("Failed to set the JOYSTICK_ALLOW_BACKGROUND_EVENTS hint: {}", SDL_GetError());
+        ::console::debug_print(
+                fmt::format("Failed to set the JOYSTICK_ALLOW_BACKGROUND_EVENTS hint: {}\n", SDL_GetError())
+        );
+        //  spdlog::warn("Failed to set the JOYSTICK_ALLOW_BACKGROUND_EVENTS hint: {}", SDL_GetError());
     }
 
     const auto mappings_file = utils::get_assets_folder() / "mappings" / "gamecontrollerdb.txt";
 
     if (not std::filesystem::exists(mappings_file)) {
-        spdlog::warn("Mappings file doesn't exist: {}", mappings_file.string());
+        ::console::debug_print(fmt::format("Mappings file doesn't exist: {}\n", mappings_file.string()));
+        //spdlog::warn("Mappings file doesn't exist: {}", mappings_file.string());
     } else {
         const auto mapped_number = SDL_GameControllerAddMappingsFromFile(mappings_file.string().c_str());
 
         if (mapped_number < 0) {
             // this is just a warning, no need to abort here, since we just have less mappings
-            spdlog::warn("Failed to add new Controller mappings: {}", SDL_GetError());
+            // spdlog::warn("Failed to add new Controller mappings: {}", SDL_GetError());
+            ::console::debug_print(fmt::format("Failed to add new Controller mappings: {}\n", SDL_GetError()));
         } else {
-            spdlog::debug("Added {} new Controller mappings!", mapped_number);
+            ::console::debug_print(fmt::format("Added {} new Controller mappings!\n", mapped_number));
+            //    spdlog::debug("Added {} new Controller mappings!", mapped_number);
         }
     }
+    ::console::debug_print(fmt::format("joyman: 6\n"));
 
 
     const auto num_of_joysticks = SDL_NumJoysticks();
@@ -146,7 +167,8 @@ void input::JoyStickInputManager::discover_devices(std::vector<std::unique_ptr<I
         return;
     }
 
-    spdlog::debug("Found {} Joysticks", num_of_joysticks);
+    ::console::debug_print(fmt::format("Found {} Joysticks\n", num_of_joysticks));
+    //spdlog::debug("Found {} Joysticks", num_of_joysticks);
 
     for (auto i = 0; i < num_of_joysticks; ++i) {
 

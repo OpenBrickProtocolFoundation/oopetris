@@ -38,8 +38,16 @@ std::vector<std::string> utils::supported_features() {
     }
     return std::filesystem::path{ std::string{ pref_path } };
 #elif defined(__CONSOLE__)
+#if defined(__WII__)
+    // the sdcard of the wii is at the special mounted device (sd:/)
+    const auto sdcard_path = "sd:/";
+#else
     // this is in the sdcard of the switch / 3ds , since internal storage is read-only for applications!
-    return std::filesystem::path{ "." };
+    const auto sdcard_path = "./";
+#endif
+    // to not pollute the sdcard, we save things in a folder with the name of the application
+    return std::filesystem::path{ std::string{ sdcard_path } + constants::program_name.c_str() };
+
 #elif defined(BUILD_INSTALLER)
 #if defined(FLATPAK_BUILD)
     // this is a read write location in the flatpak build, see https://docs.flatpak.org/en/latest/conventions.html

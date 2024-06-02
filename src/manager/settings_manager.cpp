@@ -3,24 +3,29 @@
 #include "input/keyboard_input.hpp"
 #include "input/touch_input.hpp"
 
+#include "helper/console_helpers.hpp"
 
 #include <spdlog/spdlog.h>
 
 SettingsManager::SettingsManager(ServiceProvider* service_provider) : m_service_provider{ service_provider } {
     const std::filesystem::path settings_file = utils::get_root_folder() / detail::settings_filename;
-
+    console::debug_print(fmt::format("settings: 1\n"));
     const auto result = json::try_parse_json_file<detail::Settings>(settings_file);
-
+    console::debug_print(fmt::format("settings: 2\n"));
     if (result.has_value()) {
         m_settings = result.value();
     } else {
+        console::debug_print(fmt::format("settings: 4\n"));
         spdlog::error("unable to load settings from \"{}\": {}", detail::settings_filename, result.error());
         spdlog::warn("applying default settings");
 
         m_settings = {
             detail::Settings{ {}, std::nullopt, 1.0, false }
         };
+        console::debug_print(fmt::format("settings: 5\n"));
     }
+
+    console::debug_print(fmt::format("settings: 6\n"));
 }
 
 
