@@ -11,7 +11,11 @@ project(
 deps = []
 
 if meson.is_cross_build()
-    if host_machine.system() == 'wiiu' or host_machine.system() == 'wii' or host_machine.system() == 'gamecube'
+    if (
+        host_machine.system() == 'wiiu'
+        or host_machine.system() == 'wii'
+        or host_machine.system() == 'gamecube'
+    )
 
         object_target = 'elf32-powerpc'
         binary_arch = 'powerpc:common'
@@ -29,7 +33,10 @@ if meson.is_cross_build()
                 required: true,
                 dirs: library_dirs,
             )
-        elif host_machine.system() == 'wii' or host_machine.system() == 'gamecube'
+        elif (
+            host_machine.system() == 'wii'
+            or host_machine.system() == 'gamecube'
+        )
 
             deps += c.find_library(
                 'ogc',
@@ -57,6 +64,15 @@ if not fs.exists(romfs_dir)
     error('\'romfs_dir\' should exist, but doesn\'t: \'' + romfs_dir + '\'')
 endif
 
+message('Using folder \'' + romfs_dir + '\' for ROMFS')
+
+
+find = find_program('find', native: true)
+
+romfs_files = run_command(find, romfs_dir, check: true).stdout().strip().split(
+    '\n',
+)
+
 tar = find_program('tar', native: true)
 
 objcopy = find_program('objcopy', native: false)
@@ -65,7 +81,7 @@ romfs_tar_name = 'romfs.tar'
 romfs_obj_name = 'romfs.o'
 
 romfs_tar = custom_target(
-    romfs_tar_name,
+    depend_files: romfs_files,
     command: [
         tar,
         '--format', 'ustar',
@@ -77,8 +93,7 @@ romfs_tar = custom_target(
 )
 
 binary_start_name = (
-    '_binary'
-    + (
+    '_binary' + (
         romfs_tar.full_path().replace(meson.global_build_root(), '').replace(
             '/',
             '_',
