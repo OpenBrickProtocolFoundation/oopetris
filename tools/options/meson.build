@@ -25,6 +25,13 @@ graphics_lib = {
     'deps': [],
 }
 
+if meson.is_cross_build() and host_machine.system() == 'serenity'
+    core_lib += {
+        'compile_args': [core_lib.get('compile_args'), '-D__SERENITY__'],
+    }
+endif
+
+
 cpp = meson.get_compiler('cpp')
 
 build_with_libcpp = false
