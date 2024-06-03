@@ -1,6 +1,7 @@
 
 #include "platform.hpp"
-#include "helper/utils.hpp"
+
+#include <core/helper/utils.hpp>
 
 #if defined(__CONSOLE__)
 #include "helper/console_helpers.hpp"
