@@ -46,7 +46,7 @@ jobs:
         
       - name: Setup NDK
         run: | 
-          sdkmanager --install "ndk;27.0.11718014"
+          sdkmanager --install "ndk;27.0.11902837"
 
 
       - name: Build native libraries
