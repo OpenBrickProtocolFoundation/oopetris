@@ -27,10 +27,14 @@ graphics_lib = {
 
 if meson.is_cross_build() and host_machine.system() == 'serenity'
     core_lib += {
-        'compile_args': [core_lib.get('compile_args'), '-D__SERENITY__'],
+        'compile_args': [
+            core_lib.get('compile_args'),
+            '-D__SERENITY__',
+            '-DINSTALL_FILES',
+            '-DINSTALL_LOCATION=' + get_option('prefix'),
+        ],
     }
 endif
-
 
 cpp = meson.get_compiler('cpp')
 

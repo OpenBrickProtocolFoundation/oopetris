@@ -48,7 +48,7 @@ std::vector<std::string> utils::supported_features() {
         throw std::runtime_error{ "Failed to get flatpak data directory (XDG_DATA_HOME)" };
     }
 
-    return std::filesystem::path{ data_home };
+    return std::filesystem::path{ data_home } / "share" / constants::program_name;
 #elif defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
     char* pref_path = SDL_GetPrefPath(constants::author, constants::program_name);
     if (!pref_path) {
@@ -57,6 +57,33 @@ std::vector<std::string> utils::supported_features() {
     return std::filesystem::path{ pref_path };
 #else
 #error "unrecognized installer build"
+#endif
+#elif defined(INSTALL_FILES)
+#if !defined(INSTALL_LOCATION)
+#error "missing 'INSTALL_LOCATION' define"
+#endif
+
+#if defined(__SERENITY__)
+
+
+    // this is a read write location in the serenityos case build, see https://docs.flatpak.org/en/latest/conventions.html
+    const char* data_home = std::getenv("HOME");
+    if (data_home == nullptr) {
+        throw std::runtime_error{ "Failed to get flatpak data directory (XDG_DATA_HOME)" };
+    }
+
+    return std::filesystem::path{ data_home } / "share" / constants::program_name;
+
+#else
+
+#define STRINGIFY(a) STRINGIFY_HELPER_(a) //NOLINT(cppcoreguidelines-macro-usage)
+#define STRINGIFY_HELPER_(a) #a
+
+    return std::filesystem::path{ STRINGIFY(INSTALL_LOCATION) } / "share" / constants::program_name;
+
+
+#undef STRINGIFY
+#undef STRINGIFY_HELPER_
 #endif
 #else
     // this is only used in local build for debugging, when compiling in release mode the path is real path where the app can store many things without interfering with other things (eg. AppData\Roaming\... on Windows or  .local/share/... on Linux )
@@ -86,7 +113,23 @@ std::vector<std::string> utils::supported_features() {
 #else
 #error "unrecognized installer build"
 #endif
+#elif defined(INSTALL_FILES)
+#if !defined(INSTALL_LOCATION)
+#error "missing 'INSTALL_LOCATION' define"
+#endif
+
+#define STRINGIFY(a) STRINGIFY_HELPER_(a) //NOLINT(cppcoreguidelines-macro-usage)
+#define STRINGIFY_HELPER_(a) #a
+
+    return std::filesystem::path{ STRINGIFY(INSTALL_LOCATION) } / "share" / "oopetris" / "assets";
+
+
+#undef STRINGIFY
+#undef STRINGIFY_HELPER_
+
 #else
+
+
     return std::filesystem::path{ "assets" };
 #endif
 }

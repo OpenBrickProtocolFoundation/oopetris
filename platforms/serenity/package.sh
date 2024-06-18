@@ -8,6 +8,7 @@ useconfigure='true'
 configopts=(
     '--cross-file'
     "${SERENITY_BUILD_DIR}/meson-cross-file.txt"
+    "-Dbuildtype=release"
 )
 depends=(
     'SDL2'
