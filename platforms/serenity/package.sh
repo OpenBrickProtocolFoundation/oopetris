@@ -19,11 +19,6 @@ depends=(
 )
 
 configure() {
-    # TODO: Figure out why GCC doesn't autodetect that libgcc_s is needed. (stolen from glib port)
-    if [ "${SERENITY_TOOLCHAIN}" = 'GNU' ]; then
-        export LDFLAGS='-lgcc_s'
-    fi
-
     run meson setup _build "${configopts[@]}"
 }
 
