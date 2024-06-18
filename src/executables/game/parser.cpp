@@ -46,26 +46,24 @@ helper::expected<CommandLineArguments, std::string> helper::parse_args(const std
         if (not result.target_fps.has_value()) {
             result.target_fps = 60;
         }
-    }
 #endif
 
 
-    const auto level = parser.get<CommandLineArguments::Level>("--level");
-    if (level <= 30) {
-        result.starting_level = level;
-    } else {
-        spdlog::error(
-                "invalid value for starting level ({}), using default value instead ({})", level,
-                CommandLineArguments::default_starting_level
-        );
-        result.starting_level = CommandLineArguments::default_starting_level;
+        const auto level = parser.get<CommandLineArguments::Level>("--level");
+        if (level <= 30) {
+            result.starting_level = level;
+        } else {
+            spdlog::error(
+                    "invalid value for starting level ({}), using default value instead ({})", level,
+                    CommandLineArguments::default_starting_level
+            );
+            result.starting_level = CommandLineArguments::default_starting_level;
+        }
+
+        result.silent = parser.get<bool>("--silent");
+
+        return result;
+    } catch (const std::exception& error) {
+        return helper::unexpected<std::string>{ error.what() };
     }
-
-    result.silent = parser.get<bool>("--silent");
-
-    return result;
-}
-catch (const std::exception& error) {
-    return helper::unexpected<std::string>{ error.what() };
-}
 }
