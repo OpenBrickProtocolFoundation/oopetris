@@ -1,6 +1,8 @@
 
 #include "platform.hpp"
 
+#include <core/helper/utils.hpp>
+
 #if defined(__CONSOLE__)
 #include "helper/console_helpers.hpp"
 #include "input/console_buttons.hpp"
@@ -51,6 +53,8 @@ namespace {
     return "Windows";
 #elif defined(__APPLE__)
     return "MacOS";
+#elif defined(__SERENITY__)
+    return "Serenity OS";
 #else
 #error "Unsupported platform"
 #endif
@@ -71,6 +75,9 @@ namespace {
     auto result = console::open_url(url);
     spdlog::info("Returned string from url open was: {}", result);
     return true;
+#elif defined(__SERENITY__)
+    UNUSED(url);
+    return false;
 #else
     //TODO(Totto): this is dangerous, if we supply user input, so use SDL_OpenURL preferably
 

@@ -32,7 +32,8 @@ helper::expected<date::ISO8601Date, std::string> date::ISO8601Date::from_string(
 
     std::tm tm = {};
 
-#if defined(_MSC_VER) || defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
+#if defined(_MSC_VER) || defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__) \
+        || defined(__SERENITY__)
 
 
     std::istringstream input_stream{ input };

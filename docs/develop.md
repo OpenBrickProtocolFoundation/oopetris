@@ -10,6 +10,11 @@ For concrete instructions, see the list below:
 
 [linux](linux.md)
 
+## Serenity OS
+
+[serenity](serenity.md)
+
+
 ## Windows
 
 [windows](windows.md)

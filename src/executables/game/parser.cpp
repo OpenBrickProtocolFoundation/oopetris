@@ -41,6 +41,13 @@ helper::expected<CommandLineArguments, std::string> helper::parse_args(const std
                 spdlog::error("invalid value for target fps ({}), using default value instead (VSYNC)", fps.value());
             }
         }
+#if defined(__SERENITY__)
+        // serenity OS can#t handle vsync very well (Since it's inside qemu), so setting the target_fps value to 60 per default
+        if (not result.target_fps.has_value()) {
+            result.target_fps = 60;
+        }
+#endif
+
 
         const auto level = parser.get<CommandLineArguments::Level>("--level");
         if (level <= 30) {
@@ -56,7 +63,6 @@ helper::expected<CommandLineArguments, std::string> helper::parse_args(const std
         result.silent = parser.get<bool>("--silent");
 
         return result;
-
     } catch (const std::exception& error) {
         return helper::unexpected<std::string>{ error.what() };
     }
