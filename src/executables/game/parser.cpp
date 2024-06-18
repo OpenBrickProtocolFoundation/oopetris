@@ -41,23 +41,31 @@ helper::expected<CommandLineArguments, std::string> helper::parse_args(const std
                 spdlog::error("invalid value for target fps ({}), using default value instead (VSYNC)", fps.value());
             }
         }
-
-        const auto level = parser.get<CommandLineArguments::Level>("--level");
-        if (level <= 30) {
-            result.starting_level = level;
-        } else {
-            spdlog::error(
-                    "invalid value for starting level ({}), using default value instead ({})", level,
-                    CommandLineArguments::default_starting_level
-            );
-            result.starting_level = CommandLineArguments::default_starting_level;
+#if defined(__SERENITY__)
+        // serenity OS can#t handle vsync very well (Since it's inside qemu), so setting the target_fps value to 60 per default
+        if (not result.target_fps.has_value()) {
+            result.target_fps = 60;
         }
-
-        result.silent = parser.get<bool>("--silent");
-
-        return result;
-
-    } catch (const std::exception& error) {
-        return helper::unexpected<std::string>{ error.what() };
     }
+#endif
+
+
+    const auto level = parser.get<CommandLineArguments::Level>("--level");
+    if (level <= 30) {
+        result.starting_level = level;
+    } else {
+        spdlog::error(
+                "invalid value for starting level ({}), using default value instead ({})", level,
+                CommandLineArguments::default_starting_level
+        );
+        result.starting_level = CommandLineArguments::default_starting_level;
+    }
+
+    result.silent = parser.get<bool>("--silent");
+
+    return result;
+}
+catch (const std::exception& error) {
+    return helper::unexpected<std::string>{ error.what() };
+}
 }
