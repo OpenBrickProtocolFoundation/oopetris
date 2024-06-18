@@ -9,7 +9,7 @@ It is written in [OOP](https://en.wikipedia.org/wiki/Object-oriented_programming
 
 ## Platform support
 
-This officially supports Linux, Windows, MacOS, Android, Nintendo Switch and Nintendo 3DS.
+This officially supports Linux, Windows, MacOS, Android, Nintendo Switch , Nintendo Wii and Nintendo 3DS.
 
 Why these? Because it was fun to port the application to those platforms 😋
 

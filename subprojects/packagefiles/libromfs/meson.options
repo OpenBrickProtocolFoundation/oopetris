@@ -1,0 +1,8 @@
+
+
+option(
+    'romfs_dir',
+    type: 'string',
+    value: '',
+    description: 'The directory to use as ROM file system',
+)

@@ -41,11 +41,13 @@ namespace console {
 
             auto size = formatted.size();
 
-            // debug_write already writes an newline at the end!
+#if !defined(__WII__)
+            // debug_write already writes an newline at the end (only on 3ds and switch)
             if (size > 0 and formatted.data()[size - 1] == '\n') {
                 formatted.data()[size - 1] = '\0';
                 --size;
             }
+#endif
 
             debug_write(formatted.data(), size);
         }

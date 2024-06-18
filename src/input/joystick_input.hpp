@@ -196,7 +196,31 @@ namespace input {
     };
 
 
+#elif defined(__WII__)
+
+    struct WiiJoystickInput_Type1 : ConsoleJoystickInput {
+
+        //TODO
+        static constexpr sdl::GUID guid{};
+
+        WiiJoystickInput_Type1(SDL_Joystick* joystick, SDL_JoystickID instance_id, const std::string& name);
+
+        [[nodiscard]] std::optional<NavigationEvent> get_navigation_event(const SDL_Event& event) const override;
+
+        [[nodiscard]] std::string describe_navigation_event(NavigationEvent event) const override;
+
+        [[nodiscard]] std::string key_to_string(console::SettingsType key) const override;
+
+        [[nodiscard]] JoystickSettings to_normal_settings(
+                const AbstractJoystickSettings<console::SettingsType>& settings
+        ) const override;
+
+        [[nodiscard]] AbstractJoystickSettings<console::SettingsType> default_settings_raw() const override;
+    };
+
+
 #endif
+
 
 #endif
 
@@ -315,7 +339,7 @@ namespace input {
     protected:
         [[nodiscard]] std::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event) const override;
     };
-#if !defined(__SWITCH__) && !defined(__3DS__)
+#if !defined(__SWITCH__) && !defined(__3DS__) && !defined(__WII__)
 #error "unsupported console"
 #endif
 #endif

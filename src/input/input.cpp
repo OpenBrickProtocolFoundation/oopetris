@@ -17,6 +17,8 @@
 #include <string>
 
 
+#include "helper/console_helpers.hpp"
+
 input::Input::Input(std::string name, InputType type) : m_name{ std::move(name) }, m_type{ type } { }
 
 input::Input::~Input() = default;
@@ -78,17 +80,27 @@ input::PointerEventHelper::PointerEventHelper(shapes::IPoint pos, PointerEvent e
 
 input::InputManager::InputManager(const std::shared_ptr<Window>& window) {
 
+    ::console::debug_print(fmt::format("inputman: 1 \n"));
+
     //initialize mouse input
     m_inputs.push_back(std::make_unique<input::MouseInput>());
+
+    ::console::debug_print(fmt::format("inputman: 2 \n"));
 
     //initialize keyboard input
     m_inputs.push_back(std::make_unique<input::KeyboardInput>());
 
+    ::console::debug_print(fmt::format("inputman: 3 \n"));
+
     //initialize touch inputs by using the manager(needs window)
     input::TouchInputManager::discover_devices(m_inputs, window);
 
+    ::console::debug_print(fmt::format("inputman: 4 \n"));
+
     //initialize joystick inputs by using the manager
     input::JoyStickInputManager::discover_devices(m_inputs);
+
+    ::console::debug_print(fmt::format("inputman: 5 \n"));
 }
 
 [[nodiscard]] const std::vector<std::unique_ptr<input::Input>>& input::InputManager::inputs() const {

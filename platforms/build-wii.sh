@@ -3,30 +3,40 @@
 set -e
 
 export DEVKITPRO="/opt/devkitpro"
-export ARCH_DEVKIT_FOLDER="$DEVKITPRO/devkitA64"
+export ARCH_DEVKIT_FOLDER="$DEVKITPRO/devkitPPC"
 export COMPILER_BIN="$ARCH_DEVKIT_FOLDER/bin"
 export PATH="$DEVKITPRO/tools/bin:$COMPILER_BIN:$PATH"
 
+export OGC_CONSOLE="wii"
+export OGC_SUBDIR="wii"
+export OGC_MACHINE="rvl"
+
 export PORTLIBS_PATH="$DEVKITPRO/portlibs"
-export PORTLIBS_PATH_SWITCH="$PORTLIBS_PATH/switch"
-export LIBNX="$DEVKITPRO/libnx"
+export LIBOGC="$DEVKITPRO/libogc"
 
-export PORTLIBS_LIB="$PORTLIBS_PATH_SWITCH/lib"
-export LIBNX_LIB="$LIBNX/lib"
+export PORTLIBS_PATH_OGC="$PORTLIBS_PATH/$OGC_CONSOLE"
+export PORTLIBS_PATH_PPC="$PORTLIBS_PATH/ppc"
 
-export PKG_CONFIG_PATH="$PORTLIBS_LIB/pkgconfig/"
+export PORTLIBS_LIB_OGC="$PORTLIBS_PATH_OGC/lib"
+export PORTLIBS_LIB_PPC="$PORTLIBS_PATH_PPC/lib"
+export LIBOGC_LIB="$LIBOGC/lib/$OGC_SUBDIR"
+
+export PKG_CONFIG_PATH_OGC="$PORTLIBS_LIB_OGC/pkgconfig/"
+export PKG_CONFIG_PATH_PPC="$PORTLIBS_LIB_PPC/pkgconfig/"
+export PKG_CONFIG_PATH="$PKG_CONFIG_PATH_OGC:$PKG_CONFIG_PATH_PPC"
 
 export ROMFS="platforms/romfs"
 
-export BUILD_DIR="build-switch"
+export BUILD_DIR="build-wii"
 
-export TOOL_PREFIX="aarch64-none-elf"
+export TOOL_PREFIX="powerpc-eabi"
 
-export BIN_DIR="$PORTLIBS_PATH_SWITCH/bin"
-export PKG_CONFIG_EXEC="$BIN_DIR/$TOOL_PREFIX-pkg-config"
-export CMAKE="$BIN_DIR/$TOOL_PREFIX-cmake"
+export BIN_DIR_OGC="$PORTLIBS_PATH_OGC/bin"
+export BIN_DIR_PPC="$PORTLIBS_LIB_PPC/bin"
+export PKG_CONFIG_EXEC="$BIN_DIR_OGC/$TOOL_PREFIX-pkg-config"
+export CMAKE="$BIN_DIR_OGC/$TOOL_PREFIX-cmake"
 
-export PATH="$BIN_DIR:$PATH"
+export PATH="$BIN_DIR_PPC:$BIN_DIR_OGC:$PATH"
 
 export CC="$COMPILER_BIN/$TOOL_PREFIX-gcc"
 export CXX="$COMPILER_BIN/$TOOL_PREFIX-g++"
@@ -37,32 +47,29 @@ export NM="$COMPILER_BIN/$TOOL_PREFIX-gcc-nm"
 export OBJCOPY="$COMPILER_BIN/$TOOL_PREFIX-objcopy"
 export STRIP="$COMPILER_BIN/$TOOL_PREFIX-strip"
 
-export ARCH="aarch64"
-export CPU_ARCH="cortex-a57"
-export ENDIANESS="little"
+export ARCH="ppc"
+export CPU_VERSION="ppc750"
+export ENDIANESS="big"
 
-export COMMON_FLAGS="'-ftls-model=local-exec','-march=armv8-a+crc+crypto','-mtune=cortex-a57','-mtp=soft','-ftls-model=local-exec','-fPIC','-ffunction-sections','-fdata-sections'"
+export COMMON_FLAGS="'-m${OGC_MACHINE}','-mcpu=750','-meabi','-mhard-float','-ffunction-sections','-fdata-sections'"
 
-# compat flags for some POSIX functions
-export EXTRA_COMPILE_FLAGS="'-D_XOPEN_SOURCE'"
+export COMPILE_FLAGS="'-D__WII__','-D__CONSOLE__','-D__NINTENDO_CONSOLE__','-D_OGC_','-DGEKKO','-isystem', '$LIBOGC/include', '-I$PORTLIBS_PATH_PPC/include', '-I$PORTLIBS_PATH_OGC/include'"
 
-export COMPILE_FLAGS="'-D__SWITCH__','-D__CONSOLE__','-D__NINTENDO_CONSOLE__','-isystem','$LIBNX/include','-I$PORTLIBS_PATH_SWITCH/include'"
+export LINK_FLAGS="'-L$LIBOGC_LIB','-L$PORTLIBS_LIB_PPC','-L$PORTLIBS_LIB_OGC'"
 
-export LINK_FLAGS="'-L$PORTLIBS_LIB','-L$LIBNX_LIB','-fPIE','-specs=$DEVKITPRO/libnx/switch.specs'"
-
-export CROSS_FILE="./platforms/crossbuild-switch.ini"
+export CROSS_FILE="./platforms/crossbuild-wii.ini"
 
 cat <<EOF >"$CROSS_FILE"
 [host_machine]
-system = 'switch'
+system = 'wii'
 cpu_family = '$ARCH'
-cpu = '$CPU_ARCH'
+cpu = '$CPU_VERSION'
 endian = '$ENDIANESS'
 
 [target_machine]
-system = 'switch'
+system = 'wii'
 cpu_family = '$ARCH'
-cpu = '$CPU_ARCH'
+cpu = '$CPU_VERSION'
 endian = '$ENDIANESS'
 
 [constants]
@@ -80,17 +87,17 @@ strip   = '$STRIP'
 objcopy = '$OBJCOPY'
 nm = '$NM'
 pkg-config = '$PKG_CONFIG_EXEC'
-cmake='$CMAKE'
-freetype-config='$BIN_DIR/freetype-config'
-libpng16-config='$BIN_DIR/libpng16-config'
-libpng-config='$BIN_DIR/libpng-config'
-sdl2-config='$BIN_DIR/sdl2-config'
+cmake='$CMAKE' 
+freetype-config='$BIN_DIR_PPC/freetype-config'
+libpng16-config='$BIN_DIR_PPC/libpng16-config'
+libpng-config='$BIN_DIR_PPC/libpng-config'
+sdl2-config='$BIN_DIR_OGC/sdl2-config'
 
 [built-in options]
 c_std = 'gnu11'
 cpp_std = 'c++23'
-c_args = [$COMMON_FLAGS, $COMPILE_FLAGS, $EXTRA_COMPILE_FLAGS]
-cpp_args = [$COMMON_FLAGS, $COMPILE_FLAGS, $EXTRA_COMPILE_FLAGS]
+c_args = [$COMMON_FLAGS, $COMPILE_FLAGS]
+cpp_args = [$COMMON_FLAGS, $COMPILE_FLAGS]
 c_link_args = [$COMMON_FLAGS, $LINK_FLAGS]
 cpp_link_args = [$COMMON_FLAGS, $LINK_FLAGS]
 
@@ -98,13 +105,12 @@ cpp_link_args = [$COMMON_FLAGS, $LINK_FLAGS]
 [properties]
 pkg_config_libdir = '$PKG_CONFIG_PATH'
 needs_exe_wrapper = true
-library_dirs= ['$LIBNX_LIB','$PORTLIBS_LIB']
-libnx='$LIBNX'
+library_dirs= ['$LIBOGC_LIB', '$PORTLIBS_LIB_OGC','$PORTLIBS_LIB_PPC']
 
-USE_NACP    = true
+USE_META_XML    = true
+
 
 APP_ROMFS='$ROMFS'
-APP_ICON = './assets/icon/1024x1024.png'
 
 EOF
 
@@ -153,4 +159,4 @@ if [ "$COMPILE_TYPE" == "complete_rebuild" ] || [ ! -e "$BUILD_DIR" ]; then
 
 fi
 
-meson compile -C "$BUILD_DIR"
+meson compile -C "$BUILD_DIR" -j 3

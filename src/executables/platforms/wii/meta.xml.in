@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<app version="1.0">
+  <name>@OOPETRIS_NAME@</name>
+  <coder>@OOPETRIS_AUTHOR@</coder>
+  <version>@OOPETRIS_VERSION@</version>
+  <short_description>@OOPETRIS_SHORT_DESCRIPTION@</short_description>
+  <long_description>@OOPETRIS_LONG_DESCRIPTION@</long_description>
+  <no_ios_reload/>
+  <ahb_access/>
+</app>

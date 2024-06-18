@@ -14,6 +14,8 @@
 #include <filesystem>
 #include <spdlog/spdlog.h>
 
+#include "helper/console_helpers.hpp"
+
 
 input::JoystickLikeInput::JoystickLikeInput(SDL_JoystickID instance_id, const std::string& name, JoystickLikeType type)
     : input::Input{ name,
@@ -59,6 +61,11 @@ input::JoystickInput& input::JoystickInput::operator=(JoystickInput&& input) noe
         return std::make_unique<_3DSJoystickInput_Type1>(joystick, instance_id, name);
     }
 
+#elif defined(__WII__)
+    if (guid == WiiJoystickInput_Type1::guid) {
+        return std::make_unique<WiiJoystickInput_Type1>(joystick, instance_id, name);
+    }
+
 #endif
 #endif
 
@@ -84,22 +91,33 @@ input::JoystickInput& input::JoystickInput::operator=(JoystickInput&& input) noe
 void input::JoyStickInputManager::discover_devices(std::vector<std::unique_ptr<Input>>& inputs) {
     //initialize joystick input, this needs to call some sdl things
 
+    ::console::debug_print(fmt::format("joyman: 1 \n"));
+
     const auto result = SDL_InitSubSystem(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER);
 
+    ::console::debug_print(fmt::format("joyman: 2 \n"));
+
     if (result != 0) {
-        spdlog::warn("Failed to initialize the joystick / game controller system: {}", SDL_GetError());
+        ::console::debug_print(
+                fmt::format("Failed to initialize the joystick / game controller system: {}\n", SDL_GetError())
+        );
+        // spdlog::warn("Failed to initialize the joystick / game controller system: {}", SDL_GetError());
         return;
     }
 
+    ::console::debug_print(fmt::format("joyman: 3 \n"));
 
     const auto enable_result = SDL_JoystickEventState(SDL_ENABLE);
 
     if (enable_result != 1) {
         const auto* const error = enable_result == 0 ? "it was disabled" : SDL_GetError();
-        spdlog::warn("Failed to set JoystickEventState (automatic polling by SDL): {}", error);
+        //  spdlog::warn("Failed to set JoystickEventState (automatic polling by SDL): {}", error);
+        ::console::debug_print(fmt::format("Failed to set JoystickEventState (automatic polling by SDL): {}\n", error));
 
         return;
     }
+
+    ::console::debug_print(fmt::format("joyman: 4 \n"));
 
     const auto enable_controller_result = SDL_GameControllerEventState(SDL_ENABLE);
 
@@ -110,28 +128,36 @@ void input::JoyStickInputManager::discover_devices(std::vector<std::unique_ptr<I
         return;
     }
 
+    ::console::debug_print(fmt::format("joyman: 5 \n"));
 
     const auto allow_background_events_result = SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
 
     if (allow_background_events_result != SDL_TRUE) {
         // this is non fatal, so not returning
-        spdlog::warn("Failed to set the JOYSTICK_ALLOW_BACKGROUND_EVENTS hint: {}", SDL_GetError());
+        ::console::debug_print(
+                fmt::format("Failed to set the JOYSTICK_ALLOW_BACKGROUND_EVENTS hint: {}\n", SDL_GetError())
+        );
+        //  spdlog::warn("Failed to set the JOYSTICK_ALLOW_BACKGROUND_EVENTS hint: {}", SDL_GetError());
     }
 
     const auto mappings_file = utils::get_assets_folder() / "mappings" / "gamecontrollerdb.txt";
 
     if (not std::filesystem::exists(mappings_file)) {
-        spdlog::warn("Mappings file doesn't exist: {}", mappings_file.string());
+        ::console::debug_print(fmt::format("Mappings file doesn't exist: {}\n", mappings_file.string()));
+        //spdlog::warn("Mappings file doesn't exist: {}", mappings_file.string());
     } else {
         const auto mapped_number = SDL_GameControllerAddMappingsFromFile(mappings_file.string().c_str());
 
         if (mapped_number < 0) {
             // this is just a warning, no need to abort here, since we just have less mappings
-            spdlog::warn("Failed to add new Controller mappings: {}", SDL_GetError());
+            // spdlog::warn("Failed to add new Controller mappings: {}", SDL_GetError());
+            ::console::debug_print(fmt::format("Failed to add new Controller mappings: {}\n", SDL_GetError()));
         } else {
-            spdlog::debug("Added {} new Controller mappings!", mapped_number);
+            ::console::debug_print(fmt::format("Added {} new Controller mappings!\n", mapped_number));
+            //    spdlog::debug("Added {} new Controller mappings!", mapped_number);
         }
     }
+    ::console::debug_print(fmt::format("joyman: 6\n"));
 
 
     const auto num_of_joysticks = SDL_NumJoysticks();
@@ -141,7 +167,8 @@ void input::JoyStickInputManager::discover_devices(std::vector<std::unique_ptr<I
         return;
     }
 
-    spdlog::debug("Found {} Joysticks", num_of_joysticks);
+    ::console::debug_print(fmt::format("Found {} Joysticks\n", num_of_joysticks));
+    //spdlog::debug("Found {} Joysticks", num_of_joysticks);
 
     for (auto i = 0; i < num_of_joysticks; ++i) {
 
@@ -650,6 +677,157 @@ input::_3DSJoystickInput_Type1::default_settings_raw() const {
                 .hold = JOYCON_B,
                 .pause = JOYCON_START,
                 .open_settings = JOYCON_SELECT
+    };
+
+    return settings;
+}
+
+#elif defined(__WII__)
+
+input::WiiJoystickInput_Type1::WiiJoystickInput_Type1(
+        SDL_Joystick* joystick,
+        SDL_JoystickID instance_id,
+        const std::string& name
+)
+    : ConsoleJoystickInput{
+          joystick,
+          instance_id,
+          name,
+          //NOTE: this are not all, but atm only those, who can be checked with a SDL_JOYBUTTONDOWN event
+          {
+           { "LEFT", JOYCON_LEFT },
+           { "RIGHT", JOYCON_RIGHT },
+           { "DOWN", JOYCON_DOWN },
+           { "UP", JOYCON_UP },
+           { "PLUS", JOYCON_PLUS },
+           { "MINUS", JOYCON_MINUS },
+           { "1", JOYCON_1 },
+           { "2", JOYCON_2 },
+           { "A", JOYCON_A },
+           { "B", JOYCON_B },
+           { "NUNCHUCK_C", NUNCHUK_C },
+           { "NUNCHUCK_Z", NUNCHUK_Z },
+           { "HOME", JOYCON_HOME },
+           }
+} { }
+
+
+[[nodiscard]] std::optional<input::NavigationEvent> input::WiiJoystickInput_Type1::get_navigation_event(
+        const SDL_Event& event
+) const {
+    if (event.type == SDL_JOYBUTTONDOWN) {
+
+        if (event.jbutton.which != instance_id()) {
+            return std::nullopt;
+        }
+
+        switch (event.jbutton.button) {
+            case JOYCON_A:
+                return NavigationEvent::OK;
+            case JOYCON_DOWN:
+                return NavigationEvent::DOWN;
+            case JOYCON_UP:
+                return NavigationEvent::UP;
+            case JOYCON_LEFT:
+                return NavigationEvent::LEFT;
+            case JOYCON_RIGHT:
+                return NavigationEvent::RIGHT;
+            case JOYCON_B:
+                return NavigationEvent::BACK;
+            default:
+                return std::nullopt;
+
+                //note, that  NavigationEvent::TAB is not supported
+        }
+    }
+
+    return handle_axis_navigation_event(event);
+}
+
+[[nodiscard]] std::string input::WiiJoystickInput_Type1::describe_navigation_event(NavigationEvent event) const {
+    switch (event) {
+        case NavigationEvent::OK:
+            return "A";
+        case NavigationEvent::BACK:
+            return "B";
+        case NavigationEvent::DOWN:
+            return "Down";
+        case NavigationEvent::UP:
+            return "Up";
+        case NavigationEvent::LEFT:
+            return "Left";
+        case NavigationEvent::RIGHT:
+            return "Right";
+        case NavigationEvent::TAB:
+            throw std::runtime_error("Tab is not supported");
+        default:
+            utils::unreachable();
+    }
+}
+
+
+[[nodiscard]] std::string input::WiiJoystickInput_Type1::key_to_string(console::SettingsType key) const {
+    switch (key) {
+        case JOYCON_LEFT:
+            return "LEFT";
+        case JOYCON_RIGHT:
+            return "RIGHT";
+        case JOYCON_DOWN:
+            return "DOWN";
+        case JOYCON_UP:
+            return "UP";
+        case JOYCON_PLUS:
+            return "PLUS";
+        case JOYCON_MINUS:
+            return "MINUS";
+        case JOYCON_1:
+            return "1";
+        case JOYCON_2:
+            return "2";
+        case JOYCON_A:
+            return "A";
+        case JOYCON_B:
+            return "B";
+        case NUNCHUK_C:
+            return "NUNCHUCK_C";
+        case NUNCHUK_Z:
+            return "NUNCHUCK_Z";
+        case JOYCON_HOME:
+            return "HOME";
+
+        default:
+            utils::unreachable();
+    }
+}
+
+[[nodiscard]] input::JoystickSettings input::WiiJoystickInput_Type1::to_normal_settings(
+        const AbstractJoystickSettings<input::console::SettingsType>& settings
+) const {
+
+    JoystickSettings result{};
+
+#define X_LIST_MACRO(x) SETTINGS_TO_STRING(settings, result, key_to_string, x);
+
+    X_LIST_OF_SETTINGS_KEYS
+
+#undef X_LIST_MACRO
+
+    return result;
+}
+[[nodiscard]] input::AbstractJoystickSettings<input::console::SettingsType>
+input::WiiJoystickInput_Type1::default_settings_raw() const {
+    const AbstractJoystickSettings<console::SettingsType> settings = //
+            {
+                .identification = JoystickIdentification{ .guid = WiiJoystickInput_Type1::guid, .name = "TODO" },
+                .rotate_left = JOYCON_1,
+                .rotate_right = JOYCON_2,
+                .move_left = JOYCON_LEFT,
+                .move_right = JOYCON_RIGHT,
+                .move_down = JOYCON_DOWN,
+                .drop = JOYCON_A,
+                .hold = JOYCON_B,
+                .pause = JOYCON_MINUS,
+                .open_settings = JOYCON_PLUS
     };
 
     return settings;

@@ -24,6 +24,10 @@ jobs:
                       extension: nro
                       container: devkita64
 
+                    - name: wii
+                      extension: dol
+                      container: devkitppc
+
         steps:
             - uses: actions/checkout@v4
               with:

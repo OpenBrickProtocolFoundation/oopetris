@@ -5,7 +5,11 @@ if build_application
     install_subdir(
         meson.project_source_root() / 'assets',
         install_dir: 'share/oopetris',
-        exclude_files: ['oopetris.desktop.in', 'OOPetris.svg', 'recordings.magic'],
+        exclude_files: [
+            'oopetris.desktop.in',
+            'OOPetris.svg',
+            'recordings.magic',
+        ],
         exclude_directories: ['icon'],
     )
 
@@ -14,8 +18,9 @@ if build_application
         app_name = 'com.github.mgerhold.OOPetris'
     endif
 
-    conf = configuration_data()
-    conf.set('APP_NAME', app_name)
+    conf = configuration_data(
+        {'DESCRIPTION': oopetris_desc, 'APP_NAME': app_name},
+    )
 
     datadir = get_option('prefix') / get_option('datadir')
 
@@ -25,7 +30,9 @@ if build_application
 
         magic_dir = datadir / 'misc'
         magic_file = magic_dir / 'magic'
-        oopetris_magic_file = (meson.project_source_root() / 'assets' / 'recordings.magic')
+        oopetris_magic_file = (
+            meson.project_source_root() / 'assets' / 'recordings.magic'
+        )
 
         if fs.exists(magic_file)
 

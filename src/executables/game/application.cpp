@@ -18,6 +18,8 @@
 #include <ranges>
 #include <stdexcept>
 
+#include "helper/logger.hpp"
+
 #if defined(__CONSOLE__)
 #include "helper/console_helpers.hpp"
 #endif
@@ -43,11 +45,15 @@ Application::Application(std::shared_ptr<Window>&& window, CommandLineArguments&
       m_renderer{ *m_window, m_command_line_arguments.target_fps.has_value() ? Renderer::VSync::Disabled
                                                                              : Renderer::VSync::Enabled },
       m_target_framerate{ m_command_line_arguments.target_fps } {
+    console::debug_print(fmt::format("app: b\nefore\n"));
     initialize();
+    console::debug_print(fmt::format("app: a\nfter\n"));
 } catch (const helper::GeneralError& general_error) {
     const auto severity = general_error.severity();
     const auto notification_level = get_notification_level(severity);
 
+
+    console::debug_print(fmt::format("Initialization Error", general_error.message()));
     window->show_simple(notification_level, "Initialization Error", general_error.message());
 
     if (severity == helper::error::Severity::Fatal) {
@@ -258,45 +264,49 @@ void Application::render() const {
 
 void Application::initialize() {
 
+    console::debug_print(fmt::format("app: 1\n"));
+
     auto loading_screen = scenes::LoadingScreen{ this };
 
+    console::debug_print(fmt::format("app: 2\n"));
     const auto start_time = SDL_GetTicks64();
 
-    const std::future<void> load_everything = std::async(std::launch::async, [this] {
-        this->m_music_manager = std::make_unique<MusicManager>(this, num_audio_channels);
+    console::debug_print(fmt::format("app: 3\n"));
 
-        this->m_input_manager = std::make_shared<input::InputManager>(this->m_window);
+    this->m_music_manager = std::make_unique<MusicManager>(this, num_audio_channels);
 
-        this->m_settings_manager = std::make_unique<SettingsManager>(this);
-
-        this->m_font_manager = std::make_unique<FontManager>();
-
-        this->load_resources();
-
+    console::debug_print(fmt::format("app: 4\n"));
+    this->m_input_manager = std::make_shared<input::InputManager>(this->m_window);
+    console::debug_print(fmt::format("app: 5\n"));
+    this->m_settings_manager = std::make_unique<SettingsManager>(this);
+    console::debug_print(fmt::format("app: 6\n"));
+    this->m_font_manager = std::make_unique<FontManager>();
+    console::debug_print(fmt::format("app: 7\n"));
+    this->load_resources();
+    console::debug_print(fmt::format("app: 8\n"));
 #if !defined(NDEBUG)
-        m_fps_text = std::make_unique<ui::Label>(
-                this, "FPS: ?", font_manager().get(FontId::Default), Color::white(),
-                std::pair<double, double>{ 0.95, 0.95 },
-                ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
-                ui::RelativeLayout{ window(), 0.0, 0.0, 0.1, 0.05 }, false
-        );
+    m_fps_text = std::make_unique<ui::Label>(
+            this, "FPS: ?", font_manager().get(FontId::Default), Color::white(),
+            std::pair<double, double>{ 0.95, 0.95 },
+            ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
+            ui::RelativeLayout{ window(), 0.0, 0.0, 0.1, 0.05 }, false
+    );
 #endif
 
 #if defined(_HAVE_DISCORD_SDK)
-        if (m_settings_manager->settings().discord) {
-            auto discord_instance = DiscordInstance::initialize();
-            if (not discord_instance.has_value()) {
-                spdlog::warn(
-                        "Error initializing the discord instance, it might not be running: {}", discord_instance.error()
-                );
-            } else {
-                m_discord_instance = std::move(discord_instance.value());
-                m_discord_instance->after_setup();
-            }
+    if (m_settings_manager->settings().discord) {
+        auto discord_instance = DiscordInstance::initialize();
+        if (not discord_instance.has_value()) {
+            spdlog::warn(
+                    "Error initializing the discord instance, it might not be running: {}", discord_instance.error()
+            );
+        } else {
+            m_discord_instance = std::move(discord_instance.value());
+            m_discord_instance->after_setup();
         }
+    }
 
 #endif
-    });
 
 
     using namespace std::chrono_literals;
@@ -306,7 +316,7 @@ void Application::initialize() {
                                                            : 0s;
     auto start_execution_time = std::chrono::steady_clock::now();
 
-    bool finished_loading = false;
+    bool finished_loading = true;
 
     // this is a duplicate of below in some cases, but it's just for the loading screen and can't be factored out easily
     // this also only uses a subset of all things, the real event loop uses, so that nothing breaks while doing multithreading
@@ -361,8 +371,8 @@ void Application::initialize() {
         // end waiting
 
         // wait until is faster, since it just compares two time_points instead of getting now() and than adding the wait-for argument
-        finished_loading =
-                load_everything.wait_until(std::chrono::system_clock::time_point::min()) == std::future_status::ready;
+        //  finished_loading =
+        //        load_everything.wait_until(std::chrono::system_clock::time_point::min()) == std::future_status::ready;
     }
 
 
@@ -394,13 +404,15 @@ void Application::load_resources() {
         { FontId::Default, "PressStart2P.ttf" },
 #endif
         {          FontId::Arial,                     "arial.ttf" },
-        { FontId::NotoColorEmoji,            "NotoColorEmoji.ttf" },
+      /*   { FontId::NotoColorEmoji,            "NotoColorEmoji.ttf" }, */
         {        FontId::Symbola,                   "Symbola.ttf" }
     };
     for (const auto& [font_id, path] : fonts) {
         const auto font_path = utils::get_assets_folder() / "fonts" / path;
         m_font_manager->load(font_id, font_path, fonts_size);
     }
+
+//    throw std::runtime_error("HELLO END");
 }
 
 #if defined(_HAVE_DISCORD_SDK)

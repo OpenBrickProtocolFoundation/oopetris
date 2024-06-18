@@ -131,6 +131,57 @@ enum JOYCON {
 static_assert(BIT(JOYCON_B) == KEY_B);
 static_assert(BIT(JOYCON_SELECT) == KEY_SELECT);
 
+#elif defined(__WII__)
+
+
+// some wii buttons, from (lib)wut, but since SDL doesn't handle inputs as flags, like (lib)wut), the have to be reversed and reversing 1 << x = log_2(x), this is done constexpr
+
+
+namespace {
+    // this is rounding down since >> 1 throws away the least significant bit, but if its a power of two it is spot on
+    constexpr unsigned int BIT_REVERSE(unsigned int x) {
+        return x == 1 ? 0 : 1 + BIT_REVERSE(x >> 1);
+    }
+}; // namespace
+
+
+#include <wiiuse/wpad.h>
+
+
+//using C enum (not enum class) on purpose
+enum JOYCON {
+
+    // see /opt/devkitpro/wut/include/padscore/wpad.h
+
+    JOYCON_LEFT = BIT_REVERSE(WPAD_BUTTON_LEFT),   ///! The left button of the D-pad.
+    JOYCON_RIGHT = BIT_REVERSE(WPAD_BUTTON_RIGHT), ///! The right button of the D-pad.
+    JOYCON_DOWN = BIT_REVERSE(WPAD_BUTTON_DOWN),   ///! The down button of the D-pad.
+    JOYCON_UP = BIT_REVERSE(WPAD_BUTTON_UP),       ///! The up button of the D-pad.
+
+    JOYCON_PLUS = BIT_REVERSE(WPAD_BUTTON_PLUS),   ///! The + button.
+    JOYCON_MINUS = BIT_REVERSE(WPAD_BUTTON_MINUS), ///! The - button.
+
+    JOYCON_1 = BIT_REVERSE(WPAD_BUTTON_1), ///! The 1 button.
+    JOYCON_2 = BIT_REVERSE(WPAD_BUTTON_2), ///! The 2 button.
+
+    JOYCON_A = BIT_REVERSE(WPAD_BUTTON_A), ///! The A button.
+    JOYCON_B = BIT_REVERSE(WPAD_BUTTON_B), ///! The B button.
+
+    NUNCHUK_C = BIT_REVERSE(WPAD_NUNCHUK_BUTTON_C), ///! The C button on the Nunchuk extension.
+    NUNCHUK_Z = BIT_REVERSE(WPAD_NUNCHUK_BUTTON_Z), ///! The Z button on the Nunchuk extension.
+
+    JOYCON_HOME = BIT_REVERSE(WPAD_BUTTON_HOME), ///! The HOME button.
+};
+
+/// Creates a bitmask from a bit number.
+#define BIT(n) (1U << (n))
+
+// some static asserts to check if BIT_REVERSE works as expected
+static_assert(BIT(JOYCON_LEFT) == WPAD_BUTTON_LEFT);
+static_assert(BIT(JOYCON_HOME) == WPAD_BUTTON_HOME);
+
+#else
+#error "unsupported console"
 
 #endif
 

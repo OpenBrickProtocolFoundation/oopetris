@@ -160,7 +160,7 @@ namespace scenes {
 
         std::vector<data::RecordingMetadata> metadata_vector{};
 
-        const auto recording_directory_path = utils::get_root_folder() / constants::recordings_directory;
+        const auto recording_directory_path = utils::get_assets_folder() / constants::recordings_directory;
 
         if (std::filesystem::exists(recording_directory_path)) {
             for (const auto& file : std::filesystem::recursive_directory_iterator(recording_directory_path)) {

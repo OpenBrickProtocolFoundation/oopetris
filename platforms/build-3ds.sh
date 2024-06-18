@@ -103,14 +103,11 @@ needs_exe_wrapper = true
 library_dirs= ['$LIBCTRU_LIB','$PORTLIBS_LIB']
 libctru='$LIBCTRU'
 
-APP_NAME	= 'oopetris'
-APP_AUTHOR 	= 'coder2k'
-APP_DESC = 'A Tetris clone in OOP'
+USE_SMDH = true
 
-USE_SMDH    = true
-
-APP_ROMFS='$ROMFS'
-
+APP_ROMFS = '$ROMFS'
+APP_ICON = './assets/icon/48x48.png'
+APP_SMALL_ICON='./assets/icon/24x24.png'
 EOF
 
 ## build sdl2 and libraries (ttf, mixer, image)

@@ -1,0 +1,23 @@
+diff --git a/source/romfs.c b/source/romfs.c
+index 02d6bd5..17b0cf7 100644
+--- a/source/romfs.c
++++ b/source/romfs.c
+@@ -15,7 +15,18 @@
+ #include <sys/param.h>
+ #include <stdint.h>
+ #include <unistd.h>
++
++#if defined(__WII__) || defined(__GAMECUBE__)
++#include <gccore.h>
++
++#define OSBlockMove(dest, src, size, flush) memmove((dest), (src), (size))
++
++#elif defined(__WIIU__)
+ #include <coreinit/memory.h>
++#else
++#error "Unsupported platform"
++#endif
++
+ 
+ 
+ /* include the implementation files (needed for static functions) */

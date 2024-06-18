@@ -1,7 +1,11 @@
 only_allow_native_libs = false
 
 if meson.is_cross_build()
-    if host_machine.system() == 'switch' or host_machine.system() == '3ds'
+    if (
+        host_machine.system() == 'switch'
+        or host_machine.system() == '3ds'
+        or host_machine.system() == 'wii'
+    )
         # we do not link to code that was compiled with gcc 10.1 / gcc 7.1, the code we link with is all compiled with gcc 13.2
         core_lib += {
             'compile_args': [core_lib.get('compile_args'), '-Wno-psabi'],
@@ -31,7 +35,11 @@ fmt_use_header_only = false
 
 if (
     meson.is_cross_build()
-    and (host_machine.system() == 'switch' or host_machine.system() == '3ds')
+    and (
+        host_machine.system() == 'switch'
+        or host_machine.system() == '3ds'
+        or host_machine.system() == 'wii'
+    )
 )
     fmt_use_header_only = true
 endif
@@ -205,6 +213,28 @@ if build_application
         'compile_args': [graphics_lib.get('compile_args'), sdl2_mixer_defines],
     }
 
+
+    # on the wii the option to enable thread is '-fpthread' and not '-pthread'
+    if (meson.is_cross_build() and host_machine.system() == 'wii')
+        thread_dep = declare_dependency(
+            link_args: [
+                ##    '-fpthread',
+            ],
+            compile_args: [],
+        )
+
+        meson.override_dependency('threads', thread_dep)
+
+        ## use single thread for spdlog loggers
+
+        graphics_lib += {
+            'compile_args': [
+                graphics_lib.get('compile_args'),
+                '-DSPDLOG_THREAD_USAGE=1',
+            ],
+        }
+    endif
+
     spdlog_dep = dependency(
         'spdlog',
         required: true,
@@ -214,9 +244,15 @@ if build_application
         'deps': [graphics_lib.get('deps'), spdlog_dep],
     }
 
-    if (meson.is_cross_build() and host_machine.system() == '3ds')
+    # TODO: solve this in teh spdlog meson.build, not here!
+    # on the 3ds there is no thread local storage (TLS)
+    if (meson.is_cross_build() and (host_machine.system() == '3ds'))
+        ##TODO: use no_tls as option!
         graphics_lib += {
-            'compile_args': [graphics_lib.get('compile_args'), '-DSPDLOG_NO_TLS'],
+            'compile_args': [
+                graphics_lib.get('compile_args'),
+                '-DSPDLOG_NO_TLS',
+            ],
         }
     endif
 
@@ -227,6 +263,7 @@ if build_application
         and (
             host_machine.system() == 'switch'
             or host_machine.system() == '3ds'
+            or host_machine.system() == 'wii'
         )
     )
         online_multiplayer_supported = false
@@ -261,8 +298,8 @@ if build_application
     if build_installer
         if get_option('buildtype') != 'release'
             error(
-                'buildtype needs to be \'release\', when building the installer, but was: '
-                + get_option('buildtype'),
+                'buildtype needs to be \'release\', when building the installer, but was: ' +
+                get_option('buildtype'),
             )
         endif
 
@@ -279,8 +316,7 @@ if build_application
         else
             # TODO: create a proper installer for macOS : https://mesonbuild.com/Creating-OSX-packages.html
             error(
-                'unsuported system for building the installer: '
-                + host_machine.system(),
+                'unsuported system for building the installer: ' + host_machine.system(),
             )
 
         endif
@@ -341,4 +377,38 @@ if build_application
 
     graphic_application_deps += argparse_dep
     recordings_application_deps += argparse_dep
+endif
+
+
+
+if (meson.is_cross_build() and host_machine.system() == 'wii')
+
+    ## ROMFS handling, this is special in the case of the wii
+
+    APP_ROMFS = meson.get_external_property('APP_ROMFS', '')
+
+    if APP_ROMFS != ''
+        fs = import('fs')
+
+        if not fs.is_absolute(APP_ROMFS)
+            APP_ROMFS = meson.project_source_root() / APP_ROMFS
+        endif
+
+        if not fs.exists(APP_ROMFS)
+            error('APP_ROMFS should exist, but doesn\'t: \'' + APP_ROMFS + '\'')
+        endif
+
+        libromfs_dep = dependency(
+            'libromfs',
+            required: true,
+            allow_fallback: true,
+            native: false,
+            default_options: {'romfs_dir': APP_ROMFS},
+        )
+
+        graphics_lib += {
+            'deps': [graphics_lib.get('deps'), libromfs_dep],
+        }
+    endif
+
 endif

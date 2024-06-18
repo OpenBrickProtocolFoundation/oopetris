@@ -1,12 +1,12 @@
 ## get the options object and "unpack" it
 
-switch_exe_name = switch_options[0]
-switch_src_files = switch_options[1]
-switch_deps = switch_options[2]
+exe_name = nintendo_options[0]
+src_files = nintendo_options[1]
+deps = nintendo_options[2]
 
 # libraries
 
-switch_dependencies = [
+dependencies = [
     'harfbuzz',
     'egl',
     'flac',
@@ -21,7 +21,7 @@ switch_dependencies = [
     'zlib',
 ]
 
-switch_dependencies_native = [
+dependencies_native = [
     'bz2',
     'drm_nouveau',
     'modplug',
@@ -30,8 +30,8 @@ switch_dependencies_native = [
     'SDL2main',
 ]
 
-foreach dep : switch_dependencies
-    switch_deps += dependency(
+foreach dep : dependencies
+    deps += dependency(
         dep,
         required: true,
         allow_fallback: false,
@@ -39,26 +39,26 @@ foreach dep : switch_dependencies
     )
 endforeach
 
-switch_library_dirs = meson.get_external_property('library_dirs', [''])
-if switch_library_dirs.length() == 0
+library_dirs = meson.get_external_property('library_dirs', [''])
+if library_dirs.length() == 0
     error('property \'library_dirs\' has to be set!')
 endif
 
 c = meson.get_compiler('c')
-foreach dep : switch_dependencies_native
-    switch_deps += c.find_library(
+foreach dep : dependencies_native
+    deps += c.find_library(
         dep,
         required: true,
-        dirs: switch_library_dirs,
+        dirs: library_dirs,
     )
 endforeach
 
 ## compilation
 
-switch_elf_file = build_target(
-    switch_exe_name + '.elf',
-    switch_src_files,
-    dependencies: switch_deps,
+elf_file = build_target(
+    exe_name + '.elf',
+    src_files,
+    dependencies: deps,
     override_options: {
         'warning_level': '3',
         'werror': true,
@@ -73,36 +73,22 @@ use_nacp = ['true', 'True', '1', true].contains(
 
 elf2nro = find_program('elf2nro')
 # executable input elf file, output nro file
-NRO_FLAGS = [elf2nro, switch_elf_file.full_path(), switch_exe_name + '.nro']
-NRO_DEPS = [switch_elf_file]
+NRO_FLAGS = [elf2nro, elf_file.full_path(), exe_name + '.nro']
+NRO_DEPS = [elf_file]
 NACP_DEPS = NRO_DEPS
 
 fs = import('fs')
 
 if use_nacp
     nacptool = find_program('nacptool')
-    NACP_FLAGS = [nacptool, '--create']
-
-    APP_NAME = meson.get_external_property('APP_NAME', switch_exe_name)
-    NACP_FLAGS += APP_NAME
-
-    APP_AUTHOR = meson.get_external_property('APP_AUTHOR', '')
-    if APP_AUTHOR == ''
-        error('If USE_NACP is set, you have to provide an APP_AUTHOR')
-    endif
-    NACP_FLAGS += APP_AUTHOR
-
-    APP_VERSION = meson.get_external_property('APP_VERSION', '')
-    if APP_VERSION == true
-        APP_VERSION = meson.project_version()
-    endif
-
-    if APP_VERSION == ''
-        error('If USE_NACP is set, you have to provide an APP_VERSION')
-    endif
-    NACP_FLAGS += APP_VERSION
-
-    NACP_FLAGS += (switch_exe_name + '.nacp')
+    NACP_FLAGS = [
+        nacptool,
+        '--create',
+        oopetris_name,
+        oopetris_author,
+        meson.project_version(),
+        exe_name + '.nacp',
+    ]
 
     APP_TITLEID = meson.get_external_property('APP_TITLEID', '')
 
@@ -111,15 +97,16 @@ if use_nacp
         NACP_FLAGS += '--titleid=' + APP_TITLEID
     endif
 
-    # nacptool --create <name> <author> <version> <switch_exe_name>.nacp
+    # nacptool --create <name> <author> <version> <exe_name>.nacp
     # optional: --titleid=<titleID>
     nacp_file = custom_target(
-        switch_exe_name + '.nacp',
+        exe_name + '.nacp',
         command: NACP_FLAGS,
-        output: [switch_exe_name + '.nacp'],
+        output: [exe_name + '.nacp'],
         depends: NACP_DEPS,
     )
-    NRO_FLAGS += '--nacp=' + switch_exe_name + '.nacp'
+
+    NRO_FLAGS += '--nacp=' + exe_name + '.nacp'
     NRO_DEPS += nacp_file
 
 endif
@@ -129,9 +116,9 @@ if LIBNX == ''
     error('property \'libnx\' has to be set!')
 endif
 
-switch_default_icon = LIBNX / 'default_icon.jpg'
+default_icon = LIBNX / 'default_icon.jpg'
 
-APP_ICON = meson.get_external_property('APP_ICON', switch_default_icon)
+APP_ICON = meson.get_external_property('APP_ICON', default_icon)
 
 if not fs.is_absolute(APP_ICON)
     APP_ICON = meson.project_source_root() / APP_ICON
@@ -158,11 +145,11 @@ if APP_ROMFS != ''
 
 endif
 
-# elf2nro <switch_exe_name>.elf <switch_exe_name>.nro <NRO_FLAGS>
+# elf2nro <exe_name>.elf <exe_name>.nro <NRO_FLAGS>
 custom_target(
-    switch_exe_name + '.nro',
+    exe_name + '.nro',
     command: NRO_FLAGS,
     depends: NRO_DEPS,
-    output: [switch_exe_name + '.nro'],
+    output: [exe_name + '.nro'],
     build_by_default: true,
 )

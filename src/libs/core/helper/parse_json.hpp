@@ -17,6 +17,10 @@
 #include <sstream>
 #include <string>
 
+
+#include <debug.h>
+#include <ogc/system.h>
+
 // START: general json parser helper
 
 //helper for std::optional json conversion
@@ -69,11 +73,11 @@ namespace json {
 
     template<typename T>
     [[nodiscard]] helper::expected<T, std::string> try_parse_json_file(const std::filesystem::path& file) noexcept {
-
+        SYS_Report("%s\n", "jsonp: 1");
         if (not std::filesystem::exists(file)) {
             return helper::unexpected<std::string>{ fmt::format("File '{}' doesn't exist", file.string()) };
         }
-
+        SYS_Report("%s\n", "jsonp: 2");
         std::ifstream file_stream{ file };
 
         if (!file_stream.is_open()) {
