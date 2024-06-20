@@ -60,11 +60,11 @@ const char* oopetris_get_lib_version();
 typedef struct {
     uint32_t height;
     uint32_t width;
-} GridProperties;
+} OOPetrisGridProperties;
 
-GridProperties* oopetris_get_grid_properties();
+OOPetrisGridProperties* oopetris_get_grid_properties();
 
-void oopetris_free_grid_properties(GridProperties** properties);
+void oopetris_free_grid_properties(OOPetrisGridProperties** properties);
 
 
 #ifdef __cplusplus

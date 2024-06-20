@@ -136,8 +136,8 @@ const char* oopetris_get_lib_version() {
     return utils::version();
 }
 
-GridProperties* oopetris_get_grid_properties() {
-    auto* properties = static_cast<GridProperties*>(malloc(sizeof(GridProperties)));
+OOPetrisGridProperties* oopetris_get_grid_properties() {
+    auto* properties = static_cast<OOPetrisGridProperties*>(malloc(sizeof(OOPetrisGridProperties)));
     if (properties == nullptr) {
         return nullptr;
     }
@@ -146,4 +146,10 @@ GridProperties* oopetris_get_grid_properties() {
     properties->width = grid::width_in_tiles;
 
     return properties;
+}
+
+
+void oopetris_free_grid_properties(OOPetrisGridProperties** properties) {
+    free(*properties);
+    *properties = nullptr;
 }

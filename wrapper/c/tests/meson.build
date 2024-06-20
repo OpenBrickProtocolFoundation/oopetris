@@ -1,6 +1,11 @@
 test_deps = []
 
-test_src = [files('main.c')]
+test_src = [
+    files(
+        'information.c',
+        'is_recording_file.c',
+    ),
+]
 
 test_deps += dependency('criterion')
 
@@ -18,7 +23,7 @@ tests = executable(
 test(
     'tests',
     tests,
-    protocol: 'tap',
+    protocol: 'tap', ## use 'exitcode' to get better messages, of what exactly the failure was
     workdir: meson.project_source_root() / 'tests' / 'files',
-    args: ['--tap'],
+    args: ['--tap'], ## remove '--tap' and add '--verbose', '--full-stats' to get better failure messages
 )

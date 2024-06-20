@@ -50,9 +50,8 @@ pkg.generate(
     description: 'The C Wrapper library for oopetris',
     name: 'oopetris-c-wrapper',
     filebase: 'oopetris-c-wrapper',
-    subdirs: 'oopetris'
+    subdirs: 'oopetris',
 )
-
 
 if get_option('tests')
     subdir('tests')
