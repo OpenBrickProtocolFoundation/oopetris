@@ -1,0 +1,8 @@
+[wrap-git]
+url = https://github.com/Snaipe/Criterion.git
+revision = master
+depth = 1
+
+
+[provide]
+criterion = criterion

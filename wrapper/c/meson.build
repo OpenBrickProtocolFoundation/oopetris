@@ -52,3 +52,8 @@ pkg.generate(
     filebase: 'oopetris-c-wrapper',
     subdirs: 'oopetris'
 )
+
+
+if get_option('tests')
+    subdir('tests')
+endif
