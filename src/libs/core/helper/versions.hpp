@@ -13,9 +13,7 @@ namespace utils {
 #endif
 
 
-    [[nodiscard]] inline std::string version() {
-
-
+    [[nodiscard]] inline const char* version() {
         return STRINGIFY(OOPETRIS_VERSION);
     }
 

@@ -27,7 +27,7 @@ struct OOPetrisRecordingReturnValueImpl {
     bool is_error;
     union {
         OOPetrisRecordingInformation* information;
-        const char* error;
+        char* error;
     } value;
 };
 
@@ -35,9 +35,10 @@ struct OOPetrisRecordingReturnValueImpl {
 static OOPetrisRecordingReturnValue*
 construct_error_from_cstr_impl(OOPetrisRecordingReturnValue* return_value, const char* value, size_t length) {
 
-    const char* alloced_str = malloc(length + 1);
+    auto* alloced_str = static_cast<char*>(malloc(length + 1));
 
     if (alloced_str == nullptr) {
+        free(return_value);
         return nullptr;
     }
 
@@ -45,6 +46,8 @@ construct_error_from_cstr_impl(OOPetrisRecordingReturnValue* return_value, const
 
     return_value->is_error = true;
     return_value->value.error = alloced_str;
+
+    return return_value;
 }
 
 static OOPetrisRecordingReturnValue*
@@ -54,12 +57,12 @@ construct_error_from_cstr(OOPetrisRecordingReturnValue* return_value, const char
 
 static OOPetrisRecordingReturnValue*
 construct_error_from_string(OOPetrisRecordingReturnValue* return_value, const std::string& value) {
-    return construct_error_from_cstr_impl(return_value, value, value.size());
+    return construct_error_from_cstr_impl(return_value, value.c_str(), value.size());
 }
 
 OOPetrisRecordingReturnValue* oopetris_get_recording_information(const char* file_path) {
 
-    OOPetrisRecordingReturnValue* return_value = malloc(sizeof(OOPetrisRecordingReturnValue));
+    auto* return_value = static_cast<OOPetrisRecordingReturnValue*>(malloc(sizeof(OOPetrisRecordingReturnValue)));
 
     if (return_value == nullptr) {
         return nullptr;
@@ -72,7 +75,7 @@ OOPetrisRecordingReturnValue* oopetris_get_recording_information(const char* fil
 
     if (not std::filesystem::exists(file_path)) {
         std::string error = "File '";
-        error += filePath;
+        error += file_path;
         error += "' doesn't exist!";
 
         return construct_error_from_string(return_value, error);
@@ -82,7 +85,7 @@ OOPetrisRecordingReturnValue* oopetris_get_recording_information(const char* fil
 
     if (not parsed.has_value()) {
         std::string error = "An error occurred during parsing of the recording file '";
-        error += filePath;
+        error += file_path;
         error += "': ";
         error += parsed.error();
 
@@ -121,25 +124,26 @@ void oopetris_free_recording_value_only(OOPetrisRecordingReturnValue** informati
 
 void oopetris_free_recording_value_whole(OOPetrisRecordingReturnValue** information) {
     if (oopetris_is_error(*information)) {
-        free(**information->value->error);
+        free((*information)->value.error);
     } else {
-        oopetris_free_recording_information(&(*information->value->information));
+        oopetris_free_recording_information(&((*information)->value.information));
     }
 
     oopetris_free_recording_value_only(information);
 }
 
 const char* oopetris_get_lib_version() {
-    // this is a string literal and in static (global) storage, so safe to return and don't create a memory leak
-    return utils::version().c_str();
+    return utils::version();
 }
 
 GridProperties* oopetris_get_grid_properties() {
-    GridProperties* properties = malloc(siezof(GridProperties));
+    auto* properties = static_cast<GridProperties*>(malloc(sizeof(GridProperties)));
     if (properties == nullptr) {
         return nullptr;
     }
 
     properties->height = grid::height_in_tiles;
     properties->width = grid::width_in_tiles;
+
+    return properties;
 }
