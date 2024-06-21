@@ -2,7 +2,8 @@
 
 ## What is this
 
-This are wrappers of some OOPEtris functionaility in other languages
+This are wrappers of some OOPEtris functionaility in other languages.
+They are all in submodules alias in a seperate git repo.
 
 They currently wrap this:
 - OOPetris Recordings
@@ -20,6 +21,7 @@ Current:
 Planned:
 - Python
 - Lua
+- Java
 - Haskell
 
 ## Other
