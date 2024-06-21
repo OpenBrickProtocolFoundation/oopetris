@@ -1695,31 +1695,35 @@ void stbds_unit_tests(void)
   hmdefault(intmap, -2);
   STBDS_ASSERT(hmgeti(intmap, i) == -1);
   STBDS_ASSERT(hmget (intmap, i) == -2);
-  for (i=0; i < testsize; i+=2)
+  for (i=0; i < testsize; i+=2){
     hmput(intmap, i, i*5);
+  }
   for (i=0; i < testsize; i+=1) {
-    if (i & 1) STBDS_ASSERT(hmget(intmap, i) == -2 );
-    else       STBDS_ASSERT(hmget(intmap, i) == i*5);
-    if (i & 1) STBDS_ASSERT(hmget_ts(intmap, i, temp) == -2 );
-    else       STBDS_ASSERT(hmget_ts(intmap, i, temp) == i*5);
+    if (i & 1) {STBDS_ASSERT(hmget(intmap, i) == -2 );}
+    else      { STBDS_ASSERT(hmget(intmap, i) == i*5);}
+    if (i & 1) {STBDS_ASSERT(hmget_ts(intmap, i, temp) == -2 );}
+    else       {STBDS_ASSERT(hmget_ts(intmap, i, temp) == i*5);}
   }
   for (i=0; i < testsize; i+=2)
     hmput(intmap, i, i*3);
-  for (i=0; i < testsize; i+=1)
-    if (i & 1) STBDS_ASSERT(hmget(intmap, i) == -2 );
-    else       STBDS_ASSERT(hmget(intmap, i) == i*3);
+  for (i=0; i < testsize; i+=1){
+    if (i & 1) {STBDS_ASSERT(hmget(intmap, i) == -2 );}
+    else       {STBDS_ASSERT(hmget(intmap, i) == i*3);}}
   for (i=2; i < testsize; i+=4)
     hmdel(intmap, i); // delete half the entries
-  for (i=0; i < testsize; i+=1)
-    if (i & 3) STBDS_ASSERT(hmget(intmap, i) == -2 );
-    else       STBDS_ASSERT(hmget(intmap, i) == i*3);
-  for (i=0; i < testsize; i+=1)
+  for (i=0; i < testsize; i+=1){
+    if (i & 3){ STBDS_ASSERT(hmget(intmap, i) == -2 );}
+    else      { STBDS_ASSERT(hmget(intmap, i) == i*3);}}
+  for (i=0; i < testsize; i+=1){
     hmdel(intmap, i); // delete the rest of the entries
-  for (i=0; i < testsize; i+=1)
+    }
+  for (i=0; i < testsize; i+=1){
     STBDS_ASSERT(hmget(intmap, i) == -2 );
+  }
   hmfree(intmap);
-  for (i=0; i < testsize; i+=2)
+  for (i=0; i < testsize; i+=2){
     hmput(intmap, i, i*3);
+  }
   hmfree(intmap);
 
   #if defined(__clang__) || defined(__GNUC__)
@@ -1735,7 +1739,7 @@ void stbds_unit_tests(void)
   #endif
 
   for (i=0; i < testsize; ++i)
-    stralloc(&sa, strkey(i));
+  {  stralloc(&sa, strkey(i));}
   strreset(&sa);
 
   {
@@ -1778,18 +1782,22 @@ void stbds_unit_tests(void)
     STBDS_ASSERT(shgeti(strmap,"foo") == -1);
     for (i=0; i < testsize; i+=2)
       shput(strmap, strkey(i), i*3);
-    for (i=0; i < testsize; i+=1)
-      if (i & 1) STBDS_ASSERT(shget(strmap, strkey(i)) == -2 );
-      else       STBDS_ASSERT(shget(strmap, strkey(i)) == i*3);
+    for (i=0; i < testsize; i+=1){
+      if (i & 1) {STBDS_ASSERT(shget(strmap, strkey(i)) == -2 );}
+      else   {    STBDS_ASSERT(shget(strmap, strkey(i)) == i*3);}
+    }
     for (i=2; i < testsize; i+=4)
       shdel(strmap, strkey(i)); // delete half the entries
-    for (i=0; i < testsize; i+=1)
-      if (i & 3) STBDS_ASSERT(shget(strmap, strkey(i)) == -2 );
-      else       STBDS_ASSERT(shget(strmap, strkey(i)) == i*3);
-    for (i=0; i < testsize; i+=1)
+    for (i=0; i < testsize; i+=1){
+      if (i & 3){ STBDS_ASSERT(shget(strmap, strkey(i)) == -2 );}
+      else      { STBDS_ASSERT(shget(strmap, strkey(i)) == i*3);}
+    }
+    for (i=0; i < testsize; i+=1){
       shdel(strmap, strkey(i)); // delete the rest of the entries
-    for (i=0; i < testsize; i+=1)
+    }
+    for (i=0; i < testsize; i+=1){
       STBDS_ASSERT(shget(strmap, strkey(i)) == -2 );
+    }
     shfree(strmap);
   }
 
@@ -1814,10 +1822,10 @@ void stbds_unit_tests(void)
   for (i=0; i < testsize; i += 1) {
     stbds_struct s = { i,i*2,i*3  ,i*4 };
     stbds_struct t = { i,i*2,i*3+1,i*4 };
-    if (i & 1) STBDS_ASSERT(hmget(map, s) == 0);
-    else       STBDS_ASSERT(hmget(map, s) == i*5);
-    if (i & 1) STBDS_ASSERT(hmget_ts(map, s, temp) == 0);
-    else       STBDS_ASSERT(hmget_ts(map, s, temp) == i*5);
+    if (i & 1) {STBDS_ASSERT(hmget(map, s) == 0);}
+    else       {STBDS_ASSERT(hmget(map, s) == i*5);}
+    if (i & 1) {STBDS_ASSERT(hmget_ts(map, s, temp) == 0);}
+    else     {  STBDS_ASSERT(hmget_ts(map, s, temp) == i*5);}
     //STBDS_ASSERT(hmget(map, t.key) == 0);
   }
 
@@ -1830,8 +1838,8 @@ void stbds_unit_tests(void)
   for (i=0; i < testsize; i += 1) {
     stbds_struct s = { i,i*2,i*3,i*4 };
     stbds_struct t = { i,i*2,i*3+1,i*4 };
-    if (i & 1) STBDS_ASSERT(hmgets(map2, s.key).d == 0);
-    else       STBDS_ASSERT(hmgets(map2, s.key).d == i*4);
+    if (i & 1){ STBDS_ASSERT(hmgets(map2, s.key).d == 0);}
+    else       {STBDS_ASSERT(hmgets(map2, s.key).d == i*4);}
     //STBDS_ASSERT(hmgetp(map2, t.key) == 0);
   }
   hmfree(map2);
@@ -1843,8 +1851,8 @@ void stbds_unit_tests(void)
   for (i=0; i < testsize; i += 1) {
     stbds_struct2 s = { { i,i*2}, i*3, i*4, i*5 };
     stbds_struct2 t = { { i,i*2}, i*3+1, i*4, i*5 };
-    if (i & 1) STBDS_ASSERT(hmgets(map3, s.key).d == 0);
-    else       STBDS_ASSERT(hmgets(map3, s.key).d == i*5);
+    if (i & 1) {STBDS_ASSERT(hmgets(map3, s.key).d == 0);}
+    else    {   STBDS_ASSERT(hmgets(map3, s.key).d == i*5);}
     //STBDS_ASSERT(hmgetp(map3, t.key) == 0);
   }
 #endif

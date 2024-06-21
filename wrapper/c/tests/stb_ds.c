@@ -13,8 +13,13 @@
 #endif
 
 
+void assert_impl(bool x) {
+    cr_assert(x);
+}
+
 #define STBDS_UNIT_TESTS
-#define STBDS_ASSERT(x) cr_assert(x)
+#define STBDS_ASSERT(x) assert_impl(x);
+
 
 #include "./thirdparty/stb_ds.h"
 
