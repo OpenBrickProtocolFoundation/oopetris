@@ -469,6 +469,12 @@ void oopetris_free_recording_information(OOPetrisRecordingInformation** informat
 
     stbds_arrfree((*information)->records);
 
+
+    for (std::size_t i = 0; i < stbds_arrlenu((*information)->snapshots); ++i) {
+        const auto* mino_stack = (*information)->snapshots[i].mino_stack;
+        stbds_arrfree(mino_stack);
+    }
+
     stbds_arrfree((*information)->snapshots);
 
     stbds_arrfree((*information)->tetrion_headers);
