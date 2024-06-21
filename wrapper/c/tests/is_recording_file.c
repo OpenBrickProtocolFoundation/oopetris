@@ -1,6 +1,6 @@
 #include <criterion/criterion.h>
 
-#include <oopetris/oopetris_wrapper.h>
+#include "oopetris_wrapper.h"
 
 Test(IsRecordingFile, NullptrAsArgument) {
     bool is_recordings_file = oopetris_is_recording_file(NULL);

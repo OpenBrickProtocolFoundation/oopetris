@@ -2,7 +2,7 @@
 #include <criterion/new/assert.h>
 #include <string.h>
 
-#include <oopetris/oopetris_wrapper.h>
+#include "oopetris_wrapper.h"
 
 // this tests likely fail, if we update the lib, but this failure on version bump serves as remainder,to check, if other things need changing too, since wrapper may become outdated otherwise
 

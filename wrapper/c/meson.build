@@ -40,6 +40,7 @@ liboopetris_c_wrapper_dep = declare_dependency(
     link_with: liboopetris_c_wrapper,
     dependencies: deps,
     version: meson.project_version(),
+    include_directories: include_directories('src'),
 )
 meson.override_dependency('liboopetris-c-wrapper', liboopetris_c_wrapper_dep)
 

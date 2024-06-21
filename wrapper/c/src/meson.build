@@ -7,4 +7,10 @@ install_headers(
     preserve_path: true,
 )
 
+install_headers(
+    files('thirdparty/stb_ds.h'),
+    install_dir: c_wrapper_include_dir / 'thirdparty',
+    preserve_path: true,
+)
+
 src_files += files('wrapper.cpp')

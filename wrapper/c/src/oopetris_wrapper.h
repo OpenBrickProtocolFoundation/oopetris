@@ -2,13 +2,18 @@
 
 #pragma once
 
+// assure we only include the header and with correct defines
+#ifndef STBDS_NO_SHORT_NAMES
 #define STBDS_NO_SHORT_NAMES
+#endif
+#ifdef STB_DS_IMPLEMENTATION
+#undef STB_DS_IMPLEMENTATION
+#endif
 #include "./thirdparty/stb_ds.h"
 
 
 #ifdef __cplusplus
 extern "C" {
-#else
 #endif
 #include <stdbool.h>
 #include <stdint.h>
@@ -24,16 +29,66 @@ bool oopetris_is_recording_file(const char* file_path);
 // opaque type
 typedef struct OOPetrisAdditionalInformationImpl OOPetrisAdditionalInformation;
 
+// opaque type
+typedef struct OOPetrisAdditionalInformationFieldImpl OOPetrisAdditionalInformationField;
 
 const char** oopetris_additional_information_get_keys(OOPetrisAdditionalInformation* information);
 
 
 void oopetris_additional_information_keys_free(const char*** keys);
 
-//TODO: make functions to introspect this
+const OOPetrisAdditionalInformationField*
+oopetris_additional_information_get_field(OOPetrisAdditionalInformation* information, const char* key);
 
 
-typedef enum : uint8_t {
+//TODO(): once we only support C23 (which also the compiled lib has to support ), add underlying enum type uint8_t
+typedef enum {
+    OOPetrisAdditionalInformationType_String = 0,
+    OOPetrisAdditionalInformationType_Float,
+    OOPetrisAdditionalInformationType_Double,
+    OOPetrisAdditionalInformationType_Bool,
+    OOPetrisAdditionalInformationType_U8,
+    OOPetrisAdditionalInformationType_I8,
+    OOPetrisAdditionalInformationType_U32,
+    OOPetrisAdditionalInformationType_I32,
+    OOPetrisAdditionalInformationType_U64,
+    OOPetrisAdditionalInformationType_I64,
+    OOPetrisAdditionalInformationType_Vector,
+} OOPetrisAdditionalInformationType;
+
+
+OOPetrisAdditionalInformationType oopetris_additional_information_field_get_type(
+        const OOPetrisAdditionalInformationField* const field
+);
+
+const char* oopetris_additional_information_field_get_string(const OOPetrisAdditionalInformationField* const field);
+
+float oopetris_additional_information_field_get_float(const OOPetrisAdditionalInformationField* const field);
+
+double oopetris_additional_information_field_get_double(const OOPetrisAdditionalInformationField* const field);
+
+bool oopetris_additional_information_field_get_bool(const OOPetrisAdditionalInformationField* const field);
+
+uint8_t oopetris_additional_information_field_get_u8(const OOPetrisAdditionalInformationField* const field);
+
+int8_t oopetris_additional_information_field_get_i8(const OOPetrisAdditionalInformationField* const field);
+
+uint32_t oopetris_additional_information_field_get_u32(const OOPetrisAdditionalInformationField* const field);
+
+
+int32_t oopetris_additional_information_field_get_i32(const OOPetrisAdditionalInformationField* const field);
+
+uint64_t oopetris_additional_information_field_get_u64(const OOPetrisAdditionalInformationField* const field);
+
+int64_t oopetris_additional_information_field_get_i64(const OOPetrisAdditionalInformationField* const field);
+
+const OOPetrisAdditionalInformationField* const* oopetris_additional_information_field_get_vector(
+        const OOPetrisAdditionalInformationField* const field
+);
+
+
+//TODO(): once we only support C23 (which also the compiled lib has to support ), add underlying enum type uint8_t
+typedef enum {
     OOPetrisInputEvent_RotateLeftPressed = 0,
     OOPetrisInputEvent_RotateRightPressed,
     OOPetrisInputEvent_MoveLeftPressed,
@@ -61,7 +116,9 @@ typedef struct {
     uint8_t y;
 } OOpetrisMinoPosition;
 
-typedef enum : uint8_t {
+
+//TODO(): once we only support C23 (which also the compiled lib has to support ), add underlying enum type uint8_t
+typedef enum {
     OOPetrisTetrominoType_I = 0,
     OOPetrisTetrominoType_J,
     OOPetrisTetrominoType_L,
@@ -135,14 +192,14 @@ void oopetris_free_recording_value_only(OOPetrisRecordingReturnValue** informati
 
 void oopetris_free_recording_value_whole(OOPetrisRecordingReturnValue** information);
 
-const char* oopetris_get_lib_version();
+const char* oopetris_get_lib_version(void);
 
 typedef struct {
     uint32_t height;
     uint32_t width;
 } OOPetrisGridProperties;
 
-OOPetrisGridProperties* oopetris_get_grid_properties();
+OOPetrisGridProperties* oopetris_get_grid_properties(void);
 
 void oopetris_free_grid_properties(OOPetrisGridProperties** properties);
 

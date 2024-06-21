@@ -11,7 +11,6 @@
 #define STB_DS_IMPLEMENTATION
 #define STBDS_NO_SHORT_NAMES
 #define STBDS_SIPHASH_2_4
-
 #include "./thirdparty/stb_ds.h"
 
 
@@ -22,8 +21,8 @@
 
 #include <core/core.hpp>
 #include <cstring>
+#include <ctime>
 #include <recordings/recordings.hpp>
-#include <time.h>
 
 
 bool oopetris_is_recording_file(const char* file_path) {
@@ -79,22 +78,6 @@ construct_error_from_string(OOPetrisRecordingReturnValue* return_value, const st
     return construct_error_from_cstr_impl(return_value, value.c_str(), value.size());
 }
 
-
-typedef enum : uint8_t {
-    OOPetrisAdditionalInformationType_String = 0,
-    OOPetrisAdditionalInformationType_Float,
-    OOPetrisAdditionalInformationType_Double,
-    OOPetrisAdditionalInformationType_Bool,
-    OOPetrisAdditionalInformationType_U8,
-    OOPetrisAdditionalInformationType_I8,
-    OOPetrisAdditionalInformationType_U32,
-    OOPetrisAdditionalInformationType_I32,
-    OOPetrisAdditionalInformationType_U64,
-    OOPetrisAdditionalInformationType_I64,
-    OOPetrisAdditionalInformationType_Vector,
-} OOPetrisAdditionalInformationType;
-
-typedef struct OOPetrisAdditionalInformationFieldImpl OOPetrisAdditionalInformationField;
 
 struct OOPetrisAdditionalInformationFieldImpl {
     OOPetrisAdditionalInformationType type;
@@ -291,6 +274,90 @@ const char** oopetris_additional_information_get_keys(OOPetrisAdditionalInformat
 void oopetris_additional_information_keys_free(const char*** keys) {
     stbds_arrfree(*keys);
     *keys = NULL;
+}
+
+const OOPetrisAdditionalInformationField*
+oopetris_additional_information_get_field(OOPetrisAdditionalInformation* information, const char* key) {
+
+    const auto index = stbds_shgeti(information, key);
+
+    if (index < 0) {
+        return nullptr;
+    }
+
+    return information[index].value;
+}
+
+
+OOPetrisAdditionalInformationType oopetris_additional_information_field_get_type(
+        const OOPetrisAdditionalInformationField* const field
+) {
+    return field->type;
+}
+
+const char* oopetris_additional_information_field_get_string(const OOPetrisAdditionalInformationField* const field) {
+    assert(oopetris_additional_information_field_get_type(field) == OOPetrisAdditionalInformationType_String);
+    return field->value.string;
+}
+
+float oopetris_additional_information_field_get_float(const OOPetrisAdditionalInformationField* const field) {
+    assert(oopetris_additional_information_field_get_type(field) == OOPetrisAdditionalInformationType_Float);
+    return field->value.float_v;
+}
+
+double oopetris_additional_information_field_get_double(const OOPetrisAdditionalInformationField* const field) {
+    assert(oopetris_additional_information_field_get_type(field) == OOPetrisAdditionalInformationType_Double);
+    return field->value.double_v;
+}
+
+
+bool oopetris_additional_information_field_get_bool(const OOPetrisAdditionalInformationField* const field) {
+    assert(oopetris_additional_information_field_get_type(field) == OOPetrisAdditionalInformationType_Bool);
+    return field->value.bool_v;
+}
+
+
+uint8_t oopetris_additional_information_field_get_u8(const OOPetrisAdditionalInformationField* const field) {
+    assert(oopetris_additional_information_field_get_type(field) == OOPetrisAdditionalInformationType_U8);
+    return field->value.u8;
+}
+
+
+int8_t oopetris_additional_information_field_get_i8(const OOPetrisAdditionalInformationField* const field) {
+    assert(oopetris_additional_information_field_get_type(field) == OOPetrisAdditionalInformationType_I8);
+    return field->value.i8;
+}
+
+
+uint32_t oopetris_additional_information_field_get_u32(const OOPetrisAdditionalInformationField* const field) {
+    assert(oopetris_additional_information_field_get_type(field) == OOPetrisAdditionalInformationType_U32);
+    return field->value.u32;
+}
+
+
+int32_t oopetris_additional_information_field_get_i32(const OOPetrisAdditionalInformationField* const field) {
+    assert(oopetris_additional_information_field_get_type(field) == OOPetrisAdditionalInformationType_I32);
+    return field->value.i32;
+}
+
+
+uint64_t oopetris_additional_information_field_get_u64(const OOPetrisAdditionalInformationField* const field) {
+    assert(oopetris_additional_information_field_get_type(field) == OOPetrisAdditionalInformationType_U64);
+    return field->value.u64;
+}
+
+
+int64_t oopetris_additional_information_field_get_i64(const OOPetrisAdditionalInformationField* const field) {
+    assert(oopetris_additional_information_field_get_type(field) == OOPetrisAdditionalInformationType_I64);
+    return field->value.i64;
+}
+
+
+const OOPetrisAdditionalInformationField* const* oopetris_additional_information_field_get_vector(
+        const OOPetrisAdditionalInformationField* const field
+) {
+    assert(oopetris_additional_information_field_get_type(field) == OOPetrisAdditionalInformationType_Vector);
+    return field->value.vector;
 }
 
 
@@ -498,11 +565,11 @@ void oopetris_free_recording_value_whole(OOPetrisRecordingReturnValue** informat
     oopetris_free_recording_value_only(information);
 }
 
-const char* oopetris_get_lib_version() {
+const char* oopetris_get_lib_version(void) {
     return utils::version();
 }
 
-OOPetrisGridProperties* oopetris_get_grid_properties() {
+OOPetrisGridProperties* oopetris_get_grid_properties(void) {
     auto* properties = static_cast<OOPetrisGridProperties*>(malloc(sizeof(OOPetrisGridProperties)));
     if (properties == nullptr) {
         return nullptr;
