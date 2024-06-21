@@ -1,0 +1,6 @@
+[submodule "wrapper/javascript"]
+	path = wrapper/javascript
+	url = https://github.com/Totto16/oopetris_wrapper_js.git
+[submodule "wrapper/c"]
+	path = wrapper/c
+	url = https://github.com/Totto16/oopetris_wrapper_c.git
