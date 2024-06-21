@@ -2,6 +2,7 @@ test_deps = []
 
 test_src = [
     files(
+        'get_recording_information.c',
         'information.c',
         'is_recording_file.c',
     ),

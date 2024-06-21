@@ -56,3 +56,7 @@ pkg.generate(
 if get_option('tests')
     subdir('tests')
 endif
+
+if get_option('example')
+    subdir('example')
+endif

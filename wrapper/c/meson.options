@@ -4,3 +4,10 @@ option(
     value: false,
     description: 'whether or not tests should be built',
 )
+
+option(
+    'example',
+    type: 'boolean',
+    value: false,
+    description: 'whether or not the example should be built',
+)

@@ -394,7 +394,7 @@ static OOPetrisRecordingInformation* recording_reader_to_c(const recorder::Recor
 
     auto tetrion_headers = value.tetrion_headers();
 
-    return_value->records = NULL;
+    return_value->tetrion_headers = NULL;
     stbds_arrsetlen(return_value->tetrion_headers, tetrion_headers.size());
 
     for (std::size_t i = 0; i < tetrion_headers.size(); ++i) {
