@@ -26,14 +26,14 @@ graphics_lib = {
 }
 
 if meson.is_cross_build() and host_machine.system() == 'serenity'
-    core_lib += {
-        'compile_args': [
-            core_lib.get('compile_args'),
-            '-D__SERENITY__',
-            '-DINSTALL_FILES',
-            '-DINSTALL_LOCATION=' + get_option('prefix'),
-        ],
-    }
+    temp = core_lib.get('compile_args')
+    temp += [
+        '-D__SERENITY__',
+        '-DINSTALL_FILES',
+        '-DINSTALL_LOCATION=' + get_option('prefix'),
+    ]
+    core_lib += {'compile_args': temp}
+    temp = 0
 endif
 
 cpp = meson.get_compiler('cpp')
@@ -68,13 +68,18 @@ elif cpp.get_id() == 'clang'
 
     if build_with_libcpp
 
+        temp = core_lib.get('compile_args')
+        temp += '-stdlib=libc++'
+
         core_lib += {
+            'compile_args': temp,
             'deps': [
                 core_lib.get('deps'),
                 cpp.find_library('c++'),
                 cpp.find_library('c++abi'),
             ],
         }
+        temp = 0
 
         if not meson.is_subproject()
             add_global_link_arguments('-stdlib=libc++', language: ['cpp'])
@@ -86,7 +91,7 @@ elif cpp.get_id() == 'clang'
         endif
 
     else
-        # TODO: once clang with libstdc++ (gcc c++ stdlib) supports std::expectedt, remove this special behaviour
+        # TODO: once clang with libstdc++ (gcc c++ stdlib) supports std::expected, remove this special behaviour
         allow_tl_expected_fallback = true
     endif
 

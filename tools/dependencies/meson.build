@@ -3,9 +3,14 @@ only_allow_native_libs = false
 if meson.is_cross_build()
     if host_machine.system() == 'switch' or host_machine.system() == '3ds'
         # we do not link to code that was compiled with gcc 10.1 / gcc 7.1, the code we link with is all compiled with gcc 13.2
+
+        temp = core_lib.get('compile_args')
+        temp += '-Wno-psabi'
+
         core_lib += {
-            'compile_args': [core_lib.get('compile_args'), '-Wno-psabi'],
+            'compile_args': temp,
         }
+        temp = 0
 
         only_allow_native_libs = true
 
@@ -76,10 +81,14 @@ if not have_std_expected
     message('Compiler doesn\'t support std::expected, using fallback')
 
     tl_exp_dep = dependency('tl-expected', required: true)
+
+    temp = core_lib.get('compile_args')
+    temp += '-D_USE_TL_EXPECTED'
     core_lib += {
-        'compile_args': [core_lib.get('compile_args'), '-D_USE_TL_EXPECTED'],
+        'compile_args': temp,
         'deps': [core_lib.get('deps'), tl_exp_dep],
     }
+    temp = 0
 endif
 
 # check std::optional support
@@ -285,20 +294,20 @@ if build_application
 
         endif
 
-        core_lib += {
-            'compile_args': [
-                core_lib.get('compile_args'),
-                '-DBUILD_INSTALLER',
-            ],
-        }
+        temp = core_lib.get('compile_args')
+        temp += '-DBUILD_INSTALLER'
+        core_lib += {'compile_args': temp}
+        temp = 0
 
     endif
 
     if is_flatpak_build
         app_name = 'com.github.mgerhold.OOPetris'
-        core_lib += {
-            'compile_args': [core_lib.get('compile_args'), '-DFLATPAK_BUILD'],
-        }
+
+        temp = core_lib.get('compile_args')
+        temp += '-DFLATPAK_BUILD'
+        core_lib += {'compile_args': temp}
+        temp = 0
     endif
 
     have_file_dialogs = false
