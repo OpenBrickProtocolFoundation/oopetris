@@ -2,6 +2,9 @@
 
 #pragma once
 
+#define STBDS_NO_SHORT_NAMES
+#include "./thirdparty/stb_ds.h"
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -11,17 +14,94 @@ extern "C" {
 #include <stdint.h>
 
 /**
- * @brief this determines if a file (may be nonexistent) is a recording file, it is not guaranteed, tat a consecutive call to oopetris_get_recording_information never fails, if rthis returns true, but it's highly unliekely, and this is faster, as it doesn't do as much work
+ * @brief this determines if a file (may be nonexistent) is a recording file, it is not guaranteed, tat a consecutive call to oopetris_get_recording_information never fails, if this returns true, but it's highly unliekely, and this is faster, as it doesn't do as much work
  * 
  * @param file_path The FilePath of the potential recording file
  * @return bool
  */
 bool oopetris_is_recording_file(const char* file_path);
 
-// non opaque type, fields can be safely accessed, excpet the are opaque structs again
+// opaque type
+typedef struct OOPetrisAdditionalInformationImpl OOPetrisAdditionalInformation;
+
+
+const char** oopetris_additional_information_get_keys(OOPetrisAdditionalInformation* information);
+
+
+void oopetris_additional_information_keys_free(const char*** keys);
+
+//TODO: make functions to introspect this
+
+
+typedef enum : uint8_t {
+    OOPetrisInputEvent_RotateLeftPressed = 0,
+    OOPetrisInputEvent_RotateRightPressed,
+    OOPetrisInputEvent_MoveLeftPressed,
+    OOPetrisInputEvent_MoveRightPressed,
+    OOPetrisInputEvent_MoveDownPressed,
+    OOPetrisInputEvent_DropPressed,
+    OOPetrisInputEvent_HoldPressed,
+    OOPetrisInputEvent_RotateLeftReleased,
+    OOPetrisInputEvent_RotateRightReleased,
+    OOPetrisInputEvent_MoveLeftReleased,
+    OOPetrisInputEvent_MoveRightReleased,
+    OOPetrisInputEvent_MoveDownReleased,
+    OOPetrisInputEvent_DropReleased,
+    OOPetrisInputEvent_HoldReleased,
+} OOPetrisInputEvent;
+
 typedef struct {
-    bool i; //TODO
-    int z;
+    uint64_t simulation_step_index;
+    OOPetrisInputEvent event;
+    uint8_t tetrion_index;
+} OOPetrisTetrionRecord;
+
+typedef struct {
+    uint8_t x;
+    uint8_t y;
+} OOpetrisMinoPosition;
+
+typedef enum : uint8_t {
+    OOPetrisTetrominoType_I = 0,
+    OOPetrisTetrominoType_J,
+    OOPetrisTetrominoType_L,
+    OOPetrisTetrominoType_O,
+    OOPetrisTetrominoType_S,
+    OOPetrisTetrominoType_T,
+    OOPetrisTetrominoType_Z,
+} OOPetrisTetrominoType;
+
+typedef struct {
+    OOpetrisMinoPosition position;
+    OOPetrisTetrominoType type;
+} OOPetrisMino;
+
+typedef struct {
+    uint32_t level;
+    OOPetrisMino* mino_stack;
+    uint64_t score;
+    uint64_t simulation_step_index;
+    uint32_t lines_cleared;
+    uint8_t tetrion_index;
+} OOpetrisTetrionSnapshot;
+
+typedef struct {
+    uint64_t seed;
+    uint32_t starting_level;
+} OOPetrisTetrionHeader;
+
+
+/**
+ * @brief non opaque type, fields can be safely accessed, except they are opaque structs again
+ * The values that are pointers are dynamic array, as defined by stb_ds.h, see tests for usage example, an exception is the opaque type OOPetrisAdditionalInformation, you have to use some helper functions, to get access to it, it is a object / dict with dynamic types
+ * 
+ */
+typedef struct {
+    OOPetrisAdditionalInformation* information; //NOT AN ARRAY
+    OOPetrisTetrionRecord* records;
+    OOpetrisTetrionSnapshot* snapshots;
+    OOPetrisTetrionHeader* tetrion_headers;
+    uint32_t version;
 } OOPetrisRecordingInformation;
 
 
