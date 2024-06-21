@@ -5,6 +5,7 @@ test_src = [
         'get_recording_information.c',
         'information.c',
         'is_recording_file.c',
+        ## 'stb_ds.c', this test don't work atm
     ),
 ]
 
