@@ -69,7 +69,6 @@ elif cpp.get_id() == 'clang'
     if build_with_libcpp
 
         core_lib += {
-            'compile_args': [core_lib.get('compile_args'), '-stdlib=libc++'],
             'deps': [
                 core_lib.get('deps'),
                 cpp.find_library('c++'),
