@@ -1,4 +1,4 @@
-# OOpetris Noe.js Wrapper
+# OOpetris Node.js Wrapper
 
 
 ## What is this?

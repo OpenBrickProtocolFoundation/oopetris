@@ -15,10 +15,12 @@ Planned:
 
 Current:
 - Node.js
+- C
 
 Planned:
 - Python
 - Lua
+- Haskell
 
 ## Other
 

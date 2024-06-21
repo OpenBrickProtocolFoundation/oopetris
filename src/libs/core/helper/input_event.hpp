@@ -3,7 +3,7 @@
 #include "./types.hpp"
 
 enum class InputEvent : u8 {
-    RotateLeftPressed,
+    RotateLeftPressed = 0,
     RotateRightPressed,
     MoveLeftPressed,
     MoveRightPressed,
