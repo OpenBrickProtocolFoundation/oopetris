@@ -15,14 +15,14 @@ Planned:
 
 
 Current:
-- Node.js
-- C
+- Node.js (C++ binding)
+- C (C++ binding)
+- Haskell (C binding)
 
 Planned:
 - Python
 - Lua
 - Java
-- Haskell
 
 ## Other
 
