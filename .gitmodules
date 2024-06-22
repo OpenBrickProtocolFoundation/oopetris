@@ -4,3 +4,6 @@
 [submodule "wrapper/c"]
 	path = wrapper/c
 	url = https://github.com/Totto16/oopetris_wrapper_c.git
+[submodule "wrapper/haskell"]
+	path = wrapper/haskell
+	url = https://github.com/Totto16/oopetris_wrapper_haskell.git
