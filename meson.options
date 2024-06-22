@@ -25,4 +25,3 @@ option(
     value: false,
     description: 'if you only want to build the libs, enable this',
 )
-
