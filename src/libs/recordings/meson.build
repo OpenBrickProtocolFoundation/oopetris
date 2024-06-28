@@ -33,7 +33,6 @@ foreach value : recordings_lib.get('compile_args')
     endif
 endforeach
 
-
 liboopetris_recordings_dep = declare_dependency(
     link_with: liboopetris_recordings,
     include_directories: recordings_lib.get('inc_dirs'),
@@ -59,6 +58,7 @@ pkg.generate(
     subdirs: 'oopetris',
     extra_cflags: recordings_dep_compile_args,
     variables: ['compiler=' + pkg_cpp_compiler, 'cpp_stdlib=' + pkg_cpp_stdlib],
+    requires: ['oopetris-core'],
 )
 
 # setting this to strings, so += {...} gets detected as an error, if it is done after that
