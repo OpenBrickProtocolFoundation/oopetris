@@ -25,10 +25,19 @@ liboopetris_recordings = library(
     install: true,
 )
 
+## remove '-stdlib=libc++' from the list, if it's present
+recordings_dep_compile_args = []
+foreach value : recordings_lib.get('compile_args')
+    if value != '-stdlib=libc++'
+        recordings_dep_compile_args += value
+    endif
+endforeach
+
+
 liboopetris_recordings_dep = declare_dependency(
     link_with: liboopetris_recordings,
     include_directories: recordings_lib.get('inc_dirs'),
-    compile_args: recordings_lib.get('compile_args'),
+    compile_args: recordings_dep_compile_args,
     dependencies: recordings_lib.get('deps'),
     version: meson.project_version(),
 )
@@ -48,7 +57,7 @@ pkg.generate(
     name: 'oopetris-recordings',
     filebase: 'oopetris-recordings',
     subdirs: 'oopetris',
-    extra_cflags: recordings_lib.get('compile_args'),
+    extra_cflags: recordings_dep_compile_args,
     variables: ['compiler=' + pkg_cpp_compiler, 'cpp_stdlib=' + pkg_cpp_stdlib],
 )
 

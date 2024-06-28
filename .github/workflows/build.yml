@@ -41,7 +41,6 @@ jobs:
             library_type: static
             shell: "msys2 {0}"
 
-
           - name: Linux Release
             os: ubuntu
             os-version: 24.04
