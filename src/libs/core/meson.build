@@ -21,11 +21,18 @@ liboopetris_core = library(
     version: meson.project_version(),
     install: true,
 )
+## remove '-stdlib=libc++' from the list, if it's present
+core_dep_compile_args = []
+foreach value : core_lib.get('compile_args')
+    if value != '-stdlib=libc++'
+        core_dep_compile_args += value
+    endif
+endforeach
 
 liboopetris_core_dep = declare_dependency(
     link_with: liboopetris_core,
     include_directories: core_lib.get('inc_dirs'),
-    compile_args: core_lib.get('compile_args'),
+    compile_args: core_dep_compile_args,
     dependencies: core_lib.get('deps'),
     version: meson.project_version(),
 )
@@ -36,14 +43,6 @@ install_headers(
     install_dir: core_include_dir,
     preserve_path: true,
 )
-
-## remove '-stdlib=libc++' from the list, if it's present
-core_dep_compile_args = []
-foreach value : core_lib.get('compile_args')
-    if value != '-stdlib=libc++'
-        core_dep_compile_args += value
-    endif
-endforeach
 
 # generate pkgconfig files
 pkg = import('pkgconfig')
