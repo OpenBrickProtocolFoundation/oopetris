@@ -2,7 +2,7 @@
 
 ## What is this
 
-This are wrappers of some OOPEtris functionaility in other languages.
+This are wrappers of some OOPetris functionaility in other languages.
 They are all in submodules alias in a seperate git repo.
 
 They currently wrap this:
@@ -18,11 +18,12 @@ Current:
 - Node.js (C++ binding)
 - C (C++ binding)
 - Haskell (C binding)
+- Python (C++ binding)
 
 Planned:
-- Python
 - Lua
 - Java
+- Rust
 
 ## Other
 

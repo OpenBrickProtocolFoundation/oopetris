@@ -7,3 +7,6 @@
 [submodule "wrapper/haskell"]
 	path = wrapper/haskell
 	url = https://github.com/Totto16/oopetris_wrapper_haskell.git
+[submodule "wrapper/python"]
+	path = wrapper/python
+	url = https://github.com/Totto16/oopetris_wrapper_python.git
