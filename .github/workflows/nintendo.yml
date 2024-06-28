@@ -7,7 +7,7 @@ on:
     workflow_dispatch:
 
 jobs:
-    build:
+    nintendo-build:
         name: Nintendo ${{ matrix.config.name }} CI
         runs-on: ubuntu-24.04
         container:
