@@ -1,12 +1,16 @@
 [submodule "wrapper/javascript"]
 	path = wrapper/javascript
 	url = https://github.com/Totto16/oopetris_wrapper_js.git
+	ignore = dirty
 [submodule "wrapper/c"]
 	path = wrapper/c
 	url = https://github.com/Totto16/oopetris_wrapper_c.git
+	ignore = dirty
 [submodule "wrapper/haskell"]
 	path = wrapper/haskell
 	url = https://github.com/Totto16/oopetris_wrapper_haskell.git
+	ignore = dirty
 [submodule "wrapper/python"]
 	path = wrapper/python
 	url = https://github.com/Totto16/oopetris_wrapper_python.git
+	ignore = dirty
