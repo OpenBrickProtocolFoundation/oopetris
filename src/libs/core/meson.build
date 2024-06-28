@@ -22,18 +22,10 @@ liboopetris_core = library(
     install: true,
 )
 
-## remove '-stdlib=libc++' from the list, if it's present
-core_dep_compile_args = []
-foreach value : core_lib.get('compile_args')
-    if value != '-stdlib=libc++'
-        core_dep_compile_args += value
-    endif
-endforeach
-
 liboopetris_core_dep = declare_dependency(
     link_with: liboopetris_core,
     include_directories: core_lib.get('inc_dirs'),
-    compile_args: core_dep_compile_args,
+    compile_args: core_lib.get('compile_args'),
     dependencies: core_lib.get('deps'),
     version: meson.project_version(),
 )
@@ -45,6 +37,14 @@ install_headers(
     preserve_path: true,
 )
 
+## remove '-stdlib=libc++' from the list, if it's present
+core_dep_compile_args = []
+foreach value : core_lib.get('compile_args')
+    if value != '-stdlib=libc++'
+        core_dep_compile_args += value
+    endif
+endforeach
+
 # generate pkgconfig files
 pkg = import('pkgconfig')
 
@@ -54,7 +54,8 @@ pkg.generate(
     name: 'oopetris-core',
     filebase: 'oopetris-core',
     subdirs: 'oopetris',
-    extra_cflags: core_lib.get('compile_args'),
+    extra_cflags: core_dep_compile_args,
+    variables: ['compiler=' + pkg_cpp_compiler, 'cpp_stdlib=' + pkg_cpp_stdlib],
 )
 
 # setting this to strings, so += {...} gets detected as an error, if it is done after that
