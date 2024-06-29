@@ -58,7 +58,7 @@ pkg.generate(
     subdirs: 'oopetris',
     extra_cflags: recordings_dep_compile_args,
     variables: ['compiler=' + pkg_cpp_compiler, 'cpp_stdlib=' + pkg_cpp_stdlib],
-    requires: ['oopetris-core'],
+    requires: ['oopetris-core', 'fmt'],
 )
 
 # setting this to strings, so += {...} gets detected as an error, if it is done after that
