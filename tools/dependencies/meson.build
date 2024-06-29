@@ -39,8 +39,6 @@ if (
     and (host_machine.system() == 'switch' or host_machine.system() == '3ds')
 )
     fmt_use_header_only = true
-elif not build_application
-    fmt_use_header_only = true
 endif
 
 if fmt_use_header_only
