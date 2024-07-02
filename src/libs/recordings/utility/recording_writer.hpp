@@ -30,12 +30,12 @@ namespace recorder {
                 bool overwrite = false
         );
 
-        helper::expected<void, std::string> add_event(
+        [[nodiscard]] helper::expected<void, std::string> add_event(
                 u8 tetrion_index, // NOLINT(bugprone-easily-swappable-parameters)
                 u64 simulation_step_index,
                 InputEvent event
         );
-        helper::expected<void, std::string>
+        [[nodiscard]] helper::expected<void, std::string>
         add_snapshot(u8 tetrion_index, u64 simulation_step_index, std::unique_ptr<TetrionCoreInformation> information);
 
     private:
