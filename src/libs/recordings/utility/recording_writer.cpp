@@ -120,7 +120,6 @@ helper::expected<void, std::string> recorder::RecordingWriter::add_record(
 }
 
 helper::expected<void, std::string> recorder::RecordingWriter::add_snapshot(
-        const u8 tetrion_index,
         const u64 simulation_step_index,
         std::unique_ptr<TetrionCoreInformation> information
 ) {
@@ -133,9 +132,8 @@ helper::expected<void, std::string> recorder::RecordingWriter::add_snapshot(
         return helper::unexpected<std::string>{ result.error() };
     }
 
-    const auto snapshot = TetrionSnapshot{ tetrion_index,         information->level,
-                                           information->score,    information->lines_cleared,
-                                           simulation_step_index, information->mino_stack };
+    const auto snapshot = TetrionSnapshot{ information->tetrion_index, information->level,    information->score,
+                                           information->lines_cleared, simulation_step_index, information->mino_stack };
 
     const auto bytes = snapshot.to_bytes();
     result = helper::writer::write_vector_to_file(m_output_file, bytes);

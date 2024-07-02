@@ -36,7 +36,7 @@ namespace recorder {
                 InputEvent event
         );
         [[nodiscard]] helper::expected<void, std::string>
-        add_snapshot(u8 tetrion_index, u64 simulation_step_index, std::unique_ptr<TetrionCoreInformation> information);
+        add_snapshot(u64 simulation_step_index, std::unique_ptr<TetrionCoreInformation> information);
 
     private:
         static helper::expected<void, std::string>
