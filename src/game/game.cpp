@@ -35,7 +35,8 @@ Game::Game(
                                      tetrion_index](InputEvent event, SimulationStep simulation_step_index) {
             spdlog::debug("event: {} (step {})", magic_enum::enum_name(event), simulation_step_index);
 
-            recording_writer->add_event(tetrion_index, simulation_step_index, event);
+            //TODO(Totto): Remove all occurrences of std::ignore, where we shouldn't ignore this return value
+            std::ignore = recording_writer->add_record(tetrion_index, simulation_step_index, event);
         });
     }
 }

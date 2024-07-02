@@ -46,9 +46,9 @@ namespace lobby {
         // lobby commit used: https://github.com/OpenBrickProtocolFoundation/lobby/commit/2e0c8d05592f4e4d08437e6cb754a30f02c4e97c
         static constexpr StaticString supported_version{ "0.1.0" };
 
-        helper::expected<void, std::string> check_compatibility();
+        [[nodiscard]] helper::expected<void, std::string> check_compatibility();
 
-        helper::expected<void, std::string> check_reachability();
+        [[nodiscard]] helper::expected<void, std::string> check_reachability();
 
         explicit Client(const std::string& api_url);
 
@@ -66,30 +66,32 @@ namespace lobby {
 
         ~Client();
 
-        helper::expected<Client, std::string> static get_client(const std::string& url);
+        [[nodiscard]] helper::expected<Client, std::string> static get_client(const std::string& url);
 
 
-        bool is_authenticated();
+        [[nodiscard]] bool is_authenticated();
 
-        bool authenticate(const Credentials& credentials);
+        [[nodiscard]] bool authenticate(const Credentials& credentials);
 
-        helper::expected<std::vector<LobbyInfo>, std::string> get_lobbies();
+        [[nodiscard]] helper::expected<std::vector<LobbyInfo>, std::string> get_lobbies();
 
-        helper::expected<void, std::string> join_lobby(int lobby_id);
+        [[nodiscard]] helper::expected<void, std::string> join_lobby(int lobby_id);
 
-        helper::expected<LobbyDetail, std::string> get_lobby_detail(int lobby_id);
+        [[nodiscard]] helper::expected<LobbyDetail, std::string> get_lobby_detail(int lobby_id);
 
-        helper::expected<void, std::string> delete_lobby(int lobby_id);
+        [[nodiscard]] helper::expected<void, std::string> delete_lobby(int lobby_id);
 
-        helper::expected<void, std::string> leave_lobby(int lobby_id);
+        [[nodiscard]] helper::expected<void, std::string> leave_lobby(int lobby_id);
 
-        helper::expected<void, std::string> start_lobby(int lobby_id);
+        [[nodiscard]] helper::expected<void, std::string> start_lobby(int lobby_id);
 
-        helper::expected<LobbyCreateResponse, std::string> create_lobby(const CreateLobbyRequest& arguments);
+        [[nodiscard]] helper::expected<LobbyCreateResponse, std::string> create_lobby(
+                const CreateLobbyRequest& arguments
+        );
 
-        helper::expected<std::vector<PlayerInfo>, std::string> get_users();
+        [[nodiscard]] helper::expected<std::vector<PlayerInfo>, std::string> get_users();
 
-        helper::expected<void, std::string> register_user(const RegisterRequest& register_request);
+        [[nodiscard]] helper::expected<void, std::string> register_user(const RegisterRequest& register_request);
     };
 
 

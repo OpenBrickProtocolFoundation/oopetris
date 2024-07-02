@@ -19,10 +19,22 @@ recorder::RecordingWriter::RecordingWriter(RecordingWriter&& old) noexcept
 helper::expected<recorder::RecordingWriter, std::string> recorder::RecordingWriter::get_writer(
         const std::filesystem::path& path,
         std::vector<TetrionHeader>&& tetrion_headers,
-        AdditionalInformation&& information
+        AdditionalInformation&& information,
+        bool overwrite
 ) {
+    auto mode = std::ios::out | std::ios::binary;
+    if (overwrite) {
+        if (std::filesystem::exists(path)) {
+            return helper::unexpected<std::string>{
+                fmt::format("file already exists, not overwriting it: \"{}\"", path.string())
+            };
+        }
+    } else {
+        mode |= std::ios::trunc;
+    }
 
-    auto output_file = std::ofstream{ path, std::ios::out | std::ios::binary };
+
+    auto output_file = std::ofstream{ path, mode };
 
     if (not output_file) {
         return helper::unexpected<std::string>{ fmt::format("failed to open output file \"{}\"", path.string()) };
@@ -74,7 +86,7 @@ helper::expected<recorder::RecordingWriter, std::string> recorder::RecordingWrit
     return RecordingWriter{ std::move(output_file), std::move(tetrion_headers), std::move(information) };
 }
 
-helper::expected<void, std::string> recorder::RecordingWriter::add_event(
+helper::expected<void, std::string> recorder::RecordingWriter::add_record(
         const u8 tetrion_index, // NOLINT(bugprone-easily-swappable-parameters)
         const u64 simulation_step_index,
         const InputEvent event
@@ -108,7 +120,6 @@ helper::expected<void, std::string> recorder::RecordingWriter::add_event(
 }
 
 helper::expected<void, std::string> recorder::RecordingWriter::add_snapshot(
-        const u8 tetrion_index,
         const u64 simulation_step_index,
         std::unique_ptr<TetrionCoreInformation> information
 ) {
@@ -121,9 +132,8 @@ helper::expected<void, std::string> recorder::RecordingWriter::add_snapshot(
         return helper::unexpected<std::string>{ result.error() };
     }
 
-    const auto snapshot = TetrionSnapshot{ tetrion_index,         information->level,
-                                           information->score,    information->lines_cleared,
-                                           simulation_step_index, information->mino_stack };
+    const auto snapshot = TetrionSnapshot{ information->tetrion_index, information->level,    information->score,
+                                           information->lines_cleared, simulation_step_index, information->mino_stack };
 
     const auto bytes = snapshot.to_bytes();
     result = helper::writer::write_vector_to_file(m_output_file, bytes);

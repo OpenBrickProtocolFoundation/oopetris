@@ -26,16 +26,17 @@ namespace recorder {
         static helper::expected<RecordingWriter, std::string> get_writer(
                 const std::filesystem::path& path,
                 std::vector<TetrionHeader>&& tetrion_headers,
-                AdditionalInformation&& information
+                AdditionalInformation&& information,
+                bool overwrite = false
         );
 
-        helper::expected<void, std::string> add_event(
+        [[nodiscard]] helper::expected<void, std::string> add_record(
                 u8 tetrion_index, // NOLINT(bugprone-easily-swappable-parameters)
                 u64 simulation_step_index,
                 InputEvent event
         );
-        helper::expected<void, std::string>
-        add_snapshot(u8 tetrion_index, u64 simulation_step_index, std::unique_ptr<TetrionCoreInformation> information);
+        [[nodiscard]] helper::expected<void, std::string>
+        add_snapshot(u64 simulation_step_index, std::unique_ptr<TetrionCoreInformation> information);
 
     private:
         static helper::expected<void, std::string>
