@@ -252,7 +252,7 @@ void Tetrion::spawn_next_tetromino(const helper::TetrominoType type, const Simul
         spdlog::info("game over");
         if (m_recording_writer.has_value()) {
             spdlog::info("writing snapshot");
-            m_recording_writer.value()->add_snapshot(simulation_step_index, core_information());
+            std::ignore = m_recording_writer.value()->add_snapshot(simulation_step_index, core_information());
         }
         m_active_tetromino = {};
         m_ghost_tetromino = {};
@@ -456,7 +456,7 @@ void Tetrion::lock_active_tetromino(const SimulationStep simulation_step_index) 
 #if !defined(NDEBUG)
     if (m_recording_writer) {
         spdlog::debug("adding snapshot at step {}", simulation_step_index);
-        (*m_recording_writer)->add_snapshot(simulation_step_index, core_information());
+        std::ignore = (*m_recording_writer)->add_snapshot(simulation_step_index, core_information());
     }
 #endif
 }
