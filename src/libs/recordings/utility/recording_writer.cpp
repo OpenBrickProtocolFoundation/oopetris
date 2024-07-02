@@ -86,7 +86,7 @@ helper::expected<recorder::RecordingWriter, std::string> recorder::RecordingWrit
     return RecordingWriter{ std::move(output_file), std::move(tetrion_headers), std::move(information) };
 }
 
-helper::expected<void, std::string> recorder::RecordingWriter::add_event(
+helper::expected<void, std::string> recorder::RecordingWriter::add_record(
         const u8 tetrion_index, // NOLINT(bugprone-easily-swappable-parameters)
         const u64 simulation_step_index,
         const InputEvent event

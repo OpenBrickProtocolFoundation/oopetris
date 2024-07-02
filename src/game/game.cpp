@@ -35,7 +35,7 @@ Game::Game(
                                      tetrion_index](InputEvent event, SimulationStep simulation_step_index) {
             spdlog::debug("event: {} (step {})", magic_enum::enum_name(event), simulation_step_index);
 
-            recording_writer->add_event(tetrion_index, simulation_step_index, event);
+            recording_writer->add_record(tetrion_index, simulation_step_index, event);
         });
     }
 }

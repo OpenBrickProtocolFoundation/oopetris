@@ -30,7 +30,7 @@ namespace recorder {
                 bool overwrite = false
         );
 
-        [[nodiscard]] helper::expected<void, std::string> add_event(
+        [[nodiscard]] helper::expected<void, std::string> add_record(
                 u8 tetrion_index, // NOLINT(bugprone-easily-swappable-parameters)
                 u64 simulation_step_index,
                 InputEvent event
