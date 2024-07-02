@@ -26,7 +26,8 @@ namespace recorder {
         static helper::expected<RecordingWriter, std::string> get_writer(
                 const std::filesystem::path& path,
                 std::vector<TetrionHeader>&& tetrion_headers,
-                AdditionalInformation&& information
+                AdditionalInformation&& information,
+                bool overwrite = false
         );
 
         helper::expected<void, std::string> add_event(

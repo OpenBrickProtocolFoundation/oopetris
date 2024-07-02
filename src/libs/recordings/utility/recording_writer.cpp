@@ -19,10 +19,22 @@ recorder::RecordingWriter::RecordingWriter(RecordingWriter&& old) noexcept
 helper::expected<recorder::RecordingWriter, std::string> recorder::RecordingWriter::get_writer(
         const std::filesystem::path& path,
         std::vector<TetrionHeader>&& tetrion_headers,
-        AdditionalInformation&& information
+        AdditionalInformation&& information,
+        bool overwrite
 ) {
+    auto mode = std::ios::out | std::ios::binary;
+    if (overwrite) {
+        if (std::filesystem::exists(path)) {
+            return helper::unexpected<std::string>{
+                fmt::format("file already exists, not overwriting it: \"{}\"", path.string())
+            };
+        }
+    } else {
+        mode |= std::ios::trunc;
+    }
 
-    auto output_file = std::ofstream{ path, std::ios::out | std::ios::binary };
+
+    auto output_file = std::ofstream{ path, mode };
 
     if (not output_file) {
         return helper::unexpected<std::string>{ fmt::format("failed to open output file \"{}\"", path.string()) };
