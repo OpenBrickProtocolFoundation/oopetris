@@ -39,7 +39,6 @@ Tetrion::Tetrion(
             1, 3, ui::Direction::Vertical, ui::AbsolutMargin{ 0 }, std::pair<double, double>{ 0.0, 0.1 }
     );
 
-    //TODO:
     auto* text_layout = get_text_layout();
 
     constexpr auto text_size = utils::get_orientation() == utils::Orientation::Landscape

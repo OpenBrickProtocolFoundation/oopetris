@@ -37,6 +37,12 @@ public:
 
     ~Tetrion() override;
 
+    Tetrion(const Tetrion& other) = delete;
+    Tetrion& operator=(const Tetrion& other) = delete;
+
+    Tetrion(Tetrion&& other) noexcept = delete;
+    Tetrion& operator=(Tetrion&& other) noexcept = delete;
+
     void render(const ServiceProvider& service_provider) const override;
     [[nodiscard]] Widget::EventHandleResult
     handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override;

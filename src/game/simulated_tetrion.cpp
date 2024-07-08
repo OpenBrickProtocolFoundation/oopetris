@@ -29,6 +29,10 @@ SimulatedTetrion::SimulatedTetrion(
 
 SimulatedTetrion::~SimulatedTetrion() = default;
 
+SimulatedTetrion::SimulatedTetrion(const SimulatedTetrion& other) = default;
+
+SimulatedTetrion::SimulatedTetrion(SimulatedTetrion&& other) noexcept = default;
+
 void SimulatedTetrion::update_step(const SimulationStep simulation_step_index) {
     switch (m_game_state) {
         case GameState::Playing: {
@@ -324,7 +328,7 @@ void SimulatedTetrion::clear_fully_occupied_lines() {
 
 void SimulatedTetrion::lock_active_tetromino(const SimulationStep simulation_step_index) {
     assert(m_active_tetromino.has_value());
-    for (const Mino& mino : m_active_tetromino->minos()) {
+    for (const Mino& mino : m_active_tetromino->minos()) { // NOLINT(bugprone-unchecked-optional-access)
         m_mino_stack.set(mino.position(), mino.type());
     }
     m_allowed_to_hold = true;

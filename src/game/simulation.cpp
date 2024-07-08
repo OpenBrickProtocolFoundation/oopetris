@@ -5,15 +5,8 @@
 #include "core/helper/expected.hpp"
 #include "input/replay_input.hpp"
 #include "simulation.hpp"
-#include "ui/layout.hpp"
 
 #include <spdlog/spdlog.h>
-
-namespace {
-
-    const auto dummy_layout = ui::AbsolutLayout{ 0, 0, 0, 0 };
-
-}
 
 
 Simulation::Simulation(

@@ -115,8 +115,8 @@ namespace { //NOLINT(cert-dcl59-cpp,google-build-namespaces)
 
 
                 const auto temp_result = single_hex_color_value(
-                        input + offset
-                ); //NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+                        input + offset //NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+                );
 
                 PROPAGATE(temp_result, sdl::GUID, std::string);
 

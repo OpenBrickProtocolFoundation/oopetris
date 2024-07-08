@@ -58,16 +58,23 @@ private:
     u64 m_lock_delay_step_index;
 
 protected:
-    MinoStack m_mino_stack;
-    u32 m_level;
-    u32 m_lines_cleared = 0;
-    u64 m_score = 0;
+    MinoStack
+            m_mino_stack; // NOLINT(misc-non-private-member-variables-in-classes,cppcoreguidelines-non-private-member-variables-in-classes)
+    u32 m_level; // NOLINT(misc-non-private-member-variables-in-classes,cppcoreguidelines-non-private-member-variables-in-classes)
+    u32 m_lines_cleared = // NOLINT(misc-non-private-member-variables-in-classes,cppcoreguidelines-non-private-member-variables-in-classes)
+            0;
+    u64 m_score = // NOLINT(misc-non-private-member-variables-in-classes,cppcoreguidelines-non-private-member-variables-in-classes)
+            0;
 
 
-    std::optional<Tetromino> m_active_tetromino;
-    std::optional<Tetromino> m_ghost_tetromino;
-    std::optional<Tetromino> m_tetromino_on_hold;
-    std::array<std::optional<Tetromino>, num_preview_tetrominos> m_preview_tetrominos{};
+    std::optional<Tetromino>
+            m_active_tetromino; // NOLINT(misc-non-private-member-variables-in-classes,cppcoreguidelines-non-private-member-variables-in-classes)
+    std::optional<Tetromino>
+            m_ghost_tetromino; // NOLINT(misc-non-private-member-variables-in-classes,cppcoreguidelines-non-private-member-variables-in-classes)
+    std::optional<Tetromino>
+            m_tetromino_on_hold; // NOLINT(misc-non-private-member-variables-in-classes,cppcoreguidelines-non-private-member-variables-in-classes)
+    std::array<std::optional<Tetromino>, num_preview_tetrominos>
+            m_preview_tetrominos{}; // NOLINT(misc-non-private-member-variables-in-classes,cppcoreguidelines-non-private-member-variables-in-classes)
 
 private:
     Random m_random;
@@ -79,18 +86,25 @@ private:
     std::optional<std::shared_ptr<recorder::RecordingWriter>> m_recording_writer;
 
 protected:
-    ServiceProvider* const m_service_provider;
+    ServiceProvider*
+            m_service_provider; // NOLINT(misc-non-private-member-variables-in-classes,cppcoreguidelines-non-private-member-variables-in-classes)
 
 public:
     SimulatedTetrion(
             u8 tetrion_index,
             Random::Seed random_seed,
             u32 starting_level,
-            ServiceProvider* const service_provider,
+            ServiceProvider* service_provider,
             std::optional<std::shared_ptr<recorder::RecordingWriter>> recording_writer
     );
 
     virtual ~SimulatedTetrion();
+
+    SimulatedTetrion(const SimulatedTetrion& other);
+    SimulatedTetrion& operator=(const SimulatedTetrion& other) = delete;
+
+    SimulatedTetrion(SimulatedTetrion&& other) noexcept;
+    SimulatedTetrion& operator=(SimulatedTetrion&& other) noexcept = delete;
 
     void update_step(SimulationStep simulation_step_index);
 
@@ -145,7 +159,7 @@ private:
 
     [[nodiscard]] u64 get_gravity_delay_frames() const;
 
-    static u8 rotation_to_index(Rotation from, Rotation to);
+    static u8 rotation_to_index(Rotation from, Rotation rotation_to);
 
     static constexpr auto wall_kick_data_jltsz = WallKickTable{
         // North -> East
