@@ -25,8 +25,8 @@ MATCHER(OptionalHasNoValue, "optional has no value") {
 }
 
 
-#define ASSERT_FAIL(x)                                                            \
-    do {                                                                          \
-        std::cerr << "assertion fail in" << __FILE__ << ":" << __LINE__ << ": " << (x); \
-        utils::unreachable();                                                      \
+#define ASSERT_FAIL(x)                                                                           \
+    do {                                                                                         \
+        std::cerr << "assertion fail in " << __FILE__ << ":" << __LINE__ << ": " << (x) << "\n"; \
+        utils::unreachable();                                                                    \
     } while (false)

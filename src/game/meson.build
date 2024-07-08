@@ -11,6 +11,8 @@ graphics_src_files += files(
     'grid.hpp',
     'rotation.cpp',
     'rotation.hpp',
+    'simulated_tetrion.cpp',
+    'simulated_tetrion.hpp',
     'simulation.cpp',
     'simulation.hpp',
     'tetrion.cpp',

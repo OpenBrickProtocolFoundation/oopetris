@@ -7,6 +7,7 @@
 #include "simulation.hpp"
 #include "ui/layout.hpp"
 
+#include <spdlog/spdlog.h>
 
 namespace {
 
@@ -16,19 +17,17 @@ namespace {
 
 
 Simulation::Simulation(
-        ServiceProvider* const service_provider,
         const std::shared_ptr<input::ReplayGameInput>& input,
         const tetrion::StartingParameters& starting_parameters
 )
-    : ui::Widget{ dummy_layout, ui::WidgetType::Component, false },
-      m_input{ input } {
+    : m_input{ input } {
 
 
     spdlog::info("[simulation] starting level for tetrion {}", starting_parameters.starting_level);
 
-    m_tetrion = std::make_unique<Tetrion>(
-            starting_parameters.tetrion_index, starting_parameters.seed, starting_parameters.starting_level,
-            service_provider, starting_parameters.recording_writer, dummy_layout, false
+    m_tetrion = std::make_unique<SimulatedTetrion>(
+            starting_parameters.tetrion_index, starting_parameters.seed, starting_parameters.starting_level, nullptr,
+            starting_parameters.recording_writer
     );
 
     m_tetrion->spawn_next_tetromino(0);
@@ -47,8 +46,7 @@ Simulation::Simulation(
     }
 }
 
-helper::expected<Simulation, std::string>
-Simulation::get_replay_simulation(ServiceProvider* service_provider, std::filesystem::path& recording_path) {
+helper::expected<Simulation, std::string> Simulation::get_replay_simulation(std::filesystem::path& recording_path) {
 
     //TODO(Totto): Support multiple tetrions to be in the recorded file and simulated
 
@@ -83,7 +81,7 @@ Simulation::get_replay_simulation(ServiceProvider* service_provider, std::filesy
 
     const tetrion::StartingParameters starting_parameters = { 0, seed, starting_level, tetrion_index, std::nullopt };
 
-    return Simulation{ service_provider, input, starting_parameters };
+    return Simulation{ input, starting_parameters };
 }
 
 
@@ -96,15 +94,6 @@ void Simulation::update() {
     m_input->update(m_simulation_step_index);
     m_tetrion->update_step(m_simulation_step_index);
     m_input->late_update(m_simulation_step_index);
-}
-
-void Simulation::render(const ServiceProvider&) const {
-    utils::unreachable();
-}
-
-[[nodiscard]] helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
-Simulation::handle_event(const std::shared_ptr<input::InputManager>& /*input_manager*/, const SDL_Event& /*event*/) {
-    return false;
 }
 
 [[nodiscard]] bool Simulation::is_game_finished() const {
