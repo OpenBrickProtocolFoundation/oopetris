@@ -4,13 +4,12 @@
 #include <core/helper/random.hpp>
 #include <core/helper/types.hpp>
 
-#include "helper/clock_source.hpp"
-#include "manager/event_listener.hpp"
 
+#include <SDL.h>
 #include <functional>
 #include <unordered_map>
 
-struct Tetrion;
+struct SimulatedTetrion;
 
 namespace input {
 
@@ -48,7 +47,7 @@ namespace input {
 
         std::unordered_map<HoldableKey, u64> m_keys_hold;
         GameInputType m_input_type;
-        Tetrion* m_target_tetrion{};
+        SimulatedTetrion* m_target_tetrion{};
         OnEventCallback m_on_event_callback;
 
     protected:
@@ -56,7 +55,7 @@ namespace input {
 
         void handle_event(InputEvent event, SimulationStep simulation_step_index);
 
-        [[nodiscard]] const Tetrion* target_tetrion() const {
+        [[nodiscard]] const SimulatedTetrion* target_tetrion() const {
             return m_target_tetrion;
         }
 
@@ -90,7 +89,7 @@ namespace input {
             return m_input_type != GameInputType::Touch;
         }
 
-        void set_target_tetrion(Tetrion* target_tetrion) {
+        void set_target_tetrion(SimulatedTetrion* target_tetrion) {
             m_target_tetrion = target_tetrion;
         }
 
