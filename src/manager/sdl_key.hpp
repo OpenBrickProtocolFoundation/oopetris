@@ -86,8 +86,8 @@ namespace sdl {
 } // namespace sdl
 
 template<>
-struct fmt::formatter<sdl::Key> : formatter<std::string> {
-    auto format(const sdl::Key& key, format_context& ctx) {
+struct fmt::formatter<sdl::Key> : fmt::formatter<std::string> {
+    auto format(const sdl::Key& key, format_context& ctx) const {
         return formatter<std::string>::format(key.to_string(), ctx);
     }
 };

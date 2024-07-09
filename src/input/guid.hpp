@@ -44,8 +44,8 @@ namespace sdl {
 
 
 template<>
-struct fmt::formatter<sdl::GUID> : formatter<std::string> {
-    auto format(const sdl::GUID& guid, format_context& ctx) {
+struct fmt::formatter<sdl::GUID> : fmt::formatter<std::string> {
+    auto format(const sdl::GUID& guid, format_context& ctx) const {
         return formatter<std::string>::format(guid.to_string(), ctx);
     }
 };
