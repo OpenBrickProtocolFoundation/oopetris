@@ -28,8 +28,8 @@ namespace sdl {
 } // namespace sdl
 
 template<>
-struct fmt::formatter<sdl::ControllerKey> : formatter<std::string> {
-    auto format(const sdl::ControllerKey& key, format_context& ctx) {
+struct fmt::formatter<sdl::ControllerKey> : fmt::formatter<std::string> {
+    auto format(const sdl::ControllerKey& key, format_context& ctx) const {
         return formatter<std::string>::format(key.to_string(), ctx);
     }
 };

@@ -13,6 +13,7 @@
 #include "manager/service_provider.hpp"
 
 
+#include <fmt/base.h>
 #include <fmt/format.h>
 #include <memory>
 #include <vector>
@@ -116,6 +117,7 @@ namespace input {
     struct InputSettings {
 
         template<typename T>
+            requires fmt::formattable<T>
         [[nodiscard]] static helper::expected<void, std::string> has_unique_members(const std::vector<T>& to_check) {
             std::vector<T> already_bound{};
 
