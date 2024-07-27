@@ -110,7 +110,7 @@ endif
 magic_enum_dep = dependency(
     'magic_enum',
     required: true,
-    default_options: {'test': false},
+    default_options: {'test': false, 'hash': true},
 )
 core_lib += {'deps': [core_lib.get('deps'), magic_enum_dep]}
 
