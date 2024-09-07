@@ -4,7 +4,7 @@ SUBPROJECTS_PATH :=$(BUILD_PATH)/subprojects
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := SDL2
-LOCAL_SRC_FILES := $(shell find "${SUBPROJECTS_PATH}" -name libsdl2.so)
+LOCAL_SRC_FILES := $(shell find "${SUBPROJECTS_PATH}" -name libSDL2.so)
 include $(PREBUILT_SHARED_LIBRARY)
 
 
