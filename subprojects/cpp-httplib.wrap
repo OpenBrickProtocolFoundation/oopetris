@@ -1,11 +1,11 @@
 [wrap-file]
-directory = cpp-httplib-0.17.3
-source_url = https://github.com/yhirose/cpp-httplib/archive/refs/tags/v0.17.3.tar.gz
-source_filename = cpp-httplib-0.17.3.tar.gz
-source_hash = 95bd6dba4241656c59d6f0854d408d14c220f7c71e673319ee27d30aee741aaa
-source_fallback_url = https://github.com/mesonbuild/wrapdb/releases/download/cpp-httplib_0.17.3-1/cpp-httplib-0.17.3.tar.gz
-wrapdb_version = 0.17.3-1
-diff_files = cpp-httplib-0.17.3_mingw.diff
+directory = cpp-httplib-0.18.0
+source_url = https://github.com/yhirose/cpp-httplib/archive/refs/tags/v0.18.0.tar.gz
+source_filename = cpp-httplib-0.18.0.tar.gz
+source_hash = 6ed5894bbbc4a34a0f4c5e962672d0003d2ea099bbadacc66f6dee2b213ff394
+source_fallback_url = https://github.com/mesonbuild/wrapdb/releases/download/cpp-httplib_0.18.0-1/cpp-httplib-0.18.0.tar.gz
+wrapdb_version = 0.18.0-1
+diff_files = cpp-httplib-0.18.0_mingw.diff
 
 [provide]
 cpp-httplib = cpp_httplib_dep
