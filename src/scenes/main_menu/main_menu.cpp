@@ -12,8 +12,8 @@ namespace scenes {
 
     MainMenu::MainMenu(ServiceProvider* service_provider, const  ui::Layout& layout)
         : Scene{service_provider, layout},
-          m_main_grid{ 0,6,ui::Direction::Vertical, ui::RelativeMargin{layout,ui::Direction::Vertical, 0.05}, std::pair<double, double>{ 0.05, 0.05 
-            } ,ui::RelativeLayout{ layout, 0.0, 0.1, 1.0, 0.8 }} {
+          m_main_grid{ 0,7,ui::Direction::Vertical, ui::RelativeMargin{layout,ui::Direction::Vertical, 0.04}, std::pair<double, double>{ 0.05, 0.05 
+            } ,ui::RelativeLayout{ layout, 0.0, 0.05, 1.0, 0.9 }} {
 
         auto focus_helper = ui::FocusHelper{ 1 };
 
@@ -53,6 +53,18 @@ namespace scenes {
                 button_size, button_alignment, button_margins
         );
 
+
+        m_main_grid.add<ui::TextButton>(
+                service_provider, "Plugins", service_provider->font_manager().get(FontId::Default), Color::white(),
+                focus_helper.focus_id(),
+                [this](const ui::TextButton&) -> bool {
+                    m_next_command = Command::OpenPlugins;
+                    return false;
+                },
+                button_size, button_alignment, button_margins
+        );
+
+
         m_main_grid.add<ui::TextButton>(
                 service_provider, "About", service_provider->font_manager().get(FontId::Default), Color::white(),
                 focus_helper.focus_id(),
@@ -63,16 +75,18 @@ namespace scenes {
                 button_size, button_alignment, button_margins
         );
 
+        auto achievements_id = focus_helper.focus_id();
+
         m_main_grid.add<ui::TextButton>(
                 service_provider, "Achievements", service_provider->font_manager().get(FontId::Default), Color::white(),
-                focus_helper.focus_id(),
+                achievements_id,
                 [this](const ui::TextButton&) -> bool {
                     m_next_command = Command::OpenAchievements;
                     return false;
                 },
                 button_size, button_alignment, button_margins
         );
-        m_main_grid.get<ui::TextButton>(4)->disable();
+        m_main_grid.get<ui::TextButton>(achievements_id)->disable();
 
         m_main_grid.add<ui::TextButton>(
                 service_provider, "Exit", service_provider->font_manager().get(FontId::Default), Color::white(),
@@ -124,6 +138,14 @@ namespace scenes {
                         SceneUpdate::StopUpdating,
                         Scene::Push{ SceneId::AboutPage, ui::FullScreenLayout{ m_service_provider->window() } }
                     };
+                case Command::OpenPlugins:
+                    // perform a push and reset the command, so that the music keeps playing the entire time
+                    m_next_command = std::nullopt;
+                    return UpdateResult{
+                        SceneUpdate::StopUpdating,
+                        Scene::Push{ SceneId::AboutPage, ui::FullScreenLayout{ m_service_provider->window() } }
+                    };
+
                 case Command::OpenSettingsMenu:
                     // perform a push and reset the command, so that the music keeps playing the entire time
                     m_next_command = std::nullopt;

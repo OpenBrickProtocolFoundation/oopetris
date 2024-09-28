@@ -14,6 +14,7 @@ namespace scenes {
             OpenSettingsMenu,
             OpenAboutPage,
             OpenAchievements,
+            OpenPlugins,
             Exit,
         };
 
