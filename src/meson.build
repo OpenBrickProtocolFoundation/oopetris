@@ -9,6 +9,7 @@ if build_application
     subdir('helper')
     subdir('input')
     subdir('manager')
+    subdir('plugins')
     subdir('scenes')
     subdir('ui')
 
