@@ -9,12 +9,6 @@ core_lib = {
     'deps': [],
 }
 
-recordings_lib = {
-    'inc_dirs': [],
-    'compile_args': [],
-    'deps': [],
-}
-
 graphics_lib = {
     'inc_dirs': [],
     'compile_args': [

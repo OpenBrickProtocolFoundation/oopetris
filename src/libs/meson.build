@@ -17,3 +17,5 @@ recordings_lib += {
 }
 
 subdir('recordings')
+
+subdir('plugins')

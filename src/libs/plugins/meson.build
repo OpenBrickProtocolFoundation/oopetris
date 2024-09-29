@@ -1,0 +1,66 @@
+plugins_src_files = []
+plugins_header_files = [files('plugins.hpp')]
+
+plugins_include_dir = include_dir / 'oopetris' / 'plugins'
+
+subdir('helpers')
+
+plugins_lib = {
+    'deps': [liboopetris_core_dep],
+    'compile_args': [],
+    'inc_dirs': [include_directories('.')],
+}
+
+liboopetris_plugins = library(
+    'oopetris_plugins',
+    plugins_src_files,
+    plugins_header_files,
+    include_directories: plugins_lib.get('inc_dirs'),
+    dependencies: plugins_lib.get('deps'),
+    cpp_args: plugins_lib.get('compile_args'),
+    override_options: {
+        'warning_level': '3',
+        'werror': true,
+    },
+    version: meson.project_version(),
+    install: true,
+)
+
+## remove '-stdlib=libc++' from the list, if it's present
+plugins_dep_compile_args = []
+foreach value : plugins_dep.get('compile_args')
+    if value != '-stdlib=libc++'
+        plugins_dep_compile_args += value
+    endif
+endforeach
+
+liboopetris_plugins_dep = declare_dependency(
+    link_with: liboopetris_plugins,
+    include_directories: plugins_dep.get('inc_dirs'),
+    compile_args: plugins_dep_compile_args,
+    dependencies: plugins_dep.get('deps'),
+    version: meson.project_version(),
+)
+meson.override_dependency('liboopetris-recordings', liboopetris_plugins_dep)
+
+install_headers(
+    files('plugins.hpp'),
+    install_dir: plugins_include_dir,
+    preserve_path: true,
+)
+
+# generate pkgconfig files
+pkg = import('pkgconfig')
+pkg.generate(
+    liboopetris_plugins,
+    description: 'The plugins library for oopetris',
+    name: 'oopetris-plugins',
+    filebase: 'oopetris-plugins',
+    subdirs: 'oopetris',
+    extra_cflags: plugins_dep_compile_args,
+    variables: ['compiler=' + pkg_cpp_compiler, 'cpp_stdlib=' + pkg_cpp_stdlib],
+    requires: ['oopetris-core', 'fmt'],
+)
+
+# setting this to strings, so += {...} gets detected as an error, if it is done after that
+plugins_dep = 'undefined'

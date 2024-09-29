@@ -6,6 +6,7 @@
 #include "helper/platform.hpp"
 #include "manager/music_manager.hpp"
 #include "manager/resource_manager.hpp"
+#include "scenes/plugins_list/plugins_list.hpp"
 #include "ui/layout.hpp"
 
 namespace scenes {
@@ -143,7 +144,7 @@ namespace scenes {
                     m_next_command = std::nullopt;
                     return UpdateResult{
                         SceneUpdate::StopUpdating,
-                        Scene::Push{ SceneId::AboutPage, ui::FullScreenLayout{ m_service_provider->window() } }
+                        Scene::Push{ SceneId::PluginsList, ui::FullScreenLayout{ m_service_provider->window() } }
                     };
 
                 case Command::OpenSettingsMenu:

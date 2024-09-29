@@ -5,9 +5,11 @@ recordings_include_dir = include_dir / 'oopetris' / 'recordings'
 
 subdir('utility')
 
-recordings_lib += {
-    'deps': [recordings_lib.get('deps'), liboopetris_core_dep],
-    'inc_dirs': [recordings_lib.get('inc_dirs'), include_directories('.')],
+
+recordings_lib = {
+    'deps': [liboopetris_core_dep],
+    'compile_args': [],
+    'inc_dirs': [include_directories('.')],
 }
 
 liboopetris_recordings = library(

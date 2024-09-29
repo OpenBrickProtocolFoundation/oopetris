@@ -17,6 +17,8 @@ namespace constants {
     constexpr auto version = StaticString{ STRINGIFY(OOPETRIS_VERSION) };
     constexpr u32 music_change_level = 30;
     constexpr auto recordings_directory = "recordings";
+    constexpr auto plugins_directory = "plugins";
+
     constexpr u32 simulation_frequency = 60;
 
 #undef STRINGIFY
