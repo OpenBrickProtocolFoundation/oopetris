@@ -144,9 +144,9 @@ jobs:
         run: |
           brew update
           brew install llvm@18
-          echo "$(brew --prefix)/opt/llvm/bin" >> $GITHUB_PATH
-          echo "LDFLAGS=-L$(brew --prefix)/opt/llvm/lib -L$(brew --prefix)/opt/llvm/lib/c++ -Wl,-rpath,$(brew --prefix)/opt/llvm/lib/c++" >> "$GITHUB_ENV"
-          echo "CPPFLAGS=-I$(brew --prefix)/opt/llvm/include" >> "$GITHUB_ENV"
+          echo "$(brew --prefix)/opt/llvm@18/bin" >> $GITHUB_PATH
+          echo "LDFLAGS=-L$(brew --prefix)/opt/llvm@18/lib -L$(brew --prefix)/opt/llvm@18/lib/c++ -Wl,-rpath,$(brew --prefix)/opt/llvm@18/lib/c++" >> "$GITHUB_ENV"
+          echo "CPPFLAGS=-I$(brew --prefix)/opt/llvm@18/include" >> "$GITHUB_ENV"
           echo "CC=clang" >> "$GITHUB_ENV"
           echo "CXX=clang++" >> "$GITHUB_ENV"
           echo "OBJC=clang" >> "$GITHUB_ENV"
@@ -154,12 +154,22 @@ jobs:
           echo "CXX_LD=lld" >> "$GITHUB_ENV"
           echo "OBJC_LD=lld" >> "$GITHUB_ENV"
 
+      - name: Unbreak Python in GHA (MacOS 13 image)
+        if: matrix.config.os == 'macos'  &&  matrix.config.os-version == 13
+        run: |
+          # TODO: remove this, after it works again
+          # A workaround for "The `brew link` step did not complete successfully" error.
+          # See e.g. https://github.com/Homebrew/homebrew-core/issues/165793#issuecomment-1991817938
+          find /usr/local/bin -lname '*/Library/Frameworks/Python.framework/*' -delete
+          sudo rm -rf /Library/Frameworks/Python.framework/
+          brew install --force python3 && brew unlink python3 && brew unlink python3 && brew link --overwrite python3
+
       - name: Setup meson (MacOS)
-        if: matrix.config.os == 'macos' 
+        if: matrix.config.os == 'macos'
         run: |
           brew update
           brew install meson
-  
+
       # NOTE: meson has no dependencies, so --break-system-packages doesn't really break anything!
       - name: Setup meson
         if: matrix.config.os != 'macos'
