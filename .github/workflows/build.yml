@@ -125,11 +125,11 @@ jobs:
         run: |
           wget https://apt.llvm.org/llvm.sh
           chmod +x llvm.sh
-          sudo ./llvm.sh 18
-          sudo apt-get install libc++-18* libc++abi*18* -y
-          echo "CC=clang-18" >> "$GITHUB_ENV"
-          echo "CXX=clang++-18" >> "$GITHUB_ENV"
-          echo "OBJC=clang-18" >> "$GITHUB_ENV"
+          sudo ./llvm.sh 19
+          sudo apt-get install libc++-19* libc++abi*19* -y
+          echo "CC=clang-19" >> "$GITHUB_ENV"
+          echo "CXX=clang++-19" >> "$GITHUB_ENV"
+          echo "OBJC=clang-19" >> "$GITHUB_ENV"
 
 
       - name: Setup GCC (Linux)
@@ -143,10 +143,11 @@ jobs:
         if: matrix.config.os == 'macos'
         run: |
           brew update
-          brew install llvm@18
-          echo "$(brew --prefix)/opt/llvm@18/bin" >> $GITHUB_PATH
-          echo "LDFLAGS=-L$(brew --prefix)/opt/llvm@18/lib -L$(brew --prefix)/opt/llvm@18/lib/c++ -Wl,-rpath,$(brew --prefix)/opt/llvm@18/lib/c++" >> "$GITHUB_ENV"
-          echo "CPPFLAGS=-I$(brew --prefix)/opt/llvm@18/include" >> "$GITHUB_ENV"
+          # TODO annotat5e with lld@19, after that is accepted, we don't want to use lld@20 without manually updating it !
+          brew install llvm@19 lld
+          echo "$(brew --prefix)/opt/llvm/bin" >> $GITHUB_PATH
+          echo "LDFLAGS=-L$(brew --prefix)/opt/llvm/lib -L$(brew --prefix)/opt/llvm/lib/c++ -Wl,-rpath,$(brew --prefix)/opt/llvm/lib/c++" >> "$GITHUB_ENV"
+          echo "CPPFLAGS=-I$(brew --prefix)/opt/llvm/include" >> "$GITHUB_ENV"
           echo "CC=clang" >> "$GITHUB_ENV"
           echo "CXX=clang++" >> "$GITHUB_ENV"
           echo "OBJC=clang" >> "$GITHUB_ENV"
