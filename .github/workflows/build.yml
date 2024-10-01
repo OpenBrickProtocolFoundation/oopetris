@@ -2,7 +2,7 @@ name: Build CI
 
 on:
   push:
-    branches: ["main"]
+    branches: ['main']
   pull_request:
   workflow_dispatch:
 
@@ -30,7 +30,7 @@ jobs:
             architecture: x86_64
             buildtype: release
             library_type: static
-            shell: "msys2 {0}"
+            shell: 'msys2 {0}'
 
           - name: Windows UCRT Release
             os: windows
@@ -39,7 +39,7 @@ jobs:
             architecture: ucrt-x86_64
             buildtype: release
             library_type: static
-            shell: "msys2 {0}"
+            shell: 'msys2 {0}'
 
           - name: Linux Release
             os: ubuntu
@@ -90,15 +90,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: "0"
+          fetch-depth: '0'
 
       - name: Setup MSVC (Windows)
         if: matrix.config.os == 'windows' && matrix.config.environment == 'msvc'
         uses: TheMrMilchmann/setup-msvc-dev@v3
         with:
           arch: x64
-          toolset: "14.41"
-
+          toolset: '14.41'
 
       - name: Setup MYSYS2 (Windows)
         if: matrix.config.os == 'windows' && ( matrix.config.environment == 'mingw' || matrix.config.environment == 'ucrt' )
@@ -126,7 +125,7 @@ jobs:
           wget https://apt.llvm.org/llvm.sh
           chmod +x llvm.sh
           sudo ./llvm.sh 19
-          sudo apt-get install libc++-19* libc++abi*19* -y
+          sudo apt-get install libc++-19* libc++abi*19* -y --no-install-recommends
           echo "CC=clang-19" >> "$GITHUB_ENV"
           echo "CXX=clang++-19" >> "$GITHUB_ENV"
           echo "OBJC=clang-19" >> "$GITHUB_ENV"
@@ -143,7 +142,7 @@ jobs:
           # Also install the newest g++ (For the libstd++ library)
           echo "deb http://archive.ubuntu.com/ubuntu/ oracular main" | sudo tee -a /etc/apt/sources.list.d/new_ubuntu.list
           sudo apt-get update
-          sudo apt-get install libstdc++-14-dev -y
+          sudo apt-get install libstdc++-14-dev -y --no-install-recommends
           sudo rm -rf /etc/apt/sources.list.d/new_ubuntu.list
           sudo apt-get update
 
@@ -171,7 +170,7 @@ jobs:
           echo "OBJC_LD=lld" >> "$GITHUB_ENV"
 
       - name: Unbreak Python in GHA (MacOS 13 image)
-        if: matrix.config.os == 'macos'  &&  matrix.config.os-version == 13
+        if: matrix.config.os == 'macos' && matrix.config.os-version == 13
         run: |
           # TODO: remove this, after it works again
           # A workaround for "The `brew link` step did not complete successfully" error.
@@ -196,7 +195,7 @@ jobs:
         if: matrix.config.os == 'ubuntu'
         run: |
           sudo apt-get update
-          sudo apt-get install ninja-build libsdl2-2.0-0 libsdl2-dev libsdl2-ttf* libsdl2-mixer* libsdl2-image* -y
+          sudo apt-get install ninja-build libsdl2-2.0-0 libsdl2-dev libsdl2-ttf* libsdl2-mixer* libsdl2-image* -y --no-install-recommends
 
       - name: Install dependencies (MacOS)
         if: matrix.config.os == 'macos'
@@ -205,10 +204,10 @@ jobs:
           brew install sdl2 sdl2_ttf sdl2_mixer sdl2_image
 
       - name: Configure
-        run: meson setup build -Dbuildtype=${{ matrix.config.buildtype }} -Ddefault_library=${{ matrix.config.library_type }} -Dclang_libcpp=${{ ( ( matrix.config.os == 'ubuntu' && matrix.config.use-clang == true && matrix.config.use-clang_stdlib ) || matrix.config.os == 'macos' )  && 'enabled' || 'disabled' }} 
+        run: meson setup build -Dbuildtype=${{ matrix.config.buildtype }} -Ddefault_library=${{ matrix.config.library_type }} -Dclang_libcpp=${{ ( ( matrix.config.os == 'ubuntu' && matrix.config.use-clang == true && matrix.config.use-clang_stdlib ) || matrix.config.os == 'macos' ) && 'enabled' || 'disabled' }}
 
       - name: Build
-        run: meson compile -C build 
+        run: meson compile -C build
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4

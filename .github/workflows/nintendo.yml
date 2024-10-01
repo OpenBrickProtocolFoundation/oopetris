@@ -1,52 +1,52 @@
 name: Nintendo CI
 
 on:
-    push:
-        branches: ["main"]
-    pull_request:
-    workflow_dispatch:
+  push:
+    branches: ['main']
+  pull_request:
+  workflow_dispatch:
 
 jobs:
-    nintendo-build:
-        name: Nintendo ${{ matrix.config.name }} CI
-        runs-on: ubuntu-24.04
-        container:
-            image: devkitpro/${{ matrix.config.container }} ## base on debian:buster-slim
-        strategy:
-            fail-fast: false
-            matrix:
-                config:
-                    - name: 3ds
-                      extension: 3dsx
-                      container: devkitarm
+  nintendo-build:
+    name: Nintendo ${{ matrix.config.name }} CI
+    runs-on: ubuntu-24.04
+    container:
+      image: devkitpro/${{ matrix.config.container }} ## base on debian:buster-slim
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - name: 3ds
+            extension: 3dsx
+            container: devkitarm
 
-                    - name: switch
-                      extension: nro
-                      container: devkita64
+          - name: switch
+            extension: nro
+            container: devkita64
 
-        steps:
-            - uses: actions/checkout@v4
-              with:
-                  fetch-depth: "0"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: '0'
 
-            - name: Setup Meson
-              run: |
-                  sudo apt-get update
-                  sudo apt-get install python3 python3-pip -y
-                  python3 -m pip install --upgrade pip
-                  pip install meson
+      - name: Setup Meson
+        run: |
+          sudo apt-get update
+          sudo apt-get install python3 python3-pip -y --no-install-recommends
+          python3 -m pip install --upgrade pip
+          pip install meson
 
-            - name: Setup ninja
-              run: |
-                  sudo apt-get update
-                  sudo apt-get install ninja-build
+      - name: Setup ninja
+        run: |
+          sudo apt-get update
+          sudo apt-get install ninja-build -y --no-install-recommends
 
-            - name: Configure and Build
-              run: |
-                  bash ./platforms/build-${{ matrix.config.name }}.sh complete_rebuild release
+      - name: Configure and Build
+        run: |
+          bash ./platforms/build-${{ matrix.config.name }}.sh complete_rebuild release
 
-            - name: Upload artifacts
-              uses: actions/upload-artifact@v4
-              with:
-                  name: ${{ matrix.config.name }} Executable
-                  path: build-${{ matrix.config.name }}/oopetris.${{ matrix.config.extension }}
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.config.name }} Executable
+          path: build-${{ matrix.config.name }}/oopetris.${{ matrix.config.extension }}

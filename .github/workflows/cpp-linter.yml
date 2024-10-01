@@ -1,7 +1,7 @@
 name: C++ lints(clang-format + clang-tidy)
 on:
   push:
-    branches: ["main"]
+    branches: ['main']
   pull_request:
   workflow_dispatch:
 
@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # NOTE: meson has no dependencies, so --break-system-packages doesn't really break anything!  
+      # NOTE: meson has no dependencies, so --break-system-packages doesn't really break anything!
       - name: Setup Meson
         run: |
           pip install meson --break-system-packages
@@ -28,8 +28,8 @@ jobs:
       - name: Prepare compile_commands.json
         run: |
           sudo apt-get update
-          sudo apt-get install ninja-build libsdl2-2.0-0 libsdl2-dev libsdl2-ttf* libsdl2-mixer* libsdl2-image*  -y
-          
+          sudo apt-get install ninja-build libsdl2-2.0-0 libsdl2-dev libsdl2-ttf* libsdl2-mixer* libsdl2-image* -y --no-install-recommends
+
           meson setup build -Dbuildtype=release -Dclang_libcpp=disabled -Dtests=true
           meson compile -C build git_version.hpp
 
@@ -45,7 +45,7 @@ jobs:
           files-changed-only: ${{ github.event_name != 'workflow_dispatch' }}
           lines-changed-only: ${{ github.event_name != 'workflow_dispatch' }}
           thread-comments: true
-          tidy-checks: ""
+          tidy-checks: ''
           step-summary: true
           file-annotations: true
           ignore: subprojects|build|android|assets|recordings|docs|toolchains|platforms|wrapper|src/libs/core/hash-library
