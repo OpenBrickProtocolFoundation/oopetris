@@ -1,0 +1,47 @@
+From c9e05b03c18e898be604ab90401476e9c473cc52 Mon Sep 17 00:00:00 2001
+From: Jonathan Wakely <jwakely@redhat.com>
+Date: Thu, 16 May 2024 17:15:55 +0100
+Subject: [PATCH] libstdc++: Fix typo in _Grapheme_cluster_view::_Iterator
+ [PR115119]
+
+libstdc++-v3/ChangeLog:
+
+	PR libstdc++/115119
+	* include/bits/unicode.h (_Iterator::operator++(int)): Fix typo
+	in increment expression.
+	* testsuite/ext/unicode/grapheme_view.cc: Check post-increment
+	on view's iterator.
+
+	Source: https://gcc.gnu.org/git/?p=gcc.git;a=patch;h=c9e05b03c18e898be604ab90401476e9c473cc52
+	Modified paths, to make it work
+---
+ bits/unicode.h                 |  6 ++++--
+ 1 files changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/bits/unicode.h b/bits/unicode.h
+index 46238143fb61..a14a17c5dfcf 100644
+--- a/bits/unicode.h
++++ b/bits/unicode.h
+@@ -34,10 +34,12 @@
+ #include <array>
+ #include <bit>      // bit_width
+ #include <charconv> // __detail::__from_chars_alnum_to_val_table
++#include <string_view>
+ #include <cstdint>
+ #include <bits/stl_algo.h>
+ #include <bits/stl_iterator.h>
+-#include <bits/ranges_base.h>
++#include <bits/ranges_base.h> // iterator_t, sentinel_t, input_range, etc.
++#include <bits/ranges_util.h> // view_interface
+ 
+ namespace std _GLIBCXX_VISIBILITY(default)
+ {
+@@ -802,7 +804,7 @@ inline namespace __v15_1_0
+ 	operator++(int)
+ 	{
+ 	  auto __tmp = *this;
+-	  ++this;
++	  ++*this;
+ 	  return __tmp;
+ 	}
+

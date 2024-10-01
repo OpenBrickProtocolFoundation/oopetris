@@ -139,12 +139,11 @@ jobs:
           echo "CC=clang-19" >> "$GITHUB_ENV"
           echo "CXX=clang++-19" >> "$GITHUB_ENV"
           echo "OBJC=clang-19" >> "$GITHUB_ENV"
-          # Also install the newest g++ (For the libstd++ library)
-          echo "deb http://archive.ubuntu.com/ubuntu/ oracular main" | sudo tee -a /etc/apt/sources.list.d/new_ubuntu.list
-          sudo apt-get update
-          sudo apt-get install libstdc++-14-dev -y --no-install-recommends
-          sudo rm -rf /etc/apt/sources.list.d/new_ubuntu.list
-          sudo apt-get update
+          # Patch the libstd++ library, see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=115119
+          # This is a dirty workaround, but it is needed, since gcc 14.2 (where this was patched usptream) is not easily available
+          # If we use the oracular (Ubuntu 24.10) repos, we could install gcc 14.2, but clang-19 isn't compatible with that
+          # TODO: remove this, after it works again
+          sudo patch -p1 /usr/include/c++/14/bits/unicode.h .github/patches/gcc_14_2.diff
 
       - name: Setup GCC (Linux)
         if: matrix.config.os == 'ubuntu' && matrix.config.use-clang == false
