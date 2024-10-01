@@ -2,28 +2,28 @@ name: Test CI
 
 on:
   push:
-    branches: ["main"]
+    branches: ['main']
   pull_request:
   workflow_dispatch:
 
 jobs:
   test:
-    name: Run Tests 
+    name: Run Tests
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: "0"
+          fetch-depth: '0'
 
       - name: Setup Clang
         run: |
           wget https://apt.llvm.org/llvm.sh
           chmod +x llvm.sh
-          sudo ./llvm.sh 18
-          sudo apt-get install libc++-18* libc++abi*18* llvm-18 -y
-          echo "CC=clang-18" >> "$GITHUB_ENV"
-          echo "CXX=clang++-18" >> "$GITHUB_ENV"
-            
+          sudo ./llvm.sh 19
+          sudo apt-get install libc++-19* libc++abi*19* llvm-19 -y --no-install-recommends
+          echo "CC=clang-19" >> "$GITHUB_ENV"
+          echo "CXX=clang++-19" >> "$GITHUB_ENV"
+
       # NOTE: meson has no dependencies, so --break-system-packages doesn't really break anything!
       - name: Setup meson
         run: |
@@ -32,10 +32,10 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install ninja-build libsdl2-2.0-0 libsdl2-dev libsdl2-ttf* libsdl2-mixer* libsdl2-image* gcovr -y
+          sudo apt-get install ninja-build libsdl2-2.0-0 libsdl2-dev libsdl2-ttf* libsdl2-mixer* libsdl2-image* gcovr -y --no-install-recommends
 
       - name: Configure
-        run: meson setup build -Dbuildtype=debug -Db_coverage=true -Dtests=true  -Dclang_libcpp=enabled
+        run: meson setup build -Dbuildtype=debug -Db_coverage=true -Dtests=true -Dclang_libcpp=enabled
 
       - name: Run tests
         run: meson test -C build --verbose
@@ -52,14 +52,14 @@ jobs:
           fail: false # TODO: enable after coverage is higher than 0.000001 % xD
           # Publish the rendered output as a PR comment
           publish: true
-          coverage-summary-title: "Code Coverage Summary"
+          coverage-summary-title: 'Code Coverage Summary'
           togglable-report: true
           # TODO: use the diff feature of that later when we require test coverage on PR's to not go down
 
       - name: Upload test coverage artifacts
         uses: actions/upload-artifact@v4
         with:
-            name: Tests coverage artifacts
-            path: |
-              ./build/meson-logs/coverage.xml
-              ./build/meson-logs/coveragereport/
+          name: Tests coverage artifacts
+          path: |
+            ./build/meson-logs/coverage.xml
+            ./build/meson-logs/coveragereport/

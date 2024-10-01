@@ -4,13 +4,13 @@ on:
   release:
     types: [published]
   push:
-    branches: ["main"]
+    branches: ['main']
   pull_request:
   workflow_dispatch:
 
 jobs:
   flatpak:
-    name: "Flatpak build"
+    name: 'Flatpak build'
     runs-on: ubuntu-24.04
     container:
       image: bilelmoussaoui/flatpak-github-actions:freedesktop-24.08

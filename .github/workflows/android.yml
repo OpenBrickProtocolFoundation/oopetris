@@ -4,7 +4,7 @@ on:
   release:
     types: [published]
   push:
-    branches: ["main"]
+    branches: ['main']
   pull_request:
   workflow_dispatch:
 
@@ -23,7 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: "0"
+          fetch-depth: '0'
 
       # NOTE: meson has no dependencies, so --break-system-packages doesn't really break anything!
       - name: Setup Meson
@@ -32,22 +32,21 @@ jobs:
 
       - name: Setup ninja
         run: |
-            sudo apt-get update
-            sudo apt-get install ninja-build jq
+          sudo apt-get update
+          sudo apt-get install ninja-build jq -y --no-install-recommends
 
       - name: Setup JDK
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '21'
-        
+
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
-        
-      - name: Setup NDK
-        run: | 
-          sdkmanager --install "ndk;27.1.12297006"
 
+      - name: Setup NDK
+        run: |
+          sdkmanager --install "ndk;27.1.12297006"
 
       - name: Build native libraries
         run: |
@@ -55,7 +54,7 @@ jobs:
           cp -r ./assets/ platforms/android/app/src/main
 
       - name: Build APK
-        run: | 
+        run: |
           cd platforms/android/
           ./gradlew assembleDebug --no-daemon -PANDROID_ABI=${{ matrix.config.arch }}
 
