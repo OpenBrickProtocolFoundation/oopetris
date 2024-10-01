@@ -120,8 +120,8 @@ jobs:
             mingw-w64-${{matrix.config.architecture}}-cmake
             git
 
-      - name: Setup Clang (Linux)
-        if: matrix.config.os == 'ubuntu' && matrix.config.use-clang == true
+      - name: Setup Clang (Linux) (libc++)
+        if: matrix.config.os == 'ubuntu' && matrix.config.use-clang == true && matrix.config.use-clang_stdlib
         run: |
           wget https://apt.llvm.org/llvm.sh
           chmod +x llvm.sh
@@ -131,6 +131,21 @@ jobs:
           echo "CXX=clang++-19" >> "$GITHUB_ENV"
           echo "OBJC=clang-19" >> "$GITHUB_ENV"
 
+      - name: Setup Clang (Linux) (libstdc++)
+        if: matrix.config.os == 'ubuntu' && matrix.config.use-clang == true && (! matrix.config.use-clang_stdlib)
+        run: |
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh 19
+          echo "CC=clang-19" >> "$GITHUB_ENV"
+          echo "CXX=clang++-19" >> "$GITHUB_ENV"
+          echo "OBJC=clang-19" >> "$GITHUB_ENV"
+          # Also install the newest g++ (For the libstd++ library)
+          echo "deb http://archive.ubuntu.com/ubuntu/ oracular main" | sudo tee -a /etc/apt/sources.list.d/new_ubuntu.list
+          sudo apt-get update
+          sudo apt-get install libstdc++-14-dev -y
+          sudo rm -rf /etc/apt/sources.list.d/new_ubuntu.list
+          sudo apt-get update
 
       - name: Setup GCC (Linux)
         if: matrix.config.os == 'ubuntu' && matrix.config.use-clang == false
@@ -143,7 +158,7 @@ jobs:
         if: matrix.config.os == 'macos'
         run: |
           brew update
-          # TODO annotat5e with lld@19, after that is accepted, we don't want to use lld@20 without manually updating it !
+          # TODO annotate with lld@19, after that is accepted, we don't want to use lld@20 without manually updating it !
           brew install llvm@19 lld
           echo "$(brew --prefix)/opt/llvm/bin" >> $GITHUB_PATH
           echo "LDFLAGS=-L$(brew --prefix)/opt/llvm/lib -L$(brew --prefix)/opt/llvm/lib/c++ -Wl,-rpath,$(brew --prefix)/opt/llvm/lib/c++" >> "$GITHUB_ENV"
