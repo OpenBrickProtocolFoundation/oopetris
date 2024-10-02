@@ -4,8 +4,8 @@ set -e
 
 mkdir -p toolchains
 
-export NDK_VER_DOWNLOAD="r27b"
-export NDK_VER_DESC="r27b"
+export NDK_VER_DOWNLOAD="r28-beta1"
+export NDK_VER_DESC="r28-beta1"
 
 export BASE_PATH="$PWD/toolchains/android-ndk-$NDK_VER_DESC"
 export ANDROID_NDK_HOME="$BASE_PATH"
