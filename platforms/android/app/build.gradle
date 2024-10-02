@@ -248,7 +248,7 @@ android {
     }
 
     compileSdkVersion 34
-    ndkVersion "27.1.12297006"
+    ndkVersion "28.0.12433566"
     defaultConfig {
         if (buildAsApplication) {
             applicationId "com.github.oopetris"
