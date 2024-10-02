@@ -15,72 +15,56 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - name: Windows MSVC Release
+          - name: Windows MSVC
             os: windows
             os-version: 2022
             environment: msvc
-            buildtype: release
-            library_type: static
             shell: pwsh
 
-          - name: Windows MingGW Release
+          - name: Windows MingGW
             os: windows
             os-version: 2022
             environment: mingw
             architecture: x86_64
-            buildtype: release
-            library_type: static
             shell: 'msys2 {0}'
 
-          - name: Windows UCRT Release
+          - name: Windows UCRT
             os: windows
             os-version: 2022
             environment: ucrt
             architecture: ucrt-x86_64
-            buildtype: release
-            library_type: static
             shell: 'msys2 {0}'
 
-          - name: Linux Release
+          - name: Linux
             os: ubuntu
             os-version: 24.04
-            buildtype: release
             use-clang: false
-            library_type: shared
             shell: bash
 
-          - name: Linux Clang Release (libstdc++)
+          - name: Linux Clang (libstdc++)
             os: ubuntu
             os-version: 24.04
-            buildtype: release
             use-clang: true
             use-clang_stdlib: false
-            library_type: shared
             shell: bash
 
-          - name: Linux Clang Release (libc++)
+          - name: Linux Clang (libc++)
             os: ubuntu
             os-version: 24.04
-            buildtype: release
             use-clang: true
             use-clang_stdlib: true
-            library_type: shared
             shell: bash
 
-          - name: MacOS Release
+          - name: MacOS
             os: macos
             os-version: 13
             arm: false
-            buildtype: release
-            library_type: shared
             shell: bash
 
-          - name: MacOS Release (Arm64)
+          - name: MacOS (Arm64)
             os: macos
             os-version: 14
             arm: true
-            buildtype: release
-            library_type: shared
             shell: bash
 
     defaults:
@@ -203,7 +187,7 @@ jobs:
           brew install sdl2 sdl2_ttf sdl2_mixer sdl2_image
 
       - name: Configure
-        run: meson setup build -Dbuildtype=${{ matrix.config.buildtype }} -Ddefault_library=${{ matrix.config.library_type }} -Dclang_libcpp=${{ ( ( matrix.config.os == 'ubuntu' && matrix.config.use-clang == true && matrix.config.use-clang_stdlib ) || matrix.config.os == 'macos' ) && 'enabled' || 'disabled' }}
+        run: meson setup build -Dbuildtype=release -Ddefault_library=shared -Dclang_libcpp=${{ ( ( matrix.config.os == 'ubuntu' && matrix.config.use-clang == true && matrix.config.use-clang_stdlib ) || matrix.config.os == 'macos' ) && 'enabled' || 'disabled' }}
 
       - name: Build
         run: meson compile -C build
