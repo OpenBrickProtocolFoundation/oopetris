@@ -260,8 +260,8 @@ struct Color {
         return Color{ 0xFF, 0xFF, 0xFF, alpha };
     };
 
-    [[nodiscard]] std::string to_string(color::SerializeMode mode = color::SerializeMode::RGB, bool force_alpha = false)
-            const;
+    OOPETRIS_EXPORTED [[nodiscard]] std::string
+    to_string(color::SerializeMode mode = color::SerializeMode::RGB, bool force_alpha = false) const;
 
     OOPETRIS_EXPORTED std::ostream& operator<<(std::ostream& os) const;
 };
