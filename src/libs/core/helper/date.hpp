@@ -2,6 +2,7 @@
 
 #include "./expected.hpp"
 #include "./types.hpp"
+#include "./windows.hpp"
 
 #include <ctime>
 #include <string>
@@ -17,14 +18,14 @@ namespace date {
         static constexpr const char* iso_8601_format_string = "%Y%m%dT%H%M%S";
 
     public:
-        ISO8601Date(u64 value);
+        OOPETRIS_EXPORTED ISO8601Date(u64 value);
 
-        static ISO8601Date now();
-        static helper::expected<ISO8601Date, std::string> from_string(const std::string& input);
+        OOPETRIS_EXPORTED static ISO8601Date now();
+        OOPETRIS_EXPORTED static helper::expected<ISO8601Date, std::string> from_string(const std::string& input);
 
-        [[nodiscard]] helper::expected<std::string, std::string> to_string() const;
+        OOPETRIS_EXPORTED [[nodiscard]] helper::expected<std::string, std::string> to_string() const;
 
-        [[nodiscard]] u64 value() const;
+        OOPETRIS_EXPORTED [[nodiscard]] u64 value() const;
 
     private:
         [[nodiscard]] static helper::expected<std::tm, std::string> get_tm_struct(std::time_t value);

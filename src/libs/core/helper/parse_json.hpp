@@ -9,7 +9,7 @@
 #include <nlohmann/json.hpp>
 
 #include "./expected.hpp"
-
+#include "./windows.hpp"
 
 #include <filesystem>
 #include <fmt/format.h>
@@ -130,9 +130,10 @@ namespace json {
     }
 
 
-    std::string get_json_type(const nlohmann::json::value_t& type);
+    OOPETRIS_EXPORTED std::string get_json_type(const nlohmann::json::value_t& type);
 
-    void check_for_no_additional_keys(const nlohmann::json& obj, const std::vector<std::string>& keys);
+    OOPETRIS_EXPORTED void
+    check_for_no_additional_keys(const nlohmann::json& obj, const std::vector<std::string>& keys);
 
 
 } // namespace json

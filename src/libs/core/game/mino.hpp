@@ -2,6 +2,7 @@
 
 #include "../helper/point.hpp"
 #include "../helper/types.hpp"
+#include "../helper/windows.hpp"
 #include "./grid_properties.hpp"
 #include "./tetromino_type.hpp"
 
@@ -16,15 +17,17 @@ private:
     helper::TetrominoType m_type;
 
 public:
-    explicit constexpr Mino(GridPoint position, helper::TetrominoType type) : m_position{ position }, m_type{ type } { }
+    OOPETRIS_EXPORTED explicit constexpr Mino(GridPoint position, helper::TetrominoType type)
+        : m_position{ position },
+          m_type{ type } { }
 
-    [[nodiscard]] helper::TetrominoType type() const;
+    OOPETRIS_EXPORTED [[nodiscard]] helper::TetrominoType type() const;
 
-    [[nodiscard]] const GridPoint& position() const;
+    OOPETRIS_EXPORTED [[nodiscard]] const GridPoint& position() const;
 
-    [[nodiscard]] GridPoint& position();
+    OOPETRIS_EXPORTED [[nodiscard]] GridPoint& position();
 
-    [[nodiscard]] bool operator==(const Mino& other) const;
+    OOPETRIS_EXPORTED [[nodiscard]] bool operator==(const Mino& other) const;
 
-    [[nodiscard]] bool operator!=(const Mino& other) const;
+    OOPETRIS_EXPORTED [[nodiscard]] bool operator!=(const Mino& other) const;
 };

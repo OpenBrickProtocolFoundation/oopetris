@@ -1,6 +1,7 @@
 #pragma once
 
 #include "./utils.hpp"
+#include "./windows.hpp"
 
 #include <random>
 
@@ -14,8 +15,8 @@ private:
     std::uniform_real_distribution<double> m_uniform_real_distribution;
 
 public:
-    Random();
-    explicit Random(std::mt19937_64::result_type seed);
+    OOPETRIS_EXPORTED Random();
+    OOPETRIS_EXPORTED explicit Random(std::mt19937_64::result_type seed);
 
     template<utils::integral Integer>
     [[nodiscard]] Integer random(const Integer upper_bound_exclusive) {
@@ -23,8 +24,11 @@ public:
         return distribution(m_generator);
     }
 
-    [[nodiscard]] double random();
-    [[nodiscard]] Seed seed() const;
-    void seed(Seed seed);
-    static Seed generate_seed();
+    OOPETRIS_EXPORTED [[nodiscard]] double random();
+
+    OOPETRIS_EXPORTED [[nodiscard]] Seed seed() const;
+
+    OOPETRIS_EXPORTED void seed(Seed seed);
+
+    OOPETRIS_EXPORTED static Seed generate_seed();
 };

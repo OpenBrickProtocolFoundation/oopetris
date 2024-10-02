@@ -28,6 +28,7 @@ _header_files = files(
     'types.hpp',
     'utils.hpp',
     'versions.hpp',
+    'windows.hpp',
 )
 core_header_files += _header_files
 
