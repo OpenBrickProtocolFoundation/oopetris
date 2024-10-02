@@ -4,6 +4,7 @@
 
 #include "graphic_helpers.hpp"
 #include "rotation.hpp"
+#include "helper/windows.hpp"
 
 #include <array>
 
@@ -22,15 +23,15 @@ public:
     using TetrominoPoint = shapes::AbstractPoint<u8>;
     using Pattern = std::array<TetrominoPoint, 4>;
 
-    Tetromino(GridPoint position, helper::TetrominoType type)
+    OOPETRIS_GRAPHICS_EXPORTED Tetromino(GridPoint position, helper::TetrominoType type)
         : m_position{ position },
           m_type{ type },
           m_minos{ create_minos(position, m_rotation, type) } { }
 
-    [[nodiscard]] helper::TetrominoType type() const;
-    [[nodiscard]] Rotation rotation() const;
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] helper::TetrominoType type() const;
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] Rotation rotation() const;
 
-    void render(
+    OOPETRIS_GRAPHICS_EXPORTED void render(
             const ServiceProvider& service_provider,
             MinoTransparency transparency,
             double original_scale,
@@ -39,15 +40,15 @@ public:
             const GridPoint& offset = GridPoint::zero()
     ) const;
 
-    void rotate_right();
-    void rotate_left();
-    void move_down();
-    void move_up();
-    void move_left();
-    void move_right();
-    void move(shapes::AbstractPoint<i8> offset);
+    OOPETRIS_GRAPHICS_EXPORTED void rotate_right();
+    OOPETRIS_GRAPHICS_EXPORTED void rotate_left();
+    OOPETRIS_GRAPHICS_EXPORTED void move_down();
+    OOPETRIS_GRAPHICS_EXPORTED void move_up();
+    OOPETRIS_GRAPHICS_EXPORTED void move_left();
+    OOPETRIS_GRAPHICS_EXPORTED void move_right();
+    OOPETRIS_GRAPHICS_EXPORTED void move(shapes::AbstractPoint<i8> offset);
 
-    [[nodiscard]] const std::array<Mino, 4>& minos() const;
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] const std::array<Mino, 4>& minos() const;
 
 
 private:

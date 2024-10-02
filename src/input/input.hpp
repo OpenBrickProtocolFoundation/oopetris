@@ -9,7 +9,7 @@
 #include "game_input.hpp"
 #include "graphics/rect.hpp"
 #include "graphics/window.hpp"
-
+#include "helper/windows.hpp"
 #include "manager/service_provider.hpp"
 
 
@@ -33,22 +33,25 @@ namespace input {
         InputType m_type;
 
     public:
-        Input(std::string name, InputType type);
+        OOPETRIS_GRAPHICS_EXPORTED Input(std::string name, InputType type);
 
-        virtual ~Input();
+        OOPETRIS_GRAPHICS_EXPORTED virtual ~Input();
 
-        Input(const Input& input) noexcept;
-        Input& operator=(const Input& input) noexcept;
+        OOPETRIS_GRAPHICS_EXPORTED Input(const Input& input) noexcept;
+        OOPETRIS_GRAPHICS_EXPORTED Input& operator=(const Input& input) noexcept;
 
-        Input(Input&& input) noexcept;
-        Input& operator=(Input&& input) noexcept;
+        OOPETRIS_GRAPHICS_EXPORTED Input(Input&& input) noexcept;
+        OOPETRIS_GRAPHICS_EXPORTED Input& operator=(Input&& input) noexcept;
 
-        [[nodiscard]] const std::string& name() const;
-        [[nodiscard]] InputType type() const;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] const std::string& name() const;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] InputType type() const;
 
-        [[nodiscard]] virtual std::optional<NavigationEvent> get_navigation_event(const SDL_Event& event) const = 0;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] virtual std::optional<NavigationEvent> get_navigation_event(
+                const SDL_Event& event
+        ) const = 0;
 
-        [[nodiscard]] virtual std::string describe_navigation_event(NavigationEvent event) const = 0;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] virtual std::string describe_navigation_event(NavigationEvent event
+        ) const = 0;
     };
 
     enum class PointerEvent : u8 { Motion, PointerDown, PointerUp, Wheel };
@@ -59,27 +62,29 @@ namespace input {
         PointerEvent m_event;
 
     public:
-        PointerEventHelper(shapes::IPoint pos, PointerEvent event);
+        OOPETRIS_GRAPHICS_EXPORTED PointerEventHelper(shapes::IPoint pos, PointerEvent event);
 
-        [[nodiscard]] PointerEvent event() const;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] PointerEvent event() const;
 
-        [[nodiscard]] shapes::IPoint position() const;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] shapes::IPoint position() const;
 
-        [[nodiscard]] bool is_in(const shapes::URect& rect) const;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] bool is_in(const shapes::URect& rect) const;
 
-        [[nodiscard]] bool is_in(const shapes::IRect& rect) const;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] bool is_in(const shapes::IRect& rect) const;
 
-        [[nodiscard]] bool operator==(PointerEvent event) const;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] bool operator==(PointerEvent event) const;
     };
 
 
     struct PointerInput : Input {
-        explicit PointerInput(const std::string& name);
+        OOPETRIS_GRAPHICS_EXPORTED explicit PointerInput(const std::string& name);
 
-        [[nodiscard]] virtual std::optional<PointerEventHelper> get_pointer_event(const SDL_Event& event) const = 0;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] virtual std::optional<PointerEventHelper> get_pointer_event(
+                const SDL_Event& event
+        ) const = 0;
 
-        [[nodiscard]] virtual SDL_Event offset_pointer_event(const SDL_Event& event, const shapes::IPoint& point)
-                const = 0;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] virtual SDL_Event
+        offset_pointer_event(const SDL_Event& event, const shapes::IPoint& point) const = 0;
     };
 
     struct InputManager {
@@ -87,13 +92,17 @@ namespace input {
         std::vector<std::unique_ptr<Input>> m_inputs;
 
     public:
-        explicit InputManager(const std::shared_ptr<Window>& window);
+        OOPETRIS_GRAPHICS_EXPORTED explicit InputManager(const std::shared_ptr<Window>& window);
 
-        [[nodiscard]] const std::vector<std::unique_ptr<Input>>& inputs() const;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] const std::vector<std::unique_ptr<Input>>& inputs() const;
 
-        [[nodiscard]] std::optional<NavigationEvent> get_navigation_event(const SDL_Event& event) const;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::optional<NavigationEvent> get_navigation_event(
+                const SDL_Event& event
+        ) const;
 
-        [[nodiscard]] std::optional<PointerEventHelper> get_pointer_event(const SDL_Event& event) const;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::optional<PointerEventHelper> get_pointer_event(
+                const SDL_Event& event
+        ) const;
 
         /**
         * @brief Offsets a pointer event, only safe to call, if get_pointer_event returns a non null optional
@@ -102,15 +111,17 @@ namespace input {
         * @param point the point to offset it by
         * @return SDL_Event which has the correct offset
         */
-        [[nodiscard]] SDL_Event offset_pointer_event(const SDL_Event& event, const shapes::IPoint& point) const;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] SDL_Event
+        offset_pointer_event(const SDL_Event& event, const shapes::IPoint& point) const;
 
-        [[nodiscard]] helper::BoolWrapper<SpecialRequest> process_special_inputs(const SDL_Event& event);
-
-        [[nodiscard]] helper::expected<std::shared_ptr<input::GameInput>, std::string> get_game_input(
-                ServiceProvider* service_provider
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] helper::BoolWrapper<SpecialRequest> process_special_inputs(
+                const SDL_Event& event
         );
 
-        [[nodiscard]] const input::Input* get_primary_input();
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] helper::expected<std::shared_ptr<input::GameInput>, std::string>
+        get_game_input(ServiceProvider* service_provider);
+
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] const input::Input* get_primary_input();
     };
 
 

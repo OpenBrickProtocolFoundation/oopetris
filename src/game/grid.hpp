@@ -7,6 +7,7 @@
 #include "manager/service_provider.hpp"
 #include "ui/layout.hpp"
 #include "ui/widget.hpp"
+#include "helper/windows.hpp"
 
 struct Grid final : public ui::Widget {
 public:
@@ -23,12 +24,17 @@ private:
     u32 m_tile_size;
 
 public:
-    Grid(const ui::Layout& layout, bool is_top_level);
+    OOPETRIS_GRAPHICS_EXPORTED Grid(const ui::Layout& layout, bool is_top_level);
+
     [[nodiscard]] shapes::UPoint tile_size() const;
-    [[nodiscard]] double scale_to_original() const;
-    [[nodiscard]] shapes::UPoint to_screen_coords(GridPoint grid_coords) const;
-    void render(const ServiceProvider& service_provider) const override;
-    [[nodiscard]] helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
+
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] double scale_to_original() const;
+
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] shapes::UPoint to_screen_coords(GridPoint grid_coords) const;
+
+    OOPETRIS_GRAPHICS_EXPORTED void render(const ServiceProvider& service_provider) const override;
+
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
     handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override;
 
 private:

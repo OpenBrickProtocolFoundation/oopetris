@@ -26,10 +26,10 @@
 #include <optional>
 #include <spdlog/spdlog.h>
 
+#include "helper/windows.hpp"
+#include "lobby/types.hpp"
 #include <core/helper/expected.hpp>
 #include <core/helper/static_string.hpp>
-
-#include "lobby/types.hpp"
 
 namespace constants {
     const constexpr auto json_content_type = "application/json";
@@ -58,40 +58,45 @@ namespace lobby {
 
 
     public:
-        Client(Client&& other) noexcept;
-        Client& operator=(Client&& other) noexcept = delete;
+        OOPETRIS_GRAPHICS_EXPORTED Client(Client&& other) noexcept;
+        OOPETRIS_GRAPHICS_EXPORTED Client& operator=(Client&& other) noexcept = delete;
 
-        Client(const Client& other) = delete;
-        Client& operator=(const Client& other) = delete;
+        OOPETRIS_GRAPHICS_EXPORTED Client(const Client& other) = delete;
+        OOPETRIS_GRAPHICS_EXPORTED Client& operator=(const Client& other) = delete;
 
-        ~Client();
+        OOPETRIS_GRAPHICS_EXPORTED ~Client();
 
-        [[nodiscard]] helper::expected<Client, std::string> static get_client(const std::string& url);
+        OOPETRIS_GRAPHICS_EXPORTED
+                [[nodiscard]] helper::expected<Client, std::string> static get_client(const std::string& url);
 
 
-        [[nodiscard]] bool is_authenticated();
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] bool is_authenticated();
 
-        [[nodiscard]] bool authenticate(const Credentials& credentials);
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] bool authenticate(const Credentials& credentials);
 
-        [[nodiscard]] helper::expected<std::vector<LobbyInfo>, std::string> get_lobbies();
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] helper::expected<std::vector<LobbyInfo>, std::string> get_lobbies();
 
-        [[nodiscard]] helper::expected<void, std::string> join_lobby(int lobby_id);
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] helper::expected<void, std::string> join_lobby(int lobby_id);
 
-        [[nodiscard]] helper::expected<LobbyDetail, std::string> get_lobby_detail(int lobby_id);
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] helper::expected<LobbyDetail, std::string> get_lobby_detail(
+                int lobby_id
+        );
 
-        [[nodiscard]] helper::expected<void, std::string> delete_lobby(int lobby_id);
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] helper::expected<void, std::string> delete_lobby(int lobby_id);
 
-        [[nodiscard]] helper::expected<void, std::string> leave_lobby(int lobby_id);
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] helper::expected<void, std::string> leave_lobby(int lobby_id);
 
-        [[nodiscard]] helper::expected<void, std::string> start_lobby(int lobby_id);
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] helper::expected<void, std::string> start_lobby(int lobby_id);
 
-        [[nodiscard]] helper::expected<LobbyCreateResponse, std::string> create_lobby(
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] helper::expected<LobbyCreateResponse, std::string> create_lobby(
                 const CreateLobbyRequest& arguments
         );
 
-        [[nodiscard]] helper::expected<std::vector<PlayerInfo>, std::string> get_users();
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] helper::expected<std::vector<PlayerInfo>, std::string> get_users();
 
-        [[nodiscard]] helper::expected<void, std::string> register_user(const RegisterRequest& register_request);
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] helper::expected<void, std::string> register_user(
+                const RegisterRequest& register_request
+        );
     };
 
 

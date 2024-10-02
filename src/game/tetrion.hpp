@@ -11,7 +11,7 @@
 #include "ui/layout.hpp"
 #include "ui/layouts/tile_layout.hpp"
 #include "ui/widget.hpp"
-
+#include "helper/windows.hpp"
 
 namespace recorder {
     struct RecordingWriter;
@@ -27,30 +27,32 @@ private:
 
 
 public:
-    Tetrion(u8 tetrion_index,
+    OOPETRIS_GRAPHICS_EXPORTED Tetrion(
+            u8 tetrion_index,
             Random::Seed random_seed,
             u32 starting_level,
             ServiceProvider* service_provider,
             std::optional<std::shared_ptr<recorder::RecordingWriter>> recording_writer,
             const ui::Layout& layout,
-            bool is_top_level);
+            bool is_top_level
+    );
 
-    ~Tetrion() override;
+    OOPETRIS_GRAPHICS_EXPORTED ~Tetrion() override;
 
-    Tetrion(const Tetrion& other) = delete;
-    Tetrion& operator=(const Tetrion& other) = delete;
+    OOPETRIS_GRAPHICS_EXPORTED Tetrion(const Tetrion& other) = delete;
+    OOPETRIS_GRAPHICS_EXPORTED Tetrion& operator=(const Tetrion& other) = delete;
 
-    Tetrion(Tetrion&& other) noexcept = delete;
-    Tetrion& operator=(Tetrion&& other) noexcept = delete;
+    OOPETRIS_GRAPHICS_EXPORTED Tetrion(Tetrion&& other) noexcept = delete;
+    OOPETRIS_GRAPHICS_EXPORTED Tetrion& operator=(Tetrion&& other) noexcept = delete;
 
-    void render(const ServiceProvider& service_provider) const override;
-    [[nodiscard]] Widget::EventHandleResult
+    OOPETRIS_GRAPHICS_EXPORTED void render(const ServiceProvider& service_provider) const override;
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] Widget::EventHandleResult
     handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override;
 
-    [[nodiscard]] Grid* get_grid();
-    [[nodiscard]] const Grid* get_grid() const;
-    [[nodiscard]] ui::GridLayout* get_text_layout();
-    [[nodiscard]] const ui::GridLayout* get_text_layout() const;
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] Grid* get_grid();
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] const Grid* get_grid() const;
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] ui::GridLayout* get_text_layout();
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] const ui::GridLayout* get_text_layout() const;
 
 private:
     void refresh_texts() override;

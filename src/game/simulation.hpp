@@ -6,6 +6,7 @@
 #include "input/input_creator.hpp"
 #include "input/replay_input.hpp"
 #include "simulated_tetrion.hpp"
+#include "helper/windows.hpp"
 
 struct Simulation {
 private:
@@ -16,16 +17,16 @@ private:
     std::shared_ptr<input::ReplayGameInput> m_input;
 
 public:
-    explicit Simulation(
+    OOPETRIS_GRAPHICS_EXPORTED explicit Simulation(
             const std::shared_ptr<input::ReplayGameInput>& input,
             const tetrion::StartingParameters& starting_parameters
     );
 
+    OOPETRIS_GRAPHICS_EXPORTED static helper::expected<Simulation, std::string> get_replay_simulation(
+            std::filesystem::path& recording_path
+    );
 
-    static helper::expected<Simulation, std::string> get_replay_simulation(std::filesystem::path& recording_path);
+    OOPETRIS_GRAPHICS_EXPORTED void update();
 
-    void update();
-
-
-    [[nodiscard]] bool is_game_finished() const;
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] bool is_game_finished() const;
 };

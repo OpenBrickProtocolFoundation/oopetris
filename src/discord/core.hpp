@@ -4,6 +4,8 @@
 
 #include <core/helper/expected.hpp>
 
+#include "../helper/windows.hpp"
+
 #include <chrono>
 #ifdef _WIN32
 #ifndef NOMINMAX
@@ -38,8 +40,7 @@ namespace constants::discord {
     // manually synchronized to https://discord.com/developers/applications/1220147916371394650/rich-presence/assets
     enum class ArtAsset { logo };
 
-    [[nodiscard]] std::string get_asset_key(ArtAsset asset);
-
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::string get_asset_key(ArtAsset asset);
 
 } // namespace constants::discord
 
@@ -51,11 +52,15 @@ private:
 public:
     //TODO(Totto):  Add support for party and invites / join / invitations / spectate
 
-    DiscordActivityWrapper(const std::string& details, discord::ActivityType type);
+    OOPETRIS_GRAPHICS_EXPORTED DiscordActivityWrapper(const std::string& details, discord::ActivityType type);
 
-    DiscordActivityWrapper& set_large_image(const std::string& text, constants::discord::ArtAsset asset);
-    DiscordActivityWrapper& set_small_image(const std::string& text, constants::discord::ArtAsset asset);
-    DiscordActivityWrapper& set_details(const std::string& text);
+    OOPETRIS_GRAPHICS_EXPORTED DiscordActivityWrapper&
+    set_large_image(const std::string& text, constants::discord::ArtAsset asset);
+
+    OOPETRIS_GRAPHICS_EXPORTED DiscordActivityWrapper&
+    set_small_image(const std::string& text, constants::discord::ArtAsset asset);
+
+    OOPETRIS_GRAPHICS_EXPORTED DiscordActivityWrapper& set_details(const std::string& text);
 
     template<typename T>
     DiscordActivityWrapper& set_start_timestamp(const std::chrono::time_point<T>& point) {
@@ -82,7 +87,7 @@ public:
     }
 
 
-    [[nodiscard]] const discord::Activity& get_raw() const;
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] const discord::Activity& get_raw() const;
 };
 
 struct DiscordInstance {
@@ -93,17 +98,18 @@ private:
     DiscordInstance(discord::Core* core);
 
 public:
-    [[nodiscard]] static helper::expected<DiscordInstance, std::string> initialize();
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] static helper::expected<DiscordInstance, std::string> initialize();
 
-    void after_setup();
+    OOPETRIS_GRAPHICS_EXPORTED void after_setup();
 
-    DiscordInstance(DiscordInstance&& old) noexcept;
-    DiscordInstance& operator=(DiscordInstance&& other) noexcept;
+    OOPETRIS_GRAPHICS_EXPORTED DiscordInstance(DiscordInstance&& old) noexcept;
 
-    ~DiscordInstance();
+    OOPETRIS_GRAPHICS_EXPORTED DiscordInstance& operator=(DiscordInstance&& other) noexcept;
 
-    void update();
-    void set_activity(const DiscordActivityWrapper& activity);
+    OOPETRIS_GRAPHICS_EXPORTED ~DiscordInstance();
+
+    OOPETRIS_GRAPHICS_EXPORTED void update();
+    OOPETRIS_GRAPHICS_EXPORTED void set_activity(const DiscordActivityWrapper& activity);
 
 private:
     void clear_activity(bool wait = true);

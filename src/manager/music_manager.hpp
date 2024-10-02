@@ -3,6 +3,7 @@
 
 #include <core/helper/types.hpp>
 
+#include "helper/windows.hpp"
 #include "input/input.hpp"
 #include "manager/service_provider.hpp"
 
@@ -35,29 +36,35 @@ private:
     std::unordered_map<std::string, VolumeChangeFunction> m_volume_listeners;
 
 public:
-    explicit MusicManager(ServiceProvider* service_provider, u8 channel_size = 2);
+    OOPETRIS_GRAPHICS_EXPORTED explicit MusicManager(ServiceProvider* service_provider, u8 channel_size = 2);
 
-    MusicManager(const MusicManager&) = delete;
-    MusicManager& operator=(const MusicManager&) = delete;
+    OOPETRIS_GRAPHICS_EXPORTED MusicManager(const MusicManager&) = delete;
+    OOPETRIS_GRAPHICS_EXPORTED MusicManager& operator=(const MusicManager&) = delete;
 
-    MusicManager(const MusicManager&&) = delete;
-    MusicManager& operator=(MusicManager&&) = delete;
+    OOPETRIS_GRAPHICS_EXPORTED MusicManager(const MusicManager&&) = delete;
+    OOPETRIS_GRAPHICS_EXPORTED MusicManager& operator=(MusicManager&&) = delete;
 
-    ~MusicManager() noexcept;
+    OOPETRIS_GRAPHICS_EXPORTED ~MusicManager() noexcept;
 
-    std::optional<std::string>
+    OOPETRIS_GRAPHICS_EXPORTED std::optional<std::string>
     load_and_play_music(const std::filesystem::path& location, usize delay = MusicManager::fade_ms);
 
-    std::optional<std::string> load_effect(const std::string& name, std::filesystem::path& location);
-    std::optional<std::string> play_effect(const std::string& name, u8 channel_num = 1, int loop = 0);
+    OOPETRIS_GRAPHICS_EXPORTED std::optional<std::string>
+    load_effect(const std::string& name, std::filesystem::path& location);
+    OOPETRIS_GRAPHICS_EXPORTED std::optional<std::string>
+    play_effect(const std::string& name, u8 channel_num = 1, int loop = 0);
 
     //TODO(Totto):  atm the volume changers only work on the music channel, when adding more effects, this should support channels via  https://wiki.libsdl.org/SDL2_mixer/Mix_Volume
-    [[nodiscard]] std::optional<double> get_volume() const;
-    void set_volume(std::optional<double> new_volume, bool force_update = false, bool notify_listeners = true);
-    // no nodiscard, since the return value is only a side effect, that is maybe useful
-    std::optional<double> change_volume(std::int8_t steps);
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::optional<double> get_volume() const;
 
-    bool handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event);
+    OOPETRIS_GRAPHICS_EXPORTED void
+    set_volume(std::optional<double> new_volume, bool force_update = false, bool notify_listeners = true);
+
+    // no nodiscard, since the return value is only a side effect, that is maybe useful
+    OOPETRIS_GRAPHICS_EXPORTED std::optional<double> change_volume(std::int8_t steps);
+
+    OOPETRIS_GRAPHICS_EXPORTED bool
+    handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event);
 
     bool add_volume_listener(const std::string& name, VolumeChangeFunction change_function) {
 

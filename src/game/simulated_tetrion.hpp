@@ -13,6 +13,7 @@
 #include "tetromino.hpp"
 #include "ui/layouts/grid_layout.hpp"
 #include "ui/widget.hpp"
+#include "helper/windows.hpp"
 
 #include <array>
 
@@ -90,7 +91,7 @@ protected:
             m_service_provider; // NOLINT(misc-non-private-member-variables-in-classes,cppcoreguidelines-non-private-member-variables-in-classes)
 
 public:
-    SimulatedTetrion(
+    OOPETRIS_GRAPHICS_EXPORTED SimulatedTetrion(
             u8 tetrion_index,
             Random::Seed random_seed,
             u32 starting_level,
@@ -98,36 +99,36 @@ public:
             std::optional<std::shared_ptr<recorder::RecordingWriter>> recording_writer
     );
 
-    virtual ~SimulatedTetrion();
+    OOPETRIS_GRAPHICS_EXPORTED virtual ~SimulatedTetrion();
 
-    SimulatedTetrion(const SimulatedTetrion& other);
-    SimulatedTetrion& operator=(const SimulatedTetrion& other) = delete;
+    OOPETRIS_GRAPHICS_EXPORTED SimulatedTetrion(const SimulatedTetrion& other);
+    OOPETRIS_GRAPHICS_EXPORTED SimulatedTetrion& operator=(const SimulatedTetrion& other) = delete;
 
-    SimulatedTetrion(SimulatedTetrion&& other) noexcept;
-    SimulatedTetrion& operator=(SimulatedTetrion&& other) noexcept = delete;
+    OOPETRIS_GRAPHICS_EXPORTED SimulatedTetrion(SimulatedTetrion&& other) noexcept;
+    OOPETRIS_GRAPHICS_EXPORTED SimulatedTetrion& operator=(SimulatedTetrion&& other) noexcept = delete;
 
-    void update_step(SimulationStep simulation_step_index);
+    OOPETRIS_GRAPHICS_EXPORTED void update_step(SimulationStep simulation_step_index);
 
     // returns if the input event lead to a movement
-    bool handle_input_command(input::GameInputCommand command, SimulationStep simulation_step_index);
-    void spawn_next_tetromino(SimulationStep simulation_step_index);
-    void spawn_next_tetromino(helper::TetrominoType type, SimulationStep simulation_step_index);
-    bool rotate_tetromino_right();
-    bool rotate_tetromino_left();
-    bool move_tetromino_down(MovementType movement_type, SimulationStep simulation_step_index);
-    bool move_tetromino_left();
-    bool move_tetromino_right();
-    bool drop_tetromino(SimulationStep simulation_step_index);
-    void hold_tetromino(SimulationStep simulation_step_index);
+    OOPETRIS_GRAPHICS_EXPORTED bool handle_input_command(input::GameInputCommand command, SimulationStep simulation_step_index);
+    OOPETRIS_GRAPHICS_EXPORTED void spawn_next_tetromino(SimulationStep simulation_step_index);
+    OOPETRIS_GRAPHICS_EXPORTED void spawn_next_tetromino(helper::TetrominoType type, SimulationStep simulation_step_index);
+    OOPETRIS_GRAPHICS_EXPORTED bool rotate_tetromino_right();
+    OOPETRIS_GRAPHICS_EXPORTED bool rotate_tetromino_left();
+    OOPETRIS_GRAPHICS_EXPORTED bool move_tetromino_down(MovementType movement_type, SimulationStep simulation_step_index);
+    OOPETRIS_GRAPHICS_EXPORTED bool move_tetromino_left();
+    OOPETRIS_GRAPHICS_EXPORTED bool move_tetromino_right();
+    OOPETRIS_GRAPHICS_EXPORTED bool drop_tetromino(SimulationStep simulation_step_index);
+    OOPETRIS_GRAPHICS_EXPORTED void hold_tetromino(SimulationStep simulation_step_index);
 
-    [[nodiscard]] u8 tetrion_index() const;
-    [[nodiscard]] u32 level() const;
-    [[nodiscard]] u64 score() const;
-    [[nodiscard]] u32 lines_cleared() const;
-    [[nodiscard]] const MinoStack& mino_stack() const;
-    [[nodiscard]] std::unique_ptr<TetrionCoreInformation> core_information() const;
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] u8 tetrion_index() const;
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] u32 level() const;
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] u64 score() const;
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] u32 lines_cleared() const;
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] const MinoStack& mino_stack() const;
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::unique_ptr<TetrionCoreInformation> core_information() const;
 
-    [[nodiscard]] bool is_game_over() const;
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] bool is_game_over() const;
 
 private:
     template<typename Callable>

@@ -31,6 +31,7 @@ if build_application
         include_directories: graphics_lib.get('inc_dirs'),
         dependencies: graphics_lib.get('deps'),
         cpp_args: graphics_lib.get('compile_args'),
+        cpp_shared_args: ['-DOOPETRIS_LIBRARY_GRAPHICS_EXPORT'],
         override_options: {
             'warning_level': '3',
             'werror': true,

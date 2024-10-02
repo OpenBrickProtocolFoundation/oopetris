@@ -10,6 +10,8 @@
 #include <fmt/format.h>
 #include <string>
 
+#include "helper/windows.hpp"
+
 extern "C" {
 #if SDL_MAJOR_VERSION < 2 || SDL_MINOR_VERSION < 30 || SDL_PATCHLEVEL < 0
 typedef SDL_JoystickGUID SDL_GUID; //NOLINT(modernize-use-using), it's used in extern C, there is no using
@@ -32,13 +34,15 @@ namespace sdl {
         constexpr GUID() : m_guid{} { }
         explicit constexpr GUID(const ArrayType& data) : m_guid{ data } { }
 
-        explicit GUID(const SDL_GUID& data);
+        OOPETRIS_GRAPHICS_EXPORTED explicit GUID(const SDL_GUID& data);
 
-        [[nodiscard]] static helper::expected<GUID, std::string> from_string(const std::string& value);
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] static helper::expected<GUID, std::string> from_string(
+                const std::string& value
+        );
 
-        [[nodiscard]] bool operator==(const GUID& other) const;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] bool operator==(const GUID& other) const;
 
-        [[nodiscard]] std::string to_string(FormatType type = FormatType::Long) const;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::string to_string(FormatType type = FormatType::Long) const;
     };
 } // namespace sdl
 

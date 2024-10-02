@@ -3,6 +3,8 @@
 #include <core/helper/expected.hpp>
 #include <core/helper/types.hpp>
 
+#include "helper/windows.hpp"
+
 #include <SDL.h>
 #include <fmt/format.h>
 #include <string>
@@ -45,13 +47,13 @@ namespace sdl {
         UnderlyingModifierType m_modifiers;
 
     public:
-        explicit Key(SDL_KeyCode keycode, UnderlyingModifierType modifiers);
-        explicit Key(SDL_KeyCode keycode, const std::vector<Modifier>& modifiers = {});
-        explicit Key(const SDL_Keysym& keysym);
+        OOPETRIS_GRAPHICS_EXPORTED explicit Key(SDL_KeyCode keycode, UnderlyingModifierType modifiers);
+        OOPETRIS_GRAPHICS_EXPORTED explicit Key(SDL_KeyCode keycode, const std::vector<Modifier>& modifiers = {});
+        OOPETRIS_GRAPHICS_EXPORTED explicit Key(const SDL_Keysym& keysym);
 
-        static helper::expected<Key, std::string> from_string(const std::string& value);
+        OOPETRIS_GRAPHICS_EXPORTED static helper::expected<Key, std::string> from_string(const std::string& value);
 
-        [[nodiscard]] bool is_key(const Key& other) const;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] bool is_key(const Key& other) const;
 
         /**
         * @brief Checks if the key has a modifier, this performs a logical check, e.g. LALT and ALT are treated as match 
@@ -59,7 +61,7 @@ namespace sdl {
         * @param modifier 
         * @return bool 
         */
-        [[nodiscard]] bool has_modifier(const Modifier& modifier) const;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] bool has_modifier(const Modifier& modifier) const;
 
         /**
         * @brief Checks if the key has a modifier, this performs a exact check, e.g. LALT and ALT are treated as NON-match 
@@ -67,13 +69,14 @@ namespace sdl {
         * @param modifier 
         * @return bool 
         */
-        [[nodiscard]] bool has_modifier_exact(const Modifier& modifier) const;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] bool has_modifier_exact(const Modifier& modifier) const;
 
-        [[nodiscard]] bool operator==(const Key& other) const;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] bool operator==(const Key& other) const;
 
-        [[nodiscard]] bool is_equal(const Key& other, bool ignore_special_modifiers = true) const;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] bool is_equal(const Key& other, bool ignore_special_modifiers = true)
+                const;
 
-        [[nodiscard]] std::string to_string() const;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::string to_string() const;
 
     private:
         [[nodiscard]] static helper::expected<SDL_KeyCode, std::string> sdl_keycode_from_string(const std::string& value

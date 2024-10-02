@@ -6,6 +6,7 @@
 #include "rect.hpp"
 #include "texture.hpp"
 #include "window.hpp"
+#include "helper/windows.hpp"
 
 #include <SDL.h>
 #include <filesystem>
@@ -22,13 +23,13 @@ private:
     SDL_Renderer* m_renderer;
 
 public:
-    explicit Renderer(const Window& window, VSync v_sync);
-    Renderer(const Renderer&) = delete;
-    Renderer& operator=(const Renderer&) = delete;
-    ~Renderer();
+    OOPETRIS_GRAPHICS_EXPORTED explicit Renderer(const Window& window, VSync v_sync);
+    OOPETRIS_GRAPHICS_EXPORTED Renderer(const Renderer&) = delete;
+    OOPETRIS_GRAPHICS_EXPORTED Renderer& operator=(const Renderer&) = delete;
+    OOPETRIS_GRAPHICS_EXPORTED ~Renderer();
 
-    void set_draw_color(const Color& color) const;
-    void clear(const Color& clear_color = Color::black()) const;
+    OOPETRIS_GRAPHICS_EXPORTED void set_draw_color(const Color& color) const;
+    OOPETRIS_GRAPHICS_EXPORTED void clear(const Color& clear_color = Color::black()) const;
 
     template<typename T>
     void draw_rect_filled(const shapes::AbstractRect<T>& rect, const Color& color) const {
@@ -77,21 +78,20 @@ public:
         texture.render(m_renderer, from, to);
     }
 
-    [[nodiscard]] Texture load_image(const std::filesystem::path& image_path) const;
-    [[nodiscard]] Texture prerender_text(
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] Texture load_image(const std::filesystem::path& image_path) const;
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] Texture prerender_text(
             const std::string& text,
             const Font& font,
             const Color& color,
             RenderType render_type = RenderType::Blended,
             const Color& background_color = Color::black()
     ) const;
-    [[nodiscard]] Texture get_texture_for_render_target(const shapes::UPoint& size) const;
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] Texture get_texture_for_render_target(const shapes::UPoint& size) const;
 
-    void set_render_target(const Texture& texture) const;
-    void reset_render_target() const;
+    OOPETRIS_GRAPHICS_EXPORTED void set_render_target(const Texture& texture) const;
+    OOPETRIS_GRAPHICS_EXPORTED void reset_render_target() const;
 
-
-    void present() const;
+    OOPETRIS_GRAPHICS_EXPORTED void present() const;
 
 private:
     void draw_self_computed_circle_impl(const shapes::IPoint& center, i32 diameter) const;
