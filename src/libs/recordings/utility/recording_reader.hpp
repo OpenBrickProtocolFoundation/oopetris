@@ -1,6 +1,6 @@
 #pragma once
 
-#include <core/helper/windows.hpp>
+#include "./windows.hpp"
 
 #include "./helper.hpp"
 
@@ -26,21 +26,21 @@ namespace recorder {
         );
 
     public:
-        OOPETRIS_EXPORTED RecordingReader(RecordingReader&& old) noexcept;
+        OOPETRIS_RECORDINGS_EXPORTED RecordingReader(RecordingReader&& old) noexcept;
 
-        OOPETRIS_EXPORTED static helper::expected<RecordingReader, std::string> from_path(
+        OOPETRIS_RECORDINGS_EXPORTED static helper::expected<RecordingReader, std::string> from_path(
                 const std::filesystem::path& path
         );
 
-        OOPETRIS_EXPORTED [[nodiscard]] const Record& at(usize index) const;
+        OOPETRIS_RECORDINGS_EXPORTED [[nodiscard]] const Record& at(usize index) const;
 
-        OOPETRIS_EXPORTED [[nodiscard]] usize num_records() const;
+        OOPETRIS_RECORDINGS_EXPORTED [[nodiscard]] usize num_records() const;
 
-        OOPETRIS_EXPORTED [[nodiscard]] const UnderlyingContainer& records() const;
+        OOPETRIS_RECORDINGS_EXPORTED [[nodiscard]] const UnderlyingContainer& records() const;
 
-        OOPETRIS_EXPORTED [[nodiscard]] const std::vector<TetrionSnapshot>& snapshots() const;
+        OOPETRIS_RECORDINGS_EXPORTED [[nodiscard]] const std::vector<TetrionSnapshot>& snapshots() const;
 
-        OOPETRIS_EXPORTED [[nodiscard]] static helper::
+        OOPETRIS_RECORDINGS_EXPORTED [[nodiscard]] static helper::
                 expected<std::pair<recorder::AdditionalInformation, std::vector<recorder::TetrionHeader>>, std::string>
                 is_header_valid(const std::filesystem::path& path);
 
@@ -53,13 +53,13 @@ namespace recorder {
         using reference = UnderlyingContainer::reference;             //NOLINT(readability-identifier-naming)
         using iterator_category = std::bidirectional_iterator_tag;    //NOLINT(readability-identifier-naming)
 
-        OOPETRIS_EXPORTED [[nodiscard]] iterator begin();
+        OOPETRIS_RECORDINGS_EXPORTED [[nodiscard]] iterator begin();
 
-        OOPETRIS_EXPORTED [[nodiscard]] const_iterator begin() const;
+        OOPETRIS_RECORDINGS_EXPORTED [[nodiscard]] const_iterator begin() const;
 
-        OOPETRIS_EXPORTED [[nodiscard]] iterator end();
+        OOPETRIS_RECORDINGS_EXPORTED [[nodiscard]] iterator end();
 
-        OOPETRIS_EXPORTED [[nodiscard]] const_iterator end() const;
+        OOPETRIS_RECORDINGS_EXPORTED [[nodiscard]] const_iterator end() const;
 
     private:
         [[nodiscard]] static helper::expected<

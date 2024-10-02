@@ -3,7 +3,7 @@
 #include <core/helper/input_event.hpp>
 #include <core/helper/random.hpp>
 #include <core/helper/types.hpp>
-#include <core/helper/windows.hpp>
+#include "./windows.hpp"
 
 #include "./additional_information.hpp"
 #include "./checksum_helper.hpp"
@@ -37,7 +37,7 @@ namespace recorder {
         Random::Seed seed;
         u32 starting_level;
 
-        OOPETRIS_EXPORTED TetrionHeader(Random::Seed seed, u32 starting_level);
+        OOPETRIS_RECORDINGS_EXPORTED TetrionHeader(Random::Seed seed, u32 starting_level);
     };
 
     struct Recording {
@@ -58,11 +58,11 @@ namespace recorder {
         Recording& operator=(Recording&&) = delete;
         virtual ~Recording() = default;
 
-        OOPETRIS_EXPORTED [[nodiscard]] const std::vector<TetrionHeader>& tetrion_headers() const;
+        OOPETRIS_RECORDINGS_EXPORTED [[nodiscard]] const std::vector<TetrionHeader>& tetrion_headers() const;
 
-        OOPETRIS_EXPORTED [[nodiscard]] const AdditionalInformation& information() const;
+        OOPETRIS_RECORDINGS_EXPORTED [[nodiscard]] const AdditionalInformation& information() const;
 
-        OOPETRIS_EXPORTED [[nodiscard]] static Sha256Stream::Checksum get_header_checksum(
+        OOPETRIS_RECORDINGS_EXPORTED [[nodiscard]] static Sha256Stream::Checksum get_header_checksum(
                 u8 version_number,
                 const std::vector<TetrionHeader>& tetrion_headers,
                 const AdditionalInformation& information

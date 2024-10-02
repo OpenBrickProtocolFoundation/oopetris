@@ -6,7 +6,7 @@
 #include "./tetrion_core_information.hpp"
 
 #include <core/helper/expected.hpp>
-#include <core/helper/windows.hpp>
+#include "./windows.hpp"
 
 #include <filesystem>
 
@@ -23,22 +23,22 @@ namespace recorder {
         );
 
     public:
-        OOPETRIS_EXPORTED RecordingWriter(RecordingWriter&& old) noexcept;
+        OOPETRIS_RECORDINGS_EXPORTED RecordingWriter(RecordingWriter&& old) noexcept;
 
-        OOPETRIS_EXPORTED static helper::expected<RecordingWriter, std::string> get_writer(
+        OOPETRIS_RECORDINGS_EXPORTED static helper::expected<RecordingWriter, std::string> get_writer(
                 const std::filesystem::path& path,
                 std::vector<TetrionHeader>&& tetrion_headers,
                 AdditionalInformation&& information,
                 bool overwrite = false
         );
 
-        OOPETRIS_EXPORTED [[nodiscard]] helper::expected<void, std::string> add_record(
+        OOPETRIS_RECORDINGS_EXPORTED [[nodiscard]] helper::expected<void, std::string> add_record(
                 u8 tetrion_index, // NOLINT(bugprone-easily-swappable-parameters)
                 u64 simulation_step_index,
                 InputEvent event
         );
 
-        OOPETRIS_EXPORTED [[nodiscard]] helper::expected<void, std::string>
+        OOPETRIS_RECORDINGS_EXPORTED [[nodiscard]] helper::expected<void, std::string>
         add_snapshot(u64 simulation_step_index, std::unique_ptr<TetrionCoreInformation> information);
 
     private:
