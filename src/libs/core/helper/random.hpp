@@ -15,8 +15,8 @@ private:
     std::uniform_real_distribution<double> m_uniform_real_distribution;
 
 public:
-    OOPETRIS_EXPORTED Random();
-    OOPETRIS_EXPORTED explicit Random(std::mt19937_64::result_type seed);
+    OOPETRIS_CORE_EXPORTED Random();
+    OOPETRIS_CORE_EXPORTED explicit Random(std::mt19937_64::result_type seed);
 
     template<utils::integral Integer>
     [[nodiscard]] Integer random(const Integer upper_bound_exclusive) {
@@ -24,11 +24,11 @@ public:
         return distribution(m_generator);
     }
 
-    OOPETRIS_EXPORTED [[nodiscard]] double random();
+    OOPETRIS_CORE_EXPORTED [[nodiscard]] double random();
 
-    OOPETRIS_EXPORTED [[nodiscard]] Seed seed() const;
+    OOPETRIS_CORE_EXPORTED [[nodiscard]] Seed seed() const;
 
-    OOPETRIS_EXPORTED void seed(Seed seed);
+    OOPETRIS_CORE_EXPORTED void seed(Seed seed);
 
-    OOPETRIS_EXPORTED static Seed generate_seed();
+    OOPETRIS_CORE_EXPORTED static Seed generate_seed();
 };

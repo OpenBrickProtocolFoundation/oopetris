@@ -62,20 +62,20 @@ struct HSVColor {
 
     constexpr HSVColor() : HSVColor{ 0.0, 0.0, 0.0, 0 } { }
 
-    OOPETRIS_EXPORTED [[nodiscard]] static helper::expected<HSVColor, std::string> from_string(const std::string& value
+    OOPETRIS_CORE_EXPORTED [[nodiscard]] static helper::expected<HSVColor, std::string> from_string(const std::string& value
     );
 
     using InfoType = std::tuple<HSVColor, color::SerializeMode, bool>;
 
-    OOPETRIS_EXPORTED [[nodiscard]] static helper::expected<InfoType, std::string> from_string_with_info(
+    OOPETRIS_CORE_EXPORTED [[nodiscard]] static helper::expected<InfoType, std::string> from_string_with_info(
             const std::string& value
     );
 
-    OOPETRIS_EXPORTED [[nodiscard]] Color to_rgb_color() const;
+    OOPETRIS_CORE_EXPORTED [[nodiscard]] Color to_rgb_color() const;
 
-    OOPETRIS_EXPORTED [[nodiscard]] std::string to_string(bool force_alpha = false) const;
+    OOPETRIS_CORE_EXPORTED [[nodiscard]] std::string to_string(bool force_alpha = false) const;
 
-    OOPETRIS_EXPORTED std::ostream& operator<<(std::ostream& os) const;
+    OOPETRIS_CORE_EXPORTED std::ostream& operator<<(std::ostream& os) const;
 };
 
 namespace { //NOLINT(cert-dcl59-cpp,google-build-namespaces)
@@ -139,16 +139,16 @@ struct Color {
 
     constexpr Color(u8 red, u8 green, u8 blue) : Color{ red, green, blue, 0xFF } { }
 
-    OOPETRIS_EXPORTED [[nodiscard]] static helper::expected<Color, std::string> from_string(const std::string& value);
+    OOPETRIS_CORE_EXPORTED [[nodiscard]] static helper::expected<Color, std::string> from_string(const std::string& value);
 
     using InfoType = std::tuple<Color, color::SerializeMode, bool>;
 
-    OOPETRIS_EXPORTED [[nodiscard]] static helper::expected<InfoType, std::string> from_string_with_info(
+    OOPETRIS_CORE_EXPORTED [[nodiscard]] static helper::expected<InfoType, std::string> from_string_with_info(
             const std::string& value
     );
 
 
-    OOPETRIS_EXPORTED [[nodiscard]] HSVColor to_hsv_color() const;
+    OOPETRIS_CORE_EXPORTED [[nodiscard]] HSVColor to_hsv_color() const;
 
     constexpr Color(const HSVColor& color) { //NOLINT(google-explicit-constructor)
 
@@ -260,8 +260,8 @@ struct Color {
         return Color{ 0xFF, 0xFF, 0xFF, alpha };
     };
 
-    OOPETRIS_EXPORTED [[nodiscard]] std::string
+    OOPETRIS_CORE_EXPORTED [[nodiscard]] std::string
     to_string(color::SerializeMode mode = color::SerializeMode::RGB, bool force_alpha = false) const;
 
-    OOPETRIS_EXPORTED std::ostream& operator<<(std::ostream& os) const;
+    OOPETRIS_CORE_EXPORTED std::ostream& operator<<(std::ostream& os) const;
 };

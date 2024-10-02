@@ -17,17 +17,17 @@ private:
     helper::TetrominoType m_type;
 
 public:
-    OOPETRIS_EXPORTED explicit constexpr Mino(GridPoint position, helper::TetrominoType type)
+    OOPETRIS_CORE_EXPORTED explicit constexpr Mino(GridPoint position, helper::TetrominoType type)
         : m_position{ position },
           m_type{ type } { }
 
-    OOPETRIS_EXPORTED [[nodiscard]] helper::TetrominoType type() const;
+    OOPETRIS_CORE_EXPORTED [[nodiscard]] helper::TetrominoType type() const;
 
-    OOPETRIS_EXPORTED [[nodiscard]] const GridPoint& position() const;
+    OOPETRIS_CORE_EXPORTED [[nodiscard]] const GridPoint& position() const;
 
-    OOPETRIS_EXPORTED [[nodiscard]] GridPoint& position();
+    OOPETRIS_CORE_EXPORTED [[nodiscard]] GridPoint& position();
 
-    OOPETRIS_EXPORTED [[nodiscard]] bool operator==(const Mino& other) const;
+    OOPETRIS_CORE_EXPORTED [[nodiscard]] bool operator==(const Mino& other) const;
 
-    OOPETRIS_EXPORTED [[nodiscard]] bool operator!=(const Mino& other) const;
+    OOPETRIS_CORE_EXPORTED [[nodiscard]] bool operator!=(const Mino& other) const;
 };

@@ -17,8 +17,8 @@ namespace helper {
         LastType = Z,
     };
 
-    OOPETRIS_EXPORTED [[nodiscard]] Color get_foreground_color(TetrominoType type, u8 alpha);
+    OOPETRIS_CORE_EXPORTED [[nodiscard]] Color get_foreground_color(TetrominoType type, u8 alpha);
 
-    OOPETRIS_EXPORTED [[nodiscard]] Color get_background_color(TetrominoType type, u8 alpha);
+    OOPETRIS_CORE_EXPORTED [[nodiscard]] Color get_background_color(TetrominoType type, u8 alpha);
 
 } // namespace helper
