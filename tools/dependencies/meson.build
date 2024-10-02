@@ -331,9 +331,17 @@ if build_application
         }
     endif
 
+    c = meson.get_compiler('c')
+
     discord_sdk_dep = dependency(
         'discord-game-sdk',
         required: not meson.is_cross_build(),
+        # only with msvc we need a static library, all others work without adding __declspec() everywhere 
+        static: c.get_id() == 'msvc',
+        #TODO: format and run mesonlint
+         default_options : c.get_id() != 'msvc' ? {}: {
+                'default_library':'static'
+         }
     )
     if discord_sdk_dep.found()
         have_discord_sdk = true
