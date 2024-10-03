@@ -3,6 +3,7 @@
 #include <recordings/utility/recording.hpp>
 
 #include "helper/clock_source.hpp"
+#include "helper/windows.hpp"
 #include "input/input_creator.hpp"
 #include "tetrion.hpp"
 #include "ui/widget.hpp"
@@ -18,7 +19,7 @@ private:
     bool m_is_paused{ false };
 
 public:
-    explicit Game(
+    OOPETRIS_GRAPHICS_EXPORTED explicit Game(
             ServiceProvider* service_provider,
             const std::shared_ptr<input::GameInput>& input,
             const tetrion::StartingParameters& starting_parameters,
@@ -27,17 +28,18 @@ public:
             bool is_top_level
     );
 
-    void update() override;
+    OOPETRIS_GRAPHICS_EXPORTED void update() override;
 
-    void render(const ServiceProvider& service_provider) const override;
-    [[nodiscard]] Widget::EventHandleResult
+    OOPETRIS_GRAPHICS_EXPORTED void render(const ServiceProvider& service_provider) const override;
 
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] Widget::EventHandleResult
     handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override;
 
-    void set_paused(bool paused);
-    [[nodiscard]] bool is_paused() const;
+    OOPETRIS_GRAPHICS_EXPORTED void set_paused(bool paused);
 
-    [[nodiscard]] bool is_game_finished() const;
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] bool is_paused() const;
 
-    [[nodiscard]] const std::shared_ptr<input::GameInput>& game_input() const;
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] bool is_game_finished() const;
+
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] const std::shared_ptr<input::GameInput>& game_input() const;
 };

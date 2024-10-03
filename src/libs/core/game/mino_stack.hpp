@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../helper/types.hpp"
+#include "../helper/windows.hpp"
 #include "./mino.hpp"
 
 #include <vector>
@@ -13,17 +14,19 @@ private:
     std::vector<Mino> m_minos;
 
 public:
-    void clear_row_and_let_sink(u8 row);
-    [[nodiscard]] bool is_empty(GridPoint coordinates) const;
-    void set(GridPoint coordinates, helper::TetrominoType type);
+    OOPETRIS_CORE_EXPORTED void clear_row_and_let_sink(u8 row);
 
-    [[nodiscard]] u32 num_minos() const;
+    OOPETRIS_CORE_EXPORTED [[nodiscard]] bool is_empty(GridPoint coordinates) const;
 
-    [[nodiscard]] const std::vector<Mino>& minos() const;
+    OOPETRIS_CORE_EXPORTED void set(GridPoint coordinates, helper::TetrominoType type);
 
-    [[nodiscard]] bool operator==(const MinoStack& other) const;
+    OOPETRIS_CORE_EXPORTED [[nodiscard]] u32 num_minos() const;
 
-    [[nodiscard]] bool operator!=(const MinoStack& other) const;
+    OOPETRIS_CORE_EXPORTED [[nodiscard]] const std::vector<Mino>& minos() const;
+
+    OOPETRIS_CORE_EXPORTED [[nodiscard]] bool operator==(const MinoStack& other) const;
+
+    OOPETRIS_CORE_EXPORTED [[nodiscard]] bool operator!=(const MinoStack& other) const;
 };
 
-std::ostream& operator<<(std::ostream& ostream, const MinoStack& mino_stack);
+OOPETRIS_CORE_EXPORTED std::ostream& operator<<(std::ostream& ostream, const MinoStack& mino_stack);

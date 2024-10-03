@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "./windows.hpp"
+
 #include <exception>
 #include <string>
 
@@ -17,40 +19,40 @@ namespace helper {
         error::Severity m_severity;
 
     public:
-        GeneralError(const std::string& message, error::Severity severity) noexcept;
+        OOPETRIS_CORE_EXPORTED GeneralError(const std::string& message, error::Severity severity) noexcept;
 
-        GeneralError(std::string&& message, error::Severity severity) noexcept;
+        OOPETRIS_CORE_EXPORTED GeneralError(std::string&& message, error::Severity severity) noexcept;
 
-        ~GeneralError();
+        OOPETRIS_CORE_EXPORTED ~GeneralError();
 
-        GeneralError(const GeneralError& error) noexcept;
+        OOPETRIS_CORE_EXPORTED GeneralError(const GeneralError& error) noexcept;
         [[nodiscard]] GeneralError& operator=(const GeneralError& error) noexcept;
 
-        GeneralError(GeneralError&& error) noexcept;
-        [[nodiscard]] GeneralError& operator=(GeneralError&& error) noexcept;
+        OOPETRIS_CORE_EXPORTED GeneralError(GeneralError&& error) noexcept;
+        OOPETRIS_CORE_EXPORTED [[nodiscard]] GeneralError& operator=(GeneralError&& error) noexcept;
 
-        [[nodiscard]] const std::string& message() const;
-        [[nodiscard]] error::Severity severity() const;
+        OOPETRIS_CORE_EXPORTED [[nodiscard]] const std::string& message() const;
+        OOPETRIS_CORE_EXPORTED [[nodiscard]] error::Severity severity() const;
 
-        [[nodiscard]] const char* what() const noexcept override;
+        OOPETRIS_CORE_EXPORTED [[nodiscard]] const char* what() const noexcept override;
     };
 
     struct FatalError : public GeneralError {
-        explicit FatalError(const std::string& message) noexcept;
+        OOPETRIS_CORE_EXPORTED explicit FatalError(const std::string& message) noexcept;
 
-        explicit FatalError(std::string&& message) noexcept;
+        OOPETRIS_CORE_EXPORTED explicit FatalError(std::string&& message) noexcept;
     };
 
     struct MajorError : public GeneralError {
-        explicit MajorError(const std::string& message) noexcept;
+        OOPETRIS_CORE_EXPORTED explicit MajorError(const std::string& message) noexcept;
 
-        explicit MajorError(std::string&& message) noexcept;
+        OOPETRIS_CORE_EXPORTED explicit MajorError(std::string&& message) noexcept;
     };
 
     struct MinorError : public GeneralError {
-        explicit MinorError(const std::string& message) noexcept;
+        OOPETRIS_CORE_EXPORTED explicit MinorError(const std::string& message) noexcept;
 
-        explicit MinorError(std::string&& message) noexcept;
+        OOPETRIS_CORE_EXPORTED explicit MinorError(std::string&& message) noexcept;
     };
 
     using InitializationError = FatalError;

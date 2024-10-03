@@ -5,12 +5,14 @@
 #include <memory>
 #include <string>
 
+#include "helper/windows.hpp"
+
 struct FontLoadingError final : public std::exception {
 private:
     std::string message;
 
 public:
-    explicit FontLoadingError(std::string message) : message{ std::move(message) } { }
+    OOPETRIS_GRAPHICS_EXPORTED explicit FontLoadingError(std::string message) : message{ std::move(message) } { }
 
     [[nodiscard]] const char* what() const noexcept override {
         return message.c_str();
@@ -24,9 +26,9 @@ private:
 
 public:
     Font() = default;
-    Font(const std::filesystem::path& path, int size);
+    OOPETRIS_GRAPHICS_EXPORTED Font(const std::filesystem::path& path, int size);
 
-    [[nodiscard]] TTF_Font* get() const;
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] TTF_Font* get() const;
 
     friend struct Text;
     friend struct Renderer;

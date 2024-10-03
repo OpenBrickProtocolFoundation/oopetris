@@ -6,9 +6,11 @@
 
 #include <spdlog/sinks/base_sink.h>
 
+#include "./windows.hpp"
+
 namespace console {
 
-    void debug_write(const char* text, size_t size);
+    OOPETRIS_GRAPHICS_EXPORTED void debug_write(const char* text, size_t size);
 
     inline void debug_print(const char* text) {
         debug_write(text, strlen(text));
@@ -18,13 +20,13 @@ namespace console {
         debug_write(value.c_str(), value.size());
     }
 
-    [[nodiscard]] std::string open_url(const std::string& url);
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::string open_url(const std::string& url);
 
-    void platform_init();
+    OOPETRIS_GRAPHICS_EXPORTED void platform_init();
 
-    void platform_exit();
+    OOPETRIS_GRAPHICS_EXPORTED void platform_exit();
 
-    [[nodiscard]] bool inMainLoop();
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] bool inMainLoop();
 
 
     template<typename Mutex>

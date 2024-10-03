@@ -3,6 +3,7 @@
 
 #include "./checksum_helper.hpp"
 #include "./helper.hpp"
+#include "./windows.hpp"
 #include <core/helper/expected.hpp>
 #include <core/helper/types.hpp>
 
@@ -64,7 +65,7 @@ namespace recorder {
             return m_value;
         }
 
-        [[nodiscard]] std::string to_string(u32 recursion_depth = 0) const;
+        OOPETRIS_RECORDINGS_EXPORTED [[nodiscard]] std::string to_string(u32 recursion_depth = 0) const;
 
         template<typename T>
         [[nodiscard]] bool operator==(const T& other) const { // NOLINT(misc-no-recursion)
@@ -114,13 +115,14 @@ namespace recorder {
             );
         }
 
-        static helper::expected<std::pair<std::string, InformationValue>, std::string> read_from_istream(
-                std::istream& istream
-        );
+        OOPETRIS_RECORDINGS_EXPORTED static helper::expected<std::pair<std::string, InformationValue>, std::string>
+        read_from_istream(std::istream& istream);
 
-        [[nodiscard]] helper::expected<std::vector<char>, std::string> to_bytes(u32 recursion_depth = 0) const;
+        OOPETRIS_RECORDINGS_EXPORTED [[nodiscard]] helper::expected<std::vector<char>, std::string> to_bytes(
+                u32 recursion_depth = 0
+        ) const;
 
-        [[nodiscard]] static std::vector<char> string_to_bytes(const std::string& value);
+        OOPETRIS_RECORDINGS_EXPORTED [[nodiscard]] static std::vector<char> string_to_bytes(const std::string& value);
 
     private:
         static helper::expected<std::string, std::string> read_string_from_istream(std::istream& istream);
@@ -141,12 +143,14 @@ namespace recorder {
         explicit AdditionalInformation(UnderlyingContainer&& values);
 
     public:
-        explicit AdditionalInformation();
+        OOPETRIS_RECORDINGS_EXPORTED explicit AdditionalInformation();
 
-        static helper::expected<AdditionalInformation, std::string> from_istream(std::istream& istream);
+        OOPETRIS_RECORDINGS_EXPORTED static helper::expected<AdditionalInformation, std::string> from_istream(
+                std::istream& istream
+        );
 
-
-        void add_value(const std::string& key, const InformationValue& value, bool overwrite = false);
+        OOPETRIS_RECORDINGS_EXPORTED void
+        add_value(const std::string& key, const InformationValue& value, bool overwrite = false);
 
         template<typename T>
         void add(const std::string& key, const T& raw_value, bool overwrite = false) {
@@ -154,9 +158,9 @@ namespace recorder {
             add_value(key, value, overwrite);
         }
 
-        [[nodiscard]] std::optional<InformationValue> get(const std::string& key) const;
+        OOPETRIS_RECORDINGS_EXPORTED [[nodiscard]] std::optional<InformationValue> get(const std::string& key) const;
 
-        [[nodiscard]] bool has(const std::string& key) const;
+        OOPETRIS_RECORDINGS_EXPORTED [[nodiscard]] bool has(const std::string& key) const;
 
         template<typename T>
         [[nodiscard]] std::optional<T> get_if(const std::string& key) const {
@@ -174,9 +178,10 @@ namespace recorder {
             return value.as<T>();
         }
 
-        [[nodiscard]] helper::expected<std::vector<char>, std::string> to_bytes() const;
+        OOPETRIS_RECORDINGS_EXPORTED [[nodiscard]] helper::expected<std::vector<char>, std::string> to_bytes() const;
 
-        [[nodiscard]] helper::expected<Sha256Stream::Checksum, std::string> get_checksum() const;
+        OOPETRIS_RECORDINGS_EXPORTED [[nodiscard]] helper::expected<Sha256Stream::Checksum, std::string> get_checksum(
+        ) const;
 
         // iterator trait
         using iterator = UnderlyingContainer::iterator;               //NOLINT(readability-identifier-naming)
@@ -188,13 +193,13 @@ namespace recorder {
         using iterator_category = std::bidirectional_iterator_tag;    //NOLINT(readability-identifier-naming)
 
 
-        [[nodiscard]] iterator begin();
+        OOPETRIS_RECORDINGS_EXPORTED [[nodiscard]] iterator begin();
 
-        [[nodiscard]] const_iterator begin() const;
+        OOPETRIS_RECORDINGS_EXPORTED [[nodiscard]] const_iterator begin() const;
 
-        [[nodiscard]] iterator end();
+        OOPETRIS_RECORDINGS_EXPORTED [[nodiscard]] iterator end();
 
-        [[nodiscard]] const_iterator end() const;
+        OOPETRIS_RECORDINGS_EXPORTED [[nodiscard]] const_iterator end() const;
     };
 
     STATIC_ASSERT_WITH_MESSAGE(

@@ -3,9 +3,11 @@
 #include <core/helper/expected.hpp>
 #include <core/helper/parse_json.hpp>
 
+#include "helper/windows.hpp"
 #include "input.hpp"
 #include "input/game_input.hpp"
 #include "manager/event_dispatcher.hpp"
+
 #include <limits>
 
 namespace input {
@@ -15,24 +17,30 @@ namespace input {
         SDL_TouchID m_id;
 
     public:
+        OOPETRIS_GRAPHICS_EXPORTED
         TouchInput(const std::shared_ptr<Window>& window, SDL_TouchID touch_id, const std::string& name);
 
-        [[nodiscard]] static helper::expected<std::unique_ptr<TouchInput>, std::string>
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] static helper::expected<std::unique_ptr<TouchInput>, std::string>
         get_by_device_index(const std::shared_ptr<Window>& window, int device_index);
 
-        [[nodiscard]] std::optional<NavigationEvent> get_navigation_event(const SDL_Event& event) const override;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::optional<NavigationEvent> get_navigation_event(
+                const SDL_Event& event
+        ) const override;
 
-        [[nodiscard]] std::string describe_navigation_event(NavigationEvent event) const override;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::string describe_navigation_event(NavigationEvent event
+        ) const override;
 
-        [[nodiscard]] std::optional<PointerEventHelper> get_pointer_event(const SDL_Event& event) const override;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::optional<PointerEventHelper> get_pointer_event(
+                const SDL_Event& event
+        ) const override;
 
-        [[nodiscard]] SDL_Event offset_pointer_event(const SDL_Event& event, const shapes::IPoint& point)
-                const override;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] SDL_Event
+        offset_pointer_event(const SDL_Event& event, const shapes::IPoint& point) const override;
     };
 
 
     struct TouchInputManager {
-        static void
+        OOPETRIS_GRAPHICS_EXPORTED static void
         discover_devices(std::vector<std::unique_ptr<Input>>& inputs, const std::shared_ptr<Window>& window);
     };
 
@@ -45,9 +53,9 @@ namespace input {
         u32 rotation_duration_threshold;
         u32 drop_duration_threshold;
 
-        [[nodiscard]] helper::expected<void, std::string> validate() const;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] helper::expected<void, std::string> validate() const;
 
-        [[nodiscard]] static TouchSettings default_settings() {
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] static TouchSettings default_settings() {
             return TouchSettings{ .move_x_threshold = 150.0 / 2160.0,
                                   .move_y_threshold = 400.0 / 1080.0,
                                   .rotation_duration_threshold = 500,
@@ -76,29 +84,30 @@ namespace input {
         TouchInput* m_underlying_input;
 
     public:
-        explicit TouchGameInput(
+        OOPETRIS_GRAPHICS_EXPORTED explicit TouchGameInput(
                 const TouchSettings& settings,
                 EventDispatcher* event_dispatcher,
                 TouchInput* underlying_input
         );
 
-        ~TouchGameInput() override;
+        OOPETRIS_GRAPHICS_EXPORTED ~TouchGameInput() override;
 
 
         TouchGameInput(const TouchGameInput& input) = delete;
         [[nodiscard]] TouchGameInput& operator=(const TouchGameInput& input) = delete;
 
-        TouchGameInput(TouchGameInput&& input) noexcept;
-        [[nodiscard]] TouchGameInput& operator=(TouchGameInput&& input) noexcept;
+        OOPETRIS_GRAPHICS_EXPORTED TouchGameInput(TouchGameInput&& input) noexcept;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] TouchGameInput& operator=(TouchGameInput&& input) noexcept;
 
-        void handle_event(const SDL_Event& event) override;
-        void update(SimulationStep simulation_step_index) override;
+        OOPETRIS_GRAPHICS_EXPORTED void handle_event(const SDL_Event& event) override;
+        OOPETRIS_GRAPHICS_EXPORTED void update(SimulationStep simulation_step_index) override;
 
-        [[nodiscard]] std::optional<MenuEvent> get_menu_event(const SDL_Event& event) const override;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::optional<MenuEvent> get_menu_event(const SDL_Event& event
+        ) const override;
 
-        [[nodiscard]] std::string describe_menu_event(MenuEvent event) const override;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::string describe_menu_event(MenuEvent event) const override;
 
-        [[nodiscard]] const TouchInput* underlying_input() const override;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] const TouchInput* underlying_input() const override;
 
     private:
         [[nodiscard]] std::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event);

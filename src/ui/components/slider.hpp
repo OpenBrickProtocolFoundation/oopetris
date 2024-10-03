@@ -13,7 +13,7 @@ namespace ui {
         shapes::URect m_fill_rect;
 
     public:
-        explicit Slider(
+        OOPETRIS_GRAPHICS_EXPORTED explicit Slider(
                 u32 focus_id,
                 Range range,
                 Getter getter,
@@ -25,7 +25,7 @@ namespace ui {
                 bool is_top_level
         );
 
-        void render(const ServiceProvider& service_provider) const override;
+        OOPETRIS_GRAPHICS_EXPORTED void render(const ServiceProvider& service_provider) const override;
 
     private:
         [[nodiscard]] std::pair<shapes::URect, shapes::URect> get_rectangles() const override;

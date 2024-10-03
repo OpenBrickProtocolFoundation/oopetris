@@ -3,16 +3,18 @@
 
 #include <core/helper/types.hpp>
 
+#include "./windows.hpp"
+
 #include <optional>
 #include <stdexcept>
 
 struct ClockSource {
-    virtual ~ClockSource() = default;
+    OOPETRIS_GRAPHICS_EXPORTED virtual ~ClockSource() = default;
 
-    [[nodiscard]] virtual SimulationStep simulation_step_index() const = 0;
-    [[nodiscard]] virtual bool can_be_paused() = 0;
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] virtual SimulationStep simulation_step_index() const = 0;
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] virtual bool can_be_paused() = 0;
 
-    virtual void pause() {
+    OOPETRIS_GRAPHICS_EXPORTED virtual void pause() {
         throw std::runtime_error("not implemented");
     }
 
@@ -20,7 +22,7 @@ struct ClockSource {
      * @brief Resumes the clock.
      * @return The duration of the pause.
      */
-    virtual double resume() {
+    OOPETRIS_GRAPHICS_EXPORTED virtual double resume() {
         throw std::runtime_error("not implemented");
     };
 };
@@ -32,9 +34,9 @@ private:
     std::optional<double> m_paused_at;
 
 public:
-    explicit LocalClock(u32 target_frequency);
-    [[nodiscard]] SimulationStep simulation_step_index() const override;
-    bool can_be_paused() override;
-    void pause() override;
-    double resume() override;
+    OOPETRIS_GRAPHICS_EXPORTED explicit LocalClock(u32 target_frequency);
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] SimulationStep simulation_step_index() const override;
+    OOPETRIS_GRAPHICS_EXPORTED bool can_be_paused() override;
+    OOPETRIS_GRAPHICS_EXPORTED void pause() override;
+    OOPETRIS_GRAPHICS_EXPORTED double resume() override;
 };

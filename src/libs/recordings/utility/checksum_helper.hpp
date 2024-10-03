@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "./windows.hpp"
 #include <core/hash-library/sha256.h>
 #include <core/helper/utils.hpp>
 
@@ -27,7 +28,7 @@ struct Sha256Stream {
         return *this;
     }
 
-    Sha256Stream& operator<<(const std::string& value);
+    OOPETRIS_RECORDINGS_EXPORTED Sha256Stream& operator<<(const std::string& value);
 
     template<typename T>
     Sha256Stream& operator<<(const std::vector<T>& values) {
@@ -47,5 +48,5 @@ struct Sha256Stream {
         return *this;
     }
 
-    [[nodiscard]] Checksum get_hash();
+    OOPETRIS_RECORDINGS_EXPORTED [[nodiscard]] Checksum get_hash();
 };

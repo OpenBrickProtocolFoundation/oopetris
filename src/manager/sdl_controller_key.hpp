@@ -2,11 +2,11 @@
 
 #include <core/helper/expected.hpp>
 
+#include "helper/windows.hpp"
 
 #include <SDL.h>
 #include <fmt/format.h>
 #include <string>
-
 
 namespace sdl {
 
@@ -15,13 +15,15 @@ namespace sdl {
         SDL_GameControllerButton m_button;
 
     public:
-        explicit ControllerKey(SDL_GameControllerButton button);
+        OOPETRIS_GRAPHICS_EXPORTED explicit ControllerKey(SDL_GameControllerButton button);
 
-        static helper::expected<ControllerKey, std::string> from_string(const std::string& value);
+        OOPETRIS_GRAPHICS_EXPORTED static helper::expected<ControllerKey, std::string> from_string(
+                const std::string& value
+        );
 
-        [[nodiscard]] bool operator==(const ControllerKey& other) const;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] bool operator==(const ControllerKey& other) const;
 
-        [[nodiscard]] std::string to_string() const;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::string to_string() const;
     };
 
 

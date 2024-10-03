@@ -69,7 +69,9 @@ if build_application
 
                 makensis = find_program('makensis')
 
-                nsis_script = meson.project_source_root() / 'tools' / 'installer' / 'setup.nsi'
+                nsis_script = files(
+                    meson.project_source_root() / 'tools' / 'installer' / 'setup.nsi',
+                )
 
                 run_target(
                     'windows_installer',

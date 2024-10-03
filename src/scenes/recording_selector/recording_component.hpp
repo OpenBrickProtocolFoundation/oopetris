@@ -37,7 +37,7 @@ namespace custom_ui {
         data::RecordingMetadata m_metadata;
 
     public:
-        explicit RecordingComponent(
+        OOPETRIS_GRAPHICS_EXPORTED explicit RecordingComponent(
                 ServiceProvider* service_provider,
                 ui::FocusHelper& focus_helper,
                 data::RecordingMetadata metadata,
@@ -45,12 +45,12 @@ namespace custom_ui {
                 bool is_top_level
         );
 
-        void render(const ServiceProvider& service_provider) const override;
+        OOPETRIS_GRAPHICS_EXPORTED void render(const ServiceProvider& service_provider) const override;
 
-        [[nodiscard]] Widget::EventHandleResult
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] Widget::EventHandleResult
         handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override;
 
-        [[nodiscard]] data::RecordingMetadata metadata() const;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] data::RecordingMetadata metadata() const;
 
     private:
         [[nodiscard]] std::tuple<ui::Label*, ui::Label*, ui::Label*, ui::Label*> get_texts();

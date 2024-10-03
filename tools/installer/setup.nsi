@@ -124,6 +124,27 @@ Section "Core App" CoreApp
 
     ; install dynamic libraries
     SetOutPath "$INSTDIR"
+
+    ; install oopetris-* core libraries
+    File "${PROJECT_BUILD_DIR}\src\libs\core\oopetris_core-0.dll"
+    File "${PROJECT_BUILD_DIR}\src\libs\recordings\oopetris_recordings-0.dll"
+    File "${PROJECT_BUILD_DIR}\src\oopetris_graphics-0.dll"
+
+    ; install subprojects / external libraries
+    File "${PROJECT_BUILD_DIR}\subprojects\SDL2-2.30.6\SDL2-6.dll"
+    File "${PROJECT_BUILD_DIR}\subprojects\fmt-11.0.2\fmt.dll"
+    File "${PROJECT_BUILD_DIR}\subprojects\SDL2_ttf-2.20.1\sdl2_ttf.dll"
+    File "${PROJECT_BUILD_DIR}\subprojects\freetype-2.13.3\freetype-6.dll"
+    File "${PROJECT_BUILD_DIR}\subprojects\SDL2_image-2.6.3\sdl2image.dll"
+    File "${PROJECT_BUILD_DIR}\subprojects\libpng-1.6.44\png16-16.dll"
+    File "${PROJECT_BUILD_DIR}\subprojects\SDL2_mixer-2.6.2\sdl2mixer.dll"
+    File "${PROJECT_BUILD_DIR}\subprojects\libvorbis-1.3.7\lib\vorbisfile-3.dll"
+    File "${PROJECT_BUILD_DIR}\subprojects\libvorbis-1.3.7\lib\vorbis-0.dll"
+    File "${PROJECT_BUILD_DIR}\subprojects\libogg-1.3.5\src\ogg.dll"
+    File "${PROJECT_BUILD_DIR}\subprojects\flac-1.4.3\src\libFLAC\FLAC-8.dll"
+    File "${PROJECT_BUILD_DIR}\subprojects\openssl-3.0.8\crypto.dll"
+    File "${PROJECT_BUILD_DIR}\subprojects\openssl-3.0.8\ssl.dll"
+    File "${PROJECT_BUILD_DIR}\subprojects\nativefiledialog-extended-1.2.1\src\nativefiledialog-extended.dll"
     File "${PROJECT_SOURCE_DIR}\subprojects\discord_game_sdk-3.2.1\lib\x86_64\discord_game_sdk.dll"
 
     ; install default settings (DO NOT Override)
@@ -170,7 +191,7 @@ SectionEnd
 ;; source: partially https://stackoverflow.com/questions/62092185/how-to-install-the-visual-c-redist-using-nsis
 ;; and https://gist.github.com/mattiasghodsian/a30f50568792939e35e93e6bc2084c2a
 
-!define VC_REDITS_NAME "vc_redist.x64.exe"
+!define VC_REDIST_NAME "vc_redist.x64.exe"
 
 Section "-hidden Visual Studio C++ Runtime"
     ; install the MSVC C++ Redistributable (Runtime libraries needed by C++ and C), only if not already installed
@@ -183,12 +204,26 @@ Section "-hidden Visual Studio C++ Runtime"
       DetailPrint "Visual Studio C++ Runtime NOT installed, launching installer"
 
       SetOutPath "$INSTDIR"
-      ; this dir is specifiy to github runners, locally it would be: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Redist\MSVC\v143\${VC_REDITS_NAME}"
-      File "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Redist\MSVC\v143\${VC_REDITS_NAME}"
+
+      ; this is executed at compile time, so we ge the correct path of the file, if we are in teh CI or local it differs
+      !if "$%CI%" == "true"
+        ; this dir is specific to github runners
+        !define VC_REDIST_ROOT "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Redist\MSVC"
+        !define VC_REDIST_VERSION "v143"
+      !else
+        ; TODO: allow custom folders via env variable
+        ; this dir is specific to my local setup
+        !define VC_REDIST_ROOT "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Redist\MSVC"
+        !define VC_REDIST_VERSION "v143"
+      !endif
+
+      File "${VC_REDIST_ROOT}\${VC_REDIST_VERSION}\${VC_REDIST_NAME}"
+
       ; error code is ignored, that is intended
-      ExecWait '"$INSTDIR\${VC_REDITS_NAME}" /install'
+      ExecWait '"$INSTDIR\${VC_REDIST_NAME}" /install'
+
       ; it is not needed anymore
-      Delete "$INSTDIR\${VC_REDITS_NAME}"
+      Delete "$INSTDIR\${VC_REDIST_NAME}"
     ${Else}
        DetailPrint "Visual Studio C++ Runtime already installed, skipping installing it"
     ${EndIf}

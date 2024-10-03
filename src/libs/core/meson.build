@@ -14,6 +14,7 @@ liboopetris_core = library(
     include_directories: core_lib.get('inc_dirs'),
     dependencies: core_lib.get('deps'),
     cpp_args: core_lib.get('compile_args'),
+    cpp_shared_args: ['-DOOPETRIS_LIBRARY_CORE_EXPORT', '-DHASH_LIBRARY_EXPORT'],
     override_options: {
         'warning_level': '3',
         'werror': true,

@@ -21,5 +21,5 @@ struct TetrionCoreInformation {
           level{ level },
           score{ score },
           lines_cleared{ lines_cleared },
-          mino_stack{ std::move(mino_stack) } {};
+          mino_stack{ std::move(mino_stack) } { };
 };

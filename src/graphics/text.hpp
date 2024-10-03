@@ -2,6 +2,7 @@
 
 #include <core/helper/color.hpp>
 
+#include "helper/windows.hpp"
 #include "manager/font.hpp"
 #include "manager/service_provider.hpp"
 #include "rect.hpp"
@@ -15,12 +16,14 @@ private:
     Texture m_text;
 
 public:
-    Text(const ServiceProvider* service_provider,
-         const std::string& text,
-         const Font& font,
-         const Color& color,
-         const shapes::URect& dest);
+    OOPETRIS_GRAPHICS_EXPORTED Text(
+            const ServiceProvider* service_provider,
+            const std::string& text,
+            const Font& font,
+            const Color& color,
+            const shapes::URect& dest
+    );
 
-    void render(const ServiceProvider& service_provider) const;
-    void set_text(const ServiceProvider& service_provider, const std::string& text);
+    OOPETRIS_GRAPHICS_EXPORTED void render(const ServiceProvider& service_provider) const;
+    OOPETRIS_GRAPHICS_EXPORTED void set_text(const ServiceProvider& service_provider, const std::string& text);
 };

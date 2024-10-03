@@ -2,6 +2,7 @@
 
 #include "../helper/color.hpp"
 #include "../helper/types.hpp"
+#include "../helper/windows.hpp"
 
 namespace helper {
 
@@ -16,8 +17,8 @@ namespace helper {
         LastType = Z,
     };
 
-    [[nodiscard]] Color get_foreground_color(TetrominoType type, u8 alpha);
+    OOPETRIS_CORE_EXPORTED [[nodiscard]] Color get_foreground_color(TetrominoType type, u8 alpha);
 
-    [[nodiscard]] Color get_background_color(TetrominoType type, u8 alpha);
+    OOPETRIS_CORE_EXPORTED [[nodiscard]] Color get_background_color(TetrominoType type, u8 alpha);
 
 } // namespace helper

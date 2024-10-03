@@ -6,6 +6,8 @@
 #include <core/helper/types.hpp>
 #include <core/helper/utils.hpp>
 
+#include "../helper/windows.hpp"
+
 #include <filesystem>
 #include <optional>
 
@@ -20,7 +22,7 @@ struct CommandLineArguments final {
     Level starting_level;
     bool silent;
 
-    CommandLineArguments(
+    OOPETRIS_GRAPHICS_EXPORTED CommandLineArguments(
             std::optional<std::filesystem::path> recording_path,
             std::optional<u32> target_fps,
             Level starting_level = default_starting_level,

@@ -17,6 +17,7 @@ _header_files = files(
     'recording_writer.hpp',
     'tetrion_core_information.hpp',
     'tetrion_snapshot.hpp',
+    'windows.hpp',
 )
 
 recordings_header_files += _header_files

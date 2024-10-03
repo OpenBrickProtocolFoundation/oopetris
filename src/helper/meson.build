@@ -12,6 +12,7 @@ graphics_src_files += files(
     'music_utils.hpp',
     'platform.cpp',
     'platform.hpp',
+    'windows.hpp',
 )
 
 if have_file_dialogs

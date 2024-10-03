@@ -22,7 +22,7 @@ namespace detail {
         );
 
     public:
-        explicit ColorSettingRectangle(
+        OOPETRIS_GRAPHICS_EXPORTED explicit ColorSettingRectangle(
                 const Color& start_color,
                 std::pair<double, double> size,
                 ui::Alignment alignment,
@@ -30,13 +30,13 @@ namespace detail {
                 bool is_top_level
         );
 
-        [[nodiscard]] Color& color();
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] Color& color();
 
-        [[nodiscard]] const Color& color() const;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] const Color& color() const;
 
-        void render(const ServiceProvider& service_provider) const override;
+        OOPETRIS_GRAPHICS_EXPORTED void render(const ServiceProvider& service_provider) const override;
 
-        [[nodiscard]] Widget::EventHandleResult
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] Widget::EventHandleResult
         handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override;
     };
 
@@ -49,18 +49,19 @@ namespace detail {
         ui::ColorPicker m_color_picker;
 
     public:
-        explicit ColorPickerScene(
+        OOPETRIS_GRAPHICS_EXPORTED explicit ColorPickerScene(
                 ServiceProvider* service_provider,
                 const ui::Layout& layout,
                 const Color& starting_color,
                 Callback callback
         );
 
-        [[nodiscard]] scenes::Scene::UpdateResult update() override;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] scenes::Scene::UpdateResult update() override;
 
-        void render(const ServiceProvider& service_provider) override;
+        OOPETRIS_GRAPHICS_EXPORTED void render(const ServiceProvider& service_provider) override;
 
-        bool handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override;
+        OOPETRIS_GRAPHICS_EXPORTED bool
+        handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override;
     };
 
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "./types.hpp"
+#include "./utils.hpp"
 
 #include <algorithm>
 #include <array>
@@ -29,19 +30,29 @@ public:
         return size();
     }
 
-    [[nodiscard]] constexpr char* begin() {
+    // iterator trait
+    using iterator = char*;                                    //NOLINT(readability-identifier-naming)
+    using const_iterator = const char*;                        //NOLINT(readability-identifier-naming)
+    using difference_type = std::ptrdiff_t;                    //NOLINT(readability-identifier-naming)
+    using value_type = char;                                   //NOLINT(readability-identifier-naming)
+    using pointer = char*;                                     //NOLINT(readability-identifier-naming)
+    using reference = char&;                                   //NOLINT(readability-identifier-naming)
+    using iterator_category = std::bidirectional_iterator_tag; //NOLINT(readability-identifier-naming)
+
+
+    [[nodiscard]] constexpr iterator begin() {
         return m_data.data();
     }
 
-    [[nodiscard]] constexpr char* end() {
+    [[nodiscard]] constexpr const_iterator begin() const {
+        return m_data.data();
+    }
+
+    [[nodiscard]] constexpr iterator end() {
         return begin() + length();
     }
 
-    [[nodiscard]] constexpr const char* begin() const {
-        return m_data.data();
-    }
-
-    [[nodiscard]] constexpr const char* end() const {
+    [[nodiscard]] constexpr const_iterator end() const {
         return m_data.data() + size();
     }
 
@@ -132,3 +143,5 @@ public:
     template<usize other_data_size>
     friend struct StaticString;
 };
+
+STATIC_ASSERT_WITH_MESSAGE(utils::IsIterator<StaticString<3>>::value, "StaticString<T> has to be an iterator");

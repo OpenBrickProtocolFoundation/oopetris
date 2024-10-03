@@ -43,9 +43,12 @@ namespace ui {
 
 
     struct FullScreenLayout : public Layout {
-        explicit FullScreenLayout(const shapes::URect& rect) : Layout{ rect, LayoutType::FullScreen } { }
-        explicit FullScreenLayout(const Window& window) : FullScreenLayout{ window.screen_rect() } { }
-        explicit FullScreenLayout(const Window* window) : FullScreenLayout{ window->screen_rect() } { }
+        OOPETRIS_GRAPHICS_EXPORTED explicit FullScreenLayout(const shapes::URect& rect)
+            : Layout{ rect, LayoutType::FullScreen } { }
+        OOPETRIS_GRAPHICS_EXPORTED explicit FullScreenLayout(const Window& window)
+            : FullScreenLayout{ window.screen_rect() } { }
+        OOPETRIS_GRAPHICS_EXPORTED explicit FullScreenLayout(const Window* window)
+            : FullScreenLayout{ window->screen_rect() } { }
     };
 
 
@@ -102,14 +105,16 @@ namespace ui {
 
     using Alignment = std::pair<AlignmentHorizontal, AlignmentVertical>;
 
-    [[nodiscard]] u32 get_horizontal_alignment_offset(const Layout& layout, AlignmentHorizontal alignment, u32 width);
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] u32
+    get_horizontal_alignment_offset(const Layout& layout, AlignmentHorizontal alignment, u32 width);
 
-    [[nodiscard]] u32 get_vertical_alignment_offset(const Layout& layout, AlignmentVertical alignment, u32 height);
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] u32
+    get_vertical_alignment_offset(const Layout& layout, AlignmentVertical alignment, u32 height);
 
-    [[nodiscard]] shapes::URect
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] shapes::URect
     get_rectangle_aligned(const Layout& layout, const std::pair<u32, u32>& size, const Alignment& alignment);
 
-    [[nodiscard]] std::pair<u32, u32>
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::pair<u32, u32>
     ratio_helper(const std::pair<u32, u32>& size, bool respect_ratio, const shapes::UPoint& original_ratio);
 
     enum class Direction : u8 { Horizontal, Vertical };

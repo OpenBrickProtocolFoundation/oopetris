@@ -6,6 +6,8 @@
 
 #include <string>
 
+#include "./windows.hpp"
+
 enum class Platform : u8 { PC, Android, Console };
 
 
@@ -38,8 +40,8 @@ namespace utils {
     }
 
 
-    [[nodiscard]] std::string built_for_platform();
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::string built_for_platform();
 
-    [[nodiscard]] bool open_url(const std::string& url);
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] bool open_url(const std::string& url);
 
 } // namespace utils

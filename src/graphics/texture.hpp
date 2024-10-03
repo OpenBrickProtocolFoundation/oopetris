@@ -6,6 +6,7 @@
 #include <core/helper/point.hpp>
 #include <core/helper/utils.hpp>
 
+#include "helper/windows.hpp"
 #include "manager/font.hpp"
 #include "rect.hpp"
 
@@ -25,9 +26,10 @@ private:
     explicit Texture(SDL_Texture* raw_texture);
 
 public:
-    static Texture from_image(SDL_Renderer* renderer, const std::filesystem::path& image_path);
+    OOPETRIS_GRAPHICS_EXPORTED static Texture
+    from_image(SDL_Renderer* renderer, const std::filesystem::path& image_path);
 
-    static Texture prerender_text(
+    OOPETRIS_GRAPHICS_EXPORTED static Texture prerender_text(
             SDL_Renderer* renderer,
             const std::string& text,
             const Font& font,
@@ -36,16 +38,16 @@ public:
             const Color& background_color
     );
 
-    static Texture get_for_render_target(SDL_Renderer* renderer, const shapes::UPoint& size);
+    OOPETRIS_GRAPHICS_EXPORTED static Texture get_for_render_target(SDL_Renderer* renderer, const shapes::UPoint& size);
 
-    Texture(const Texture&) = delete;
-    Texture& operator=(const Texture&) = delete;
+    OOPETRIS_GRAPHICS_EXPORTED Texture(const Texture&) = delete;
+    OOPETRIS_GRAPHICS_EXPORTED Texture& operator=(const Texture&) = delete;
 
-    Texture(Texture&& old) noexcept;
+    OOPETRIS_GRAPHICS_EXPORTED Texture(Texture&& old) noexcept;
 
-    Texture& operator=(Texture&& other) noexcept;
+    OOPETRIS_GRAPHICS_EXPORTED Texture& operator=(Texture&& other) noexcept;
 
-    ~Texture();
+    OOPETRIS_GRAPHICS_EXPORTED ~Texture();
 
     template<typename T>
     void render(SDL_Renderer* renderer, const shapes::AbstractRect<T>& rect) const {
@@ -60,7 +62,7 @@ public:
         SDL_RenderCopy(renderer, m_raw_texture, &from_rect_sdl, &to_rect_sdl);
     }
 
-    [[nodiscard]] shapes::UPoint size() const;
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] shapes::UPoint size() const;
 
-    void set_as_render_target(SDL_Renderer* renderer) const;
+    OOPETRIS_GRAPHICS_EXPORTED void set_as_render_target(SDL_Renderer* renderer) const;
 };

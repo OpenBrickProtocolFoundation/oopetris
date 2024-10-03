@@ -11,7 +11,7 @@
 recorder::RecordingReader::RecordingReader(
         std::vector<TetrionHeader>&& tetrion_headers,
         AdditionalInformation&& information,
-        std::vector<Record>&& records,
+        UnderlyingContainer&& records,
         std::vector<TetrionSnapshot>&& snapshots
 )
     : Recording{ std::move(tetrion_headers), std::move(information) },
@@ -166,11 +166,19 @@ helper::expected<recorder::RecordingReader, std::string> recorder::RecordingRead
     return m_records.size();
 }
 
-[[nodiscard]] auto recorder::RecordingReader::begin() const {
+[[nodiscard]] recorder::RecordingReader::iterator recorder::RecordingReader::begin() {
+    return m_records.begin();
+}
+
+[[nodiscard]] recorder::RecordingReader::const_iterator recorder::RecordingReader::begin() const {
     return m_records.cbegin();
 }
 
-[[nodiscard]] auto recorder::RecordingReader::end() const {
+[[nodiscard]] recorder::RecordingReader::iterator recorder::RecordingReader::end() {
+    return m_records.end();
+}
+
+[[nodiscard]] recorder::RecordingReader::const_iterator recorder::RecordingReader::end() const {
     return m_records.cend();
 }
 

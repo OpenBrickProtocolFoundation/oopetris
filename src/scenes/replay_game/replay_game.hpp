@@ -14,15 +14,15 @@ namespace scenes {
         std::vector<std::unique_ptr<Game>> m_games;
 
     public:
-        explicit ReplayGame(
+        OOPETRIS_GRAPHICS_EXPORTED explicit ReplayGame(
                 ServiceProvider* service_provider,
                 const ui::Layout& layout,
                 const std::filesystem::path& recording_path
         );
 
-        [[nodiscard]] UpdateResult update() override;
-        void render(const ServiceProvider& service_provider) override;
-        [[nodiscard]] bool
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] UpdateResult update() override;
+        OOPETRIS_GRAPHICS_EXPORTED void render(const ServiceProvider& service_provider) override;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] bool
         handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override;
     };
 

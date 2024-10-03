@@ -17,9 +17,18 @@
 typedef unsigned __int8 uint8_t;
 typedef unsigned __int32 uint32_t;
 typedef unsigned __int64 uint64_t;
+
+#if defined(HASH_LIBRARY_EXPORT)
+#define HASH_LIBRARY_EXPORTED __declspec(dllexport)
+#else
+#define HASH_LIBRARY_EXPORTED __declspec(dllimport)
+#endif
+
 #else
 // GCC
 #include <stdint.h>
+
+#define HASH_LIBRARY_EXPORTED
 #endif
 
 namespace hash_library {
@@ -44,23 +53,23 @@ namespace hash_library {
         enum { BlockSize = 512 / 8, HashBytes = 32 };
 
         /// same as reset()
-        SHA256();
+        HASH_LIBRARY_EXPORTED SHA256();
 
         /// compute SHA256 of a memory block
-        std::string operator()(const void* data, size_t numBytes);
+        HASH_LIBRARY_EXPORTED std::string operator()(const void* data, size_t numBytes);
         /// compute SHA256 of a string, excluding final zero
-        std::string operator()(const std::string& text);
+        HASH_LIBRARY_EXPORTED std::string operator()(const std::string& text);
 
         /// add arbitrary number of bytes
-        void add(const void* data, size_t numBytes);
+        HASH_LIBRARY_EXPORTED void add(const void* data, size_t numBytes);
 
         /// return latest hash as 64 hex characters
-        std::string getHash();
+        HASH_LIBRARY_EXPORTED std::string getHash();
         /// return latest hash as bytes
-        void getHash(unsigned char buffer[HashBytes]);
+        HASH_LIBRARY_EXPORTED void getHash(unsigned char buffer[HashBytes]);
 
         /// restart
-        void reset();
+        HASH_LIBRARY_EXPORTED void reset();
 
     private:
         /// process 64 bytes

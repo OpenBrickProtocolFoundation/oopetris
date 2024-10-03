@@ -20,7 +20,7 @@ namespace detail {
         std::unique_ptr<Texture> m_texture;
 
     public:
-        explicit ColorSlider(
+        OOPETRIS_GRAPHICS_EXPORTED explicit ColorSlider(
                 ServiceProvider* service_provider,
                 Range range,
                 Getter getter,
@@ -30,7 +30,7 @@ namespace detail {
                 bool is_top_level
         );
 
-        void render(const ServiceProvider& service_provider) const override;
+        OOPETRIS_GRAPHICS_EXPORTED void render(const ServiceProvider& service_provider) const override;
 
     private:
         [[nodiscard]] std::pair<shapes::URect, shapes::URect> get_rectangles() const override;
@@ -51,7 +51,7 @@ namespace detail {
         bool m_is_dragging{ false };
 
     public:
-        explicit ColorCanvas(
+        OOPETRIS_GRAPHICS_EXPORTED explicit ColorCanvas(
                 ServiceProvider* service_provider,
                 const Color& start_color,
                 Callback callback,
@@ -59,16 +59,16 @@ namespace detail {
                 bool is_top_level
         );
 
-        ~ColorCanvas() override;
+        OOPETRIS_GRAPHICS_EXPORTED ~ColorCanvas() override;
 
-        void render(const ServiceProvider& service_provider) const override;
+        OOPETRIS_GRAPHICS_EXPORTED void render(const ServiceProvider& service_provider) const override;
 
-        [[nodiscard]] Widget::EventHandleResult
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] Widget::EventHandleResult
         handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override;
 
-        void on_change(ColorChangeOrigin origin, const HSVColor& color);
+        OOPETRIS_GRAPHICS_EXPORTED void on_change(ColorChangeOrigin origin, const HSVColor& color);
 
-        void draw_pseudo_circle(const ServiceProvider& service_provider) const;
+        OOPETRIS_GRAPHICS_EXPORTED void draw_pseudo_circle(const ServiceProvider& service_provider) const;
 
     private:
         void redraw_texture();
@@ -106,7 +106,7 @@ namespace ui {
         );
 
     public:
-        explicit ColorPicker(
+        OOPETRIS_GRAPHICS_EXPORTED explicit ColorPicker(
                 ServiceProvider* service_provider,
                 const Color& start_color,
                 Callback callback,
@@ -116,12 +116,12 @@ namespace ui {
                 bool is_top_level
         );
 
-        void render(const ServiceProvider& service_provider) const override;
+        OOPETRIS_GRAPHICS_EXPORTED void render(const ServiceProvider& service_provider) const override;
 
-        [[nodiscard]] Widget::EventHandleResult
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] Widget::EventHandleResult
         handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override;
 
-        [[nodiscard]] Color get_color() const;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] Color get_color() const;
 
     private:
         void after_color_change(detail::ColorChangeOrigin origin, const HSVColor& color);

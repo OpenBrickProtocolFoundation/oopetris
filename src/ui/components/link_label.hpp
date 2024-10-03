@@ -28,7 +28,7 @@ namespace ui {
 
 
     public:
-        explicit LinkLabel(
+        OOPETRIS_GRAPHICS_EXPORTED explicit LinkLabel(
                 ServiceProvider* service_provider,
                 const std::string& text,
                 const std::string& url,
@@ -41,13 +41,13 @@ namespace ui {
                 bool is_top_level
         );
 
-        void render(const ServiceProvider& service_provider) const override;
+        OOPETRIS_GRAPHICS_EXPORTED void render(const ServiceProvider& service_provider) const override;
 
-        [[nodiscard]] Widget::EventHandleResult
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] Widget::EventHandleResult
         handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override;
 
-        void on_clicked();
+        OOPETRIS_GRAPHICS_EXPORTED void on_clicked();
 
-        void set_text(const ServiceProvider& service_provider, const std::string& text);
+        OOPETRIS_GRAPHICS_EXPORTED void set_text(const ServiceProvider& service_provider, const std::string& text);
     };
 } // namespace ui

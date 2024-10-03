@@ -19,19 +19,20 @@ namespace custom_ui {
         std::vector<std::filesystem::path> currently_chosen_files{};
 
     public:
-        explicit RecordingFileChooser(
+        OOPETRIS_GRAPHICS_EXPORTED explicit RecordingFileChooser(
                 ServiceProvider* service_provider,
                 ui::FocusHelper& focus_helper,
                 const ui::Layout& layout,
                 bool is_top_level
         );
 
-        void render(const ServiceProvider& service_provider) const override;
+        OOPETRIS_GRAPHICS_EXPORTED void render(const ServiceProvider& service_provider) const override;
 
-        [[nodiscard]] Widget::EventHandleResult
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] Widget::EventHandleResult
         handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override;
 
-        [[nodiscard]] const std::vector<std::filesystem::path>& get_currently_chosen_files() const;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] const std::vector<std::filesystem::path>& get_currently_chosen_files(
+        ) const;
 
     private:
         [[nodiscard]] std::tuple<ui::Label*, ui::Label*, ui::Label*, ui::Label*> get_texts();

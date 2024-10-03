@@ -4,6 +4,7 @@
 #include <core/helper/parse_json.hpp>
 
 #include "guid.hpp"
+#include "helper/windows.hpp"
 #include "input.hpp"
 #include "input/console_buttons.hpp"
 #include "input/game_input.hpp"
@@ -23,7 +24,9 @@ namespace input {
 
         std::string name; //optional (can be ""), just for human readable settings
 
-        static helper::expected<JoystickIdentification, std::string> from_string(const std::string& value);
+        OOPETRIS_GRAPHICS_EXPORTED static helper::expected<JoystickIdentification, std::string> from_string(
+                const std::string& value
+        );
     };
 
     //using std::string in here, since we only know, if these are valid joystick button names, after parsing the GUID and than seeing if we support that joystick and than using the string mappings for that specific joystick
@@ -63,9 +66,10 @@ namespace input {
         SDL_JoystickID m_instance_id;
 
     public:
+        OOPETRIS_GRAPHICS_EXPORTED
         JoystickLikeInput(SDL_JoystickID instance_id, const std::string& name, JoystickLikeType type);
 
-        [[nodiscard]] SDL_JoystickID instance_id() const;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] SDL_JoystickID instance_id() const;
     };
 
 
@@ -74,21 +78,23 @@ namespace input {
         SDL_Joystick* m_joystick;
 
     public:
+        OOPETRIS_GRAPHICS_EXPORTED
         JoystickInput(SDL_Joystick* joystick, SDL_JoystickID instance_id, const std::string& name);
 
-        ~JoystickInput() override;
+        OOPETRIS_GRAPHICS_EXPORTED ~JoystickInput() override;
 
-        JoystickInput(const JoystickInput& input) noexcept;
-        JoystickInput& operator=(const JoystickInput& input) noexcept;
+        OOPETRIS_GRAPHICS_EXPORTED JoystickInput(const JoystickInput& input) noexcept;
+        OOPETRIS_GRAPHICS_EXPORTED JoystickInput& operator=(const JoystickInput& input) noexcept;
 
-        JoystickInput(JoystickInput&& input) noexcept;
-        JoystickInput& operator=(JoystickInput&& input) noexcept;
+        OOPETRIS_GRAPHICS_EXPORTED JoystickInput(JoystickInput&& input) noexcept;
+        OOPETRIS_GRAPHICS_EXPORTED JoystickInput& operator=(JoystickInput&& input) noexcept;
 
-        [[nodiscard]] sdl::GUID guid() const;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] sdl::GUID guid() const;
 
-        [[nodiscard]] virtual JoystickSettings default_settings() const = 0;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] virtual JoystickSettings default_settings() const = 0;
 
-        [[nodiscard]] static std::optional<std::unique_ptr<JoystickInput>> get_joystick_by_guid(
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] static std::optional<std::unique_ptr<JoystickInput>>
+        get_joystick_by_guid(
                 const sdl::GUID& guid,
                 SDL_Joystick* joystick,
                 SDL_JoystickID instance_id,
@@ -97,13 +103,14 @@ namespace input {
     };
 
     struct JoyStickInputManager {
-        static void discover_devices(std::vector<std::unique_ptr<Input>>& inputs);
+        OOPETRIS_GRAPHICS_EXPORTED static void discover_devices(std::vector<std::unique_ptr<Input>>& inputs);
 
+        OOPETRIS_GRAPHICS_EXPORTED
         [[nodiscard]] static helper::expected<std::unique_ptr<JoystickLikeInput>, std::string> get_by_device_index(
                 int device_index
         );
 
-        [[nodiscard]] static bool
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] static bool
         process_special_inputs(const SDL_Event& event, std::vector<std::unique_ptr<Input>>& inputs);
 
     private:
@@ -237,19 +244,24 @@ namespace input {
         EventDispatcher* m_event_dispatcher;
 
     public:
-        explicit JoystickLikeGameInput(EventDispatcher* event_dispatcher, JoystickLikeType type);
+        OOPETRIS_GRAPHICS_EXPORTED explicit JoystickLikeGameInput(
+                EventDispatcher* event_dispatcher,
+                JoystickLikeType type
+        );
 
-        ~JoystickLikeGameInput() override;
+        OOPETRIS_GRAPHICS_EXPORTED ~JoystickLikeGameInput() override;
 
-        JoystickLikeGameInput(const JoystickLikeGameInput& input) = delete;
-        [[nodiscard]] JoystickLikeGameInput& operator=(const JoystickLikeGameInput& input) = delete;
+        OOPETRIS_GRAPHICS_EXPORTED JoystickLikeGameInput(const JoystickLikeGameInput& input) = delete;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] JoystickLikeGameInput& operator=(const JoystickLikeGameInput& input
+        ) = delete;
 
-        JoystickLikeGameInput(JoystickLikeGameInput&& input) noexcept;
-        [[nodiscard]] JoystickLikeGameInput& operator=(JoystickLikeGameInput&& input) noexcept;
+        OOPETRIS_GRAPHICS_EXPORTED JoystickLikeGameInput(JoystickLikeGameInput&& input) noexcept;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] JoystickLikeGameInput& operator=(JoystickLikeGameInput&& input
+        ) noexcept;
 
-        void handle_event(const SDL_Event& event) override;
+        OOPETRIS_GRAPHICS_EXPORTED void handle_event(const SDL_Event& event) override;
 
-        void update(SimulationStep simulation_step_index) override;
+        OOPETRIS_GRAPHICS_EXPORTED void update(SimulationStep simulation_step_index) override;
 
     protected:
         [[nodiscard]] virtual std::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event) const = 0;
@@ -261,9 +273,11 @@ namespace input {
         JoystickInput* m_underlying_input;
 
     public:
+        OOPETRIS_GRAPHICS_EXPORTED
         JoystickGameInput(EventDispatcher* event_dispatcher, JoystickInput* underlying_input);
 
 
+        OOPETRIS_GRAPHICS_EXPORTED
         [[nodiscard]] static helper::expected<std::shared_ptr<input::JoystickGameInput>, std::string>
         get_game_input_by_settings(
                 const input::InputManager& input_manager,
@@ -271,7 +285,7 @@ namespace input {
                 const JoystickSettings& settings
         );
 
-        [[nodiscard]] const JoystickInput* underlying_input() const override;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] const JoystickInput* underlying_input() const override;
 
     protected:
         template<typename T>
@@ -325,7 +339,8 @@ namespace input {
 namespace json_helper {
 
 
-    [[nodiscard]] std::string get_key_from_object(const nlohmann::json& obj, const std::string& name);
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::string
+    get_key_from_object(const nlohmann::json& obj, const std::string& name);
 
 } // namespace json_helper
 
