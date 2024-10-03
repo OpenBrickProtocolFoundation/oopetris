@@ -2,7 +2,7 @@
 #include <core/helper/magic_enum_wrapper.hpp>
 #include <core/helper/utils.hpp>
 
-#include "core.hpp"
+#include "./core.hpp"
 
 #include <fmt/format.h>
 #include <spdlog/spdlog.h>
