@@ -1,5 +1,3 @@
-
-
 #pragma once
 
 #include "./windows.hpp"
@@ -9,5 +7,4 @@
 namespace helper {
 
     OOPETRIS_CORE_EXPORTED bool sleep_nanoseconds(std::chrono::nanoseconds nano_seconds);
-
 }

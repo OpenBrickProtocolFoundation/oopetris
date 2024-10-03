@@ -47,7 +47,7 @@ jobs:
           database: build
           files-changed-only: ${{ github.event_name != 'workflow_dispatch' }}
           lines-changed-only: ${{ github.event_name != 'workflow_dispatch' }}
-          thread-comments: true
+          thread-comments: update
           tidy-checks: ''
           step-summary: true
           file-annotations: true
