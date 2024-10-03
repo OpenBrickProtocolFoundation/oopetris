@@ -29,7 +29,7 @@ namespace ui {
     };
 
     struct AbsolutItemSize : public ItemSize {
-        OOPETRIS_GRAPHICS_EXPORTED AbsolutItemSize(u32 height);
+        OOPETRIS_GRAPHICS_EXPORTED explicit AbsolutItemSize(u32 height);
     };
 
 

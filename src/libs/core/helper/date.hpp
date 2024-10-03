@@ -18,7 +18,7 @@ namespace date {
         static constexpr const char* iso_8601_format_string = "%Y%m%dT%H%M%S";
 
     public:
-        OOPETRIS_CORE_EXPORTED ISO8601Date(u64 value);
+        OOPETRIS_CORE_EXPORTED explicit ISO8601Date(u64 value);
 
         OOPETRIS_CORE_EXPORTED static ISO8601Date now();
         OOPETRIS_CORE_EXPORTED static helper::expected<ISO8601Date, std::string> from_string(const std::string& input);

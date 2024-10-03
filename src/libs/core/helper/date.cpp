@@ -23,7 +23,7 @@ date::ISO8601Date::ISO8601Date(std::tm tm) {
 date::ISO8601Date date::ISO8601Date::now() {
     auto now = std::chrono::system_clock::now();
     const std::time_t time = std::chrono::system_clock::to_time_t(now);
-    return { static_cast<u64>(time) };
+    return ISO8601Date{ static_cast<u64>(time) };
 }
 
 
