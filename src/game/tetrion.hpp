@@ -5,13 +5,13 @@
 #include <core/helper/types.hpp>
 #include <recordings/utility/tetrion_core_information.hpp>
 
+#include "helper/windows.hpp"
 #include "input/game_input.hpp"
 #include "manager/service_provider.hpp"
 #include "simulated_tetrion.hpp"
 #include "ui/layout.hpp"
 #include "ui/layouts/tile_layout.hpp"
 #include "ui/widget.hpp"
-#include "helper/windows.hpp"
 
 namespace recorder {
     struct RecordingWriter;

@@ -106,8 +106,9 @@ namespace input {
         OOPETRIS_GRAPHICS_EXPORTED static void discover_devices(std::vector<std::unique_ptr<Input>>& inputs);
 
         OOPETRIS_GRAPHICS_EXPORTED
-                [[nodiscard]] static helper::expected<std::unique_ptr<JoystickLikeInput>, std::string>
-                get_by_device_index(int device_index);
+        [[nodiscard]] static helper::expected<std::unique_ptr<JoystickLikeInput>, std::string> get_by_device_index(
+                int device_index
+        );
 
         OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] static bool
         process_special_inputs(const SDL_Event& event, std::vector<std::unique_ptr<Input>>& inputs);
@@ -277,12 +278,12 @@ namespace input {
 
 
         OOPETRIS_GRAPHICS_EXPORTED
-                [[nodiscard]] static helper::expected<std::shared_ptr<input::JoystickGameInput>, std::string>
-                get_game_input_by_settings(
-                        const input::InputManager& input_manager,
-                        EventDispatcher* event_dispatcher,
-                        const JoystickSettings& settings
-                );
+        [[nodiscard]] static helper::expected<std::shared_ptr<input::JoystickGameInput>, std::string>
+        get_game_input_by_settings(
+                const input::InputManager& input_manager,
+                EventDispatcher* event_dispatcher,
+                const JoystickSettings& settings
+        );
 
         OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] const JoystickInput* underlying_input() const override;
 

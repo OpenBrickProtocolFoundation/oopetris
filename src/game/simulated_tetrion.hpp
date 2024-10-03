@@ -8,12 +8,12 @@
 
 #include "bag.hpp"
 #include "grid.hpp"
+#include "helper/windows.hpp"
 #include "input/game_input.hpp"
 #include "manager/service_provider.hpp"
 #include "tetromino.hpp"
 #include "ui/layouts/grid_layout.hpp"
 #include "ui/widget.hpp"
-#include "helper/windows.hpp"
 
 #include <array>
 
@@ -110,12 +110,15 @@ public:
     OOPETRIS_GRAPHICS_EXPORTED void update_step(SimulationStep simulation_step_index);
 
     // returns if the input event lead to a movement
-    OOPETRIS_GRAPHICS_EXPORTED bool handle_input_command(input::GameInputCommand command, SimulationStep simulation_step_index);
+    OOPETRIS_GRAPHICS_EXPORTED bool
+    handle_input_command(input::GameInputCommand command, SimulationStep simulation_step_index);
     OOPETRIS_GRAPHICS_EXPORTED void spawn_next_tetromino(SimulationStep simulation_step_index);
-    OOPETRIS_GRAPHICS_EXPORTED void spawn_next_tetromino(helper::TetrominoType type, SimulationStep simulation_step_index);
+    OOPETRIS_GRAPHICS_EXPORTED void
+    spawn_next_tetromino(helper::TetrominoType type, SimulationStep simulation_step_index);
     OOPETRIS_GRAPHICS_EXPORTED bool rotate_tetromino_right();
     OOPETRIS_GRAPHICS_EXPORTED bool rotate_tetromino_left();
-    OOPETRIS_GRAPHICS_EXPORTED bool move_tetromino_down(MovementType movement_type, SimulationStep simulation_step_index);
+    OOPETRIS_GRAPHICS_EXPORTED bool
+    move_tetromino_down(MovementType movement_type, SimulationStep simulation_step_index);
     OOPETRIS_GRAPHICS_EXPORTED bool move_tetromino_left();
     OOPETRIS_GRAPHICS_EXPORTED bool move_tetromino_right();
     OOPETRIS_GRAPHICS_EXPORTED bool drop_tetromino(SimulationStep simulation_step_index);

@@ -1,12 +1,12 @@
 #pragma once
 
 
+#include "helper/windows.hpp"
 #include "input/controller_input.hpp"
 #include "input/joystick_input.hpp"
 #include "input/keyboard_input.hpp"
 #include "input/touch_input.hpp"
 #include "manager/service_provider.hpp"
-#include "helper/windows.hpp"
 
 #include <fmt/format.h>
 #include <variant>
@@ -78,9 +78,9 @@ namespace detail {
     };
 
 
- OOPETRIS_GRAPHICS_EXPORTED   void to_json(nlohmann::json& obj, const Settings& settings);
+    OOPETRIS_GRAPHICS_EXPORTED void to_json(nlohmann::json& obj, const Settings& settings);
 
-  OOPETRIS_GRAPHICS_EXPORTED  void from_json(const nlohmann::json& obj, Settings& settings);
+    OOPETRIS_GRAPHICS_EXPORTED void from_json(const nlohmann::json& obj, Settings& settings);
 
 } // namespace detail
 
@@ -91,7 +91,7 @@ private:
     detail::Settings m_settings;
 
 public:
-   OOPETRIS_GRAPHICS_EXPORTED explicit SettingsManager(ServiceProvider* service_provider);
+    OOPETRIS_GRAPHICS_EXPORTED explicit SettingsManager(ServiceProvider* service_provider);
 
- OOPETRIS_GRAPHICS_EXPORTED   [[nodiscard]] const detail::Settings& settings() const;
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] const detail::Settings& settings() const;
 };

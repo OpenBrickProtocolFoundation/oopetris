@@ -2,11 +2,11 @@
 
 #include <core/helper/color.hpp>
 
+#include "helper/windows.hpp"
 #include "manager/font.hpp"
 #include "manager/service_provider.hpp"
 #include "rect.hpp"
 #include "texture.hpp"
-#include "helper/windows.hpp"
 
 struct Text final {
 private:

@@ -4,8 +4,8 @@
 
 #include "graphics/rect.hpp"
 #include "helper/message_box.hpp"
-#include "sdl_context.hpp"
 #include "helper/windows.hpp"
+#include "sdl_context.hpp"
 
 #include <SDL.h>
 #include <string>

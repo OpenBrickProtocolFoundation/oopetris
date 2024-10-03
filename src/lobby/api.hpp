@@ -67,7 +67,7 @@ namespace lobby {
         OOPETRIS_GRAPHICS_EXPORTED ~Client();
 
         OOPETRIS_GRAPHICS_EXPORTED
-                [[nodiscard]] helper::expected<Client, std::string> static get_client(const std::string& url);
+        [[nodiscard]] helper::expected<Client, std::string> static get_client(const std::string& url);
 
 
         OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] bool is_authenticated();

@@ -2,11 +2,11 @@
 
 #include <core/helper/color.hpp>
 
+#include "helper/windows.hpp"
 #include "manager/font.hpp"
 #include "rect.hpp"
 #include "texture.hpp"
 #include "window.hpp"
-#include "helper/windows.hpp"
 
 #include <SDL.h>
 #include <filesystem>

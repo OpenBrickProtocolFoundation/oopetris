@@ -12,7 +12,7 @@ namespace ui {
         u32 m_focus_id;
 
     public:
-        explicit FocusHelper(u32 start_focus_id = 0) : m_focus_id{ start_focus_id } {};
+        explicit FocusHelper(u32 start_focus_id = 0) : m_focus_id{ start_focus_id } { };
 
         [[nodiscard]] u32 focus_id() {
             return m_focus_id++;

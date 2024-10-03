@@ -4,10 +4,10 @@
 #include <core/helper/color.hpp>
 
 #include "graphics/rect.hpp"
+#include "helper/windows.hpp"
 #include "manager/service_provider.hpp"
 #include "ui/layout.hpp"
 #include "ui/widget.hpp"
-#include "helper/windows.hpp"
 
 struct Grid final : public ui::Widget {
 public:

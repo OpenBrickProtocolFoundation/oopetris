@@ -2,10 +2,10 @@
 
 #pragma once
 
+#include "helper/windows.hpp"
 #include "input.hpp"
 #include "joystick_input.hpp"
 #include "manager/sdl_controller_key.hpp"
-#include "helper/windows.hpp"
 
 namespace input {
 

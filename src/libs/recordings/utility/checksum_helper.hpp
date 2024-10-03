@@ -2,9 +2,9 @@
 
 #pragma once
 
+#include "./windows.hpp"
 #include <core/hash-library/sha256.h>
 #include <core/helper/utils.hpp>
-#include "./windows.hpp"
 
 #include <array>
 #include <string>

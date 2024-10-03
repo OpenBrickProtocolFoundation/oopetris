@@ -3,8 +3,8 @@
 #include <core/core.hpp>
 
 #include "graphic_helpers.hpp"
-#include "rotation.hpp"
 #include "helper/windows.hpp"
+#include "rotation.hpp"
 
 #include <array>
 

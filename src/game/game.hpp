@@ -3,10 +3,10 @@
 #include <recordings/utility/recording.hpp>
 
 #include "helper/clock_source.hpp"
+#include "helper/windows.hpp"
 #include "input/input_creator.hpp"
 #include "tetrion.hpp"
 #include "ui/widget.hpp"
-#include "helper/windows.hpp"
 
 struct Game : public ui::Widget {
 private:

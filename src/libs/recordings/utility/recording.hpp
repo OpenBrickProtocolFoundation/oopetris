@@ -1,9 +1,9 @@
 #pragma once
 
+#include "./windows.hpp"
 #include <core/helper/input_event.hpp>
 #include <core/helper/random.hpp>
 #include <core/helper/types.hpp>
-#include "./windows.hpp"
 
 #include "./additional_information.hpp"
 #include "./checksum_helper.hpp"

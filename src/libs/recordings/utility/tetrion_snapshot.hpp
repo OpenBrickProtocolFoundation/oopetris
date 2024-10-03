@@ -1,9 +1,9 @@
 #pragma once
 
+#include "./windows.hpp"
 #include <core/game/mino_stack.hpp>
 #include <core/helper/expected.hpp>
 #include <core/helper/utils.hpp>
-#include "./windows.hpp"
 
 #include "./tetrion_core_information.hpp"
 
@@ -39,7 +39,9 @@ public:
             MinoStack mino_stack
     );
 
-    OOPETRIS_RECORDINGS_EXPORTED static helper::expected<TetrionSnapshot, std::string> from_istream(std::istream& istream);
+    OOPETRIS_RECORDINGS_EXPORTED static helper::expected<TetrionSnapshot, std::string> from_istream(
+            std::istream& istream
+    );
 
     OOPETRIS_RECORDINGS_EXPORTED
     TetrionSnapshot(std::unique_ptr<TetrionCoreInformation> information, SimulationStep simulation_step_index);
@@ -58,5 +60,7 @@ public:
 
     OOPETRIS_RECORDINGS_EXPORTED [[nodiscard]] std::vector<char> to_bytes() const;
 
-    OOPETRIS_RECORDINGS_EXPORTED [[nodiscard]] helper::expected<void, std::string> compare_to(const TetrionSnapshot& other) const;
+    OOPETRIS_RECORDINGS_EXPORTED [[nodiscard]] helper::expected<void, std::string> compare_to(
+            const TetrionSnapshot& other
+    ) const;
 };

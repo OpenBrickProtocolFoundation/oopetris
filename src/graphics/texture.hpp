@@ -6,9 +6,9 @@
 #include <core/helper/point.hpp>
 #include <core/helper/utils.hpp>
 
+#include "helper/windows.hpp"
 #include "manager/font.hpp"
 #include "rect.hpp"
-#include "helper/windows.hpp"
 
 #include <SDL.h>
 #include <SDL_image.h>
@@ -26,7 +26,8 @@ private:
     explicit Texture(SDL_Texture* raw_texture);
 
 public:
-    OOPETRIS_GRAPHICS_EXPORTED static Texture from_image(SDL_Renderer* renderer, const std::filesystem::path& image_path);
+    OOPETRIS_GRAPHICS_EXPORTED static Texture
+    from_image(SDL_Renderer* renderer, const std::filesystem::path& image_path);
 
     OOPETRIS_GRAPHICS_EXPORTED static Texture prerender_text(
             SDL_Renderer* renderer,

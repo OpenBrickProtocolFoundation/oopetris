@@ -31,13 +31,13 @@ public:
     }
 
     // iterator trait
-    using iterator = char * ;               //NOLINT(readability-identifier-naming)
-    using const_iterator = const char*;   //NOLINT(readability-identifier-naming)
-    using difference_type = std::ptrdiff_t; //NOLINT(readability-identifier-naming)
-    using value_type = char;           //NOLINT(readability-identifier-naming)
-    using pointer = char * ;                 //NOLINT(readability-identifier-naming)
-    using reference = char&;             //NOLINT(readability-identifier-naming)
-    using iterator_category = std::bidirectional_iterator_tag;    //NOLINT(readability-identifier-naming)
+    using iterator = char*;                                    //NOLINT(readability-identifier-naming)
+    using const_iterator = const char*;                        //NOLINT(readability-identifier-naming)
+    using difference_type = std::ptrdiff_t;                    //NOLINT(readability-identifier-naming)
+    using value_type = char;                                   //NOLINT(readability-identifier-naming)
+    using pointer = char*;                                     //NOLINT(readability-identifier-naming)
+    using reference = char&;                                   //NOLINT(readability-identifier-naming)
+    using iterator_category = std::bidirectional_iterator_tag; //NOLINT(readability-identifier-naming)
 
 
     [[nodiscard]] constexpr iterator begin() {

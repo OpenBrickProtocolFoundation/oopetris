@@ -2,8 +2,8 @@
 
 #include <core/core.hpp>
 
-#include "manager/service_provider.hpp"
 #include "helper/windows.hpp"
+#include "manager/service_provider.hpp"
 
 enum class MinoTransparency : u8 {
     // here the enum value is used as index into the preview alpha array

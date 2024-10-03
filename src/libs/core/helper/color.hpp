@@ -62,7 +62,8 @@ struct HSVColor {
 
     constexpr HSVColor() : HSVColor{ 0.0, 0.0, 0.0, 0 } { }
 
-    OOPETRIS_CORE_EXPORTED [[nodiscard]] static helper::expected<HSVColor, std::string> from_string(const std::string& value
+    OOPETRIS_CORE_EXPORTED [[nodiscard]] static helper::expected<HSVColor, std::string> from_string(
+            const std::string& value
     );
 
     using InfoType = std::tuple<HSVColor, color::SerializeMode, bool>;
@@ -139,7 +140,9 @@ struct Color {
 
     constexpr Color(u8 red, u8 green, u8 blue) : Color{ red, green, blue, 0xFF } { }
 
-    OOPETRIS_CORE_EXPORTED [[nodiscard]] static helper::expected<Color, std::string> from_string(const std::string& value);
+    OOPETRIS_CORE_EXPORTED [[nodiscard]] static helper::expected<Color, std::string> from_string(
+            const std::string& value
+    );
 
     using InfoType = std::tuple<Color, color::SerializeMode, bool>;
 
