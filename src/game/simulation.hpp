@@ -1,8 +1,8 @@
 #pragma once
 
+#include <core/helper/expected.hpp>
 #include <recordings/utility/recording.hpp>
 
-#include "core/helper/expected.hpp"
 #include "helper/windows.hpp"
 #include "input/input_creator.hpp"
 #include "input/replay_input.hpp"
