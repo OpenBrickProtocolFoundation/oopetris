@@ -191,7 +191,7 @@ SectionEnd
 ;; source: partially https://stackoverflow.com/questions/62092185/how-to-install-the-visual-c-redist-using-nsis
 ;; and https://gist.github.com/mattiasghodsian/a30f50568792939e35e93e6bc2084c2a
 
-!define VC_REDITS_NAME "vc_redist.x64.exe"
+!define VC_REDIST_NAME "vc_redist.x64.exe"
 
 Section "-hidden Visual Studio C++ Runtime"
     ; install the MSVC C++ Redistributable (Runtime libraries needed by C++ and C), only if not already installed
@@ -204,12 +204,26 @@ Section "-hidden Visual Studio C++ Runtime"
       DetailPrint "Visual Studio C++ Runtime NOT installed, launching installer"
 
       SetOutPath "$INSTDIR"
-      ; this dir is specifiy to github runners, locally it would be: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Redist\MSVC\v143\${VC_REDITS_NAME}"
-      File "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Redist\MSVC\v143\${VC_REDITS_NAME}"
+
+      ; this is executed at compile time, so we ge the correct path of the file, if we are in teh CI or local it differs
+      !if "$%CI%" == "true"
+        ; this dir is specific to github runners
+        !define VC_REDIST_ROOT "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Redist\MSVC"
+        !define VC_REDIST_VERSION "v143"
+      !else
+        ; TODO: allow custom folders via env variable
+        ; this dir is specific to my local setup
+        !define VC_REDIST_ROOT "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Redist\MSVC"
+        !define VC_REDIST_VERSION "v143"
+      !endif
+
+      File "${VC_REDIST_ROOT}\${VC_REDIST_VERSION}\${VC_REDIST_NAME}"
+
       ; error code is ignored, that is intended
-      ExecWait '"$INSTDIR\${VC_REDITS_NAME}" /install'
+      ExecWait '"$INSTDIR\${VC_REDIST_NAME}" /install'
+
       ; it is not needed anymore
-      Delete "$INSTDIR\${VC_REDITS_NAME}"
+      Delete "$INSTDIR\${VC_REDIST_NAME}"
     ${Else}
        DetailPrint "Visual Studio C++ Runtime already installed, skipping installing it"
     ${EndIf}
