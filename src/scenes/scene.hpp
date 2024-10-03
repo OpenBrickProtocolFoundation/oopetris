@@ -68,7 +68,7 @@ namespace scenes {
         ui::Layout m_layout;
 
     public:
-        explicit Scene(ServiceProvider* service_provider, const ui::Layout& layout);
+        OOPETRIS_GRAPHICS_EXPORTED explicit Scene(ServiceProvider* service_provider, const ui::Layout& layout);
         Scene(const Scene&) = delete;
         Scene& operator=(const Scene&) = delete;
         virtual ~Scene() = default;
@@ -78,10 +78,10 @@ namespace scenes {
         virtual bool
         handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) = 0;
         // override this, if you (the scene) could potentially be displayed in non fullscreen!
-        virtual void on_unhover();
-        [[nodiscard]] const ui::Layout& get_layout() const;
+        OOPETRIS_GRAPHICS_EXPORTED virtual void on_unhover();
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] const ui::Layout& get_layout() const;
     };
 
-    [[nodiscard]] std::unique_ptr<scenes::Scene>
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::unique_ptr<scenes::Scene>
     create_scene(ServiceProvider& service_provider, SceneId identifier, const ui::Layout& layout);
 } // namespace scenes

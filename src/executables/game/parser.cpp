@@ -42,7 +42,7 @@ helper::expected<CommandLineArguments, std::string> helper::parse_args(const std
             }
         }
 #if defined(__SERENITY__)
-        // serenity OS can#t handle vsync very well (Since it's inside qemu), so setting the target_fps value to 60 per default
+        // serenity OS can't handle vsync very well (Since it's inside qemu), so setting the target_fps value to 60 per default
         if (not result.target_fps.has_value()) {
             result.target_fps = 60;
         }

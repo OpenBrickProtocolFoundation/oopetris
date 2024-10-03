@@ -9,6 +9,7 @@ namespace logo {
     constexpr const auto width = 33;
     constexpr const auto height = 5;
 
-    [[nodiscard]] Texture get_logo(const ServiceProvider* service_provider, double scale = 1.0);
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] Texture
+    get_logo(const ServiceProvider* service_provider, double scale = 1.0);
 
 } // namespace logo

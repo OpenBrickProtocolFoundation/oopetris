@@ -23,7 +23,7 @@ namespace ui {
         );
 
     public:
-        explicit TextButton(
+        OOPETRIS_GRAPHICS_EXPORTED explicit TextButton(
                 ServiceProvider* service_provider,
                 const std::string& text,
                 const Font& font,

@@ -32,11 +32,16 @@ namespace ui {
                 m_widgets; // NOLINT(misc-non-private-member-variables-in-classes,cppcoreguidelines-non-private-member-variables-in-classes)
 
     public:
-        explicit FocusLayout(const Layout& layout, u32 focus_id, FocusOptions options, bool is_top_level);
+        OOPETRIS_GRAPHICS_EXPORTED explicit FocusLayout(
+                const Layout& layout,
+                u32 focus_id,
+                FocusOptions options,
+                bool is_top_level
+        );
 
-        void update() override;
+        OOPETRIS_GRAPHICS_EXPORTED void update() override;
 
-        [[nodiscard]] u32 widget_count() const;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] u32 widget_count() const;
 
 
         template<typename T, typename... Args>
@@ -99,7 +104,7 @@ namespace ui {
             return item.value();
         }
 
-        Widget::EventHandleResult
+        OOPETRIS_GRAPHICS_EXPORTED Widget::EventHandleResult
         handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override;
 
 

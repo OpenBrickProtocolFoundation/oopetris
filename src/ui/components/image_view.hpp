@@ -15,7 +15,7 @@ namespace ui {
         shapes::URect m_fill_rect;
 
     public:
-        explicit ImageView(
+        OOPETRIS_GRAPHICS_EXPORTED explicit ImageView(
                 ServiceProvider* service_provider,
                 const std::filesystem::path& image_path,
                 std::pair<double, double> size,
@@ -25,9 +25,9 @@ namespace ui {
                 bool is_top_level
         );
 
-        void render(const ServiceProvider& service_provider) const override;
+        OOPETRIS_GRAPHICS_EXPORTED void render(const ServiceProvider& service_provider) const override;
 
-        [[nodiscard]] Widget::EventHandleResult
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] Widget::EventHandleResult
         handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& even) override;
     };
 } // namespace ui

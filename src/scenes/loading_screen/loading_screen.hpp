@@ -20,11 +20,11 @@ namespace scenes {
         shapes::UPoint m_start_offset;
 
     public:
-        explicit LoadingScreen(ServiceProvider* service_provider);
+        OOPETRIS_GRAPHICS_EXPORTED explicit LoadingScreen(ServiceProvider* service_provider);
 
-        void update();
+        OOPETRIS_GRAPHICS_EXPORTED void update();
 
-        void render(const ServiceProvider& service_provider) const;
+        OOPETRIS_GRAPHICS_EXPORTED void render(const ServiceProvider& service_provider) const;
 
     private:
         [[nodiscard]] shapes::UPoint to_screen_coords(const Mino::GridPoint& point, u32 tile_size) const;

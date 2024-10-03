@@ -11,20 +11,22 @@ namespace ui {
         Text m_text;
 
     public:
-        Label(ServiceProvider* service_provider,
-              const std::string& text,
-              const Font& font,
-              const Color& color,
-              std::pair<double, double> size,
-              Alignment alignment,
-              Layout layout,
-              bool is_top_level);
+        OOPETRIS_GRAPHICS_EXPORTED Label(
+                ServiceProvider* service_provider,
+                const std::string& text,
+                const Font& font,
+                const Color& color,
+                std::pair<double, double> size,
+                Alignment alignment,
+                Layout layout,
+                bool is_top_level
+        );
 
-        void render(const ServiceProvider& service_provider) const override;
+        OOPETRIS_GRAPHICS_EXPORTED void render(const ServiceProvider& service_provider) const override;
 
-        [[nodiscard]] Widget::EventHandleResult
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] Widget::EventHandleResult
         handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& /*event*/) override;
 
-        void set_text(const ServiceProvider& service_provider, const std::string& text);
+        OOPETRIS_GRAPHICS_EXPORTED void set_text(const ServiceProvider& service_provider, const std::string& text);
     };
 } // namespace ui

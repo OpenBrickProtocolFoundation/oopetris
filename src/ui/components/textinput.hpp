@@ -43,7 +43,7 @@ namespace ui {
         );
 
     public:
-        explicit TextInput(
+        OOPETRIS_GRAPHICS_EXPORTED explicit TextInput(
                 ServiceProvider* service_provider,
                 Font font,
                 const Color& color,
@@ -55,20 +55,20 @@ namespace ui {
                 bool is_top_level
         );
 
-        ~TextInput() override;
+        OOPETRIS_GRAPHICS_EXPORTED ~TextInput() override;
 
 
-        void update() override;
+        OOPETRIS_GRAPHICS_EXPORTED void update() override;
 
         //TODO(Totto):  how to handle text limits (since texture for texts on the gpu can't get unlimitedly big, maybe use software texture?)
-        void render(const ServiceProvider& service_provider) const override;
+        OOPETRIS_GRAPHICS_EXPORTED void render(const ServiceProvider& service_provider) const override;
 
-        Widget::EventHandleResult
+        OOPETRIS_GRAPHICS_EXPORTED Widget::EventHandleResult
         handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override;
 
-        void set_text(const std::string& text);
+        OOPETRIS_GRAPHICS_EXPORTED void set_text(const std::string& text);
 
-        [[nodiscard]] const std::string& get_text() const;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] const std::string& get_text() const;
 
     private:
         void recalculate_textures(bool text_changed);

@@ -8,7 +8,7 @@
 
 namespace ui {
     struct ImageButton : public Button<ImageView, ImageButton> {
-        explicit ImageButton(
+        OOPETRIS_GRAPHICS_EXPORTED explicit ImageButton(
                 ServiceProvider* service_provider,
                 const std::filesystem::path& image_path,
                 bool respect_ratio,

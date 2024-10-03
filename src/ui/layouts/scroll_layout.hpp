@@ -23,21 +23,21 @@ namespace ui {
         ItemSize(u32 height, ItemSizeType type);
 
     public:
-        [[nodiscard]] u32 get_height() const;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] u32 get_height() const;
 
-        [[nodiscard]] ItemSizeType get_type() const;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] ItemSizeType get_type() const;
     };
 
     struct AbsolutItemSize : public ItemSize {
-        AbsolutItemSize(u32 height);
+        OOPETRIS_GRAPHICS_EXPORTED AbsolutItemSize(u32 height);
     };
 
 
     struct RelativeItemSize : public ItemSize {
-        RelativeItemSize(const shapes::URect& rect, double height);
-        RelativeItemSize(const Window* window, double height);
-        RelativeItemSize(const Window& window, double height);
-        RelativeItemSize(const Layout& layout, double height);
+        OOPETRIS_GRAPHICS_EXPORTED RelativeItemSize(const shapes::URect& rect, double height);
+        OOPETRIS_GRAPHICS_EXPORTED RelativeItemSize(const Window* window, double height);
+        OOPETRIS_GRAPHICS_EXPORTED RelativeItemSize(const Window& window, double height);
+        OOPETRIS_GRAPHICS_EXPORTED RelativeItemSize(const Layout& layout, double height);
     };
 
 
@@ -54,7 +54,7 @@ namespace ui {
         u32 m_step_size;
 
     public:
-        explicit ScrollLayout(
+        OOPETRIS_GRAPHICS_EXPORTED explicit ScrollLayout(
                 ServiceProvider* service_provider,
                 u32 focus_id,
                 Margin gap,
@@ -63,9 +63,9 @@ namespace ui {
                 bool is_top_level = true
         );
 
-        void render(const ServiceProvider& service_provider) const override;
+        OOPETRIS_GRAPHICS_EXPORTED void render(const ServiceProvider& service_provider) const override;
 
-        Widget::EventHandleResult
+        OOPETRIS_GRAPHICS_EXPORTED Widget::EventHandleResult
         handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override;
 
         //TODO(Totto):  with some template paramater and magic make this an option in the base class, so that only get_layout_for_new needs to be overwritten!
@@ -90,7 +90,7 @@ namespace ui {
             return index;
         }
 
-        void clear_widgets();
+        OOPETRIS_GRAPHICS_EXPORTED void clear_widgets();
 
     protected:
         Widget::EventHandleResult handle_focus_change_events(

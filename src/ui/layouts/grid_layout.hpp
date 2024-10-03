@@ -13,7 +13,7 @@ namespace ui {
         std::pair<u32, u32> margin;
 
     public:
-        explicit GridLayout(
+        OOPETRIS_GRAPHICS_EXPORTED explicit GridLayout(
                 u32 focus_id,
                 u32 size,
                 Direction direction,
@@ -23,9 +23,9 @@ namespace ui {
                 bool is_top_level = true
         );
 
-        [[nodiscard]] u32 total_size() const;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] u32 total_size() const;
 
-        void render(const ServiceProvider& service_provider) const override;
+        OOPETRIS_GRAPHICS_EXPORTED void render(const ServiceProvider& service_provider) const override;
 
     private:
         [[nodiscard]] Layout get_layout_for_index(u32 index) override;
