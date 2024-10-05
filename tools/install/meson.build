@@ -5,6 +5,7 @@ if build_application
     install_subdir(
         meson.project_source_root() / 'assets',
         install_dir: 'share/oopetris',
+        install_tag: 'assets',
         exclude_files: ['oopetris.desktop.in', 'OOPetris.svg', 'recordings.magic'],
         exclude_directories: ['icon'],
     )
@@ -38,6 +39,7 @@ if build_application
                 input: [oopetris_magic_file, magic_file],
                 output: 'magic',
                 install_dir: magic_dir,
+                install_tag: 'other',
             )
 
         else
@@ -45,6 +47,7 @@ if build_application
             install_data(
                 oopetris_magic_file,
                 install_dir: magic_dir,
+                install_tag: 'other',
                 rename: ['magic'],
             )
 
@@ -57,6 +60,7 @@ if build_application
         configuration: conf,
         install: true,
         install_dir: datadir / 'applications',
+        install_tag: 'other',
     )
 
     logos = [
@@ -80,6 +84,7 @@ if build_application
         install_data(
             meson.project_source_root() / 'assets' / 'icon' / logo,
             install_dir: datadir / 'icons' / 'hicolor' / name / 'apps',
+            install_tag: 'assets',
             rename: [app_name + '.' + ext],
         )
     endforeach
