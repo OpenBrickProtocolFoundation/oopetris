@@ -30,12 +30,6 @@ jobs:
         run: |
           pip install meson
 
-      - name: Configure
-        run: meson setup build -Dbuildtype=release -Ddefault_library=shared -Dbuild_installer=true
-
-      - name: Build
-        run: meson compile -C build
-
       - name: Download EnVar plugin for NSIS
         uses: carlosperate/download-file-action@v2
         with:
@@ -46,8 +40,13 @@ jobs:
       - name: Extract EnVar plugin
         run: 7z x "-oC:/Program Files (x86)/NSIS" "${{ github.workspace }}/envar_plugin.zip"
 
-      - name: Build installer (Windows)
+      - name: Configure
+        run: meson setup build -Dbuildtype=release -Ddefault_library=shared -Dbuild_installer=true
+
+      - name: Build installer
         run: |
+          meson compile -C build
+          meson install -C build --tags runtime --destdir "dynamic_libraries" 
           meson compile -C build windows_installer
 
       - name: Upload artifacts - Windows

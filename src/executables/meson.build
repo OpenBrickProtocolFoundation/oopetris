@@ -83,6 +83,7 @@ if build_application
                         '-DPROJECT_SOURCE_DIR='
                         + meson.project_source_root(),
                         '-DPROJECT_BUILD_DIR=' + meson.project_build_root(),
+                        '-DDYNAMIC_LIBRARIES_DIR=' + (meson.project_build_root() / 'dynamic_libraries' / get_option('bindir')),
                         nsis_script,
                     ],
                     depends: [oopetris_exe, oopetris_recordings_utility_exe],
