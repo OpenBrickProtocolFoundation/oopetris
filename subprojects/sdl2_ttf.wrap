@@ -3,10 +3,11 @@ directory = SDL2_ttf-2.20.1
 source_url = https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-2.20.1.tar.gz
 source_filename = SDL2_ttf-2.20.1.tar.gz
 source_hash = 78cdad51f3cc3ada6932b1bb6e914b33798ab970a1e817763f22ddbfd97d0c57
-patch_filename = sdl2_ttf_2.20.1-2_patch.zip
-patch_url = https://wrapdb.mesonbuild.com/v2/sdl2_ttf_2.20.1-2/get_patch
-patch_hash = ab9825e6a09ca625db799be312c1a1e1177bbb576e832229e88c5db0d486e2b3
-wrapdb_version = 2.20.1-2
+patch_filename = sdl2_ttf_2.20.1-3_patch.zip
+patch_url = https://wrapdb.mesonbuild.com/v2/sdl2_ttf_2.20.1-3/get_patch
+patch_hash = dcbe819e2731c9546c29b766ba1803301a565cf7f07e6133dc2499195f47cf04
+source_fallback_url = https://github.com/mesonbuild/wrapdb/releases/download/sdl2_ttf_2.20.1-3/SDL2_ttf-2.20.1.tar.gz
+wrapdb_version = 2.20.1-3
 
 [provide]
 sdl2_ttf = sdl2_ttf_dep
