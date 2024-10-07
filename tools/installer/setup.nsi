@@ -129,14 +129,8 @@ Section "Core App" CoreApp
     ; install dynamic libraries
     SetOutPath "$INSTDIR"
 
-    ; install all dyanmic libraries
+    ; install all dynamic libraries
     File /r "${DYNAMIC_LIBRARIES_DIR}\*.dll"
-
-    ; TODO: this need to be installed automatically
-    File "${PROJECT_BUILD_DIR}\subprojects\SDL2_ttf-2.20.1\sdl2_ttf.dll"
-    File "${PROJECT_BUILD_DIR}\subprojects\SDL2_image-2.6.3\sdl2image.dll"
-    File "${PROJECT_BUILD_DIR}\subprojects\SDL2_mixer-2.6.2\sdl2mixer.dll"
-    File "${PROJECT_SOURCE_DIR}\subprojects\discord_game_sdk-3.2.1\lib\x86_64\discord_game_sdk.dll"
 
     ; install default settings (DO NOT Override)
     SetOutPath "$APPDATA\${AUTHOR}\${NAME}"
