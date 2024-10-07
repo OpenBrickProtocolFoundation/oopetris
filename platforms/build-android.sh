@@ -264,6 +264,7 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
             # fix an compile time error since openssl 3.1.0 >
             # see https://github.com/android/ndk/issues/1992
+            # see https://github.com/openssl/openssl/pull/22181
             # Apply patch that fixes the armcap instruction
 
             # sed -e '/[.]hidden.*OPENSSL_armcap_P/d; /[.]extern.*OPENSSL_armcap_P/ {p; s/extern/hidden/ }' -i -- crypto/*arm*pl crypto/*/asm/*arm*pl

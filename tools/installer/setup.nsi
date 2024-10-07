@@ -18,6 +18,10 @@
 !error "PROJECT_BUILD_DIR not specified"
 !endif
 
+!ifndef DYNAMIC_LIBRARIES_DIR
+!error "DYNAMIC_LIBRARIES_DIR not specified"
+!endif
+
 !ifndef NAME
 !error "NAME not specified"
 !endif
@@ -125,27 +129,8 @@ Section "Core App" CoreApp
     ; install dynamic libraries
     SetOutPath "$INSTDIR"
 
-    ; install oopetris-* core libraries
-    File "${PROJECT_BUILD_DIR}\src\libs\core\oopetris_core-0.dll"
-    File "${PROJECT_BUILD_DIR}\src\libs\recordings\oopetris_recordings-0.dll"
-    File "${PROJECT_BUILD_DIR}\src\oopetris_graphics-0.dll"
-
-    ; install subprojects / external libraries
-    File "${PROJECT_BUILD_DIR}\subprojects\SDL2-2.30.6\SDL2-6.dll"
-    File "${PROJECT_BUILD_DIR}\subprojects\fmt-11.0.2\fmt.dll"
-    File "${PROJECT_BUILD_DIR}\subprojects\SDL2_ttf-2.20.1\sdl2_ttf.dll"
-    File "${PROJECT_BUILD_DIR}\subprojects\freetype-2.13.3\freetype-6.dll"
-    File "${PROJECT_BUILD_DIR}\subprojects\SDL2_image-2.6.3\sdl2image.dll"
-    File "${PROJECT_BUILD_DIR}\subprojects\libpng-1.6.44\png16-16.dll"
-    File "${PROJECT_BUILD_DIR}\subprojects\SDL2_mixer-2.6.2\sdl2mixer.dll"
-    File "${PROJECT_BUILD_DIR}\subprojects\libvorbis-1.3.7\lib\vorbisfile-3.dll"
-    File "${PROJECT_BUILD_DIR}\subprojects\libvorbis-1.3.7\lib\vorbis-0.dll"
-    File "${PROJECT_BUILD_DIR}\subprojects\libogg-1.3.5\src\ogg.dll"
-    File "${PROJECT_BUILD_DIR}\subprojects\flac-1.4.3\src\libFLAC\FLAC-8.dll"
-    File "${PROJECT_BUILD_DIR}\subprojects\openssl-3.0.8\crypto.dll"
-    File "${PROJECT_BUILD_DIR}\subprojects\openssl-3.0.8\ssl.dll"
-    File "${PROJECT_BUILD_DIR}\subprojects\nativefiledialog-extended-1.2.1\src\nativefiledialog-extended.dll"
-    File "${PROJECT_SOURCE_DIR}\subprojects\discord_game_sdk-3.2.1\lib\x86_64\discord_game_sdk.dll"
+    ; install all dynamic libraries
+    File /r "${DYNAMIC_LIBRARIES_DIR}\*.dll"
 
     ; install default settings (DO NOT Override)
     SetOutPath "$APPDATA\${AUTHOR}\${NAME}"

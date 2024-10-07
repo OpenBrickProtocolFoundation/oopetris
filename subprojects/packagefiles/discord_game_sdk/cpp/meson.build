@@ -93,6 +93,15 @@ discord_lib_c = c.find_library(
 
 if discord_lib_c.found()
     lib_deps += discord_lib_c
+
+    if c.get_id() == 'msvc'
+
+        install_data(
+            meson.project_source_root() / lib_dir / lib_name,
+            install_dir: get_option('bindir'),
+        )
+    endif
+
 else
     lib_deps += c.find_library(
         lib_name,
