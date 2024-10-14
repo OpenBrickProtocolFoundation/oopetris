@@ -16,7 +16,7 @@ liboopetris_recordings = library(
     recordings_header_files,
     include_directories: recordings_lib.get('inc_dirs'),
     dependencies: recordings_lib.get('deps'),
-    cpp_args: recordings_lib.get('compile_args'),
+    cpp_args: [recordings_lib.get('compile_args'),'-DOOPETRIS_LIBRARY_RECORDINGS_COMPILATION'],
     cpp_shared_args: ['-DOOPETRIS_LIBRARY_RECORDINGS_EXPORT'],
     override_options: {
         'warning_level': '3',
