@@ -23,6 +23,9 @@ if build_application
     graphics_lib += {
         'deps': [graphics_lib.get('deps'), liboopetris_recordings_dep],
         'inc_dirs': [graphics_lib.get('inc_dirs'), include_directories('.')],
+        'compile_args' : [graphics_lib.get('compile_args'),
+        '-DOOPETRIS_LIBRARY_GRAPHICS_TYPE='+
+            (get_option('default_library') == 'static' ? '1' : '0')]
     }
 
     liboopetris_graphics = library(
@@ -30,7 +33,7 @@ if build_application
         graphics_src_files,
         include_directories: graphics_lib.get('inc_dirs'),
         dependencies: graphics_lib.get('deps'),
-        cpp_args: [graphics_lib.get('compile_args'),'-DOOPETRIS_LIBRARY_GRAPHICS_COMPILATION'],
+        cpp_args: graphics_lib.get('compile_args'),
         cpp_shared_args: ['-DOOPETRIS_LIBRARY_GRAPHICS_EXPORT'],
         override_options: {
             'warning_level': '3',

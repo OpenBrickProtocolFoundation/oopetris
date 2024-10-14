@@ -7,14 +7,20 @@ subdir('game')
 subdir('hash-library')
 subdir('helper')
 
+temp = core_lib.get('compile_args')
+temp +=  '-DOOPETRIS_LIBRARY_CORE_TYPE='+  (get_option('default_library') == 'static' ? '1' : '0')
+core_lib += {'compile_args': temp}
+temp = 0
+
+
 liboopetris_core = library(
     'oopetris_core',
     core_src_files,
     core_header_files,
     include_directories: core_lib.get('inc_dirs'),
     dependencies: core_lib.get('deps'),
-    cpp_args: [core_lib.get('compile_args'),'-DOOPETRIS_LIBRARY_CORE_COMPILATION','-DHASH_LIBRARY_COMPILATION'],
-    cpp_shared_args: ['-DOOPETRIS_LIBRARY_CORE_EXPORT', '-DHASH_LIBRARY_EXPORT'],
+    cpp_args: core_lib.get('compile_args'),
+    cpp_shared_args: ['-DOOPETRIS_LIBRARY_CORE_EXPORT'],
     override_options: {
         'warning_level': '3',
         'werror': true,

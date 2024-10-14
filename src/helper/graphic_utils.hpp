@@ -36,13 +36,28 @@ namespace utils {
 
 // this needs some special handling, so the macro is defined here
 #if defined(_MSC_VER)
+#if defined(OOPETRIS_LIBRARY_GRAPHICS_TYPE) && OOPETRIS_LIBRARY_GRAPHICS_TYPE == 0
+
+#else
+
+#endif
+#else
+
+#endif
+
+
+#if defined(_MSC_VER)
+#if defined(OOPETRIS_LIBRARY_GRAPHICS_TYPE) && OOPETRIS_LIBRARY_GRAPHICS_TYPE == 0
 #if defined(OOPETRIS_LIBRARY_GRAPHICS_EXPORT)
 #define OOPETRIS_GRAPHICS_EXPORTED_NORETURN __declspec(dllexport, noreturn)
 #else
 #define OOPETRIS_GRAPHICS_EXPORTED_NORETURN __declspec(dllimport, noreturn)
 #endif
 #else
-#define OOPETRIS_GRAPHICS_EXPORTED_NORETURN
+#define OOPETRIS_GRAPHICS_EXPORTED_NORETURN __declspec(noreturn)
+#endif
+#else
+#define OOPETRIS_GRAPHICS_EXPORTED_NORETURN [[noreturn]]
 #endif
 
 

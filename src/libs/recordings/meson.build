@@ -5,9 +5,15 @@ recordings_include_dir = include_dir / 'oopetris' / 'recordings'
 
 subdir('utility')
 
+temp = recordings_lib.get('compile_args')
+temp +=   '-DOOPETRIS_LIBRARY_RECORDINGS_TYPE='+         (get_option('default_library') == 'static' ? '1' : '0')
+recordings_lib += {'compile_args': temp}
+temp = 0
+
+
 recordings_lib += {
     'deps': [recordings_lib.get('deps'), liboopetris_core_dep],
-    'inc_dirs': [recordings_lib.get('inc_dirs'), include_directories('.')],
+    'inc_dirs': [recordings_lib.get('inc_dirs'), include_directories('.')]
 }
 
 liboopetris_recordings = library(
@@ -16,7 +22,7 @@ liboopetris_recordings = library(
     recordings_header_files,
     include_directories: recordings_lib.get('inc_dirs'),
     dependencies: recordings_lib.get('deps'),
-    cpp_args: [recordings_lib.get('compile_args'),'-DOOPETRIS_LIBRARY_RECORDINGS_COMPILATION'],
+    cpp_args: recordings_lib.get('compile_args'),
     cpp_shared_args: ['-DOOPETRIS_LIBRARY_RECORDINGS_EXPORT'],
     override_options: {
         'warning_level': '3',
