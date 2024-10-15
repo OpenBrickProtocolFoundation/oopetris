@@ -6,14 +6,13 @@ recordings_include_dir = include_dir / 'oopetris' / 'recordings'
 subdir('utility')
 
 temp = recordings_lib.get('compile_args')
-temp +=   '-DOOPETRIS_LIBRARY_RECORDINGS_TYPE='+         (get_option('default_library') == 'static' ? '1' : '0')
+temp += '-DOOPETRIS_LIBRARY_RECORDINGS_TYPE=' + (get_option('default_library') == 'static' ? '1' : '0')
 recordings_lib += {'compile_args': temp}
 temp = 0
 
-
 recordings_lib += {
     'deps': [recordings_lib.get('deps'), liboopetris_core_dep],
-    'inc_dirs': [recordings_lib.get('inc_dirs'), include_directories('.')]
+    'inc_dirs': [recordings_lib.get('inc_dirs'), include_directories('.')],
 }
 
 liboopetris_recordings = library(

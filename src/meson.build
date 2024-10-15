@@ -23,9 +23,11 @@ if build_application
     graphics_lib += {
         'deps': [graphics_lib.get('deps'), liboopetris_recordings_dep],
         'inc_dirs': [graphics_lib.get('inc_dirs'), include_directories('.')],
-        'compile_args' : [graphics_lib.get('compile_args'),
-        '-DOOPETRIS_LIBRARY_GRAPHICS_TYPE='+
-            (get_option('default_library') == 'static' ? '1' : '0')]
+        'compile_args': [
+            graphics_lib.get('compile_args'),
+            '-DOOPETRIS_LIBRARY_GRAPHICS_TYPE='
+            + (get_option('default_library') == 'static' ? '1' : '0'),
+        ],
     }
 
     liboopetris_graphics = library(
