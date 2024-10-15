@@ -18,10 +18,14 @@ typedef unsigned __int8 uint8_t;
 typedef unsigned __int32 uint32_t;
 typedef unsigned __int64 uint64_t;
 
-#if defined(HASH_LIBRARY_EXPORT)
+#if defined(OOPETRIS_LIBRARY_CORE_TYPE) && OOPETRIS_LIBRARY_CORE_TYPE == 0
+#if defined(OOPETRIS_LIBRARY_CORE_EXPORT)
 #define HASH_LIBRARY_EXPORTED __declspec(dllexport)
 #else
 #define HASH_LIBRARY_EXPORTED __declspec(dllimport)
+#endif
+#else
+#define HASH_LIBRARY_EXPORTED
 #endif
 
 #else
