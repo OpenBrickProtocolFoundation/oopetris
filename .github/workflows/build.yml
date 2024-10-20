@@ -139,6 +139,16 @@ jobs:
           version: 14
           platform: x64
 
+      - name: Unbreak Python in GHA (MacOS 13 image)
+        if: matrix.config.os == 'macos' && matrix.config.os-version == 13
+        run: |
+          # TODO: remove this, after it works again
+          # A workaround for "The `brew link` step did not complete successfully" error.
+          # See e.g. https://github.com/Homebrew/homebrew-core/issues/165793#issuecomment-1991817938
+          find /usr/local/bin -lname '*/Library/Frameworks/Python.framework/*' -delete
+          sudo rm -rf /Library/Frameworks/Python.framework/
+          brew install --force python3 && brew unlink python3 && brew unlink python3 && brew link --overwrite python3
+
       - name: Setup Clang (MacOS)
         if: matrix.config.os == 'macos'
         run: |
@@ -154,16 +164,6 @@ jobs:
           echo "CC_LD=lld" >> "$GITHUB_ENV"
           echo "CXX_LD=lld" >> "$GITHUB_ENV"
           echo "OBJC_LD=lld" >> "$GITHUB_ENV"
-
-      - name: Unbreak Python in GHA (MacOS 13 image)
-        if: matrix.config.os == 'macos' && matrix.config.os-version == 13
-        run: |
-          # TODO: remove this, after it works again
-          # A workaround for "The `brew link` step did not complete successfully" error.
-          # See e.g. https://github.com/Homebrew/homebrew-core/issues/165793#issuecomment-1991817938
-          find /usr/local/bin -lname '*/Library/Frameworks/Python.framework/*' -delete
-          sudo rm -rf /Library/Frameworks/Python.framework/
-          brew install --force python3 && brew unlink python3 && brew unlink python3 && brew link --overwrite python3
 
       - name: Setup meson (MacOS)
         if: matrix.config.os == 'macos'
