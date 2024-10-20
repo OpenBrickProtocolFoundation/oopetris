@@ -131,11 +131,6 @@ jobs:
           echo "CC=clang-19" >> "$GITHUB_ENV"
           echo "CXX=clang++-19" >> "$GITHUB_ENV"
           echo "OBJC=clang-19" >> "$GITHUB_ENV"
-          # Patch the libstd++ library, see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=115119
-          # This is a dirty workaround, but it is needed, since gcc 14.2 (where this was patched usptream) is not easily available
-          # If we use the oracular (Ubuntu 24.10) repos, we could install gcc 14.2, but clang-19 isn't compatible with that
-          # TODO: remove this, after it works again
-          sudo patch -p1 /usr/include/c++/14/bits/unicode.h .github/patches/gcc_14_2.diff
 
       - name: Setup GCC (Linux)
         if: matrix.config.os == 'ubuntu' && matrix.config.use-clang == false
@@ -143,6 +138,16 @@ jobs:
         with:
           version: 14
           platform: x64
+
+      - name: Unbreak Python in GHA (MacOS 13 image)
+        if: matrix.config.os == 'macos' && matrix.config.os-version == 13
+        run: |
+          # TODO: remove this, after it works again
+          # A workaround for "The `brew link` step did not complete successfully" error.
+          # See e.g. https://github.com/Homebrew/homebrew-core/issues/165793#issuecomment-1991817938
+          find /usr/local/bin -lname '*/Library/Frameworks/Python.framework/*' -delete
+          sudo rm -rf /Library/Frameworks/Python.framework/
+          brew install --force python3 && brew unlink python3 && brew unlink python3 && brew link --overwrite python3
 
       - name: Setup Clang (MacOS)
         if: matrix.config.os == 'macos'
@@ -159,16 +164,6 @@ jobs:
           echo "CC_LD=lld" >> "$GITHUB_ENV"
           echo "CXX_LD=lld" >> "$GITHUB_ENV"
           echo "OBJC_LD=lld" >> "$GITHUB_ENV"
-
-      - name: Unbreak Python in GHA (MacOS 13 image)
-        if: matrix.config.os == 'macos' && matrix.config.os-version == 13
-        run: |
-          # TODO: remove this, after it works again
-          # A workaround for "The `brew link` step did not complete successfully" error.
-          # See e.g. https://github.com/Homebrew/homebrew-core/issues/165793#issuecomment-1991817938
-          find /usr/local/bin -lname '*/Library/Frameworks/Python.framework/*' -delete
-          sudo rm -rf /Library/Frameworks/Python.framework/
-          brew install --force python3 && brew unlink python3 && brew unlink python3 && brew link --overwrite python3
 
       - name: Setup meson (MacOS)
         if: matrix.config.os == 'macos'
