@@ -56,6 +56,34 @@ elif host_machine.system() == 'linux'
     dynamic_lib = 'discord_game_sdk.so'
     if host_machine.cpu_family() == 'x86_64'
         lib_dir = 'lib' / 'x86_64'
+
+        cat = find_program('cat')
+
+        os_release_info = run_command(
+            cat,
+            '/etc/os-release',
+            check: true,
+        ).stdout().strip().split('\n')
+
+        linux_distro = ''
+
+        foreach line : os_release_info
+            line_detail = line.split('=')
+
+            if line_detail[0] == 'ID'
+                linux_distro = line_detail[1]
+            endif
+
+        endforeach
+
+        if linux_distro == ''
+            warning('Couldn\'t detect the linux distro')
+        endif
+
+        if linux_distro == 'alpine'
+            error('unsuported libc for linux: musl')
+        endif
+
     else
         error('unsuported architectue for linux: ' + host_machine.cpu_family())
     endif
