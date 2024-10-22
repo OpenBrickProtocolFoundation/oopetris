@@ -32,7 +32,7 @@ jobs:
       - name: Install dependencies
         run: |
           apk update
-          apk add wget meson ca-certificates samurai git openssl-dev openssl pkgconf sdl2 sdl2-dev sdl2_mixer-dev sdl2_ttf-dev sdl2_mixer-dev sdl2_image-dev dbus-dev patchelf ${{ ( matrix.config.use-clang == true && matrix.config.use-clang_stdlib ) && 'clang18' || 'gcc g++' }} ${{ ( matrix.config.use-clang == true && matrix.config.use-clang_stdlib ) && 'libc++' || '' }}
+          apk add wget meson ca-certificates samurai git openssl-dev openssl pkgconf sdl2 sdl2-dev sdl2_mixer-dev sdl2_ttf-dev sdl2_mixer-dev sdl2_image-dev dbus-dev patchelf ${{ ( matrix.config.use-clang == true ) && 'clang18' || 'gcc g++' }} ${{ ( matrix.config.use-clang == true && matrix.config.use-clang_stdlib ) && 'libc++' || '' }}
           echo "CC=${{ matrix.config.use-clang == true && 'clang-18' || 'gcc' }}" >> "$GITHUB_ENV"
           echo "CXX=${{ matrix.config.use-clang == true && 'clang++-18' || 'g++' }}" >> "$GITHUB_ENV"
 
