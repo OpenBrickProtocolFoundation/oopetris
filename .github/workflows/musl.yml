@@ -1,0 +1,53 @@
+name: musl CI
+
+on:
+  push:
+    branches: ['main']
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: ${{ matrix.config.name }}
+    runs-on: ubuntu-24.04
+    container: alpine:3.20
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - name: Linux (musl)
+            use-clang: false
+
+          - name: Linux Clang (musl, libstdc++)
+            use-clang: true
+            use-clang_stdlib: false
+
+          - name: Linux Clang (musl, libc++)
+            use-clang: true
+            use-clang_stdlib: true
+
+
+    steps:
+      - name: Install dependencies
+        run: |
+          apk update
+          apk add wget meson ca-certificates samurai git openssl-dev openssl pkgconf sdl2 sdl2-dev sdl2_mixer-dev sdl2_ttf-dev sdl2_mixer-dev sdl2_image-dev dbus-dev patchelf ${{ ( matrix.config.use-clang == true && matrix.config.use-clang_stdlib ) && 'clang18' || 'gcc g++' }} ${{ ( matrix.config.use-clang == true && matrix.config.use-clang_stdlib ) && 'libc++' || '' }}
+          echo "CC=${{ matrix.config.use-clang == true  && 'clang-18' || 'gcc' }}" >> "$GITHUB_ENV"
+          echo "CXX=${{ matrix.config.use-clang == true  && 'clang++-18' || 'g++' }}" >> "$GITHUB_ENV"
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: '0'
+  
+      - name: Configure
+        run: meson setup build -Dbuildtype=release -Ddefault_library=shared -Dclang_libcpp=${{ ( matrix.config.use-clang == true && matrix.config.use-clang_stdlib ) && 'enabled' || 'disabled' }}
+
+      - name: Build
+        run: meson compile -C build
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.config.name }} Executable
+          path: build/src/executables/oopetris*
