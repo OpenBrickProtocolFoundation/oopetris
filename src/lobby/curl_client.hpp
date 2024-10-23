@@ -37,7 +37,7 @@ namespace oopetris::http::implementation {
 
     struct ActualClient : ::oopetris::http::Client {
     private:
-        cpr::Session m_session;
+        std::unique_ptr<cpr::Session> m_session;
         std::string m_base_url;
 
         void set_url(const std::string& url);

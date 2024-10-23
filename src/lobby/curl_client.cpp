@@ -59,19 +59,19 @@ oopetris::http::implementation::ActualClient::~ActualClient() = default;
 oopetris::http::implementation::ActualClient::ActualClient(const std::string& api_url)
     : m_base_url{ normalize_url(api_url) } {
 
-    m_session.SetUrl(cpr::Url{ api_url });
-    m_session.SetAcceptEncoding(cpr::AcceptEncoding{
+    m_session->SetUrl(cpr::Url{ api_url });
+    m_session->SetAcceptEncoding(cpr::AcceptEncoding{
             { cpr::AcceptEncodingMethods::deflate, cpr::AcceptEncodingMethods::gzip,
              cpr::AcceptEncodingMethods::zlib }
     });
-    m_session.SetHeader(cpr::Header{
+    m_session->SetHeader(cpr::Header{
             { "Accept", ::http::constants::json_content_type }
     });
 }
 
 
 void oopetris::http::implementation::ActualClient::set_url(const std::string& url) {
-    m_session.SetUrl(cpr::Url{ m_base_url, url });
+    m_session->SetUrl(cpr::Url{ m_base_url, url });
 }
 
 
@@ -79,14 +79,14 @@ void oopetris::http::implementation::ActualClient::set_url(const std::string& ur
         const std::string& url
 ) {
     set_url(url);
-    return TRANSFORM_RESULT(m_session.Get());
+    return TRANSFORM_RESULT(m_session->Get());
 }
 
 [[nodiscard]] std::unique_ptr<oopetris::http::Result> oopetris::http::implementation::ActualClient::Delete(
         const std::string& url
 ) {
     set_url(url);
-    return TRANSFORM_RESULT(m_session.Delete());
+    return TRANSFORM_RESULT(m_session->Delete());
 }
 
 [[nodiscard]] std::unique_ptr<oopetris::http::Result> oopetris::http::implementation::ActualClient::Post(
@@ -97,14 +97,14 @@ void oopetris::http::implementation::ActualClient::set_url(const std::string& ur
     set_url(url);
 
     if (not payload.has_value()) {
-        return TRANSFORM_RESULT(m_session.Post());
+        return TRANSFORM_RESULT(m_session->Post());
     }
 
     auto [content, content_type] = payload.value();
 
-    m_session.SetBody(cpr::Body{ content });
+    m_session->SetBody(cpr::Body{ content });
 
-    return TRANSFORM_RESULT(m_session.Post());
+    return TRANSFORM_RESULT(m_session->Post());
 }
 
 [[nodiscard]] std::unique_ptr<oopetris::http::Result> oopetris::http::implementation::ActualClient::Put(
@@ -114,22 +114,22 @@ void oopetris::http::implementation::ActualClient::set_url(const std::string& ur
     set_url(url);
 
     if (not payload.has_value()) {
-        return TRANSFORM_RESULT(m_session.Put());
+        return TRANSFORM_RESULT(m_session->Put());
     }
 
     auto [content, content_type] = payload.value();
 
-    m_session.SetBody(cpr::Body{ content });
+    m_session->SetBody(cpr::Body{ content });
 
-    return TRANSFORM_RESULT(m_session.Put());
+    return TRANSFORM_RESULT(m_session->Put());
 }
 
 void oopetris::http::implementation::ActualClient::SetBearerAuth(const std::string& token) {
 
 
 #if CPR_LIBCURL_VERSION_NUM >= 0x073D00
-    m_session.SetBearer(token);
+    m_session->SetBearer(token);
 #else
-    m_session.SetHeader(cpr::Header{ "Authorization", fmt::format("Bearer {}", token) });
+    m_session->SetHeader(cpr::Header{ "Authorization", fmt::format("Bearer {}", token) });
 #endif
 }
