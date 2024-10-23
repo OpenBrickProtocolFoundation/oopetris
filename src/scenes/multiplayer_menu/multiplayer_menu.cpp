@@ -43,7 +43,7 @@ namespace scenes {
         );
         m_main_grid.get<ui::TextButton>(local_button_id)->disable();
 
-        const auto online_button_id = m_main_grid.add<ui::TextButton>(
+        m_main_grid.add<ui::TextButton>(
                 service_provider, "Online", service_provider->font_manager().get(FontId::Default), Color::white(),
                 focus_helper.focus_id(),
                 [this](const ui::TextButton&) -> bool {
@@ -52,11 +52,6 @@ namespace scenes {
                 },
                 button_size, button_alignment, button_margins
         );
-#ifdef _ONLINE_MULTIPLAYER_NOT_SUPPORTED
-        m_main_grid.get<ui::TextButton>(online_button_id)->disable();
-#else
-        UNUSED(online_button_id);
-#endif
 
         const auto ai_button_id = m_main_grid.add<ui::TextButton>(
                 service_provider, "vs AI", service_provider->font_manager().get(FontId::Default), Color::white(),

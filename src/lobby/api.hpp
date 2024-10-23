@@ -2,45 +2,19 @@
 
 #pragma once
 
+#include "./client.hpp"
 
-#if defined(__GNUC__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wold-style-cast"
-#pragma GCC diagnostic ignored "-Warray-bounds"
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-#elif defined(_MSC_VER)
-#pragma warning(disable : 4100)
-#endif
-
-#define CPPHTTPLIB_USE_POLL // NOLINT(cppcoreguidelines-macro-usage)
-
-#include <httplib.h>
-
-#if defined(__GNUC__)
-#pragma GCC diagnostic pop
-#elif defined(_MSC_VER)
-#pragma warning(default : 4100)
-#endif
-
-#include <fmt/format.h>
-#include <optional>
-#include <spdlog/spdlog.h>
-
+#include "./types.hpp"
 #include "helper/windows.hpp"
-#include "lobby/types.hpp"
-#include <core/helper/expected.hpp>
-#include <core/helper/static_string.hpp>
 
-namespace constants {
-    const constexpr auto json_content_type = "application/json";
-}
+#include <core/helper/static_string.hpp>
 
 namespace lobby {
 
 
-    struct Client {
+    struct API {
     private:
-        httplib::Client m_client;
+        std::unique_ptr<oopetris::http::Client> m_client;
         std::optional<std::string> m_authentication_token;
 
         // lobby commit used: https://github.com/OpenBrickProtocolFoundation/lobby/commit/2e0c8d05592f4e4d08437e6cb754a30f02c4e97c
@@ -50,7 +24,7 @@ namespace lobby {
 
         [[nodiscard]] helper::expected<void, std::string> check_reachability();
 
-        explicit Client(const std::string& api_url);
+        explicit API(const std::string& api_url);
 
         helper::expected<lobby::VersionResult, std::string> get_version();
 
@@ -58,16 +32,16 @@ namespace lobby {
 
 
     public:
-        OOPETRIS_GRAPHICS_EXPORTED Client(Client&& other) noexcept;
-        OOPETRIS_GRAPHICS_EXPORTED Client& operator=(Client&& other) noexcept = delete;
+        OOPETRIS_GRAPHICS_EXPORTED API(API&& other) noexcept;
+        OOPETRIS_GRAPHICS_EXPORTED API& operator=(API&& other) noexcept = delete;
 
-        OOPETRIS_GRAPHICS_EXPORTED Client(const Client& other) = delete;
-        OOPETRIS_GRAPHICS_EXPORTED Client& operator=(const Client& other) = delete;
+        OOPETRIS_GRAPHICS_EXPORTED API(const API& other) = delete;
+        OOPETRIS_GRAPHICS_EXPORTED API& operator=(const API& other) = delete;
 
-        OOPETRIS_GRAPHICS_EXPORTED ~Client();
+        OOPETRIS_GRAPHICS_EXPORTED ~API();
 
         OOPETRIS_GRAPHICS_EXPORTED
-        [[nodiscard]] helper::expected<Client, std::string> static get_client(const std::string& url);
+        [[nodiscard]] helper::expected<API, std::string> static get_api(const std::string& url);
 
 
         OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] bool is_authenticated();

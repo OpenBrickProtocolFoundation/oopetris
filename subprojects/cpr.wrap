@@ -1,0 +1,13 @@
+[wrap-file]
+directory = cpr-1.11.0
+source_url = https://github.com/libcpr/cpr/archive/1.11.0.tar.gz
+source_filename = cpr-1.11.0.tar.gz
+source_hash = fdafa3e3a87448b5ddbd9c7a16e7276a78f28bbe84a3fc6edcfef85eca977784
+patch_filename = cpr_1.11.0-1_patch.zip
+patch_url = https://wrapdb.mesonbuild.com/v2/cpr_1.11.0-1/get_patch
+patch_hash = 63b94f2524d1d2ab433583c3490d80f1027d68fb7a709e44ee43dbb51f4b3040
+source_fallback_url = https://github.com/mesonbuild/wrapdb/releases/download/cpr_1.11.0-1/cpr-1.11.0.tar.gz
+wrapdb_version = 1.11.0-1
+
+[provide]
+cpr = cpr_dep

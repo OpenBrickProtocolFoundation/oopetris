@@ -229,37 +229,40 @@ if build_application
         }
     endif
 
-    online_multiplayer_supported = true
-
-    if (
-        meson.is_cross_build()
-        and (
-            host_machine.system() == 'switch'
-            or host_machine.system() == '3ds'
-        )
+    cpp_httlib_dep = dependency(
+        'cpp-httplib',
+        required: false,
+        allow_fallback: true,
+        default_options: {
+            'cpp-httplib_openssl': 'enabled',
+            'cpp-httplib_zlib': 'enabled',
+        },
     )
-        online_multiplayer_supported = false
 
-        # TODO: use libcurl and
-        # https://github.com/uctakeoff/uc-curl
-        # or https://github.com/JosephP91/curlcpp
+    online_multiplayer_user_fallback = false
+
+    if cpp_httlib_dep.found()
+
+        graphics_lib += {'deps': [graphics_lib.get('deps'), cpp_httlib_dep]}
+
+    else
+
+        online_multiplayer_user_fallback = true
+
+        curl_cpp_wrapper = dependency(
+            'cpr',
+            required: true,
+            default_options: {'tests': 'disabled'},
+        )
 
         graphics_lib += {
+            'deps': [graphics_lib.get('deps'), curl_cpp_wrapper],
             'compile_args': [
                 graphics_lib.get('compile_args'),
-                '-D_ONLINE_MULTIPLAYER_NOT_SUPPORTED',
+                '-D_OOPETRIS_ONLINE_USE_CURL',
             ],
         }
-    else
-        cpp_httlib_dep = dependency(
-            'cpp-httplib',
-            required: true,
-            default_options: {
-                'cpp-httplib_openssl': 'enabled',
-                'cpp-httplib_zlib': 'enabled',
-            },
-        )
-        graphics_lib += {'deps': [graphics_lib.get('deps'), cpp_httlib_dep]}
+
     endif
 
     build_installer = get_option('build_installer')

@@ -11,10 +11,7 @@ if build_application
     subdir('manager')
     subdir('scenes')
     subdir('ui')
-
-    if online_multiplayer_supported
-        subdir('lobby')
-    endif
+    subdir('lobby')
 
     if have_discord_sdk
         subdir('discord')

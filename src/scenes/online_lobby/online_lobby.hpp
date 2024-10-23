@@ -17,7 +17,7 @@ namespace scenes {
 
         ui::TileLayout m_main_layout;
         std::optional<Command> m_next_command;
-        std::unique_ptr<lobby::Client> m_client{ nullptr };
+        std::unique_ptr<lobby::API> m_api;
 
     public:
         OOPETRIS_GRAPHICS_EXPORTED explicit OnlineLobby(ServiceProvider* service_provider, const ui::Layout& layout);
