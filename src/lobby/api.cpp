@@ -129,7 +129,7 @@ helper::expected<void, std::string> lobby::API::join_lobby(int lobby_id) {
         };
     }
 
-    auto res = m_client->Post(fmt::format("/lobbies/{}", lobby_id));
+    auto res = m_client->Post(fmt::format("/lobbies/{}", lobby_id), std::nullopt);
 
     return is_request_ok(res, 204);
 }
@@ -168,7 +168,7 @@ helper::expected<void, std::string> lobby::API::leave_lobby(int lobby_id) {
         };
     }
 
-    auto res = m_client->Put(fmt::format("/lobbies/{}/leave", lobby_id));
+    auto res = m_client->Put(fmt::format("/lobbies/{}/leave", lobby_id), std::nullopt);
 
     return is_request_ok(res, 204);
 }
@@ -181,7 +181,7 @@ helper::expected<void, std::string> lobby::API::start_lobby(int lobby_id) {
         };
     }
 
-    auto res = m_client->Post(fmt::format("/lobbies/{}/start", lobby_id));
+    auto res = m_client->Post(fmt::format("/lobbies/{}/start", lobby_id), std::nullopt);
 
     return is_request_ok(res, 204);
 }

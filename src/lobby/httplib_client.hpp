@@ -29,9 +29,15 @@ namespace oopetris::http::implementation {
         httplib::Result m_result;
 
     public:
-        OOPETRIS_GRAPHICS_EXPORTED ActualResult(httplib::Result&& result);
+        OOPETRIS_GRAPHICS_EXPORTED explicit ActualResult(httplib::Result&& result);
 
         OOPETRIS_GRAPHICS_EXPORTED ~ActualResult() override;
+
+        OOPETRIS_GRAPHICS_EXPORTED ActualResult(ActualResult&& other) noexcept;
+        OOPETRIS_GRAPHICS_EXPORTED ActualResult& operator=(ActualResult&& other) noexcept = delete;
+
+        OOPETRIS_GRAPHICS_EXPORTED ActualResult(const ActualResult& other) = delete;
+        OOPETRIS_GRAPHICS_EXPORTED ActualResult& operator=(const ActualResult& other) = delete;
 
         OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::optional<std::string> get_header(const std::string& key
         ) const override;
@@ -63,15 +69,11 @@ namespace oopetris::http::implementation {
 
         OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::unique_ptr<Result> Delete(const std::string& url) override;
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::unique_ptr<Result> Post(
-                const std::string& url,
-                const std::optional<std::pair<std::string, std::string>>& payload = std::nullopt
-        ) override;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::unique_ptr<Result>
+        Post(const std::string& url, const std::optional<std::pair<std::string, std::string>>& payload) override;
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::unique_ptr<Result> Put(
-                const std::string& url,
-                const std::optional<std::pair<std::string, std::string>>& payload = std::nullopt
-        ) override;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::unique_ptr<Result>
+        Put(const std::string& url, const std::optional<std::pair<std::string, std::string>>& payload) override;
 
         OOPETRIS_GRAPHICS_EXPORTED void SetBearerAuth(const std::string& token) override;
     };

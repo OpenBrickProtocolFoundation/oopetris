@@ -2,12 +2,16 @@
 #include "./httplib_client.hpp"
 
 
-#define TRANSFORM_RESULT(result) std::make_unique<ActualResult>((result))
+#define TRANSFORM_RESULT(result) std::make_unique<ActualResult>((result)) //NOLINT(cppcoreguidelines-macro-usage
 
 
 oopetris::http::implementation::ActualResult::ActualResult(httplib::Result&& result) : m_result{ std::move(result) } { }
 
 oopetris::http::implementation::ActualResult::~ActualResult() = default;
+
+
+oopetris::http::implementation::ActualResult::ActualResult(ActualResult&& other) noexcept
+    : m_result{ std::move(other.m_result) } { }
 
 [[nodiscard]] std::optional<std::string> oopetris::http::implementation::ActualResult::get_header(const std::string& key
 ) const {
@@ -67,11 +71,15 @@ oopetris::http::implementation::ActualClient::ActualClient(const std::string& ap
 #endif
 }
 
-[[nodiscard]] std::unique_ptr<oopetris::http::Result> oopetris::http::implementation::ActualClient::Get(const std::string& url) {
+[[nodiscard]] std::unique_ptr<oopetris::http::Result> oopetris::http::implementation::ActualClient::Get(
+        const std::string& url
+) {
     return TRANSFORM_RESULT(m_client.Get(url));
 }
 
-[[nodiscard]] std::unique_ptr<oopetris::http::Result> oopetris::http::implementation::ActualClient::Delete(const std::string& url) {
+[[nodiscard]] std::unique_ptr<oopetris::http::Result> oopetris::http::implementation::ActualClient::Delete(
+        const std::string& url
+) {
     return TRANSFORM_RESULT(m_client.Delete(url));
 }
 

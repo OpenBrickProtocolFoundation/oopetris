@@ -2,12 +2,15 @@
 #include "./curl_client.hpp"
 
 
-#define TRANSFORM_RESULT(result) std::make_unique<ActualResult>((result))
+#define TRANSFORM_RESULT(result) std::make_unique<ActualResult>((result)) //NOLINT(cppcoreguidelines-macro-usage)
 
 
 oopetris::http::implementation::ActualResult::ActualResult(cpr::Response&& result) : m_result{ std::move(result) } { }
 
 oopetris::http::implementation::ActualResult::~ActualResult() = default;
+
+oopetris::http::implementation::ActualResult::ActualResult(ActualResult&& other) noexcept
+    : m_result{ std::move(other.m_result) } { }
 
 [[nodiscard]] std::optional<std::string> oopetris::http::implementation::ActualResult::get_header(const std::string& key
 ) const {
@@ -24,7 +27,7 @@ oopetris::http::implementation::ActualResult::~ActualResult() = default;
 }
 
 [[nodiscard]] int oopetris::http::implementation::ActualResult::status() const {
-    return m_result.status_code;
+    return static_cast<int>(m_result.status_code);
 }
 
 [[nodiscard]] std::optional<std::string> oopetris::http::implementation::ActualResult::get_error() const {
@@ -40,7 +43,7 @@ oopetris::http::implementation::ActualResult::~ActualResult() = default;
 namespace {
     std::string normalize_url(const std::string& value) {
         if (value.ends_with("/")) {
-            value.substr(0, value.size() - 1);
+            return value.substr(0, value.size() - 1);
         }
 
         return value;
@@ -52,9 +55,9 @@ oopetris::http::implementation::ActualClient::ActualClient(ActualClient&& other)
 
 oopetris::http::implementation::ActualClient::~ActualClient() = default;
 
+
 oopetris::http::implementation::ActualClient::ActualClient(const std::string& api_url)
-    : m_session{},
-      m_base_url{ normalize_url(api_url) } {
+    : m_base_url{ normalize_url(api_url) } {
 
     m_session.SetUrl(cpr::Url{ api_url });
     m_session.SetAcceptEncoding(cpr::AcceptEncoding{
