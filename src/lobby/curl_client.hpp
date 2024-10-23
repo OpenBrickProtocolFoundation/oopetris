@@ -4,7 +4,19 @@
 
 #include "./client.hpp"
 
+#if defined(__3DS__)
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
+#endif
+
 #include <cpr/cpr.h>
+
+
+#if defined(__3DS__)
+#pragma GCC diagnostic pop
+#endif
+
 
 namespace oopetris::http::implementation {
 
