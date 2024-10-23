@@ -1,2 +1,68 @@
 
 #pragma once
+
+
+#include "./client.hpp"
+
+#include <cpr/cpr.h>
+
+namespace oopetris::http::implementation {
+
+    struct ActualResult : ::oopetris::http::Result {
+    private:
+        cpr::Response m_result;
+
+
+    public:
+        OOPETRIS_GRAPHICS_EXPORTED ActualResult(cpr::Response&& result);
+
+        OOPETRIS_GRAPHICS_EXPORTED ~ActualResult() override;
+
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::optional<std::string> get_header(const std::string& key
+        ) const override;
+
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::string body() const override;
+
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] int status() const override;
+
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::optional<std::string> get_error() const override;
+    };
+
+
+    struct ActualClient : ::oopetris::http::Client {
+    private:
+        cpr::Session m_session;
+        std::string m_base_url;
+
+        void set_url(const std::string& url);
+
+    public:
+        OOPETRIS_GRAPHICS_EXPORTED ActualClient(ActualClient&& other) noexcept;
+        OOPETRIS_GRAPHICS_EXPORTED ActualClient& operator=(ActualClient&& other) noexcept = delete;
+
+        OOPETRIS_GRAPHICS_EXPORTED ActualClient(const ActualClient& other) = delete;
+        OOPETRIS_GRAPHICS_EXPORTED ActualClient& operator=(const ActualClient& other) = delete;
+
+        OOPETRIS_GRAPHICS_EXPORTED ~ActualClient() override;
+
+        OOPETRIS_GRAPHICS_EXPORTED explicit ActualClient(const std::string& api_url);
+
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::unique_ptr<Result> Get(const std::string& url) override;
+
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::unique_ptr<Result> Delete(const std::string& url) override;
+
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::unique_ptr<Result> Post(
+                const std::string& url,
+                const std::optional<std::pair<std::string, std::string>>& payload = std::nullopt
+        ) override;
+
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::unique_ptr<Result> Put(
+                const std::string& url,
+                const std::optional<std::pair<std::string, std::string>>& payload = std::nullopt
+        ) override;
+
+        OOPETRIS_GRAPHICS_EXPORTED void SetBearerAuth(const std::string& token) override;
+    };
+
+
+} // namespace oopetris::http::implementation

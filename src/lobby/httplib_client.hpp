@@ -20,9 +20,7 @@
 #pragma warning(default : 4100)
 #endif
 
-
 #include "./client.hpp"
-
 
 namespace oopetris::http::implementation {
 

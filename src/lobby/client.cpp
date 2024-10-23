@@ -5,7 +5,13 @@
 
 #if defined(_OOPETRIS_ONLINE_USE_CURL)
 #include "./curl_client.hpp"
-#error "TODO"
+
+
+std::string oopetris::http::status_message([[maybe_unused]] int status) {
+    return "Not Available";
+}
+
+
 #else
 
 #include "./httplib_client.hpp"
