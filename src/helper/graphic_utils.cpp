@@ -11,9 +11,7 @@ std::vector<std::string> utils::supported_features() {
 
     std::vector<std::string> features{};
 
-#if !defined(_ONLINE_MULTIPLAYER_NOT_SUPPORTED)
     features.emplace_back("online multiplayer");
-#endif
 
 #if defined(_HAVE_FILE_DIALOGS)
     features.emplace_back("file dialogs");

@@ -10,7 +10,4 @@ subdir('recording_selector')
 subdir('replay_game')
 subdir('settings_menu')
 subdir('single_player_game')
-
-if online_multiplayer_supported
-    subdir('online_lobby')
-endif
+subdir('online_lobby')

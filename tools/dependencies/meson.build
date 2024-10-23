@@ -232,17 +232,22 @@ if build_application
     cpp_httlib_dep = dependency(
         'cpp-httplib',
         required: false,
+        allow_fallback: true,
         default_options: {
             'cpp-httplib_openssl': 'enabled',
             'cpp-httplib_zlib': 'enabled',
         },
     )
 
+    online_multiplayer_user_fallback = false
+
     if cpp_httlib_dep.found()
 
         graphics_lib += {'deps': [graphics_lib.get('deps'), cpp_httlib_dep]}
 
     else
+
+        online_multiplayer_user_fallback = true
 
         curl_cpp_wrapper = dependency(
             'cpr',
