@@ -13,6 +13,7 @@
 #include "manager/settings_manager.hpp"
 #include "scenes/scene.hpp"
 #include "ui/components/label.hpp"
+#include "lobby/api.hpp"
 
 #include <memory>
 #include <vector>
@@ -32,6 +33,7 @@ private:
     std::shared_ptr<input::InputManager> m_input_manager;
     std::unique_ptr<SettingsManager> m_settings_manager;
     std::unique_ptr<FontManager> m_font_manager;
+    std::unique_ptr<lobby::API> m_api;
 
 
 #if !defined(NDEBUG)

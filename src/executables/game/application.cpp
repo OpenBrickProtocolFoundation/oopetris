@@ -42,7 +42,8 @@ Application::Application(std::shared_ptr<Window>&& window, CommandLineArguments&
       m_window{ std::move(window) },
       m_renderer{ *m_window, m_command_line_arguments.target_fps.has_value() ? Renderer::VSync::Disabled
                                                                              : Renderer::VSync::Enabled },
-      m_target_framerate{ m_command_line_arguments.target_fps } {
+      m_target_framerate{ m_command_line_arguments.target_fps },
+      m_api{} {
     initialize();
 } catch (const helper::GeneralError& general_error) {
     const auto severity = general_error.severity();
@@ -270,6 +271,17 @@ void Application::initialize() {
         this->m_settings_manager = std::make_unique<SettingsManager>(this);
 
         this->m_font_manager = std::make_unique<FontManager>();
+
+        if (auto api_url = this->m_settings_manager->settings().api_url; api_url.has_value()) {
+            auto maybe_api = lobby::API::get_api(api_url.value());
+            if (maybe_api.has_value()) {
+                m_api = std::make_unique<lobby::API>(std::move(maybe_api.value()));
+            } else {
+                spdlog::error("Error in connecting to lobby API: {}", maybe_api.error());
+            }
+        } else {
+            spdlog::info("No lobby API provided");
+        }
 
         this->load_resources();
 

@@ -27,16 +27,6 @@ namespace scenes {
                 std::pair<double, double>{ 0.05, 0.03 },
                 layout
           } {
-
-        //TODO(Totto): after the settings have been reworked, make this url changeable!
-        auto maybe_api = lobby::API::get_api("http://127.0.0.1:5000");
-        if (maybe_api.has_value()) {
-            m_api = std::make_unique<lobby::API>(std::move(maybe_api.value()));
-        } else {
-            spdlog::error("Error in connecting to lobby API: {}", maybe_api.error());
-            m_api = nullptr;
-        }
-
         auto focus_helper = ui::FocusHelper{ 1 };
 
         m_main_layout.add<ui::Label>(
