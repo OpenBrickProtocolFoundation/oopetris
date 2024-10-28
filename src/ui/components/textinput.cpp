@@ -6,6 +6,10 @@
 #include "manager/event_dispatcher.hpp"
 #include "textinput.hpp"
 
+#if defined(_HAVE_ICU_DEP)
+#include <unicode/uchar.h>
+#endif
+
 
 using namespace std::chrono_literals;
 
@@ -129,18 +133,30 @@ ui::TextInput::handle_event( //NOLINT(readability-function-cognitive-complexity)
                         { EventHandleType::RequestAction, this }
                     };
                 }
+                //TODO(Totto): in some cases this is caught before that, and never triggered
                 case SDLK_BACKSPACE: {
-                    const auto remove_all = (event.key.keysym.mod & KMOD_CTRL) != 0;
+                    const auto sdl_key = sdl::Key{ event.key.keysym };
+
+                    const auto ctrl_pressed = sdl_key.has_modifier(sdl::Modifier::CTRL);
+
+                    const auto shift_pressed = sdl_key.has_modifier(sdl::Modifier::SHIFT);
 
                     if (not m_text.empty()) {
-                        if (remove_all) {
-                            m_text = "";
-                            m_cursor_position = 0;
+                        // NOTE: if both modifiers are pressed, we prioritize ctrl
+                        if (ctrl_pressed) {
+                            remove_at_cursor(RemoveMode::All);
                             recalculate_textures(true);
                             return true;
                         }
 
-                        remove_at_cursor();
+                        if (shift_pressed) {
+                            remove_at_cursor(RemoveMode::LastWord);
+                            recalculate_textures(true);
+                            return true;
+                        }
+
+
+                        remove_at_cursor(RemoveMode::OneChar);
                         recalculate_textures(true);
                     }
 
@@ -148,7 +164,12 @@ ui::TextInput::handle_event( //NOLINT(readability-function-cognitive-complexity)
                 }
                 case SDLK_LEFT: {
                     if (m_cursor_position != 0) {
-                        if ((event.key.keysym.mod & KMOD_CTRL) != 0) {
+
+                        const auto sdl_key = sdl::Key{ event.key.keysym };
+
+                        const auto ctrl_pressed = sdl_key.has_modifier(sdl::Modifier::CTRL);
+
+                        if (ctrl_pressed) {
                             m_cursor_position = 0;
                         } else {
                             --m_cursor_position;
@@ -161,7 +182,12 @@ ui::TextInput::handle_event( //NOLINT(readability-function-cognitive-complexity)
                 case SDLK_RIGHT: {
                     const u32 current_string_length = static_cast<u32>(utf8::distance(m_text.cbegin(), m_text.cend()));
                     if (m_cursor_position < current_string_length) {
-                        if ((event.key.keysym.mod & KMOD_CTRL) != 0) {
+
+                        const auto sdl_key = sdl::Key{ event.key.keysym };
+
+                        const auto ctrl_pressed = sdl_key.has_modifier(sdl::Modifier::CTRL);
+
+                        if (ctrl_pressed) {
                             m_cursor_position = current_string_length;
 
                         } else {
@@ -173,7 +199,12 @@ ui::TextInput::handle_event( //NOLINT(readability-function-cognitive-complexity)
                     return true;
                 }
                 case SDLK_v: {
-                    if ((event.key.keysym.mod & KMOD_CTRL) != 0) {
+
+                    const auto sdl_key = sdl::Key{ event.key.keysym };
+
+                    const auto ctrl_pressed = sdl_key.has_modifier(sdl::Modifier::CTRL);
+
+                    if (ctrl_pressed) {
 
                         if (SDL_HasClipboardText() != SDL_FALSE) {
                             char* text = SDL_GetClipboardText();
@@ -193,7 +224,11 @@ ui::TextInput::handle_event( //NOLINT(readability-function-cognitive-complexity)
                     return false;
                 }
                 case SDLK_c: {
-                    if ((event.key.keysym.mod & KMOD_CTRL) != 0) {
+                    const auto sdl_key = sdl::Key{ event.key.keysym };
+
+                    const auto ctrl_pressed = sdl_key.has_modifier(sdl::Modifier::CTRL);
+
+                    if (ctrl_pressed) {
                         const int result = SDL_SetClipboardText(m_text.c_str());
                         if (result != 0) {
                             throw helper::MinorError{
@@ -407,11 +442,19 @@ bool ui::TextInput::add_string(const std::string& add) {
     return true;
 }
 
-bool ui::TextInput::remove_at_cursor() {
+
+bool ui::TextInput::remove_at_cursor(RemoveMode remove_mode) {
 
     if (m_cursor_position == 0) {
         return false;
     }
+
+    if (remove_mode == RemoveMode::All) {
+        m_text = "";
+        m_cursor_position = 0;
+        return true;
+    }
+
 
     const u32 current_string_length = static_cast<u32>(utf8::distance(m_text.cbegin(), m_text.cend()));
 
@@ -420,14 +463,80 @@ bool ui::TextInput::remove_at_cursor() {
         throw std::runtime_error("cursor_postion is invalid!");
     }
 
-    auto start = m_text.begin();
-    utf8::advance(start, m_cursor_position - 1, m_text.end());
-    auto end = start;
-    utf8::next(end, m_text.end());
-    m_text.erase(start, end);
 
-    --m_cursor_position;
-    return true;
+    if (remove_mode == RemoveMode::OneChar) {
+
+        auto start = m_text.begin();
+        utf8::advance(start, m_cursor_position - 1, m_text.end());
+        auto end = start;
+        utf8::next(end, m_text.end());
+        m_text.erase(start, end);
+
+        --m_cursor_position;
+        return true;
+    }
+
+    if (remove_mode == RemoveMode::LastWord) {
+
+        auto get_char_cat = [](u32 code_point) -> int {
+#if defined(_HAVE_ICU_DEP)
+            // see: https://en.wikipedia.org/wiki/Unicode_character_property#General_Category
+            return u_charType(code_point);
+#else
+            if (code_point >= 0x80) {
+                return 1;
+            }
+
+            int int_code_point = static_cast<int>(code_point);
+
+            if (isalnum(int_code_point)) {
+                return 2;
+            }
+
+            if (isblank(int_code_point)) {
+                return 3;
+            }
+
+            if (iscntrl(int_code_point)) {
+                return 4;
+            }
+
+            return 5;
+
+#endif
+        };
+
+        auto start = m_text.begin();
+        utf8::advance(start, m_cursor_position, m_text.end());
+        auto end = start;
+        u32 remove_amount = 0;
+        int char_cat = -1;
+
+        while (true) {
+            auto temp = start;
+            auto code_point = utf8::prior(temp, m_text.begin());
+
+            if (char_cat < 0) {
+                char_cat = get_char_cat(code_point);
+            } else if (char_cat != get_char_cat(code_point)) {
+                break;
+            }
+
+            remove_amount++;
+
+            start = temp;
+
+            if (temp == m_text.begin()) {
+                break;
+            }
+        }
+        m_text.erase(start, end);
+
+        m_cursor_position -= remove_amount;
+        return true;
+    }
+
+    utils::unreachable();
 }
 
 void ui::TextInput::on_focus() {

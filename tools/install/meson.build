@@ -10,9 +10,10 @@ if build_application
         install_tag: 'assets',
         exclude_files: [
             'oopetris.desktop.in',
-            flatpak_app_name+'.metainfo.xml.in',
+            flatpak_app_name + '.metainfo.xml.in',
             'OOPetris.svg',
             'recordings.magic',
+            'schema',
         ],
         exclude_directories: ['icon'],
     )
@@ -89,7 +90,7 @@ if build_application
         flaptak_conf.set('APP_VERSION', meson.project_version())
 
         metainfo_file = configure_file(
-            input: meson.project_source_root() / 'assets' / (flatpak_app_name+'.metainfo.xml.in'),
+            input: meson.project_source_root() / 'assets' / (flatpak_app_name + '.metainfo.xml.in'),
             output: app_name + '.metainfo.xml',
             configuration: flaptak_conf,
             install: true,

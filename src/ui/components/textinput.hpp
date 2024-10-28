@@ -13,7 +13,7 @@
 
 namespace ui {
 
-    enum class TextInputMode { Scroll, Scale };
+    enum class TextInputMode : u8 { Scroll, Scale };
 
     struct TextInput final : public Widget, public Focusable, public Hoverable {
     private:
@@ -41,6 +41,8 @@ namespace ui {
                 const Layout& layout,
                 bool is_top_level
         );
+
+        enum class RemoveMode : u8 { LastWord, OneChar, All };
 
     public:
         OOPETRIS_GRAPHICS_EXPORTED explicit TextInput(
@@ -75,7 +77,7 @@ namespace ui {
 
         bool add_string(const std::string& add);
 
-        bool remove_at_cursor();
+        bool remove_at_cursor(RemoveMode remove_mode);
 
         void on_focus() override;
 

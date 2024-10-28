@@ -119,7 +119,22 @@ utf8cpp_dep = dependency(
     required: true,
     version: '>=4.0.0',
 )
-core_lib += {'deps': [core_lib.get('deps'), utf8cpp_dep]}
+graphics_lib += {'deps': [graphics_lib.get('deps'), utf8cpp_dep]}
+
+icu_dep = dependency(
+    'icu-uc',
+    required: false,
+)
+
+if icu_dep.found()
+    graphics_lib += {
+        'compile_args': [
+            graphics_lib.get('compile_args'),
+            '-D_HAVE_ICU_DEP',
+        ],
+        'deps': [graphics_lib.get('deps'), icu_dep],
+    }
+endif
 
 is_flatpak_build = false
 
