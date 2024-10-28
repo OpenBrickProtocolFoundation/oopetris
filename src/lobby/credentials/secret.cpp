@@ -10,7 +10,7 @@ namespace {
     namespace constants {
         constexpr const char* key_type_user = "user";
 
-        constexpr const std::string key_name_prefix = "OOPetris_key__";
+        constexpr const char* key_name_prefix = "OOPetris_key__";
     } // namespace constants
 
     std::string get_key_name(const std::string& key) {

@@ -14,7 +14,7 @@
 namespace {
     namespace constants {
 
-        constexpr const std::string api_token_key = "API_TOKEN_save";
+        constexpr const char* api_token_key = "API_TOKEN_save";
     }
 } // namespace
 
