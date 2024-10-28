@@ -146,6 +146,7 @@ void DiscordInstance::clear_activity(bool wait) {
 DiscordActivityWrapper::DiscordActivityWrapper(const std::string& details, discord::ActivityType type) {
     m_activity.SetDetails(details.c_str());
     m_activity.SetType(type);
+    m_activity.SetSupportedPlatforms(constants::discord::supported_platforms);
 }
 
 

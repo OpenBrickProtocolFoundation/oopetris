@@ -39,6 +39,19 @@ namespace constants::discord {
 #error "Unsupported platform"
 #endif
 
+
+#if defined(__ANDROID__)
+    constexpr const std::uint32_t supported_platforms = DiscordActivitySupportedPlatformFlags_Android;
+#elif defined(__CONSOLE__)
+#error "Not supported"
+#elif defined(FLATPAK_BUILD) || defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__) \
+        || defined(__APPLE__) || defined(__linux__)
+    constexpr const std::uint32_t supported_platforms = DiscordActivitySupportedPlatformFlags_Desktop;
+#else
+#error "Unsupported platform"
+#endif
+
+
     // manually synchronized to https://discord.com/developers/applications/1220147916371394650/rich-presence/assets
     enum class ArtAsset : u8 { Logo };
 
