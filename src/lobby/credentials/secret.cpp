@@ -4,9 +4,7 @@
 #if defined(__linux__)
 
 #include <core/helper/utils.hpp>
-#include <spdlog/spdlog.h>
-
-
+#include <fmt/format.h>
 namespace {
 
     namespace constants {
@@ -33,7 +31,7 @@ namespace {
 
 secret::SecretStorage::SecretStorage(KeyringType type) : m_type{ type } {
 
-    key_serial_t key_type;
+    key_serial_t key_type{};
     switch (m_type) {
         case secret::KeyringType::User:
             key_type = KEY_SPEC_USER_KEYRING;
@@ -43,8 +41,8 @@ secret::SecretStorage::SecretStorage(KeyringType type) : m_type{ type } {
             // -1 stands for current uid, 0 stands for: do not create a link to another keyring
             this->m_ring_id = keyctl_get_persistent(-1, 0);
             if (this->m_ring_id < 0) {
-                spdlog::error("Error while getting the persistent keyring: {}", strerror(errno));
-                return;
+                throw std::runtime_error(fmt::format("Error while getting the persistent keyring: {}", strerror(errno))
+                );
             }
 
             return;
@@ -57,34 +55,34 @@ secret::SecretStorage::SecretStorage(KeyringType type) : m_type{ type } {
     this->m_ring_id = keyctl_get_keyring_ID(key_type, 1);
 
     if (m_ring_id < 0) {
-        spdlog::error("Error while getting the requested keyring: {}", strerror(errno));
-        return;
+        throw std::runtime_error(fmt::format("Error while getting the requested keyring: {}", strerror(errno)));
     }
 }
 
 
-[[nodiscard]] std::optional<std::string> secret::SecretStorage::load(const std::string& key) const {
+[[nodiscard]] helper::expected<std::string, std::string> secret::SecretStorage::load(const std::string& key) const {
 
     if (m_ring_id < 0) {
-        spdlog::error("Error while loading a key, ring_id is invalid");
-        return std::nullopt;
+        return helper::unexpected<std::string>{ "Error while loading a key, ring_id is invalid" };
     }
 
-    auto id = get_id_from_name(m_ring_id, key);
+    auto key_id = get_id_from_name(m_ring_id, key);
 
-    if (id < 0) {
-        spdlog::error("Error while loading a key, can't find key by name: {}", strerror(errno));
-        return std::nullopt;
+    if (key_id < 0) {
+        return helper::unexpected<std::string>{
+            fmt::format("Error while loading a key, can't find key by name: {}", strerror(errno))
+        };
     }
 
 
     void* buffer = nullptr;
 
-    auto result = keyctl_read_alloc(id, &buffer);
+    auto result = keyctl_read_alloc(key_id, &buffer);
 
     if (result < 0) {
-        spdlog::error("Error while loading a key, can't read the value: {}", strerror(errno));
-        return std::nullopt;
+        return helper::unexpected<std::string>{
+            fmt::format("Error while loading a key, can't read the value: {}", strerror(errno))
+        };
     }
 
     auto result_string = std::string{ static_cast<char*>(buffer) };
@@ -92,19 +90,18 @@ secret::SecretStorage::SecretStorage(KeyringType type) : m_type{ type } {
     return result_string;
 }
 
-void secret::SecretStorage::store(const std::string& key, const std::string& value, bool update) const {
+[[nodiscard]] std::optional<std::string>
+secret::SecretStorage::store(const std::string& key, const std::string& value, bool update) const {
 
     if (m_ring_id < 0) {
-        spdlog::error("Error while storing a key, ring_id is invalid");
-        return;
+        return "Error while storing a key, ring_id is invalid";
     }
 
-    auto id = get_id_from_name(m_ring_id, key);
+    auto key_id = get_id_from_name(m_ring_id, key);
 
 
-    if (id > 0 && not update) {
-        spdlog::error("Error while storing a key, it already exists and can't update it");
-        return;
+    if (key_id > 0 && not update) {
+        return "Error while storing a key, it already exists and can't update it";
     }
 
     auto full_key = get_key_name(key);
@@ -112,44 +109,39 @@ void secret::SecretStorage::store(const std::string& key, const std::string& val
     auto new_id = add_key(constants::key_type_user, full_key.c_str(), value.c_str(), value.size(), m_ring_id);
 
     if (new_id < 0) {
-        spdlog::error("Error while storing a key, can't add the key: {}", strerror(errno));
-        return;
+        return fmt::format("Error while storing a key, can't add the key: {}", strerror(errno));
     }
 
 
     auto result = keyctl_link(new_id, m_ring_id);
 
     if (result < 0) {
-        spdlog::error("Error while storing a key, can't link the key to the keyring: {}", strerror(errno));
-        return;
+        return fmt::format("Error while storing a key, can't link the key to the keyring: {}", strerror(errno));
     }
+
+    return std::nullopt;
 }
 
 
-void secret::SecretStorage::remove(const std::string& key) const {
+[[nodiscard]] std::optional<std::string> secret::SecretStorage::remove(const std::string& key) const {
 
     if (m_ring_id < 0) {
-        spdlog::error("Error while remove a key, ring_id is invalid");
-        return;
+        return fmt::format("Error while remove a key, ring_id is invalid");
     }
 
-    auto id = get_id_from_name(m_ring_id, key);
+    auto key_id = get_id_from_name(m_ring_id, key);
 
-    if (id < 0) {
-        spdlog::error("Error while removing a key, can't find key by name: {}", strerror(errno));
-        return;
+    if (key_id < 0) {
+        return fmt::format("Error while removing a key, can't find key by name: {}", strerror(errno));
     }
 
-    auto result = keyctl_unlink(id, m_ring_id);
+    auto result = keyctl_unlink(key_id, m_ring_id);
 
     if (result < 0) {
-        spdlog::error("Error while removing a key, can't unlink key: {}", strerror(errno));
-        return;
+        return fmt::format("Error while removing a key, can't unlink key: {}", strerror(errno));
     }
 
-
-
-
+    return std::nullopt;
 }
 
 

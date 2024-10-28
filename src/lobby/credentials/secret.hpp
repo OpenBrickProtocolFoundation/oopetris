@@ -4,6 +4,7 @@
 #include <optional>
 #include <string>
 
+#include <core/helper/expected.hpp>
 #include <core/helper/types.hpp>
 
 #if defined(__linux__)
@@ -28,11 +29,12 @@ namespace secret {
     public:
         explicit SecretStorage(KeyringType type);
 
-        [[nodiscard]] std::optional<std::string> load(const std::string& key) const;
+        [[nodiscard]] helper::expected<std::string, std::string> load(const std::string& key) const;
 
-        void store(const std::string& key, const std::string& value, bool update = true) const;
+        [[nodiscard]] std::optional<std::string>
+        store(const std::string& key, const std::string& value, bool update = true) const;
 
-        void remove(const std::string& key) const;
+        [[nodiscard]] std::optional<std::string> remove(const std::string& key) const;
     };
 
 } // namespace secret

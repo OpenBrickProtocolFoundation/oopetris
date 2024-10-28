@@ -56,10 +56,14 @@ lobby::API::API(const std::string& api_url)
     : m_client{ std::make_unique<oopetris::http::implementation::ActualClient>(api_url) },
       m_secret_storage{ std::make_unique<secret::SecretStorage>(secret::KeyringType::User) } {
 
-    if (auto value = m_secret_storage->load(constants::api_token_key); value.has_value()) {
+    auto value = m_secret_storage->load(constants::api_token_key);
+
+    if (value.has_value()) {
         if (not this->setup_authentication(value.value())) {
             throw std::runtime_error("Couldn't setup authentication");
         }
+    } else {
+        spdlog::error("API {}", value.error());
     }
 }
 
@@ -139,7 +143,9 @@ bool lobby::API::authenticate(const Credentials& credentials) {
 void lobby::API::logout() {
     m_client->ResetBearerAuth();
 
-    m_secret_storage->remove(constants::api_token_key);
+    if (auto result = m_secret_storage->remove(constants::api_token_key); result.has_value()) {
+        spdlog::error("API: {}", result.value());
+    }
 }
 
 helper::expected<std::vector<lobby::LobbyInfo>, std::string> lobby::API::get_lobbies() {
@@ -264,7 +270,9 @@ bool lobby::API::setup_authentication(const std::string& token) {
     m_authentication_token = token;
 
     m_client->SetBearerAuth(token);
-    m_secret_storage->store(constants::api_token_key, token);
+    if (auto result = m_secret_storage->store(constants::api_token_key, token); result.has_value()) {
+        spdlog::error("API {}", result.value());
+    }
 
     return true;
 }
