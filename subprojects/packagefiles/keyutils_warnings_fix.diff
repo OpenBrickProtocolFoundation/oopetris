@@ -1,0 +1,13 @@
+diff --git a/keyutils.c b/keyutils.c
+index 48b779e..beeeb9b 100644
+--- a/keyutils.c
++++ b/keyutils.c
+@@ -672,7 +672,7 @@ key_serial_t find_key_by_type_and_desc(const char *type, const char *desc,
+ 				if (errno == ENOMEM)
+ 					break;
+ 			}
+-			if (n >= sizeof(rdesc) - 1)
++			if ((unsigned long)n >= sizeof(rdesc) - 1)
+ 				continue;
+ 			rdesc[n] = '\0';
+ 
