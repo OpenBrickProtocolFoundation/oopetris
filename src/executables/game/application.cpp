@@ -421,6 +421,9 @@ void Application::load_resources() {
     return m_discord_instance;
 }
 
+#endif
+
+
 void Application::reload_api(const settings::Settings& settings) {
 
     if (auto api_url = settings.api_url; api_url.has_value()) {
@@ -435,4 +438,3 @@ void Application::reload_api(const settings::Settings& settings) {
         spdlog::info("No lobby API provided");
     }
 }
-#endif
