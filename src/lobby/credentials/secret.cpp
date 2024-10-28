@@ -147,14 +147,58 @@ secret::SecretStorage::store(const std::string& key, const std::string& value, b
 }
 
 
-#elif defined(__ANDROID__)
-#error "CURRENTLY Unsupported platform"
-#elif defined(__CONSOLE__)
-#error "CURRENTLY Unsupported platform"
 #elif defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
+
+
+//TODO: use https://learn.microsoft.com/en-us/windows/win32/seccng/cng-key-storage-functions
+
+secret::SecretStorage::SecretStorage(KeyringType type) : m_type{ type } { }
+
+
+[[nodiscard]] helper::expected<std::string, std::string> secret::SecretStorage::load(const std::string& key) const {
+    return result_string;
+}
+
+[[nodiscard]] std::optional<std::string>
+secret::SecretStorage::store(const std::string& key, const std::string& value, bool update) const {
+    return std::nullopt;
+}
+
+
+[[nodiscard]] std::optional<std::string> secret::SecretStorage::remove(const std::string& key) const {
+    return std::nullopt;
+}
+
+
+#elif defined(__ANDROID__)
+//TODO: use https://developer.android.com/privacy-and-security/keystore
+
+secret::SecretStorage::SecretStorage(KeyringType type) : m_type{ type } { }
+
+
+[[nodiscard]] helper::expected<std::string, std::string> secret::SecretStorage::load(const std::string& key) const {
+    return result_string;
+}
+
+[[nodiscard]] std::optional<std::string>
+secret::SecretStorage::store(const std::string& key, const std::string& value, bool update) const {
+    return std::nullopt;
+}
+
+
+[[nodiscard]] std::optional<std::string> secret::SecretStorage::remove(const std::string& key) const {
+    return std::nullopt;
+}
+
+#elif defined(__CONSOLE__)
+
+//TODO: fall back to just store it in a file, that is json
 #error "CURRENTLY Unsupported platform"
+
 #elif defined(__APPLE__)
+
+//TODO: fall back to just store it in a file, that is json
 #error "CURRENTLY Unsupported platform"
 #else
-#error "CURRENTLY Unsupported platform"
+#error "Unsupported platform"
 #endif
