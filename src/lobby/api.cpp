@@ -11,6 +11,13 @@
 #include "./httplib_client.hpp"
 #endif
 
+namespace {
+    namespace constants {
+
+        constexpr const std::string api_token_key = "API_TOKEN_save";
+    }
+} // namespace
+
 
 helper::expected<void, std::string> lobby::API::check_compatibility() {
     const auto server_version = get_version();
@@ -46,7 +53,15 @@ helper::expected<void, std::string> lobby::API::check_reachability() {
 }
 
 lobby::API::API(const std::string& api_url)
-    : m_client{ std::make_unique<oopetris::http::implementation::ActualClient>(api_url) } { }
+    : m_client{ std::make_unique<oopetris::http::implementation::ActualClient>(api_url) },
+      m_secret_storage{ std::make_unique<secret::SecretStorage>(secret::KeyringType::User) } {
+
+    if (auto value = m_secret_storage->load(constants::api_token_key); value.has_value()) {
+        if (not this->setup_authentication(value.value())) {
+            throw std::runtime_error("Couldn't setup authentication");
+        }
+    }
+}
 
 helper::expected<lobby::VersionResult, std::string> lobby::API::get_version() {
     auto res = m_client->Get("/version");
@@ -57,7 +72,8 @@ helper::expected<lobby::VersionResult, std::string> lobby::API::get_version() {
 
 lobby::API::API(API&& other) noexcept
     : m_client{ std::move(other.m_client) },
-      m_authentication_token{ std::move(other.m_authentication_token) } { }
+      m_authentication_token{ std::move(other.m_authentication_token) },
+      m_secret_storage{ std::move(other.m_secret_storage) } { }
 
 lobby::API::~API() = default;
 
@@ -117,11 +133,13 @@ bool lobby::API::authenticate(const Credentials& credentials) {
         return false;
     }
 
-    m_authentication_token = result.value().jwt;
+    return this->setup_authentication(result.value().jwt);
+}
 
-    m_client->SetBearerAuth(m_authentication_token.value());
+void lobby::API::logout() {
+    m_client->ResetBearerAuth();
 
-    return true;
+    m_secret_storage->remove(constants::api_token_key);
 }
 
 helper::expected<std::vector<lobby::LobbyInfo>, std::string> lobby::API::get_lobbies() {
@@ -239,4 +257,14 @@ helper::expected<void, std::string> lobby::API::register_user(const RegisterRequ
     auto res = m_client->Post("/register", payload);
 
     return is_request_ok(res, 204);
+}
+
+bool lobby::API::setup_authentication(const std::string& token) {
+
+    m_authentication_token = token;
+
+    m_client->SetBearerAuth(token);
+    m_secret_storage->store(constants::api_token_key, token);
+
+    return true;
 }
