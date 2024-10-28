@@ -133,3 +133,14 @@ void oopetris::http::implementation::ActualClient::SetBearerAuth(const std::stri
     m_session->SetHeader(cpr::Header{ "Authorization", fmt::format("Bearer {}", token) });
 #endif
 }
+
+
+void oopetris::http::implementation::ActualClient::ResetBearerAuth() {
+
+
+#if CPR_LIBCURL_VERSION_NUM >= 0x073D00
+    m_session->SetBearer("");
+#else
+    m_session->SetHeader();
+#endif
+}
