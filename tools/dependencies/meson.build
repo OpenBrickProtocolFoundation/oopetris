@@ -280,6 +280,11 @@ if build_application
 
     endif
 
+    if host_machine.system() == 'linux'
+        keyutils_dep = dependency('keyutils', required: true, allow_fallback: true)
+        graphics_lib += {'deps': [graphics_lib.get('deps'), keyutils_dep]}
+    endif
+
     build_installer = get_option('build_installer')
 
     is_flatpak_build = false

@@ -18,3 +18,5 @@ graphics_src_files += files(
     'constants.hpp',
     'types.hpp',
 )
+
+subdir('credentials')
