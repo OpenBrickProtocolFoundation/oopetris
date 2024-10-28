@@ -74,7 +74,8 @@ namespace detail {
         std::vector<Controls> controls;
         std::optional<u32> selected;
         float volume{ 0.2F };
-        bool discord{ false }; //changing this requires a restart
+        std::optional<bool> discord; //changing this requires a restart
+        std::optional<std::string> api_url;
     };
 
 
@@ -87,11 +88,10 @@ namespace detail {
 
 struct SettingsManager {
 private:
-    ServiceProvider* m_service_provider;
     detail::Settings m_settings;
 
 public:
-    OOPETRIS_GRAPHICS_EXPORTED explicit SettingsManager(ServiceProvider* service_provider);
+    OOPETRIS_GRAPHICS_EXPORTED explicit SettingsManager();
 
     OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] const detail::Settings& settings() const;
 };
