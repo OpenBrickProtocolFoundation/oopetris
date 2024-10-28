@@ -63,7 +63,7 @@ lobby::API::API(const std::string& api_url)
             throw std::runtime_error("Couldn't setup authentication");
         }
     } else {
-        spdlog::error("API {}", value.error());
+        spdlog::info("API: Key not found, so probably not logged in already: {}", value.error());
     }
 }
 
@@ -83,17 +83,22 @@ lobby::API::~API() = default;
 
 helper::expected<lobby::API, std::string> lobby::API::get_api(const std::string& url) {
 
-    API api{ url };
+    try {
 
-    const auto reachable = api.check_reachability();
+        API api{ url };
 
-    if (not reachable.has_value()) {
-        return helper::unexpected<std::string>{ reachable.error() };
+        const auto reachable = api.check_reachability();
+
+        if (not reachable.has_value()) {
+            return helper::unexpected<std::string>{ reachable.error() };
+        }
+
+        //TODO(Totto):  once version is standard, check here if the version is supported
+
+        return api;
+    } catch (const std::exception& err) {
+        return helper::unexpected<std::string>{ err.what() };
     }
-
-    //TODO(Totto):  once version is standard, check here if the version is supported
-
-    return api;
 }
 
 void lobby::API::check_url(const std::string& url, std::function<void(const bool success)>&& callback) {

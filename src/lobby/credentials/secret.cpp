@@ -35,8 +35,10 @@ secret::SecretStorage::SecretStorage(KeyringType type) : m_type{ type } {
     switch (m_type) {
         case secret::KeyringType::User:
             key_type = KEY_SPEC_USER_KEYRING;
+            break;
         case secret::KeyringType::Session:
             key_type = KEY_SPEC_SESSION_KEYRING;
+            break;
         case secret::KeyringType::Persistent: {
             // -1 stands for current uid, 0 stands for: do not create a link to another keyring
             this->m_ring_id = keyctl_get_persistent(-1, 0);
