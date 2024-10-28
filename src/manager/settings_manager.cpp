@@ -43,17 +43,13 @@ void SettingsManager::add_callback(Callback&& callback) {
 }
 
 void SettingsManager::save() const {
+    const std::filesystem::path settings_file = utils::get_root_folder() / settings_filename;
 
-    const auto result = json::try_convert_to_json(m_settings);
+    const auto result = json::try_write_json_to_file(settings_file, m_settings, true);
 
     if (not result.has_value()) {
-        spdlog::error("unable to convert settings to json {}", result.error());
+        spdlog::error("unable to save settings to \"{}\": {}", settings_filename, result.value());
         return;
-    }
-
-    const auto saved = this->save_to_file(result.value());
-    if (saved.has_value()) {
-        spdlog::error("unable to save settings from \"{}\": {}", settings_filename, saved.value());
     }
 
     this->fire_callbacks();
@@ -68,26 +64,4 @@ void SettingsManager::fire_callbacks() const {
     for (const auto& callback : m_callbacks) {
         callback(m_settings);
     }
-}
-
-
-std::optional<std::string> SettingsManager::save_to_file(const std::string& content) const {
-
-    const std::filesystem::path settings_file = utils::get_root_folder() / settings_filename;
-
-    std::ofstream file_stream{ settings_file };
-
-    if (file_stream.is_open()) {
-        return fmt::format("File '{}' couldn't be opened!", settings_file.string());
-    }
-
-    file_stream << content;
-
-    file_stream.close();
-
-    if (file_stream.fail()) {
-        return fmt::format("Couldn't write to file '{}' ", settings_file.string());
-    }
-
-    return std::nullopt;
 }

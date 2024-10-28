@@ -103,7 +103,7 @@ secret::SecretStorage::store(const std::string& key, const std::string& value, b
 
 
     if (key_id > 0 && not update) {
-        return "Error while storing a key, it already exists and can't update it";
+        return "Error while storing a key, it already exists and we can't update it";
     }
 
     auto full_key = get_key_name(key);
@@ -190,15 +190,97 @@ secret::SecretStorage::store(const std::string& key, const std::string& value, b
     return std::nullopt;
 }
 
-#elif defined(__CONSOLE__)
+#elif defined(__CONSOLE__) || defined(__APPLE__)
 
-//TODO: fall back to just store it in a file, that is json
-#error "CURRENTLY Unsupported platform"
+#include "helper/graphic_utils.hpp"
+#include <core/helper/parse_json.hpp>
 
-#elif defined(__APPLE__)
+namespace {
 
-//TODO: fall back to just store it in a file, that is json
-#error "CURRENTLY Unsupported platform"
+    namespace secrets_constants {
+        constexpr const char* store_file_name = ".secret_key_storage";
+    } // namespace secrets_constants
+
+    helper::expected<nlohmann::json, std::string> get_json_from_file(const std::string& file) {
+        auto result = json::try_parse_json_file<nlohmann::json>(file);
+
+        if (not result.has_value()) {
+            return helper::unexpected<std::string>{ result.error() };
+        }
+
+        return result.value();
+    }
+
+
+} // namespace
+
+
+// This is a dummy fallback, but good enough for this platforms
+secret::SecretStorage::SecretStorage(KeyringType type) : m_type{ type } {
+
+    m_file_path = utils::get_root_folder() / secrets_constants::store_file_name;
+}
+
+
+[[nodiscard]] helper::expected<std::string, std::string> secret::SecretStorage::load(const std::string& key) const {
+
+    auto maybe_json_value = get_json_from_file(m_file_path);
+
+    if (not maybe_json_value.has_value()) {
+        return helper::unexpected<std::string>{ maybe_json_value.error() };
+    }
+
+    auto json_value = maybe_json_value.value();
+
+    if (not json_value.contains(key)) {
+        return helper::unexpected<std::string>{ fmt::format("Couldn't find key: {}", key) };
+    }
+
+    std::string result{};
+
+    json_value.at(key).get_to(result);
+
+    return result;
+}
+
+[[nodiscard]] std::optional<std::string>
+secret::SecretStorage::store(const std::string& key, const std::string& value, bool update) const {
+
+    auto maybe_json_value = get_json_from_file(m_file_path);
+
+    if (not maybe_json_value.has_value()) {
+        return maybe_json_value.error();
+    }
+
+    auto json_value = maybe_json_value.value();
+
+    if (json_value.contains(key) && not update) {
+        return "Error while storing a key, it already exists and we can't update it";
+    }
+
+
+    json_value.at(key) = value;
+
+    return json::try_write_json_to_file(m_file_path, json_value, true);
+}
+
+
+[[nodiscard]] std::optional<std::string> secret::SecretStorage::remove(const std::string& key) const {
+
+    auto maybe_json_value = get_json_from_file(m_file_path);
+
+    if (not maybe_json_value.has_value()) {
+        return maybe_json_value.error();
+    }
+
+    auto json_value = maybe_json_value.value();
+
+    json_value.erase(key);
+
+    return json::try_write_json_to_file(m_file_path, json_value, true);
+}
+
+
 #else
 #error "Unsupported platform"
 #endif

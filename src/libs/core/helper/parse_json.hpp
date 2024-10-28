@@ -86,7 +86,6 @@ namespace json {
         return try_parse_json<T>(result.str());
     }
 
-
     template<typename T>
     [[nodiscard]] helper::expected<nlohmann::json, std::string> try_convert_to_json(const T& input) noexcept {
 
@@ -128,6 +127,36 @@ namespace json {
             return helper::unexpected<std::string>{ fmt::format("unknown exception: {}", exception.what()) };
         }
     }
+
+
+    template<typename T>
+    std::optional<std::string>
+    try_write_json_to_file(const std::filesystem::path& file, const T& value, const bool pretty = false) {
+
+
+        const auto result = json::try_json_to_string<T>(value, pretty);
+
+        if (not result.has_value()) {
+            return fmt::format("unable to convert settings to json {}", result.error());
+        }
+
+        std::ofstream file_stream{ file };
+
+        if (file_stream.is_open()) {
+            return fmt::format("File '{}' couldn't be opened!", file.string());
+        }
+
+        file_stream << result.value();
+
+        file_stream.close();
+
+        if (file_stream.fail()) {
+            return fmt::format("Couldn't write to file '{}' ", file.string());
+        }
+
+        return std::nullopt;
+    }
+
 
     OOPETRIS_CORE_EXPORTED std::string get_json_type(const nlohmann::json::value_t& type);
 

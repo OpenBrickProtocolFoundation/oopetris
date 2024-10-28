@@ -10,7 +10,6 @@
 #if defined(__linux__)
 
 #include <keyutils.h>
-
 #endif
 
 namespace secret {
@@ -23,6 +22,8 @@ namespace secret {
 
 #if defined(__linux__)
         key_serial_t m_ring_id;
+#elif defined(__CONSOLE__) || defined(__APPLE__)
+        std::string m_file_path;
 #endif
 
 
