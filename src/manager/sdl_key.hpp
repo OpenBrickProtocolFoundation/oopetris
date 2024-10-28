@@ -71,8 +71,33 @@ namespace sdl {
         */
         OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] bool has_modifier_exact(const Modifier& modifier) const;
 
+        /**
+ * @brief Shorthand for is_equal(key, true);
+ * 
+ * @param other 
+ * @return bool 
+ */
         OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] bool operator==(const Key& other) const;
 
+        /**
+ * @brief compare two keys with another, this IS symmetrical. The result is true when these conditions are met:
+ * 1: the key identifier are the same
+ * 2: all "selected modifiers" have the same value, "same" means here, that either both have the modifier (as defined by has_modifier) or none of them has it
+ * 3: selected modifiers => if ignore_special_modifiers is true, only the modifiers specified by the category "multiple" are selected. those are:
+ * - sdl::Modifier::CTRL
+ * - sdl::Modifier::SHIFT
+ * - sdl::Modifier::ALT
+ * - sdl::Modifier::GUI
+ * 
+ * if ignore_special_modifiers is false also the modifiers of teh category "special" are selected, these are:
+ * - sdl::Modifier::NUM,
+ * - sdl::Modifier::CAPS,
+ * - sdl::Modifier::MODE,
+ * - sdl::Modifier::SCROLL,
+ * @param other 
+ * @param ignore_special_modifiers 
+ * @return bool 
+ */
         OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] bool is_equal(const Key& other, bool ignore_special_modifiers = true)
                 const;
 
