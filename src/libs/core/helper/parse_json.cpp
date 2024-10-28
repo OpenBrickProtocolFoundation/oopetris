@@ -34,6 +34,10 @@ std::string json::get_json_type(const nlohmann::json::value_t& type) {
     }
 }
 
+bool json::is_meta_key(const std::string& key) {
+    return key.starts_with("$");
+}
+
 void json::check_for_no_additional_keys(const nlohmann::json& obj, const std::vector<std::string>& keys) {
 
     if (not obj.is_object()) {
@@ -46,6 +50,9 @@ void json::check_for_no_additional_keys(const nlohmann::json& obj, const std::ve
 
 
     for (const auto& [key, _] : object) {
+        if (is_meta_key(key)) {
+            continue;
+        }
         if (std::ranges::find(keys, key) == keys.cend()) {
             throw nlohmann::json::type_error::create(
                     302, fmt::format("object may only contain expected keys, but contained '{}'", key), &obj

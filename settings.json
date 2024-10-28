@@ -1,4 +1,5 @@
 {
+	"$schema": "https://raw.githubusercontent.com/OpenBrickProtocolFoundation/oopetris/refs/heads/main/assets/schema/oopetris.config.schema.json",
 	"controls": {
 		"selected": null,
 		"inputs": [
@@ -75,6 +76,7 @@
 			}
 		]
 	},
-	"volume": 0.2,
-	"discord": false
+	"volume": 0.0,
+	"discord": false,
+	"api_url": "https://oopetris.totto.lt/api/"
 }
