@@ -1,0 +1,8 @@
+[wrap-git]
+url = https://git.kernel.org/pub/scm/linux/kernel/git/dhowells/keyutils.git
+revision = master
+depth = 1
+patch_directory = keyutils
+
+[provide]
+keyutils = keyutils_dep

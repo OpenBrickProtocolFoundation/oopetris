@@ -1,0 +1,6 @@
+option(
+    'no_glibc_keyerr',
+    type: 'boolean',
+    value: false,
+    description: 'don\'t have glibc keyerr constants',
+)
