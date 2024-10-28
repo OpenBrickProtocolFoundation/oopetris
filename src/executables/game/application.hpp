@@ -5,6 +5,7 @@
 #include "graphics/renderer.hpp"
 #include "graphics/window.hpp"
 #include "input/input.hpp"
+#include "lobby/api.hpp"
 #include "manager/event_dispatcher.hpp"
 #include "manager/event_listener.hpp"
 #include "manager/music_manager.hpp"
@@ -13,7 +14,6 @@
 #include "manager/settings_manager.hpp"
 #include "scenes/scene.hpp"
 #include "ui/components/label.hpp"
-#include "lobby/api.hpp"
 
 #include <memory>
 #include <vector>
@@ -129,6 +129,10 @@ public:
         return *m_input_manager;
     }
 
+    [[nodiscard]] const std::unique_ptr<lobby::API>& api() const override {
+        return m_api;
+    }
+
 
 #if defined(_HAVE_DISCORD_SDK)
 
@@ -142,4 +146,5 @@ public:
 private:
     void initialize();
     void load_resources();
+    void reload_api(const settings::Settings& settings);
 };

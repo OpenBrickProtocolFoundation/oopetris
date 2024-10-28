@@ -43,6 +43,8 @@ namespace lobby {
         OOPETRIS_GRAPHICS_EXPORTED
         [[nodiscard]] helper::expected<API, std::string> static get_api(const std::string& url);
 
+        OOPETRIS_GRAPHICS_EXPORTED
+        void static check_url(const std::string& url, std::function<void(const bool success)>&& callback);
 
         OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] bool is_authenticated();
 

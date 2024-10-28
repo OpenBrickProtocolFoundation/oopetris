@@ -9,6 +9,8 @@ graphics_src_files += files(
     'sdl_controller_key.hpp',
     'sdl_key.cpp',
     'sdl_key.hpp',
+    'settings.cpp',
+    'settings.hpp',
     'settings_manager.cpp',
     'settings_manager.hpp',
 )

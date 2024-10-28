@@ -2,8 +2,8 @@
 
 #include "api.hpp"
 
+#include <future>
 #include <spdlog/spdlog.h>
-
 
 #if defined(_OOPETRIS_ONLINE_USE_CURL)
 #include "./curl_client.hpp"
@@ -74,6 +74,16 @@ helper::expected<lobby::API, std::string> lobby::API::get_api(const std::string&
     //TODO(Totto):  once version is standard, check here if the version is supported
 
     return api;
+}
+
+void lobby::API::check_url(const std::string& url, std::function<void(const bool success)>&& callback) {
+
+    //TODO(Totto): is this doen correctly
+    std::ignore = std::async(std::launch::async, [url, callback = std::move(callback)] {
+        auto result = lobby::API::get_api(url);
+
+        callback(result.has_value());
+    });
 }
 
 

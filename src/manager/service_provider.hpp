@@ -28,6 +28,11 @@ namespace scenes {
     struct Scene;
 }
 
+namespace lobby {
+    struct API;
+
+}
+
 struct ServiceProvider {
     ServiceProvider() = default;
     ServiceProvider(const ServiceProvider&) = delete;
@@ -52,6 +57,8 @@ struct ServiceProvider {
 
     [[nodiscard]] virtual input::InputManager& input_manager() = 0;
     [[nodiscard]] virtual const input::InputManager& input_manager() const = 0;
+
+    [[nodiscard]] virtual const std::unique_ptr<lobby::API>& api() const = 0;
 
 #if defined(_HAVE_DISCORD_SDK) && !defined(_OOPETRIS_RECORDING_UTILITY)
 

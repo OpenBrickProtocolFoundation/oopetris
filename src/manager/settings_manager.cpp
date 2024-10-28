@@ -3,26 +3,29 @@
 #include "input/keyboard_input.hpp"
 #include "input/touch_input.hpp"
 
+namespace {
+    static constexpr auto settings_filename = "settings.json";
 
-#include <spdlog/spdlog.h>
+}
+
 
 SettingsManager::SettingsManager() {
-    const std::filesystem::path settings_file = utils::get_root_folder() / detail::settings_filename;
+    const std::filesystem::path settings_file = utils::get_root_folder() / settings_filename;
 
-    const auto result = json::try_parse_json_file<detail::Settings>(settings_file);
+    const auto result = json::try_parse_json_file<settings::Settings>(settings_file);
 
     if (result.has_value()) {
         m_settings = result.value();
     } else {
-        spdlog::warn("unable to load settings from \"{}\": {}", detail::settings_filename, result.error());
+        spdlog::error("unable to load settings from \"{}\": {}", settings_filename, result.error());
         spdlog::warn("applying default settings");
 
         m_settings = {
-            detail::Settings{ .controls = {},
-                             .selected = std::nullopt,
-                             .volume = 1.0,
-                             .discord = false,
-                             .api_url = std::nullopt }
+            settings::Settings{ .controls = {},
+                               .selected = std::nullopt,
+                               .volume = 1.0,
+                               .discord = false,
+                               .api_url = std::nullopt }
         };
 
         //TODO(Totto): save the file, if it doesn't exist, if it has an error, just leave it there
@@ -30,33 +33,61 @@ SettingsManager::SettingsManager() {
 }
 
 
-[[nodiscard]] const detail::Settings& SettingsManager::settings() const {
+[[nodiscard]] const settings::Settings& SettingsManager::settings() const {
     return m_settings;
 }
 
 
-void detail::to_json(nlohmann::json& obj, const detail::Settings& settings) {
-    obj = nlohmann::json{
-        { "controls",
-         nlohmann::json{ { "inputs", settings.controls }, { "selected", settings.selected } },
-         { "volume", settings.volume },
-         { "discord", settings.discord },
-         { "api_url", settings.api_url } }
-    };
+void SettingsManager::add_callback(Callback&& callback) {
+    m_callbacks.emplace_back(std::move(callback));
 }
 
-void detail::from_json(const nlohmann::json& obj, detail::Settings& settings) {
+void SettingsManager::save() const {
 
-    ::json::check_for_no_additional_keys(obj, { "controls", "volume", "discord", "api_url" });
+    const auto result = json::try_convert_to_json(m_settings);
 
-    obj.at("volume").get_to(settings.volume);
-    obj.at("api_url").get_to(settings.api_url);
-    obj.at("discord").get_to(settings.discord);
+    if (not result.has_value()) {
+        spdlog::error("unable to convert settings to json {}", result.error());
+        return;
+    }
 
-    const auto& controls = obj.at("controls");
+    const auto saved = this->save_to_file(result.value());
+    if (saved.has_value()) {
+        spdlog::error("unable to save settings from \"{}\": {}", settings_filename, saved.value());
+    }
 
-    ::json::check_for_no_additional_keys(controls, { "inputs", "selected" });
+    this->fire_callbacks();
+}
 
-    controls.at("inputs").get_to(settings.controls);
-    controls.at("selected").get_to(settings.selected);
+void SettingsManager::save(const settings::Settings& new_settings) {
+    this->m_settings = new_settings;
+    this->save();
+}
+
+void SettingsManager::fire_callbacks() const {
+    for (const auto& callback : m_callbacks) {
+        callback(m_settings);
+    }
+}
+
+
+std::optional<std::string> SettingsManager::save_to_file(const std::string& content) const {
+
+    const std::filesystem::path settings_file = utils::get_root_folder() / settings_filename;
+
+    std::ofstream file_stream{ settings_file };
+
+    if (file_stream.is_open()) {
+        return fmt::format("File '{}' couldn't be opened!", settings_file.string());
+    }
+
+    file_stream << content;
+
+    file_stream.close();
+
+    if (file_stream.fail()) {
+        return fmt::format("Couldn't write to file '{}' ", settings_file.string());
+    }
+
+    return std::nullopt;
 }
