@@ -264,15 +264,18 @@ void Application::initialize() {
     const auto start_time = SDL_GetTicks64();
 
     const std::future<void> load_everything = std::async(std::launch::async, [this] {
+        this->m_settings_manager = std::make_unique<SettingsManager>();
+
+        const auto current_settings = this->m_settings_manager->settings();
+
         this->m_music_manager = std::make_unique<MusicManager>(this, num_audio_channels);
+        this->m_music_manager->set_volume(current_settings.volume, true, true);
 
         this->m_input_manager = std::make_shared<input::InputManager>(this->m_window);
 
-        this->m_settings_manager = std::make_unique<SettingsManager>(this);
-
         this->m_font_manager = std::make_unique<FontManager>();
 
-        if (auto api_url = this->m_settings_manager->settings().api_url; api_url.has_value()) {
+        if (auto api_url = current_settings.api_url; api_url.has_value()) {
             auto maybe_api = lobby::API::get_api(api_url.value());
             if (maybe_api.has_value()) {
                 m_api = std::make_unique<lobby::API>(std::move(maybe_api.value()));
@@ -295,7 +298,7 @@ void Application::initialize() {
 #endif
 
 #if defined(_HAVE_DISCORD_SDK)
-        if (m_settings_manager->settings().discord) {
+        if (current_settings.discord) {
             auto discord_instance = DiscordInstance::initialize();
             if (not discord_instance.has_value()) {
                 spdlog::warn(

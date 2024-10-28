@@ -29,9 +29,9 @@ private:
     std::optional<u32> m_target_framerate;
 
     // these fields are initalized asynchronously in a separate thread
+    std::unique_ptr<SettingsManager> m_settings_manager;
     std::unique_ptr<MusicManager> m_music_manager;
     std::shared_ptr<input::InputManager> m_input_manager;
-    std::unique_ptr<SettingsManager> m_settings_manager;
     std::unique_ptr<FontManager> m_font_manager;
     std::unique_ptr<lobby::API> m_api;
 
