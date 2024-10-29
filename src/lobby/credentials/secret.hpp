@@ -20,7 +20,7 @@ namespace secret {
     private:
         KeyringType m_type;
 
-#if defined(__linux__)
+#if defined(__linux__) || defined(__ANDROID__)
         key_serial_t m_ring_id;
 #elif defined(__CONSOLE__) || defined(__APPLE__)
         std::string m_file_path;

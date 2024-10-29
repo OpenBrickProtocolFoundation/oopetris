@@ -1,7 +1,7 @@
 
 #include "./secret.hpp"
 
-#if defined(__linux__)
+#if defined(__linux__) || defined(__ANDROID__)
 
 #include <core/helper/utils.hpp>
 #include <fmt/format.h>
@@ -151,27 +151,6 @@ secret::SecretStorage::store(const std::string& key, const std::string& value, b
 
 
 //TODO: use https://learn.microsoft.com/en-us/windows/win32/seccng/cng-key-storage-functions
-
-secret::SecretStorage::SecretStorage(KeyringType type) : m_type{ type } { }
-
-
-[[nodiscard]] helper::expected<std::string, std::string> secret::SecretStorage::load(const std::string& key) const {
-    return result_string;
-}
-
-[[nodiscard]] std::optional<std::string>
-secret::SecretStorage::store(const std::string& key, const std::string& value, bool update) const {
-    return std::nullopt;
-}
-
-
-[[nodiscard]] std::optional<std::string> secret::SecretStorage::remove(const std::string& key) const {
-    return std::nullopt;
-}
-
-
-#elif defined(__ANDROID__)
-//TODO: use https://developer.android.com/privacy-and-security/keystore
 
 secret::SecretStorage::SecretStorage(KeyringType type) : m_type{ type } { }
 
