@@ -70,9 +70,13 @@ namespace scenes {
                     const auto value = service_provider->music_manager().get_volume();
                     return value.has_value() ? value.value() : 0.0F;
                 },
-                [service_provider](double amount) {
+                [service_provider, this](double amount) {
                     const auto mapped_amount = amount <= 0.0F ? std::nullopt : std::optional<double>{ amount };
                     service_provider->music_manager().set_volume(mapped_amount, false, false);
+
+                    this->m_settings.volume = static_cast<float>(amount);
+
+                    this->m_did_change_settings = true;
                 },
                 0.05F, std::pair<double, double>{ 0.6, 1.0 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
@@ -83,6 +87,15 @@ namespace scenes {
                 [this, scroll_layout_index, slider_index](std::optional<double>) {
                     auto* scroll_layout = this->m_main_layout.get<ui::ScrollLayout>(scroll_layout_index);
                     scroll_layout->get<ui::Slider>(slider_index)->on_change();
+
+                    if (auto volume = this->m_service_provider->music_manager().get_volume(); volume.has_value()) {
+                        this->m_settings.volume = static_cast<float>(volume.value());
+
+                    } else {
+                        this->m_settings.volume = 0.0;
+                    }
+
+                    this->m_did_change_settings = true;
                 }
         );
 
