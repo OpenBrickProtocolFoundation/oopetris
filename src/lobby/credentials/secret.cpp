@@ -141,6 +141,16 @@ secret::SecretStorage::store(const std::string& key, const std::string& value, b
 #include <fmt/format.h>
 #include <spdlog/spdlog.h>
 
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#ifndef _WINSOCKAPI_
+#define _WINSOCKAPI_
+#endif
+#include <WTypesbase.h>
+#include <ncrypt.h>
+
+
 namespace {
 
     namespace constants {

@@ -12,15 +12,10 @@
 #include <keyutils.h>
 #elif defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
 
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
-
-#include <winsock2.h>
-
-#include <windows.h>
-
-#include <ncrypt.h>
+#include <basetsd.h>
+namespace oopetris::secret::details {
+    using NCRYPT_PROV_HANDLE = ULONG_PTR;
+} // namespace oopetris::secret::details
 
 #endif
 
@@ -37,7 +32,7 @@ namespace secret {
 #elif defined(__CONSOLE__) || defined(__APPLE__)
         std::string m_file_path;
 #elif defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
-        NCRYPT_PROV_HANDLE m_phProvider;
+        oopetris::secret::details::NCRYPT_PROV_HANDLE m_phProvider;
 #endif
 
 
