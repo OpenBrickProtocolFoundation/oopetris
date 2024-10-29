@@ -7,6 +7,8 @@
 #include <core/helper/expected.hpp>
 #include <core/helper/types.hpp>
 
+#include "helper/windows.hpp"
+
 #if defined(__linux__)
 
 #include <keyutils.h>
@@ -37,16 +39,23 @@ namespace secret {
 
 
     public:
-        explicit SecretStorage(KeyringType type);
+        OOPETRIS_GRAPHICS_EXPORTED explicit SecretStorage(KeyringType type);
 
-        ~SecretStorage();
+        OOPETRIS_GRAPHICS_EXPORTED ~SecretStorage(); //NOLINT(performance-trivially-destructible)
 
-        [[nodiscard]] helper::expected<std::string, std::string> load(const std::string& key) const;
+        OOPETRIS_GRAPHICS_EXPORTED SecretStorage(const SecretStorage& other) = delete;
+        OOPETRIS_GRAPHICS_EXPORTED SecretStorage& operator=(const SecretStorage& other) = delete;
 
-        [[nodiscard]] std::optional<std::string>
+        OOPETRIS_GRAPHICS_EXPORTED SecretStorage(SecretStorage&& other) noexcept;
+        OOPETRIS_GRAPHICS_EXPORTED SecretStorage& operator=(SecretStorage&& other) noexcept = delete;
+
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] helper::expected<std::string, std::string> load(const std::string& key
+        ) const;
+
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::optional<std::string>
         store(const std::string& key, const std::string& value, bool update = true) const;
 
-        [[nodiscard]] std::optional<std::string> remove(const std::string& key) const;
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::optional<std::string> remove(const std::string& key) const;
     };
 
 } // namespace secret

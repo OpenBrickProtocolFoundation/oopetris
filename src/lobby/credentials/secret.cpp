@@ -17,7 +17,7 @@ namespace {
         return constants::key_name_prefix + key;
     }
 
-    key_serial_t get_id_from_name(key_serial_t keyring_id, const std::string& key) {
+    i64 get_id_from_name(key_serial_t keyring_id, const std::string& key) {
 
         const std::string full_key = get_key_name(key);
 
@@ -41,11 +41,13 @@ secret::SecretStorage::SecretStorage(KeyringType type) : m_type{ type } {
             break;
         case secret::KeyringType::Persistent: {
             // -1 stands for current uid, 0 stands for: do not create a link to another keyring
-            this->m_ring_id = keyctl_get_persistent(-1, 0);
-            if (this->m_ring_id < 0) {
+            auto result = keyctl_get_persistent(-1, 0);
+            if (result < 0) {
                 throw std::runtime_error(fmt::format("Error while getting the persistent keyring: {}", strerror(errno))
                 );
             }
+
+            this->m_ring_id = static_cast<key_serial_t>(result);
 
             return;
         }
@@ -63,6 +65,10 @@ secret::SecretStorage::SecretStorage(KeyringType type) : m_type{ type } {
 
 secret::SecretStorage::~SecretStorage() = default;
 
+secret::SecretStorage::SecretStorage(SecretStorage&& other) noexcept
+    : m_type{ other.m_type },
+      m_ring_id{ other.m_ring_id } { }
+
 [[nodiscard]] helper::expected<std::string, std::string> secret::SecretStorage::load(const std::string& key) const {
 
     auto key_id = get_id_from_name(m_ring_id, key);
@@ -76,7 +82,7 @@ secret::SecretStorage::~SecretStorage() = default;
 
     void* buffer = nullptr;
 
-    auto result = keyctl_read_alloc(key_id, &buffer);
+    auto result = keyctl_read_alloc(static_cast<key_serial_t>(key_id), &buffer);
 
     if (result < 0) {
         return helper::unexpected<std::string>{
@@ -92,8 +98,11 @@ secret::SecretStorage::~SecretStorage() = default;
     return result_string;
 }
 
-[[nodiscard]] std::optional<std::string>
-secret::SecretStorage::store(const std::string& key, const std::string& value, bool update) const {
+[[nodiscard]] std::optional<std::string> secret::SecretStorage::store(
+        const std::string& key, //NOLINT(bugprone-easily-swappable-parameters)
+        const std::string& value,
+        bool update
+) const {
 
     auto key_id = get_id_from_name(m_ring_id, key);
 
@@ -129,7 +138,7 @@ secret::SecretStorage::store(const std::string& key, const std::string& value, b
         return fmt::format("Error while removing a key, can't find key by name: {}", strerror(errno));
     }
 
-    auto result = keyctl_unlink(key_id, m_ring_id);
+    auto result = keyctl_unlink(static_cast<key_serial_t>(key_id), m_ring_id);
 
     if (result < 0) {
         return fmt::format("Error while removing a key, can't unlink key: {}", strerror(errno));
@@ -213,8 +222,16 @@ secret::SecretStorage::SecretStorage(KeyringType type) : m_type{ type }, m_phPro
 }
 
 secret::SecretStorage::~SecretStorage() {
-    // ignore return code, as it only indicates, if we passed a valid or invalid handle
-    NCryptFreeObject(m_phProvider);
+    if (m_phProvider) {
+        // ignore return code, as it only indicates, if we passed a valid or invalid handle
+        NCryptFreeObject(m_phProvider);
+    }
+}
+
+secret::SecretStorage::SecretStorage(SecretStorage&& other) noexcept
+    : m_type{ other.m_type },
+      m_phProvider{ other.m_phProvider } {
+    other.m_phProvider = nullptr;
 }
 
 
@@ -380,6 +397,10 @@ secret::SecretStorage::SecretStorage(KeyringType type) : m_type{ type } {
 }
 
 secret::SecretStorage::~SecretStorage() = default;
+
+secret::SecretStorage::SecretStorage(SecretStorage&& other) noexcept
+    : m_type{ other.m_type },
+      m_file_path{ other.m_file_path } { }
 
 
 [[nodiscard]] helper::expected<std::string, std::string> secret::SecretStorage::load(const std::string& key) const {
