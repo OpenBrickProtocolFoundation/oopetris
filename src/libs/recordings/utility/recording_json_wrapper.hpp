@@ -64,10 +64,10 @@ namespace nlohmann {
         }
 
         static void to_json(json& obj, const recorder::TetrionHeader& tetrion_header) {
-            obj = nlohmann::json{
-                {           "seed",           tetrion_header.seed },
-                { "starting_level", tetrion_header.starting_level }
-            };
+            obj = nlohmann::json::object({
+                    {           "seed",           tetrion_header.seed },
+                    { "starting_level", tetrion_header.starting_level }
+            });
         }
     };
 
@@ -93,11 +93,11 @@ namespace nlohmann {
 
         static void to_json(json& obj, const recorder::Record& record) {
 
-            obj = nlohmann::json{
-                {         "tetrion_index",         record.tetrion_index },
-                { "simulation_step_index", record.simulation_step_index },
-                {                 "event",                 record.event }
-            };
+            obj = nlohmann::json::object({
+                    {         "tetrion_index",         record.tetrion_index },
+                    { "simulation_step_index", record.simulation_step_index },
+                    {                 "event",                 record.event }
+            });
         }
     };
 
@@ -110,10 +110,10 @@ namespace nlohmann {
         }
 
         static void to_json(json& obj, const shapes::AbstractPoint<T>& point) {
-            obj = nlohmann::json{
-                { "x", point.x },
-                { "y", point.y }
-            };
+            obj = nlohmann::json::object({
+                    { "x", point.x },
+                    { "y", point.y }
+            });
         }
     };
 
@@ -139,10 +139,10 @@ namespace nlohmann {
         }
 
         static void to_json(json& obj, const Mino& mino) {
-            obj = nlohmann::json{
-                { "position", mino.position() },
-                {     "type",     mino.type() }
-            };
+            obj = nlohmann::json::object({
+                    { "position", mino.position() },
+                    {     "type",     mino.type() }
+            });
         }
     };
 
@@ -160,14 +160,14 @@ namespace nlohmann {
             nlohmann::adl_serializer<std::vector<Mino>>::to_json(mino_stack_json, snapshot.mino_stack().minos());
 
 
-            obj = nlohmann::json{
-                {         "tetrion_index",         snapshot.tetrion_index() },
-                {                 "level",                 snapshot.level() },
-                {                 "score",                 snapshot.score() },
-                {         "lines_cleared",         snapshot.lines_cleared() },
-                { "simulation_step_index", snapshot.simulation_step_index() },
-                {            "mino_stack",                  mino_stack_json }
-            };
+            obj = nlohmann::json::object({
+                    {         "tetrion_index",         snapshot.tetrion_index() },
+                    {                 "level",                 snapshot.level() },
+                    {                 "score",                 snapshot.score() },
+                    {         "lines_cleared",         snapshot.lines_cleared() },
+                    { "simulation_step_index", snapshot.simulation_step_index() },
+                    {            "mino_stack",                  mino_stack_json }
+            });
         }
     };
 
@@ -199,13 +199,13 @@ namespace nlohmann {
                     snapshots_json, recording_reader.snapshots()
             );
 
-            obj = nlohmann::json{
-                {         "version", recorder::Recording::current_supported_version_number },
-                {     "information",                                      information_json },
-                { "tetrion_headers",                                  tetrion_headers_json },
-                {         "records",                                          records_json },
-                {       "snapshots",                                        snapshots_json },
-            };
+            obj = nlohmann::json::object({
+                    {         "version", recorder::Recording::current_supported_version_number },
+                    {     "information",                                      information_json },
+                    { "tetrion_headers",                                  tetrion_headers_json },
+                    {         "records",                                          records_json },
+                    {       "snapshots",                                        snapshots_json },
+            });
         }
     };
 } // namespace nlohmann

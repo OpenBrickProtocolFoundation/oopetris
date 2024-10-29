@@ -137,7 +137,7 @@ namespace json {
         const auto result = json::try_json_to_string<T>(value, pretty);
 
         if (not result.has_value()) {
-            return fmt::format("unable to convert settings to json {}", result.error());
+            return fmt::format("unable to convert settings to json: {}", result.error());
         }
 
         std::ofstream file_stream{ file };

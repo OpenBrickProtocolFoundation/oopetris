@@ -149,20 +149,21 @@ namespace nlohmann {
         }
 
         static void to_json(json& obj, const input::ControllerSettings& settings) {
-            obj = nlohmann::json{
-                { "rotate_left", settings.rotate_left.to_string() },
-                { "rotate_right", settings.rotate_right.to_string() },
-                { "move_left", settings.move_left.to_string() },
-                { "move_right", settings.move_right.to_string() },
-                { "move_down", settings.move_down.to_string() },
-                { "drop", settings.drop.to_string() },
-                { "hold", settings.hold.to_string() },
-                {
-                 "menu", nlohmann::json{
-                                { "pause", settings.pause.to_string() },
-                                { "open_settings", settings.open_settings.to_string() },
-                        }, }
-            };
+            obj = nlohmann::json::object({
+                    { "rotate_left", settings.rotate_left.to_string() },
+                    { "rotate_right", settings.rotate_right.to_string() },
+                    { "move_left", settings.move_left.to_string() },
+                    { "move_right", settings.move_right.to_string() },
+                    { "move_down", settings.move_down.to_string() },
+                    { "drop", settings.drop.to_string() },
+                    { "hold", settings.hold.to_string() },
+                    {
+                     "menu", nlohmann::json::object({
+                                    { "pause", settings.pause.to_string() },
+                                    { "open_settings", settings.open_settings.to_string() },
+                            }),
+                     }
+            });
         }
     };
 } // namespace nlohmann

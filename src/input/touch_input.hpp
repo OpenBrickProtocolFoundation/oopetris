@@ -214,12 +214,12 @@ namespace nlohmann {
 
         static void to_json(json& obj, const input::TouchSettings& settings) {
 
-            obj = nlohmann::json{
-                {            "move_x_threshold",            settings.move_x_threshold },
-                {            "move_y_threshold",            settings.move_y_threshold },
-                { "rotation_duration_threshold", settings.rotation_duration_threshold },
-                {     "drop_duration_threshold",     settings.drop_duration_threshold },
-            };
+            obj = nlohmann::json::object({
+                    {            "move_x_threshold",            settings.move_x_threshold },
+                    {            "move_y_threshold",            settings.move_y_threshold },
+                    { "rotation_duration_threshold", settings.rotation_duration_threshold },
+                    {     "drop_duration_threshold",     settings.drop_duration_threshold }
+            });
         }
     };
 } // namespace nlohmann
