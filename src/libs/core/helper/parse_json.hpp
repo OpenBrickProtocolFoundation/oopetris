@@ -76,7 +76,7 @@ namespace json {
 
         std::ifstream file_stream{ file };
 
-        if (!file_stream.is_open()) {
+        if (not file_stream.is_open()) {
             return helper::unexpected<std::string>{ fmt::format("File '{}' couldn't be opened!", file.string()) };
         }
 
@@ -142,7 +142,7 @@ namespace json {
 
         std::ofstream file_stream{ file };
 
-        if (file_stream.is_open()) {
+        if (not file_stream.is_open()) {
             return fmt::format("File '{}' couldn't be opened!", file.string());
         }
 
