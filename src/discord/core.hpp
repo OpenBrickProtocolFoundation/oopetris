@@ -23,7 +23,7 @@ namespace constants::discord {
 
     //TODO(Totto):  this isn't correct for all platforms and needs to be tested
 #if defined(__ANDROID__)
-    constexpr const char* platform_dependent_launch_arguments = "";
+#error "Not supported"
 #elif defined(__CONSOLE__)
 #error "Not supported"
 #elif defined(FLATPAK_BUILD)
