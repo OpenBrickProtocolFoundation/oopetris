@@ -4,7 +4,7 @@
 #include "input/touch_input.hpp"
 
 namespace {
-    static constexpr auto settings_filename = "settings.json";
+    constexpr const auto settings_filename = "settings.json";
 
 }
 
@@ -47,7 +47,7 @@ void SettingsManager::save() const {
 
     const auto result = json::try_write_json_to_file(settings_file, m_settings, true);
 
-    if (not result.has_value()) {
+    if (result.has_value()) {
         spdlog::error("unable to save settings to \"{}\": {}", settings_filename, result.value());
         return;
     }

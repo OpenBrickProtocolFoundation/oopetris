@@ -19,7 +19,7 @@ namespace {
 
     key_serial_t get_id_from_name(key_serial_t keyring_id, const std::string& key) {
 
-        std::string full_key = get_key_name(key);
+        const std::string full_key = get_key_name(key);
 
         // 0 stands for: do not create a link to another keyring
         return keyctl_search(keyring_id, constants::key_type_user, full_key.c_str(), 0);
@@ -84,8 +84,11 @@ secret::SecretStorage::~SecretStorage() = default;
         };
     }
 
-    auto result_string = std::string{ static_cast<char*>(buffer), static_cast<char*>(buffer) + result };
-    free(buffer);
+    auto result_string = std::string{
+        static_cast<char*>(buffer),
+        static_cast<char*>(buffer) + result //NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    };
+    free(buffer); // NOLINT(cppcoreguidelines-no-malloc,cppcoreguidelines-owning-memory)
     return result_string;
 }
 

@@ -42,8 +42,7 @@ Application::Application(std::shared_ptr<Window>&& window, CommandLineArguments&
       m_window{ std::move(window) },
       m_renderer{ *m_window, m_command_line_arguments.target_fps.has_value() ? Renderer::VSync::Disabled
                                                                              : Renderer::VSync::Enabled },
-      m_target_framerate{ m_command_line_arguments.target_fps },
-      m_api{} {
+      m_target_framerate{ m_command_line_arguments.target_fps } {
     initialize();
 } catch (const helper::GeneralError& general_error) {
     const auto severity = general_error.severity();

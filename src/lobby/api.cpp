@@ -96,8 +96,8 @@ helper::expected<lobby::API, std::string> lobby::API::get_api(const std::string&
         //TODO(Totto):  once version is standard, check here if the version is supported
 
         return api;
-    } catch (const std::exception& err) {
-        return helper::unexpected<std::string>{ err.what() };
+    } catch (const std::exception& error) {
+        return helper::unexpected<std::string>{ error.what() };
     }
 }
 

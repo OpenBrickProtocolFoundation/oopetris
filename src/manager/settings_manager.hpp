@@ -32,5 +32,4 @@ public:
 
 private:
     void fire_callbacks() const;
-    std::optional<std::string> save_to_file(const std::string& content) const;
 };
