@@ -231,7 +231,7 @@ secret::SecretStorage::~SecretStorage() {
 secret::SecretStorage::SecretStorage(SecretStorage&& other) noexcept
     : m_type{ other.m_type },
       m_phProvider{ other.m_phProvider } {
-    other.m_phProvider = nullptr;
+    other.m_phProvider = 0;
 }
 
 
