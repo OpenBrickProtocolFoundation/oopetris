@@ -10,6 +10,8 @@
 #if defined(__linux__)
 
 #include <keyutils.h>
+#elif defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
+#include <ncrypt.h>
 #endif
 
 namespace secret {
@@ -24,11 +26,15 @@ namespace secret {
         key_serial_t m_ring_id;
 #elif defined(__CONSOLE__) || defined(__APPLE__)
         std::string m_file_path;
+#elif defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
+        NCRYPT_PROV_HANDLE m_phProvider;
 #endif
 
 
     public:
         explicit SecretStorage(KeyringType type);
+
+        ~SecretStorage();
 
         [[nodiscard]] helper::expected<std::string, std::string> load(const std::string& key) const;
 

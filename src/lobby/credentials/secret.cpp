@@ -56,17 +56,14 @@ secret::SecretStorage::SecretStorage(KeyringType type) : m_type{ type } {
     // 1 stands for, create if not exists, as a bool
     this->m_ring_id = keyctl_get_keyring_ID(key_type, 1);
 
-    if (m_ring_id < 0) {
+    if (this->m_ring_id < 0) {
         throw std::runtime_error(fmt::format("Error while getting the requested keyring: {}", strerror(errno)));
     }
 }
 
+secret::SecretStorage::~SecretStorage() = default;
 
 [[nodiscard]] helper::expected<std::string, std::string> secret::SecretStorage::load(const std::string& key) const {
-
-    if (m_ring_id < 0) {
-        return helper::unexpected<std::string>{ "Error while loading a key, ring_id is invalid" };
-    }
 
     auto key_id = get_id_from_name(m_ring_id, key);
 
@@ -87,17 +84,13 @@ secret::SecretStorage::SecretStorage(KeyringType type) : m_type{ type } {
         };
     }
 
-    auto result_string = std::string{ static_cast<char*>(buffer) };
+    auto result_string = std::string{ static_cast<char*>(buffer), static_cast<char*>(buffer) + result };
     free(buffer);
     return result_string;
 }
 
 [[nodiscard]] std::optional<std::string>
 secret::SecretStorage::store(const std::string& key, const std::string& value, bool update) const {
-
-    if (m_ring_id < 0) {
-        return "Error while storing a key, ring_id is invalid";
-    }
 
     auto key_id = get_id_from_name(m_ring_id, key);
 
@@ -127,10 +120,6 @@ secret::SecretStorage::store(const std::string& key, const std::string& value, b
 
 [[nodiscard]] std::optional<std::string> secret::SecretStorage::remove(const std::string& key) const {
 
-    if (m_ring_id < 0) {
-        return fmt::format("Error while remove a key, ring_id is invalid");
-    }
-
     auto key_id = get_id_from_name(m_ring_id, key);
 
     if (key_id < 0) {
@@ -150,22 +139,181 @@ secret::SecretStorage::store(const std::string& key, const std::string& value, b
 #elif defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
 
 
-//TODO: use https://learn.microsoft.com/en-us/windows/win32/seccng/cng-key-storage-functions
+namespace {
 
-secret::SecretStorage::SecretStorage(KeyringType type) : m_type{ type } { }
+    namespace constants {
+        constexpr const char* property_name = "OOPetris Payload";
+
+        constexpr const char* key_name_prefix = "OOPetris_key__";
+
+        constexpr const char* used_algorithm = BCRYPT_AES_ALGORITHM;
+    } // namespace constants
+
+    std::string get_key_name(const std::string& key) {
+        return constants::key_name_prefix + key;
+    }
+
+    helper::expected<NCRYPT_KEY_HANDLE, std::string>
+    get_handle_from_name(KeyringType type, NCRYPT_PROV_HANDLE phProvider, const std::string& key) {
+
+
+        NCRYPT_KEY_HANDLE key_handle{};
+
+        auto key_name = get_key_name(key);
+
+        // the key is of type user, if not specified otherwise, session mode is not supported
+        DWORD flags = (type == KeyringType::Persistent ? NCRYPT_MACHINE_KEY_FLAG : 0);
+
+        // 0 means no dwLegacyKeySpec
+        auto result = NCryptOpenKey(phProvider, &key_handle, key_name.c_str(), 0, flags);
+
+
+        if (result != ERROR_SUCCESS) {
+            return helper::unexpected<std::string>{ fmt::format("Error while opening a key: {}", result) };
+        }
+
+        return key_handle;
+    }
+
+} // namespace
+
+
+secret::SecretStorage::SecretStorage(KeyringType type) : m_type{ type }, m_phProvider{} {
+
+    if (type == KeyringType::Session) {
+        spdlog::warning("KeyringType Session is not supported, using KeyringType User");
+        m_type = KeyringType::User;
+    }
+
+    // there are no flags available, so using 0
+    auto result = NCryptOpenStorageProvider(&this->m_phProvider, MS_KEY_STORAGE_PROVIDER, 0);
+
+    if (result != ERROR_SUCCESS) {
+        throw std::runtime_error(fmt::format("Error while getting a storage provider handle: {}", result));
+    }
+}
+
+secret::SecretStorage::~SecretStorage() {
+    // ignore return code, as it only indicates, if we passed a valid or invalid handle
+    NCryptFreeObject(m_phProvider);
+}
 
 
 [[nodiscard]] helper::expected<std::string, std::string> secret::SecretStorage::load(const std::string& key) const {
+
+    auto maybe_key_handle = get_handle_from_name(m_type, m_phProvider, key);
+
+    if (not maybe_key_handle.has_value()) {
+        return return helper::unexpected<std::string>{ maybe_key_handle.error() };
+    }
+
+    auto key_handle = maybe_key_handle.value();
+
+    DWORD bytes_needed{};
+
+    // no flags needed, so using 0
+    auto result = NCryptGetProperty(key_handle, constants::property_name, nullptr, 0, &bytes_needed, 0);
+
+    if (result != ERROR_SUCCESS) {
+        NCryptFreeObject(key_handle);
+        return helper::unexpected<std::string>{
+            fmt::format("Error while loading a key, getting the property size failed: {}", result)
+        };
+    }
+
+    char* buffer = new char[bytes_needed];
+
+    DOWRD bytes_written{};
+
+    auto result = NCryptGetProperty(key_handle, constants::property_name, &buffer, bytes_needed, &bytes_written, 0);
+
+    if (result != ERROR_SUCCESS) {
+        NCryptFreeObject(key_handle);
+        delete[] buffer;
+        return helper::unexpected<std::string>{
+            fmt::format("Error while loading a key, getting the property failed: {}", result)
+        };
+    }
+
+    if (bytes_written != bytes_needed) {
+        NCryptFreeObject(key_handle);
+        delete[] buffer;
+        return helper::unexpected<std::string>{
+            fmt::format("Error while loading a key, getting the property failed: mismatching sizes reported")
+        };
+    }
+
+    NCryptFreeObject(key_handle);
+
+    auto result_string = std::string{ static_cast<char*>(buffer), static_cast<char*>(buffer) + bytes_needed };
+
+    delete[] buffer;
+
     return result_string;
 }
 
 [[nodiscard]] std::optional<std::string>
 secret::SecretStorage::store(const std::string& key, const std::string& value, bool update) const {
+
+    NCRYPT_KEY_HANDLE key_handle{};
+
+    auto key_name = get_key_name(key);
+
+    // the key is of type user, if not specified otherwise, session mode is not supported, also prefer VBS, but not require it, take the update flag also in consideration
+    DWORD flags = (m_type == KeyringType::Persistent ? NCRYPT_MACHINE_KEY_FLAG : 0)
+                  | (update ? NCRYPT_OVERWRITE_KEY_FLAG : 0) | NCRYPT_PREFER_VBS_FLAG;
+
+    // 0 means no dwLegacyKeySpec
+    auto result = NCryptCreatePersistedKey(
+            this->m_phProvider, &key_handle, constants::used_algorithm, key_name.c_str(), 0, flags
+    );
+
+    if (result != ERROR_SUCCESS) {
+        return fmt::format("Error while storing a key, creating a key failed: {}", result);
+    }
+
+    DWORD flags2 = m_type == KeyringType::Persistent ? NCRYPT_PERSIST_FLAG : 0;
+
+    auto result2 = NCryptSetProperty(key_handle, constants::property_name, value.c_str(), value.size(), flags2);
+
+    if (result2 != ERROR_SUCCESS) {
+        NCryptFreeObject(key_handle);
+        return fmt::format("Error while storing a key, setting the key data failed: {}", result);
+    }
+
+    // no specific flags are needed, so using 0
+    auto result3 = NCryptFinalizeKey(key_handle, 0);
+
+
+    if (result3 != ERROR_SUCCESS) {
+        NCryptFreeObject(key_handle);
+        return fmt::format("Error while storing a key, finalizing the key failed: {}", result);
+    }
+
+    // ignoring return value
+    NCryptFreeObject(key_handle);
     return std::nullopt;
 }
 
 
 [[nodiscard]] std::optional<std::string> secret::SecretStorage::remove(const std::string& key) const {
+
+    auto maybe_key_handle = get_handle_from_name(m_type, m_phProvider, key);
+
+    if (not maybe_key_handle.has_value()) {
+        return maybe_key_handle.error();
+    }
+
+    auto key_handle = maybe_key_handle.value();
+
+    // no flags needed, so using 0
+    auto result = NCryptDeleteKey(key_handle, 0);
+
+    if (result != ERROR_SUCCESS) {
+        NCryptFreeObject(key_handle);
+        return fmt::format("Error while removing a key, deleting the key failed: {}", result);
+    }
+
     return std::nullopt;
 }
 
@@ -199,6 +347,8 @@ secret::SecretStorage::SecretStorage(KeyringType type) : m_type{ type } {
 
     m_file_path = utils::get_root_folder() / secrets_constants::store_file_name;
 }
+
+secret::SecretStorage::~SecretStorage() = default;
 
 
 [[nodiscard]] helper::expected<std::string, std::string> secret::SecretStorage::load(const std::string& key) const {
