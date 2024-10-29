@@ -44,6 +44,8 @@ void ui::GridLayout::render(const ServiceProvider& service_provider) const {
 
     if (direction == Direction::Horizontal) {
         const u32 total_margin = this->size <= 1 ? 0 : (this->size - 1) * gap.get_margin();
+        assert(layout().get_rect().width() > (total_margin + (margin.first * 2))
+               && "width has to be greater than the margins");
         width = (layout().get_rect().width() - total_margin - (margin.first * 2)) / this->size;
 
         const u32 margin_x = index * gap.get_margin();
@@ -51,6 +53,8 @@ void ui::GridLayout::render(const ServiceProvider& service_provider) const {
         x_pos += margin_x + total_width;
     } else {
         const u32 total_margin = this->size <= 1 ? 0 : (this->size - 1) * gap.get_margin();
+        assert(layout().get_rect().height() > (total_margin - (margin.second * 2))
+               && "height has to be greater than the margins");
         height = (layout().get_rect().height() - total_margin - (margin.second * 2)) / this->size;
 
         const u32 margin_y = index * gap.get_margin();

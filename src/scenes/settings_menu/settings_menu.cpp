@@ -86,16 +86,24 @@ namespace scenes {
                 }
         );
 
-        auto text_input_index = scroll_layout->add<ui::TextInput>(
+
+        scroll_layout->add<ui::Label>(
+                ui::RelativeItemSize{ scroll_layout->layout(), 0.2 }, service_provider, "Lobby",
+                service_provider->font_manager().get(FontId::Default), Color::white(),
+                std::pair<double, double>{ 0.1, 0.3 },
+                ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Bottom }
+        );
+
+        auto api_url_input_index = scroll_layout->add<ui::TextInput>(
                 ui::RelativeItemSize{ scroll_layout->layout(), 0.2 }, service_provider,
                 service_provider->font_manager().get(FontId::Default), Color::white(), focus_helper.focus_id(),
-                std::pair<double, double>{ 0.9, 0.9 },
+                std::pair<double, double>{ 0.8, 0.6 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
                 ui::TextInputMode::Scale
         );
 
         if (auto api_url = m_settings.api_url; api_url.has_value()) {
-            scroll_layout->get<ui::TextInput>(text_input_index)->set_text(api_url.value());
+            scroll_layout->get<ui::TextInput>(api_url_input_index)->set_text(api_url.value());
         }
 
 
@@ -122,20 +130,21 @@ namespace scenes {
 
         auto return_layout_index = m_main_layout.add<ui::GridLayout>(
                 focus_helper.focus_id(), 2, ui::Direction::Horizontal, ui::AbsolutMargin{ 0 },
-                std::pair<double, double>{ 0.0, 0.1 }
+                std::pair<double, double>{ 0.2, 0.1 }
 
         );
 
         auto* return_layout = m_main_layout.get<ui::GridLayout>(return_layout_index);
 
+
         return_layout->add<ui::TextButton>(
-                service_provider, "Return asn Save", service_provider->font_manager().get(FontId::Default),
+                service_provider, "Return and Save", service_provider->font_manager().get(FontId::Default),
                 Color::white(), focus_helper.focus_id(),
                 [this](const ui::TextButton&) -> bool {
                     m_next_command = Command{ Return{ ReturnType::Save } };
                     return false;
                 },
-                std::pair<double, double>{ 0.15, 0.85 },
+                std::pair<double, double>{ 0.8, 0.85 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
                 std::pair<double, double>{ 0.1, 0.1 }
         );
@@ -147,7 +156,7 @@ namespace scenes {
                     m_next_command = Command{ Return{ ReturnType::Cancel } };
                     return false;
                 },
-                std::pair<double, double>{ 0.15, 0.85 },
+                std::pair<double, double>{ 0.8, 0.85 },
                 ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
                 std::pair<double, double>{ 0.1, 0.1 }
         );
