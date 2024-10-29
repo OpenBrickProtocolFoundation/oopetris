@@ -11,7 +11,17 @@
 
 #include <keyutils.h>
 #elif defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
+
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+
+#include <winsock2.h>
+
+#include <windows.h>
+
 #include <ncrypt.h>
+
 #endif
 
 namespace secret {

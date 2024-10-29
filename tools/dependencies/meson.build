@@ -283,6 +283,11 @@ if build_application
     if host_machine.system() == 'linux' or (meson.is_cross_build() and host_machine.system() == 'android')
         keyutils_dep = dependency('keyutils', required: true, allow_fallback: true)
         graphics_lib += {'deps': [graphics_lib.get('deps'), keyutils_dep]}
+    elif host_machine.system() == 'windows'
+        c = meson.get_compiler('c')
+
+        ncrypt_dep = c.find_library('ncrypt')
+        graphics_lib += {'deps': [graphics_lib.get('deps'), ncrypt_dep]}
     endif
 
     build_installer = get_option('build_installer')

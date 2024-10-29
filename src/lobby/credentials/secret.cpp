@@ -138,23 +138,29 @@ secret::SecretStorage::store(const std::string& key, const std::string& value, b
 
 #elif defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
 
+#include <fmt/format.h>
+#include <spdlog/spdlog.h>
 
 namespace {
 
     namespace constants {
-        constexpr const char* property_name = "OOPetris Payload";
+        constexpr const wchar_t* property_name = L"OOPetris Payload";
 
-        constexpr const char* key_name_prefix = "OOPetris_key__";
+        constexpr const wchar_t* key_name_prefix = L"OOPetris_key__";
 
-        constexpr const char* used_algorithm = BCRYPT_AES_ALGORITHM;
+        constexpr const wchar_t* used_algorithm = BCRYPT_AES_ALGORITHM;
     } // namespace constants
 
-    std::string get_key_name(const std::string& key) {
-        return constants::key_name_prefix + key;
+    std::wstring get_key_name(const std::string& key) {
+        std::wstring result{ constants::key_name_prefix };
+        for (auto& normal_char : key) {
+            result += normal_char;
+        }
+        return result;
     }
 
     helper::expected<NCRYPT_KEY_HANDLE, std::string>
-    get_handle_from_name(KeyringType type, NCRYPT_PROV_HANDLE phProvider, const std::string& key) {
+    get_handle_from_name(secret::KeyringType type, NCRYPT_PROV_HANDLE phProvider, const std::string& key) {
 
 
         NCRYPT_KEY_HANDLE key_handle{};
@@ -162,7 +168,7 @@ namespace {
         auto key_name = get_key_name(key);
 
         // the key is of type user, if not specified otherwise, session mode is not supported
-        DWORD flags = (type == KeyringType::Persistent ? NCRYPT_MACHINE_KEY_FLAG : 0);
+        DWORD flags = (type == secret::KeyringType::Persistent ? NCRYPT_MACHINE_KEY_FLAG : 0);
 
         // 0 means no dwLegacyKeySpec
         auto result = NCryptOpenKey(phProvider, &key_handle, key_name.c_str(), 0, flags);
@@ -181,7 +187,7 @@ namespace {
 secret::SecretStorage::SecretStorage(KeyringType type) : m_type{ type }, m_phProvider{} {
 
     if (type == KeyringType::Session) {
-        spdlog::warning("KeyringType Session is not supported, using KeyringType User");
+        spdlog::warn("KeyringType Session is not supported, using KeyringType User");
         m_type = KeyringType::User;
     }
 
@@ -204,7 +210,7 @@ secret::SecretStorage::~SecretStorage() {
     auto maybe_key_handle = get_handle_from_name(m_type, m_phProvider, key);
 
     if (not maybe_key_handle.has_value()) {
-        return return helper::unexpected<std::string>{ maybe_key_handle.error() };
+        return helper::unexpected<std::string>{ maybe_key_handle.error() };
     }
 
     auto key_handle = maybe_key_handle.value();
@@ -221,17 +227,17 @@ secret::SecretStorage::~SecretStorage() {
         };
     }
 
-    char* buffer = new char[bytes_needed];
+    PBYTE buffer = new BYTE[bytes_needed];
 
-    DOWRD bytes_written{};
+    DWORD bytes_written{};
 
-    auto result = NCryptGetProperty(key_handle, constants::property_name, &buffer, bytes_needed, &bytes_written, 0);
+    auto result2 = NCryptGetProperty(key_handle, constants::property_name, buffer, bytes_needed, &bytes_written, 0);
 
-    if (result != ERROR_SUCCESS) {
+    if (result2 != ERROR_SUCCESS) {
         NCryptFreeObject(key_handle);
         delete[] buffer;
         return helper::unexpected<std::string>{
-            fmt::format("Error while loading a key, getting the property failed: {}", result)
+            fmt::format("Error while loading a key, getting the property failed: {}", result2)
         };
     }
 
@@ -245,7 +251,7 @@ secret::SecretStorage::~SecretStorage() {
 
     NCryptFreeObject(key_handle);
 
-    auto result_string = std::string{ static_cast<char*>(buffer), static_cast<char*>(buffer) + bytes_needed };
+    auto result_string = std::string{ reinterpret_cast<char*>(buffer), reinterpret_cast<char*>(buffer) + bytes_needed };
 
     delete[] buffer;
 
@@ -260,8 +266,13 @@ secret::SecretStorage::store(const std::string& key, const std::string& value, b
     auto key_name = get_key_name(key);
 
     // the key is of type user, if not specified otherwise, session mode is not supported, also prefer VBS, but not require it, take the update flag also in consideration
-    DWORD flags = (m_type == KeyringType::Persistent ? NCRYPT_MACHINE_KEY_FLAG : 0)
-                  | (update ? NCRYPT_OVERWRITE_KEY_FLAG : 0) | NCRYPT_PREFER_VBS_FLAG;
+    DWORD flags = (m_type == secret::KeyringType::Persistent ? NCRYPT_MACHINE_KEY_FLAG : 0)
+                  | (update ? NCRYPT_OVERWRITE_KEY_FLAG : 0)
+#ifdef NCRYPT_PREFER_VBS_FLAG
+                  | NCRYPT_PREFER_VBS_FLAG;
+#else
+            ;
+#endif
 
     // 0 means no dwLegacyKeySpec
     auto result = NCryptCreatePersistedKey(
@@ -274,7 +285,14 @@ secret::SecretStorage::store(const std::string& key, const std::string& value, b
 
     DWORD flags2 = m_type == KeyringType::Persistent ? NCRYPT_PERSIST_FLAG : 0;
 
-    auto result2 = NCryptSetProperty(key_handle, constants::property_name, value.c_str(), value.size(), flags2);
+    PBYTE buffer = new BYTE[value.size()];
+
+    std::memcpy(buffer, value.c_str(), value.size());
+
+    auto result2 =
+            NCryptSetProperty(key_handle, constants::property_name, buffer, static_cast<DWORD>(value.size()), flags2);
+
+    delete[] buffer;
 
     if (result2 != ERROR_SUCCESS) {
         NCryptFreeObject(key_handle);
