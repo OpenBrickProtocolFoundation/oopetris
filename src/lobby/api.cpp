@@ -59,7 +59,7 @@ lobby::API::API(const std::string& api_url)
     auto value = m_secret_storage->load(constants::api_token_key);
 
     if (value.has_value()) {
-        if (not this->setup_authentication(value.value())) {
+        if (not this->setup_authentication(value.value().as_string())) {
             throw std::runtime_error("Couldn't setup authentication");
         }
     } else {
@@ -275,7 +275,7 @@ bool lobby::API::setup_authentication(const std::string& token) {
     m_authentication_token = token;
 
     m_client->SetBearerAuth(token);
-    if (auto result = m_secret_storage->store(constants::api_token_key, token); result.has_value()) {
+    if (auto result = m_secret_storage->store(constants::api_token_key, secret::Buffer{ token }); result.has_value()) {
         spdlog::error("API {}", result.value());
     }
 

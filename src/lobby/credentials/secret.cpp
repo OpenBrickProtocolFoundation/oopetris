@@ -63,13 +63,13 @@ secret::SecretStorage::SecretStorage(KeyringType type) : m_type{ type } {
     }
 }
 
-secret::SecretStorage::~SecretStorage() = default;
+secret::SecretStorage::~SecretStorage() = default; //NOLINT(performance-trivially-destructible)
 
 secret::SecretStorage::SecretStorage(SecretStorage&& other) noexcept
     : m_type{ other.m_type },
       m_ring_id{ other.m_ring_id } { }
 
-[[nodiscard]] helper::expected<std::string, std::string> secret::SecretStorage::load(const std::string& key) const {
+[[nodiscard]] helper::expected<secret::Buffer, std::string> secret::SecretStorage::load(const std::string& key) const {
 
     auto key_id = get_id_from_name(m_ring_id, key);
 
@@ -90,19 +90,17 @@ secret::SecretStorage::SecretStorage(SecretStorage&& other) noexcept
         };
     }
 
-    auto result_string = std::string{
-        static_cast<char*>(buffer),
-        static_cast<char*>(buffer) + result //NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-    };
+
+    auto result_buffer =
+            Buffer{ reinterpret_cast<std::byte*>(buffer), //NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+                    static_cast<std::size_t>(result) };
+
     free(buffer); // NOLINT(cppcoreguidelines-no-malloc,cppcoreguidelines-owning-memory)
-    return result_string;
+    return result_buffer;
 }
 
-[[nodiscard]] std::optional<std::string> secret::SecretStorage::store(
-        const std::string& key, //NOLINT(bugprone-easily-swappable-parameters)
-        const std::string& value,
-        bool update
-) const {
+[[nodiscard]] std::optional<std::string>
+secret::SecretStorage::store(const std::string& key, const Buffer& value, bool update) const {
 
     auto key_id = get_id_from_name(m_ring_id, key);
 
@@ -113,7 +111,7 @@ secret::SecretStorage::SecretStorage(SecretStorage&& other) noexcept
 
     auto full_key = get_key_name(key);
 
-    auto new_id = add_key(constants::key_type_user, full_key.c_str(), value.c_str(), value.size(), m_ring_id);
+    auto new_id = add_key(constants::key_type_user, full_key.c_str(), value.data(), value.size(), m_ring_id);
 
     if (new_id < 0) {
         return fmt::format("Error while storing a key, can't add the key: {}", strerror(errno));
@@ -235,7 +233,7 @@ secret::SecretStorage::SecretStorage(SecretStorage&& other) noexcept
 }
 
 
-[[nodiscard]] helper::expected<std::string, std::string> secret::SecretStorage::load(const std::string& key) const {
+[[nodiscard]] helper::expected<secret::Buffer, std::string> secret::SecretStorage::load(const std::string& key) const {
 
     auto maybe_key_handle = get_handle_from_name(m_type, m_phProvider, key);
 
@@ -281,15 +279,18 @@ secret::SecretStorage::SecretStorage(SecretStorage&& other) noexcept
 
     NCryptFreeObject(key_handle);
 
-    auto result_string = std::string{ reinterpret_cast<char*>(buffer), reinterpret_cast<char*>(buffer) + bytes_needed };
+    auto result_buffer =
+            Buffer{ reinterpret_cast<std::byte*>(buffer), //NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+                    static_cast<std::size_t>(bytes_needed) };
+
 
     delete[] buffer;
 
-    return result_string;
+    return result_buffer;
 }
 
 [[nodiscard]] std::optional<std::string>
-secret::SecretStorage::store(const std::string& key, const std::string& value, bool update) const {
+secret::SecretStorage::store(const std::string& key, const Buffer& value, bool update) const {
 
     NCRYPT_KEY_HANDLE key_handle{};
 
@@ -317,7 +318,7 @@ secret::SecretStorage::store(const std::string& key, const std::string& value, b
 
     PBYTE buffer = new BYTE[value.size()];
 
-    std::memcpy(buffer, value.c_str(), value.size());
+    std::memcpy(buffer, value.data(), value.size());
 
     auto result2 =
             NCryptSetProperty(key_handle, constants::property_name, buffer, static_cast<DWORD>(value.size()), flags2);
@@ -403,7 +404,7 @@ secret::SecretStorage::SecretStorage(SecretStorage&& other) noexcept
       m_file_path{ other.m_file_path } { }
 
 
-[[nodiscard]] helper::expected<std::string, std::string> secret::SecretStorage::load(const std::string& key) const {
+[[nodiscard]] helper::expected<secret::Buffer, std::string> secret::SecretStorage::load(const std::string& key) const {
 
     auto maybe_json_value = get_json_from_file(m_file_path);
 
@@ -421,11 +422,13 @@ secret::SecretStorage::SecretStorage(SecretStorage&& other) noexcept
 
     json_value.at(key).get_to(result);
 
-    return result;
+    auto result_buffer = Buffer{ result };
+
+    return result_buffer;
 }
 
 [[nodiscard]] std::optional<std::string>
-secret::SecretStorage::store(const std::string& key, const std::string& value, bool update) const {
+secret::SecretStorage::store(const std::string& key, const Buffer& value, bool update) const {
 
     auto maybe_json_value = get_json_from_file(m_file_path);
 
@@ -440,7 +443,7 @@ secret::SecretStorage::store(const std::string& key, const std::string& value, b
     }
 
 
-    json_value.at(key) = value;
+    json_value.at(key) = value.as_string();
 
     return json::try_write_json_to_file(m_file_path, json_value, true);
 }
