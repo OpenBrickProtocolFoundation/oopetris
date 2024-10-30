@@ -7,6 +7,7 @@
 #include "helper/constants.hpp"
 
 #include <SDL.h>
+#include <filesystem>
 #include <spdlog/spdlog.h>
 
 namespace utils {
@@ -33,6 +34,9 @@ namespace utils {
         OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] const char* what() const noexcept override;
     };
 
+
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::optional<std::string>
+    create_directory(const std::filesystem::path& folder, bool recursive);
 
 // this needs some special handling, so the macro is defined here
 #if defined(_MSC_VER)

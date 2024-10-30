@@ -34,8 +34,11 @@ namespace {
     void initialize_spdlog() {
 
         const auto logs_path = utils::get_root_folder() / "logs";
-        if (not std::filesystem::exists(logs_path)) {
-            std::filesystem::create_directory(logs_path);
+
+        auto created_log_dir = utils::create_directory(logs_path, true);
+        if (created_log_dir.has_value()) {
+            std::cerr << "warning: couldn't create logs directory '" << logs_path.string()
+                      << "': disabled file logger\n";
         }
 
         std::vector<spdlog::sink_ptr> sinks;
@@ -46,9 +49,13 @@ namespace {
 #else
         sinks.push_back(std::make_shared<spdlog::sinks::stdout_sink_mt>());
 #endif
-        sinks.push_back(std::make_shared<spdlog::sinks::rotating_file_sink_mt>(
-                fmt::format("{}/oopetris.log", logs_path.string()), 1024 * 1024 * 10, 5, true
-        ));
+
+        if (not created_log_dir.has_value()) {
+            sinks.push_back(std::make_shared<spdlog::sinks::rotating_file_sink_mt>(
+                    fmt::format("{}/oopetris.log", logs_path.string()), 1024 * 1024 * 10, 5, true
+            ));
+        }
+
         auto combined_logger = std::make_shared<spdlog::logger>("combined_logger", begin(sinks), end(sinks));
         spdlog::set_default_logger(combined_logger);
 
