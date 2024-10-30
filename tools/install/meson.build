@@ -13,9 +13,8 @@ if build_application
             flatpak_app_name + '.metainfo.xml.in',
             'OOPetris.svg',
             'recordings.magic',
-            'schema',
         ],
-        exclude_directories: ['icon'],
+        exclude_directories: ['icon', 'schema'],
     )
 
     app_name = 'oopetris'
