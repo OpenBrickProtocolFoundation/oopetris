@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>@APP_ID@</id>
+  <name>OOPetris</name>
+  <summary>A Tetris clone in OOP</summary>
+  <metadata_license>MIT</metadata_license>
+  <project_license>MIT</project_license>
+  <supports>
+    <control>pointing</control>
+    <control>keyboard</control>
+    <control>touch</control>
+    <control>gamepad</control>
+  </supports>
+  <description>
+    <p>
+      A Tetris clone in OOP
+    </p>
+  </description>
+  <launchable type="desktop-id">@APP_ID@.desktop</launchable>
+  <content_rating type="oars-1.0" />
+  <releases>
+    <release date="2022-03-01" version="0.0.1"/>
+    <release version="0.5.6" date="2024-05-17">
+      <url type="details">https://github.com/OpenBrickProtocolFoundation/oopetris/releases/tag/0.5.6</url>
+    </release>
+  </releases>
+  <url type="homepage">https://oopetris.totto.lt/</url>
+  <url type="bugtracker">https://github.com/OpenBrickProtocolFoundation/oopetris/issues</url>
+  <url type="contribute">https://github.com/OpenBrickProtocolFoundation/oopetris/pulls</url>
+  <url type="vcs-browser">https://github.com/OpenBrickProtocolFoundation/oopetris</url>
+</component>

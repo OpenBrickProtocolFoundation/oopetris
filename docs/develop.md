@@ -8,12 +8,11 @@ For concrete instructions, see the list below:
 
 ## Linux
 
-[linux](linux.md)
+[Linux](linux.md)
 
 ## Serenity OS
 
 [serenity](serenity.md)
-
 
 ## Windows
 
@@ -27,11 +26,9 @@ For concrete instructions, see the list below:
 
 [switch](switch.md)
 
-
 ## Nintendo 3DS
 
 [switch](3ds.md)
-
 
 ## Android
 

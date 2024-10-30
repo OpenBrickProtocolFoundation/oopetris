@@ -23,14 +23,21 @@ Or you can download and use prebuilt binaries from the CI-builds. You can find s
 
 To download artifacts, click on the newest action and download the artifacts.
 
-[Android](https://github.com/mgerhold/oopetris/actions/workflows/android.yml)
+[Android](https://github.com/OpenBrickProtocolFoundation/oopetris/actions/workflows/android.yml)
 
-[Linux (Flatpak)](https://github.com/mgerhold/oopetris/actions/workflows/flatpak.yml)
+[Linux (Flatpak)](https://github.com/OpenBrickProtocolFoundation/oopetris/actions/workflows/flatpak.yml)
 
-[Nintendo Switch /3DS](https://github.com/mgerhold/oopetris/actions/workflows/nintendo.yml)
+[Nintendo Switch / 3DS](https://github.com/OpenBrickProtocolFoundation/oopetris/actions/workflows/nintendo.yml)
 
-There is no correct Windows and MacOS build atm, you have to built it yourself or use the (maybe not published yet) release builds on github.
+[WIndows](https://github.com/OpenBrickProtocolFoundation/oopetris/actions/workflows/installer.yml)
 
+There is no correct MacOS build atm, you have to built it yourself or use the (maybe not published yet) releases on GitHub.
+
+## Releases
+
+There is an official website for OOPetris, where you also can find different links to auto updatable releases.
+
+For concrete instructions see [here](docs/releases.md)
 
 ## Logo
 

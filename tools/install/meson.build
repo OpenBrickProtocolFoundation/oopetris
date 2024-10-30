@@ -6,7 +6,12 @@ if build_application
         meson.project_source_root() / 'assets',
         install_dir: 'share/oopetris',
         install_tag: 'assets',
-        exclude_files: ['oopetris.desktop.in', 'OOPetris.svg', 'recordings.magic'],
+        exclude_files: [
+            'oopetris.desktop.in',
+            'com.github.mgerhold.OOPetris.metainfo.xml.in',
+            'OOPetris.svg',
+            'recordings.magic',
+        ],
         exclude_directories: ['icon'],
     )
 
@@ -14,6 +19,8 @@ if build_application
     if is_flatpak_build
         app_name = 'com.github.mgerhold.OOPetris'
     endif
+
+    require_checks = get_option('tests')
 
     conf = configuration_data()
     conf.set('APP_NAME', app_name)
@@ -54,14 +61,56 @@ if build_application
         endif
     endif
 
-    configure_file(
-        input: meson.project_source_root() / 'assets/oopetris.desktop.in',
+    desktop_file = configure_file(
+        input: meson.project_source_root() / 'assets' / 'oopetris.desktop.in',
         output: app_name + '.desktop',
         configuration: conf,
         install: true,
         install_dir: datadir / 'applications',
         install_tag: 'other',
     )
+
+    desktop_file_validate_exe = find_program('desktop-file-validate', required: require_checks)
+
+    if desktop_file_validate_exe.found()
+        test(
+            'validate desktop file',
+            desktop_file_validate_exe,
+            args: [desktop_file],
+        )
+    endif
+
+    if is_flatpak_build
+
+        flaptak_conf = configuration_data()
+        flaptak_conf.set('APP_ID', app_name)
+        flaptak_conf.set('APP_VERSION', meson.project_version())
+
+        metainfo_file = configure_file(
+            input: meson.project_source_root() / 'assets' / 'com.github.mgerhold.OOPetris.metainfo.xml.in',
+            output: app_name + '.metainfo.xml',
+            configuration: flaptak_conf,
+            install: true,
+            install_dir: datadir / 'metainfo',
+            install_tag: 'other',
+        )
+
+        ascli_exe = find_program('appstreamcli', required: require_checks)
+
+        if ascli_exe.found()
+            test(
+                'validate metainfo file',
+                ascli_exe,
+                args: [
+                    'validate',
+                    '--no-net',
+                    '--explain',
+                    '--pedantic', metainfo_file,
+                ],
+            )
+        endif
+
+    endif
 
     logos = [
         '24x24.png',
