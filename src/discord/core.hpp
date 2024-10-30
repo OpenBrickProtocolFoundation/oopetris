@@ -3,6 +3,7 @@
 #pragma once
 
 #include <core/helper/expected.hpp>
+#include <core/helper/types.hpp>
 
 #include "../helper/windows.hpp"
 
@@ -26,7 +27,8 @@ namespace constants::discord {
 #elif defined(__CONSOLE__)
 #error "Not supported"
 #elif defined(FLATPAK_BUILD)
-    constexpr const char* platform_dependent_launch_arguments = "flatpak run com.github.mgerhold.OOPetris --discord";
+    constexpr const char* platform_dependent_launch_arguments =
+            "flatpak run io.github.openbrickprotocolfoundation.oopetris --discord";
 #elif defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
     constexpr const char* platform_dependent_launch_arguments = "oopetris.exe --discord";
 #elif defined(__APPLE__)
@@ -38,7 +40,7 @@ namespace constants::discord {
 #endif
 
     // manually synchronized to https://discord.com/developers/applications/1220147916371394650/rich-presence/assets
-    enum class ArtAsset { logo };
+    enum class ArtAsset : u8 { Logo };
 
     OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::string get_asset_key(ArtAsset asset);
 

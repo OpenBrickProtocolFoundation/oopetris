@@ -1,4 +1,4 @@
-name: Installer CI
+name: Windows Installer CI
 
 on:
   push:

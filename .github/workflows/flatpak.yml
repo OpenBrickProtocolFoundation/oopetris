@@ -1,4 +1,4 @@
-name: Flatpak build
+name: Flatpak CI
 
 on:
   release:
@@ -10,15 +10,49 @@ on:
 
 jobs:
   flatpak:
-    name: 'Flatpak build'
+    name: Flatpak build (${{ matrix.config.arch }})
     runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        config:
+          - arch: x86_64
+            use_qemu: false
+
+          - arch: aarch64
+            use_qemu: true
+            qemu_arch: arm64
+      # Don't fail the whole workflow if one architecture fails
+      fail-fast: false
     container:
       image: bilelmoussaoui/flatpak-github-actions:freedesktop-24.08
       options: --privileged
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install deps
+        if: ${{ matrix.config.use_qemu == true }}
+        run: |
+          dnf -y install docker
+
+      - name: Set up QEMU
+        if: ${{ matrix.config.use_qemu == true }}
+        id: qemu
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: ${{ matrix.config.qemu_arch }}
+
       - uses: bilelmoussaoui/flatpak-github-actions/flatpak-builder@v6
         with:
           bundle: oopetris.flatpak
-          manifest-path: com.github.mgerhold.OOPetris.yml
+          manifest-path: io.github.openbrickprotocolfoundation.oopetris.yml
           verbose: ${{ runner.debug == '1' && 'true' || 'false' }}
+          cache-key: flatpak-builder-${{ github.sha }}
+          arch: ${{ matrix.config.arch }}
+
+      - uses: flatpak/flatpak-github-actions/flat-manager@v4
+        name: 'Deploy'
+        if: github.event_name != 'pull_request'
+        with:
+          repository: beta
+          flat-manager-url: http://flat-man.oopetris.totto.lt
+          token: ${{ secrets.FLAT_MANAGER_TOKEN }}

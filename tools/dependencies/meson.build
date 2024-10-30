@@ -305,7 +305,7 @@ if build_application
     endif
 
     if is_flatpak_build
-        app_name = 'com.github.mgerhold.OOPetris'
+        app_name = 'io.github.openbrickprotocolfoundation.oopetris'
 
         temp = core_lib.get('compile_args')
         temp += '-DFLATPAK_BUILD'
@@ -319,6 +319,7 @@ if build_application
     nfde_dep = dependency(
         'nativefiledialog-extended',
         required: not meson.is_cross_build(),
+        allow_fallback: true,
         default_options: {
             'xdg-desktop-portal': is_flatpak_build ? 'enabled' : 'auto',
         },
@@ -336,9 +337,17 @@ if build_application
 
     c = meson.get_compiler('c')
 
+    discord_dep_required = not meson.is_cross_build() and get_option('build_installer')
+
+    if host_machine.system() == 'linux' and host_machine.cpu_family() == 'aarch64'
+        # not supported on aarch64 linux :(
+        discord_dep_required = false
+    endif
+
     discord_sdk_dep = dependency(
         'discord-game-sdk',
-        required: not meson.is_cross_build() and get_option('build_installer'),
+        allow_fallback: true,
+        required: discord_dep_required,
         # only with msvc we need a static library, all others work without adding __declspec() everywhere
         static: c.get_id() == 'msvc',
         default_options: c.get_id() != 'msvc' ? {} : {'default_library': 'static'},

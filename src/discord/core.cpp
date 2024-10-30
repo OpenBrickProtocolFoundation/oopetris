@@ -11,7 +11,7 @@
 [[nodiscard]] std::string constants::discord ::get_asset_key(constants::discord::ArtAsset asset) {
 
     switch (asset) {
-        case ArtAsset::logo:
+        case ArtAsset::Logo:
             return "logo";
         default:
             UNREACHABLE();

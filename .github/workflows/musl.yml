@@ -1,4 +1,4 @@
-name: musl CI
+name: Musl CI
 
 on:
   push:

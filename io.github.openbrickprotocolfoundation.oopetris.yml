@@ -1,4 +1,4 @@
-app-id: com.github.mgerhold.OOPetris
+app-id: io.github.openbrickprotocolfoundation.oopetris
 runtime: org.freedesktop.Platform
 runtime-version: "24.08"
 sdk: org.freedesktop.Sdk
