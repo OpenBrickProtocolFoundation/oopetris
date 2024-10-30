@@ -40,7 +40,7 @@ namespace constants::discord {
 #endif
 
     // manually synchronized to https://discord.com/developers/applications/1220147916371394650/rich-presence/assets
-    enum class ArtAsset : u8 { logo };
+    enum class ArtAsset : u8 { Logo };
 
     OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::string get_asset_key(ArtAsset asset);
 

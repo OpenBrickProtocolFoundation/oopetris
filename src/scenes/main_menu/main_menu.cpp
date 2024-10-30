@@ -90,7 +90,7 @@ namespace scenes {
 
             discord_instance->set_activity(
                     DiscordActivityWrapper("Selecting playmode", discord::ActivityType::Playing)
-                            .set_large_image("Playing OOPetris", constants::discord::ArtAsset::logo)
+                            .set_large_image("Playing OOPetris", constants::discord::ArtAsset::Logo)
                             .set_start_timestamp(std::chrono::system_clock::now())
             );
         }
