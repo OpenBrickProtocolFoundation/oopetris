@@ -319,6 +319,7 @@ if build_application
     nfde_dep = dependency(
         'nativefiledialog-extended',
         required: not meson.is_cross_build(),
+        allow_fallback: true,
         default_options: {
             'xdg-desktop-portal': is_flatpak_build ? 'enabled' : 'auto',
         },
