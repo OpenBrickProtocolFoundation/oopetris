@@ -29,7 +29,7 @@ To download artifacts, click on the newest action and download the artifacts.
 
 [Nintendo Switch / 3DS](https://github.com/OpenBrickProtocolFoundation/oopetris/actions/workflows/nintendo.yml)
 
-[WIndows](https://github.com/OpenBrickProtocolFoundation/oopetris/actions/workflows/installer.yml)
+[Windows](https://github.com/OpenBrickProtocolFoundation/oopetris/actions/workflows/windows_installer.yml)
 
 There is no correct MacOS build atm, you have to built it yourself or use the (maybe not published yet) releases on GitHub.
 

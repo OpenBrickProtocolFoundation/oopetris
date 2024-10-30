@@ -1,4 +1,4 @@
-name: C++ lints(clang-format + clang-tidy)
+name: Lint CI
 on:
   push:
     branches: ['main']
@@ -7,6 +7,7 @@ on:
 
 jobs:
   cpp-linter:
+    name: C++ lints(clang-format + clang-tidy)
     runs-on: ubuntu-24.04
     permissions:
       pull-requests: write

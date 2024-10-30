@@ -1,4 +1,4 @@
-name: Flatpak build
+name: Flatpak CI
 
 on:
   release:
