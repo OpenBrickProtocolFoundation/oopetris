@@ -305,7 +305,7 @@ if build_application
     endif
 
     if is_flatpak_build
-        app_name = 'com.github.mgerhold.OOPetris'
+        app_name = 'io.github.openbrickprotocolfoundation.oopetris'
 
         temp = core_lib.get('compile_args')
         temp += '-DFLATPAK_BUILD'

@@ -26,7 +26,7 @@ namespace constants::discord {
 #elif defined(__CONSOLE__)
 #error "Not supported"
 #elif defined(FLATPAK_BUILD)
-    constexpr const char* platform_dependent_launch_arguments = "flatpak run com.github.mgerhold.OOPetris --discord";
+    constexpr const char* platform_dependent_launch_arguments = "flatpak run io.github.openbrickprotocolfoundation.oopetris --discord";
 #elif defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
     constexpr const char* platform_dependent_launch_arguments = "oopetris.exe --discord";
 #elif defined(__APPLE__)

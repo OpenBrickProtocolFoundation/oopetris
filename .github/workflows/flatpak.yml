@@ -20,5 +20,5 @@ jobs:
       - uses: bilelmoussaoui/flatpak-github-actions/flatpak-builder@v6
         with:
           bundle: oopetris.flatpak
-          manifest-path: com.github.mgerhold.OOPetris.yml
+          manifest-path: io.github.openbrickprotocolfoundation.oopetris.yml
           verbose: ${{ runner.debug == '1' && 'true' || 'false' }}

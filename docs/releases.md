@@ -32,7 +32,7 @@ flatpak remote-add --if-not-exists oopetris-beta https://oopetris.totto.lt/repo/
 Than install it by using this command:
 
 ```bash
-flatpak install -v com.github.mgerhold.OOPetris
+flatpak install -v io.github.openbrickprotocolfoundation.oopetris
 ```
 
 To update use the normal flatpak update command, keep in mind, that the bet may be unstable and break things, use with caution!

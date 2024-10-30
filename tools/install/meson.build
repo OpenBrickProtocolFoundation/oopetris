@@ -1,5 +1,7 @@
 if build_application
 
+    flatpak_app_name = 'io.github.openbrickprotocolfoundation.oopetris'
+
     ## TODO: only install needed ones, since sometimes we only need e.g. flacs or mp3 and no icons etc.
     ## install assets
     install_subdir(
@@ -8,7 +10,7 @@ if build_application
         install_tag: 'assets',
         exclude_files: [
             'oopetris.desktop.in',
-            'com.github.mgerhold.OOPetris.metainfo.xml.in',
+            flatpak_app_name+'.metainfo.xml.in',
             'OOPetris.svg',
             'recordings.magic',
         ],
@@ -17,7 +19,7 @@ if build_application
 
     app_name = 'oopetris'
     if is_flatpak_build
-        app_name = 'com.github.mgerhold.OOPetris'
+        app_name = flatpak_app_name
     endif
 
     require_checks = get_option('tests')
@@ -87,7 +89,7 @@ if build_application
         flaptak_conf.set('APP_VERSION', meson.project_version())
 
         metainfo_file = configure_file(
-            input: meson.project_source_root() / 'assets' / 'com.github.mgerhold.OOPetris.metainfo.xml.in',
+            input: meson.project_source_root() / 'assets' / (flatpak_app_name+'.metainfo.xml.in'),
             output: app_name + '.metainfo.xml',
             configuration: flaptak_conf,
             install: true,
