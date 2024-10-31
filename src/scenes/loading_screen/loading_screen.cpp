@@ -84,7 +84,7 @@ void scenes::LoadingScreen::update() {
 
         const auto offset = std::numbers::pi_v<double> * 2.0 * static_cast<double>(length - i - 1) / length_d;
 
-        scale = std::min(amplitude * std::sin(time * speed + offset) + scale_offset, 1.0);
+        scale = std::min((amplitude * std::sin((time * speed) + offset)) + scale_offset, 1.0);
     }
     //
 }
@@ -122,6 +122,6 @@ void scenes::LoadingScreen::render(const ServiceProvider& service_provider) cons
 [[nodiscard]] shapes::UPoint scenes::LoadingScreen::to_screen_coords(const Mino::GridPoint& point, u32 tile_size)
         const {
     const auto start_edge = m_start_offset + point.cast<u32>() * m_tile_size;
-    const auto inner_offset = m_tile_size - tile_size / 2;
+    const auto inner_offset = m_tile_size - (tile_size / 2);
     return start_edge + shapes::UPoint{ inner_offset, inner_offset };
 }

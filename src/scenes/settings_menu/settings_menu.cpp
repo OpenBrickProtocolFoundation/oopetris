@@ -17,7 +17,7 @@
 
 namespace scenes {
 
-    using namespace details::settings::menu;
+    using namespace details::settings::menu; // NOLINT(google-build-using-namespace)
 
     SettingsMenu::SettingsMenu(ServiceProvider* service_provider, const ui::Layout& layout)
         : SettingsMenu{ service_provider, layout, std::nullopt } { }
@@ -133,7 +133,7 @@ namespace scenes {
 
             scroll_layout->add<custom_ui::ColorSettingRow>(
                     ui::RelativeItemSize{ scroll_layout->layout(), 0.2 }, service_provider,
-                    //TODO use real settings name
+                    //TODO(Totto): use real settings name
                     fmt::format("Color {}", color_index), color,
                     [this, color_index](const Color& updated_color) { this->m_colors.at(color_index) = updated_color; },
                     focus_helper.focus_id()

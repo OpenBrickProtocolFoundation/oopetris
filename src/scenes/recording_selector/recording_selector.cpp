@@ -25,7 +25,7 @@
 
 namespace scenes {
 
-    using namespace details::recording::selector;
+    using namespace details::recording::selector; //NOLINT(google-build-using-namespace)
 
     RecordingSelector::RecordingSelector(ServiceProvider* service_provider, const ui::Layout& layout)
         : Scene{ service_provider, layout },

@@ -13,12 +13,12 @@
 namespace sdl {
 
     // make keys printable
-    void PrintTo(const Key& key, std::ostream* os) {
+    void PrintTo(const Key& key, std::ostream* os) { //NOLINT(misc-use-internal-linkage)
         *os << key.to_string();
     }
 
 
-    std::ostream& operator<<(std::ostream& os, const Key& value) {
+    std::ostream& operator<<(std::ostream& os, const Key& value) { //NOLINT(misc-use-internal-linkage)
         os << value.to_string();
         return os;
     }

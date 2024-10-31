@@ -340,7 +340,7 @@ std::optional<double> MusicManager::change_volume(const std::int8_t steps) {
                 return 1.0F;
             }
 
-            new_volume = current_volume.value() + MusicManager::step_width * static_cast<double>(steps);
+            new_volume = current_volume.value() + (MusicManager::step_width * static_cast<double>(steps));
         }
 
         if (new_volume >= 1.0F) {

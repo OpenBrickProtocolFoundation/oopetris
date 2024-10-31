@@ -31,8 +31,8 @@ custom_ui::RecordingFileChooser::RecordingFileChooser(
             [service_provider, this](const ui::TextButton&) -> bool {
                 this->prepare_dialog(service_provider);
 
-                const auto result = helper::openMultipleFilesDialog({
-                        { "OOPetris Recording", { constants::recording::extension } }
+                const auto result = helper::open_multiple_files_dialog({
+                        { .name = "OOPetris Recording", .extension_list = { constants::recording::extension } }
                 });
 
                 if (result.has_value()) {
@@ -58,7 +58,7 @@ custom_ui::RecordingFileChooser::RecordingFileChooser(
             [this, service_provider](const ui::TextButton&) -> bool {
                 this->prepare_dialog(service_provider);
 
-                const auto result = helper::openFolderDialog();
+                const auto result = helper::open_folder_dialog();
 
                 if (result.has_value()) {
 

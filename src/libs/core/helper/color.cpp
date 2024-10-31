@@ -119,13 +119,13 @@ namespace {
     }
 
     // use custom fmod, that always result in a positive value
-    const FloatType h = h_temp * static_cast<FloatType>(60.0); //degrees
+    const FloatType hue = h_temp * static_cast<FloatType>(60.0); //degrees
 
-    const FloatType s = max == static_cast<FloatType>(0.0) ? static_cast<FloatType>(0.0) : delta / max;
+    const FloatType saturation = max == static_cast<FloatType>(0.0) ? static_cast<FloatType>(0.0) : delta / max;
 
     //v = max
 
-    return HSVColor{ static_cast<double>(h), static_cast<double>(s), static_cast<double>(max), a };
+    return HSVColor{ static_cast<double>(hue), static_cast<double>(saturation), static_cast<double>(max), a };
 }
 
 //Note: this output formats are all deserializable by the from_string method!
