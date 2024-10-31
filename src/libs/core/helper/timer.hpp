@@ -5,6 +5,8 @@
 #include <chrono>
 #include <functional>
 
+#include "./windows.hpp"
+
 namespace helper {
 
     struct Timer {
@@ -14,39 +16,19 @@ namespace helper {
         using Duration = std::chrono::nanoseconds;
 
         bool m_running{ false };
-        std::chrono::time_point<Clock> last_measured;
+        std::chrono::time_point<Clock> m_last_measured;
         Callback m_callback;
         Duration m_interval;
 
 
     public:
-        Timer(Callback callback, const Duration& interval)
-            : m_callback{ std::move(callback) },
-              m_interval{ interval } { }
+        OOPETRIS_CORE_EXPORTED Timer(Callback callback, const Duration& interval);
 
-        void start() {
-            m_running = true;
-            last_measured = Clock::now();
-        }
+        OOPETRIS_CORE_EXPORTED void start();
 
-        void stop() {
-            m_running = false;
-        }
+        OOPETRIS_CORE_EXPORTED void stop();
 
-        void check() {
-            if (not m_running) {
-                return;
-            }
-
-            const auto now = Clock::now();
-
-            const auto difference = now - last_measured;
-
-            if (difference >= m_interval) {
-                m_callback();
-                last_measured = now;
-            }
-        }
+        OOPETRIS_CORE_EXPORTED void check();
     };
 
 

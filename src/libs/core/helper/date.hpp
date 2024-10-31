@@ -13,7 +13,7 @@ namespace date {
     private:
         u64 m_value;
 
-        ISO8601Date(std::tm tm);
+        explicit ISO8601Date(std::tm time_struct);
 
         static constexpr const char* iso_8601_format_string = "%Y%m%dT%H%M%S";
 
@@ -31,7 +31,7 @@ namespace date {
         [[nodiscard]] static helper::expected<std::tm, std::string> get_tm_struct(std::time_t value);
 
         [[nodiscard]] static helper::expected<std::string, std::string>
-        format_tm_struct(std::tm tm, const char* format_string);
+        format_tm_struct(std::tm time_struct, const char* format_string);
     };
 
 

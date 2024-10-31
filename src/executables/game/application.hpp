@@ -45,7 +45,8 @@ private:
 #endif
 
 protected:
-    EventDispatcher m_event_dispatcher;
+    EventDispatcher
+            m_event_dispatcher; //NOLINT(misc-non-private-member-variables-in-classes,cppcoreguidelines-non-private-member-variables-in-classes)
 
 private:
     std::vector<std::unique_ptr<scenes::Scene>> m_scene_stack;

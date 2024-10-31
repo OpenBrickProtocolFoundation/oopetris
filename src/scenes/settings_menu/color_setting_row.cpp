@@ -146,7 +146,7 @@ custom_ui::ColorSettingRow::ColorSettingRow(
       ui::Focusable{ focus_id },
       ui::Hoverable{ layout.get_rect() },
       m_service_provider{ service_provider },
-      m_main_layout{ utils::size_t_identity<2>(),
+      m_main_layout{ utils::SizeIdentity<2>(),
                      ui::FocusHelper::focus_id_unused(),
                      ui::Direction::Horizontal,
                      std::array<double, 1>{ 0.7 },

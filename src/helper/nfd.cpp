@@ -56,7 +56,7 @@ namespace {
                 auto* extensions = new nfdu8char_t[extension_list_size]; // NOLINT(cppcoreguidelines-owning-memory)
                 std::memcpy(extensions, extension_list.c_str(), extension_list_size * sizeof(nfdu8char_t));
 
-                filter_item.get()[i] = { name, extensions };
+                filter_item.get()[i] = { .name = name, .spec = extensions };
             }
         }
 
@@ -68,7 +68,7 @@ namespace {
 } // namespace
 
 
-helper::expected<std::filesystem::path, std::string> helper::openFileDialog(
+helper::expected<std::filesystem::path, std::string> helper::open_file_dialog(
         const std::vector<AllowedFile>& allowed_files,
         std::optional<std::filesystem::path> default_path
 ) {
@@ -108,7 +108,7 @@ helper::expected<std::filesystem::path, std::string> helper::openFileDialog(
 }
 
 
-[[nodiscard]] helper::expected<std::vector<std::filesystem::path>, std::string> helper::openMultipleFilesDialog(
+[[nodiscard]] helper::expected<std::vector<std::filesystem::path>, std::string> helper::open_multiple_files_dialog(
         const std::vector<AllowedFile>& allowed_files,
         std::optional<std::filesystem::path> default_path
 ) {
@@ -160,7 +160,7 @@ helper::expected<std::filesystem::path, std::string> helper::openFileDialog(
     return helper::unexpected<std::string>{ "Error: " + std::string{ NFD::GetError() } };
 }
 
-[[nodiscard]] helper::expected<std::filesystem::path, std::string> helper::openFolderDialog(
+[[nodiscard]] helper::expected<std::filesystem::path, std::string> helper::open_folder_dialog(
         std::optional<std::filesystem::path> default_path
 ) {
 

@@ -91,35 +91,36 @@ void Renderer::draw_self_computed_circle_impl(const shapes::IPoint& center, i32 
 
     const i32 radius = diameter / 2;
 
-    i32 x = radius - 1;
-    i32 y = 0;
-    i32 tx = 1;
-    i32 ty = 1;
-    i32 error = tx - diameter;
+    i32 x_pos = radius - 1;
+    i32 y_pos = 0;
+    i32 tx_pos = 1;
+    i32 ty_pos = 1;
+    i32 error = tx_pos - diameter;
 
-    while (x >= y) {
+    while (x_pos >= y_pos) {
         //  Each of the following renders an octant of the circle
         SDL_RenderDrawPoint(
-                m_renderer, center_x + x, center_y - y // NOLINT(clang-analyzer-core.UndefinedBinaryOperatorResult)
+                m_renderer, center_x + x_pos, // NOLINT(clang-analyzer-core.UndefinedBinaryOperatorResult)
+                center_y - y_pos
         );
-        SDL_RenderDrawPoint(m_renderer, center_x + x, center_y + y);
-        SDL_RenderDrawPoint(m_renderer, center_x - x, center_y - y);
-        SDL_RenderDrawPoint(m_renderer, center_x - x, center_y + y);
-        SDL_RenderDrawPoint(m_renderer, center_x + y, center_y - x);
-        SDL_RenderDrawPoint(m_renderer, center_x + y, center_y + x);
-        SDL_RenderDrawPoint(m_renderer, center_x - y, center_y - x);
-        SDL_RenderDrawPoint(m_renderer, center_x - y, center_y + x);
+        SDL_RenderDrawPoint(m_renderer, center_x + x_pos, center_y + y_pos);
+        SDL_RenderDrawPoint(m_renderer, center_x - x_pos, center_y - y_pos);
+        SDL_RenderDrawPoint(m_renderer, center_x - x_pos, center_y + y_pos);
+        SDL_RenderDrawPoint(m_renderer, center_x + y_pos, center_y - x_pos);
+        SDL_RenderDrawPoint(m_renderer, center_x + y_pos, center_y + x_pos);
+        SDL_RenderDrawPoint(m_renderer, center_x - y_pos, center_y - x_pos);
+        SDL_RenderDrawPoint(m_renderer, center_x - y_pos, center_y + x_pos);
 
         if (error <= 0) {
-            ++y;
-            error += ty;
-            ty += 2;
+            ++y_pos;
+            error += ty_pos;
+            ty_pos += 2;
         }
 
         if (error > 0) {
-            --x;
-            tx += 2;
-            error += (tx - diameter);
+            --x_pos;
+            tx_pos += 2;
+            error += (tx_pos - diameter);
         }
     }
 }

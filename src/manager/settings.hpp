@@ -41,7 +41,7 @@ namespace nlohmann {
 
         static void to_json(json& obj, Controls controls) { // NOLINT(misc-no-recursion)
             std::visit(
-                    helper::overloaded{
+                    helper::Overloaded{
                             [&](const input::KeyboardSettings& keyboard_settings) { // NOLINT(misc-no-recursion)
                                 nlohmann::adl_serializer<input::KeyboardSettings>::to_json(obj, keyboard_settings);
                                 obj["type"] = "keyboard";

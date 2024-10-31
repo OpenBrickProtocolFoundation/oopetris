@@ -73,9 +73,9 @@ public:
     }
 
     template<typename S, typename T>
-    void draw_texture(const Texture& texture, const shapes::AbstractRect<S>& from, const shapes::AbstractRect<T>& to)
+    void draw_texture(const Texture& texture, const shapes::AbstractRect<S>& from, const shapes::AbstractRect<T>& dest)
             const {
-        texture.render(m_renderer, from, to);
+        texture.render(m_renderer, from, dest);
     }
 
     OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] Texture load_image(const std::filesystem::path& image_path) const;

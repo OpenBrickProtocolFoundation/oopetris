@@ -27,17 +27,17 @@ namespace helper {
 
 
     //NOTE: this API is blocking and can't be asynchronous, due to os (linux, windows, macos) restrictions, it HAS to be launched in the same thread NFD_Init() was launched /the main thread)
-    [[nodiscard]] helper::expected<std::filesystem::path, std::string> openFileDialog(
+    [[nodiscard]] helper::expected<std::filesystem::path, std::string> open_file_dialog(
             const std::vector<AllowedFile>& allowed_files = {},
             std::optional<std::filesystem::path> default_path = std::nullopt
     );
 
-    [[nodiscard]] helper::expected<std::vector<std::filesystem::path>, std::string> openMultipleFilesDialog(
+    [[nodiscard]] helper::expected<std::vector<std::filesystem::path>, std::string> open_multiple_files_dialog(
             const std::vector<AllowedFile>& allowed_files = {},
             std::optional<std::filesystem::path> default_path = std::nullopt
     );
 
-    [[nodiscard]] helper::expected<std::filesystem::path, std::string> openFolderDialog(
+    [[nodiscard]] helper::expected<std::filesystem::path, std::string> open_folder_dialog(
             std::optional<std::filesystem::path> default_path = std::nullopt
     );
 

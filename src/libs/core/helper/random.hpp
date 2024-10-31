@@ -18,7 +18,7 @@ public:
     OOPETRIS_CORE_EXPORTED Random();
     OOPETRIS_CORE_EXPORTED explicit Random(std::mt19937_64::result_type seed);
 
-    template<utils::integral Integer>
+    template<std::integral Integer>
     [[nodiscard]] Integer random(const Integer upper_bound_exclusive) {
         auto distribution = std::uniform_int_distribution<Integer>{ 0, upper_bound_exclusive - 1 };
         return distribution(m_generator);

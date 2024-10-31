@@ -20,10 +20,10 @@ MusicManager::MusicManager(ServiceProvider* service_provider, u8 channel_size)
       m_channel_size{ channel_size },
       m_chunk_map{ std::unordered_map<std::string, Mix_Chunk*>{} },
       m_volume{ service_provider->command_line_arguments().silent ? std::nullopt : std::optional{ 1.0F } } {
-    if (s_instance != nullptr) {
+    if (m_s_instance != nullptr) {
         spdlog::error(
                 "it's not allowed to create more than one MusicManager instance: {} != {}",
-                static_cast<void*>(s_instance), static_cast<void*>(this)
+                static_cast<void*>(m_s_instance), static_cast<void*>(this)
         );
         return;
     }
@@ -65,7 +65,7 @@ MusicManager::MusicManager(ServiceProvider* service_provider, u8 channel_size)
         throw helper::InitializationError{ fmt::format("Failed to open an audio device: {}", SDL_GetError()) };
     }
 
-    s_instance = this;
+    m_s_instance = this;
 
     set_volume(m_volume, true);
 }
@@ -97,7 +97,7 @@ MusicManager::~MusicManager() noexcept {
     Mix_CloseAudio();
     Mix_Quit();
 
-    s_instance = nullptr;
+    m_s_instance = nullptr;
 }
 
 std::optional<std::string> MusicManager::load_and_play_music(const std::filesystem::path& location, const usize delay) {
@@ -159,11 +159,11 @@ std::optional<std::string> MusicManager::load_and_play_music(const std::filesyst
         m_delay = delay;
         Mix_HookMusicFinished([]() {
             // this can happen on e.g. android, where if we exit the application, we don't close the window, so its reused, but the music manager is destroyed, but the hook is called later xD
-            /* if (s_instance == nullptr) {
+            /* if (m_s_instance == nullptr) {
                 return;
             } */
 
-            s_instance->hook_music_finished();
+            m_s_instance->hook_music_finished();
         });
 
         // this wasn't block, so we have to wait for the callback to be called
@@ -252,10 +252,10 @@ void MusicManager::hook_music_finished() {
 }
 
 [[nodiscard]] bool MusicManager::validate_instance() {
-    if (s_instance != this) {
+    if (m_s_instance != this) {
         spdlog::error(
                 "this MusicManager instance is not the instance that is used globally: {} != {}",
-                static_cast<void*>(s_instance), static_cast<void*>(this)
+                static_cast<void*>(m_s_instance), static_cast<void*>(this)
         );
         return false;
     }
@@ -340,7 +340,7 @@ std::optional<double> MusicManager::change_volume(const std::int8_t steps) {
                 return 1.0F;
             }
 
-            new_volume = current_volume.value() + MusicManager::step_width * static_cast<double>(steps);
+            new_volume = current_volume.value() + (MusicManager::step_width * static_cast<double>(steps));
         }
 
         if (new_volume >= 1.0F) {

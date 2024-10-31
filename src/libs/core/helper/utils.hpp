@@ -6,6 +6,7 @@
 #include <bit>
 #include <cassert>
 #include <climits>
+#include <concepts>
 #include <exception>
 #include <iostream>
 #include <limits>
@@ -17,23 +18,19 @@
 namespace helper {
 
     template<class... Ts>
-    struct overloaded : Ts... {
+    struct Overloaded : Ts... {
         using Ts::operator()...;
     };
     template<class... Ts>
-    overloaded(Ts...) -> overloaded<Ts...>;
+    Overloaded(Ts...) -> Overloaded<Ts...>;
 } // namespace helper
 
 
 namespace utils {
-    // taken from llvm: https://github.com/llvm/llvm-project/blob/main/libcxx/include/__concepts/arithmetic.h#L27-L30
-    // [concepts.arithmetic], arithmetic concepts
-    template<class T>
-    concept integral = std::is_integral_v<T>;
 
-    template<integral Integral>
+    template<std::integral Integral>
     [[nodiscard]] constexpr Integral byte_swap(Integral value) noexcept {
-        // based on source: slartibartswift
+        // Note: based on source: slartibartswift
         auto result = Integral{};
         for (usize i = 0; i < sizeof(Integral); ++i) {
             result <<= CHAR_BIT;
@@ -43,7 +40,7 @@ namespace utils {
         return result;
     }
 
-    [[nodiscard]] constexpr auto to_little_endian(integral auto value) {
+    [[nodiscard]] constexpr auto to_little_endian(std::integral auto value) {
         if constexpr (std::endian::native == std::endian::little) {
             return value;
         } else {
@@ -51,13 +48,13 @@ namespace utils {
         }
     }
 
-    [[nodiscard]] constexpr auto from_little_endian(integral auto value) {
+    [[nodiscard]] constexpr auto from_little_endian(std::integral auto value) {
         return to_little_endian(value);
     }
 
     template<class Enum>
-    [[nodiscard]] constexpr std::underlying_type_t<Enum> to_underlying(Enum enum_) noexcept {
-        return static_cast<std::underlying_type_t<Enum>>(enum_);
+    [[nodiscard]] constexpr std::underlying_type_t<Enum> to_underlying(Enum enum_value) noexcept {
+        return static_cast<std::underlying_type_t<Enum>>(enum_value);
     }
 
 #if __cpp_lib_unreachable >= 202202L
@@ -74,7 +71,7 @@ namespace utils {
     }
 #endif
     template<size_t T>
-    struct size_t_identity {
+    struct SizeIdentity {
         //using type = T;
     };
 

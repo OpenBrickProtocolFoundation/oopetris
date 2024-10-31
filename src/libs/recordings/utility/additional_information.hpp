@@ -81,7 +81,7 @@ namespace recorder {
 
         [[nodiscard]] bool operator==(const InformationValue& other) const { // NOLINT(misc-no-recursion)
             return std::visit(
-                    helper::overloaded{
+                    helper::Overloaded{
                             [this](const std::string& value) { return *this == value; },
                             [this](const float& value) { return *this == value; },
                             [this](const double& value) { return *this == value; },

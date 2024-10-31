@@ -6,6 +6,7 @@ core_src_files += files(
     'random.cpp',
     'sleep.cpp',
     'string_manipulation.cpp',
+    'timer.cpp',
 )
 
 _header_files = files(

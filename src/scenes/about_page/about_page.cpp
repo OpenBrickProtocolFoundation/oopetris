@@ -67,7 +67,7 @@ namespace scenes {
 
 
             const auto tile_layout_index = m_main_grid.add<ui::TileLayout>(
-                    utils::size_t_identity<2>(), focus_helper.focus_id(), ui::Direction::Horizontal,
+                    utils::SizeIdentity<2>(), focus_helper.focus_id(), ui::Direction::Horizontal,
                     std::array<double, 1>{ 0.85 }, ui::AbsolutMargin{ 0 }, std::pair<double, double>{ 0.05, 0.03 }
             );
 

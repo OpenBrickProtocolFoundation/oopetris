@@ -45,7 +45,7 @@ namespace detail {
 
     private:
         ServiceProvider* m_service_provider;
-        std::unique_ptr<Texture> m_texture{};
+        std::unique_ptr<Texture> m_texture;
         HSVColor m_current_color;
         Callback m_callback;
         bool m_is_dragging{ false };

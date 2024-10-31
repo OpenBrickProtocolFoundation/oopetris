@@ -212,10 +212,10 @@ ui::FocusLayout::handle_event_result(const std::optional<ui::Widget::InnerState>
     }
 }
 
-[[nodiscard]] u32 ui::FocusLayout::focusable_index_by_id(const u32 id) const {
-    const auto find_iterator = std::ranges::find_if(m_widgets, [id](const std::unique_ptr<Widget>& widget) {
+[[nodiscard]] u32 ui::FocusLayout::focusable_index_by_id(const u32 focus_id) const {
+    const auto find_iterator = std::ranges::find_if(m_widgets, [focus_id](const std::unique_ptr<Widget>& widget) {
         const auto focusable = as_focusable(widget.get());
-        return focusable.has_value() and focusable.value()->focus_id() == id;
+        return focusable.has_value() and focusable.value()->focus_id() == focus_id;
     });
     assert(find_iterator != m_widgets.end());
     const auto index = static_cast<u32>(std::distance(m_widgets.begin(), find_iterator));

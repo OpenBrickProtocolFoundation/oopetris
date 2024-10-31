@@ -17,7 +17,7 @@
 
 namespace scenes {
 
-    using namespace details::settings::menu;
+    using namespace details::settings::menu; // NOLINT(google-build-using-namespace)
 
     SettingsMenu::SettingsMenu(ServiceProvider* service_provider, const ui::Layout& layout)
         : SettingsMenu{ service_provider, layout, std::nullopt } { }
@@ -30,7 +30,7 @@ namespace scenes {
         : SettingsMenu{ service_provider, layout, std::optional<std::shared_ptr<input::GameInput>>{ game_input } } { }
 
     SettingsMenu::SettingsMenu(ServiceProvider* service_provider, const  ui::Layout& layout,  const std::optional<std::shared_ptr<input::GameInput>>& game_input) : Scene{service_provider, layout}
-    , m_main_layout{    utils::size_t_identity<3>(),
+    , m_main_layout{    utils::SizeIdentity<3>(),
     0,
     ui::Direction::Vertical,
                     { 0.1, 0.9 },
@@ -133,7 +133,7 @@ namespace scenes {
 
             scroll_layout->add<custom_ui::ColorSettingRow>(
                     ui::RelativeItemSize{ scroll_layout->layout(), 0.2 }, service_provider,
-                    //TODO use real settings name
+                    //TODO(Totto): use real settings name
                     fmt::format("Color {}", color_index), color,
                     [this, color_index](const Color& updated_color) { this->m_colors.at(color_index) = updated_color; },
                     focus_helper.focus_id()
@@ -180,7 +180,7 @@ namespace scenes {
 
         if (m_next_command.has_value()) {
             return std::visit(
-                    helper::overloaded{
+                    helper::Overloaded{
                             [this](const Return& ret) {
                                 const auto return_type = ret.type;
 

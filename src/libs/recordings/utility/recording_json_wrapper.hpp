@@ -21,7 +21,7 @@ namespace nlohmann {
 
         static void to_json(json& obj, const recorder::InformationValue& information) { // NOLINT(misc-no-recursion)
             std::visit(
-                    helper::overloaded{
+                    helper::Overloaded{
                             [&obj](const std::string& value) { obj = value; },
                             [&obj](const float& value) { obj = value; }, [&obj](const double& value) { obj = value; },
                             [&obj](const bool& value) { obj = value; }, [&obj](const u8& value) { obj = value; },

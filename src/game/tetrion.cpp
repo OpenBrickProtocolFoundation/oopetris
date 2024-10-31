@@ -24,7 +24,7 @@ Tetrion::Tetrion(
     : ui::Widget{ layout , ui::WidgetType::Component ,is_top_level},
         SimulatedTetrion{tetrion_index,random_seed,starting_level, service_provider,std::move(recording_writer)},
       m_main_layout{
-                utils::size_t_identity<2>(),
+                utils::SizeIdentity<2>(),
                 0,
                 ui::Direction::Vertical,
                 { 0.85 },

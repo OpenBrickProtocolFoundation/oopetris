@@ -20,7 +20,7 @@
 
 struct MusicManager final {
 private:
-    static inline MusicManager* s_instance{ nullptr }; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+    static inline MusicManager* m_s_instance{ nullptr }; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
     static const constexpr double step_width = 0.05F;
 
     using VolumeChangeFunction = std::function<void(std::optional<double> volume)>;

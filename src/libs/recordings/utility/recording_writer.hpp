@@ -51,7 +51,7 @@ namespace recorder {
                 const AdditionalInformation& information
         );
 
-        template<utils::integral Integral>
+        template<std::integral Integral>
         helper::expected<void, std::string> write(Integral data) {
             const auto result = helper::writer::write_integral_to_file(m_output_file, data);
             if (not result.has_value()) {

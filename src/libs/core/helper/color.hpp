@@ -87,7 +87,7 @@ namespace { //NOLINT(cert-dcl59-cpp,google-build-namespaces)
             return std::fmod(value, divisor);
         }
 
-        return value - static_cast<T>(static_cast<u64>(value / divisor)) * divisor;
+        return value - (static_cast<T>(static_cast<u64>(value / divisor)) * divisor);
     }
 
     template<typename T>

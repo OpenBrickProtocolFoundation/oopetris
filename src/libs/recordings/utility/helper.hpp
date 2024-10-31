@@ -29,7 +29,7 @@ namespace helper {
         template<typename Result>
         using ReadResult = helper::expected<Result, ReadError>;
 
-        template<utils::integral Integral>
+        template<std::integral Integral>
         [[nodiscard]] ReadResult<std::remove_cv_t<Integral>> read_integral_from_file(std::ifstream& file) {
             if (not file) {
                 return helper::unexpected<ReadError>{
@@ -78,7 +78,7 @@ namespace helper {
             return result;
         }
 
-        template<utils::integral Integral>
+        template<std::integral Integral>
         [[nodiscard]] std::optional<Integral> read_from_istream(std::istream& istream) {
             if (not istream) {
                 return std::nullopt;
@@ -123,7 +123,7 @@ namespace helper {
 
     namespace writer {
 
-        template<utils::integral Integral>
+        template<std::integral Integral>
         helper::expected<void, std::string> write_integral_to_file(std::ofstream& file, const Integral data) {
             if (not file) {
                 return helper::unexpected<std::string>{ fmt::format("failed to write data \"{}\"", data) };
@@ -154,7 +154,7 @@ namespace helper {
         }
 
 
-        template<utils::integral Integral>
+        template<std::integral Integral>
         void append_value(std::vector<char>& vector, const Integral value) {
             const auto little_endian_value = utils::to_little_endian(value);
             const char* const start =

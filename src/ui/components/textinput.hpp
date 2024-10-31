@@ -17,7 +17,7 @@ namespace ui {
 
     struct TextInput final : public Widget, public Focusable, public Hoverable {
     private:
-        std::string m_text{};
+        std::string m_text;
         u32 m_cursor_position{ 0 };
         ServiceProvider* m_service_provider;
         Font m_font;

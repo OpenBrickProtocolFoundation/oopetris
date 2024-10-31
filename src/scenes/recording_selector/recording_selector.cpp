@@ -25,12 +25,12 @@
 
 namespace scenes {
 
-    using namespace details::recording::selector;
+    using namespace details::recording::selector; //NOLINT(google-build-using-namespace)
 
     RecordingSelector::RecordingSelector(ServiceProvider* service_provider, const ui::Layout& layout)
         : Scene{ service_provider, layout },
           m_main_layout{ 
-                utils::size_t_identity<3>(),
+                utils::SizeIdentity<3>(),
                 0,
                 ui::Direction::Vertical,
                 { 0.1, 0.9 },
@@ -79,7 +79,7 @@ namespace scenes {
 
         if (m_next_command.has_value()) {
             return std::visit(
-                    helper::overloaded{
+                    helper::Overloaded{
                             [](const Return&) { return UpdateResult{ SceneUpdate::StopUpdating, Scene::Pop{} }; },
                             [this](const Action& action) {
                                 if (auto recording_component =

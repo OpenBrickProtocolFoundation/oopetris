@@ -56,9 +56,9 @@ public:
     }
 
     template<typename T>
-    void render(SDL_Renderer* renderer, const shapes::AbstractRect<T>& from, const shapes::URect& to) const {
+    void render(SDL_Renderer* renderer, const shapes::AbstractRect<T>& from, const shapes::URect& dest) const {
         const SDL_Rect from_rect_sdl = from.to_sdl_rect();
-        const SDL_Rect to_rect_sdl = to.to_sdl_rect();
+        const SDL_Rect to_rect_sdl = dest.to_sdl_rect();
         SDL_RenderCopy(renderer, m_raw_texture, &from_rect_sdl, &to_rect_sdl);
     }
 

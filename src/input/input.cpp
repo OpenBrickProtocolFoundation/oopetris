@@ -211,7 +211,7 @@ namespace {
 
 
         auto result = std::visit(
-                helper::overloaded{
+                helper::Overloaded{
                         [service_provider](const input::KeyboardSettings& keyboard_settings) mutable -> ReturnType {
                             auto* const event_dispatcher = &(service_provider->event_dispatcher());
                             return std::make_shared<input::KeyboardGameInput>(keyboard_settings, event_dispatcher);

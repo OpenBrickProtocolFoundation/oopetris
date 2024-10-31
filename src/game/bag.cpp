@@ -3,7 +3,9 @@
 Bag::Bag(Random& random) : m_tetromino_sequence{} {
     // initialize array with invalid tetromino type
     for (helper::TetrominoType& type : m_tetromino_sequence) {
-        type = static_cast<helper::TetrominoType>(static_cast<int>(helper::TetrominoType::LastType) + 1);
+        type = static_cast<helper::TetrominoType>( //NOLINT(clang-analyzer-optin.core.EnumCastOutOfRange)
+                static_cast<int>(helper::TetrominoType::LastType) + 1
+        );
     }
 
     // fill in the sequence with random order

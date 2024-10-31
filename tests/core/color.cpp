@@ -26,24 +26,27 @@ namespace {
 
 } // namespace
 
+
 // helper thought just for the tests
-[[nodiscard]] constexpr bool operator==(const HSVColor& value1, const HSVColor& value2) {
+[[nodiscard]] constexpr bool
+operator==(const HSVColor& value1, const HSVColor& value2) { //NOLINT(misc-use-internal-linkage)
     return value1.to_rgb_color() == value2.to_rgb_color();
 }
 
 
 // make colors printable
-void PrintTo(const Color& color, std::ostream* os) {
+void PrintTo(const Color& color, std::ostream* os) { //NOLINT(misc-use-internal-linkage)
     *os << color.to_string();
 }
 
-void PrintTo(const HSVColor& color, std::ostream* os) {
+void PrintTo(const HSVColor& color, std::ostream* os) { //NOLINT(misc-use-internal-linkage)
     *os << color.to_string();
 }
+
 
 namespace color {
 
-    void PrintTo(const SerializeMode& value, std::ostream* os) {
+    void PrintTo(const SerializeMode& value, std::ostream* os) { //NOLINT(misc-use-internal-linkage)
         *os << magic_enum::enum_name(value);
     }
 
