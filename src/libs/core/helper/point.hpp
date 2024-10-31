@@ -15,7 +15,9 @@ namespace shapes {
         T y;
 
         constexpr AbstractPoint() : AbstractPoint{ 0, 0 } { }
-        constexpr AbstractPoint(T x, T y) : x{ x }, y{ y } { } // NOLINT(bugprone-easily-swappable-parameters)
+        constexpr AbstractPoint(T x_pos, T y_pos)
+            : x{ x_pos },
+              y{ y_pos } { } // NOLINT(bugprone-easily-swappable-parameters)
 
         static constexpr AbstractPoint<T> zero() {
             return AbstractPoint<T>{ 0, 0 };
@@ -46,7 +48,7 @@ namespace shapes {
         }
 
         constexpr AbstractPoint<T> operator-(AbstractPoint<T> rhs) const {
-            if constexpr (std::is_signed<T>::value) {
+            if constexpr (std::is_signed_v<T>) {
                 return *this + (-rhs);
             } else {
                 assert(x >= rhs.x && y >= rhs.y && "underflow in subtraction");
@@ -66,11 +68,34 @@ namespace shapes {
 
         template<typename S>
         constexpr AbstractPoint<S> cast() const {
-            if constexpr (std::is_signed<T>::value and not std::is_signed<T>::value) {
-                assert(x >= 0 && y >= 0 && "Not allowed to cast away negative number into an unsigned type");
-            } else {
-                return AbstractPoint<S>{ static_cast<S>(x), static_cast<S>(y) };
+            assert(x >= std::numeric_limits<S>::min() && y >= std::numeric_limits<S>::min()
+                   && "cast invalid, value to small");
+            assert(x <= std::numeric_limits<S>::max() && y >= std::numeric_limits<S>::max()
+                   && "cast invalid, value to big");
+
+            return AbstractPoint<S>{ static_cast<S>(x), static_cast<S>(y) };
+        }
+
+        template<typename S>
+        constexpr AbstractPoint<S> cast_truncate() const {
+
+            auto x_final = x;
+
+            if (x < std::numeric_limits<S>::min()) {
+                x_final = std::numeric_limits<S>::min();
+            } else if (x > std::numeric_limits<S>::max()) {
+                x_final = std::numeric_limits<S>::max();
             }
+
+            auto y_final = y;
+
+            if (y < std::numeric_limits<S>::min()) {
+                y_final = std::numeric_limits<S>::min();
+            } else if (y > std::numeric_limits<S>::max()) {
+                y_final = std::numeric_limits<S>::max();
+            }
+
+            return AbstractPoint<S>{ static_cast<S>(x_final), static_cast<S>(y_final) };
         }
     };
 

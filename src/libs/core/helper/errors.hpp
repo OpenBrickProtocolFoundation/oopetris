@@ -5,6 +5,8 @@
 #include "./types.hpp"
 #include "./windows.hpp"
 
+#include <core/helper/types.hpp>
+
 #include <exception>
 #include <string>
 
