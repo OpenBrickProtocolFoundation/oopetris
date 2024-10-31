@@ -5,8 +5,9 @@
 // better json error messages, see https://json.nlohmann.me/api/macros/json_diagnostics/
 #define JSON_DIAGNOSTICS 1 // NOLINT(cppcoreguidelines-macro-usage)
 #endif
-
 #include <nlohmann/json.hpp>
+
+#include <core/helper/types.hpp>
 
 #include "./expected.hpp"
 #include "./windows.hpp"
@@ -49,6 +50,12 @@ NLOHMANN_JSON_NAMESPACE_END
 
 namespace json {
 
+    enum class ParseError : u8 {
+        OpenError,
+        ReadError,
+        FormatError,
+    };
+
     template<typename T>
     [[nodiscard]] helper::expected<T, std::string> try_parse_json(const std::string& content) noexcept {
 
@@ -68,22 +75,43 @@ namespace json {
     }
 
     template<typename T>
-    [[nodiscard]] helper::expected<T, std::string> try_parse_json_file(const std::filesystem::path& file) noexcept {
+    [[nodiscard]] helper::expected<T, std::pair<std::string, ParseError>> try_parse_json_file(
+            const std::filesystem::path& file
+    ) noexcept {
 
         if (not std::filesystem::exists(file)) {
-            return helper::unexpected<std::string>{ fmt::format("File '{}' doesn't exist", file.string()) };
+            return helper::unexpected<std::pair<std::string, ParseError>>{ std::make_pair<std::string, ParseError>(
+                    fmt::format("File '{}' doesn't exist", file.string()), ParseError::OpenError
+            ) };
         }
 
         std::ifstream file_stream{ file };
 
         if (not file_stream.is_open()) {
-            return helper::unexpected<std::string>{ fmt::format("File '{}' couldn't be opened!", file.string()) };
+            return helper::unexpected<std::pair<std::string, ParseError>>{ std::make_pair<std::string, ParseError>(
+                    fmt::format("File '{}' couldn't be opened!", file.string()), ParseError::OpenError
+            ) };
         }
 
         std::stringstream result;
         result << file_stream.rdbuf();
 
-        return try_parse_json<T>(result.str());
+        file_stream.close();
+
+        if (file_stream.fail()) {
+            return helper::unexpected<std::pair<std::string, ParseError>>{ std::make_pair<std::string, ParseError>(
+                    fmt::format("Couldn't read from file '{}'", file.string()), ParseError::ReadError
+            ) };
+        }
+
+        auto parse_result = try_parse_json<T>(result.str());
+        if (not parse_result.has_value()) {
+            return helper::unexpected<std::pair<std::string, ParseError>>{
+                std::make_pair<std::string, ParseError>(std::move(parse_result.error()), ParseError::FormatError)
+            };
+        }
+
+        return parse_result.value();
     }
 
     template<typename T>

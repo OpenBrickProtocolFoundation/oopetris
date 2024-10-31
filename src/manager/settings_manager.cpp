@@ -17,7 +17,9 @@ SettingsManager::SettingsManager() {
     if (result.has_value()) {
         m_settings = result.value();
     } else {
-        spdlog::error("unable to load settings from \"{}\": {}", settings_filename, result.error());
+        auto [error, error_type] = result.error();
+
+        spdlog::error("unable to load settings from \"{}\": {}", settings_filename, error);
         spdlog::warn("applying default settings");
 
         m_settings = {
@@ -28,7 +30,10 @@ SettingsManager::SettingsManager() {
                                .api_url = std::nullopt }
         };
 
-        //TODO(Totto): save the file, if it doesn't exist, if it has an error, just leave it there
+        //save the default file, only if it doesn't exist, if it has an error, just leave it there
+        if (error_type == json::ParseError::OpenError) {
+            this->save();
+        }
     }
 }
 

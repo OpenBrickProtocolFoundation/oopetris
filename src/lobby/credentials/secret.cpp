@@ -381,7 +381,8 @@ namespace {
         auto result = json::try_parse_json_file<nlohmann::json>(file);
 
         if (not result.has_value()) {
-            return helper::unexpected<std::string>{ result.error() };
+            auto [error, _] = result.error();
+            return helper::unexpected<std::string>{ error };
         }
 
         return result.value();
