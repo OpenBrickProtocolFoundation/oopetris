@@ -5,6 +5,8 @@
 #include <chrono>
 #include <functional>
 
+#include "./windows.hpp"
+
 namespace helper {
 
     struct Timer {
@@ -20,13 +22,13 @@ namespace helper {
 
 
     public:
-        Timer(Callback callback, const Duration& interval);
+        OOPETRIS_CORE_EXPORTED Timer(Callback callback, const Duration& interval);
 
-        void start();
+        OOPETRIS_CORE_EXPORTED void start();
 
-        void stop();
+        OOPETRIS_CORE_EXPORTED void stop();
 
-        void check();
+        OOPETRIS_CORE_EXPORTED void check();
     };
 
 
