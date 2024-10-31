@@ -1,6 +1,6 @@
 app-id: io.github.openbrickprotocolfoundation.oopetris
 runtime: org.freedesktop.Platform
-runtime-version: "24.08"
+runtime-version: '24.08'
 sdk: org.freedesktop.Sdk
 command: oopetris
 modules:
@@ -24,13 +24,14 @@ modules:
       - -Dbuild_installer=true
       - --libdir=lib
       - -Dtests=true
+      - --force-fallback-for=fmt # note, the freedesktop sdk has this installed, but it is not copiable into the runtime, so we need to build it ourself, to be able to install it correctly
     builddir: true
     build-options:
       build-args:
         - --share=network
     sources:
       - type: dir
-        path: "."
+        path: '.'
         skip:
           - .github/
           - .vscode/

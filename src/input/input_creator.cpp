@@ -13,6 +13,7 @@
 #include "input_creator.hpp"
 
 #include <fmt/format.h>
+#include <spdlog/spdlog.h>
 #include <stdexcept>
 
 namespace {
@@ -123,32 +124,34 @@ input::get_game_parameters_for_replay(
 
     const auto recording_directory_path = utils::get_root_folder() / constants::recordings_directory;
 
-    if (not std::filesystem::exists(recording_directory_path)) {
-        std::filesystem::create_directory(recording_directory_path);
+
+    auto dir_result = utils::create_directory(recording_directory_path, true);
+    if (not dir_result.has_value()) {
+
+        const auto date_time_str = date.to_string();
+
+        if (not date_time_str.has_value()) {
+            throw std::runtime_error{ fmt::format("Erro in date to string conversion: {}", date_time_str.error()) };
+        }
+
+        const auto filename = fmt::format("{}.{}", date_time_str.value(), constants::recording::extension);
+        const auto file_path = recording_directory_path / filename;
+
+
+        auto recording_writer_create_result =
+                recorder::RecordingWriter::get_writer(file_path, std::move(tetrion_headers), std::move(information));
+        if (not recording_writer_create_result.has_value()) {
+            throw std::runtime_error(recording_writer_create_result.error());
+        }
+
+        const auto recording_writer =
+                std::make_shared<recorder::RecordingWriter>(std::move(recording_writer_create_result.value()));
+
+
+        std::get<1>(result).recording_writer = recording_writer;
+    } else {
+        spdlog::warn("Couldn't create recordings folder {}: skipping creation of a recording", dir_result.value());
     }
-
-    const auto date_time_str = date.to_string();
-
-    if (not date_time_str.has_value()) {
-        throw std::runtime_error{ fmt::format("Erro in date to string conversion: {}", date_time_str.error()) };
-    }
-
-    const auto filename = fmt::format("{}.{}", date_time_str.value(), constants::recording::extension);
-    const auto file_path = recording_directory_path / filename;
-
-
-    auto recording_writer_create_result =
-            recorder::RecordingWriter::get_writer(file_path, std::move(tetrion_headers), std::move(information));
-    if (not recording_writer_create_result.has_value()) {
-        throw std::runtime_error(recording_writer_create_result.error());
-    }
-
-    const auto recording_writer =
-            std::make_shared<recorder::RecordingWriter>(std::move(recording_writer_create_result.value()));
-
-
-    std::get<1>(result).recording_writer = recording_writer;
-
 
     return result;
 }

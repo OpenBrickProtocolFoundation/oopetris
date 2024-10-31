@@ -147,6 +147,32 @@ utils::ExitException::ExitException(int status_code) noexcept : m_status_code{ s
     return "An exit exception occurred";
 }
 
+std::optional<std::string> utils::create_directory(const std::filesystem::path& folder, bool recursive) {
+
+    if (std::filesystem::exists(folder)) {
+        return std::nullopt;
+    }
+
+    try {
+        if (recursive) {
+            auto result = std::filesystem::create_directories(folder);
+            if (not result) {
+                return "an unknown error occurred";
+            }
+            return std::nullopt;
+        }
+
+
+        auto result = std::filesystem::create_directory(folder);
+        if (not result) {
+            return "an unknown error occurred";
+        }
+        return std::nullopt;
+    } catch (const std::exception& error) {
+        return error.what();
+    }
+}
+
 void utils::exit(int status_code) {
 #if defined(__ANDROID__)
     // calling exit() in android doesn't do the correct job, it completely avoids resource cleanup by the underlying SDLActivity.java

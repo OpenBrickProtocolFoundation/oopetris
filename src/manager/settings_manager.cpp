@@ -14,12 +14,14 @@ SettingsManager::SettingsManager(ServiceProvider* service_provider) : m_service_
     if (result.has_value()) {
         m_settings = result.value();
     } else {
-        spdlog::error("unable to load settings from \"{}\": {}", detail::settings_filename, result.error());
+        spdlog::warn("unable to load settings from \"{}\": {}", detail::settings_filename, result.error());
         spdlog::warn("applying default settings");
 
         m_settings = {
-            detail::Settings{ {}, std::nullopt, 1.0, false }
+            detail::Settings{ .controls = {}, .selected = std::nullopt, .volume = 1.0, .discord = false }
         };
+
+        //TODO(Totto): save the file, if it doesn't exist, if it has an error, just leave it there
     }
 }
 
