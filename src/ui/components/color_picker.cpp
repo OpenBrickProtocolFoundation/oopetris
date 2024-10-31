@@ -39,15 +39,15 @@ detail::ColorSlider::ColorSlider(
 
     service_provider->renderer().set_render_target(*m_texture);
 
-    const auto w = bar_rect().width();
-    const auto h = bar_rect().height();
+    const auto width = bar_rect().width();
+    const auto height = bar_rect().height();
 
-    for (u32 x = 0; x < w; x++) {
+    for (u32 x = 0; x < width; x++) {
         const Color color =
-                HSVColor((static_cast<double>(x) / static_cast<double>(w)) * 360.0, 1.0, 1.0).to_rgb_color();
+                HSVColor((static_cast<double>(x) / static_cast<double>(width)) * 360.0, 1.0, 1.0).to_rgb_color();
 
         service_provider->renderer().draw_line(
-                shapes::UPoint{ x, 0 }, shapes::UPoint{ x, static_cast<u32>(h - 1) }, color
+                shapes::UPoint{ x, 0 }, shapes::UPoint{ x, static_cast<u32>(height - 1) }, color
         );
     }
 
@@ -204,7 +204,7 @@ detail::ColorCanvas::handle_event(const std::shared_ptr<input::InputManager>& in
             m_current_color.v = 0.0;
         } else {
             const double percentage =
-                    1.0 - static_cast<double>(y - fill_rect.top_left.y) / static_cast<double>(fill_rect.height());
+                    1.0 - (static_cast<double>(y - fill_rect.top_left.y) / static_cast<double>(fill_rect.height()));
             m_current_color.v = percentage;
         }
 

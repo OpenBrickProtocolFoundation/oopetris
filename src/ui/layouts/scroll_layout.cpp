@@ -37,7 +37,7 @@ ui::ScrollLayout::ScrollLayout(
                 bool is_top_level 
         )
             : FocusLayout{
-                  layout, focus_id, FocusOptions{ is_top_level, is_top_level }, is_top_level}, // if on top, we support tab and wrap around, otherwise not
+                  layout, focus_id, FocusOptions{ .wrap_around=is_top_level, .allow_tab=is_top_level }, is_top_level}, // if on top, we support tab and wrap around, otherwise not
                   gap{ gap },
                   m_texture{ std::nullopt },
                   m_service_provider{ service_provider },
@@ -54,8 +54,8 @@ ui::ScrollLayout::ScrollLayout(
     const u32 start_x = layout_rect.top_left.x + absolut_margin.first;
     const u32 start_y = layout_rect.top_left.y + absolut_margin.second;
 
-    const u32 new_width = layout_rect.width() - absolut_margin.first * 2;
-    const u32 new_height = layout_rect.height() - absolut_margin.second * 2;
+    const u32 new_width = layout_rect.width() - (absolut_margin.first * 2);
+    const u32 new_height = layout_rect.height() - (absolut_margin.second * 2);
 
 
     main_rect = shapes::URect{ start_x, start_y, new_width - scroll_bar_width - absolut_gap, new_height };
@@ -138,8 +138,9 @@ ui::ScrollLayout::handle_event(const std::shared_ptr<input::InputManager>& input
                     static_cast<double>(y - scrollbar_rect.top_left.y) / static_cast<double>(scrollbar_rect.height());
 
             // we want the final point to be in the middle, but desired_scroll_height expects the top position.
-            desired_scroll_height =
-                    static_cast<int>(static_cast<int>(percentage * total_widgets_height) - scrollbar_rect.height() / 2);
+            desired_scroll_height = static_cast<int>(
+                    static_cast<int>(percentage * total_widgets_height) - (scrollbar_rect.height() / 2)
+            );
             is_dragging = true;
         }
 
@@ -289,7 +290,7 @@ void ui::ScrollLayout::clear_widgets() {
     recalculate_sizes(0);
 }
 
-[[nodiscard]] ui::Layout ui::ScrollLayout::get_layout_for_index(u32) {
+[[nodiscard]] ui::Layout ui::ScrollLayout::get_layout_for_index(u32 /*index*/) {
     // see TODO comment over handle_event in header file
     throw std::runtime_error("NOT SUPPORTED");
 }

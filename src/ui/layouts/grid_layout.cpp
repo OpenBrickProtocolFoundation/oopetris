@@ -11,7 +11,7 @@ ui::GridLayout::GridLayout(
                 const Layout& layout,
                 bool is_top_level 
         )
-            : FocusLayout{ layout, focus_id, FocusOptions{ is_top_level, is_top_level }, is_top_level },
+            : FocusLayout{ layout, focus_id, FocusOptions{ .wrap_around=is_top_level, .allow_tab=is_top_level }, is_top_level },
               size{ size },
               direction{ direction },
               gap{ gap },

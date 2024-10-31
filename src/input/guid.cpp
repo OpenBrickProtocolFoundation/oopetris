@@ -1,4 +1,5 @@
 
+#include <algorithm>
 #include <core/helper/utils.hpp>
 
 #include "guid.hpp"
@@ -7,7 +8,7 @@
 #include <fmt/ranges.h>
 
 sdl::GUID::GUID(const SDL_GUID& data) : m_guid{} {
-    std::copy(std::begin(data.data), std::end(data.data), std::begin(m_guid));
+    std::ranges::copy(data.data, std::begin(m_guid));
 }
 
 [[nodiscard]] helper::expected<sdl::GUID, std::string> sdl::GUID::from_string(const std::string& value) {

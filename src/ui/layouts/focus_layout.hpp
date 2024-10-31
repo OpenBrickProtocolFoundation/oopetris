@@ -125,7 +125,7 @@ namespace ui {
         [[nodiscard]] std::optional<ui::Widget::InnerState>
         handle_event_result(const std::optional<ui::Widget::InnerState>& result, Widget* widget);
 
-        [[nodiscard]] u32 focusable_index_by_id(u32 id) const;
+        [[nodiscard]] u32 focusable_index_by_id(u32 focus_id) const;
 
         [[nodiscard]] std::vector<u32> focusable_ids_sorted() const;
 

@@ -23,25 +23,25 @@ void ui::TileLayout::render(const ServiceProvider& service_provider) const {
 
     if (direction == Direction::Horizontal) {
         const auto previous_start =
-                index == 0 ? 0 : static_cast<u32>(width * steps.at(index - 1)) + gap.get_margin() / 2;
+                index == 0 ? 0 : static_cast<u32>(width * steps.at(index - 1)) + (gap.get_margin() / 2);
 
         const auto current_end =
                 index == this->size - 1
                         ? width
                         : (steps.size() <= index ? width
-                                                 : static_cast<u32>(width * steps.at(index)) - gap.get_margin() / 2);
+                                                 : static_cast<u32>(width * steps.at(index)) - (gap.get_margin() / 2));
 
         width = current_end - previous_start;
         x_pos += previous_start;
     } else {
         const auto previous_start =
-                index == 0 ? 0 : static_cast<u32>(height * steps.at(index - 1)) + gap.get_margin() / 2;
+                index == 0 ? 0 : static_cast<u32>(height * steps.at(index - 1)) + (gap.get_margin() / 2);
 
         const auto current_end =
                 index == this->size - 1
                         ? height
                         : (steps.size() <= index ? height
-                                                 : static_cast<u32>(height * steps.at(index)) - gap.get_margin() / 2);
+                                                 : static_cast<u32>(height * steps.at(index)) - (gap.get_margin() / 2));
 
         height = current_end - previous_start;
         y_pos += previous_start;
