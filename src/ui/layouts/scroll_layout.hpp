@@ -43,14 +43,14 @@ namespace ui {
 
     struct ScrollLayout : public FocusLayout {
     private:
-        Margin gap;
+        Margin m_gap;
         std::optional<Texture> m_texture;
         ServiceProvider* m_service_provider;
-        shapes::URect main_rect;
-        shapes::URect scrollbar_rect;
-        shapes::URect scrollbar_mover_rect;
+        shapes::URect m_main_rect;
+        shapes::URect m_scrollbar_rect;
+        shapes::URect m_scrollbar_mover_rect;
         shapes::URect m_viewport;
-        bool is_dragging{ false };
+        bool m_is_dragging{ false };
         u32 m_step_size;
 
     public:
@@ -100,7 +100,7 @@ namespace ui {
 
 
     private:
-        [[nodiscard]] Layout get_layout_for_index(u32) override;
+        [[nodiscard]] Layout get_layout_for_index(u32 index) override;
 
 
         [[nodiscard]] Layout get_layout_for_new(ItemSize size);

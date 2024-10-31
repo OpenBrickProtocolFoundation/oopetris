@@ -37,7 +37,7 @@ custom_ui::RecordingFileChooser::RecordingFileChooser(
 
                 if (result.has_value()) {
                     for (const auto& path : result.value()) {
-                        this->currently_chosen_files.push_back(path);
+                        this->m_currently_chosen_files.push_back(path);
                     }
                 } else {
                     spdlog::warn("error in dialog: {}", result.error());
@@ -66,7 +66,7 @@ custom_ui::RecordingFileChooser::RecordingFileChooser(
                         for (const auto& file : std::filesystem::recursive_directory_iterator(result.value())) {
                             auto header_value = recorder::RecordingReader::is_header_valid(file.path());
                             if (header_value.has_value()) {
-                                this->currently_chosen_files.push_back(file.path());
+                                this->m_currently_chosen_files.push_back(file.path());
                             }
                         }
                     }
@@ -116,14 +116,14 @@ helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>> custom_ui::Reco
 
 [[nodiscard]] const std::vector<std::filesystem::path>& custom_ui::RecordingFileChooser::get_currently_chosen_files(
 ) const {
-    return currently_chosen_files;
+    return m_currently_chosen_files;
 }
 
 //TODO(Totto):  solve in another way, that is better
 void custom_ui::RecordingFileChooser::prepare_dialog(ServiceProvider* service_provider) {
 
     //TODO(Totto): show scene on top, that hints of the dialog
-    this->currently_chosen_files.clear();
+    this->m_currently_chosen_files.clear();
     service_provider->event_dispatcher().disable();
 }
 

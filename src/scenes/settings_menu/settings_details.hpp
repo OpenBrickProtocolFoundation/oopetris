@@ -8,7 +8,7 @@ namespace settings {
 
     struct SettingsDetails {
         [[nodiscard]] virtual scenes::Scene::Change get_details_scene() = 0;
-        virtual inline ~SettingsDetails() = default;
+        virtual ~SettingsDetails() = default;
     };
 
 

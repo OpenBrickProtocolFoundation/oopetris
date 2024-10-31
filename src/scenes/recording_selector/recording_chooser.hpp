@@ -16,7 +16,7 @@ namespace custom_ui {
     struct RecordingFileChooser final : public ui::Widget, public ui::Focusable, public ui::Hoverable {
     private:
         ui::GridLayout m_main_grid;
-        std::vector<std::filesystem::path> currently_chosen_files{};
+        std::vector<std::filesystem::path> m_currently_chosen_files;
 
     public:
         OOPETRIS_GRAPHICS_EXPORTED explicit RecordingFileChooser(

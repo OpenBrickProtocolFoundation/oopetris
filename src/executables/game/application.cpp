@@ -201,10 +201,11 @@ void Application::update() {
                                 },
                                 [this](const scenes::Scene::Switch& scene_switch) {
                                     spdlog::info(
-                                            "switching to scene {}", magic_enum::enum_name(scene_switch.target_scene)
+                                            "switching to scene {}", magic_enum::enum_name(scene_switch.m_target_scene)
                                     );
-                                    auto scene =
-                                            scenes::create_scene(*this, scene_switch.target_scene, scene_switch.layout);
+                                    auto scene = scenes::create_scene(
+                                            *this, scene_switch.m_target_scene, scene_switch.m_layout
+                                    );
 
                                     // only clear, after the construction was successful
                                     m_scene_stack.clear();

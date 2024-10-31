@@ -19,17 +19,17 @@ namespace ui {
 
     struct TileLayout : public FocusLayout {
     private:
-        u32 size;
-        Direction direction;
-        std::vector<double> steps;
-        Margin gap;
-        std::pair<u32, u32> margin;
+        u32 m_size;
+        Direction m_direction;
+        std::vector<double> m_steps;
+        Margin m_gap;
+        std::pair<u32, u32> m_margin;
 
     public:
         // see here, why utils::SizeIdentity<S> is needed: https://stackoverflow.com/questions/2786946/c-invoke-explicit-template-constructor
         template<size_t S>
         explicit TileLayout(
-                utils::SizeIdentity<S>,
+                utils::SizeIdentity<S> /*unused*/,
                 u32 focus_id,
                 Direction direction,
                 std::array<double, S - 1> steps,
@@ -38,12 +38,12 @@ namespace ui {
                 const Layout& layout,
                 bool is_top_level = true
         )
-            : FocusLayout{ layout, focus_id,FocusOptions{ is_top_level, is_top_level }, is_top_level },
-              size{ S },
-              direction{ direction },
-              steps{ steps.cbegin(), steps.cend() },
-              gap{ gap },
-              margin{ static_cast<u32>(margin.first * layout.get_rect().width()),
+            : FocusLayout{ layout, focus_id,FocusOptions{ .wrap_around=is_top_level, .allow_tab=is_top_level }, is_top_level },
+              m_size{ S },
+              m_direction{ direction },
+              m_steps{ steps.cbegin(), steps.cend() },
+              m_gap{ gap },
+              m_margin{ static_cast<u32>(margin.first * layout.get_rect().width()),
                       static_cast<u32>(margin.second * layout.get_rect().height()) } {
             static_assert(S != 0 and "TileLayout has to hold at least one child");
         }

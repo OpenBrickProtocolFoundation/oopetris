@@ -7,10 +7,10 @@
 namespace ui {
     struct GridLayout : public FocusLayout {
     private:
-        u32 size;
-        Direction direction;
-        Margin gap;
-        std::pair<u32, u32> margin;
+        u32 m_size;
+        Direction m_direction;
+        Margin m_gap;
+        std::pair<u32, u32> m_margin;
 
     public:
         OOPETRIS_GRAPHICS_EXPORTED explicit GridLayout(

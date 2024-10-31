@@ -19,12 +19,12 @@ namespace scenes {
     struct Scene {
     public:
         struct Switch {
-            SceneId target_scene;
-            ui::Layout layout;
+            SceneId m_target_scene;
+            ui::Layout m_layout;
 
             Switch(const SceneId target_scene, const ui::Layout& layout)
-                : target_scene{ target_scene },
-                  layout{ layout } { }
+                : m_target_scene{ target_scene },
+                  m_layout{ layout } { }
         };
 
         struct RawSwitch {
@@ -62,7 +62,8 @@ namespace scenes {
         using UpdateResult = std::pair<SceneUpdate, std::optional<Change>>;
 
     protected:
-        ServiceProvider* m_service_provider;
+        ServiceProvider*
+                m_service_provider; //NOLINT(misc-non-private-member-variables-in-classes,cppcoreguidelines-non-private-member-variables-in-classes)
 
     private:
         ui::Layout m_layout;
