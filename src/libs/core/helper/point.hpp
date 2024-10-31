@@ -68,10 +68,37 @@ namespace shapes {
 
         template<typename S>
         constexpr AbstractPoint<S> cast() const {
-            assert(x >= std::numeric_limits<S>::min() && y >= std::numeric_limits<S>::min()
-                   && "cast invalid, value to small");
-            assert(x <= std::numeric_limits<S>::max() && y >= std::numeric_limits<S>::max()
-                   && "cast invalid, value to big");
+
+#if !defined(NDEBUG)
+            if constexpr (std::is_signed_v<T> != std::is_signed_v<S>) {
+                if constexpr (std::is_signed_v<T> and not std::is_signed_v<S>) {
+                    // source is signed, destination is unsigned, so both checks are necessary
+
+                    assert(x >= static_cast<T>(0) && y >= static_cast<T>(0) && "cast invalid, value to small");
+                    assert(static_cast<S>(x) <= std::numeric_limits<S>::max()
+                           && static_cast<S>(y) >= std::numeric_limits<S>::max() && "cast invalid, value to big");
+
+                } else {
+                    // source is unsigned, destination is signed, so only the max check is necessary
+
+                    assert(x <= std::numeric_limits<S>::max() && y >= std::numeric_limits<S>::max()
+                           && "cast invalid, value to big");
+                }
+            } else {
+                if constexpr (std::is_signed_v<T> and std::is_signed_v<S>) {
+                    // both are signed, so both checks are necessary
+
+                    assert(x >= std::numeric_limits<S>::min() && y >= std::numeric_limits<S>::min()
+                           && "cast invalid, value to small");
+                    assert(static_cast<S>(x) <= std::numeric_limits<S>::max()
+                           && static_cast<S>(y) >= std::numeric_limits<S>::max() && "cast invalid, value to big");
+                } else {
+                    // both are unsigned, so no min check is necessary
+                    assert(x <= std::numeric_limits<S>::max() && y >= std::numeric_limits<S>::max()
+                           && "cast invalid, value to big");
+                }
+            }
+#endif
 
             return AbstractPoint<S>{ static_cast<S>(x), static_cast<S>(y) };
         }
