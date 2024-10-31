@@ -18,7 +18,7 @@ struct Sha256Stream {
 
     Sha256Stream();
 
-    template<utils::integral Integral>
+    template<std::integral Integral>
     Sha256Stream& operator<<(const Integral value) {
 
         library_object.add(

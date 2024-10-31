@@ -26,10 +26,10 @@ namespace ui {
         std::pair<u32, u32> margin;
 
     public:
-        // see here, why utils::size_t_identity<S> is needed: https://stackoverflow.com/questions/2786946/c-invoke-explicit-template-constructor
+        // see here, why utils::SizeIdentity<S> is needed: https://stackoverflow.com/questions/2786946/c-invoke-explicit-template-constructor
         template<size_t S>
         explicit TileLayout(
-                utils::size_t_identity<S>,
+                utils::SizeIdentity<S>,
                 u32 focus_id,
                 Direction direction,
                 std::array<double, S - 1> steps,

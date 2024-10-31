@@ -30,7 +30,7 @@ namespace scenes {
         : SettingsMenu{ service_provider, layout, std::optional<std::shared_ptr<input::GameInput>>{ game_input } } { }
 
     SettingsMenu::SettingsMenu(ServiceProvider* service_provider, const  ui::Layout& layout,  const std::optional<std::shared_ptr<input::GameInput>>& game_input) : Scene{service_provider, layout}
-    , m_main_layout{    utils::size_t_identity<3>(),
+    , m_main_layout{    utils::SizeIdentity<3>(),
     0,
     ui::Direction::Vertical,
                     { 0.1, 0.9 },

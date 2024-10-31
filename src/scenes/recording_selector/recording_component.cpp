@@ -19,7 +19,7 @@ custom_ui::RecordingComponent::RecordingComponent(
         ):ui::Widget{layout, ui::WidgetType::Component, is_top_level},
         ui::Focusable{focus_helper.focus_id()},
         ui::Hoverable{layout.get_rect()},
-        m_main_layout{ utils::size_t_identity<2>(), focus_helper.focus_id(), 
+        m_main_layout{ utils::SizeIdentity<2>(), focus_helper.focus_id(), 
         ui::Direction::Vertical,
                     std::array<double, 1>{ 0.6 }, ui::RelativeMargin{layout.get_rect(), ui::Direction::Vertical,0.05}, std::pair<double, double>{ 0.05, 0.03 },
                     layout,false
@@ -32,7 +32,7 @@ custom_ui::RecordingComponent::RecordingComponent(
     );
 
     const auto information_layout_index = m_main_layout.add<ui::TileLayout>(
-            utils::size_t_identity<3>(), focus_helper.focus_id(), ui::Direction::Horizontal,
+            utils::SizeIdentity<3>(), focus_helper.focus_id(), ui::Direction::Horizontal,
             std::array<double, 2>{ 0.33, 0.66 }, ui::AbsolutMargin{ 10 }, std::pair<double, double>{ 0.05, 0.03 }
     );
 

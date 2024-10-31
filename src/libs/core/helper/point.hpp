@@ -76,12 +76,12 @@ namespace shapes {
 
                     assert(x >= static_cast<T>(0) && y >= static_cast<T>(0) && "cast invalid, value to small");
                     assert(static_cast<S>(x) <= std::numeric_limits<S>::max()
-                           && static_cast<S>(y) >= std::numeric_limits<S>::max() && "cast invalid, value to big");
+                           && static_cast<S>(y) <= std::numeric_limits<S>::max() && "cast invalid, value to big");
 
                 } else {
                     // source is unsigned, destination is signed, so only the max check is necessary
 
-                    assert(x <= std::numeric_limits<S>::max() && y >= std::numeric_limits<S>::max()
+                    assert(x <= std::numeric_limits<S>::max() && y <= std::numeric_limits<S>::max()
                            && "cast invalid, value to big");
                 }
             } else {
@@ -91,10 +91,10 @@ namespace shapes {
                     assert(x >= std::numeric_limits<S>::min() && y >= std::numeric_limits<S>::min()
                            && "cast invalid, value to small");
                     assert(static_cast<S>(x) <= std::numeric_limits<S>::max()
-                           && static_cast<S>(y) >= std::numeric_limits<S>::max() && "cast invalid, value to big");
+                           && static_cast<S>(y) <= std::numeric_limits<S>::max() && "cast invalid, value to big");
                 } else {
                     // both are unsigned, so no min check is necessary
-                    assert(x <= std::numeric_limits<S>::max() && y >= std::numeric_limits<S>::max()
+                    assert(x <= std::numeric_limits<S>::max() && y <= std::numeric_limits<S>::max()
                            && "cast invalid, value to big");
                 }
             }

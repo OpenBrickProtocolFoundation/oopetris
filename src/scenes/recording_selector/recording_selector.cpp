@@ -30,7 +30,7 @@ namespace scenes {
     RecordingSelector::RecordingSelector(ServiceProvider* service_provider, const ui::Layout& layout)
         : Scene{ service_provider, layout },
           m_main_layout{ 
-                utils::size_t_identity<3>(),
+                utils::SizeIdentity<3>(),
                 0,
                 ui::Direction::Vertical,
                 { 0.1, 0.9 },
