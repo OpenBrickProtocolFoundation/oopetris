@@ -1,137 +1,137 @@
 # taken from https://github.com/cpp-linter/cpp-linter-action/blob/main/demo/.clang-tidy
 ---
-Checks: "clang-diagnostic-*,clang-analyzer-*,bugprone-*,misc-*,performance-*,readability-*,portability-*,modernize-*,cppcoreguidelines-*,google-*,llvm-*,cert-*,-modernize-use-trailing-return-type,-bugprone-argument-comment,-misc-include-cleaner,-cppcoreguidelines-avoid-magic-numbers,-readability-magic-numbers,-readability-avoid-nested-conditional-operator,-llvm-namespace-comment,-llvm-header-guard,-google-build-explicit-make-pair"
-WarningsAsErrors: ""
-HeaderFilterRegex: "oopetris/src/.*"
-FormatStyle: "file"
+Checks: 'clang-diagnostic-*,clang-analyzer-*,bugprone-*,misc-*,performance-*,readability-*,portability-*,modernize-*,cppcoreguidelines-*,google-*,llvm-*,cert-*,-modernize-use-trailing-return-type,-bugprone-argument-comment,-cppcoreguidelines-avoid-magic-numbers,-readability-magic-numbers,-readability-avoid-nested-conditional-operator,-llvm-namespace-comment,-llvm-header-guard,-google-build-explicit-make-pair'
+WarningsAsErrors: ''
+HeaderFilterRegex: 'oopetris/src/.*'
+FormatStyle: 'file'
 CheckOptions:
   ## NAMING CONVENTION SECTION
   - key: readability-identifier-naming.AbstractClassCase
-    value: "CamelCase"
+    value: 'CamelCase'
   - key: readability-identifier-naming.AggressiveDependentMemberLookup
     value: true
   - key: readability-identifier-naming.CheckAnonFieldInParent
     value: false
   - key: readability-identifier-naming.ClassCase
-    value: "CamelCase"
+    value: 'CamelCase'
   - key: readability-identifier-naming.ClassConstantCase
-    value: "lower_case"
+    value: 'lower_case'
   - key: readability-identifier-naming.ClassConstantPrefix
-    value: "c_"
+    value: 'c_'
   - key: readability-identifier-naming.ClassMemberCase
-    value: "lower_case"
+    value: 'lower_case'
   - key: readability-identifier-naming.ClassMemberPrefix
-    value: "m_"
+    value: 'm_'
   - key: readability-identifier-naming.ClassMethodCase
-    value: "lower_case"
+    value: 'lower_case'
   - key: readability-identifier-naming.ConceptCase
-    value: "CamelCase"
+    value: 'CamelCase'
   - key: readability-identifier-naming.ConstantCase
-    value: "lower_case"
+    value: 'lower_case'
   - key: readability-identifier-naming.ConstantMemberCase
-    value: "lower_case"
+    value: 'lower_case'
   - key: readability-identifier-naming.ConstantParameterCase
-    value: "lower_case"
+    value: 'lower_case'
   - key: readability-identifier-naming.ConstantPointerParameterCase
-    value: "lower_case"
+    value: 'lower_case'
   - key: readability-identifier-naming.ConstexprFunctionCase
-    value: "lower_case"
+    value: 'lower_case'
   - key: readability-identifier-naming.ConstexprMethodCase
-    value: "lower_case"
+    value: 'lower_case'
   - key: readability-identifier-naming.ConstexprVariableCase
-    value: "lower_case"
+    value: 'lower_case'
   - key: readability-identifier-naming.EnumCase
-    value: "CamelCase"
+    value: 'CamelCase'
   - key: readability-identifier-naming.EnumConstantCase
-    value: "CamelCase"
+    value: 'CamelCase'
   - key: readability-identifier-naming.FunctionCase
-    value: "lower_case"
+    value: 'lower_case'
   - key: readability-identifier-naming.GlobalConstantCase
-    value: "lower_case"
+    value: 'lower_case'
   - key: readability-identifier-naming.GlobalConstantPointerCase
-    value: "lower_case"
+    value: 'lower_case'
   - key: readability-identifier-naming.GlobalFunctionCase
-    value: "lower_case"
+    value: 'lower_case'
   - key: readability-identifier-naming.GlobalFunctionIgnoredRegexp
-    value: "(PrintTo)" ## for gtest
+    value: '(PrintTo)' ## for gtest
   - key: readability-identifier-naming.GlobalPointerCase
-    value: "lower_case"
+    value: 'lower_case'
   - key: readability-identifier-naming.GlobalVariableCase
-    value: "lower_case"
+    value: 'lower_case'
   - key: readability-identifier-naming.GlobalVariablePrefix
-    value: "g_"
+    value: 'g_'
   - key: readability-identifier-naming.LocalConstantCase
-    value: "lower_case"
+    value: 'lower_case'
   - key: readability-identifier-naming.LocalConstantPointerCase
-    value: "lower_case"
+    value: 'lower_case'
   - key: readability-identifier-naming.LocalPointerCase
-    value: "lower_case"
+    value: 'lower_case'
   - key: readability-identifier-naming.LocalVariableCase
-    value: "lower_case"
+    value: 'lower_case'
   - key: readability-identifier-naming.MacroDefinitionCase
-    value: "UPPER_CASE"
+    value: 'UPPER_CASE'
   - key: readability-identifier-naming.MemberCase
-    value: "lower_case"
+    value: 'lower_case'
   - key: readability-identifier-naming.MemberPrefix
-    value: "m_"
+    value: 'm_'
   - key: readability-identifier-naming.MethodCase
-    value: "lower_case"
+    value: 'lower_case'
   - key: readability-identifier-naming.NamespaceCase
-    value: "lower_case"
+    value: 'lower_case'
   - key: readability-identifier-naming.ParameterCase
-    value: "lower_case"
+    value: 'lower_case'
   - key: readability-identifier-naming.ParameterPackCase
-    value: "lower_case"
+    value: 'lower_case'
   - key: readability-identifier-naming.PointerParameterCase
-    value: "lower_case"
+    value: 'lower_case'
   - key: readability-identifier-naming.PrivateMemberCase
-    value: "lower_case"
+    value: 'lower_case'
   - key: readability-identifier-naming.PrivateMemberPrefix
-    value: "m_"
+    value: 'm_'
   - key: readability-identifier-naming.PrivateMethodCase
-    value: "lower_case"
+    value: 'lower_case'
   - key: readability-identifier-naming.ProtectedMemberCase
-    value: "lower_case"
+    value: 'lower_case'
   - key: readability-identifier-naming.ProtectedMemberPrefix
-    value: "m_"
+    value: 'm_'
   - key: readability-identifier-naming.ProtectedMethodCase
-    value: "lower_case"
+    value: 'lower_case'
   - key: readability-identifier-naming.PublicMemberCase
-    value: "lower_case"
+    value: 'lower_case'
   - key: readability-identifier-naming.PublicMemberPrefix
-    value: "" # NO PREFIX
+    value: '' # NO PREFIX
   - key: readability-identifier-naming.PublicMethodCase
-    value: "lower_case"
+    value: 'lower_case'
   - key: readability-identifier-naming.ScopedEnumConstantCase
-    value: "CamelCase"
+    value: 'CamelCase'
   - key: readability-identifier-naming.StaticConstantCase
-    value: "lower_case"
+    value: 'lower_case'
   - key: readability-identifier-naming.StaticConstantPrefix
-    value: "s_"
+    value: 's_'
   - key: readability-identifier-naming.StaticVariableCase
-    value: "lower_case"
+    value: 'lower_case'
   - key: readability-identifier-naming.StaticVariablePrefix
-    value: "s_"
+    value: 's_'
   - key: readability-identifier-naming.StructCase
-    value: "CamelCase"
+    value: 'CamelCase'
   - key: readability-identifier-naming.TemplateParameterCase
-    value: "CamelCase"
+    value: 'CamelCase'
   - key: readability-identifier-naming.TemplateTemplateParameterCase
-    value: "CamelCase"
+    value: 'CamelCase'
   - key: readability-identifier-naming.TypeAliasCase
-    value: "CamelCase"
+    value: 'CamelCase'
   - key: readability-identifier-naming.TypedefCase
-    value: "CamelCase"
+    value: 'CamelCase'
   - key: readability-identifier-naming.TypeTemplateParameterCase
-    value: "CamelCase"
+    value: 'CamelCase'
   - key: readability-identifier-naming.UnionCase
-    value: "CamelCase"
+    value: 'CamelCase'
   - key: readability-identifier-naming.ValueTemplateParameterCase
-    value: "CamelCase"
+    value: 'CamelCase'
   - key: readability-identifier-naming.VariableCase
-    value: "lower_case"
+    value: 'lower_case'
   - key: readability-identifier-naming.VirtualMethodCase
-    value: "lower_case"
+    value: 'lower_case'
 
     # some needed settings, that are non default
   - key: bugprone-misplaced-widening-cast.CheckImplicitCasts
@@ -153,11 +153,11 @@ CheckOptions:
 
   ## special things, that have special values
   - key: readability-identifier-length.IgnoredVariableNames
-    value: ""
+    value: ''
   - key: readability-identifier-length.IgnoredParameterNames
-    value: "^(os)$" ## std::ostream
+    value: '^(os)$' ## std::ostream
   - key: readability-identifier-length.IgnoredExceptionVariableNames
-    value: ""
+    value: ''
   - key: readability-identifier-length.MinimumLoopCounterNameLength
     value: 1
   - key: readability-identifier-length.MinimumExceptionNameLength
@@ -165,4 +165,10 @@ CheckOptions:
   - key: readability-function-cognitive-complexity.Threshold
     value: 50
   - key: bugprone-assert-side-effect.AssertMacros
-    value: "assert"
+    value: 'assert'
+
+  ##
+  - key: misc-include-cleaner.IgnoreHeaders
+    value: ''
+  - key: misc-include-cleaner.DeduplicateFindings
+    value: true
