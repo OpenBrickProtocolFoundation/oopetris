@@ -180,7 +180,7 @@ namespace scenes {
 
         if (m_next_command.has_value()) {
             return std::visit(
-                    helper::overloaded{
+                    helper::Overloaded{
                             [this](const Return& ret) {
                                 const auto return_type = ret.type;
 

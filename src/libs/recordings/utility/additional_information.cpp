@@ -9,7 +9,7 @@
 [[nodiscard]] std::string recorder::InformationValue::to_string(u32 recursion_depth // NOLINT(misc-no-recursion)
 ) const {
     return std::visit(
-            helper::overloaded{
+            helper::Overloaded{
                     [](const std::string& value) { return value; },
                     [](const float& value) { return std::to_string(value); },
                     [](const double& value) { return std::to_string(value); },

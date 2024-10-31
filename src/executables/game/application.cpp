@@ -183,7 +183,7 @@ void Application::update() {
             if (scene_change) {
 
                 std::visit(
-                        helper::overloaded{
+                        helper::Overloaded{
                                 [this, index](const scenes::Scene::Pop&) {
                                     m_scene_stack.erase(
                                             m_scene_stack.begin()

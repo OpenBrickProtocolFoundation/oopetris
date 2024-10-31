@@ -18,11 +18,11 @@
 namespace helper {
 
     template<class... Ts>
-    struct overloaded : Ts... {
+    struct Overloaded : Ts... {
         using Ts::operator()...;
     };
     template<class... Ts>
-    overloaded(Ts...) -> overloaded<Ts...>;
+    Overloaded(Ts...) -> Overloaded<Ts...>;
 } // namespace helper
 
 
@@ -53,8 +53,8 @@ namespace utils {
     }
 
     template<class Enum>
-    [[nodiscard]] constexpr std::underlying_type_t<Enum> to_underlying(Enum enum_) noexcept {
-        return static_cast<std::underlying_type_t<Enum>>(enum_);
+    [[nodiscard]] constexpr std::underlying_type_t<Enum> to_underlying(Enum enum_value) noexcept {
+        return static_cast<std::underlying_type_t<Enum>>(enum_value);
     }
 
 #if __cpp_lib_unreachable >= 202202L

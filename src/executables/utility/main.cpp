@@ -81,7 +81,7 @@ int main(int argc, char** argv) noexcept {
         const auto recording_reader = std::move(parsed.value());
 
         std::visit(
-                helper::overloaded{ [&recording_reader](const Dump& dump) {
+                helper::Overloaded{ [&recording_reader](const Dump& dump) {
                                        dump_json(recording_reader, dump.pretty_print, dump.ensure_ascii);
                                    },
                                     [&recording_reader](const Info& /* info */) { print_info(recording_reader); } },

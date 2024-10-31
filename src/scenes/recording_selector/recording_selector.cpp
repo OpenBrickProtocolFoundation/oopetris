@@ -79,7 +79,7 @@ namespace scenes {
 
         if (m_next_command.has_value()) {
             return std::visit(
-                    helper::overloaded{
+                    helper::Overloaded{
                             [](const Return&) { return UpdateResult{ SceneUpdate::StopUpdating, Scene::Pop{} }; },
                             [this](const Action& action) {
                                 if (auto recording_component =

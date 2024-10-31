@@ -37,7 +37,7 @@ helper::expected<date::ISO8601Date, std::string> date::ISO8601Date::from_string(
 
 
     std::istringstream input_stream{ input };
-    input_stream >> std::get_time(&tm, ISO8601Date::iso_8601_format_string);
+    input_stream >> std::get_time(&time_struct, ISO8601Date::iso_8601_format_string);
 
     if (input_stream.fail()) {
         return helper::unexpected<std::string>{ "error calling std::get_time(): unable to convert input" };
@@ -69,7 +69,7 @@ helper::expected<date::ISO8601Date, std::string> date::ISO8601Date::from_string(
 
     std::tm time_struct{};
 #if defined(_MSC_VER) || defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
-    if (gmtime_s(&tm, &value) != 0) {
+    if (gmtime_s(&time_struct, &value) != 0) {
         return helper::unexpected<std::string>{ "error calling gmtime_s" };
     }
 #else
