@@ -7,49 +7,50 @@
 #include <filesystem>
 #include <iostream>
 
-void print_info(const recorder::RecordingReader& recording_reader) noexcept {
-    //TODO(Totto): Implement, print basic information and final result for each simulation
-    UNUSED(recording_reader);
-    std::cerr << "NOT IMPLEMENTED\n";
-}
-
-void dump_json(const recorder::RecordingReader& recording_reader, bool pretty_print, bool ensure_ascii) noexcept {
-
-    auto result = json::try_convert_to_json<recorder::RecordingReader>(recording_reader);
-
-    if (not result.has_value()) {
-        std::cerr << fmt::format("An error occurred during converting to json: {}\n", result.error());
-        std::exit(1);
+namespace {
+    void print_info(const recorder::RecordingReader& recording_reader) noexcept {
+        //TODO(Totto): Implement, print basic information and final result for each simulation
+        UNUSED(recording_reader);
+        std::cerr << "NOT IMPLEMENTED\n";
     }
 
+    void dump_json(const recorder::RecordingReader& recording_reader, bool pretty_print, bool ensure_ascii) noexcept {
 
-    int indent = -1;
-    char indent_char = ' ';
+        auto result = json::try_convert_to_json<recorder::RecordingReader>(recording_reader);
 
-    if (pretty_print) {
-        indent = 1;
-        indent_char = '\t';
+        if (not result.has_value()) {
+            std::cerr << fmt::format("An error occurred during converting to json: {}\n", result.error());
+            std::exit(1);
+        }
+
+
+        int indent = -1;
+        char indent_char = ' ';
+
+        if (pretty_print) {
+            indent = 1;
+            indent_char = '\t';
+        }
+
+        try {
+
+            std::cout << result.value().dump(indent, indent_char, ensure_ascii);
+
+        } catch (const std::exception& error) {
+            std::cerr << error.what();
+            std::exit(1);
+        }
+
+        if (pretty_print) {
+            std::cout << "\n";
+        }
     }
 
-    try {
-
-        std::cout << result.value().dump(indent, indent_char, ensure_ascii);
-
-    } catch (const std::exception& error) {
-        std::cerr << error.what();
-        std::exit(1);
-    }
-
-    if (pretty_print) {
-        std::cout << "\n";
-    }
-}
-
+} // namespace
 
 int main(int argc, char** argv) noexcept {
 
     try {
-
 
         auto arguments_result = CommandLineArguments::from_args(argc, argv);
 

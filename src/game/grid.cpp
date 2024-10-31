@@ -6,7 +6,7 @@
 Grid::Grid(const ui::Layout& layout, bool is_top_level)
     : ui::Widget{ layout, ui::WidgetType::Component, is_top_level } {
 
-    const u32 total_x_tiles = grid::preview_extends.x * 2 + 2 + grid::width_in_tiles;
+    const u32 total_x_tiles = (grid::preview_extends.x * 2) + 2 + grid::width_in_tiles;
     constexpr u32 total_y_tiles = grid::height_in_tiles;
 
     const u32 tile_size_x = layout.get_rect().width() / total_x_tiles;
@@ -86,7 +86,7 @@ void Grid::draw_background(const ServiceProvider& service_provider, GridRect gri
 
     for (u32 column = 0; column <= grid_rect.width(); ++column) {
         const auto start = top_left + shapes::UPoint{ column * m_tile_size, 0 };
-        const auto end = shapes::UPoint{ start.x, start.y + grid_rect.height() * m_tile_size };
+        const auto end = shapes::UPoint{ start.x, start.y + (grid_rect.height() * m_tile_size) };
         service_provider.renderer().draw_line(start, end, grid_color);
         service_provider.renderer().draw_line(start - shapes::UPoint{ 1, 0 }, end - shapes::UPoint{ 1, 0 }, grid_color);
     }
@@ -100,8 +100,8 @@ void Grid::draw_background(const ServiceProvider& service_provider, GridRect gri
 
     const auto outline_top_left = top_left - shapes::UPoint{ 2, 2 };
     const auto outline_bottom_right = shapes::UPoint{
-        top_left.x + grid_rect.width() * m_tile_size + 1,
-        top_left.y + grid_rect.height() * m_tile_size + 1,
+        top_left.x + (grid_rect.width() * m_tile_size) + 1,
+        top_left.y + (grid_rect.height() * m_tile_size) + 1,
     };
 
     const auto outline_rect = shapes::URect{

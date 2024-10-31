@@ -5,11 +5,11 @@
 namespace utils {
 
 
-    template<usize data_size>
+    template<usize DataSize>
     constexpr auto get_supported_music_extension(
             const char( // NOLINT(modernize-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
                     &name
-            )[data_size]
+            )[DataSize]
     ) {
 
 #if not defined(AUDIO_PREFER_MP3) and not defined(AUDIO_PREFER_FLAC)

@@ -110,7 +110,7 @@ private:
     std::unique_ptr<discord::Core> m_core;
     std::unique_ptr<discord::User> m_current_user;
 
-    DiscordInstance(discord::Core* core);
+    explicit DiscordInstance(discord::Core* core);
 
 public:
     OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] static helper::expected<DiscordInstance, std::string> initialize();

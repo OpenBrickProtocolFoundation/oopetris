@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include <core/helper/types.hpp>
+
 #include <SDL.h>
 #include <string>
 
