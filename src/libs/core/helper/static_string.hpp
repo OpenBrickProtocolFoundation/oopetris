@@ -17,7 +17,8 @@ private:
     constexpr StaticString() : m_data{} { }
 
 public:
-    constexpr StaticString(const char (&chars // NOLINT(modernize-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
+    constexpr explicit StaticString(const char( // NOLINT(modernize-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
+            &chars
     )[DataSize]) {
         std::copy(chars, chars + DataSize, begin());
     }
