@@ -114,17 +114,19 @@ bool detail::ColorPickerScene::handle_event(
         const SDL_Event& event
 ) {
 
+    const auto result = m_color_picker.handle_event(input_manager, event);
+    if (result) {
+        return result;
+    }
+
     const auto navigation_event = input_manager->get_navigation_event(event);
+
 
     if (navigation_event == input::NavigationEvent::BACK) {
         m_should_exit = true;
         return true;
     }
 
-    const auto result = m_color_picker.handle_event(input_manager, event);
-    if (result) {
-        return result;
-    }
 
     // swallow all events
     return true;

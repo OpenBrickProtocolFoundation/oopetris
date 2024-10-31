@@ -1,0 +1,133 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://git.uibk.ac.at/csba1761/bsc/-/blob/main/backend/assets/environments.schema.json",
+    "$ref": "#/$defs/Root",
+    "$defs": {
+        "Root": {
+            "type": "object",
+            "properties": {
+                "controls": {
+                    "$ref": "#/$defs/Controls"
+                },
+                "volume": {
+                    "type": "number",
+                    "minimum": 0.0,
+                    "maximum": 1.0
+                },
+                "discord": {
+                    "type": "boolean"
+                },
+                "api_url": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "volume"
+            ],
+            "additionalProperties": false
+        },
+        "Controls": {
+            "type": "object",
+            "properties": {
+                "selected": {
+                    "anyOf": [
+                        {
+                            "type": "number",
+                            "minimum": 0,
+                            "multipleOf": 1
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "inputs": {
+                    "$ref": "#/$defs/Inputs"
+                }
+            },
+            "required": [],
+            "additionalProperties": false
+        },
+        "Inputs": {
+            "type": "array",
+            "items": {
+                "$ref": "#/$defs/Input"
+            },
+            "additionalItems": false,
+            "minItems": 0,
+            "default": []
+        },
+        "Input": {
+            "description": "TODO: this isn't fully specified",
+            "anyOf": [
+                {
+                    "$ref": "#/$defs/KeyboardInput"
+                },
+                {
+                    "type": "object",
+                    "additionalItems": true
+                }
+            ]
+        },
+        "KeyboardInput": {
+            "type": "object",
+            "properties": {
+                "type": {
+                    "const": "keyboard"
+                },
+                "drop": {
+                    "$ref": "#/$defs/KeyboardInputKey"
+                },
+                "hold": {
+                    "$ref": "#/$defs/KeyboardInputKey"
+                },
+                "move_down": {
+                    "$ref": "#/$defs/KeyboardInputKey"
+                },
+                "move_left": {
+                    "$ref": "#/$defs/KeyboardInputKey"
+                },
+                "move_right": {
+                    "$ref": "#/$defs/KeyboardInputKey"
+                },
+                "rotate_left": {
+                    "$ref": "#/$defs/KeyboardInputKey"
+                },
+                "rotate_right": {
+                    "$ref": "#/$defs/KeyboardInputKey"
+                },
+                "menu": {
+                    "type": "object",
+                    "properties": {
+                        "pause": {
+                            "$ref": "#/$defs/KeyboardInputKey"
+                        },
+                        "open_settings": {
+                            "$ref": "#/$defs/KeyboardInputKey"
+                        }
+                    },
+                    "additionalItems": false,
+                    "required": [
+                        "pause",
+                        "open_settings"
+                    ]
+                }
+            },
+            "required": [
+                "menu",
+                "rotate_right",
+                "rotate_left",
+                "move_right",
+                "rotate_right",
+                "move_left",
+                "move_down",
+                "hold",
+                "drop",
+                "type"
+            ]
+        }
+    },
+    "KeyboardInputKey": {
+        "type": "string"
+    }
+}

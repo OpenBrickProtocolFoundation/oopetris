@@ -2,6 +2,7 @@
 
 #include <core/helper/color.hpp>
 
+#include "manager/settings.hpp"
 #include "scenes/scene.hpp"
 #include "ui/layouts/tile_layout.hpp"
 #include "ui/widget.hpp"
@@ -10,7 +11,11 @@
 
 namespace details::settings::menu {
 
-    struct Return { };
+    enum class ReturnType : u8 { Save, Cancel };
+
+    struct Return {
+        ReturnType type;
+    };
 
     struct Action {
         ui::Widget* widget;
@@ -33,11 +38,17 @@ namespace scenes {
 
     struct SettingsMenu : public Scene {
     private:
+        enum class Status : u8 { Loading, Ok, Error };
+
         std::optional<details::settings::menu::Command> m_next_command{ std::nullopt };
         ui::TileLayout m_main_layout;
         //todo migrate to settings state
         std::vector<Color> m_colors;
         std::optional<std::shared_ptr<input::GameInput>> m_game_input;
+
+        settings::Settings m_settings;
+        bool m_did_change_settings{ false };
+        Status m_status{ Status::Ok };
 
         const std::string listener_name = "settings_menu";
 

@@ -5,6 +5,7 @@
 #include "graphics/renderer.hpp"
 #include "graphics/window.hpp"
 #include "input/input.hpp"
+#include "lobby/api.hpp"
 #include "manager/event_dispatcher.hpp"
 #include "manager/event_listener.hpp"
 #include "manager/music_manager.hpp"
@@ -28,10 +29,11 @@ private:
     std::optional<u32> m_target_framerate;
 
     // these fields are initalized asynchronously in a separate thread
+    std::unique_ptr<SettingsManager> m_settings_manager;
     std::unique_ptr<MusicManager> m_music_manager;
     std::shared_ptr<input::InputManager> m_input_manager;
-    std::unique_ptr<SettingsManager> m_settings_manager;
     std::unique_ptr<FontManager> m_font_manager;
+    std::unique_ptr<lobby::API> m_api;
 
 
 #if !defined(NDEBUG)
@@ -127,6 +129,10 @@ public:
         return *m_input_manager;
     }
 
+    [[nodiscard]] const std::unique_ptr<lobby::API>& api() const override {
+        return m_api;
+    }
+
 
 #if defined(_HAVE_DISCORD_SDK)
 
@@ -140,4 +146,5 @@ public:
 private:
     void initialize();
     void load_resources();
+    void reload_api(const settings::Settings& settings);
 };

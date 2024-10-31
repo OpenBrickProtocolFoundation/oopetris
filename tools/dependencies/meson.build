@@ -119,7 +119,22 @@ utf8cpp_dep = dependency(
     required: true,
     version: '>=4.0.0',
 )
-core_lib += {'deps': [core_lib.get('deps'), utf8cpp_dep]}
+graphics_lib += {'deps': [graphics_lib.get('deps'), utf8cpp_dep]}
+
+icu_dep = dependency(
+    'icu-uc',
+    required: false,
+)
+
+if icu_dep.found()
+    graphics_lib += {
+        'compile_args': [
+            graphics_lib.get('compile_args'),
+            '-D_HAVE_ICU_DEP',
+        ],
+        'deps': [graphics_lib.get('deps'), icu_dep],
+    }
+endif
 
 is_flatpak_build = false
 
@@ -263,6 +278,16 @@ if build_application
             ],
         }
 
+    endif
+
+    if host_machine.system() == 'linux' or (meson.is_cross_build() and host_machine.system() == 'android')
+        keyutils_dep = dependency('keyutils', required: true, allow_fallback: true)
+        graphics_lib += {'deps': [graphics_lib.get('deps'), keyutils_dep]}
+    elif host_machine.system() == 'windows'
+        c = meson.get_compiler('c')
+
+        ncrypt_dep = c.find_library('ncrypt')
+        graphics_lib += {'deps': [graphics_lib.get('deps'), ncrypt_dep]}
     endif
 
     build_installer = get_option('build_installer')

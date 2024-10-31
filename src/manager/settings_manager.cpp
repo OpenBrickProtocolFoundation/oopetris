@@ -3,54 +3,70 @@
 #include "input/keyboard_input.hpp"
 #include "input/touch_input.hpp"
 
+namespace {
+    constexpr const auto settings_filename = "settings.json";
 
-#include <spdlog/spdlog.h>
+}
 
-SettingsManager::SettingsManager(ServiceProvider* service_provider) : m_service_provider{ service_provider } {
-    const std::filesystem::path settings_file = utils::get_root_folder() / detail::settings_filename;
 
-    const auto result = json::try_parse_json_file<detail::Settings>(settings_file);
+SettingsManager::SettingsManager() {
+    const std::filesystem::path settings_file = utils::get_root_folder() / settings_filename;
+
+    const auto result = json::try_parse_json_file<settings::Settings>(settings_file);
 
     if (result.has_value()) {
         m_settings = result.value();
     } else {
-        spdlog::warn("unable to load settings from \"{}\": {}", detail::settings_filename, result.error());
+        auto [error, error_type] = result.error();
+
+        spdlog::error("unable to load settings from \"{}\": {}", settings_filename, error);
         spdlog::warn("applying default settings");
 
         m_settings = {
-            detail::Settings{ .controls = {}, .selected = std::nullopt, .volume = 1.0, .discord = false }
+            settings::Settings{ .controls = {},
+                               .selected = std::nullopt,
+                               .volume = 1.0,
+                               .discord = false,
+                               .api_url = std::nullopt }
         };
 
-        //TODO(Totto): save the file, if it doesn't exist, if it has an error, just leave it there
+        //save the default file, only if it doesn't exist, if it has an error, just leave it there
+        if (error_type == json::ParseError::OpenError) {
+            this->save();
+        }
     }
 }
 
 
-[[nodiscard]] const detail::Settings& SettingsManager::settings() const {
+[[nodiscard]] const settings::Settings& SettingsManager::settings() const {
     return m_settings;
 }
 
 
-void detail::to_json(nlohmann::json& obj, const detail::Settings& settings) {
-    obj = nlohmann::json{
-        { "controls",
-         nlohmann::json{ { "inputs", settings.controls }, { "selected", settings.selected } },
-         { "volume", settings.volume },
-         { "discord", settings.discord } }
-    };
+void SettingsManager::add_callback(Callback&& callback) {
+    m_callbacks.emplace_back(std::move(callback));
 }
 
-void detail::from_json(const nlohmann::json& obj, detail::Settings& settings) {
+void SettingsManager::save() const {
+    const std::filesystem::path settings_file = utils::get_root_folder() / settings_filename;
 
-    ::json::check_for_no_additional_keys(obj, { "controls", "volume", "discord" });
+    const auto result = json::try_write_json_to_file(settings_file, m_settings, true);
 
-    obj.at("volume").get_to(settings.volume);
-    obj.at("discord").get_to(settings.discord);
+    if (result.has_value()) {
+        spdlog::error("unable to save settings to \"{}\": {}", settings_filename, result.value());
+        return;
+    }
 
-    const auto& controls = obj.at("controls");
+    this->fire_callbacks();
+}
 
-    ::json::check_for_no_additional_keys(controls, { "inputs", "selected" });
+void SettingsManager::save(const settings::Settings& new_settings) {
+    this->m_settings = new_settings;
+    this->save();
+}
 
-    controls.at("inputs").get_to(settings.controls);
-    controls.at("selected").get_to(settings.selected);
+void SettingsManager::fire_callbacks() const {
+    for (const auto& callback : m_callbacks) {
+        callback(m_settings);
+    }
 }

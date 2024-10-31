@@ -59,6 +59,8 @@ namespace oopetris::http {
         OOPETRIS_GRAPHICS_EXPORTED virtual void SetBearerAuth( //NOLINT(readability-identifier-naming)
                 const std::string& token
         ) = 0;
+
+        OOPETRIS_GRAPHICS_EXPORTED virtual void ResetBearerAuth() = 0; //NOLINT(readability-identifier-naming)
     };
 
     OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::string status_message(int status);

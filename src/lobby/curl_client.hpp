@@ -76,6 +76,8 @@ namespace oopetris::http::implementation {
         Put(const std::string& url, const std::optional<std::pair<std::string, std::string>>& payload) override;
 
         OOPETRIS_GRAPHICS_EXPORTED void SetBearerAuth(const std::string& token) override;
+
+        OOPETRIS_GRAPHICS_EXPORTED void ResetBearerAuth() override;
     };
 
 

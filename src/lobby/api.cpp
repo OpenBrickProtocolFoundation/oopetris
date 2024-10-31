@@ -2,14 +2,21 @@
 
 #include "api.hpp"
 
+#include <future>
 #include <spdlog/spdlog.h>
-
 
 #if defined(_OOPETRIS_ONLINE_USE_CURL)
 #include "./curl_client.hpp"
 #else
 #include "./httplib_client.hpp"
 #endif
+
+namespace {
+    namespace constants {
+
+        constexpr const char* api_token_key = "API_TOKEN_save";
+    }
+} // namespace
 
 
 helper::expected<void, std::string> lobby::API::check_compatibility() {
@@ -46,7 +53,19 @@ helper::expected<void, std::string> lobby::API::check_reachability() {
 }
 
 lobby::API::API(const std::string& api_url)
-    : m_client{ std::make_unique<oopetris::http::implementation::ActualClient>(api_url) } { }
+    : m_client{ std::make_unique<oopetris::http::implementation::ActualClient>(api_url) },
+      m_secret_storage{ std::make_unique<secret::SecretStorage>(secret::KeyringType::User) } {
+
+    auto value = m_secret_storage->load(constants::api_token_key);
+
+    if (value.has_value()) {
+        if (not this->setup_authentication(value.value().as_string())) {
+            throw std::runtime_error("Couldn't setup authentication");
+        }
+    } else {
+        spdlog::info("API: Key not found, so probably not logged in already: {}", value.error());
+    }
+}
 
 helper::expected<lobby::VersionResult, std::string> lobby::API::get_version() {
     auto res = m_client->Get("/version");
@@ -57,23 +76,39 @@ helper::expected<lobby::VersionResult, std::string> lobby::API::get_version() {
 
 lobby::API::API(API&& other) noexcept
     : m_client{ std::move(other.m_client) },
-      m_authentication_token{ std::move(other.m_authentication_token) } { }
+      m_authentication_token{ std::move(other.m_authentication_token) },
+      m_secret_storage{ std::move(other.m_secret_storage) } { }
 
 lobby::API::~API() = default;
 
 helper::expected<lobby::API, std::string> lobby::API::get_api(const std::string& url) {
 
-    API api{ url };
+    try {
 
-    const auto reachable = api.check_reachability();
+        API api{ url };
 
-    if (not reachable.has_value()) {
-        return helper::unexpected<std::string>{ reachable.error() };
+        const auto reachable = api.check_reachability();
+
+        if (not reachable.has_value()) {
+            return helper::unexpected<std::string>{ reachable.error() };
+        }
+
+        //TODO(Totto):  once version is standard, check here if the version is supported
+
+        return api;
+    } catch (const std::exception& error) {
+        return helper::unexpected<std::string>{ error.what() };
     }
+}
 
-    //TODO(Totto):  once version is standard, check here if the version is supported
+void lobby::API::check_url(const std::string& url, std::function<void(const bool success)>&& callback) {
 
-    return api;
+    //TODO(Totto): is this doen correctly
+    std::ignore = std::async(std::launch::async, [url, callback = std::move(callback)] {
+        auto result = lobby::API::get_api(url);
+
+        callback(result.has_value());
+    });
 }
 
 
@@ -107,11 +142,15 @@ bool lobby::API::authenticate(const Credentials& credentials) {
         return false;
     }
 
-    m_authentication_token = result.value().jwt;
+    return this->setup_authentication(result.value().jwt);
+}
 
-    m_client->SetBearerAuth(m_authentication_token.value());
+void lobby::API::logout() {
+    m_client->ResetBearerAuth();
 
-    return true;
+    if (auto result = m_secret_storage->remove(constants::api_token_key); result.has_value()) {
+        spdlog::error("API: {}", result.value());
+    }
 }
 
 helper::expected<std::vector<lobby::LobbyInfo>, std::string> lobby::API::get_lobbies() {
@@ -229,4 +268,16 @@ helper::expected<void, std::string> lobby::API::register_user(const RegisterRequ
     auto res = m_client->Post("/register", payload);
 
     return is_request_ok(res, 204);
+}
+
+bool lobby::API::setup_authentication(const std::string& token) {
+
+    m_authentication_token = token;
+
+    m_client->SetBearerAuth(token);
+    if (auto result = m_secret_storage->store(constants::api_token_key, secret::Buffer{ token }); result.has_value()) {
+        spdlog::error("API {}", result.value());
+    }
+
+    return true;
 }

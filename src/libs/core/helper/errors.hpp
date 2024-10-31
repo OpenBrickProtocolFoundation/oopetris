@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "./types.hpp"
 #include "./windows.hpp"
 
 #include <exception>
@@ -10,7 +11,7 @@
 namespace helper {
 
     namespace error {
-        enum class Severity { Fatal, Major, Minor };
+        enum class Severity : u8 { Fatal, Major, Minor };
     }
 
     struct GeneralError : std::exception {

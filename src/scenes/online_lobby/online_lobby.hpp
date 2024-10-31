@@ -1,7 +1,5 @@
 #pragma once
 
-#include "lobby/api.hpp"
-
 #include "scenes/scene.hpp"
 #include "ui/components/label.hpp"
 #include "ui/components/text_button.hpp"
@@ -17,7 +15,6 @@ namespace scenes {
 
         ui::TileLayout m_main_layout;
         std::optional<Command> m_next_command;
-        std::unique_ptr<lobby::API> m_api;
 
     public:
         OOPETRIS_GRAPHICS_EXPORTED explicit OnlineLobby(ServiceProvider* service_provider, const ui::Layout& layout);

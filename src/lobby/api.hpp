@@ -4,6 +4,7 @@
 
 #include "./client.hpp"
 
+#include "./credentials/secret.hpp"
 #include "./types.hpp"
 #include "helper/windows.hpp"
 
@@ -16,6 +17,7 @@ namespace lobby {
     private:
         std::unique_ptr<oopetris::http::Client> m_client;
         std::optional<std::string> m_authentication_token;
+        std::unique_ptr<secret::SecretStorage> m_secret_storage;
 
         // lobby commit used: https://github.com/OpenBrickProtocolFoundation/lobby/commit/2e0c8d05592f4e4d08437e6cb754a30f02c4e97c
         static constexpr StaticString supported_version{ "0.1.0" };
@@ -30,7 +32,6 @@ namespace lobby {
 
         helper::expected<lobby::LoginResponse, std::string> login(const lobby::Credentials& credentials);
 
-
     public:
         OOPETRIS_GRAPHICS_EXPORTED API(API&& other) noexcept;
         OOPETRIS_GRAPHICS_EXPORTED API& operator=(API&& other) noexcept = delete;
@@ -43,10 +44,14 @@ namespace lobby {
         OOPETRIS_GRAPHICS_EXPORTED
         [[nodiscard]] helper::expected<API, std::string> static get_api(const std::string& url);
 
+        OOPETRIS_GRAPHICS_EXPORTED
+        void static check_url(const std::string& url, std::function<void(const bool success)>&& callback);
 
         OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] bool is_authenticated();
 
         OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] bool authenticate(const Credentials& credentials);
+
+        OOPETRIS_GRAPHICS_EXPORTED void logout();
 
         OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] helper::expected<std::vector<LobbyInfo>, std::string> get_lobbies();
 
@@ -71,6 +76,9 @@ namespace lobby {
         OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] helper::expected<void, std::string> register_user(
                 const RegisterRequest& register_request
         );
+
+    private:
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] bool setup_authentication(const std::string& token);
     };
 
 

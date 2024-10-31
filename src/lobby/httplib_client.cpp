@@ -115,3 +115,8 @@ void oopetris::http::implementation::ActualClient::SetBearerAuth(const std::stri
 
     m_client.set_bearer_token_auth(token);
 }
+
+void oopetris::http::implementation::ActualClient::ResetBearerAuth() {
+
+    m_client.set_bearer_token_auth("");
+}

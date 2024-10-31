@@ -5,6 +5,8 @@
 #include <SDL.h>
 #include <string>
 
+#include <core/helper/types.hpp>
+
 #include "./windows.hpp"
 
 namespace helper {
@@ -19,7 +21,7 @@ namespace helper {
 
 
     struct MessageBox {
-        enum class Type { Error, Warning, Information };
+        enum class Type : u8 { Error, Warning, Information };
 
         /***
         * \brief This blocks the current thread and should be called on the thread, the parent windows was created (if that is nullptr, it may be on another thread, but not otherwise)

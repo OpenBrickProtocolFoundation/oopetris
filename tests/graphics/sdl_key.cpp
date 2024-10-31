@@ -68,6 +68,48 @@ TEST(SDLKey, FromString) {
 }
 
 
+TEST(SDLKey, ModifierTests) {
+    const auto key1 = sdl::Key{ SDLK_k, { sdl::Modifier::CTRL } };
+
+    ASSERT_EQ(key1.has_modifier(sdl::Modifier::ALT), false);
+
+    ASSERT_EQ(key1.has_modifier(sdl::Modifier::LCTRL), true);
+    ASSERT_EQ(key1.has_modifier(sdl::Modifier::RCTRL), true);
+    ASSERT_EQ(key1.has_modifier(sdl::Modifier::CTRL), true);
+
+    ASSERT_EQ(key1.has_modifier_exact(sdl::Modifier::LCTRL), false);
+    ASSERT_EQ(key1.has_modifier_exact(sdl::Modifier::RCTRL), false);
+    ASSERT_EQ(key1.has_modifier_exact(sdl::Modifier::CTRL), true);
+}
+
+
+TEST(SDLKey, SymmetryOfEqual) {
+
+    const std::vector<std::tuple<sdl::Key, sdl::Key, bool>> keys{
+        { sdl::Key{ SDLK_ESCAPE, { sdl::Modifier::LCTRL } }, sdl::Key{ SDLK_ESCAPE, { sdl::Modifier::LCTRL } },  true },
+        { sdl::Key{ SDLK_ESCAPE, { sdl::Modifier::LCTRL } },  sdl::Key{ SDLK_ESCAPE, { sdl::Modifier::CTRL } },  true },
+        { sdl::Key{ SDLK_ESCAPE, { sdl::Modifier::RCTRL } },  sdl::Key{ SDLK_ESCAPE, { sdl::Modifier::CTRL } },  true },
+        { sdl::Key{ SDLK_ESCAPE, { sdl::Modifier::RCTRL } }, sdl::Key{ SDLK_ESCAPE, { sdl::Modifier::LCTRL } }, false },
+        {  sdl::Key{ SDLK_ESCAPE, { sdl::Modifier::CTRL } },  sdl::Key{ SDLK_ESCAPE, { sdl::Modifier::CTRL } },  true },
+        {  sdl::Key{ SDLK_ESCAPE, { sdl::Modifier::CTRL } },                           sdl::Key{ SDLK_ESCAPE }, false },
+        {  sdl::Key{ SDLK_ESCAPE, { sdl::Modifier::LALT } },  sdl::Key{ SDLK_ESCAPE, { sdl::Modifier::CTRL } }, false },
+        {  sdl::Key{ SDLK_ESCAPE, { sdl::Modifier::RALT } },  sdl::Key{ SDLK_ESCAPE, { sdl::Modifier::CTRL } }, false },
+        {  sdl::Key{ SDLK_ESCAPE, { sdl::Modifier::LGUI } },  sdl::Key{ SDLK_ESCAPE, { sdl::Modifier::CTRL } }, false },
+    };
+
+    for (const auto& [key, other_key, expected] : keys) {
+
+        const auto are_equal = key == other_key;
+
+        ASSERT_EQ(are_equal, expected) << "wrong result for: " << key << " == " << other_key;
+
+        const auto are_equal_2 = key == other_key;
+
+        ASSERT_EQ(are_equal_2, expected) << "wrong result for: " << other_key << " == " << key;
+    }
+}
+
+
 TEST(SDLKey, ToString) {
 
     const std::vector<sdl::Key> keys{
@@ -93,5 +135,31 @@ TEST(SDLKey, ToString) {
 
         ASSERT_THAT(parsed, ExpectedHasValue()) << "Input was: " << key;
         ASSERT_EQ(parsed.value(), key);
+    }
+}
+
+
+TEST(SDLKey, ComplexComparison) {
+
+    const auto to_compare = sdl::Key{ SDLK_ESCAPE, { sdl::Modifier::CTRL } };
+
+    const std::vector<std::tuple<sdl::Key, bool>> keys{
+        {                         sdl::Key{ SDLK_1, { sdl::Modifier::LCTRL } }, false },
+        {                    sdl::Key{ SDLK_ESCAPE, { sdl::Modifier::LCTRL } },  true },
+        {                    sdl::Key{ SDLK_ESCAPE, { sdl::Modifier::RCTRL } },  true },
+        {                     sdl::Key{ SDLK_ESCAPE, { sdl::Modifier::CTRL } },  true },
+        {                                              sdl::Key{ SDLK_ESCAPE }, false },
+        { sdl::Key{ SDLK_ESCAPE, { sdl::Modifier::CTRL, sdl::Modifier::GUI } }, false },
+        {                     sdl::Key{ SDLK_ESCAPE, { sdl::Modifier::LALT } }, false },
+        {                     sdl::Key{ SDLK_ESCAPE, { sdl::Modifier::RALT } }, false },
+        {                     sdl::Key{ SDLK_ESCAPE, { sdl::Modifier::LGUI } }, false },
+    };
+
+
+    for (const auto& [key, expected] : keys) {
+
+        const auto are_equal = to_compare == key;
+
+        ASSERT_EQ(are_equal, expected) << "wrong result for: " << to_compare << " == " << key;
     }
 }
