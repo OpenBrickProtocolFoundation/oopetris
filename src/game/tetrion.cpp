@@ -72,7 +72,7 @@ void Tetrion::render(const ServiceProvider& service_provider) const {
 
     const auto* grid = get_grid();
     const double original_scale = grid->scale_to_original();
-    const ScreenCordsFunction to_screen_coords = [grid](const GridPoint& point) {
+    const ScreenCordsFunction to_screen_coords = [grid](const grid::GridUPoint& point) {
         return grid->to_screen_coords(point);
     };
     const shapes::UPoint& tile_size = grid->tile_size();

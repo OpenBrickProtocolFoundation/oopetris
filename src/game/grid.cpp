@@ -31,7 +31,7 @@ Grid::Grid(const ui::Layout& layout, bool is_top_level)
     return static_cast<double>(m_tile_size) / static_cast<double>(grid::original_tile_size);
 }
 
-[[nodiscard]] shapes::UPoint Grid::to_screen_coords(GridPoint grid_coords) const {
+[[nodiscard]] shapes::UPoint Grid::to_screen_coords(grid::GridUPoint grid_coords) const {
     return m_fill_rect.top_left + (grid_coords.cast<u32>() * m_tile_size);
 }
 
@@ -51,7 +51,7 @@ void Grid::draw_preview_background(const ServiceProvider& service_provider) cons
             service_provider,
             GridRect{
                     grid::preview_background_position,
-                    grid::preview_background_position + grid::preview_extends - GridPoint{ 1, 1 },
+                    grid::preview_background_position + grid::preview_extends - grid::GridUPoint{ 1, 1 },
     }
     );
 }
@@ -61,7 +61,7 @@ void Grid::draw_hold_background(const ServiceProvider& service_provider) const {
             service_provider,
             GridRect{
                     grid::hold_background_position,
-                    grid::hold_background_position + grid::hold_background_extends - GridPoint{ 1, 1 },
+                    grid::hold_background_position + grid::hold_background_extends - grid::GridUPoint{ 1, 1 },
     }
     );
 }
@@ -80,7 +80,7 @@ void Grid::draw_background(const ServiceProvider& service_provider, GridRect gri
     const auto top_left = m_fill_rect.top_left + (grid_rect.top_left.cast<u32>() * m_tile_size);
 
 
-    const auto bottom_right = top_left + (GridPoint(grid_rect.width(), grid_rect.height()).cast<u32>() * m_tile_size);
+    const auto bottom_right = top_left + (grid::GridUPoint(grid_rect.width(), grid_rect.height()).cast<u32>() * m_tile_size);
 
     service_provider.renderer().draw_rect_filled(shapes::URect{ top_left, bottom_right }, background_color);
 

@@ -16,7 +16,7 @@ void Tetromino::render(
         const double original_scale,
         const ScreenCordsFunction& to_screen_coords,
         const shapes::UPoint& tile_size,
-        const GridPoint& offset
+        const grid::GridUPoint& offset
 ) const {
     for (const auto& mino : m_minos) {
         helper::graphics::render_mino(
@@ -49,7 +49,7 @@ void Tetromino::move_right() {
 
 void Tetromino::move(const shapes::AbstractPoint<i8> offset) {
     // this looks weird but silently asserts, that the final point is not negative
-    m_position = (m_position.cast<i8>() + offset).cast<u8>();
+    m_position = m_position.cast<i8>() + offset;
     refresh_minos();
 }
 
@@ -67,11 +67,11 @@ Tetromino::Pattern Tetromino::get_pattern(helper::TetrominoType type, Rotation r
 }
 
 
-std::array<Mino, 4> Tetromino::create_minos(GridPoint position, Rotation rotation, helper::TetrominoType type) {
+std::array<Mino, 4> Tetromino::create_minos(grid::GridPoint position, Rotation rotation, helper::TetrominoType type) {
     return std::array<Mino, 4>{
-        Mino{ position + get_pattern(type, rotation).at(0), type },
-        Mino{ position + get_pattern(type, rotation).at(1), type },
-        Mino{ position + get_pattern(type, rotation).at(2), type },
-        Mino{ position + get_pattern(type, rotation).at(3), type },
+        Mino{ (position + get_pattern(type, rotation).at(0)).cast<u8>(), type },
+        Mino{ (position + get_pattern(type, rotation).at(1)).cast<u8>(), type },
+        Mino{ (position + get_pattern(type, rotation).at(2)).cast<u8>(), type },
+        Mino{ (position + get_pattern(type, rotation).at(3)).cast<u8>(), type },
     };
 }

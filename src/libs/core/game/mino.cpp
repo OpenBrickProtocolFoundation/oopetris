@@ -4,11 +4,11 @@
     return m_type;
 }
 
-[[nodiscard]] const Mino::GridPoint& Mino::position() const {
+[[nodiscard]] const grid::GridUPoint& Mino::position() const {
     return m_position;
 }
 
-[[nodiscard]] Mino::GridPoint& Mino::position() {
+[[nodiscard]] grid::GridUPoint& Mino::position() {
     return m_position;
 }
 

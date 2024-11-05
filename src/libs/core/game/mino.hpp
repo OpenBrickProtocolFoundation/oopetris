@@ -9,23 +9,22 @@
 #include <functional>
 struct Mino final {
 public:
-    using GridPoint = grid::GridPoint;
-    using ScreenCordsFunction = std::function<shapes::UPoint(const GridPoint&)>;
+    using ScreenCordsFunction = std::function<shapes::UPoint(const grid::GridUPoint&)>;
 
 private:
-    GridPoint m_position;
+    grid::GridUPoint m_position;
     helper::TetrominoType m_type;
 
 public:
-    OOPETRIS_CORE_EXPORTED explicit constexpr Mino(GridPoint position, helper::TetrominoType type)
+    OOPETRIS_CORE_EXPORTED explicit constexpr Mino(grid::GridUPoint position, helper::TetrominoType type)
         : m_position{ position },
           m_type{ type } { }
 
     OOPETRIS_CORE_EXPORTED [[nodiscard]] helper::TetrominoType type() const;
 
-    OOPETRIS_CORE_EXPORTED [[nodiscard]] const GridPoint& position() const;
+    OOPETRIS_CORE_EXPORTED [[nodiscard]] const grid::GridUPoint& position() const;
 
-    OOPETRIS_CORE_EXPORTED [[nodiscard]] GridPoint& position();
+    OOPETRIS_CORE_EXPORTED [[nodiscard]] grid::GridUPoint& position();
 
     OOPETRIS_CORE_EXPORTED [[nodiscard]] bool operator==(const Mino& other) const;
 

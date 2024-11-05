@@ -132,7 +132,7 @@ void SimulatedTetrion::spawn_next_tetromino(
         const helper::TetrominoType type,
         const SimulationStep simulation_step_index
 ) {
-    constexpr GridPoint spawn_position{ 3, 0 };
+    constexpr grid::GridUPoint spawn_position{ 3, 0 };
     m_active_tetromino = Tetromino{ spawn_position, type };
     refresh_previews();
     if (not is_active_tetromino_position_valid()) {
@@ -146,7 +146,7 @@ void SimulatedTetrion::spawn_next_tetromino(
             all_valid = true;
             for (auto& mino : current_pieces) {
                 if (mino.position().y != 0) {
-                    mino.position() = mino.position() - GridPoint{ 0, 1 };
+                    mino.position() = mino.position() - grid::GridUPoint{ 0, 1 };
                     if (not is_valid_mino_position(mino.position())) {
                         all_valid = false;
                     }
@@ -159,7 +159,7 @@ void SimulatedTetrion::spawn_next_tetromino(
         for (const Mino& mino : m_active_tetromino->minos()) {
             auto position = mino.position();
             if (mino.position().y >= move_up && move_up != 0) {
-                position -= GridPoint{ 0, move_up };
+                position -= grid::GridUPoint{ 0, move_up };
                 m_mino_stack.set(position, mino.type());
             }
         }
@@ -292,7 +292,7 @@ void SimulatedTetrion::clear_fully_occupied_lines() {
         for (u8 row = 0; row < grid::height_in_tiles; ++row) {
             bool fully_occupied = true;
             for (u8 column = 0; column < grid::width_in_tiles; ++column) {
-                if (m_mino_stack.is_empty(GridPoint{ column, row })) {
+                if (m_mino_stack.is_empty(grid::GridUPoint{ column, row })) {
                     fully_occupied = false;
                     break;
                 }
@@ -355,16 +355,16 @@ bool SimulatedTetrion::is_active_tetromino_position_valid() const {
     return is_tetromino_position_valid(m_active_tetromino.value());
 }
 
-bool SimulatedTetrion::is_valid_mino_position(GridPoint position) const {
+bool SimulatedTetrion::is_valid_mino_position(grid::GridUPoint position) const {
     return position.x < grid::width_in_tiles and position.y < grid::height_in_tiles and m_mino_stack.is_empty(position);
 }
 
-bool SimulatedTetrion::mino_can_move_down(GridPoint position) const {
+bool SimulatedTetrion::mino_can_move_down(grid::GridUPoint position) const {
     if (position.y == (grid::height_in_tiles - 1)) {
         return false;
     }
 
-    return is_valid_mino_position(position + GridPoint{ 0, 1 });
+    return is_valid_mino_position(position + grid::GridUPoint{ 0, 1 });
 }
 
 

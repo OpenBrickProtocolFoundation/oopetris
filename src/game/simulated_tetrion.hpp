@@ -32,7 +32,6 @@ struct SimulatedTetrion {
 private:
     using WallKickPoint = shapes::AbstractPoint<i8>;
     using WallKickTable = std::array<std::array<WallKickPoint, 5>, 8>;
-    using GridPoint = Mino::GridPoint;
 
     static constexpr SimulationStep lock_delay = 30;
     static constexpr int num_lock_delays = 30;
@@ -151,8 +150,8 @@ private:
     void clear_fully_occupied_lines();
     void lock_active_tetromino(SimulationStep simulation_step_index);
     [[nodiscard]] bool is_active_tetromino_position_valid() const;
-    [[nodiscard]] bool mino_can_move_down(GridPoint position) const;
-    [[nodiscard]] bool is_valid_mino_position(GridPoint position) const;
+    [[nodiscard]] bool mino_can_move_down(grid::GridUPoint position) const;
+    [[nodiscard]] bool is_valid_mino_position(grid::GridUPoint position) const;
 
     void refresh_ghost_tetromino();
     void refresh_previews();

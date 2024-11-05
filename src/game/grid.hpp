@@ -11,15 +11,13 @@
 
 struct Grid final : public ui::Widget {
 public:
-    using GridType = grid::GridType;
-    using GridPoint = grid::GridPoint;
-    using GridRect = shapes::AbstractRect<GridType>;
-
     static constexpr Color background_color{ 12, 12, 12 };
     static constexpr Color border_color{ 42, 42, 42 };
     static constexpr Color grid_color{ 31, 31, 31 };
 
 private:
+    using GridRect = shapes::AbstractRect<grid::GridUType>;
+
     shapes::URect m_fill_rect;
     u32 m_tile_size;
 
@@ -30,7 +28,7 @@ public:
 
     OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] double scale_to_original() const;
 
-    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] shapes::UPoint to_screen_coords(GridPoint grid_coords) const;
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] shapes::UPoint to_screen_coords(grid::GridUPoint grid_coords) const;
 
     OOPETRIS_GRAPHICS_EXPORTED void render(const ServiceProvider& service_provider) const override;
 

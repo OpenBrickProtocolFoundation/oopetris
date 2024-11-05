@@ -15,14 +15,14 @@
 
 scenes::LoadingScreen::LoadingScreen(ServiceProvider* service_provider)
     : m_segments{
-          { Mino{ Mino::GridPoint{ 0, 0 }, helper::TetrominoType::J }, 1.0 },
-          { Mino{ Mino::GridPoint{ 1, 0 }, helper::TetrominoType::L }, 1.0 },
-          { Mino{ Mino::GridPoint{ 2, 0 }, helper::TetrominoType::I }, 1.0 },
-          { Mino{ Mino::GridPoint{ 2, 1 }, helper::TetrominoType::O }, 1.0 },
-          { Mino{ Mino::GridPoint{ 2, 2 }, helper::TetrominoType::S }, 1.0 },
-          { Mino{ Mino::GridPoint{ 1, 2 }, helper::TetrominoType::T }, 1.0 },
-          { Mino{ Mino::GridPoint{ 0, 2 }, helper::TetrominoType::I }, 1.0 },
-          { Mino{ Mino::GridPoint{ 0, 1 }, helper::TetrominoType::Z }, 1.0 },
+          { Mino{ grid::GridUPoint{ 0, 0 }, helper::TetrominoType::J }, 1.0 },
+          { Mino{ grid::GridUPoint{ 1, 0 }, helper::TetrominoType::L }, 1.0 },
+          { Mino{ grid::GridUPoint{ 2, 0 }, helper::TetrominoType::I }, 1.0 },
+          { Mino{ grid::GridUPoint{ 2, 1 }, helper::TetrominoType::O }, 1.0 },
+          { Mino{ grid::GridUPoint{ 2, 2 }, helper::TetrominoType::S }, 1.0 },
+          { Mino{ grid::GridUPoint{ 1, 2 }, helper::TetrominoType::T }, 1.0 },
+          { Mino{ grid::GridUPoint{ 0, 2 }, helper::TetrominoType::I }, 1.0 },
+          { Mino{ grid::GridUPoint{ 0, 1 }, helper::TetrominoType::Z }, 1.0 },
 },m_logo{logo::get_logo(service_provider)} {
 
     const auto [total_x_tiles, total_y_tiles] = utils::get_orientation() == utils::Orientation::Landscape
@@ -107,7 +107,7 @@ void scenes::LoadingScreen::render(const ServiceProvider& service_provider) cons
 
             helper::graphics::render_mino(
                     mino, service_provider, MinoTransparency::Solid, original_scale,
-                    [this, tile_size](const Mino::GridPoint& point) -> auto {
+                    [this, tile_size](const grid::GridUPoint& point) -> auto {
                         return this->to_screen_coords(point, tile_size);
                     },
                     { tile_size, tile_size }
@@ -119,7 +119,7 @@ void scenes::LoadingScreen::render(const ServiceProvider& service_provider) cons
 }
 
 
-[[nodiscard]] shapes::UPoint scenes::LoadingScreen::to_screen_coords(const Mino::GridPoint& point, u32 tile_size)
+[[nodiscard]] shapes::UPoint scenes::LoadingScreen::to_screen_coords(const grid::GridUPoint& point, u32 tile_size)
         const {
     const auto start_edge = m_start_offset + point.cast<u32>() * m_tile_size;
     const auto inner_offset = m_tile_size - (tile_size / 2);

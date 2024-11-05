@@ -16,13 +16,13 @@ void MinoStack::clear_row_and_let_sink(u8 row) {
     }
 }
 
-[[nodiscard]] bool MinoStack::is_empty(GridPoint coordinates) const {
+[[nodiscard]] bool MinoStack::is_empty(grid::GridUPoint coordinates) const {
     return not std::ranges::any_of(m_minos, [&coordinates](const Mino& mino) {
         return mino.position() == coordinates;
     });
 }
 
-void MinoStack::set(GridPoint coordinates, helper::TetrominoType type) {
+void MinoStack::set(grid::GridUPoint coordinates, helper::TetrominoType type) {
     const Mino to_insert = Mino{ coordinates, type };
     for (Mino& current : m_minos) {
         if (current.position() == coordinates) {
