@@ -40,6 +40,9 @@ void Tetromino::move_down() {
 }
 
 void Tetromino::move_left() {
+    if (m_position.x == 0) {
+        return;
+    }
     move({ -1, 0 });
 }
 
