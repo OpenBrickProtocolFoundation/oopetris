@@ -53,7 +53,7 @@ void ui::GridLayout::render(const ServiceProvider& service_provider) const {
         x_pos += margin_x + total_width;
     } else {
         const u32 total_margin = this->m_size <= 1 ? 0 : (this->m_size - 1) * m_gap.get_margin();
-        assert(layout().get_rect().height() > (total_margin - (m_margin.second * 2))
+        assert(layout().get_rect().height() > (total_margin + (m_margin.second * 2))
                && "height has to be greater than the margins");
         height = (layout().get_rect().height() - total_margin - (m_margin.second * 2)) / this->m_size;
 
