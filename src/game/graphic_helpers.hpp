@@ -28,7 +28,7 @@ namespace helper::graphics {
             double original_scale,
             const Mino::ScreenCordsFunction& to_screen_coords,
             const shapes::UPoint& tile_size,
-            const grid::GridUPoint& offset = grid::GridUPoint::zero()
+            const grid::GridPoint& offset = grid::GridPoint::zero()
     );
 
 

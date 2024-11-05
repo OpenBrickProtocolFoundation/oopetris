@@ -15,9 +15,9 @@ private:
 public:
     OOPETRIS_CORE_EXPORTED void clear_row_and_let_sink(u8 row);
 
-    OOPETRIS_CORE_EXPORTED [[nodiscard]] bool is_empty(grid::GridUPoint coordinates) const;
+    OOPETRIS_CORE_EXPORTED [[nodiscard]] bool is_empty(grid::GridPoint coordinates) const;
 
-    OOPETRIS_CORE_EXPORTED void set(grid::GridUPoint coordinates, helper::TetrominoType type);
+    OOPETRIS_CORE_EXPORTED void set(grid::GridPoint coordinates, helper::TetrominoType type);
 
     OOPETRIS_CORE_EXPORTED [[nodiscard]] u32 num_minos() const;
 

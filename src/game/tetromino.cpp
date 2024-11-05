@@ -16,7 +16,7 @@ void Tetromino::render(
         const double original_scale,
         const ScreenCordsFunction& to_screen_coords,
         const shapes::UPoint& tile_size,
-        const grid::GridUPoint& offset
+        const grid::GridPoint& offset
 ) const {
     for (const auto& mino : m_minos) {
         helper::graphics::render_mino(
@@ -69,9 +69,9 @@ Tetromino::Pattern Tetromino::get_pattern(helper::TetrominoType type, Rotation r
 
 std::array<Mino, 4> Tetromino::create_minos(grid::GridPoint position, Rotation rotation, helper::TetrominoType type) {
     return std::array<Mino, 4>{
-        Mino{ (position + get_pattern(type, rotation).at(0)).cast<u8>(), type },
-        Mino{ (position + get_pattern(type, rotation).at(1)).cast<u8>(), type },
-        Mino{ (position + get_pattern(type, rotation).at(2)).cast<u8>(), type },
-        Mino{ (position + get_pattern(type, rotation).at(3)).cast<u8>(), type },
+        Mino{ position + get_pattern(type, rotation).at(0), type },
+        Mino{ position + get_pattern(type, rotation).at(1), type },
+        Mino{ position + get_pattern(type, rotation).at(2), type },
+        Mino{ position + get_pattern(type, rotation).at(3), type },
     };
 }

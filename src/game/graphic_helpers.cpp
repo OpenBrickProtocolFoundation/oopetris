@@ -35,7 +35,7 @@ void helper::graphics::render_mino(
         const double original_scale,
         const Mino::ScreenCordsFunction& to_screen_coords,
         const shapes::UPoint& tile_size,
-        const grid::GridUPoint& offset
+        const grid::GridPoint& offset
 ) {
     const auto alpha = get_transparency_value(transparency);
     const auto alpha_factor = static_cast<double>(alpha) / 255.0;

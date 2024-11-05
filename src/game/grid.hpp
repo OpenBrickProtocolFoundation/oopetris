@@ -16,7 +16,7 @@ public:
     static constexpr Color grid_color{ 31, 31, 31 };
 
 private:
-    using GridRect = shapes::AbstractRect<grid::GridUType>;
+    using GridRect = shapes::AbstractRect<grid::GridType>;
 
     shapes::URect m_fill_rect;
     u32 m_tile_size;
@@ -28,7 +28,7 @@ public:
 
     OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] double scale_to_original() const;
 
-    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] shapes::UPoint to_screen_coords(grid::GridUPoint grid_coords) const;
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] shapes::UPoint to_screen_coords(grid::GridPoint grid_coords) const;
 
     OOPETRIS_GRAPHICS_EXPORTED void render(const ServiceProvider& service_provider) const override;
 

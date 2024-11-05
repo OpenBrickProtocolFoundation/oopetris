@@ -150,8 +150,8 @@ private:
     void clear_fully_occupied_lines();
     void lock_active_tetromino(SimulationStep simulation_step_index);
     [[nodiscard]] bool is_active_tetromino_position_valid() const;
-    [[nodiscard]] bool mino_can_move_down(grid::GridUPoint position) const;
-    [[nodiscard]] bool is_valid_mino_position(grid::GridUPoint position) const;
+    [[nodiscard]] bool mino_can_move_down(grid::GridPoint position) const;
+    [[nodiscard]] bool is_valid_mino_position(grid::GridPoint position) const;
 
     void refresh_ghost_tetromino();
     void refresh_previews();

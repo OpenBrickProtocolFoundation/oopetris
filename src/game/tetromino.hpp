@@ -27,11 +27,6 @@ public:
           m_type{ type },
           m_minos{ create_minos(position, m_rotation, type) } { }
 
-    OOPETRIS_GRAPHICS_EXPORTED Tetromino(grid::GridUPoint position, helper::TetrominoType type)
-        : m_position{ position.cast<i8>() },
-          m_type{ type },
-          m_minos{ create_minos(m_position, m_rotation, type) } { }
-
     OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] helper::TetrominoType type() const;
     OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] Rotation rotation() const;
 
@@ -41,7 +36,7 @@ public:
             double original_scale,
             const ScreenCordsFunction& to_screen_coords,
             const shapes::UPoint& tile_size,
-            const grid::GridUPoint& offset = grid::GridUPoint::zero()
+            const grid::GridPoint& offset = grid::GridPoint::zero()
     ) const;
 
     OOPETRIS_GRAPHICS_EXPORTED void rotate_right();
