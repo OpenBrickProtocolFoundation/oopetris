@@ -8,10 +8,11 @@ if build_application
     subdir('graphics')
     subdir('helper')
     subdir('input')
+    subdir('lobby')
     subdir('manager')
     subdir('scenes')
     subdir('ui')
-    subdir('lobby')
+    subdir('plugins')
 
     if have_discord_sdk
         subdir('discord')

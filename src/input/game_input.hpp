@@ -25,7 +25,7 @@ namespace input {
         ReleaseMoveDown,
     };
 
-    enum class GameInputType : u8 { Touch, Keyboard, JoyStick, Controller, Recording };
+    enum class GameInputType : u8 { Touch, Keyboard, JoyStick, Controller, Recording, AI };
 
     enum class MenuEvent : u8 { OpenSettings, Pause };
 

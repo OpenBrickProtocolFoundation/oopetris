@@ -37,6 +37,8 @@ namespace input {
 
     using AdditionalInfo = std::tuple<std::shared_ptr<input::GameInput>, tetrion::StartingParameters>;
 
+    using AdditionalMultiPlayerInfo = std::tuple<std::shared_ptr<input::GameInput>, std::vector<tetrion::StartingParameters>>;
+
     OOPETRIS_GRAPHICS_EXPORTED
     [[nodiscard]] std::pair<std::vector<input::AdditionalInfo>, recorder::AdditionalInformation>
     get_game_parameters_for_replay(ServiceProvider* service_provider, const std::filesystem::path& recording_path);
@@ -47,5 +49,14 @@ namespace input {
             recorder::AdditionalInformation&& information,
             const date::ISO8601Date& date
     );
+
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] helper::expected<input::AdditionalMultiPlayerInfo, std::string>
+    get_single_player_game_parameters_for_multiplayer(
+            ServiceProvider* service_provider,
+            recorder::AdditionalInformation&& information,
+            const date::ISO8601Date& date,
+            u8 additional_player
+    );
+
 
 } // namespace input

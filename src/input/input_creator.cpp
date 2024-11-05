@@ -19,9 +19,18 @@
 namespace {
 
 
-    [[nodiscard]] recorder::TetrionHeader create_tetrion_headers_for_one(const input::AdditionalInfo& info) {
-        const auto& needed_info = std::get<1>(info);
-        return recorder::TetrionHeader{ needed_info.seed, needed_info.starting_level };
+    [[nodiscard]] recorder::TetrionHeader create_tetrion_headers_for_one(const tetrion::StartingParameters& parameter) {
+        return recorder::TetrionHeader{ parameter.seed, parameter.starting_level };
+    }
+
+    [[nodiscard]] std::vector<recorder::TetrionHeader> create_tetrion_headers_for_multiple(
+            const std::vector<tetrion::StartingParameters>& parameters
+    ) {
+        std::vector<recorder::TetrionHeader> result{};
+        for (const auto& parameter : parameters) {
+            result.emplace_back(parameter.seed, parameter.starting_level);
+        }
+        return result;
     }
 
     [[nodiscard]] u32 get_target_fps(ServiceProvider* const service_provider) {
@@ -119,7 +128,7 @@ input::get_game_parameters_for_replay(
     AdditionalInfo result{ input.value(), starting_parameters };
 
 
-    auto tetrion_header = create_tetrion_headers_for_one(result);
+    auto tetrion_header = create_tetrion_headers_for_one(std::get<1>(result));
     std::vector<recorder::TetrionHeader> tetrion_headers{ tetrion_header };
 
     const auto recording_directory_path = utils::get_root_folder() / constants::recordings_directory;
@@ -149,6 +158,71 @@ input::get_game_parameters_for_replay(
 
 
         std::get<1>(result).recording_writer = recording_writer;
+    } else {
+        spdlog::warn("Couldn't create recordings folder {}: skipping creation of a recording", dir_result.value());
+    }
+
+    return result;
+}
+
+
+[[nodiscard]] helper::expected<input::AdditionalMultiPlayerInfo, std::string>
+input::get_single_player_game_parameters_for_multiplayer(
+        ServiceProvider* service_provider,
+        recorder::AdditionalInformation&& information,
+        const date::ISO8601Date& date,
+        u8 additional_player
+) {
+    auto input = service_provider->input_manager().get_game_input(service_provider);
+    if (not input.has_value()) {
+        return helper::unexpected<std::string>{ input.error() };
+    }
+
+    const auto starting_level = service_provider->command_line_arguments().starting_level;
+
+    const auto seed = Random::generate_seed();
+
+    const auto target_fps = get_target_fps(service_provider);
+
+    std::vector<tetrion::StartingParameters> starting_parameters = {};
+
+    for (u8 index = 0; index < additional_player + 1; ++index) {
+        starting_parameters.emplace_back(target_fps, seed, starting_level, index);
+    }
+
+
+    AdditionalMultiPlayerInfo result{ input.value(), starting_parameters };
+
+
+    std::vector<recorder::TetrionHeader> tetrion_headers = create_tetrion_headers_for_multiple(std::get<1>(result));
+
+    const auto recording_directory_path = utils::get_root_folder() / constants::recordings_directory;
+
+    auto dir_result = utils::create_directory(recording_directory_path, true);
+    if (not dir_result.has_value()) {
+
+        const auto date_time_str = date.to_string();
+
+        if (not date_time_str.has_value()) {
+            throw std::runtime_error{ fmt::format("Erro in date to string conversion: {}", date_time_str.error()) };
+        }
+
+        const auto filename = fmt::format("{}.{}", date_time_str.value(), constants::recording::extension);
+        const auto file_path = recording_directory_path / filename;
+
+
+        auto recording_writer_create_result =
+                recorder::RecordingWriter::get_writer(file_path, std::move(tetrion_headers), std::move(information));
+        if (not recording_writer_create_result.has_value()) {
+            throw std::runtime_error(recording_writer_create_result.error());
+        }
+
+        const auto recording_writer =
+                std::make_shared<recorder::RecordingWriter>(std::move(recording_writer_create_result.value()));
+
+        for (auto& starting_parameter : starting_parameters) {
+            starting_parameter.recording_writer = recording_writer;
+        }
     } else {
         spdlog::warn("Couldn't create recordings folder {}: skipping creation of a recording", dir_result.value());
     }

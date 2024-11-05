@@ -5,6 +5,8 @@
 #include "input/input.hpp"
 #include "manager/music_manager.hpp"
 #include "manager/resource_manager.hpp"
+#include "plugins/ai/dummy_ai.hpp"
+#include "scenes/multiplayer_local_ai/multiplayer_local_ai.hpp"
 #include "ui/layout.hpp"
 
 namespace scenes {
@@ -53,7 +55,7 @@ namespace scenes {
                 button_size, button_alignment, button_margins
         );
 
-        const auto ai_button_id = m_main_grid.add<ui::TextButton>(
+        m_main_grid.add<ui::TextButton>(
                 service_provider, "vs AI", service_provider->font_manager().get(FontId::Default), Color::white(),
                 focus_helper.focus_id(),
                 [this](const ui::TextButton&) -> bool {
@@ -62,7 +64,6 @@ namespace scenes {
                 },
                 button_size, button_alignment, button_margins
         );
-        m_main_grid.get<ui::TextButton>(ai_button_id)->disable();
 
         m_main_grid.add<ui::TextButton>(
                 service_provider, "Return", service_provider->font_manager().get(FontId::Default), Color::white(),
@@ -92,11 +93,20 @@ namespace scenes {
                         SceneUpdate::StopUpdating,
                         Scene::Push{ SceneId::OnlineLobby, ui::FullScreenLayout{ m_service_provider->window() } }
                     };
-                case Command::AIMultiPlayer:
+                case Command::AIMultiPlayer: {
+
+                    auto dummy_ai = std::make_unique<oopetris::DummyAI>();
+
                     return UpdateResult{
-                        SceneUpdate::StopUpdating, Scene::Switch{ SceneId::AIMultiPlayerGame,
-                                                                 ui::FullScreenLayout{ m_service_provider->window() } }
+                        SceneUpdate::StopUpdating,
+
+                        Scene::RawSwitch{ "MuliPlayerLocalAIGame",
+                                         std::make_unique<MultiPlayerLocalAIGame>(
+                                                  m_service_provider, ui::FullScreenLayout{ m_service_provider->window() },
+                                         std::move(dummy_ai)
+                                          ) }
                     };
+                }
                 case Command::Return:
                     return UpdateResult{ SceneUpdate::StopUpdating, Scene::Pop{} };
                 default:
