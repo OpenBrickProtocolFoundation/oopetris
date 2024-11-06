@@ -82,7 +82,9 @@ helper::expected<TetrionSnapshot, std::string> TetrionSnapshot::from_istream(std
             };
         }
 
-        mino_stack.set(grid::GridPoint(x_coord.value(), y_coord.value()), maybe_type.value());
+        auto mino_pos = shapes::AbstractPoint<Coordinate>(x_coord.value(), y_coord.value());
+
+        mino_stack.set(mino_pos.cast<i8>(), maybe_type.value());
     }
 
 
@@ -148,12 +150,17 @@ TetrionSnapshot::TetrionSnapshot(
 
     for (const auto& mino : m_mino_stack.minos()) {
         static_assert(sizeof(Coordinate) == 1);
+        static_assert(not std::is_signed_v<Coordinate>);
 
-        static_assert(sizeof(decltype(mino.position().x)) == 1);
-        helper::writer::append_value(bytes, mino.position().x);
+        auto mino_pos = mino.position().cast<u8>();
 
-        static_assert(sizeof(decltype(mino.position().y)) == 1);
-        helper::writer::append_value(bytes, mino.position().y);
+        static_assert(sizeof(decltype(mino_pos.x)) == 1);
+        static_assert(not std::is_signed_v<decltype(mino_pos.x)>);
+        helper::writer::append_value(bytes, mino_pos.x);
+
+        static_assert(sizeof(decltype(mino_pos.y)) == 1);
+        static_assert(not std::is_signed_v<decltype(mino_pos.y)>);
+        helper::writer::append_value(bytes, mino_pos.y);
 
         static_assert(sizeof(std::underlying_type_t<helper::TetrominoType>) == 1);
         helper::writer::append_value(bytes, std::to_underlying(mino.type()));
