@@ -28,7 +28,7 @@ private:
 
 public:
     using MinoCount = u64;
-    using Coordinate = i8;
+    using Coordinate = u8;
 
     OOPETRIS_RECORDINGS_EXPORTED TetrionSnapshot(
             u8 tetrion_index,
