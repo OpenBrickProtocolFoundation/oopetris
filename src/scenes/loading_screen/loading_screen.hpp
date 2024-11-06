@@ -27,7 +27,7 @@ namespace scenes {
         OOPETRIS_GRAPHICS_EXPORTED void render(const ServiceProvider& service_provider) const;
 
     private:
-        [[nodiscard]] shapes::UPoint to_screen_coords(const Mino::GridPoint& point, u32 tile_size) const;
+        [[nodiscard]] shapes::UPoint to_screen_coords(const grid::GridPoint& point, u32 tile_size) const;
     };
 
 } // namespace scenes

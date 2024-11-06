@@ -21,10 +21,8 @@ namespace recorder {
 struct Tetrion final : public ui::Widget, SimulatedTetrion {
 private:
     using ScreenCordsFunction = Mino::ScreenCordsFunction;
-    using GridPoint = Mino::GridPoint;
 
     ui::TileLayout m_main_layout;
-
 
 public:
     OOPETRIS_GRAPHICS_EXPORTED Tetrion(

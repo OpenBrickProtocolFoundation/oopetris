@@ -8,7 +8,6 @@
 
 struct MinoStack final {
 private:
-    using GridPoint = Mino::GridPoint;
     using ScreenCordsFunction = Mino::ScreenCordsFunction;
 
     std::vector<Mino> m_minos;
@@ -16,9 +15,9 @@ private:
 public:
     OOPETRIS_CORE_EXPORTED void clear_row_and_let_sink(u8 row);
 
-    OOPETRIS_CORE_EXPORTED [[nodiscard]] bool is_empty(GridPoint coordinates) const;
+    OOPETRIS_CORE_EXPORTED [[nodiscard]] bool is_empty(grid::GridPoint coordinates) const;
 
-    OOPETRIS_CORE_EXPORTED void set(GridPoint coordinates, helper::TetrominoType type);
+    OOPETRIS_CORE_EXPORTED void set(grid::GridPoint coordinates, helper::TetrominoType type);
 
     OOPETRIS_CORE_EXPORTED [[nodiscard]] u32 num_minos() const;
 

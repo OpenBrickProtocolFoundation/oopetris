@@ -16,13 +16,13 @@ void MinoStack::clear_row_and_let_sink(u8 row) {
     }
 }
 
-[[nodiscard]] bool MinoStack::is_empty(GridPoint coordinates) const {
+[[nodiscard]] bool MinoStack::is_empty(grid::GridPoint coordinates) const {
     return not std::ranges::any_of(m_minos, [&coordinates](const Mino& mino) {
         return mino.position() == coordinates;
     });
 }
 
-void MinoStack::set(GridPoint coordinates, helper::TetrominoType type) {
+void MinoStack::set(grid::GridPoint coordinates, helper::TetrominoType type) {
     const Mino to_insert = Mino{ coordinates, type };
     for (Mino& current : m_minos) {
         if (current.position() == coordinates) {
@@ -67,10 +67,10 @@ void MinoStack::set(GridPoint coordinates, helper::TetrominoType type) {
 
 std::ostream& operator<<(std::ostream& ostream, const MinoStack& mino_stack) {
     ostream << "MinoStack(\n";
-    for (u8 y = 0; y < grid::height_in_tiles; ++y) {
-        for (u8 x = 0; x < grid::width_in_tiles; ++x) {
+    for (i8 y = 0; y < grid::height_in_tiles; ++y) {
+        for (i8 x = 0; x < grid::width_in_tiles; ++x) {
             const auto find_iterator = std::ranges::find_if(mino_stack.minos(), [&](const auto& mino) {
-                return mino.position() == shapes::AbstractPoint<u8>{ x, y };
+                return mino.position() == shapes::AbstractPoint<i8>{ x, y };
             });
             const auto found = (find_iterator != mino_stack.minos().cend());
             if (found) {

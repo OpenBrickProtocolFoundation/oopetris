@@ -76,7 +76,7 @@
 			}
 		]
 	},
-	"volume": 0.0,
+	"volume": 0.2,
 	"discord": false,
 	"api_url": "https://oopetris.totto.lt/api/"
 }

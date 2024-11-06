@@ -82,7 +82,7 @@ helper::expected<TetrionSnapshot, std::string> TetrionSnapshot::from_istream(std
             };
         }
 
-        mino_stack.set(shapes::AbstractPoint<u8>(x_coord.value(), y_coord.value()), maybe_type.value());
+        mino_stack.set(grid::GridPoint(x_coord.value(), y_coord.value()), maybe_type.value());
     }
 
 

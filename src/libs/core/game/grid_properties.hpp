@@ -4,10 +4,12 @@
 
 #include "../helper/point.hpp"
 
+
 namespace grid {
 
-    using GridType = u8;
+    using GridType = i8;
     using GridPoint = shapes::AbstractPoint<GridType>;
+
 
     constexpr GridType original_tile_size = 26;
 

@@ -11,19 +11,18 @@
 
 struct Tetromino final {
 private:
-    using GridPoint = Mino::GridPoint;
     using ScreenCordsFunction = Mino::ScreenCordsFunction;
 
-    GridPoint m_position;
+    grid::GridPoint m_position;
     Rotation m_rotation{ Rotation::North };
     helper::TetrominoType m_type;
     std::array<Mino, 4> m_minos;
 
 public:
-    using TetrominoPoint = shapes::AbstractPoint<u8>;
+    using TetrominoPoint = shapes::AbstractPoint<i8>;
     using Pattern = std::array<TetrominoPoint, 4>;
 
-    OOPETRIS_GRAPHICS_EXPORTED Tetromino(GridPoint position, helper::TetrominoType type)
+    OOPETRIS_GRAPHICS_EXPORTED Tetromino(grid::GridPoint position, helper::TetrominoType type)
         : m_position{ position },
           m_type{ type },
           m_minos{ create_minos(position, m_rotation, type) } { }
@@ -37,7 +36,7 @@ public:
             double original_scale,
             const ScreenCordsFunction& to_screen_coords,
             const shapes::UPoint& tile_size,
-            const GridPoint& offset = GridPoint::zero()
+            const grid::GridPoint& offset = grid::GridPoint::zero()
     ) const;
 
     OOPETRIS_GRAPHICS_EXPORTED void rotate_right();
@@ -56,7 +55,7 @@ private:
 
     static Pattern get_pattern(helper::TetrominoType type, Rotation rotation);
 
-    static std::array<Mino, 4> create_minos(GridPoint position, Rotation rotation, helper::TetrominoType type);
+    static std::array<Mino, 4> create_minos(grid::GridPoint position, Rotation rotation, helper::TetrominoType type);
 
     using TetrominoPatterns = std::array<Pattern, 4>; // one pattern per rotation
 
