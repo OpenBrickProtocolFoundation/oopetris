@@ -5,17 +5,8 @@
 
 //TODO(Totto):  assert return values of all sdl functions
 
-Renderer::Renderer(const Window& window, const VSync v_sync)
-    : m_renderer{ SDL_CreateRenderer(
-              window.get_sdl_window(),
-              -1,
-              (v_sync == VSync::Enabled ? SDL_RENDERER_PRESENTVSYNC : 0) | SDL_RENDERER_TARGETTEXTURE
-#if defined(__3DS__) || defined(__SERENITY__)
-                      | SDL_RENDERER_SOFTWARE
-#else
-                      | SDL_RENDERER_ACCELERATED
-#endif
-      ) } {
+
+Renderer::Renderer(SDL_Renderer* renderer) : m_renderer{ renderer } {
 
     if (m_renderer == nullptr) {
         throw helper::InitializationError{ fmt::format("Failed creating a SDL Renderer: {}", SDL_GetError()) };
@@ -27,8 +18,31 @@ Renderer::Renderer(const Window& window, const VSync v_sync)
     }
 }
 
+Renderer::Renderer(const Window& window, const VSync v_sync)
+    : Renderer{ SDL_CreateRenderer(
+              window.get_sdl_window(),
+              -1,
+              (v_sync == VSync::Enabled ? SDL_RENDERER_PRESENTVSYNC : 0) | SDL_RENDERER_TARGETTEXTURE
+#if defined(__3DS__) || defined(__SERENITY__)
+                      | SDL_RENDERER_SOFTWARE
+#else
+                      | SDL_RENDERER_ACCELERATED
+#endif
+      ) } {
+}
+
+Renderer Renderer::get_software_renderer(std::unique_ptr<SDL_Surface>& surface) {
+    return Renderer{ SDL_CreateSoftwareRenderer(surface.get()) };
+}
+
+Renderer::Renderer(Renderer&& other) noexcept : m_renderer{ other.m_renderer } {
+    other.m_renderer = nullptr;
+}
+
 Renderer::~Renderer() {
-    SDL_DestroyRenderer(m_renderer);
+    if (m_renderer != nullptr) {
+        SDL_DestroyRenderer(m_renderer);
+    }
 }
 
 void Renderer::set_draw_color(const Color& color) const {

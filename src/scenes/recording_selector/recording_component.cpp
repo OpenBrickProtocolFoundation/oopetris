@@ -5,6 +5,7 @@
 #include "manager/font.hpp"
 #include "manager/resource_manager.hpp"
 #include "recording_component.hpp"
+#include "ui/components/text_button.hpp"
 #include "ui/widget.hpp"
 
 #include <fmt/format.h>
@@ -20,23 +21,47 @@ custom_ui::RecordingComponent::RecordingComponent(
         ui::Focusable{focus_helper.focus_id()},
         ui::Hoverable{layout.get_rect()},
         m_main_layout{ utils::SizeIdentity<2>(), focus_helper.focus_id(), 
-        ui::Direction::Vertical,
-                    std::array<double, 1>{ 0.6 }, ui::RelativeMargin{layout.get_rect(), ui::Direction::Vertical,0.05}, std::pair<double, double>{ 0.05, 0.03 },
+        ui::Direction::Horizontal,
+                    std::array<double, 1>{ 0.9 }, ui::RelativeMargin{layout.get_rect(), ui::Direction::Vertical,0.05}, std::pair<double, double>{ 0.05, 0.03 },
                     layout,false
        },m_metadata{std::move(metadata)}{
 
-    m_main_layout.add<ui::Label>(
+
+    auto text_layout_index = m_main_layout.add<ui::TileLayout>(
+            utils::SizeIdentity<2>(), focus_helper.focus_id(), ui::Direction::Vertical, std::array<double, 1>{ 0.6 },
+            ui::RelativeMargin{ layout.get_rect(), ui::Direction::Vertical, 0.05 },
+            std::pair<double, double>{ 0.05, 0.03 }
+    );
+
+    auto* text_layout = m_main_layout.get<ui::TileLayout>(text_layout_index);
+
+
+    m_main_layout.add<ui::TextButton>(
+            service_provider, "Render", service_provider->font_manager().get(FontId::Default), Color::white(),
+            focus_helper.focus_id(),
+            [](const ui::TextButton&) -> bool {
+                //TODO
+
+                return false;
+            },
+            std::pair<double, double>{ 0.95, 0.85 },
+            ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
+            std::pair<double, double>{ 0.1, 0.1 }
+    );
+
+    text_layout->add<ui::Label>(
             service_provider, "name: ?", service_provider->font_manager().get(FontId::Default), Color::white(),
             std::pair<double, double>{ 0.5, 0.5 },
             ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center }
     );
 
-    const auto information_layout_index = m_main_layout.add<ui::TileLayout>(
+
+    const auto information_layout_index = text_layout->add<ui::TileLayout>(
             utils::SizeIdentity<3>(), focus_helper.focus_id(), ui::Direction::Horizontal,
             std::array<double, 2>{ 0.33, 0.66 }, ui::AbsolutMargin{ 10 }, std::pair<double, double>{ 0.05, 0.03 }
     );
 
-    auto* const information_layout = m_main_layout.get<ui::TileLayout>(information_layout_index);
+    auto* const information_layout = text_layout->get<ui::TileLayout>(information_layout_index);
 
 
     information_layout->add<ui::Label>(
@@ -104,9 +129,11 @@ helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>> custom_ui::Reco
 
 [[nodiscard]] std::tuple<ui::Label*, ui::Label*, ui::Label*, ui::Label*> custom_ui::RecordingComponent::get_texts() {
 
-    auto* name_text = m_main_layout.get<ui::Label>(0);
+    auto* text_layout = m_main_layout.get<ui::TileLayout>(0);
 
-    auto* information_layout = m_main_layout.get<ui::TileLayout>(1);
+    auto* name_text = text_layout->get<ui::Label>(0);
+
+    auto* information_layout = text_layout->get<ui::TileLayout>(1);
 
     auto* source_text = information_layout->get<ui::Label>(0);
     auto* date_text = information_layout->get<ui::Label>(1);
