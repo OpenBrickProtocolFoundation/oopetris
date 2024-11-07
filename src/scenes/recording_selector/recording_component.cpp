@@ -40,7 +40,7 @@ custom_ui::RecordingComponent::RecordingComponent(
             service_provider, "Render", service_provider->font_manager().get(FontId::Default), Color::white(),
             focus_helper.focus_id(),
             [](const ui::TextButton&) -> bool {
-                //TODO
+                //TODO: do rendering here, allow hover and click in this situation, it doesn't work as of now
 
                 return false;
             },

@@ -8,6 +8,7 @@
 
 #include <recordings/utility/recording_reader.hpp>
 
+#include "graphics/video_renderer.hpp"
 #include "graphics/window.hpp"
 #include "helper/constants.hpp"
 #include "helper/graphic_utils.hpp"
@@ -90,6 +91,18 @@ namespace scenes {
                                     // action is a reference to a structure inside m_next_command, so resetting it means, we need to copy everything out of it
                                     m_next_command = std::nullopt;
 
+                                    auto ren = VideoRenderer{
+                                        m_service_provider, recording_path, shapes::UPoint{ 1280, 720 }
+                                    };
+
+                                    //TODO: do this in a seperate thread
+                                    ren.render("test.mp4", 60, [](double progress) {
+                                        spdlog::info("Progress: {}", progress);
+                                    });
+
+                                    //TODO: do this in a seperate scene, with a loading bar
+                                    return UpdateResult{ SceneUpdate::StopUpdating, std::nullopt };
+                                    /* 
                                     return UpdateResult{
                                         SceneUpdate::StopUpdating,
                                         Scene::RawSwitch{ "ReplayGame",
@@ -97,7 +110,7 @@ namespace scenes {
                                                                   m_service_provider, ui::FullScreenLayout{ m_service_provider->window() },
                                                          recording_path
                                                           ) }
-                                    };
+                                    }; */
                                 }
 #if defined(_HAVE_FILE_DIALOGS)
 
@@ -136,7 +149,6 @@ namespace scenes {
 
     bool
     RecordingSelector::handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) {
-
 
         if (const auto event_result = m_main_layout.handle_event(input_manager, event); event_result) {
             if (const auto additional = event_result.get_additional();
