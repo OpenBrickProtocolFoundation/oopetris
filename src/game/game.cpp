@@ -13,8 +13,19 @@ Game::Game(
         const ui::Layout& layout,
         bool is_top_level
 )
+    : Game{ service_provider, input,       starting_parameters, std::make_shared<LocalClock>(simulation_frequency),
+            layout,           is_top_level } { }
+
+Game::Game(
+        ServiceProvider* const service_provider,
+        const std::shared_ptr<input::GameInput>& input,
+        const tetrion::StartingParameters& starting_parameters,
+        const std::shared_ptr<ClockSource>& clock_source,
+        const ui::Layout& layout,
+        bool is_top_level
+)
     : ui::Widget{ layout, ui::WidgetType::Component, is_top_level },
-      m_clock_source{ std::make_unique<LocalClock>(simulation_frequency) },
+      m_clock_source{ clock_source },
       m_input{ input } {
 
 

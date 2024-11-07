@@ -98,7 +98,6 @@ ui::Widget::EventHandleResult ui::FocusLayout::handle_focus_change_events(
 
     Widget::EventHandleResult handled = false;
 
-
     if (m_focus_id.has_value()) {
         const auto& widget = m_widgets.at(focusable_index_by_id(m_focus_id.value()));
 
