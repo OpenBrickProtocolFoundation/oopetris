@@ -218,6 +218,8 @@ namespace scenes {
 
         auto focus_helper = ui::FocusHelper{ 3 };
 
+        //TODO(Totto): sort by date, get the date from additional information or the file creation date
+
         for (const auto& metadata : metadata_vector) {
             scroll_layout->add<custom_ui::RecordingComponent>(
                     ui::RelativeItemSize{ scroll_layout->layout(), 0.2 }, m_service_provider, std::ref(focus_helper),
