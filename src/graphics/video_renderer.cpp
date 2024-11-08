@@ -94,12 +94,14 @@ std::optional<std::string> VideoRenderer::render(
     //TODO: this is just a dummy thing atm, change that
     double progress = 0.0;
 
-    while (all_games_finished()) {
+    while (not all_games_finished()) {
         progress_callback(progress);
 
         for (const auto& game : m_games) {
-            game->update();
-            game->render(*this);
+            if (not game->is_game_finished()) {
+                game->update();
+                game->render(*this);
+            }
         }
 
         backend.add_frame(m_surface.get());

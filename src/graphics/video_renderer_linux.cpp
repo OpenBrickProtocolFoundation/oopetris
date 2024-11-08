@@ -80,11 +80,9 @@ std::optional<std::string> VideoRendererBackend::setup(u32 fps, shapes::UPoint s
 
 bool VideoRendererBackend::add_frame(SDL_Surface* surface) {
 
-    for (size_t y = surface->h; y > 0; --y) {
-        if (write(m_decoder->pipe, surface->pixels, surface->h * surface->pitch) < 0) {
-            spdlog::error("FFMPEG: failed to write into ffmpeg pipe: {}", strerror(errno));
-            return false;
-        }
+    if (write(m_decoder->pipe, surface->pixels, static_cast<size_t>(surface->h) * surface->pitch) < 0) {
+        spdlog::error("FFMPEG: failed to write into ffmpeg pipe: {}", strerror(errno));
+        return false;
     }
     return true;
 }

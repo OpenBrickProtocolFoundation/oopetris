@@ -68,7 +68,7 @@ double ManualClock::resume() {
 
 
 void ManualClock::increment_simulation_step_index() {
-    m_simulation_step_index++;
+    ++m_simulation_step_index;
 }
 
 void ManualClock::set_simulation_step_index(SimulationStep index) {
