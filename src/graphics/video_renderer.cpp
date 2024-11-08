@@ -83,6 +83,8 @@ std::optional<std::string> VideoRenderer::render(
     while (not all_games_finished()) {
         progress_callback(progress);
 
+        m_renderer->clear();
+
         for (const auto& game : m_games) {
             if (not game->is_game_finished()) {
                 game->update();
@@ -90,6 +92,8 @@ std::optional<std::string> VideoRenderer::render(
             }
         }
 
+        m_renderer->present();
+        
         backend.add_frame(m_surface.get());
         m_clock->increment_simulation_step_index();
 
