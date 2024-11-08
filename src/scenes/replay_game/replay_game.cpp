@@ -1,6 +1,7 @@
 #include "replay_game.hpp"
 #include "../single_player_game/game_over.hpp"
 #include "../single_player_game/pause.hpp"
+#include "game/layout.hpp"
 #include "helper/constants.hpp"
 #include "helper/graphic_utils.hpp"
 #include "helper/music_utils.hpp"
@@ -21,21 +22,7 @@ namespace scenes {
         auto [parameters, information] = input::get_game_parameters_for_replay(service_provider, recording_path);
 
 
-        std::vector<ui::Layout> layouts{};
-        layouts.reserve(parameters.size());
-
-        if (parameters.empty()) {
-            throw std::runtime_error("An empty recording file isn't supported");
-        } else if (parameters.size() == 1) { // NOLINT(readability-else-after-return,llvm-else-after-return)
-            layouts.push_back(ui::RelativeLayout{ layout, 0.02, 0.01, 0.96, 0.98 });
-        } else if (parameters.size() == 2) {
-            layouts.push_back(ui::RelativeLayout{ layout, 0.02, 0.01, 0.46, 0.98 });
-            layouts.push_back(ui::RelativeLayout{ layout, 0.52, 0.01, 0.46, 0.98 });
-        } else {
-
-            //TODO(Totto): support bigger layouts than just 2
-            throw std::runtime_error("At the moment only replays from up to two players are supported");
-        }
+        std::vector<ui::Layout> layouts = game::get_layouts_for(parameters.size(), layout);
 
         u32 simulation_frequency = constants::simulation_frequency;
         if (const auto stored_simulation_frequency = information.get_if<u32>("simulation_frequency");

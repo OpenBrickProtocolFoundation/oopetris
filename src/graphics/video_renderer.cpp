@@ -1,6 +1,7 @@
 
 
 #include "video_renderer.hpp"
+#include "game/layout.hpp"
 
 #include <fmt/format.h>
 
@@ -33,24 +34,9 @@ void VideoRenderer::initialize_games(const std::filesystem::path& recording_path
         shapes::URect{ { 0, 0 }, m_size }
     };
 
-    std::vector<ui::Layout> layouts{};
-    layouts.reserve(parameters.size());
-
-    if (parameters.empty()) {
-        throw std::runtime_error("An empty recording file isn't supported");
-    } else if (parameters.size() == 1) { // NOLINT(readability-else-after-return,llvm-else-after-return)
-        layouts.push_back(ui::RelativeLayout{ layout, 0.02, 0.01, 0.96, 0.98 });
-    } else if (parameters.size() == 2) {
-        layouts.push_back(ui::RelativeLayout{ layout, 0.02, 0.01, 0.46, 0.98 });
-        layouts.push_back(ui::RelativeLayout{ layout, 0.52, 0.01, 0.46, 0.98 });
-    } else {
-
-        //TODO(Totto): support bigger layouts than just 2
-        throw std::runtime_error("At the moment only replays from up to two players are supported");
-    }
+    std::vector<ui::Layout> layouts = game::get_layouts_for(parameters.size(), layout);
 
     m_clock = std::make_shared<ManualClock>();
-
 
     for (decltype(parameters.size()) i = 0; i < parameters.size(); ++i) {
         auto [input, starting_parameters] = std::move(parameters.at(i));
