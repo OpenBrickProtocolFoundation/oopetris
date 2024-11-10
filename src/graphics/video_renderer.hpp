@@ -32,7 +32,7 @@ public:
     std::optional<std::string>
     render(const std::string& destination_path, u32 fps, const std::function<void(double progress)>& progress_callback);
 
-    ~VideoRenderer();
+    ~VideoRenderer() override;
 
 
     // implementation of ServiceProvider
@@ -90,7 +90,7 @@ private:
     std::unique_ptr<Decoder> m_decoder;
 
     [[nodiscard]] static std::vector<std::string>
-    get_encoding_paramaters(u32 fps, shapes::UPoint size, std::filesystem::path destination_path);
+    get_encoding_paramaters(u32 fps, shapes::UPoint size, const std::filesystem::path& destination_path);
 
 public:
     OOPETRIS_GRAPHICS_EXPORTED explicit VideoRendererBackend(const std::filesystem::path& destination_path);
