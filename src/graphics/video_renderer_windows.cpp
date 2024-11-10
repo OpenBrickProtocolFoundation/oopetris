@@ -64,16 +64,24 @@ std::optional<std::string> VideoRendererBackend::setup(u32 fps, shapes::UPoint s
     PROCESS_INFORMATION piProcInfo;
     ZeroMemory(&piProcInfo, sizeof(PROCESS_INFORMATION));
 
-    //TODO: do this in better c++ fashion and deduplicate this
-    char cmd_buffer[1024 * 2];
-    snprintf(
-            cmd_buffer, sizeof(cmd_buffer),
-            "ffmpeg.exe -loglevel verbose -y -f rawvideo -pix_fmt rgba -s %dx%d -r %d -i - -i \"%s\" -c:v libx264 -vb "
-            "2500k -c:a aac -ab 200k -pix_fmt yuv420p output.mp4",
-            (int) width, (int) height, (int) fps, sound_file_path
-    );
 
-    if (!CreateProcess(NULL, cmd_buffer, NULL, NULL, TRUE, 0, NULL, NULL, &siStartInfo, &piProcInfo)) {
+    auto paramaters = VideoRendererBackend::get_encoding_paramaters(fps, size, m_destination_path);
+
+    std::stringstream args = "ffmpeg.exe";
+    for (const auto& parameter : paramaters) {
+        args += " ";
+        if (paramater.find(" ") != std::string::npos) {
+            args += "\"";
+            args += paramater;
+            args += "\"";
+
+        } else {
+            args += paramater;
+        }
+    }
+
+
+    if (!CreateProcess(NULL, result.string().c_str(), NULL, NULL, TRUE, 0, NULL, NULL, &siStartInfo, &piProcInfo)) {
         CloseHandle(pipe_write);
         CloseHandle(pipe_read);
 
