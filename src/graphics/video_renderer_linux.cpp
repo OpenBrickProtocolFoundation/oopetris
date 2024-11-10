@@ -60,10 +60,10 @@ std::optional<std::string> VideoRendererBackend::setup(u32 fps, shapes::UPoint s
         }
 
         args.push_back(nullptr);
-
-
         //TODO(Totto): support audio, that loops the music as in the main game
-        int ret = execvp("ffmpeg", args.data());
+        int ret =
+                execvp("ffmpeg",
+                       const_cast<char* const*>(args.data())); // NOLINT(cppcoreguidelines-pro-type-const-cast)
         if (ret < 0) {
             std::cerr << "FFMPEG CHILD: could not run ffmpeg as a child process: " << strerror(errno) << "\n";
             std::exit(1);

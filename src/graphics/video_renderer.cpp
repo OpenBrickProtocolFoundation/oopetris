@@ -106,12 +106,15 @@ std::optional<std::string> VideoRenderer::render(
     return std::nullopt;
 }
 
-std::vector<std::string>
-VideoRendererBackend::get_encoding_paramaters(u32 fps, shapes::UPoint size, std::filesystem::path destination_path) {
+std::vector<std::string> VideoRendererBackend::get_encoding_paramaters(
+        u32 fps,
+        shapes::UPoint size,
+        const std::filesystem::path& destination_path
+) {
 
-    std::string resolution = fmt::format("{}x{}", size.x, size.y);
+    const std::string resolution = fmt::format("{}x{}", size.x, size.y);
 
-    std::string framerate = fmt::format("{}", fps);
+    const std::string framerate = fmt::format("{}", fps);
 
     return {
         "-loglevel", "verbose", "-y",      "-f",  "rawvideo", "-pix_fmt", "bgra",    "-s",
