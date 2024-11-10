@@ -51,16 +51,19 @@ std::optional<std::string> VideoRendererBackend::setup(u32 fps, shapes::UPoint s
         }
         close(pipefd[WRITE_END]);
 
-        std::string resolution = fmt::format("{}x{}", size.x, size.y);
 
-        std::string framerate = fmt::format("{}", fps);
+        auto paramaters = VideoRendererBackend::get_encoding_paramaters(fps, size, m_destination_path);
+
+        std::vector<const char*> args = { "ffmpeg" };
+        for (const auto& parameter : paramaters) {
+            args.push_back(parameter.c_str());
+        }
+
+        args.push_back(nullptr);
+
 
         //TODO(Totto): support audio, that loops the music as in the main game
-        int ret =
-                execlp("ffmpeg", "ffmpeg", "-loglevel", "verbose", "-y", "-f", "rawvideo", "-pix_fmt", "bgra", "-s",
-                       resolution.c_str(), "-r", framerate.c_str(), "-i", "-", "-c:v", "libx264", "-vb", "2500k",
-                       "-c:a", "aac", "-ab", "200k", "-pix_fmt", "yuv420p", m_destination_path.c_str(),
-                       static_cast<char*>(nullptr));
+        int ret = execvp("ffmpeg", args.data());
         if (ret < 0) {
             std::cerr << "FFMPEG CHILD: could not run ffmpeg as a child process: " << strerror(errno) << "\n";
             std::exit(1);

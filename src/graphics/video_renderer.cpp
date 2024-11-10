@@ -93,7 +93,7 @@ std::optional<std::string> VideoRenderer::render(
         }
 
         m_renderer->present();
-        
+
         backend.add_frame(m_surface.get());
         m_clock->increment_simulation_step_index();
 
@@ -104,6 +104,20 @@ std::optional<std::string> VideoRenderer::render(
 
     backend.finish(false);
     return std::nullopt;
+}
+
+std::vector<std::string>
+VideoRendererBackend::get_encoding_paramaters(u32 fps, shapes::UPoint size, std::filesystem::path destination_path) {
+
+    std::string resolution = fmt::format("{}x{}", size.x, size.y);
+
+    std::string framerate = fmt::format("{}", fps);
+
+    return {
+        "-loglevel", "verbose", "-y",      "-f",  "rawvideo", "-pix_fmt", "bgra",    "-s",
+        resolution,  "-r",      framerate, "-i",  "-",        "-c:v",     "libx264", "-vb",
+        "2500k",     "-c:a",    "aac",     "-ab", "200k",     "-pix_fmt", "yuv420p", destination_path.string(),
+    };
 }
 
 

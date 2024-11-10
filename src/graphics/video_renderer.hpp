@@ -86,8 +86,11 @@ struct Decoder;
 // See e.g. https://github.com/Raveler/ffmpeg-cpp
 struct VideoRendererBackend {
 private:
-    std::string m_destination_path;
+    std::filesystem::path m_destination_path;
     std::unique_ptr<Decoder> m_decoder;
+
+    [[nodiscard]] static std::vector<std::string>
+    get_encoding_paramaters(u32 fps, shapes::UPoint size, std::filesystem::path destination_path);
 
 public:
     OOPETRIS_GRAPHICS_EXPORTED explicit VideoRendererBackend(const std::filesystem::path& destination_path);
