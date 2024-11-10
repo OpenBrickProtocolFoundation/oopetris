@@ -1,7 +1,7 @@
 
 #include "./layout.hpp"
 
-std::vector<ui::Layout> game::get_layouts_for(u32 players, const ui::Layout& layout) {
+std::vector<ui::Layout> game::get_layouts_for(std::size_t players, const ui::Layout& layout) {
 
     std::vector<ui::Layout> layouts{};
     layouts.reserve(players);

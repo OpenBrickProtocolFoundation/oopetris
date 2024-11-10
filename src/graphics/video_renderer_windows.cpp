@@ -6,6 +6,7 @@
 
 #include <windows.h>
 
+#include <strstream>
 
 struct Decoder {
     HANDLE hProcess;
@@ -67,21 +68,39 @@ std::optional<std::string> VideoRendererBackend::setup(u32 fps, shapes::UPoint s
 
     auto paramaters = VideoRendererBackend::get_encoding_paramaters(fps, size, m_destination_path);
 
-    std::stringstream args = "ffmpeg.exe";
+    std::stringstream args{};
+    args << "ffmpeg.exe";
+
     for (const auto& parameter : paramaters) {
-        args += " ";
-        if (paramater.find(" ") != std::string::npos) {
-            args += "\"";
-            args += paramater;
-            args += "\"";
+        args << " ";
+        if (parameter.find(" ") != std::string::npos) {
+            args << "\"";
+            args << parameter;
+            args << "\"";
 
         } else {
-            args += paramater;
+            args << parameter;
         }
     }
 
+    std::string result = args.str();
+    auto str_size = result.size();
 
-    if (!CreateProcess(NULL, result.string().c_str(), NULL, NULL, TRUE, 0, NULL, NULL, &siStartInfo, &piProcInfo)) {
+    using UniqueCharArray = std::unique_ptr<char, std::function<void(const char* const)>>;
+
+    UniqueCharArray raw_args{ new char[str_size + 1], [](const char* const char_value) {
+                                 if (char_value == nullptr) {
+                                     return;
+                                 }
+
+                                 delete[] char_value; // NOLINT(cppcoreguidelines-owning-memory)
+                             } };
+
+    std::memcpy(raw_args.get(), result.c_str(), str_size);
+    raw_args.get()[str_size] = '\0';
+
+
+    if (!CreateProcess(NULL, raw_args.get(), NULL, NULL, TRUE, 0, NULL, NULL, &siStartInfo, &piProcInfo)) {
         CloseHandle(pipe_write);
         CloseHandle(pipe_read);
 
