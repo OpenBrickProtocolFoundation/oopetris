@@ -495,8 +495,63 @@ if build_application
         endif
 
     else
-        if meson.is_cross_build() and host_machine.system() == 'android'
-            error('TODO')
+        if meson.is_cross_build()
+
+            use_embedded_ffmpeg = use_embedded_ffmpeg.allowed()
+
+            if not use_embedded_ffmpeg
+                error('only embedded ffmpeg is supported in cross builds')
+            endif
+
+            if host_machine.system() == 'android'
+                ffmpeg_can_be_supported = true
+
+            elif host_machine.system() == 'switch'
+                ffmpeg_can_be_supported = true
+            elif host_machine.system() == '3ds'
+                ffmpeg_can_be_supported = false
+            else
+
+                error(
+                    'unhandled cross built system for video rendering: '
+                    + host_machine.system(),
+                )
+            endif
+
+            if not ffmpeg_can_be_supported
+                replay_video_rendering_enabled = false
+            else
+
+                ffmpeg_dep_names = ['avutil', 'avcodec', 'avformat', 'avfilter']
+                ffmpeg_deps = []
+                found_all_ffmpeg_deps = true
+
+                c = meson.get_compiler('c')
+
+                foreach ffmpeg_dep_name : ffmpeg_dep_names
+                    ffmpeg_dep = c.find_library(ffmpeg_dep_name, required: false)
+                    if not ffmpeg_dep.found()
+                        found_all_ffmpeg_deps = false
+                        break
+                    endif
+
+                    ffmpeg_deps += ffmpeg_dep
+
+                endforeach
+
+                message(
+                    'ffmpeg deps: '
+                    + (found_all_ffmpeg_deps ? 'FOUND' : 'NOT ALL FOUND'),
+                )
+
+                replay_video_rendering_enabled = found_all_ffmpeg_deps
+                if replay_video_rendering_enabled
+                    graphics_lib += {
+                        'deps': [graphics_lib.get('deps'), ffmpeg_deps],
+                    }
+                endif
+
+            endif
 
         else
             error(
