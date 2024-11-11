@@ -344,6 +344,52 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
     cd "$LAST_DIR"
 
+    ## build ffmpeg for android (using https://github.com/Javernaut/ffmpeg-android-maker)
+
+    LAST_DIR="$PWD"
+
+    cd "$SYS_ROOT"
+
+    BUILD_DIR_FFMPEG="build-ffmpeg"
+
+    BUILD_FFMPEG_FILE="$SYS_ROOT/$BUILD_DIR_FFMPEG/build_succesfull.meta"
+
+    if [ "$COMPILE_TYPE" == "complete_rebuild" ] || ! [ -e "$BUILD_FFMPEG_FILE" ]; then
+
+        mkdir -p "$BUILD_DIR_FFMPEG"
+
+        cd "$BUILD_DIR_FFMPEG"
+
+        FFMPEG_MAKER_DIR="maker"
+
+        if ! [ -e "$FFMPEG_MAKER_DIR" ]; then
+
+            git clone https://github.com/Javernaut/ffmpeg-android-maker.git "$FFMPEG_MAKER_DIR"
+
+            cd "$FFMPEG_MAKER_DIR"
+        else
+            cd "$FFMPEG_MAKER_DIR"
+
+            git pull
+
+        fi
+
+        ./ffmpeg-android-maker.sh "--target-abis=$ARCH" "--android-api-level=$SDK_VERSION"
+
+        FFMPEG_MAKER_OUTPUT_DIR="output"
+
+        ls -lsa "$FFMPEG_MAKER_OUTPUT_DIR"
+
+        find "$FFMPEG_MAKER_OUTPUT_DIR/include/" -maxdepth 3 -mindepth 2 -type d -exec cp -r {} "$SYS_ROOT/usr/include/" \;
+
+        find "$FFMPEG_MAKER_OUTPUT_DIR/lib/" -type f -exec cp -r {} "$SYS_ROOT/usr/lib/" \;
+
+        touch "$BUILD_FFMPEG_FILE"
+
+    fi
+
+    cd "$LAST_DIR"
+
     ## END of manual build of dependencies
 
     MESON_CPU_FAMILY=$ARCH
