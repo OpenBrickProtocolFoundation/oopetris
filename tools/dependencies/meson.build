@@ -456,6 +456,70 @@ if build_application
 
     endif
 
+    use_embedded_ffmpeg = get_option('use_embedded_ffmpeg')
+    replay_video_rendering_enabled = true
+
+    if host_machine.system() == 'darwin' or host_machine.system() == 'linux' or host_machine.system() == 'windows'
+
+        use_embedded_ffmpeg = use_embedded_ffmpeg.enable_auto_if(is_flatpak_build).enabled()
+
+        # on the desktop we only use the embedded ffmpeg, if we require it, we prefer the command line tool, that is installed on the systne, except for flatpak builds
+        if use_embedded_ffmpeg
+            ffmpeg_dep_names = ['libavutil', 'libavcodec', 'libavformat', 'libavfilter']
+            ffmpeg_deps = []
+            found_all_ffmpeg_deps = true
+
+            foreach ffmpeg_dep_name : ffmpeg_dep_names
+                ffmpeg_dep = dependency(ffmpeg_dep_name, required: false)
+                if not ffmpeg_dep.found()
+                    found_all_ffmpeg_deps = false
+                    break
+                endif
+
+                ffmpeg_deps += ffmpeg_dep
+
+            endforeach
+
+            message(
+                'ffmpeg deps: '
+                + (found_all_ffmpeg_deps ? 'FOUND' : 'NOT ALL FOUND'),
+            )
+
+            replay_video_rendering_enabled = found_all_ffmpeg_deps
+            if replay_video_rendering_enabled
+                graphics_lib += {
+                    'deps': [graphics_lib.get('deps'), ffmpeg_deps],
+                }
+            endif
+
+        endif
+
+    else
+        if meson.is_cross_build() and host_machine.system() == 'android'
+            error('TODO')
+
+        else
+            error(
+                'unhandled system for video rendering: '
+                + host_machine.system(),
+            )
+        endif
+    endif
+
+    if replay_video_rendering_enabled
+        _set_flags = ['-D_ENABLE_REPLAY_RENDERING']
+        if use_embedded_ffmpeg
+            _set_flags += ['-D_FFMPEG_USE_EMBEDDED']
+        endif
+
+        graphics_lib += {
+            'compile_args': [graphics_lib.get('compile_args'), _set_flags],
+        }
+
+        _set_flags = 0
+
+    endif
+
     if is_flatpak_build
         app_name = 'io.github.openbrickprotocolfoundation.oopetris'
 

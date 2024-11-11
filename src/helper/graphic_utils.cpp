@@ -25,6 +25,14 @@ std::vector<std::string> utils::supported_features() {
     features.emplace_back("discord integration");
 #endif
 
+#if defined(_ENABLE_REPLAY_RENDERING)
+#if defined(_FFMPEG_USE_EMBEDDED)
+    features.emplace_back("replay video rendering (embedded)");
+#else
+    features.emplace_back("replay video rendering (system)");
+#endif
+#endif
+
     return features;
 }
 
