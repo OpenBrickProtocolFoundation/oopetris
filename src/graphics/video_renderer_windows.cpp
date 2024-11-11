@@ -20,6 +20,11 @@ VideoRendererBackend::VideoRendererBackend(const std::filesystem::path& destinat
 
 VideoRendererBackend::~VideoRendererBackend() = default;
 
+void VideoRendererBackend::is_supported_async(const std::function<void(bool)>& callback) {
+    //TODO: detect if we have the ffmpeg executable on the path
+    callback(false);
+}
+
 
 std::optional<std::string> VideoRendererBackend::setup(u32 fps, shapes::UPoint size) {
 
