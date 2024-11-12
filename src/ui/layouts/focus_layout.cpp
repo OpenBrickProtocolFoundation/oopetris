@@ -4,8 +4,8 @@
 #include "input/input.hpp"
 #include "ui/widget.hpp"
 
+#include <iostream>
 #include <ranges>
-
 
 ui::FocusLayout::FocusLayout(const Layout& layout, u32 focus_id, FocusOptions options, bool is_top_level)
     : Widget{ layout, WidgetType::Container, is_top_level },

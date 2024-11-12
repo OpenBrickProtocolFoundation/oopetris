@@ -3,6 +3,7 @@
 
 #include <SDL.h>
 #include <cassert>
+#include <iostream>
 #include <spdlog/spdlog.h>
 
 namespace {
