@@ -38,18 +38,9 @@ namespace utils {
     OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::optional<std::string>
     create_directory(const std::filesystem::path& folder, bool recursive);
 
+    OOPETRIS_GRAPHICS_EXPORTED void set_thread_name(const char* name);
+
 // this needs some special handling, so the macro is defined here
-#if defined(_MSC_VER)
-#if defined(OOPETRIS_LIBRARY_GRAPHICS_TYPE) && OOPETRIS_LIBRARY_GRAPHICS_TYPE == 0
-
-#else
-
-#endif
-#else
-
-#endif
-
-
 #if defined(_MSC_VER)
 #if defined(OOPETRIS_LIBRARY_GRAPHICS_TYPE) && OOPETRIS_LIBRARY_GRAPHICS_TYPE == 0
 #if defined(OOPETRIS_LIBRARY_GRAPHICS_EXPORT)
