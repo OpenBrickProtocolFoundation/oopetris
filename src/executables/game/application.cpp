@@ -462,6 +462,7 @@ void Application::initialize() {
     const auto start_time = SDL_GetTicks64();
 
     std::future<void> load_everything_thread = std::async(std::launch::async, [this] {
+        utils::set_thread_name("oopetris loading");
         this->m_settings_manager = std::make_unique<SettingsManager>(this);
 
         this->m_settings_manager->add_callback([this](const auto& settings) { this->reload_api(settings); });
