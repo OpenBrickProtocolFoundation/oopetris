@@ -465,6 +465,10 @@ if build_application
 
         # on the desktop we only use the embedded ffmpeg, if we require it, we prefer the command line tool, that is installed on the systne, except for flatpak builds
         if use_embedded_ffmpeg
+            if host_machine.system() == 'windows'
+                error('Embedded ffmpeg is still WIP on windows')
+            endif
+
             ffmpeg_dep_names = ['libavutil', 'libavcodec', 'libavformat', 'libavfilter']
             ffmpeg_deps = []
             found_all_ffmpeg_deps = true

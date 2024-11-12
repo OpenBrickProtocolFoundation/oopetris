@@ -101,7 +101,7 @@ public:
 
     OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::optional<std::string> setup(u32 fps, shapes::UPoint size);
 
-    bool add_frame(SDL_Surface* surface);
+    [[nodiscard]] bool add_frame(SDL_Surface* surface);
 
-    bool finish(bool cancel);
+    [[nodiscard]] bool finish(bool cancel);
 };
