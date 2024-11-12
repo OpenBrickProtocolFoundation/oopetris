@@ -9,13 +9,13 @@
 #include <array>
 #include <fmt/format.h>
 #include <fmt/ranges.h>
+#include <iostream>
 #include <ranges>
 #include <string>
 #include <tuple>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
-
 
 sdl::Key::Key(SDL_KeyCode keycode, UnderlyingModifierType modifiers)
     : m_keycode{ keycode },

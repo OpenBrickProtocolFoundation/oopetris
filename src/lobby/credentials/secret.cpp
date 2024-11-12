@@ -5,6 +5,8 @@
 
 #include <core/helper/utils.hpp>
 #include <fmt/format.h>
+#include <iostream>
+
 namespace {
 
     namespace secrets::constants {

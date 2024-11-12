@@ -6,7 +6,7 @@
 #include "input/joystick_input.hpp"
 #include "manager/sdl_controller_key.hpp"
 
-
+#include <iostream>
 #include <spdlog/spdlog.h>
 
 input::ControllerInput::ControllerInput(
