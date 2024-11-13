@@ -207,7 +207,14 @@ void utils::exit(int status_code) {
 // inspired by SDL_SYS_SetupThread also uses that code for most platforms
 OOPETRIS_GRAPHICS_EXPORTED void utils::set_thread_name(const char* name) {
 
-#if defined(__APPLE__) || defined(__linux__) || defined(__ANDROID__) || defined(FLATPAK_BUILD)
+#if defined(__APPLE__) || defined(__MACOSX__)
+    if (pthread_setname_np(name) == ERANGE) {
+        char namebuf[16] = {}; /* Limited to 16 chars (with 0 byte) */
+        memcpy(namebuf, name, 15);
+        namebuf[15] = '\0';
+        pthread_setname_np(namebuf);
+    }
+#elif defined(__linux__) || defined(__ANDROID__) || defined(FLATPAK_BUILD)
     if (pthread_setname_np(pthread_self(), name) == ERANGE) {
         char namebuf[16] = {}; /* Limited to 16 chars (with 0 byte) */
         memcpy(namebuf, name, 15);
