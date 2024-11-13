@@ -50,6 +50,7 @@ jobs:
 
       - name: Build native libraries
         run: |
+          export ANDROID_SDK_HOME="$HOME/.android/sdk"
           bash ./platforms/build-android.sh ${{ matrix.config.arch }} complete_rebuild release
           cp -r ./assets/ platforms/android/app/src/main
 
