@@ -469,7 +469,13 @@ if build_application
                 error('Embedded ffmpeg is still WIP on windows')
             endif
 
-            ffmpeg_dep_names = ['libavutil', 'libavcodec', 'libavformat', 'libavfilter']
+            ffmpeg_dep_names = [
+                'libavutil',
+                'libavcodec',
+                'libavformat',
+                'libavfilter',
+                'libswscale',
+            ]
             ffmpeg_deps = []
             found_all_ffmpeg_deps = true
 
@@ -526,7 +532,13 @@ if build_application
                 replay_video_rendering_enabled = false
             else
 
-                ffmpeg_dep_names = ['avutil', 'avcodec', 'avformat', 'avfilter']
+                ffmpeg_dep_names = [
+                    'avutil',
+                    'avcodec',
+                    'avformat',
+                    'avfilter',
+                    'swscale',
+                ]
                 ffmpeg_deps = []
                 found_all_ffmpeg_deps = true
 
