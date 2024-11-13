@@ -529,7 +529,7 @@ if build_application
             elif host_machine.system() == 'switch'
                 ffmpeg_can_be_supported = true
                 ffmpeg_dep_names += [
-                    'libdav1d',
+                    'dav1d',
                 ]
             elif host_machine.system() == '3ds'
                 ffmpeg_can_be_supported = false
