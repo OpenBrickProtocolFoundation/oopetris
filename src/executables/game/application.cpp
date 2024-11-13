@@ -456,13 +456,15 @@ void Application::loop_entry_emscripten() {
 
 
 void Application::initialize() {
+    utils::set_thread_name("oopetris");
 
     auto loading_screen_arg = scenes::LoadingScreen{ this };
 
     const auto start_time = SDL_GetTicks64();
 
     std::future<void> load_everything_thread = std::async(std::launch::async, [this] {
-        utils::set_thread_name("oopetris loading");
+        utils::set_thread_name("loading");
+
         this->m_settings_manager = std::make_unique<SettingsManager>(this);
 
         this->m_settings_manager->add_callback([this](const auto& settings) { this->reload_api(settings); });
