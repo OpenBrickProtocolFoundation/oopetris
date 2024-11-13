@@ -3,6 +3,7 @@
 #include "helper/c_helpers.hpp"
 #include "helper/constants.hpp"
 #include "helper/git_helper.hpp"
+#include "helper/graphic_utils.hpp"
 #include "video_renderer.hpp"
 
 extern "C" {
@@ -10,15 +11,18 @@ extern "C" {
 #include <libavformat/avformat.h>
 #include <libavutil/avutil.h>
 #include <libavutil/log.h>
+#include <libswscale/swscale.h>
 }
 
 #include <csignal>
+#include <future>
 #include <sys/wait.h>
 #include <unistd.h>
 
 struct Decoder {
     int pipe;
-    pid_t pid;
+    std::future<std::optional<std::string>> encoding_thread;
+    std::atomic<bool> should_cancel;
 };
 
 // general information and usage from: https://friendlyuser.github.io/posts/tech/cpp/Using_FFmpeg_in_C++_A_Comprehensive_Guide/
@@ -51,8 +55,13 @@ namespace {
         return result;
     }
 
-    std::optional<std::string>
-    start_encoding(u32 fps, shapes::UPoint size, const std::filesystem::path& destination_path) {
+    std::optional<std::string> start_encoding(
+            u32 fps,
+            shapes::UPoint size,
+            const std::filesystem::path& destination_path,
+            int input_fd,
+            const std::unique_ptr<Decoder>& decoder
+    ) {
 
         ScopeDeferMultiple<void, void*> scope_defer{};
 
@@ -65,8 +74,6 @@ namespace {
         if (input_format_ctx == nullptr) {
             return fmt::format("Cannot allocate an input format context");
         }
-
-        scope_defer.add([input_format_ctx](void*) { avformat_free_context(input_format_ctx); }, nullptr);
 
         const std::string resolution = fmt::format("{}x{}", size.x, size.y);
 
@@ -87,8 +94,10 @@ namespace {
         // "-r {framerate}"
         av_dict_set(&input_options, "framerate", framerate.c_str(), 0);
 
-        // "-i -"
-        auto av_input_ret = avformat_open_input(&input_format_ctx, "fd:", input_fmt, &input_options);
+        std::string input_url = fmt::format("pipe:{}", input_fd);
+
+        // "-i pipe:{fd}"
+        auto av_input_ret = avformat_open_input(&input_format_ctx, input_url.c_str(), input_fmt, &input_options);
         if (av_input_ret != 0) {
             return fmt::format("Could not open input file stdin: {}", av_error_to_string(av_input_ret));
         }
@@ -108,7 +117,7 @@ namespace {
         }
 
 
-        /* select the video stream */
+        // select the video stream
         const AVCodec* input_decoder = nullptr;
         auto video_stream_index = av_find_best_stream(input_format_ctx, AVMEDIA_TYPE_VIDEO, -1, -1, &input_decoder, 0);
         if (video_stream_index < 0) {
@@ -129,7 +138,7 @@ namespace {
         auto codec_paramaters_ret = avcodec_parameters_to_context(input_codec_context, input_video_stream->codecpar);
         if (codec_paramaters_ret < 0) {
             return fmt::format(
-                    "Cannot set the input codec context paramaters: {}", av_error_to_string(codec_paramaters_ret)
+                    "Cannot set the input codec context parameters: {}", av_error_to_string(codec_paramaters_ret)
             );
         }
 
@@ -137,7 +146,7 @@ namespace {
          * This is highly recommended, but not mandatory. */
         input_codec_context->pkt_timebase = input_video_stream->time_base;
 
-        //NOTE: we also could set this to the provided u32 , but this also uses that and converts it to the expected format
+        //NOTE: we also could set this to the provided u32, but this also uses that and converts it to the expected format (fractional)
         input_codec_context->framerate = av_guess_frame_rate(input_format_ctx, input_video_stream, nullptr);
 
         auto codec_open_ret = avcodec_open2(input_codec_context, input_decoder, nullptr);
@@ -145,7 +154,7 @@ namespace {
             return fmt::format("Cannot initializer the codec for the input: {}", av_error_to_string(codec_open_ret));
         }
 
-        av_dump_format(input_format_ctx, 0, "fd:", 0);
+        av_dump_format(input_format_ctx, 0, input_url.c_str(), 0);
 
         // output setup
 
@@ -192,8 +201,9 @@ namespace {
         output_codec_context->height = input_codec_context->height;
         output_codec_context->width = input_codec_context->width;
         output_codec_context->sample_aspect_ratio = input_codec_context->sample_aspect_ratio;
+        output_codec_context->framerate = input_codec_context->framerate;
 
-        /* video time_base can be set to whatever is handy and supported by encoder */
+        // video time_base can be set to whatever is handy and supported by encoder
         output_codec_context->time_base = av_inv_q(input_codec_context->framerate);
 
         AVDictionary* output_options = nullptr;
@@ -201,6 +211,9 @@ namespace {
         av_dict_set(&output_options, "pixel_format", "yuv420p", 0);
         // "-crf 20"
         av_dict_set(&output_options, "crf", "20", 0);
+
+        av_dict_set(&output_options, "video_size", resolution.c_str(), 0);
+
 
         auto codec_open_out_ret = avcodec_open2(output_codec_context, output_encoder, &output_options);
         if (codec_open_out_ret != 0) {
@@ -260,47 +273,143 @@ namespace {
 
         scope_defer.add([&pkt](void*) { av_packet_free(&pkt); }, nullptr);
 
+        AVFrame* decode_frame = av_frame_alloc();
+
+        if (decode_frame == nullptr) {
+            return "Could not allocate decode AVFrame";
+        }
+
+        scope_defer.add([&decode_frame](void*) { av_frame_free(&decode_frame); }, nullptr);
+
+
+        decode_frame->format = input_codec_context->pix_fmt;
+        decode_frame->width = input_codec_context->width;
+        decode_frame->height = input_codec_context->height;
+
+        auto frame_buffer_ret = av_frame_get_buffer(decode_frame, 0);
+        if (frame_buffer_ret < 0) {
+            return fmt::format("Could not allocate decode frame buffer: {}", av_error_to_string(frame_buffer_ret));
+        }
+
+        AVFrame* encode_frame = av_frame_alloc();
+
+        if (encode_frame == nullptr) {
+            return "Could not allocate encode AVFrame";
+        }
+
+        scope_defer.add([&encode_frame](void*) { av_frame_free(&encode_frame); }, nullptr);
+
+
+        encode_frame->format = output_codec_context->pix_fmt;
+        encode_frame->width = output_codec_context->width;
+        encode_frame->height = output_codec_context->height;
+
+        auto outp_frame_buffer_ret = av_frame_get_buffer(encode_frame, 0);
+        if (outp_frame_buffer_ret < 0) {
+            return fmt::format("Could not allocate encode frame buffer: {}", av_error_to_string(outp_frame_buffer_ret));
+        }
+
+        // allocate conversion context (for frame conversion)
+        SwsContext* sws_ctx = sws_getContext(
+                input_codec_context->width, input_codec_context->height, input_codec_context->pix_fmt,
+                output_codec_context->width, output_codec_context->height, output_codec_context->pix_fmt, SWS_BICUBIC,
+                nullptr, nullptr, nullptr
+        );
+        if (sws_ctx == nullptr) {
+            return "Could not allocate conversion context";
+        }
+
         while (true) {
-            auto read_ret = av_read_frame(input_format_ctx, pkt);
-            if (read_ret < 0)
+            // check atomic bool, if we are cancelled
+            // NOTE: the video is garbage after this, since we don't close it correctly (which isn't the intention of this)
+            if (decoder->should_cancel) {
+                return std::nullopt;
+            }
+
+            // retrieve unencoded (raw) packet from input
+            auto read_frame_ret = av_read_frame(input_format_ctx, pkt);
+            if (read_frame_ret == AVERROR_EOF) {
                 break;
+            } else if (read_frame_ret < 0) {
+                return fmt::format("Receiving a frame from the input failed: {}", av_error_to_string(read_frame_ret));
+            }
 
-
-            auto send_pkt_ret = avcodec_send_packet(output_codec_context, pkt);
-            if (send_pkt_ret < 0) {
+            // send raw packet in packet to decoder
+            auto send_pkt_ret = avcodec_send_packet(input_codec_context, pkt);
+            if (send_pkt_ret != 0) {
+                if (send_pkt_ret == AVERROR(EAGAIN)) {
+                    return "Decoding failed: Output was not read correctly";
+                }
                 return fmt::format("Decoding failed: {}", av_error_to_string(send_pkt_ret));
             }
 
-            int write_ret = 0;
+            int read_ret = 0;
 
-            while (write_ret >= 0) {
-                write_ret = avcodec_receive_packet(output_codec_context, pkt);
-                if (write_ret == AVERROR(EAGAIN) || write_ret == AVERROR_EOF) {
+            // encode and write as much frames as possible
+            while (read_ret >= 0) {
+
+                // get decoded frame, if one is present
+                read_ret = avcodec_receive_frame(input_codec_context, decode_frame);
+                if (read_ret == AVERROR(EAGAIN) || read_ret == AVERROR_EOF) {
                     break;
-
-                } else if (write_ret < 0) {
-                    return fmt::format("Encoding a frame failed: {}", av_error_to_string(write_ret));
+                } else if (read_ret < 0) {
+                    return fmt::format("Receiving a frame from the decoder failed: {}", av_error_to_string(read_ret));
                 }
 
-                /* rescale output packet timestamp values from codec to stream timebase */
-                av_packet_rescale_ts(pkt, output_codec_context->time_base, out_stream->time_base);
-                pkt->stream_index = out_stream->index;
+                // convert to correct output pixel format
+                read_ret = sws_scale_frame(sws_ctx, encode_frame, decode_frame);
+                if (read_ret < 0) {
+                    return fmt::format("Frame conversion failed: {}", av_error_to_string(read_ret));
+                }
 
-                /* Write the compressed frame to the media file. */
-                write_ret = av_interleaved_write_frame(output_format_ctx, pkt);
-                /* pkt is now blank (av_interleaved_write_frame() takes ownership of
+                // copy the pts from the decoded frame
+                encode_frame->pts = decode_frame->pts;
+
+                // encode decoded and converted frame with output encoder
+                read_ret = avcodec_send_frame(output_codec_context, encode_frame);
+                if (read_ret != 0) {
+                    return fmt::format("Encoding failed: {}", av_error_to_string(read_ret));
+                }
+
+                int write_ret = 0;
+
+                // write all encoded packets
+                while (write_ret >= 0) {
+
+                    // get encoded packet, if one is present
+                    write_ret = avcodec_receive_packet(output_codec_context, pkt);
+                    if (write_ret == AVERROR(EAGAIN) || write_ret == AVERROR_EOF) {
+                        break;
+                    } else if (write_ret < 0) {
+                        return fmt::format(
+                                "Receiving a packet from the encoder failed: {}", av_error_to_string(write_ret)
+                        );
+                    }
+
+                    // prepare packet for muxing
+                    pkt->stream_index = out_stream->index;
+
+                    // rescale output packet timestamp values from codec to stream timebase
+                    av_packet_rescale_ts(pkt, output_codec_context->time_base, out_stream->time_base);
+
+
+                    // Write the compressed packet (frame inside that) to the media file.
+                    write_ret = av_interleaved_write_frame(output_format_ctx, pkt);
+                    /* pkt is now blank (av_interleaved_write_frame() takes ownership of
          * its contents and resets pkt), so that no unreferencing is necessary.
          * This would be different if one used av_write_frame(). */
-                if (write_ret < 0) {
-                    return fmt::format("Writing an output packet failed: {}", av_error_to_string(write_ret));
+                    if (write_ret < 0) {
+                        return fmt::format("Writing an output packet failed: {}", av_error_to_string(write_ret));
+                    }
                 }
             }
-
-            // reset the packe, so that it's ready for the next cycle
-            av_packet_unref(pkt);
         }
 
-        av_write_trailer(output_format_ctx);
+
+        auto trailer_ret = av_write_trailer(output_format_ctx);
+        if (trailer_ret != 0) {
+            return fmt::format("Writing the trailer failed: {}", av_error_to_string(trailer_ret));
+        }
 
         return std::nullopt;
     }
@@ -317,42 +426,33 @@ std::optional<std::string> VideoRendererBackend::setup(u32 fps, shapes::UPoint s
     std::array<int, 2> pipefd = { 0, 0 };
 
     if (pipe(pipefd.data()) < 0) {
-        return fmt::format("FFMPEG: Could not create a pipe: {}", strerror(errno));
+        return fmt::format("Could not create a pipe: {}", strerror(errno));
     }
 
-    pid_t child = fork();
-    if (child < 0) {
-        return fmt::format("FFMPEG: could not fork a child: {}", strerror(errno));
-    }
+    std::future<std::optional<std::string>> encoding_thread =
+            std::async(std::launch::async, [pipefd, fps, size, this] -> std::optional<std::string> {
+                utils::set_thread_name("ffmpeg encoder");
+                auto result = start_encoding(fps, size, this->m_destination_path, pipefd[READ_END], this->m_decoder);
 
-    if (child == 0) {
-        if (dup2(pipefd.at(READ_END), STDIN_FILENO) < 0) {
-            std::cerr << "FFMPEG CHILD: could not reopen read end of pipe as stdin: " << strerror(errno) << "\n";
-            std::exit(1);
-        }
-        close(pipefd[WRITE_END]);
+                if (close(pipefd[READ_END]) < 0) {
+                    spdlog::warn("could not close read end of the pipe: {}", strerror(errno));
+                }
 
-        auto result = start_encoding(fps, size, m_destination_path);
+                if (result.has_value()) {
+                    return fmt::format("ffmpeg error: {}", result.value());
+                }
 
-        if (result.has_value()) {
-            std::cerr << "FFMPEG CHILD: could not run embedded ffmpeg as a child process: " << result.value() << "\n";
-            std::exit(1);
-        }
+                return std::nullopt;
+            });
 
-        std::exit(0);
-    }
 
-    if (close(pipefd[READ_END]) < 0) {
-        spdlog::error("FFMPEG: could not close read end of the pipe on the parent's end: {}", strerror(errno));
-    }
-
-    m_decoder = std::make_unique<Decoder>(pipefd[WRITE_END], child);
+    m_decoder = std::make_unique<Decoder>(pipefd[WRITE_END], std::move(encoding_thread), false);
     return std::nullopt;
 }
 
 bool VideoRendererBackend::add_frame(SDL_Surface* surface) {
     if (write(m_decoder->pipe, surface->pixels, static_cast<size_t>(surface->h) * surface->pitch) < 0) {
-        spdlog::error("FFMPEG: failed to write into ffmpeg pipe: {}", strerror(errno));
+        spdlog::error("failed to write into ffmpeg pipe: {}", strerror(errno));
         return false;
     }
     return true;
@@ -360,36 +460,19 @@ bool VideoRendererBackend::add_frame(SDL_Surface* surface) {
 
 bool VideoRendererBackend::finish(bool cancel) {
 
+    if (cancel) {
+        m_decoder->should_cancel = true;
+    }
 
     if (close(m_decoder->pipe) < 0) {
-        spdlog::warn("FFMPEG: could not close write end of the pipe on the parent's end: {}", strerror(errno));
+        spdlog::warn("could not close write end of the pipe: {}", strerror(errno));
     }
 
-    if (cancel)
-        kill(m_decoder->pid, SIGKILL);
-
-    while (true) {
-        int wstatus = 0;
-        if (waitpid(m_decoder->pid, &wstatus, 0) < 0) {
-            spdlog::error("FFMPEG: could not wait for ffmpeg child process to finish: {}", strerror(errno));
-            return false;
-        }
-
-        if (WIFEXITED(wstatus)) {
-            int exit_status = WEXITSTATUS(wstatus);
-            if (exit_status != 0) {
-                spdlog::error("FFMPEG: ffmpeg exited with code {}", exit_status);
-                return false;
-            }
-
-            return true;
-        }
-
-        if (WIFSIGNALED(wstatus)) {
-            spdlog::error("FFMPEG: ffmpeg got terminated by {}", strsignal(WTERMSIG(wstatus)));
-            return false;
-        }
+    m_decoder->encoding_thread.wait();
+    auto result = m_decoder->encoding_thread.get();
+    if (result.has_value()) {
+        spdlog::error("FFMPEG error: {}", result.value());
+        return false;
     }
-
-    UNREACHABLE();
+    return true;
 }
