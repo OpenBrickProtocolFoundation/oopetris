@@ -71,9 +71,13 @@ namespace {
 
         ScopeDeferMultiple<void, void*> scope_defer{};
 
+#if !defined(NDEBUG)
         // "-loglevel verbose"
         av_log_set_level(AV_LOG_VERBOSE);
-
+#else
+        // "-loglevel warning"
+        av_log_set_level(AV_LOG_WARNING);
+#endif
         // input setup
 
         AVFormatContext* input_format_ctx = avformat_alloc_context();
@@ -100,6 +104,7 @@ namespace {
         // "-r {framerate}"
         av_dict_set(&input_options, "framerate", framerate.c_str(), 0);
 
+        // see: https://ffmpeg.org/ffmpeg-protocols.html
         std::string input_url = fmt::format("pipe:{}", input_fd);
 
         // "-i pipe:{fd}"

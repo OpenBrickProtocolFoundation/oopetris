@@ -122,10 +122,30 @@ std::vector<std::string> VideoRendererBackend::get_encoding_paramaters(
     const std::string framerate = fmt::format("{}", fps);
 
     return {
-        "-loglevel", "verbose", "-y",       "-f",       "rawvideo",
-        "-pix_fmt",  "bgra",    "-s",       resolution, "-r",
-        framerate,   "-i",      "-",        "-c:v",     "libx264",
-        "-crf",      "20",      "-pix_fmt", "yuv420p",  destination_path.string(),
+        "-loglevel",
+#if !defined(NDEBUG)
+        "verbose",
+#else
+        "warning",
+#endif
+        "-y", // always overwrite video
+        "-f",
+        "rawvideo",
+        "-pix_fmt",
+        "bgra",
+        "-s",
+        resolution,
+        "-r",
+        framerate,
+        "-i",
+        "-",
+        "-c:v",
+        "libx264",
+        "-crf",
+        "20",
+        "-pix_fmt",
+        "yuv420p",
+        destination_path.string(),
     };
 }
 
