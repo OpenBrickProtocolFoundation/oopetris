@@ -456,14 +456,15 @@ if build_application
 
     endif
 
-    use_embedded_ffmpeg = get_option('use_embedded_ffmpeg')
+    use_embedded_ffmpeg_option = get_option('use_embedded_ffmpeg')
+    use_embedded_ffmpeg = false
     replay_video_rendering_enabled = true
 
     if host_machine.system() == 'darwin' or host_machine.system() == 'linux' or host_machine.system() == 'windows'
 
-        use_embedded_ffmpeg = use_embedded_ffmpeg.enable_auto_if(is_flatpak_build).enabled()
+        use_embedded_ffmpeg = use_embedded_ffmpeg_option.enable_auto_if(is_flatpak_build).enabled()
 
-        # on the desktop we only use the embedded ffmpeg, if we require it, we prefer the command line tool, that is installed on the systne, except for flatpak builds
+        # on the desktop we only use the embedded ffmpeg, if we require it, we prefer the command line tool, that is installed on the system, except for flatpak builds
         if use_embedded_ffmpeg
             if host_machine.system() == 'windows'
                 error('Embedded ffmpeg is still WIP on windows')
@@ -480,7 +481,7 @@ if build_application
             found_all_ffmpeg_deps = true
 
             foreach ffmpeg_dep_name : ffmpeg_dep_names
-                ffmpeg_dep = dependency(ffmpeg_dep_name, required: false)
+                ffmpeg_dep = dependency(ffmpeg_dep_name, required: use_embedded_ffmpeg_option)
                 if not ffmpeg_dep.found()
                     found_all_ffmpeg_deps = false
                     break
@@ -507,18 +508,19 @@ if build_application
     else
         if meson.is_cross_build()
 
-            use_embedded_ffmpeg = use_embedded_ffmpeg.allowed()
+            use_embedded_ffmpeg = use_embedded_ffmpeg_option.allowed()
 
             if not use_embedded_ffmpeg
                 error('only embedded ffmpeg is supported in cross builds')
             endif
 
             ffmpeg_dep_names = [
-                'avutil',
-                'avcodec',
-                'avformat',
-                'avfilter',
-                'swscale',
+                'libavutil',
+                'libavcodec',
+                'libavformat',
+                'libavfilter',
+                'libswscale',
+                'libswresample',
             ]
 
             if host_machine.system() == 'android'
@@ -527,8 +529,7 @@ if build_application
             elif host_machine.system() == 'switch'
                 ffmpeg_can_be_supported = true
                 ffmpeg_dep_names += [
-                    'dav1d',
-                    'swresample',
+                    'libdav1d',
                 ]
             elif host_machine.system() == '3ds'
                 ffmpeg_can_be_supported = false
@@ -550,7 +551,7 @@ if build_application
                 c = meson.get_compiler('c')
 
                 foreach ffmpeg_dep_name : ffmpeg_dep_names
-                    ffmpeg_dep = c.find_library(ffmpeg_dep_name, required: false)
+                    ffmpeg_dep = dependency(ffmpeg_dep_name, required: use_embedded_ffmpeg_option)
                     if not ffmpeg_dep.found()
                         found_all_ffmpeg_deps = false
                         break
