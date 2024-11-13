@@ -69,6 +69,42 @@ include $(PREBUILT_SHARED_LIBRARY)
 
 
 include $(CLEAR_VARS)
+LOCAL_MODULE := libavutil
+LOCAL_SRC_FILES := $(shell meson introspect --dependencies "${BUILD_PATH}" | jq  -r ".[] | select(.name==\"libavutil\") | .link_args | .[]")
+include $(PREBUILT_SHARED_LIBRARY)
+
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := libavcodec
+LOCAL_SRC_FILES := $(shell meson introspect --dependencies "${BUILD_PATH}" | jq  -r ".[] | select(.name==\"libavcodec\") | .link_args | .[]")
+include $(PREBUILT_SHARED_LIBRARY)
+
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := libavformat
+LOCAL_SRC_FILES := $(shell meson introspect --dependencies "${BUILD_PATH}" | jq  -r ".[] | select(.name==\"libavformat\") | .link_args | .[]")
+include $(PREBUILT_SHARED_LIBRARY)
+
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := libavfilter
+LOCAL_SRC_FILES := $(shell meson introspect --dependencies "${BUILD_PATH}" | jq  -r ".[] | select(.name==\"libavfilter\") | .link_args | .[]")
+include $(PREBUILT_SHARED_LIBRARY)
+
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := libswscale
+LOCAL_SRC_FILES := $(shell meson introspect --dependencies "${BUILD_PATH}" | jq  -r ".[] | select(.name==\"libswscale\") | .link_args | .[]")
+include $(PREBUILT_SHARED_LIBRARY)
+
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := libswresample
+LOCAL_SRC_FILES := $(shell meson introspect --dependencies "${BUILD_PATH}" | jq  -r ".[] | select(.name==\"libswresample\") | .link_args | .[]")
+include $(PREBUILT_SHARED_LIBRARY)
+
+
+include $(CLEAR_VARS)
 LOCAL_MODULE := oopetris_core
 LIB_PATH := $(BUILD_PATH)/src/libs/core
 LOCAL_SRC_FILES := $(LIB_PATH)/liboopetris_core.so
@@ -99,7 +135,7 @@ include $(PREBUILT_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := main
-LOCAL_SHARED_LIBRARIES := SDL2 sdl2_ttf freetype png16 sdl2_mixer vorbis vorbisfile ogg sdl2_image fmt keyutils oopetris_core oopetris_recordings oopetris_graphics oopetris
+LOCAL_SHARED_LIBRARIES := SDL2 sdl2_ttf freetype png16 sdl2_mixer vorbis vorbisfile ogg sdl2_image fmt keyutils oopetris_core oopetris_recordings oopetris_graphics oopetris libavutil libavcodec libavformat libavfilter libswscale libswresample
 LOCAL_LDLIBS := -ldl -lGLESv1_CM -lGLESv2 -lOpenSLES -llog -landroid
 LOCAL_LDFLAGS := -Wl,--no-undefined
 include $(BUILD_SHARED_LIBRARY)

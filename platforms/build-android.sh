@@ -114,8 +114,9 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
     export BIN_DIR="$HOST_ROOT/bin"
     export PATH="$BIN_DIR:$PATH"
 
-    LIB_PATH="${SYS_ROOT}/usr/lib/$ARM_TRIPLE:${SYS_ROOT}/usr/lib/$ARM_TRIPLE/${SDK_VERSION}"
-    INC_PATH="${SYS_ROOT}/usr/include"
+    export LIB_PATH="${SYS_ROOT}/usr/lib/$ARM_TRIPLE:${SYS_ROOT}/usr/lib/$ARM_TRIPLE/${SDK_VERSION}"
+    export INC_PATH="${SYS_ROOT}/usr/include"
+    export PKG_CONFIG_PATH="${SYS_ROOT}/usr/lib/pkgconfig/"
 
     export LIBRARY_PATH="$SYS_ROOT/usr/lib/$ARM_NAME_TRIPLE/$SDK_VERSION"
 
@@ -382,6 +383,8 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
         find "$FFMPEG_MAKER_OUTPUT_DIR/lib/" -type f -exec cp -r {} "$SYS_ROOT/usr/lib/" \;
 
+        find "build/" -maxdepth 5 -mindepth 4 -type f -name "*.pc" -exec cp -r {} "$SYS_ROOT/usr/lib/pkgconfig/" \;
+
         touch "$BUILD_FFMPEG_FILE"
 
     fi
@@ -437,7 +440,7 @@ prefix = '$SYS_ROOT'
 libdir = '$LIB_PATH'
 
 [properties]
-pkg_config_libdir = '$SYS_ROOT/usr/lib/pkgconfig'
+pkg_config_libdir = '$PKG_CONFIG_PATH'
 sys_root = '${SYS_ROOT}'
 
 EOF
@@ -480,7 +483,8 @@ EOF
             --cross-file "./platforms/crossbuild-android-$ARM_TARGET_ARCH.ini" \
             "-Dbuildtype=$BUILDTYPE" \
             -Dsdl2:use_hidapi=enabled \
-            -Dclang_libcpp=disabled
+            -Dclang_libcpp=disabled \
+            -Duse_embedded_ffmpeg=enabled
 
     fi
 
