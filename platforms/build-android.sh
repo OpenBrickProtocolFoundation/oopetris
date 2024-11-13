@@ -378,8 +378,6 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
         FFMPEG_MAKER_OUTPUT_DIR="output"
 
-        ls -lsa "$FFMPEG_MAKER_OUTPUT_DIR"
-
         find "$FFMPEG_MAKER_OUTPUT_DIR/include/" -maxdepth 3 -mindepth 2 -type d -exec cp -r {} "$SYS_ROOT/usr/include/" \;
 
         find "$FFMPEG_MAKER_OUTPUT_DIR/lib/" -type f -exec cp -r {} "$SYS_ROOT/usr/lib/" \;
