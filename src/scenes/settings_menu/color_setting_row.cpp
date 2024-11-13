@@ -54,7 +54,8 @@ void detail::ColorSettingRectangle::render(const ServiceProvider& service_provid
     //TODO(Totto): maybe use a dynamic color, to have some contrast?
     service_provider.renderer().draw_rect_outline(m_fill_rect, Color::white());
 }
-helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>> detail::ColorSettingRectangle::handle_event(
+
+ui::Widget::EventHandleResult detail::ColorSettingRectangle::handle_event(
         const std::shared_ptr<input::InputManager>& input_manager,
         const SDL_Event& event
 ) {
@@ -64,7 +65,7 @@ helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>> detail::ColorSe
     if (has_focus() and navigation_event == input::NavigationEvent::OK) {
         return {
             true,
-            { ui::EventHandleType::RequestAction, this }
+            { ui::EventHandleType::RequestAction, this, nullptr }
         };
     }
 
@@ -73,7 +74,7 @@ helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>> detail::ColorSe
         if (hover_result.is(ui::ActionType::Clicked)) {
             return {
                 true,
-                { ui::EventHandleType::RequestAction, this }
+                { ui::EventHandleType::RequestAction, this, nullptr }
             };
         }
         return true;
@@ -174,20 +175,22 @@ void custom_ui::ColorSettingRow::render(const ServiceProvider& service_provider)
     m_main_layout.render(service_provider);
 }
 
-helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>> custom_ui::ColorSettingRow::handle_event(
+ui::Widget::EventHandleResult custom_ui::ColorSettingRow::handle_event(
         const std::shared_ptr<input::InputManager>& input_manager,
         const SDL_Event& event
 ) {
     const auto result = m_main_layout.handle_event(input_manager, event);
     if (const auto additional = result.get_additional(); additional.has_value()) {
-        if (additional->first == ui::EventHandleType::RequestAction) {
+        if (std::get<0>(additional.value()) == ui::EventHandleType::RequestAction) {
             return {
                 result,
-                { ui::EventHandleType::RequestAction, this }
+                { ui::EventHandleType::RequestAction, this, nullptr }
             };
         }
 
-        throw helper::FatalError(fmt::format("Unsupported Handle Type: {}", magic_enum::enum_name(additional->first)));
+        throw helper::FatalError(
+                fmt::format("Unsupported Handle Type: {}", magic_enum::enum_name(std::get<0>(additional.value())))
+        );
     }
 
     return result;

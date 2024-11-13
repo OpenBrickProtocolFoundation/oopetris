@@ -41,7 +41,7 @@ void Grid::render(const ServiceProvider& service_provider) const {
     draw_playing_field_background(service_provider);
 }
 
-[[nodiscard]] helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
+[[nodiscard]] ui::Widget::EventHandleResult
 Grid::handle_event(const std::shared_ptr<input::InputManager>& /*input_manager*/, const SDL_Event& /*event*/) {
     return false;
 }

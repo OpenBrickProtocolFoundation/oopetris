@@ -121,10 +121,11 @@ namespace scenes {
             if (const auto additional = event_result.get_additional(); additional.has_value()) {
                 const auto value = additional.value();
 
-                if (value.first == ui::EventHandleType::RequestAction) {
+                if (std::get<0>(value) == ui::EventHandleType::RequestAction) {
 
 
-                    if (auto text_input = utils::is_child_class<ui::TextInput>(value.second); text_input.has_value()) {
+                    if (auto text_input = utils::is_child_class<ui::TextInput>(std::get<1>(value));
+                        text_input.has_value()) {
                         spdlog::info("Pressed Enter on TextInput  {}", text_input.value()->get_text());
 
                         if (text_input.value()->has_focus()) {
@@ -138,7 +139,7 @@ namespace scenes {
                 }
 
                 throw helper::FatalError(
-                        fmt::format("Unsupported Handle Type: {}", magic_enum::enum_name(additional->first))
+                        fmt::format("Unsupported Handle Type: {}", magic_enum::enum_name(std::get<0>(value)))
                 );
             }
 

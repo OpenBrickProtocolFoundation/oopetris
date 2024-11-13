@@ -75,7 +75,7 @@ void Game::render(const ServiceProvider& service_provider) const {
     m_tetrion->render(service_provider);
 }
 
-[[nodiscard]] helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
+[[nodiscard]] ui::Widget::EventHandleResult
 Game::handle_event(const std::shared_ptr<input::InputManager>& /*input_manager*/, const SDL_Event& /*event*/) {
     return false;
 }

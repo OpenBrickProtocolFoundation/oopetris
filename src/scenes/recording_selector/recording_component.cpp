@@ -10,6 +10,9 @@
 
 #include <fmt/format.h>
 
+#if defined(_ENABLE_REPLAY_RENDERING)
+#include "graphics/video_renderer.hpp"
+#endif
 
 custom_ui::RecordingComponent::RecordingComponent(
                 ServiceProvider* service_provider,
@@ -24,7 +27,7 @@ custom_ui::RecordingComponent::RecordingComponent(
         ui::Direction::Horizontal,
                     std::array<double, 1>{ 0.9 }, ui::RelativeMargin{layout.get_rect(), ui::Direction::Vertical,0.05}, std::pair<double, double>{ 0.05, 0.03 },
                     layout,false
-       },m_metadata{std::move(metadata)}{
+       },m_metadata{std::move(metadata)},m_current_focus_id{m_main_layout.focus_id()}{
 
 
     auto text_layout_index = m_main_layout.add<ui::TileLayout>(
@@ -36,18 +39,25 @@ custom_ui::RecordingComponent::RecordingComponent(
     auto* text_layout = m_main_layout.get<ui::TileLayout>(text_layout_index);
 
 
-    m_main_layout.add<ui::TextButton>(
+    auto render_button_index = m_main_layout.add<ui::TextButton>(
             service_provider, "Render", service_provider->font_manager().get(FontId::Default), Color::white(),
-            focus_helper.focus_id(),
-            [](const ui::TextButton&) -> bool {
-                //TODO: do rendering here, allow hover and click in this situation, it doesn't work as of now
-
-                return false;
-            },
+            focus_helper.focus_id(), [](const ui::TextButton&) -> bool { return false; },
             std::pair<double, double>{ 0.95, 0.85 },
             ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
             std::pair<double, double>{ 0.1, 0.1 }
     );
+
+    auto* render_button = m_main_layout.get<ui::TextButton>(render_button_index);
+
+    render_button->disable();
+
+#if defined(_ENABLE_REPLAY_RENDERING)
+    VideoRendererBackend::is_supported_async([render_button](bool is_supported) {
+        if (is_supported) {
+            render_button->enable();
+        }
+    });
+#endif
 
     text_layout->add<ui::Label>(
             service_provider, "name: ?", service_provider->font_manager().get(FontId::Default), Color::white(),
@@ -96,24 +106,80 @@ void custom_ui::RecordingComponent::render(const ServiceProvider& service_provid
     m_main_layout.render(service_provider);
 }
 
-helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>> custom_ui::RecordingComponent::handle_event(
+ui::Widget::EventHandleResult custom_ui::RecordingComponent::handle_event(
         const std::shared_ptr<input::InputManager>& input_manager,
         const SDL_Event& event
 ) {
 
+    auto* render_button = m_main_layout.get<ui::TextButton>(1);
+
     if (has_focus() and input_manager->get_navigation_event(event) == input::NavigationEvent::OK) {
-        return {
-            true,
-            { ui::EventHandleType::RequestAction, this }
-        };
+        if (m_current_focus_id == m_main_layout.focus_id()) {
+            return {
+                true,
+                { ui::EventHandleType::RequestAction, this, nullptr }
+            };
+        }
+
+        if (m_current_focus_id == render_button->focus_id()) {
+            return {
+                true,
+                { ui::EventHandleType::RequestAction, render_button, nullptr }
+            };
+        }
+
+        spdlog::error("Recording selector has invalid focused element: {}", m_current_focus_id);
+    }
+
+    if (has_focus()
+        and (input_manager->get_navigation_event(event) == input::NavigationEvent::LEFT
+             or input_manager->get_navigation_event(event) == input::NavigationEvent::RIGHT)) {
+
+        if (m_current_focus_id == m_main_layout.focus_id()) {
+            m_current_focus_id = render_button->focus_id();
+            return true;
+        }
+
+        if (m_current_focus_id == render_button->focus_id()) {
+            m_current_focus_id = m_main_layout.focus_id();
+            return true;
+        }
+
+        spdlog::error("Recording selector has invalid focused element: {}", m_current_focus_id);
     }
 
 
     if (const auto hover_result = detect_hover(input_manager, event); hover_result) {
+
+
+        if (const auto render_button_hover_result = render_button->detect_hover(input_manager, event);
+            render_button_hover_result) {
+
+            this->on_unhover();
+
+            if (render_button_hover_result.is(ui::ActionType::Clicked)) {
+
+                if (not has_focus()) {
+                    return {
+                        true,
+                        { ui::EventHandleType::RequestFocus, this, nullptr }
+                    };
+                }
+
+                return {
+                    true,
+                    { ui::EventHandleType::RequestAction, render_button, this }
+                };
+            }
+
+            return true;
+        }
+
         if (hover_result.is(ui::ActionType::Clicked)) {
+
             return {
                 true,
-                { has_focus() ? ui::EventHandleType::RequestAction : ui::EventHandleType::RequestFocus, this }
+                { has_focus() ? ui::EventHandleType::RequestAction : ui::EventHandleType::RequestFocus, this, nullptr }
             };
         }
         return true;

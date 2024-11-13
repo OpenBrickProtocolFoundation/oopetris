@@ -105,8 +105,7 @@ void ui::TextInput::render(const ServiceProvider& service_provider) const {
     }
 }
 
-helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
-ui::TextInput::handle_event( //NOLINT(readability-function-cognitive-complexity)
+ui::Widget::EventHandleResult ui::TextInput::handle_event( //NOLINT(readability-function-cognitive-complexity)
         const std::shared_ptr<input::InputManager>& input_manager,
         const SDL_Event& event
 ) {
@@ -116,7 +115,7 @@ ui::TextInput::handle_event( //NOLINT(readability-function-cognitive-complexity)
         if (hover_result.is(ActionType::Clicked)) {
             return {
                 true,
-                { EventHandleType::RequestFocus, this }
+                { EventHandleType::RequestFocus, this, nullptr }
             };
         }
 
@@ -130,7 +129,7 @@ ui::TextInput::handle_event( //NOLINT(readability-function-cognitive-complexity)
                     on_unfocus();
                     return {
                         true,
-                        { EventHandleType::RequestAction, this }
+                        { EventHandleType::RequestAction, this, nullptr }
                     };
                 }
                 //TODO(Totto): in some cases this is caught before that, and never triggered

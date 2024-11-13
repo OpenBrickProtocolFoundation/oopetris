@@ -6,9 +6,6 @@
 #include "recording_chooser.hpp"
 #endif
 
-#include <recordings/utility/recording_reader.hpp>
-
-#include "graphics/video_renderer.hpp"
 #include "graphics/window.hpp"
 #include "helper/constants.hpp"
 #include "helper/graphic_utils.hpp"
@@ -20,9 +17,15 @@
 #include "ui/layout.hpp"
 #include "ui/layouts/scroll_layout.hpp"
 #include "ui/widget.hpp"
+#include <recordings/utility/recording_reader.hpp>
 
 #include <filesystem>
 #include <stdexcept>
+
+#if defined(_ENABLE_REPLAY_RENDERING)
+#include "graphics/video_renderer.hpp"
+#endif
+
 
 namespace scenes {
 
@@ -91,18 +94,6 @@ namespace scenes {
                                     // action is a reference to a structure inside m_next_command, so resetting it means, we need to copy everything out of it
                                     m_next_command = std::nullopt;
 
-                                    auto ren = VideoRenderer{
-                                        m_service_provider, recording_path, shapes::UPoint{ 1280, 720 }
-                                    };
-
-                                    //TODO: do this in a seperate thread
-                                    ren.render("test.mp4", 60, [](double progress) {
-                                        spdlog::info("Progress: {}", progress);
-                                    });
-
-                                    //TODO: do this in a seperate scene, with a loading bar
-                                    return UpdateResult{ SceneUpdate::StopUpdating, std::nullopt };
-                                    /* 
                                     return UpdateResult{
                                         SceneUpdate::StopUpdating,
                                         Scene::RawSwitch{ "ReplayGame",
@@ -110,8 +101,43 @@ namespace scenes {
                                                                   m_service_provider, ui::FullScreenLayout{ m_service_provider->window() },
                                                          recording_path
                                                           ) }
-                                    }; */
+                                    };
                                 }
+
+
+#if defined(_ENABLE_REPLAY_RENDERING)
+                                if (auto render_button = utils::is_child_class<ui::TextButton>(action.widget);
+                                    render_button.has_value()) {
+
+
+                                    auto recording_component = utils::is_child_class<custom_ui::RecordingComponent>(
+                                            reinterpret_cast< //NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+                                                    ui::Widget*>(action.data)
+                                    );
+                                    if (not recording_component.has_value()) {
+                                        throw std::runtime_error(
+                                                "Requested action on render button has invalid data, this is a fatal "
+                                                "error"
+                                        );
+                                    }
+
+                                    const auto recording_path = recording_component.value()->metadata().path;
+
+                                    auto ren = VideoRenderer{
+                                        m_service_provider, recording_path, shapes::UPoint{ 1280, 720 }
+                                    };
+
+                                    //TODO: do this in a seperate thread
+                                    ren.render("test.mp4", 60, [](double progress) {
+                                        // spdlog::info("Progress: {}", progress);
+                                        UNUSED(progress);
+                                    });
+
+                                    return UpdateResult{ SceneUpdate::StopUpdating, std::nullopt };
+                                }
+#endif
+
+
 #if defined(_HAVE_FILE_DIALOGS)
 
                                 if (auto recording_file_chooser =
@@ -152,8 +178,10 @@ namespace scenes {
 
         if (const auto event_result = m_main_layout.handle_event(input_manager, event); event_result) {
             if (const auto additional = event_result.get_additional();
-                additional.has_value() and additional.value().first == ui::EventHandleType::RequestAction) {
-                m_next_command = Command{ Action(additional.value().second) };
+                additional.has_value() and std::get<0>(additional.value()) == ui::EventHandleType::RequestAction) {
+                m_next_command = Command{
+                    Action{ .widget = std::get<1>(additional.value()), .data = std::get<2>(additional.value()) }
+                };
             }
 
             return true;

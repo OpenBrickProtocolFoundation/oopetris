@@ -170,7 +170,7 @@ namespace ui {
 
                         handled = {
                             true,
-                            { ui::EventHandleType::RequestFocus, this }
+                            { ui::EventHandleType::RequestFocus, this, nullptr }
                         };
 
                     } else if (pointer_event->is_in(m_slider_rect)) {
@@ -180,7 +180,7 @@ namespace ui {
 
                         handled = {
                             true,
-                            { ui::EventHandleType::RequestFocus, this }
+                            { ui::EventHandleType::RequestFocus, this, nullptr }
                         };
                     }
 
