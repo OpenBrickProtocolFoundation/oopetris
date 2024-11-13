@@ -217,7 +217,7 @@ OOPETRIS_GRAPHICS_EXPORTED void utils::set_thread_name(const char* name) {
 #elif defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
     std::wstring name_w{};
     for (std::size_t i = 0; i < strlen(name); ++i) {
-        result += name[i];
+        name_w += name[i];
     }
 
     SetThreadDescription(GetCurrentThread(), name_w.c_str());
