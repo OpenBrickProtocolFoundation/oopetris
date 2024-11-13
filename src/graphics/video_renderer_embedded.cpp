@@ -6,13 +6,20 @@
 #include "helper/graphic_utils.hpp"
 #include "video_renderer.hpp"
 
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#endif
+
 extern "C" {
+
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libavutil/avutil.h>
 #include <libavutil/log.h>
 #include <libswscale/swscale.h>
 }
+
 
 #include <csignal>
 #include <future>
@@ -420,6 +427,10 @@ namespace {
 
 } // namespace
 
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 
 void VideoRendererBackend::is_supported_async(const std::function<void(bool)>& callback) {
     callback(true);
