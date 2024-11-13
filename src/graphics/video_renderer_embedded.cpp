@@ -25,9 +25,8 @@ struct Decoder {
     std::atomic<bool> should_cancel;
 };
 
-// general information and usage from: https://friendlyuser.github.io/posts/tech/cpp/Using_FFmpeg_in_C++_A_Comprehensive_Guide/
-// and https://trac.ffmpeg.org/wiki/Using%20libav*
-// and https://github.com/FFmpeg/FFmpeg/blob/master/doc/examples/transcode.c
+// general information and usage from: https://ffmpeg.org//doxygen/trunk/index.html
+// and https://github.com/FFmpeg/FFmpeg/blob/master/doc/examples/README
 VideoRendererBackend::VideoRendererBackend(const std::filesystem::path& destination_path)
     : m_destination_path{ destination_path },
       m_decoder{ nullptr } { }
@@ -405,7 +404,10 @@ namespace {
             }
         }
 
+        // flush encoder and decoder
+        // this is not necessary atm, but may be necessary in the future
 
+        // write the trailer, some video containers require this, like e.g. mp4
         auto trailer_ret = av_write_trailer(output_format_ctx);
         if (trailer_ret != 0) {
             return fmt::format("Writing the trailer failed: {}", av_error_to_string(trailer_ret));
