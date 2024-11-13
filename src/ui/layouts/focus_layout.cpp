@@ -135,7 +135,7 @@ ui::FocusLayout::handle_event_result(const std::optional<ui::Widget::InnerState>
 
     auto value = result.value();
 
-    switch (value.first) {
+    switch (std::get<0>(value)) {
         case ui::EventHandleType::RequestFocus: {
             const auto focusable = as_focusable(widget);
             if (not focusable.has_value()) {
@@ -160,7 +160,8 @@ ui::FocusLayout::handle_event_result(const std::optional<ui::Widget::InnerState>
 
             // if the layout itself has not focus, it needs focus itself too
             if (not has_focus()) {
-                return ui::Widget::InnerState{ ui::EventHandleType::RequestFocus, value.second };
+                return ui::Widget::InnerState{ ui::EventHandleType::RequestFocus, std::get<1>(value),
+                                               std::get<2>(value) };
             }
 
 
@@ -191,12 +192,14 @@ ui::FocusLayout::handle_event_result(const std::optional<ui::Widget::InnerState>
             const auto test_forward = try_set_next_focus(FocusChangeDirection::Forward);
             if (not test_forward) {
                 if (m_options.wrap_around) {
-                    return ui::Widget::InnerState{ ui::EventHandleType::RequestUnFocus, value.second };
+                    return ui::Widget::InnerState{ ui::EventHandleType::RequestUnFocus, std::get<1>(value),
+                                                   std::get<2>(value) };
                 }
 
                 const auto test_backwards = try_set_next_focus(FocusChangeDirection::Backward);
                 if (not test_backwards) {
-                    return ui::Widget::InnerState{ ui::EventHandleType::RequestUnFocus, value.second };
+                    return ui::Widget::InnerState{ ui::EventHandleType::RequestUnFocus, std::get<1>(value),
+                                                   std::get<2>(value) };
                 }
             }
 
@@ -204,7 +207,7 @@ ui::FocusLayout::handle_event_result(const std::optional<ui::Widget::InnerState>
         }
         case ui::EventHandleType::RequestAction: {
             // just forward it
-            return ui::Widget::InnerState{ ui::EventHandleType::RequestAction, value.second };
+            return ui::Widget::InnerState{ ui::EventHandleType::RequestAction, std::get<1>(value), std::get<2>(value) };
         }
         default:
             UNREACHABLE();

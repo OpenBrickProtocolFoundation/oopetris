@@ -95,7 +95,7 @@ void custom_ui::RecordingFileChooser::render(const ServiceProvider& service_prov
     m_main_grid.render(service_provider);
 }
 
-helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>> custom_ui::RecordingFileChooser::handle_event(
+ui::Widget::EventHandleResult custom_ui::RecordingFileChooser::handle_event(
         const std::shared_ptr<input::InputManager>& input_manager,
         const SDL_Event& event
 ) {

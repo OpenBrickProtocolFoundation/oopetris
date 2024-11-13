@@ -8,7 +8,7 @@
 #include "ui/layout.hpp"
 
 #include <SDL.h>
-#include <utility>
+#include <tuple>
 
 namespace ui {
 
@@ -23,7 +23,7 @@ namespace ui {
         bool m_top_level;
 
     public:
-        using InnerState = std::pair<ui::EventHandleType, Widget*>;
+        using InnerState = std::tuple<ui::EventHandleType, Widget*, void*>;
         using EventHandleResult = helper::BoolWrapper<InnerState>;
 
         explicit Widget(const Layout& layout, WidgetType type, bool is_top_level)

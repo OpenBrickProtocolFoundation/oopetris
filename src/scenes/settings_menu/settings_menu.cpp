@@ -248,8 +248,10 @@ namespace scenes {
     bool SettingsMenu::handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) {
         if (const auto event_result = m_main_layout.handle_event(input_manager, event); event_result) {
             if (const auto additional = event_result.get_additional();
-                additional.has_value() and additional.value().first == ui::EventHandleType::RequestAction) {
-                m_next_command = Command{ Action{ additional.value().second } };
+                additional.has_value() and std::get<0>(additional.value()) == ui::EventHandleType::RequestAction) {
+                m_next_command = Command{
+                    Action{ .widget = std::get<1>(additional.value()), .data = std::get<2>(additional.value()) }
+                };
             }
 
             return true;

@@ -29,7 +29,7 @@ void ui::ImageView::render(const ServiceProvider& service_provider) const {
     service_provider.renderer().draw_texture(m_image, m_fill_rect);
 }
 
-helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
+ui::Widget::EventHandleResult
 ui::ImageView::handle_event(const std::shared_ptr<input::InputManager>& /*input_manager*/, const SDL_Event& /*event*/) {
     return false;
 }
