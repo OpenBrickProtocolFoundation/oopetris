@@ -406,6 +406,8 @@ namespace {
 
         // flush encoder and decoder
         // this is not necessary atm, but may be necessary in the future
+        //TODO(Totto): do it nevertheless
+        //NOTE: this is the case, since we send whole frames at once, trough the pipe, so if that changes, the video might get corrupted or miss a frame at the end
 
         // write the trailer, some video containers require this, like e.g. mp4
         auto trailer_ret = av_write_trailer(output_format_ctx);
