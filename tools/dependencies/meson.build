@@ -513,11 +513,23 @@ if build_application
                 error('only embedded ffmpeg is supported in cross builds')
             endif
 
+            ffmpeg_dep_names = [
+                'avutil',
+                'avcodec',
+                'avformat',
+                'avfilter',
+                'swscale',
+            ]
+
             if host_machine.system() == 'android'
                 ffmpeg_can_be_supported = true
 
             elif host_machine.system() == 'switch'
                 ffmpeg_can_be_supported = true
+                ffmpeg_dep_names += [
+                    'dav1d',
+                    'swresample',
+                ]
             elif host_machine.system() == '3ds'
                 ffmpeg_can_be_supported = false
             else
@@ -532,13 +544,6 @@ if build_application
                 replay_video_rendering_enabled = false
             else
 
-                ffmpeg_dep_names = [
-                    'avutil',
-                    'avcodec',
-                    'avformat',
-                    'avfilter',
-                    'swscale',
-                ]
                 ffmpeg_deps = []
                 found_all_ffmpeg_deps = true
 
