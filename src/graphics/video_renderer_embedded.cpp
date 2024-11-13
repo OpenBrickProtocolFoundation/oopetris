@@ -26,8 +26,23 @@ extern "C" {
 #include <sys/wait.h>
 #include <unistd.h>
 
+#if defined(__NINTENDO_CONSOLE__) && defined(__SWITCH__)
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+#ifndef INADDR_LOOPBACK
+// 127.0.0.1
+#define INADDR_LOOPBACK (static_cast<in_addr_t>(0x7f000001))
+#endif
+
+#endif
+
 struct Decoder {
-    int pipe;
+    int input_fd;
     std::future<std::optional<std::string>> encoding_thread;
     std::atomic<bool> should_cancel;
 };
@@ -65,7 +80,7 @@ namespace {
             u32 fps,
             shapes::UPoint size,
             const std::filesystem::path& destination_path,
-            int input_fd,
+            const std::string& input_url,
             const std::unique_ptr<Decoder>& decoder
     ) {
 
@@ -104,10 +119,8 @@ namespace {
         // "-r {framerate}"
         av_dict_set(&input_options, "framerate", framerate.c_str(), 0);
 
-        // see: https://ffmpeg.org/ffmpeg-protocols.html
-        std::string input_url = fmt::format("pipe:{}", input_fd);
 
-        // "-i pipe:{fd}"
+        // "-i {input_url}"
         auto av_input_ret = avformat_open_input(&input_format_ctx, input_url.c_str(), input_fmt, &input_options);
         if (av_input_ret != 0) {
             return fmt::format("Could not open input file stdin: {}", av_error_to_string(av_input_ret));
@@ -333,7 +346,7 @@ namespace {
         while (true) {
             // check atomic bool, if we are cancelled
             // NOTE: the video is garbage after this, since we don't close it correctly (which isn't the intention of this)
-            if (decoder->should_cancel) {
+            if (decoder && decoder->should_cancel) {
                 return std::nullopt;
             }
 
@@ -443,19 +456,38 @@ void VideoRendererBackend::is_supported_async(const std::function<void(bool)>& c
 
 
 std::optional<std::string> VideoRendererBackend::setup(u32 fps, shapes::UPoint size) {
+
+// see: https://ffmpeg.org/ffmpeg-protocols.html
+#if defined(__NINTENDO_CONSOLE__) && defined(__SWITCH__)
+    int socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (socket_fd < 0) {
+        return fmt::format("Could not create a UNIX socket: {}", strerror(errno));
+    }
+
+    u16 port = 1045;
+    std::string input_url = fmt::format("tcp://localhost:{}?listen=1", port);
+    int close_fd = -1;
+
+#else
     std::array<int, 2> pipefd = { 0, 0 };
 
     if (pipe(pipefd.data()) < 0) {
         return fmt::format("Could not create a pipe: {}", strerror(errno));
     }
+    int close_fd = pipefd[READ_END];
+    int input_fd = pipefd[WRITE_END];
+    std::string input_url = fmt::format("pipe:{}", close_fd);
+#endif
 
     std::future<std::optional<std::string>> encoding_thread =
-            std::async(std::launch::async, [pipefd, fps, size, this] -> std::optional<std::string> {
+            std::async(std::launch::async, [close_fd, input_url, fps, size, this] -> std::optional<std::string> {
                 utils::set_thread_name("ffmpeg encoder");
-                auto result = start_encoding(fps, size, this->m_destination_path, pipefd[READ_END], this->m_decoder);
+                auto result = start_encoding(fps, size, this->m_destination_path, input_url, this->m_decoder);
 
-                if (close(pipefd[READ_END]) < 0) {
-                    spdlog::warn("could not close read end of the pipe: {}", strerror(errno));
+                if (close_fd >= 0) {
+                    if (close(close_fd) < 0) {
+                        spdlog::warn("could not close read end of the pipe: {}", strerror(errno));
+                    }
                 }
 
                 if (result.has_value()) {
@@ -465,16 +497,34 @@ std::optional<std::string> VideoRendererBackend::setup(u32 fps, shapes::UPoint s
                 return std::nullopt;
             });
 
+#if defined(__NINTENDO_CONSOLE__) && defined(__SWITCH__)
+    struct sockaddr_in addr;
+    memset(&addr, 0, sizeof(addr));
 
-    m_decoder = std::make_unique<Decoder>(pipefd[WRITE_END], std::move(encoding_thread), false);
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(port);
+
+    // localhost
+    addr.sin_addr.s_addr = INADDR_LOOPBACK;
+
+    int input_fd = connect(socket_fd, reinterpret_cast<const struct sockaddr*>(&addr), sizeof(addr));
+    if (input_fd < 0) {
+        return fmt::format("Could not connect to a TCP socket: {}", strerror(errno));
+    }
+#endif
+
+    m_decoder = std::make_unique<Decoder>(input_fd, std::move(encoding_thread), false);
+
     return std::nullopt;
 }
 
 bool VideoRendererBackend::add_frame(SDL_Surface* surface) {
-    if (write(m_decoder->pipe, surface->pixels, static_cast<size_t>(surface->h) * surface->pitch) < 0) {
+
+    if (write(m_decoder->input_fd, surface->pixels, static_cast<size_t>(surface->h) * surface->pitch) < 0) {
         spdlog::error("failed to write into ffmpeg pipe: {}", strerror(errno));
         return false;
     }
+
     return true;
 }
 
@@ -484,7 +534,7 @@ bool VideoRendererBackend::finish(bool cancel) {
         m_decoder->should_cancel = true;
     }
 
-    if (close(m_decoder->pipe) < 0) {
+    if (close(m_decoder->input_fd) < 0) {
         spdlog::warn("could not close write end of the pipe: {}", strerror(errno));
     }
 
