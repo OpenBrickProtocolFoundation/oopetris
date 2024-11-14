@@ -117,14 +117,14 @@ ui::Widget::EventHandleResult custom_ui::RecordingComponent::handle_event(
         if (m_current_focus_id == m_main_layout.focus_id()) {
             return {
                 true,
-                { ui::EventHandleType::RequestAction, this, nullptr }
+                { .handle_type = ui::EventHandleType::RequestAction, .widget = this, .data = nullptr }
             };
         }
 
         if (m_current_focus_id == render_button->focus_id()) {
             return {
                 true,
-                { ui::EventHandleType::RequestAction, render_button, nullptr }
+                { .handle_type = ui::EventHandleType::RequestAction, .widget = render_button, .data = nullptr }
             };
         }
 
@@ -162,13 +162,13 @@ ui::Widget::EventHandleResult custom_ui::RecordingComponent::handle_event(
                 if (not has_focus()) {
                     return {
                         true,
-                        { ui::EventHandleType::RequestFocus, this, nullptr }
+                        { .handle_type = ui::EventHandleType::RequestFocus, .widget = this, .data = nullptr }
                     };
                 }
 
                 return {
                     true,
-                    { ui::EventHandleType::RequestAction, render_button, this }
+                    { .handle_type = ui::EventHandleType::RequestAction, .widget = render_button, .data = this }
                 };
             }
 
@@ -179,7 +179,9 @@ ui::Widget::EventHandleResult custom_ui::RecordingComponent::handle_event(
 
             return {
                 true,
-                { has_focus() ? ui::EventHandleType::RequestAction : ui::EventHandleType::RequestFocus, this, nullptr }
+                { .handle_type = has_focus() ? ui::EventHandleType::RequestAction : ui::EventHandleType::RequestFocus,
+                  .widget = this,
+                  .data = nullptr }
             };
         }
         return true;

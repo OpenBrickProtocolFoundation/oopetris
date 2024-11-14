@@ -16,8 +16,8 @@ struct Decoder {
 };
 
 // inspired by: https://github.com/tsoding/musializer/blob/762a729ff69ba1f984b0f2604e0eac08af46327c/src/ffmpeg_windows.c
-VideoRendererBackend::VideoRendererBackend(const std::filesystem::path& destination_path)
-    : m_destination_path{ destination_path },
+VideoRendererBackend::VideoRendererBackend(std::filesystem::path destination_path)
+    : m_destination_path{ std::move(destination_path) },
       m_decoder{ nullptr } { }
 
 VideoRendererBackend::~VideoRendererBackend() = default;

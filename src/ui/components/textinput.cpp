@@ -115,7 +115,7 @@ ui::Widget::EventHandleResult ui::TextInput::handle_event( //NOLINT(readability-
         if (hover_result.is(ActionType::Clicked)) {
             return {
                 true,
-                { EventHandleType::RequestFocus, this, nullptr }
+                { .handle_type = EventHandleType::RequestFocus, .widget = this, .data = nullptr }
             };
         }
 
@@ -129,7 +129,7 @@ ui::Widget::EventHandleResult ui::TextInput::handle_event( //NOLINT(readability-
                     on_unfocus();
                     return {
                         true,
-                        { EventHandleType::RequestAction, this, nullptr }
+                        { .handle_type = EventHandleType::RequestAction, .widget = this, .data = nullptr }
                     };
                 }
                 //TODO(Totto): in some cases this is caught before that, and never triggered

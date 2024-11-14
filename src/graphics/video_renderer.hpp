@@ -93,7 +93,7 @@ private:
     get_encoding_paramaters(u32 fps, shapes::UPoint size, const std::filesystem::path& destination_path);
 
 public:
-    OOPETRIS_GRAPHICS_EXPORTED explicit VideoRendererBackend(const std::filesystem::path& destination_path);
+    OOPETRIS_GRAPHICS_EXPORTED explicit VideoRendererBackend(std::filesystem::path destination_path);
 
     OOPETRIS_GRAPHICS_EXPORTED ~VideoRendererBackend();
 

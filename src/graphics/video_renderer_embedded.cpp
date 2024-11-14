@@ -49,34 +49,34 @@ struct Decoder {
 
 // general information and usage from: https://ffmpeg.org//doxygen/trunk/index.html
 // and https://github.com/FFmpeg/FFmpeg/blob/master/doc/examples/README
-VideoRendererBackend::VideoRendererBackend(const std::filesystem::path& destination_path)
-    : m_destination_path{ destination_path },
+VideoRendererBackend::VideoRendererBackend(std::filesystem::path destination_path)
+    : m_destination_path{ std::move(destination_path) },
       m_decoder{ nullptr } { }
 
 VideoRendererBackend::~VideoRendererBackend() = default;
 
 namespace {
 
-    constexpr const int READ_END = 0;
-    constexpr const int WRITE_END = 1;
+    constexpr const int read_end = 0;
+    constexpr const int write_end = 1;
 
-    constexpr const size_t BUF_LEN = 1024;
+    constexpr const size_t buf_len = 1024;
 
     std::string av_error_to_string(int errnum) {
-        auto* buf = new char[BUF_LEN];
-        auto* buff_res = av_make_error_string(buf, BUF_LEN, errnum);
+        auto* buf = new char[buf_len]; //NOLINT(cppcoreguidelines-owning-memory)
+        auto* buff_res = av_make_error_string(buf, buf_len, errnum);
         if (buff_res == nullptr) {
             return "Unknown error";
         }
 
         std::string result{ buff_res };
 
-        delete[] buf;
+        delete[] buf; //NOLINT(cppcoreguidelines-owning-memory)
 
         return result;
     }
 
-    std::optional<std::string> start_encoding(
+    std::optional<std::string> start_encoding( //NOLINT(readability-function-cognitive-complexity)
             u32 fps,
             shapes::UPoint size,
             const std::filesystem::path& destination_path,
@@ -150,7 +150,8 @@ namespace {
             );
         }
 
-        AVStream* input_video_stream = input_format_ctx->streams[video_stream_index];
+        AVStream* input_video_stream =
+                input_format_ctx->streams[video_stream_index]; //NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 
         AVCodecContext* input_codec_context = avcodec_alloc_context3(input_decoder);
         if (input_codec_context == nullptr) {
@@ -203,7 +204,7 @@ namespace {
             return fmt::format("Could not alloc output file {}: {}", destination_path.string(), av_output_ret);
         }
 
-        std::string encoder_metadata_name = fmt::format(
+        const std::string encoder_metadata_name = fmt::format(
                 "{} v{} ({}) {}", constants::program_name.string(), constants::version.string(), utils::git_commit(),
                 LIBAVFORMAT_IDENT
         );
@@ -263,7 +264,7 @@ namespace {
 
         out_stream->time_base = output_codec_context->time_base;
 
-        std::string stream_encoder_metadata_name = fmt::format(
+        const std::string stream_encoder_metadata_name = fmt::format(
                 "{} v{} ({}) {} {}", constants::program_name.string(), constants::version.string(), utils::git_commit(),
                 LIBAVCODEC_IDENT, output_encoder->name
         );
@@ -354,7 +355,9 @@ namespace {
             auto read_frame_ret = av_read_frame(input_format_ctx, pkt);
             if (read_frame_ret == AVERROR_EOF) {
                 break;
-            } else if (read_frame_ret < 0) {
+            }
+
+            if (read_frame_ret < 0) {
                 return fmt::format("Receiving a frame from the input failed: {}", av_error_to_string(read_frame_ret));
             }
 
@@ -376,7 +379,9 @@ namespace {
                 read_ret = avcodec_receive_frame(input_codec_context, decode_frame);
                 if (read_ret == AVERROR(EAGAIN) || read_ret == AVERROR_EOF) {
                     break;
-                } else if (read_ret < 0) {
+                }
+
+                if (read_ret < 0) {
                     return fmt::format("Receiving a frame from the decoder failed: {}", av_error_to_string(read_ret));
                 }
 
@@ -404,7 +409,9 @@ namespace {
                     write_ret = avcodec_receive_packet(output_codec_context, pkt);
                     if (write_ret == AVERROR(EAGAIN) || write_ret == AVERROR_EOF) {
                         break;
-                    } else if (write_ret < 0) {
+                    }
+
+                    if (write_ret < 0) {
                         return fmt::format(
                                 "Receiving a packet from the encoder failed: {}", av_error_to_string(write_ret)
                         );
@@ -474,13 +481,13 @@ std::optional<std::string> VideoRendererBackend::setup(u32 fps, shapes::UPoint s
     if (pipe(pipefd.data()) < 0) {
         return fmt::format("Could not create a pipe: {}", strerror(errno));
     }
-    int close_fd = pipefd[READ_END];
-    int input_fd = pipefd[WRITE_END];
-    std::string input_url = fmt::format("pipe:{}", close_fd);
+    const int close_fd = pipefd[read_end];
+    const int input_fd = pipefd[write_end];
+    const std::string input_url = fmt::format("pipe:{}", close_fd);
 #endif
 
     std::future<std::optional<std::string>> encoding_thread =
-            std::async(std::launch::async, [close_fd, input_url, fps, size, this] -> std::optional<std::string> {
+            std::async(std::launch::async, [close_fd, input_url, fps, size, this]() -> std::optional<std::string> {
                 utils::set_thread_name("ffmpeg encoder");
                 auto result = start_encoding(fps, size, this->m_destination_path, input_url, this->m_decoder);
 
