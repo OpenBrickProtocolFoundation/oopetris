@@ -33,9 +33,10 @@ std::optional<std::string> VideoRendererBackend::setup(u32 fps, shapes::UPoint s
     HANDLE pipe_read;
     HANDLE pipe_write;
 
-    SECURITY_ATTRIBUTES saAttr = { 0 };
-    saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
-    saAttr.bInheritHandle = TRUE;
+    SECURITY_ATTRIBUTES saAttr = { .nLength = sizeof(SECURITY_ATTRIBUTES),
+                                   .lpSecurityDescriptor = nullptr,
+                                   .bInheritHandle = TRUE };
+
 
     if (!CreatePipe(&pipe_read, &pipe_write, &saAttr, 0)) {
         return fmt::format("FFMPEG: Could not create pipe. System Error Code: {}", GetLastError());
