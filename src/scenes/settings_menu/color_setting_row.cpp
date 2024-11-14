@@ -65,7 +65,7 @@ ui::Widget::EventHandleResult detail::ColorSettingRectangle::handle_event(
     if (has_focus() and navigation_event == input::NavigationEvent::OK) {
         return {
             true,
-            { ui::EventHandleType::RequestAction, this, nullptr }
+            { .handle_type = ui::EventHandleType::RequestAction, .widget = this, .data = nullptr }
         };
     }
 
@@ -74,7 +74,7 @@ ui::Widget::EventHandleResult detail::ColorSettingRectangle::handle_event(
         if (hover_result.is(ui::ActionType::Clicked)) {
             return {
                 true,
-                { ui::EventHandleType::RequestAction, this, nullptr }
+                { .handle_type = ui::EventHandleType::RequestAction, .widget = this, .data = nullptr }
             };
         }
         return true;

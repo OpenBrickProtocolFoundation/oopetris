@@ -164,7 +164,7 @@ detail::ColorCanvas::handle_event(const std::shared_ptr<input::InputManager>& in
             SDL_CaptureMouse(SDL_TRUE);
             handled = {
                 true,
-                { ui::EventHandleType::RequestFocus, this, nullptr }
+                { .handle_type = ui::EventHandleType::RequestFocus, .widget = this, .data = nullptr }
             };
         }
     } else if (pointer_event == input::PointerEvent::PointerUp) {
