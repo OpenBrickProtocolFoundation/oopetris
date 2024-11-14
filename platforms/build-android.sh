@@ -2,7 +2,9 @@
 
 set -e
 
-mkdir -p toolchains
+if [ ! -d "toolchains" ]; then
+    mkdir -p toolchains
+fi
 
 export NDK_VER_DOWNLOAD="r28-beta1"
 export NDK_VER_DESC="r28-beta1"
