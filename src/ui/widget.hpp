@@ -23,7 +23,12 @@ namespace ui {
         bool m_top_level;
 
     public:
-        using InnerState = std::tuple<ui::EventHandleType, Widget*, void*>;
+        struct InnerState {
+            ui::EventHandleType handle_type;
+            Widget* widget;
+            void* data;
+        };
+
         using EventHandleResult = helper::BoolWrapper<InnerState>;
 
         explicit Widget(const Layout& layout, WidgetType type, bool is_top_level)

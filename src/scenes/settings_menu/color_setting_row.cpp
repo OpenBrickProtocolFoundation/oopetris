@@ -181,15 +181,15 @@ ui::Widget::EventHandleResult custom_ui::ColorSettingRow::handle_event(
 ) {
     auto result = m_main_layout.handle_event(input_manager, event);
     if (const auto additional = result.get_additional(); additional.has_value()) {
-        if (std::get<0>(additional.value()) == ui::EventHandleType::RequestAction) {
+        if (additional.value().handle_type == ui::EventHandleType::RequestAction) {
             return {
                 result,
-                { ui::EventHandleType::RequestAction, this, nullptr }
+                { .handle_type = ui::EventHandleType::RequestAction, .widget = this, .data = nullptr }
             };
         }
 
         throw helper::FatalError(
-                fmt::format("Unsupported Handle Type: {}", magic_enum::enum_name(std::get<0>(additional.value())))
+                fmt::format("Unsupported Handle Type: {}", magic_enum::enum_name(additional.value().handle_type))
         );
     }
 
