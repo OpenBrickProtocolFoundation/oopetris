@@ -70,7 +70,7 @@ ui::Widget::EventHandleResult ui::FocusLayout::handle_focus_change_button_events
         const SDL_Event& event
 ) {
 
-    Widget::EventHandleResult handled = false;
+    ui::Widget::EventHandleResult handled = false;
 
     const auto navigation_action = input_manager->get_navigation_event(event);
 
@@ -96,7 +96,7 @@ ui::Widget::EventHandleResult ui::FocusLayout::handle_focus_change_events(
         return false;
     }
 
-    Widget::EventHandleResult handled = false;
+    ui::Widget::EventHandleResult handled{ false };
 
     if (m_focus_id.has_value()) {
         const auto& widget = m_widgets.at(focusable_index_by_id(m_focus_id.value()));

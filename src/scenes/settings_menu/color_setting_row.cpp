@@ -179,7 +179,7 @@ ui::Widget::EventHandleResult custom_ui::ColorSettingRow::handle_event(
         const std::shared_ptr<input::InputManager>& input_manager,
         const SDL_Event& event
 ) {
-    const auto result = m_main_layout.handle_event(input_manager, event);
+    auto result = m_main_layout.handle_event(input_manager, event);
     if (const auto additional = result.get_additional(); additional.has_value()) {
         if (std::get<0>(additional.value()) == ui::EventHandleType::RequestAction) {
             return {
