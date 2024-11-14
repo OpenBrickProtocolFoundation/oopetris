@@ -487,7 +487,7 @@ ui::ColorPicker::handle_event(const std::shared_ptr<input::InputManager>& input_
 
     if (handled) {
         if (const auto additional = handled.get_additional(); additional.has_value()) {
-            switch (std::get<0>(additional.value())) {
+            switch (additional.value().handle_type) {
                 case ui::EventHandleType::RequestFocus:
                     if (not m_color_text->has_focus()) {
                         m_color_text->focus();
