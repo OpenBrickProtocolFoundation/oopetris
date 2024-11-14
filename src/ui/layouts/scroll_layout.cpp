@@ -240,7 +240,7 @@ ui::Widget::EventHandleResult ui::ScrollLayout::handle_focus_change_events(
         return false;
     }
 
-    Widget::EventHandleResult handled = false;
+    Widget::EventHandleResult handled{ false };
 
 
     if (m_focus_id.has_value()) {
