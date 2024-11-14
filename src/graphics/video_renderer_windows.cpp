@@ -8,7 +8,7 @@
 
 #include <windows.h>
 
-#include <strstream>
+#include <sstream>
 
 struct Decoder {
     HANDLE hProcess;
