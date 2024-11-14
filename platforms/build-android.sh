@@ -293,6 +293,10 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
         MESON_CPU_FAMILY="aarch64"
     fi
 
+    export COMPILE_FLAGS="'--sysroot=${SYS_ROOT:?}','-fPIE','-fPIC','--target=$ARM_COMPILER_TRIPLE','-DHAVE_USR_INCLUDE_MALLOC_H','-D_MALLOC_H','-D__BITNESS=$BITNESS','-DAUDIO_PREFER_MP3'"
+
+    export LINK_FLAGS="'-fPIE','-L$SYS_ROOT/usr/lib'"
+
     cat <<EOF >"./platforms/crossbuild-android-$ARM_TARGET_ARCH.ini"
 [host_machine]
 system = 'android'
@@ -320,10 +324,11 @@ llvm-config = '$LLVM_CONFIG'
 [built-in options]
 c_std = 'gnu11'
 cpp_std = 'c++23'
-c_args = ['--sysroot=${SYS_ROOT:?}','-fPIE','-fPIC','--target=$ARM_COMPILER_TRIPLE','-DHAVE_USR_INCLUDE_MALLOC_H','-D_MALLOC_H','-D__BITNESS=$BITNESS']
-cpp_args = ['--sysroot=${SYS_ROOT:?}','-fPIE','-fPIC','--target=$ARM_COMPILER_TRIPLE','-D__BITNESS=$BITNESS']
-c_link_args = ['-fPIE','-L$SYS_ROOT/usr/lib']
-cpp_link_args = ['-fPIE','-L$SYS_ROOT/usr/lib']
+c_args = [$COMPILE_FLAGS]
+cpp_args = [$COMPILE_FLAGS]            
+c_link_args = [$LINK_FLAGS]
+cpp_link_args = [$LINK_FLAGS]
+
 prefix = '$SYS_ROOT'
 libdir = '$LIB_PATH'
 
@@ -369,7 +374,6 @@ EOF
             --cross-file "./platforms/crossbuild-android-$ARM_TARGET_ARCH.ini" \
             "-Dbuildtype=$BUILDTYPE" \
             -Dsdl2:use_hidapi=enabled \
-            -Dcpp_args=-DAUDIO_PREFER_MP3 \
             -Dclang_libcpp=disabled
 
     fi
