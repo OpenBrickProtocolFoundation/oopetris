@@ -25,7 +25,7 @@ if replay_video_rendering_enabled
         )
     else
         cpp = meson.get_compiler('cpp')
-        if host_machine.system() == 'darwin' or host_machine.system() == 'linux' or (cpp.get_id() == 'gcc' and host_machine.system() == 'windows')
+        if host_machine.system() == 'darwin' or host_machine.system() == 'linux'
             graphics_src_files += files(
                 'video_renderer_unix.cpp',
             )
