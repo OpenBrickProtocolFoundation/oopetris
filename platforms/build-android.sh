@@ -293,7 +293,7 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
         MESON_CPU_FAMILY="aarch64"
     fi
 
-    export COMPILE_FLAGS="'--sysroot=${SYS_ROOT:?}','-fPIE','-fPIC','--target=$ARM_COMPILER_TRIPLE','-DHAVE_USR_INCLUDE_MALLOC_H','-D_MALLOC_H','-D__BITNESS=$BITNESS','-DAUDIO_PREFER_MP3'"
+    export COMPILE_FLAGS="'--sysroot=${SYS_ROOT:?}','-fPIE','-fPIC','--target=$ARM_COMPILER_TRIPLE','-DAUDIO_PREFER_MP3'"
 
     export LINK_FLAGS="'-fPIE','-L$SYS_ROOT/usr/lib'"
 
@@ -338,12 +338,14 @@ sys_root = '${SYS_ROOT}'
 
 EOF
 
-    if [ ! -d "$PWD/subprojects/cpu-features" ]; then
-        mkdir -p "$PWD/subprojects/cpu-features/src/"
-        mkdir -p "$PWD/subprojects/cpu-features/include/"
-        ln -s "$BASE_PATH/sources/android/cpufeatures/cpu-features.c" "$PWD/subprojects/cpu-features/src/cpu-features.c"
-        ln -s "$BASE_PATH/sources/android/cpufeatures/cpu-features.h" "$PWD/subprojects/cpu-features/include/cpu-features.h"
-        cat <<EOF >"$PWD/subprojects/cpu-features/meson.build"
+    CPU_FUTURES_ROOT="$PWD/subprojects/cpu-features"
+
+    if [ ! -d "$CPU_FUTURES_ROOT" ]; then
+        mkdir -p "$CPU_FUTURES_ROOT/src/"
+        mkdir -p "$CPU_FUTURES_ROOT/include/"
+        ln -s "$BASE_PATH/sources/android/cpufeatures/cpu-features.c" "$CPU_FUTURES_ROOT/src/cpu-features.c"
+        ln -s "$BASE_PATH/sources/android/cpufeatures/cpu-features.h" "$CPU_FUTURES_ROOT/include/cpu-features.h"
+        cat <<EOF >"$CPU_FUTURES_ROOT/meson.build"
 project('cpu-features','c')
 
 meson.override_dependency(
