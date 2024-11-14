@@ -28,7 +28,63 @@ if meson.is_cross_build()
         #         language: ['cpp'],
         #     )
         # endif
+    elif host_machine.system() == 'android'
+        # noop
+    elif host_machine.system() == 'emscripten'
+        only_allow_native_libs = true
 
+        ## map native libraries to dependencies
+        map_native_dependencies = ['SDL2', 'SDL2_ttf', 'mpg123', 'SDL2_mixer', 'SDL2_image']
+        foreach map_native_dependency : map_native_dependencies
+            native_dep = cpp.find_library(map_native_dependency, required: true)
+
+            if map_native_dependency == 'SDL2'
+
+                major_version = cpp.get_define(
+                    'SDL_MAJOR_VERSION',
+                    prefix: '#include <SDL2/SDL_version.h>',
+                ).strip('"')
+                assert(
+                    major_version != '',
+                    'failed to get major_version from SDL_version.h',
+                )
+
+                minor_version = cpp.get_define(
+                    'SDL_MINOR_VERSION',
+                    prefix: '#include <SDL2/SDL_version.h>',
+                ).strip('"')
+                assert(
+                    minor_version != '',
+                    'failed to get minor_version from SDL_version.h',
+                )
+
+                patch_version = cpp.get_define(
+                    'SDL_PATCHLEVEL',
+                    prefix: '#include <SDL2/SDL_version.h>',
+                ).strip('"')
+                assert(
+                    patch_version != '',
+                    'failed to get patch_version from SDL_version.h',
+                )
+
+                native_dep_with_version = declare_dependency(
+                    dependencies: native_dep,
+                    version: major_version
+                    + '.'
+                    + minor_version
+                    + '.'
+                    + patch_version,
+                )
+                meson.override_dependency(map_native_dependency, native_dep_with_version)
+            else
+                meson.override_dependency(map_native_dependency, native_dep)
+
+            endif
+
+        endforeach
+
+    else
+        error('Unhandled cross built system: ' + host_machine.system())
     endif
 endif
 
@@ -254,15 +310,16 @@ if build_application
         },
     )
 
-    online_multiplayer_user_fallback = false
+    online_multiplayer_system = 'httplib'
 
     if cpp_httlib_dep.found()
 
         graphics_lib += {'deps': [graphics_lib.get('deps'), cpp_httlib_dep]}
-
+    elif  meson.is_cross_build() and host_machine.system() == 'emscripten'
+        online_multiplayer_system = 'web'
     else
 
-        online_multiplayer_user_fallback = true
+        online_multiplayer_system = 'curl'
 
         curl_cpp_wrapper = dependency(
             'cpr',

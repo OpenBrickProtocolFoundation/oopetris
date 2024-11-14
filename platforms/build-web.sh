@@ -12,11 +12,14 @@ if [ ! -d "$EMSCRIPTEN_ROOT" ]; then
     git clone https://github.com/emscripten-core/emsdk.git "$EMSCRIPTEN_ROOT"
 fi
 
-"$EMSCRIPTEN_ROOT/emsdk" install latest >/dev/null
-"$EMSCRIPTEN_ROOT/emsdk" activate latest >/dev/null
+"$EMSCRIPTEN_ROOT/emsdk" install latest
+"$EMSCRIPTEN_ROOT/emsdk" activate latest
 
 # shellcheck disable=SC1091
 EMSDK_QUIET=1 source "$EMSCRIPTEN_ROOT/emsdk_env.sh" >/dev/null
+
+## build theneeded dependencies
+embuilder build sdl2 harfbuzz freetype zlib sdl2_ttf vorbis mpg123 ogg libmodplug sdl2_mixer libpng libjpeg "sdl2_image:formats=png,jpg,svg" icu
 
 export EMSCRIPTEN_SYS_ROOT="$EMSCRIPTEN_ROOT/upstream/emscripten/cache/sysroot"
 
@@ -27,6 +30,7 @@ export CXX="em++"
 export AR="emar"
 export RANLIB="emranlib"
 export STRIP="emstrip"
+export NM="emnm"
 
 export ARCH="wasm32"
 export CPU_ARCH="wasm32"
@@ -36,7 +40,7 @@ export COMMON_EMSCRIPTEN_OPTIONS="'-fexceptions', '-sEXCEPTION_CATCHING_ALLOWED=
 
 # TODO see if ALLOW_MEMORY_GROWTH is needed, but if we load ttf's and music it likely is and we don't have to debug OOm crahses, that aren't handled by some thrid party library, which is painful
 export LINK_EMSCRIPTEN_OPTIONS="$COMMON_EMSCRIPTEN_OPTIONS, '-sEXPORT_ALL=1', '-sUSE_GLFW=3', '-sUSE_WEBGPU=1', '-sWASM=1', '-sALLOW_MEMORY_GROWTH=1', '-sNO_EXIT_RUNTIME=0', '-sASSERTIONS=1'"
-export COMPILE_EMSCRIPTEN_OPTIONS="$COMMON_EMSCRIPTEN_OPTIONS"
+export COMPILE_EMSCRIPTEN_OPTIONS="$COMMON_EMSCRIPTEN_OPTIONS , '-sUSE_SDL=2'"
 
 export CROSS_FILE="./platforms/crossbuild-web.ini"
 
@@ -62,7 +66,9 @@ cpp = '$CXX'
 ar      = '$AR'
 ranlib  = '$RANLIB'
 strip   = '$STRIP'
-pkg-config = ['emmake', 'env', 'PKG_CONFIG_PATH=PREFIX_GOES_HERE/lib/pkgconfig', 'pkg-config']
+nm = '$NM'
+
+pkg-config = ['emmake', 'pkg-config']
 cmake = ['emmake', 'cmake']
 sdl2-config = ['emconfigure', 'sdl2-config']
 
@@ -70,7 +76,7 @@ exe_wrapper = '$EMSDK_NODE'
 
 [built-in options]
 c_std = 'c11'
-cpp_std = 'c++20'
+cpp_std = 'c++23'
 c_args = [$COMPILE_EMSCRIPTEN_OPTIONS]
 c_link_args = [$LINK_EMSCRIPTEN_OPTIONS]
 cpp_args = [$COMPILE_EMSCRIPTEN_OPTIONS]
