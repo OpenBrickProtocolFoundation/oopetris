@@ -34,11 +34,11 @@ if meson.is_cross_build()
         only_allow_native_libs = true
 
         ## map native libraries to dependencies
-        map_native_dependencies = ['SDL2', 'SDL2_ttf', 'mpg123', 'SDL2_mixer', 'SDL2_image']
+        map_native_dependencies = ['SDL2-mt', 'SDL2_ttf', 'mpg123', 'SDL2_mixer', 'SDL2_image']
         foreach map_native_dependency : map_native_dependencies
             native_dep = cpp.find_library(map_native_dependency, required: true)
 
-            if map_native_dependency == 'SDL2'
+            if map_native_dependency == 'SDL2-mt'
 
                 major_version = cpp.get_define(
                     'SDL_MAJOR_VERSION',
@@ -75,7 +75,7 @@ if meson.is_cross_build()
                     + '.'
                     + patch_version,
                 )
-                meson.override_dependency(map_native_dependency, native_dep_with_version)
+                meson.override_dependency('SDL2', native_dep_with_version)
             else
                 meson.override_dependency(map_native_dependency, native_dep)
 
@@ -92,9 +92,9 @@ if meson.is_cross_build()
             'z',
             'vorbis',
             'ogg',
-            'libmodplug',
-            'libpng',
-            'libjpeg',
+            'modplug',
+            'png',
+            'jpeg',
         ]
 
         foreach native_dep_name : native_dep_names

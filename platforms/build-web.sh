@@ -36,12 +36,12 @@ export ARCH="wasm32"
 export CPU_ARCH="wasm32"
 export ENDIANESS="little"
 
-export PACKAGE_FLAGS="'-sUSE_SDL=2', '--use-port=sdl2'"
+export PACKAGE_FLAGS="'--use-port=sdl2', '--use-port=harfbuzz', '--use-port=freetype', '--use-port=zlib', '--use-port=sdl2_ttf', '--use-port=vorbis', '--use-port=mpg123', '--use-port=ogg', '--use-port=libmodplug', '--use-port=sdl2_mixer', '--use-port=libpng', '--use-port=libjpeg', '--use-port=sdl2_image', '--use-port=icu'"
 
-export COMMON_FLAGS="'-fexceptions', '-sEXCEPTION_CATCHING_ALLOWED=[..]', $PACKAGE_FLAGS"
+export COMMON_FLAGS="'-fexceptions', '-sEXCEPTION_CATCHING_ALLOWED=[..]', '-sFETCH', $PACKAGE_FLAGS"
 
 # TODO see if ALLOW_MEMORY_GROWTH is needed, but if we load ttf's and music it likely is and we don't have to debug OOm crahses, that aren't handled by some thrid party library, which is painful
-export LINK_FLAGS="$COMMON_FLAGS, '-sEXPORT_ALL=1', '-sUSE_WEBGPU=1', '-sWASM=1', '-sALLOW_MEMORY_GROWTH=1', '-sNO_EXIT_RUNTIME=0', '-sASSERTIONS=1'"
+export LINK_FLAGS="$COMMON_FLAGS, '-sEXPORT_ALL=1', '-sUSE_WEBGPU=1', '-sWASM=1', '-sALLOW_MEMORY_GROWTH=1', '-sNO_EXIT_RUNTIME=0', '-sASSERTIONS=1','-sERROR_ON_UNDEFINED_SYMBOLS=1'"
 export COMPILE_FLAGS="$COMMON_FLAGS ,'-DAUDIO_PREFER_MP3'"
 
 export CROSS_FILE="./platforms/crossbuild-web.ini"
