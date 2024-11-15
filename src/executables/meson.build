@@ -33,17 +33,52 @@ if build_application
             ]
             subdir('platforms/3ds')
         elif host_machine.system() == 'emscripten'
-            oopetris_exe = executable(
-                'oopetris',
+            emscripten_name = 'oopetris'
+            emscripten_deps = [liboopetris_graphics_dep, graphic_application_deps]
+            emscripten_link_args = ['--preload-file', '../assets@/assets/']
+            emscripten_options = {
+                'warning_level': '3',
+                'werror': true,
+            }
+
+            oopetris_js = executable(
+                emscripten_name,
                 main_files,
-                dependencies: [liboopetris_graphics_dep, graphic_application_deps],
-                link_args: ['--preload-file', '../assets@/assets/'],
-                override_options: {
-                    'warning_level': '3',
-                    'werror': true,
-                },
+                dependencies: emscripten_deps,
+                link_args: emscripten_link_args,
+                override_options: emscripten_options,
                 install: true,
+                name_suffix: 'js',
             )
+
+            oopetris_html = executable(
+                emscripten_name,
+                main_files,
+                dependencies: emscripten_deps,
+                link_args: emscripten_link_args,
+                override_options: emscripten_options,
+                install: true,
+                name_suffix: 'html',
+            )
+
+            python3 = find_program('python3', required: false)
+
+            if python3.found()
+
+                server_py = files(
+                    meson.project_source_root() / 'platforms' / 'emscripten' / 'server.py',
+                )
+
+                dest_path = meson.project_build_root() / 'src' / 'executables'
+
+                run_target(
+                    'serve_emscripten',
+                    command: [python3, server_py, '-d', dest_path],
+                    depends: [oopetris_js, oopetris_html],
+                )
+
+            endif
+
         else
             error('Unhandled cross built system: ' + host_machine.system())
         endif
