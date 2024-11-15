@@ -23,7 +23,7 @@ embuilder build sdl2 harfbuzz freetype zlib sdl2_ttf vorbis mpg123 ogg libmodplu
 
 export EMSCRIPTEN_SYS_ROOT="$EMSCRIPTEN_ROOT/upstream/emscripten/cache/sysroot"
 
-export BUILD_DIR="build-emcc"
+export BUILD_DIR="build-web"
 
 export CC="emcc"
 export CXX="em++"
@@ -36,11 +36,13 @@ export ARCH="wasm32"
 export CPU_ARCH="wasm32"
 export ENDIANESS="little"
 
-export COMMON_EMSCRIPTEN_OPTIONS="'-fexceptions', '-sEXCEPTION_CATCHING_ALLOWED=[..]'"
+export PACKAGE_FLAGS="'-sUSE_SDL=2', '--use-port=sdl2'"
+
+export COMMON_FLAGS="'-fexceptions', '-sEXCEPTION_CATCHING_ALLOWED=[..]', $PACKAGE_FLAGS"
 
 # TODO see if ALLOW_MEMORY_GROWTH is needed, but if we load ttf's and music it likely is and we don't have to debug OOm crahses, that aren't handled by some thrid party library, which is painful
-export LINK_EMSCRIPTEN_OPTIONS="$COMMON_EMSCRIPTEN_OPTIONS, '-sEXPORT_ALL=1', '-sUSE_GLFW=3', '-sUSE_WEBGPU=1', '-sWASM=1', '-sALLOW_MEMORY_GROWTH=1', '-sNO_EXIT_RUNTIME=0', '-sASSERTIONS=1'"
-export COMPILE_EMSCRIPTEN_OPTIONS="$COMMON_EMSCRIPTEN_OPTIONS , '-sUSE_SDL=2'"
+export LINK_FLAGS="$COMMON_FLAGS, '-sEXPORT_ALL=1', '-sUSE_WEBGPU=1', '-sWASM=1', '-sALLOW_MEMORY_GROWTH=1', '-sNO_EXIT_RUNTIME=0', '-sASSERTIONS=1'"
+export COMPILE_FLAGS="$COMMON_FLAGS ,'-DAUDIO_PREFER_MP3'"
 
 export CROSS_FILE="./platforms/crossbuild-web.ini"
 
@@ -77,10 +79,10 @@ exe_wrapper = '$EMSDK_NODE'
 [built-in options]
 c_std = 'c11'
 cpp_std = 'c++23'
-c_args = [$COMPILE_EMSCRIPTEN_OPTIONS]
-c_link_args = [$LINK_EMSCRIPTEN_OPTIONS]
-cpp_args = [$COMPILE_EMSCRIPTEN_OPTIONS]
-cpp_link_args = [$LINK_EMSCRIPTEN_OPTIONS]
+c_args = [$COMPILE_FLAGS]
+cpp_args = [$COMPILE_FLAGS]
+c_link_args = [$LINK_FLAGS]
+cpp_link_args = [$LINK_FLAGS]
 
 [properties]
 needs_exe_wrapper = true
@@ -122,9 +124,7 @@ if [ "$COMPILE_TYPE" == "complete_rebuild" ] || [ ! -e "$BUILD_DIR" ]; then
         "--wipe" \
         --cross-file "$CROSS_FILE" \
         "-Dbuildtype=$BUILDTYPE" \
-        -Dcpp_args=-DAUDIO_PREFER_MP3 \
-        -Ddefault_library=static \
-        -Dfreetype2:zlib=disabled # TODI, since it's statically linked no duplicates are allowed, solve that
+        -Ddefault_library=static
 
 fi
 

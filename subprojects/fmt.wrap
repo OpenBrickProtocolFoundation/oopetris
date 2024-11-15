@@ -8,7 +8,7 @@ patch_url = https://wrapdb.mesonbuild.com/v2/fmt_11.0.2-1/get_patch
 patch_hash = 90c9e3b8e8f29713d40ca949f6f93ad115d78d7fb921064112bc6179e6427c5e
 source_fallback_url = https://github.com/mesonbuild/wrapdb/releases/download/fmt_11.0.2-1/fmt-11.0.2.tar.gz
 wrapdb_version = 11.0.2-1
-diff_files = fmt_dependency_override.diff
+diff_files = fmt_dependency_override.diff, fmt_emscripten.diff
 
 [provide]
 fmt = fmt_dep
