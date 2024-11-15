@@ -31,6 +31,20 @@ if meson.is_cross_build()
     elif host_machine.system() == 'android'
         # noop
     elif host_machine.system() == 'emscripten'
+
+        # check if the command line flags are supported and a simple example compiles
+        can_compile = cpp.compiles(
+            '''
+        int main() {
+            return 0;
+        }
+        ''',
+        )
+
+        if not can_compile
+            error('Not all Emscripten flags are supported: see logs')
+        endif
+
         only_allow_native_libs = true
 
         ## map native libraries to dependencies
@@ -95,6 +109,7 @@ if meson.is_cross_build()
             'modplug',
             'png',
             'jpeg',
+            'fetch-mt',
         ]
 
         foreach native_dep_name : native_dep_names

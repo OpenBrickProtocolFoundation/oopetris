@@ -395,7 +395,7 @@ namespace {
 // This is a dummy fallback, but good enough for this platforms
 secret::SecretStorage::SecretStorage(KeyringType type) : m_type{ type } {
 
-    m_file_path = utils::get_root_folder() / secrets_constants::store_file_name;
+    m_file_path = web::get_root_folder() / secrets_constants::store_file_name;
 }
 
 secret::SecretStorage::~SecretStorage() = default;
@@ -423,9 +423,7 @@ secret::SecretStorage::SecretStorage(SecretStorage&& other) noexcept
 
     json_value.at(key).get_to(result);
 
-    auto result_buffer = Buffer{ result };
-
-    return result_buffer;
+    return Buffer{ result };
 }
 
 [[nodiscard]] std::optional<std::string>
@@ -463,6 +461,71 @@ secret::SecretStorage::store(const std::string& key, const Buffer& value, bool u
     json_value.erase(key);
 
     return json::try_write_json_to_file(m_file_path, json_value, true);
+}
+
+
+#elif defined(__EMSCRIPTEN__)
+
+#include "helper/web_utils.hpp"
+
+
+namespace {
+
+    namespace constants {
+
+        constexpr const char* key_name_prefix = "OOPetris_key__";
+    } // namespace constants
+
+    std::string get_key_name(const std::string& key) {
+        return constants::key_name_prefix + key;
+    }
+} // namespace
+
+
+// This is a dummy fallback, but good enough for this platforms
+secret::SecretStorage::SecretStorage(KeyringType type) : m_type{ type } { }
+
+secret::SecretStorage::~SecretStorage() = default;
+
+secret::SecretStorage::SecretStorage(SecretStorage&& other) noexcept : m_type{ other.m_type } { }
+
+
+[[nodiscard]] helper::expected<secret::Buffer, std::string> secret::SecretStorage::load(const std::string& key) const {
+
+    const auto key_name = get_key_name(key);
+    auto maybe_value = web::LocalStorage::get_item(key_name);
+    if (not maybe_value.has_value()) {
+        return helper::unexpected<std::string>{ "Key not found" };
+    }
+
+    return Buffer{ maybe_value.value() };
+}
+
+[[nodiscard]] std::optional<std::string>
+secret::SecretStorage::store(const std::string& key, const Buffer& value, bool update) const {
+
+    const auto key_name = get_key_name(key);
+
+    if (not update) {
+        auto maybe_value = web::LocalStorage::get_item(key_name);
+        if (maybe_value.has_value()) {
+            return "Error while storing a key, it already exists and we can't update it";
+        }
+    }
+
+    web::LocalStorage::set_item(key_name, value.as_string());
+
+    return std::nullopt;
+}
+
+
+[[nodiscard]] std::optional<std::string> secret::SecretStorage::remove(const std::string& key) const {
+
+    const auto key_name = get_key_name(key);
+
+    web::LocalStorage::remove_item(key_name);
+
+    return std::nullopt;
 }
 
 
