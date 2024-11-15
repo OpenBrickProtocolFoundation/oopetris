@@ -53,7 +53,7 @@ if build_application
 
             oopetris_html = executable(
                 emscripten_name,
-                main_files,
+                objects: oopetris_js.extract_all_objects(recursive: true),
                 dependencies: emscripten_deps,
                 link_args: emscripten_link_args,
                 override_options: emscripten_options,

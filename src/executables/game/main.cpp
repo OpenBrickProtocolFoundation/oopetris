@@ -109,7 +109,7 @@ namespace {
 
 
             try {
-#if defined(__ANDROID__) or defined(__CONSOLE__) or defined(__SERENITY__)
+#if defined(__ANDROID__) or defined(__CONSOLE__) or defined(__SERENITY__) or defined(__EMSCRIPTEN__)
                 window = std::make_shared<Window>(window_name, WindowPosition::Centered);
 #else
                 [[maybe_unused]] static constexpr int width = 1280;
