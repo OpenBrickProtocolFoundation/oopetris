@@ -12,6 +12,8 @@ graphics_src_files += files(
     'music_utils.hpp',
     'platform.cpp',
     'platform.hpp',
+    'web_utils.cpp',
+    'web_utils.hpp',
     'windows.hpp',
 )
 

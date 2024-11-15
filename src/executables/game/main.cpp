@@ -24,6 +24,9 @@
 #include "helper/console_helpers.hpp"
 #endif
 
+#if defined(__EMSCRIPTEN__)
+#include "helper/web_utils.hpp"
+#endif
 
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/rotating_file_sink.h>
@@ -33,6 +36,20 @@
 namespace {
     void initialize_spdlog() {
 
+        std::vector<spdlog::sink_ptr> sinks;
+#if defined(__ANDROID__)
+        sinks.push_back(std::make_shared<spdlog::sinks::android_sink_mt>());
+#elif defined(__CONSOLE__)
+        sinks.push_back(std::make_shared<console::debug_sink_mt>());
+#elif defined(__EMSCRIPTEN__)
+        sinks.push_back(web::get_console_sink());
+#else
+        sinks.push_back(std::make_shared<spdlog::sinks::stdout_sink_mt>());
+#endif
+
+
+#if !(defined(__EMSCRIPTEN__))
+
         const auto logs_path = utils::get_root_folder() / "logs";
 
         auto created_log_dir = utils::create_directory(logs_path, true);
@@ -41,20 +58,13 @@ namespace {
                       << "': disabled file logger\n";
         }
 
-        std::vector<spdlog::sink_ptr> sinks;
-#if defined(__ANDROID__)
-        sinks.push_back(std::make_shared<spdlog::sinks::android_sink_mt>());
-#elif defined(__CONSOLE__)
-        sinks.push_back(std::make_shared<console::debug_sink_mt>());
-#else
-        sinks.push_back(std::make_shared<spdlog::sinks::stdout_sink_mt>());
-#endif
 
         if (not created_log_dir.has_value()) {
             sinks.push_back(std::make_shared<spdlog::sinks::rotating_file_sink_mt>(
                     fmt::format("{}/oopetris.log", logs_path.string()), 1024 * 1024 * 10, 5, true
             ));
         }
+#endif
 
         auto combined_logger = std::make_shared<spdlog::logger>("combined_logger", begin(sinks), end(sinks));
         spdlog::set_default_logger(combined_logger);

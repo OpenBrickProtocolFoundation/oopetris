@@ -15,6 +15,8 @@
 
 namespace {
 
+#if !(defined(__ANDROID__) || defined(__CONSOLE__) || defined(__SERENITY__) || defined(__EMSCRIPTEN__))
+
     inline std::string get_error_from_errno() {
 
 #if defined(_MSC_VER)
@@ -34,6 +36,7 @@ namespace {
 #endif
     }
 
+#endif
 
 } // namespace
 
@@ -55,6 +58,8 @@ namespace {
     return "MacOS";
 #elif defined(__SERENITY__)
     return "Serenity OS";
+#elif defined(__EMSCRIPTEN__)
+    return "Emscripten";
 #else
 #error "Unsupported platform"
 #endif
@@ -76,6 +81,10 @@ namespace {
     spdlog::info("Returned string from url open was: {}", result);
     return true;
 #elif defined(__SERENITY__)
+    UNUSED(url);
+    return false;
+#elif defined(__EMSCRIPTEN__)
+    //TODO: call window.open(url, "_blank")
     UNUSED(url);
     return false;
 #else

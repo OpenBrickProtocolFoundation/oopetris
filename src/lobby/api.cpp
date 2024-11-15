@@ -5,10 +5,18 @@
 #include <future>
 #include <spdlog/spdlog.h>
 
-#if defined(_OOPETRIS_ONLINE_USE_CURL)
+#if !defined(_OOPETRIS_ONLINE_SYSTEM)
+#error "_OOPETRIS_ONLINE_SYSTEM has to be defined"
+#endif
+
+#if _OOPETRIS_ONLINE_SYSTEM == 0
+#include "./httplib_client.hpp"
+#elif _OOPETRIS_ONLINE_SYSTEM == 1
+#include "./web_client.hpp"
+#elif _OOPETRIS_ONLINE_SYSTEM == 2
 #include "./curl_client.hpp"
 #else
-#include "./httplib_client.hpp"
+#error "_OOPETRIS_ONLINE_SYSTEM has an invalid value"
 #endif
 
 namespace {

@@ -83,6 +83,28 @@ if meson.is_cross_build()
 
         endforeach
 
+        native_deps = []
+
+        native_dep_names = [
+            'embind',
+            'freetype',
+            'harfbuzz',
+            'z',
+            'vorbis',
+            'ogg',
+            'libmodplug',
+            'libpng',
+            'libjpeg',
+        ]
+
+        foreach native_dep_name : native_dep_names
+            native_deps += cpp.find_library(native_dep_name, required: true)
+        endforeach
+
+        graphics_lib += {
+            'deps': [graphics_lib.get('deps'), native_deps],
+        }
+
     else
         error('Unhandled cross built system: ' + host_machine.system())
     endif
@@ -314,9 +336,23 @@ if build_application
 
     if cpp_httlib_dep.found()
 
-        graphics_lib += {'deps': [graphics_lib.get('deps'), cpp_httlib_dep]}
-    elif  meson.is_cross_build() and host_machine.system() == 'emscripten'
+        graphics_lib += {
+            'deps': [graphics_lib.get('deps'), cpp_httlib_dep],
+            'compile_args': [
+                graphics_lib.get('compile_args'),
+                '-D_OOPETRIS_ONLINE_SYSTEM=0',
+            ],
+        }
+
+    elif meson.is_cross_build() and host_machine.system() == 'emscripten'
         online_multiplayer_system = 'web'
+
+        graphics_lib += {
+            'compile_args': [
+                graphics_lib.get('compile_args'),
+                '-D_OOPETRIS_ONLINE_SYSTEM=1',
+            ],
+        }
     else
 
         online_multiplayer_system = 'curl'
@@ -331,7 +367,7 @@ if build_application
             'deps': [graphics_lib.get('deps'), curl_cpp_wrapper],
             'compile_args': [
                 graphics_lib.get('compile_args'),
-                '-D_OOPETRIS_ONLINE_USE_CURL',
+                '-D_OOPETRIS_ONLINE_SYSTEM=2',
             ],
         }
 
