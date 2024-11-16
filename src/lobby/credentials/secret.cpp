@@ -395,7 +395,7 @@ namespace {
 // This is a dummy fallback, but good enough for this platforms
 secret::SecretStorage::SecretStorage(KeyringType type) : m_type{ type } {
 
-    m_file_path = web::get_root_folder() / secrets_constants::store_file_name;
+    m_file_path = utils::get_root_folder() / secrets_constants::store_file_name;
 }
 
 secret::SecretStorage::~SecretStorage() = default;
