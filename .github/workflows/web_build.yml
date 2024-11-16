@@ -1,0 +1,40 @@
+name: Web CI
+
+on:
+  release:
+    types: [published]
+  push:
+    branches: ['main']
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  web-build:
+    name: Build for the web
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: '0'
+
+      # NOTE: meson has no dependencies, so --break-system-packages doesn't really break anything!
+      - name: Setup Meson
+        run: |
+          pip install meson --break-system-packages
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install ninja-build pkg-config build-essential wabt -y --no-install-recommends
+
+      - name: Build
+        run: |
+          bash ./platforms/build-web.sh
+          meson test -C build-web
+
+      # TODO upload page to gh-pages!
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: oopetris-assets
+          path: build-web/src/executables/
