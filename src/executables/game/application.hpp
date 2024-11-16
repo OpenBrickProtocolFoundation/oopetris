@@ -15,8 +15,41 @@
 #include "scenes/scene.hpp"
 #include "ui/components/label.hpp"
 
+#include <chrono>
 #include <memory>
 #include <vector>
+
+namespace helper {
+#if !defined(NDEBUG)
+    struct DebugInfo {
+        Uint64 m_start_time;
+        u64 m_frame_counter;
+
+    private:
+        Uint64 m_update_time;
+        double m_count_per_s;
+
+    public:
+        DebugInfo(Uint64 start_time, u64 frame_counter, Uint64 update_time, double count_per_s);
+
+        [[nodiscard]] Uint64 update_time() const;
+        [[nodiscard]] double count_per_s() const;
+    };
+
+#endif
+    struct TimeInfo {
+    private:
+        std::chrono::nanoseconds m_sleep_time;
+
+    public:
+        std::chrono::steady_clock::time_point m_start_execution_time;
+
+        TimeInfo(std::chrono::nanoseconds sleep_time, std::chrono::steady_clock::time_point start_execution_time);
+
+        [[nodiscard]] std::chrono::nanoseconds sleep_time() const;
+    };
+} // namespace helper
+
 
 struct Application final : public EventListener, public ServiceProvider {
 private:
@@ -38,7 +71,9 @@ private:
 
 #if !defined(NDEBUG)
     std::unique_ptr<ui::Label> m_fps_text{ nullptr };
+    std::unique_ptr<helper::DebugInfo> m_debug;
 #endif
+    std::unique_ptr<helper::TimeInfo> m_time_info;
 
 #if defined(_HAVE_DISCORD_SDK)
     std::optional<DiscordInstance> m_discord_instance{ std::nullopt };
@@ -58,10 +93,15 @@ public:
 
     void run();
 
+    void main_loop();
+
     void handle_event(const SDL_Event& event) override;
 
     virtual void update();
+
     virtual void render() const;
+
+    [[nodiscard]] bool is_running() const;
 
     //TODO(Totto): move those functions bodies to the cpp
 

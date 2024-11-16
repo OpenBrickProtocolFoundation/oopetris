@@ -11,7 +11,7 @@
 #include "scenes/scene.hpp"
 #include "ui/layout.hpp"
 
-#include <chrono>
+
 #include <fmt/chrono.h>
 #include <future>
 #include <memory>
@@ -26,6 +26,11 @@
 #include "graphics/text.hpp"
 #endif
 
+
+#if defined(__EMSCRIPTEN__)
+#include <emscripten.h>
+#endif
+
 namespace {
 
     [[nodiscard]] helper::MessageBox::Type get_notification_level(helper::error::Severity severity) {
@@ -36,6 +41,33 @@ namespace {
 
 } // namespace
 
+
+#if !defined(NDEBUG)
+helper::DebugInfo::DebugInfo(Uint64 start_time, u64 frame_counter, Uint64 update_time, double count_per_s)
+    : m_start_time{ start_time },
+      m_frame_counter{ frame_counter },
+      m_update_time{ update_time },
+      m_count_per_s{ count_per_s } { }
+
+[[nodiscard]] Uint64 helper::DebugInfo::update_time() const {
+    return m_update_time;
+}
+
+[[nodiscard]] double helper::DebugInfo::count_per_s() const {
+    return m_count_per_s;
+}
+#endif
+
+helper::TimeInfo::TimeInfo(
+        std::chrono::nanoseconds sleep_time,
+        std::chrono::steady_clock::time_point start_execution_time
+)
+    : m_sleep_time{ sleep_time },
+      m_start_execution_time{ start_execution_time } { }
+
+[[nodiscard]] std::chrono::nanoseconds helper::TimeInfo::sleep_time() const {
+    return m_sleep_time;
+}
 
 Application::Application(std::shared_ptr<Window>&& window, CommandLineArguments&& arguments) try
     : m_command_line_arguments{ std::move(arguments) },
@@ -56,6 +88,19 @@ Application::Application(std::shared_ptr<Window>&& window, CommandLineArguments&
     }
 }
 
+#if defined(__EMSCRIPTEN__)
+void c_main_loop(void* arg) {
+    auto application = reinterpret_cast<Application*>(arg);
+    if (not application->is_running()) {
+        // cal the destructor manually, so that everything gets cleaned up
+        application->~Application();
+        emscripten_cancel_main_loop();
+        return;
+    }
+
+    application->main_loop();
+}
+#endif
 
 void Application::run() {
     m_event_dispatcher.register_listener(this);
@@ -65,6 +110,7 @@ void Application::run() {
     const auto update_time = SDL_GetPerformanceFrequency() / 2; //0.5 s
     const auto count_per_s = static_cast<double>(SDL_GetPerformanceFrequency());
     u64 frame_counter = 0;
+    m_debug = std::make_unique<helper::DebugInfo>(start_time, update_time, count_per_s, frame_counter);
 #endif
     using namespace std::chrono_literals;
 
@@ -73,6 +119,22 @@ void Application::run() {
                                                            : 0s;
     auto start_execution_time = std::chrono::steady_clock::now();
 
+    m_time_info = std::make_unique<helper::TimeInfo>(sleep_time, start_execution_time);
+
+#if defined(__EMSCRIPTEN__)
+
+    int selected_fps = m_target_framerate.has_value() ? m_target_framerate.value() : -1;
+
+    // NOTE: this is complicated, especially in C++
+    // see: https://wiki.libsdl.org/SDL2/README/emscripten#porting-your-app-to-emscripten
+    // and: https://emscripten.org/docs/api_reference/emscripten.h.html#c.emscripten_set_main_loop_arg
+    // for a basic understanding
+    // this sets up a loop,, throws an exception(a special kind, not c++ one) to exit this function, but nothing gets cleaned up (no destructors get called, this function NEVER returns)
+    // but after emscripten_cancel_main_loop we have to manually call the destructor, to clean up,
+    emscripten_set_main_loop_arg(c_main_loop, this, selected_fps, true);
+    UNREACHABLE();
+#else
+
     while (m_is_running
 
 #if defined(__CONSOLE__)
@@ -80,39 +142,50 @@ void Application::run() {
 #endif
 
     ) {
+        main_loop();
+    }
+#endif
+}
 
-        m_event_dispatcher.dispatch_pending_events();
-        update();
-        render();
-        m_renderer.present();
+void Application::main_loop() {
+
+    m_event_dispatcher.dispatch_pending_events();
+    update();
+    render();
+    m_renderer.present();
 
 #if !defined(NDEBUG)
-        ++frame_counter;
+    m_debug->m_frame_counter++;
 
-        const Uint64 current_time = SDL_GetPerformanceCounter();
+    const Uint64 current_time = SDL_GetPerformanceCounter();
 
-        if (current_time - start_time >= update_time) {
-            const double elapsed = static_cast<double>(current_time - start_time) / count_per_s;
-            m_fps_text->set_text(*this, fmt::format("FPS: {:.2f}", static_cast<double>(frame_counter) / elapsed));
-            start_time = current_time;
-            frame_counter = 0;
-        }
+    if (current_time - m_debug->m_start_time >= m_debug->update_time()) {
+        const double elapsed = static_cast<double>(current_time - m_debug->m_start_time) / m_debug->count_per_s();
+        m_fps_text->set_text(
+                *this, fmt::format("FPS: {:.2f}", static_cast<double>(m_debug->m_frame_counter) / elapsed)
+        );
+        m_debug->m_start_time = current_time;
+        m_debug->m_frame_counter = 0;
+    }
 #endif
 
-        if (m_target_framerate.has_value()) {
+    if (m_target_framerate.has_value()) {
 
-            const auto now = std::chrono::steady_clock::now();
-            const auto runtime = (now - start_execution_time);
-            if (runtime < sleep_time) {
-                //TODO(totto): use SDL_DelayNS in sdl >= 3.0
-                helper::sleep_nanoseconds(sleep_time - runtime);
-                start_execution_time = std::chrono::steady_clock::now();
-            } else {
-                start_execution_time = now;
-            }
+        const auto now = std::chrono::steady_clock::now();
+        const auto runtime = (now - m_time_info->m_start_execution_time);
+
+        const auto sleep_time = m_time_info->sleep_time();
+
+        if (runtime < sleep_time) {
+            //TODO(totto): use SDL_DelayNS in sdl >= 3.0
+            helper::sleep_nanoseconds(sleep_time - runtime);
+            m_time_info->m_start_execution_time = std::chrono::steady_clock::now();
+        } else {
+            m_time_info->m_start_execution_time = now;
         }
     }
 }
+
 
 void Application::handle_event(const SDL_Event& event) {
     if (event.type == SDL_QUIT) {
@@ -255,6 +328,10 @@ void Application::render() const {
 #if !defined(NDEBUG)
     m_fps_text->render(*this);
 #endif
+}
+
+[[nodiscard]] bool Application::is_running() const {
+    return m_is_running;
 }
 
 void Application::initialize() {

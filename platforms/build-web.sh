@@ -36,7 +36,7 @@ export ARCH="wasm32"
 export CPU_ARCH="wasm32"
 export ENDIANESS="little"
 
-export PACKAGE_FLAGS="'--use-port=sdl2', '--use-port=harfbuzz', '--use-port=freetype', '--use-port=zlib', '--use-port=sdl2_ttf', '--use-port=vorbis', '--use-port=mpg123', '--use-port=ogg', '--use-port=libmodplug', '--use-port=sdl2_mixer', '--use-port=libpng', '--use-port=libjpeg', '--use-port=sdl2_image', '--use-port=icu'"
+export PACKAGE_FLAGS="'--use-port=sdl2', '--use-port=harfbuzz', '--use-port=freetype', '--use-port=zlib', '--use-port=sdl2_ttf', '--use-port=vorbis', '--use-port=mpg123', '--use-port=ogg', '--use-port=libmodplug', '--use-port=sdl2_mixer', '--use-port=libpng', '--use-port=libjpeg', '--use-port=sdl2_image', '-s SDL2_IMAGE_FORMATS=[\"png\",\"jpg\",\"svg\"]','--use-port=icu'"
 
 export COMMON_FLAGS="'-fexceptions', '-sEXCEPTION_CATCHING_ALLOWED=[..]', $PACKAGE_FLAGS"
 
