@@ -46,17 +46,20 @@ if build_application
                 endif
 
                 if not fs.exists(APP_ROMFS)
-                    error('APP_ROMFS should exist, but doesn\'t: \'' + APP_ROMFS + '\'')
+                    error(
+                        'APP_ROMFS should exist, but doesn\'t: \''
+                        + APP_ROMFS
+                        + '\'',
+                    )
                 endif
 
-                emscripten_link_args += ['--preload-file', APP_ROMFS+'@/assets/']
+                emscripten_link_args += ['--preload-file', APP_ROMFS + '@/assets/']
 
             endif
 
-
             emscripten_name = 'oopetris'
             emscripten_deps = [liboopetris_graphics_dep, graphic_application_deps]
-           
+
             emscripten_options = {
                 'warning_level': '3',
                 'werror': true,
@@ -80,6 +83,7 @@ if build_application
                 override_options: emscripten_options,
                 install: true,
                 name_suffix: 'html',
+                link_depends: [oopetris_js],
             )
 
             python3 = find_program('python3', required: false)
@@ -98,6 +102,21 @@ if build_application
                     depends: [oopetris_js, oopetris_html],
                 )
 
+            endif
+
+            wasm_validate_exe = find_program('wasm-validate', required: false)
+
+            if wasm_validate_exe.found()
+
+                wasm_file = meson.project_build_root() / 'src' / 'executables' / 'oopetris.wasm'
+
+                test(
+                    'validate wasm file',
+                    wasm_validate_exe,
+                    args: ['--enable-threads', wasm_file],
+                    depends: [oopetris_js, oopetris_html],
+
+                )
             endif
 
         else
