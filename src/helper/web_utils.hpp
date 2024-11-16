@@ -4,7 +4,11 @@
 
 
 #if !defined(__EMSCRIPTEN__)
-#error this header is for emscripten only
+#error "this header is for emscripten only"
+#endif
+
+#if !defined(__EMSCRIPTEN_PTHREADS__)
+#error "need emscripten threads support"
 #endif
 
 

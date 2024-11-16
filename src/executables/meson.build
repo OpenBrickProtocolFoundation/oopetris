@@ -33,9 +33,30 @@ if build_application
             ]
             subdir('platforms/3ds')
         elif host_machine.system() == 'emscripten'
+            emscripten_link_args = []
+
+            APP_ROMFS = meson.get_external_property('APP_ROMFS', '')
+
+            if APP_ROMFS != ''
+
+                fs = import('fs')
+
+                if not fs.is_absolute(APP_ROMFS)
+                    APP_ROMFS = meson.project_source_root() / APP_ROMFS
+                endif
+
+                if not fs.exists(APP_ROMFS)
+                    error('APP_ROMFS should exist, but doesn\'t: \'' + APP_ROMFS + '\'')
+                endif
+
+                emscripten_link_args += ['--preload-file', APP_ROMFS+'@/assets/']
+
+            endif
+
+
             emscripten_name = 'oopetris'
             emscripten_deps = [liboopetris_graphics_dep, graphic_application_deps]
-            emscripten_link_args = ['--preload-file', '../assets@/assets/']
+           
             emscripten_options = {
                 'warning_level': '3',
                 'werror': true,

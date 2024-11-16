@@ -36,12 +36,14 @@ export ARCH="wasm32"
 export CPU_ARCH="wasm32"
 export ENDIANESS="little"
 
-export PACKAGE_FLAGS="'--use-port=sdl2', '--use-port=harfbuzz', '--use-port=freetype', '--use-port=zlib', '--use-port=sdl2_ttf', '--use-port=vorbis', '--use-port=mpg123', '--use-port=ogg', '--use-port=libmodplug', '--use-port=sdl2_mixer', '--use-port=libpng', '--use-port=libjpeg', '--use-port=sdl2_image', '-s SDL2_IMAGE_FORMATS=[\"png\",\"jpg\",\"svg\"]','--use-port=icu'"
+export ROMFS="platforms/romfs"
 
-export COMMON_FLAGS="'-fexceptions', '-sEXCEPTION_CATCHING_ALLOWED=[..]', $PACKAGE_FLAGS"
+export PACKAGE_FLAGS="'--use-port=sdl2', '--use-port=harfbuzz', '--use-port=freetype', '--use-port=zlib', '--use-port=sdl2_ttf', '--use-port=vorbis', '--use-port=mpg123', '--use-port=ogg', '--use-port=libmodplug', '--use-port=sdl2_mixer', '-sSDL2_MIXER_FORMATS=[\"ogg\",\"mp3\",\" mod\"]','--use-port=libpng', '--use-port=libjpeg', '--use-port=sdl2_image', '-sSDL2_IMAGE_FORMATS=[\"png\",\"jpg\",\"svg\"]','--use-port=icu'"
+
+export COMMON_FLAGS="'-fexceptions', '-pthread', '-sEXCEPTION_CATCHING_ALLOWED=[..]', $PACKAGE_FLAGS"
 
 # TODO see if ALLOW_MEMORY_GROWTH is needed, but if we load ttf's and music it likely is and we don't have to debug OOm crahses, that aren't handled by some thrid party library, which is painful
-export LINK_FLAGS="$COMMON_FLAGS, '-sEXPORT_ALL=1', '-sUSE_WEBGPU=1', '-sWASM=1', '-sALLOW_MEMORY_GROWTH=1', '-sNO_EXIT_RUNTIME=0', '-sASSERTIONS=1','-sERROR_ON_UNDEFINED_SYMBOLS=1', '-sFETCH=1'"
+export LINK_FLAGS="$COMMON_FLAGS, '-sEXPORT_ALL=1', '-sUSE_WEBGPU=1', '-sWASM=1', '-sALLOW_MEMORY_GROWTH=1', '-sASSERTIONS=1','-sERROR_ON_UNDEFINED_SYMBOLS=1', '-sFETCH=1'"
 export COMPILE_FLAGS="$COMMON_FLAGS ,'-DAUDIO_PREFER_MP3'"
 
 export CROSS_FILE="./platforms/crossbuild-web.ini"
@@ -88,6 +90,7 @@ cpp_link_args = [$LINK_FLAGS]
 needs_exe_wrapper = true
 sys_root = '$EMSCRIPTEN_SYS_ROOT'
 
+APP_ROMFS='$ROMFS'
 
 EOF
 
@@ -116,6 +119,14 @@ elif [ "$COMPILE_TYPE" == "complete_rebuild" ]; then
 else
     echo "Invalid COMPILE_TYPE, expected: 'smart' or 'complete_rebuild'"
     exit 1
+fi
+
+if [ ! -d "$ROMFS" ]; then
+
+    mkdir -p "$ROMFS"
+
+    cp -r assets "$ROMFS/"
+
 fi
 
 if [ "$COMPILE_TYPE" == "complete_rebuild" ] || [ ! -e "$BUILD_DIR" ]; then
