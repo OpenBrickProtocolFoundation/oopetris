@@ -28,6 +28,7 @@ if ! [ -e "$EMSCRIPTEN_PACTH_FILE" ]; then
 
     git apply --unsafe-paths -p1 --directory="$EMSCRIPTEN_UPSTREAM_ROOT" "$PATCH_DIR/sdl2_image_port.diff"
     git apply --unsafe-paths -p1 --directory="$EMSCRIPTEN_UPSTREAM_ROOT" "$PATCH_DIR/sdl2_mixer_port.diff"
+    git apply --unsafe-paths -p1 --directory="$EMSCRIPTEN_UPSTREAM_ROOT" "$PATCH_DIR/default_settings.diff"
 
     touch "$EMSCRIPTEN_PACTH_FILE"
 fi
