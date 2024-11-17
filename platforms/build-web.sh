@@ -15,13 +15,32 @@ fi
 "$EMSCRIPTEN_ROOT/emsdk" install latest
 "$EMSCRIPTEN_ROOT/emsdk" activate latest
 
+EMSCRIPTEN_UPSTREAM_ROOT="$EMSCRIPTEN_ROOT/upstream/emscripten"
+
+EMSCRIPTEN_PACTH_FILE="$EMSCRIPTEN_UPSTREAM_ROOT/.patched_manually.meta"
+
+PATCH_DIR="platforms/emscripten"
+
+if ! [ -e "$EMSCRIPTEN_PACTH_FILE" ]; then
+    ##TODO: upstream those patches
+    # see: https://github.com/emscripten-core/emscripten/pull/18379/commits
+    # and: https://github.com/emscripten-core/emscripten/pull/18379
+
+    git apply --unsafe-paths -p1 --directory="$EMSCRIPTEN_UPSTREAM_ROOT" "$PATCH_DIR/sdl2_image_port.diff"
+    git apply --unsafe-paths -p1 --directory="$EMSCRIPTEN_UPSTREAM_ROOT" "$PATCH_DIR/sdl2_mixer_port.diff"
+
+    touch "$EMSCRIPTEN_PACTH_FILE"
+fi
+
+# git apply path
+
 # shellcheck disable=SC1091
 EMSDK_QUIET=1 source "$EMSCRIPTEN_ROOT/emsdk_env.sh" >/dev/null
 
 ## build theneeded dependencies
-embuilder build sdl2-mt harfbuzz-mt freetype zlib sdl2_ttf mpg123 sdl2_mixer_mp3 libpng-mt "sdl2_image:formats=png,svg" icu-mt
+embuilder build sdl2-mt harfbuzz-mt freetype zlib sdl2_ttf mpg123 "sdl2_mixer:formats=mp3" libpng-mt "sdl2_image:formats=png,svg:mt=1" icu-mt
 
-export EMSCRIPTEN_SYS_ROOT="$EMSCRIPTEN_ROOT/upstream/emscripten/cache/sysroot"
+export EMSCRIPTEN_SYS_ROOT="$EMSCRIPTEN_UPSTREAM_ROOT/cache/sysroot"
 
 export BUILD_DIR="build-web"
 
@@ -38,9 +57,9 @@ export ENDIANESS="little"
 
 export ROMFS="platforms/romfs"
 
-export PACKAGE_FLAGS="'--use-port=sdl2', '--use-port=harfbuzz', '--use-port=freetype', '--use-port=zlib', '--use-port=sdl2_ttf', '--use-port=mpg123', '--use-port=sdl2_mixer', '-sSDL2_MIXER_FORMATS=[\"mp3\"]','--use-port=libpng', '--use-port=sdl2_image','-sSDL2_IMAGE_FORMATS=[\"png\",\"svg\"]', '--use-port=icu'"
+export PACKAGE_FLAGS="'--use-port=sdl2-mt', '--use-port=harfbuzz-mt', '--use-port=freetype', '--use-port=zlib', '--use-port=sdl2_ttf', '--use-port=mpg123', '--use-port=sdl2_mixer_mp3', '-sSDL2_MIXER_FORMATS=[\"mp3\"]','--use-port=libpng-mt', '--use-port=sdl2_image','-sSDL2_IMAGE_FORMATS=[\"png\",\"svg\"]', '--use-port=icu-mt'"
 
-export COMMON_FLAGS="'-fexceptions', '-pthread', '-sEXCEPTION_CATCHING_ALLOWED=[..]', $PACKAGE_FLAGS"
+export COMMON_FLAGS="'-fexceptions', '-pthread', '-sUSE_PTHREADS=1', '-sPTHREADS=1','-sEXCEPTION_CATCHING_ALLOWED=[..]', $PACKAGE_FLAGS"
 
 # TODO see if ALLOW_MEMORY_GROWTH is needed, but if we load ttf's and music it likely is and we don't have to debug OOm crahses, that aren't handled by some thrid party library, which is painful
 export LINK_FLAGS="$COMMON_FLAGS, '-sEXPORT_ALL=1', '-sUSE_WEBGPU=1', '-sWASM=1', '-sALLOW_MEMORY_GROWTH=1', '-sASSERTIONS=1','-sERROR_ON_UNDEFINED_SYMBOLS=1', '-sFETCH=1'"
