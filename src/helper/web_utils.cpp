@@ -3,6 +3,8 @@
 #if defined(__EMSCRIPTEN__)
 
 #include "web_utils.hpp"
+
+#include <emscripten/console.h>
 #include <emscripten/val.h>
 #include <memory>
 #include <string>
@@ -43,18 +45,15 @@ void web::LocalStorage::clear() {
 
 
 void web::console::error(const std::string& message) {
-    thread_local const emscripten::val console = emscripten::val::global("console");
-    console.call<void>("error", emscripten::val{ message });
+    emscripten_console_error(message.c_str());
 }
 
 void web::console::warn(const std::string& message) {
-    thread_local const emscripten::val console = emscripten::val::global("console");
-    console.call<void>("warn", emscripten::val{ message });
+    emscripten_console_warn(message.c_str());
 }
 
 void web::console::log(const std::string& message) {
-    thread_local const emscripten::val console = emscripten::val::global("console");
-    console.call<void>("log", emscripten::val{ message });
+    emscripten_console_log(message.c_str());
 }
 
 void web::console::info(const std::string& message) {
