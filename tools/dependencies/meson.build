@@ -53,7 +53,7 @@ if meson.is_cross_build()
             ['SDL2_ttf'],
             ['mpg123'],
             ['SDL2_mixer_mp3', 'SDL2_mixer'],
-            ['SDL2_image_jpg-png-svg', 'SDL2_image'],
+            ['SDL2_image_png-svg', 'SDL2_image'],
             ['icu_common-mt', 'icu-uc'],
         ]
         foreach native_dependency_tuple : map_native_dependencies
@@ -118,7 +118,6 @@ if meson.is_cross_build()
             'z',
             'mpg123',
             'png-mt',
-            'jpeg',
             'fetch-mt',
         ]
 
