@@ -19,7 +19,7 @@ fi
 EMSDK_QUIET=1 source "$EMSCRIPTEN_ROOT/emsdk_env.sh" >/dev/null
 
 ## build theneeded dependencies
-embuilder build sdl2 harfbuzz freetype zlib sdl2_ttf vorbis mpg123 ogg libmodplug sdl2_mixer libpng libjpeg "sdl2_image:formats=png,jpg,svg" icu
+embuilder build sdl2-mt harfbuzz-mt freetype zlib sdl2_ttf mpg123 sdl2_mixer_mp3 libpng-mt libjpeg "sdl2_image:formats=png,jpg,svg" icu-mt
 
 export EMSCRIPTEN_SYS_ROOT="$EMSCRIPTEN_ROOT/upstream/emscripten/cache/sysroot"
 
@@ -38,7 +38,7 @@ export ENDIANESS="little"
 
 export ROMFS="platforms/romfs"
 
-export PACKAGE_FLAGS="'--use-port=sdl2', '--use-port=harfbuzz', '--use-port=freetype', '--use-port=zlib', '--use-port=sdl2_ttf', '--use-port=vorbis', '--use-port=mpg123', '--use-port=ogg', '--use-port=libmodplug', '--use-port=sdl2_mixer', '-sSDL2_MIXER_FORMATS=[\"ogg\",\"mp3\",\" mod\"]','--use-port=libpng', '--use-port=libjpeg', '--use-port=sdl2_image', '-sSDL2_IMAGE_FORMATS=[\"png\",\"jpg\",\"svg\"]','--use-port=icu'"
+export PACKAGE_FLAGS="'--use-port=sdl2', '--use-port=harfbuzz', '--use-port=freetype', '--use-port=zlib', '--use-port=sdl2_ttf', '--use-port=mpg123', '--use-port=sdl2_mixer', '-sSDL2_MIXER_FORMATS=[\"mp3\"]','--use-port=libpng', '--use-port=libjpeg', '--use-port=sdl2_image','-sSDL2_IMAGE_FORMATS=[\"png\",\"jpg\",\"svg\"]', '--use-port=icu'"
 
 export COMMON_FLAGS="'-fexceptions', '-pthread', '-sEXCEPTION_CATCHING_ALLOWED=[..]', $PACKAGE_FLAGS"
 
