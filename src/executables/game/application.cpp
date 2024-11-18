@@ -7,13 +7,11 @@
 #include "helper/message_box.hpp"
 #include "input/input.hpp"
 #include "manager/music_manager.hpp"
-#include "scenes/loading_screen/loading_screen.hpp"
 #include "scenes/scene.hpp"
 #include "ui/layout.hpp"
 
 
 #include <fmt/chrono.h>
-#include <future>
 #include <memory>
 #include <ranges>
 #include <stdexcept>
@@ -69,6 +67,34 @@ helper::TimeInfo::TimeInfo(
     return m_sleep_time;
 }
 
+helper::LoadingInfo::LoadingInfo(
+        std::chrono::nanoseconds sleep_time,
+        Uint64 start_time,
+        std::future<void>&& load_everything_thread,
+        std::chrono::steady_clock::time_point start_execution_time,
+        bool finished_loading,
+        scenes::LoadingScreen&& loading_screen
+)
+    : m_sleep_time{ sleep_time },
+      m_start_time{ start_time },
+      m_load_everything_thread{ std::move(load_everything_thread) },
+      m_start_execution_time{ start_execution_time },
+      m_finished_loading{ finished_loading },
+      m_loading_screen{ std::move(loading_screen) } { }
+
+[[nodiscard]] std::chrono::nanoseconds helper::LoadingInfo::sleep_time() const {
+    return m_sleep_time;
+}
+
+[[nodiscard]] Uint64 helper::LoadingInfo::start_time() const {
+    return m_start_time;
+}
+
+
+[[nodiscard]] const std::future<void>& helper::LoadingInfo::load_everything_thread() const {
+    return m_load_everything_thread;
+}
+
 Application::Application(std::shared_ptr<Window>&& window, CommandLineArguments&& arguments) try
     : m_command_line_arguments{ std::move(arguments) },
       m_window{ std::move(window) },
@@ -89,17 +115,52 @@ Application::Application(std::shared_ptr<Window>&& window, CommandLineArguments&
 }
 
 #if defined(__EMSCRIPTEN__)
-void c_main_loop(void* arg) {
+void c_loop_entry(void* arg) {
     auto application = reinterpret_cast<Application*>(arg);
-    if (not application->is_running()) {
-        // cal the destructor manually, so that everything gets cleaned up
-        application->~Application();
+    application->loop_entry_emscripten();
+}
+
+void Application::load_emscripten() {
+
+    if ((not m_loading_info->m_finished_loading) and m_is_running) {
+        load_loop();
+        return;
+    }
+
+    const auto duration = std::chrono::milliseconds(SDL_GetTicks64() - m_loading_info->start_time());
+
+    // we can reach this via SDL_QUIT, SDL_APP_TERMINATING or (not console::inMainLoop())
+    if (not m_loading_info->m_finished_loading or not m_is_running) {
+
+        spdlog::debug("Aborted loading after {}", duration);
+
+        // do some combination of the loading exit in a normal OS case and the emscripten normal game loop exit
+        this->~Application();
+        emscripten_cancel_main_loop();
+        utils::exit(0);
+    }
+
+
+    spdlog::debug("Took {} to load", duration);
+
+    push_scene(scenes::create_scene(*this, SceneId::MainMenu, ui::FullScreenLayout{ *m_window }));
+
+    // run this manually, in a normal case, this would be run after the loader has finished
+    this->run();
+}
+
+void Application::main_loop_emscripten() {
+    if (not this->m_is_running) {
+        // call the destructor manually, so that everything gets cleaned up
+        this->~Application();
         emscripten_cancel_main_loop();
         return;
     }
 
-    application->main_loop();
+    main_loop();
 }
+
+
 #endif
 
 void Application::run() {
@@ -122,17 +183,8 @@ void Application::run() {
     m_time_info = std::make_unique<helper::TimeInfo>(sleep_time, start_execution_time);
 
 #if defined(__EMSCRIPTEN__)
-
-    int selected_fps = m_target_framerate.has_value() ? m_target_framerate.value() : -1;
-
-    // NOTE: this is complicated, especially in C++
-    // see: https://wiki.libsdl.org/SDL2/README/emscripten#porting-your-app-to-emscripten
-    // and: https://emscripten.org/docs/api_reference/emscripten.h.html#c.emscripten_set_main_loop_arg
-    // for a basic understanding
-    // this sets up a loop,, throws an exception(a special kind, not c++ one) to exit this function, but nothing gets cleaned up (no destructors get called, this function NEVER returns)
-    // but after emscripten_cancel_main_loop we have to manually call the destructor, to clean up,
-    emscripten_set_main_loop_arg(c_main_loop, this, selected_fps, true);
-    UNREACHABLE();
+    m_current_emscripten_func = std::bind(&Application::main_loop_emscripten, this);
+    return;
 #else
 
     while (m_is_running
@@ -184,6 +236,55 @@ void Application::main_loop() {
             m_time_info->m_start_execution_time = now;
         }
     }
+}
+
+void Application::load_loop() {
+
+    // we can't use the normal event loop, so we have to do it manually
+    SDL_Event event;
+    while (SDL_PollEvent(&event) != 0) {
+        if (event.type == SDL_QUIT) {
+            m_is_running = false;
+        }
+
+        // special event for android and IOS
+        if (event.type == SDL_APP_TERMINATING) {
+            m_is_running = false;
+        }
+    }
+
+    if (not m_is_running) {
+        return;
+    }
+
+    m_loading_info->m_loading_screen.update();
+    // this service_provider only guarantees the renderer + the window to be accessible without race conditions
+    m_loading_info->m_loading_screen.render(*this);
+
+    // present and  wait (depending if vsync is on or not, this has to be done manually)
+    m_renderer.present();
+
+    if (m_target_framerate.has_value()) {
+
+        const auto now = std::chrono::steady_clock::now();
+        const auto runtime = (now - m_loading_info->m_start_execution_time);
+
+        const auto sleep_time = m_loading_info->sleep_time();
+
+        if (runtime < sleep_time) {
+            //TODO(totto): use SDL_DelayNS in sdl >= 3.0
+            helper::sleep_nanoseconds(sleep_time - runtime);
+            m_loading_info->m_start_execution_time = std::chrono::steady_clock::now();
+        } else {
+            m_loading_info->m_start_execution_time = now;
+        }
+    }
+    // end waiting
+
+    // wait until is faster, since it just compares two time_points instead of getting now() and than adding the wait-for argument
+    m_loading_info->m_finished_loading =
+            m_loading_info->load_everything_thread().wait_until(std::chrono::system_clock::time_point::min())
+            == std::future_status::ready;
 }
 
 
@@ -330,17 +431,21 @@ void Application::render() const {
 #endif
 }
 
-[[nodiscard]] bool Application::is_running() const {
-    return m_is_running;
+#if defined(__EMSCRIPTEN__)
+void Application::loop_entry_emscripten() {
+    this->m_current_emscripten_func();
 }
+
+#endif
+
 
 void Application::initialize() {
 
-    auto loading_screen = scenes::LoadingScreen{ this };
+    auto loading_screen_arg = scenes::LoadingScreen{ this };
 
     const auto start_time = SDL_GetTicks64();
 
-    const std::future<void> load_everything = std::async(std::launch::async, [this] {
+    std::future<void> load_everything_thread = std::async(std::launch::async, [this] {
         this->m_settings_manager = std::make_unique<SettingsManager>();
 
         this->m_settings_manager->add_callback([this](const auto& settings) { this->reload_api(settings); });
@@ -389,9 +494,12 @@ void Application::initialize() {
     const auto sleep_time = m_target_framerate.has_value() ? std::chrono::duration_cast<std::chrono::nanoseconds>(1s)
                                                                      / m_target_framerate.value()
                                                            : 0s;
-    auto start_execution_time = std::chrono::steady_clock::now();
+    auto start_execution_time_arg = std::chrono::steady_clock::now();
 
-    bool finished_loading = false;
+    m_loading_info = std::make_unique<helper::LoadingInfo>(
+            sleep_time, start_time, std::move(load_everything_thread), start_execution_time_arg, false,
+            std::move(loading_screen_arg)
+    );
 
     // this is a duplicate of below in some cases, but it's just for the loading screen and can't be factored out easily
     // this also only uses a subset of all things, the real event loop uses, so that nothing breaks while doing multithreading
@@ -401,60 +509,32 @@ void Application::initialize() {
     // - m_renderer
     // - m_target_framerate
 
-    while ((not finished_loading) and m_is_running
+#if defined(__EMSCRIPTEN__)
+    m_current_emscripten_func = std::bind(&Application::load_emscripten, this);
+    int selected_fps = m_target_framerate.has_value() ? m_target_framerate.value() : -1;
+
+    // NOTE: this is complicated, especially in C++
+    // see: https://wiki.libsdl.org/SDL2/README/emscripten#porting-your-app-to-emscripten
+    // and: https://emscripten.org/docs/api_reference/emscripten.h.html#c.emscripten_set_main_loop_arg
+    // for a basic understanding
+    // this sets up a loop,, throws an exception(a special kind, not c++ one) to exit this function, but nothing gets cleaned up (no destructors get called, this function NEVER returns)
+    // but after emscripten_cancel_main_loop we have to manually call the destructor, to clean up,
+    emscripten_set_main_loop_arg(c_loop_entry, this, selected_fps, true);
+    UNREACHABLE();
+#else
+    while ((not m_loading_info->m_finished_loading) and m_is_running
 #if defined(__CONSOLE__)
            and console::inMainLoop()
 #endif
     ) {
-
-        // we can't use the normal event loop, so we have to do it manually
-        SDL_Event event;
-        while (SDL_PollEvent(&event) != 0) {
-            if (event.type == SDL_QUIT) {
-                m_is_running = false;
-            }
-
-            // special event for android and IOS
-            if (event.type == SDL_APP_TERMINATING) {
-                m_is_running = false;
-            }
-        }
-
-        if (not m_is_running) {
-            break;
-        }
-
-        loading_screen.update();
-        // this service_provider only guarantees the renderer + the window to be accessible without race conditions
-        loading_screen.render(*this);
-
-        // present and  wait (depending if vsync is on or not, this has to be done manually)
-        m_renderer.present();
-
-        if (m_target_framerate.has_value()) {
-
-            const auto now = std::chrono::steady_clock::now();
-            const auto runtime = (now - start_execution_time);
-            if (runtime < sleep_time) {
-                //TODO(totto): use SDL_DelayNS in sdl >= 3.0
-                helper::sleep_nanoseconds(sleep_time - runtime);
-                start_execution_time = std::chrono::steady_clock::now();
-            } else {
-                start_execution_time = now;
-            }
-        }
-        // end waiting
-
-        // wait until is faster, since it just compares two time_points instead of getting now() and than adding the wait-for argument
-        finished_loading =
-                load_everything.wait_until(std::chrono::system_clock::time_point::min()) == std::future_status::ready;
+        load_loop();
     }
 
 
     const auto duration = std::chrono::milliseconds(SDL_GetTicks64() - start_time);
 
     // we can reach this via SDL_QUIT, SDL_APP_TERMINATING or (not console::inMainLoop())
-    if (not finished_loading or not m_is_running) {
+    if (not m_loading_info->m_finished_loading or not m_is_running) {
 
         spdlog::debug("Aborted loading after {}", duration);
 
@@ -467,6 +547,7 @@ void Application::initialize() {
     spdlog::debug("Took {} to load", duration);
 
     push_scene(scenes::create_scene(*this, SceneId::MainMenu, ui::FullScreenLayout{ *m_window }));
+#endif
 }
 
 void Application::load_resources() {

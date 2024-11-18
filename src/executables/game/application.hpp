@@ -12,10 +12,12 @@
 #include "manager/resource_manager.hpp"
 #include "manager/service_provider.hpp"
 #include "manager/settings_manager.hpp"
+#include "scenes/loading_screen/loading_screen.hpp"
 #include "scenes/scene.hpp"
 #include "ui/components/label.hpp"
 
 #include <chrono>
+#include <future>
 #include <memory>
 #include <vector>
 
@@ -48,6 +50,34 @@ namespace helper {
 
         [[nodiscard]] std::chrono::nanoseconds sleep_time() const;
     };
+
+    struct LoadingInfo {
+    private:
+        std::chrono::nanoseconds m_sleep_time;
+        Uint64 m_start_time;
+
+        std::future<void> m_load_everything_thread;
+
+    public:
+        std::chrono::steady_clock::time_point m_start_execution_time;
+        bool m_finished_loading;
+        scenes::LoadingScreen m_loading_screen;
+
+        LoadingInfo(
+                std::chrono::nanoseconds sleep_time,
+                Uint64 start_time,
+                std::future<void>&& load_everything_thread,
+                std::chrono::steady_clock::time_point start_execution_time,
+                bool finished_loading,
+                scenes::LoadingScreen&& loading_screen
+        );
+
+        [[nodiscard]] std::chrono::nanoseconds sleep_time() const;
+
+        [[nodiscard]] Uint64 start_time() const;
+
+        [[nodiscard]] const std::future<void>& load_everything_thread() const;
+    };
 } // namespace helper
 
 
@@ -68,12 +98,21 @@ private:
     std::unique_ptr<FontManager> m_font_manager;
     std::unique_ptr<lobby::API> m_api;
 
+#if defined(__EMSCRIPTEN__)
+    using EmscriptenFunction = std::function<void()>;
+    EmscriptenFunction m_current_emscripten_func;
+
+    void load_emscripten();
+    void main_loop_emscripten();
+#endif
+
 
 #if !defined(NDEBUG)
     std::unique_ptr<ui::Label> m_fps_text{ nullptr };
     std::unique_ptr<helper::DebugInfo> m_debug;
 #endif
     std::unique_ptr<helper::TimeInfo> m_time_info;
+    std::unique_ptr<helper::LoadingInfo> m_loading_info;
 
 #if defined(_HAVE_DISCORD_SDK)
     std::optional<DiscordInstance> m_discord_instance{ std::nullopt };
@@ -86,6 +125,10 @@ protected:
 private:
     std::vector<std::unique_ptr<scenes::Scene>> m_scene_stack;
 
+    void main_loop();
+
+    void load_loop();
+
 public:
     Application(std::shared_ptr<Window>&& window, CommandLineArguments&& arguments);
     Application(const Application&) = delete;
@@ -93,15 +136,15 @@ public:
 
     void run();
 
-    void main_loop();
-
     void handle_event(const SDL_Event& event) override;
 
     virtual void update();
 
     virtual void render() const;
 
-    [[nodiscard]] bool is_running() const;
+#if defined(__EMSCRIPTEN__)
+    void loop_entry_emscripten();
+#endif
 
     //TODO(Totto): move those functions bodies to the cpp
 
