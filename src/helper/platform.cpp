@@ -17,7 +17,7 @@ namespace {
 
 #if !(defined(__ANDROID__) || defined(__CONSOLE__) || defined(__SERENITY__) || defined(__EMSCRIPTEN__))
 
-    inline std::string get_error_from_errno() {
+    [[maybe_unused]] inline std::string get_error_from_errno() {
 
 #if defined(_MSC_VER)
         char buffer[256] = { 0 };

@@ -7,14 +7,14 @@
 #include <fmt/format.h>
 namespace {
 
-    namespace constants {
+    namespace secrets::constants {
         constexpr const char* key_type_user = "user";
 
         constexpr const char* key_name_prefix = "OOPetris_key__";
-    } // namespace constants
+    } // namespace secrets::constants
 
     std::string get_key_name(const std::string& key) {
-        return constants::key_name_prefix + key;
+        return secrets::constants::key_name_prefix + key;
     }
 
     i64 get_id_from_name(key_serial_t keyring_id, const std::string& key) {
@@ -22,14 +22,16 @@ namespace {
         const std::string full_key = get_key_name(key);
 
         // 0 stands for: do not create a link to another keyring
-        return keyctl_search(keyring_id, constants::key_type_user, full_key.c_str(), 0);
+        return keyctl_search(keyring_id, secrets::constants::key_type_user, full_key.c_str(), 0);
     }
 
 
 } // namespace
 
 
-secret::SecretStorage::SecretStorage(KeyringType type) : m_type{ type } {
+secret::SecretStorage::SecretStorage(ServiceProvider* service_provider, KeyringType type)
+    : m_service_provider{ service_provider },
+      m_type{ type } {
 
     key_serial_t key_type{};
     switch (m_type) {
@@ -111,7 +113,7 @@ secret::SecretStorage::store(const std::string& key, const Buffer& value, bool u
 
     auto full_key = get_key_name(key);
 
-    auto new_id = add_key(constants::key_type_user, full_key.c_str(), value.data(), value.size(), m_ring_id);
+    auto new_id = add_key(secrets::constants::key_type_user, full_key.c_str(), value.data(), value.size(), m_ring_id);
 
     if (new_id < 0) {
         return fmt::format("Error while storing a key, can't add the key: {}", strerror(errno));
@@ -163,16 +165,16 @@ secret::SecretStorage::store(const std::string& key, const Buffer& value, bool u
 
 namespace {
 
-    namespace constants {
+    namespace secrets::constants {
         constexpr const wchar_t* property_name = L"OOPetris Payload";
 
         constexpr const wchar_t* key_name_prefix = L"OOPetris_key__";
 
         constexpr const wchar_t* used_algorithm = BCRYPT_AES_ALGORITHM;
-    } // namespace constants
+    } // namespace secrets::constants
 
     std::wstring get_key_name(const std::string& key) {
-        std::wstring result{ constants::key_name_prefix };
+        std::wstring result{ secrets::constants::key_name_prefix };
         for (auto& normal_char : key) {
             result += normal_char;
         }
@@ -204,7 +206,10 @@ namespace {
 } // namespace
 
 
-secret::SecretStorage::SecretStorage(KeyringType type) : m_type{ type }, m_phProvider{} {
+secret::SecretStorage::SecretStorage(ServiceProvider* service_provider, KeyringType type)
+    : m_service_provider{ service_provider },
+      m_type{ type },
+      m_phProvider{} {
 
     if (type == KeyringType::Session) {
         spdlog::warn("KeyringType Session is not supported, using KeyringType User");
@@ -246,7 +251,7 @@ secret::SecretStorage::SecretStorage(SecretStorage&& other) noexcept
     DWORD bytes_needed{};
 
     // no flags needed, so using 0
-    auto result = NCryptGetProperty(key_handle, constants::property_name, nullptr, 0, &bytes_needed, 0);
+    auto result = NCryptGetProperty(key_handle, secrets::constants::property_name, nullptr, 0, &bytes_needed, 0);
 
     if (result != ERROR_SUCCESS) {
         NCryptFreeObject(key_handle);
@@ -259,7 +264,8 @@ secret::SecretStorage::SecretStorage(SecretStorage&& other) noexcept
 
     DWORD bytes_written{};
 
-    auto result2 = NCryptGetProperty(key_handle, constants::property_name, buffer, bytes_needed, &bytes_written, 0);
+    auto result2 =
+            NCryptGetProperty(key_handle, secrets::constants::property_name, buffer, bytes_needed, &bytes_written, 0);
 
     if (result2 != ERROR_SUCCESS) {
         NCryptFreeObject(key_handle);
@@ -307,7 +313,7 @@ secret::SecretStorage::store(const std::string& key, const Buffer& value, bool u
 
     // 0 means no dwLegacyKeySpec
     auto result = NCryptCreatePersistedKey(
-            this->m_phProvider, &key_handle, constants::used_algorithm, key_name.c_str(), 0, flags
+            this->m_phProvider, &key_handle, secrets::constants::used_algorithm, key_name.c_str(), 0, flags
     );
 
     if (result != ERROR_SUCCESS) {
@@ -320,8 +326,9 @@ secret::SecretStorage::store(const std::string& key, const Buffer& value, bool u
 
     std::memcpy(buffer, value.data(), value.size());
 
-    auto result2 =
-            NCryptSetProperty(key_handle, constants::property_name, buffer, static_cast<DWORD>(value.size()), flags2);
+    auto result2 = NCryptSetProperty(
+            key_handle, secrets::constants::property_name, buffer, static_cast<DWORD>(value.size()), flags2
+    );
 
     delete[] buffer;
 
@@ -373,9 +380,9 @@ secret::SecretStorage::store(const std::string& key, const Buffer& value, bool u
 
 namespace {
 
-    namespace secrets_constants {
+    namespace secrets::constants {
         constexpr const char* store_file_name = ".secret_key_storage";
-    } // namespace secrets_constants
+    } // namespace secrets::constants
 
     helper::expected<nlohmann::json, std::string> get_json_from_file(const std::string& file) {
         auto result = json::try_parse_json_file<nlohmann::json>(file);
@@ -393,9 +400,11 @@ namespace {
 
 
 // This is a dummy fallback, but good enough for this platforms
-secret::SecretStorage::SecretStorage(KeyringType type) : m_type{ type } {
+secret::SecretStorage::SecretStorage(ServiceProvider* service_provider, KeyringType type)
+    : m_service_provider{ service_provider },
+      m_type{ type } {
 
-    m_file_path = utils::get_root_folder() / secrets_constants::store_file_name;
+    m_file_path = utils::get_root_folder() / secrets::constants::store_file_name;
 }
 
 secret::SecretStorage::~SecretStorage() = default;
@@ -471,19 +480,21 @@ secret::SecretStorage::store(const std::string& key, const Buffer& value, bool u
 
 namespace {
 
-    namespace constants {
+    namespace secrets::constants {
 
         constexpr const char* key_name_prefix = "OOPetris_key__";
-    } // namespace constants
+    } // namespace secrets::constants
 
     std::string get_key_name(const std::string& key) {
-        return constants::key_name_prefix + key;
+        return secrets::constants::key_name_prefix + key;
     }
 } // namespace
 
 
 // This is a dummy fallback, but good enough for this platforms
-secret::SecretStorage::SecretStorage(KeyringType type) : m_type{ type } { }
+secret::SecretStorage::SecretStorage(ServiceProvider* service_provider, KeyringType type)
+    : m_service_provider{ service_provider },
+      m_type{ type } { }
 
 secret::SecretStorage::~SecretStorage() = default;
 
@@ -493,7 +504,7 @@ secret::SecretStorage::SecretStorage(SecretStorage&& other) noexcept : m_type{ o
 [[nodiscard]] helper::expected<secret::Buffer, std::string> secret::SecretStorage::load(const std::string& key) const {
 
     const auto key_name = get_key_name(key);
-    auto maybe_value = web::LocalStorage::get_item(key_name);
+    auto maybe_value = m_service_provider->web_context().local_storage().get_item(key_name);
     if (not maybe_value.has_value()) {
         return helper::unexpected<std::string>{ "Key not found" };
     }
@@ -507,13 +518,17 @@ secret::SecretStorage::store(const std::string& key, const Buffer& value, bool u
     const auto key_name = get_key_name(key);
 
     if (not update) {
-        auto maybe_value = web::LocalStorage::get_item(key_name);
+        auto maybe_value = m_service_provider->web_context().local_storage().get_item(key_name);
         if (maybe_value.has_value()) {
             return "Error while storing a key, it already exists and we can't update it";
         }
     }
 
-    web::LocalStorage::set_item(key_name, value.as_string());
+    auto is_successfull = m_service_provider->web_context().local_storage().set_item(key_name, value.as_string());
+
+    if (not is_successfull) {
+        return "Error while storing a key, LocalStorage set item error";
+    }
 
     return std::nullopt;
 }
@@ -523,7 +538,11 @@ secret::SecretStorage::store(const std::string& key, const Buffer& value, bool u
 
     const auto key_name = get_key_name(key);
 
-    web::LocalStorage::remove_item(key_name);
+    auto is_successfull = m_service_provider->web_context().local_storage().remove_item(key_name);
+
+    if (not is_successfull) {
+        return "Error while removing a key, LocalStorage remove item error";
+    }
 
     return std::nullopt;
 }

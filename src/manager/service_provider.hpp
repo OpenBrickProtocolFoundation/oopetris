@@ -33,6 +33,10 @@ namespace lobby {
 
 }
 
+namespace web {
+    struct WebContext;
+}
+
 struct ServiceProvider {
     ServiceProvider() = default;
     ServiceProvider(const ServiceProvider&) = delete;
@@ -64,6 +68,13 @@ struct ServiceProvider {
 
     [[nodiscard]] virtual std::optional<DiscordInstance>& discord_instance() = 0;
     [[nodiscard]] virtual const std::optional<DiscordInstance>& discord_instance() const = 0;
+
+#endif
+
+#if defined(__EMSCRIPTEN__)
+
+    [[nodiscard]] virtual web::WebContext& web_context() = 0;
+    [[nodiscard]] virtual const web::WebContext& web_context() const = 0;
 
 #endif
 };

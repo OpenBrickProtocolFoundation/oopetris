@@ -2,12 +2,15 @@
 
 #if defined(__EMSCRIPTEN__)
 
+#include <core/helper/utils.hpp>
+
 #include "web_utils.hpp"
 
 #include <emscripten/console.h>
 #include <emscripten/val.h>
 #include <memory>
 #include <string>
+
 
 namespace {
 
@@ -16,7 +19,7 @@ namespace {
         return localStorage;
     }
 
-    [[maybe_unused]] std::optional<std::string> get_item_impl(const std::string& key) {
+    std::optional<std::string> get_item_impl(const std::string& key) {
 
         thread_local const emscripten::val localStorage = get_local_storage();
 
@@ -29,21 +32,21 @@ namespace {
         return value.as<std::string>();
     }
 
-    [[maybe_unused]] void set_item_impl(const std::string& key, const std::string& value) {
+    void set_item_impl(const std::string& key, const std::string& value) {
 
         thread_local const emscripten::val localStorage = get_local_storage();
 
         localStorage.call<void>("setItem", emscripten::val{ key }, emscripten::val{ value });
     }
 
-    [[maybe_unused]] void remove_item_impl(const std::string& key) {
+    void remove_item_impl(const std::string& key) {
 
         thread_local const emscripten::val localStorage = get_local_storage();
 
         localStorage.call<void>("removeItem", emscripten::val{ key });
     }
 
-    [[maybe_unused]] void clear_impl() {
+    void clear_impl() {
 
         thread_local const emscripten::val localStorage = get_local_storage();
 
@@ -52,26 +55,58 @@ namespace {
 
 } // namespace
 
-std::optional<std::string> web::LocalStorage::get_item(const std::string& key) {
-    // we don't have access to the localStorage in threads (Web workers)
-    //TODO: if we are in the main thread, call the impl directly, otherwise use proxying
-    (void) (key);
-    return std::nullopt;
+web::LocalStorage::LocalStorage(ServiceProvider* service_provider) : m_service_provider{ service_provider } { }
+
+//NOTE:we don't have access to the localStorage in threads (Web workers), so if we are in the main thread, we can call the impl directly, otherwise we have to use proxying
+std::optional<std::string> web::LocalStorage::get_item(const std::string& key) const {
+    if (m_service_provider->web_context().is_main_thread()) {
+        return get_item_impl(key);
+    }
+
+    auto result = m_service_provider->web_context().proxy<std::optional<std::string>>([key = std::move(key)]() {
+        return get_item_impl(key);
+    });
+
+    if (not result.has_value()) {
+        return std::nullopt;
+    }
+
+    return result.value();
 }
 
-void web::LocalStorage::set_item(const std::string& key, const std::string& value) {
-    //TODO:
-    (void) (key);
-    (void) (value);
+bool web::LocalStorage::set_item(const std::string& key, const std::string& value) const {
+    if (m_service_provider->web_context().is_main_thread()) {
+        set_item_impl(key, value);
+        return true;
+    }
+
+    auto result = m_service_provider->web_context().proxy<void>([key = std::move(key), value = std::move(value)]() {
+        set_item_impl(key, value);
+    });
+
+    return result;
 }
 
-void web::LocalStorage::remove_item(const std::string& key) {
-    //TODO:
-    (void) (key);
+bool web::LocalStorage::remove_item(const std::string& key) const {
+    if (m_service_provider->web_context().is_main_thread()) {
+        remove_item_impl(key);
+        return true;
+    }
+
+    auto result = m_service_provider->web_context().proxy<void>([key = std::move(key)]() { remove_item_impl(key); });
+
+    return result;
 }
 
-void web::LocalStorage::clear() {
-    //TODO:
+bool web::LocalStorage::clear() const {
+    if (m_service_provider->web_context().is_main_thread()) {
+        clear_impl();
+        return true;
+    }
+
+    auto result = m_service_provider->web_context().proxy<void>([]() { clear_impl(); });
+
+    return result;
 }
 
 
@@ -134,5 +169,26 @@ std::shared_ptr<spdlog::sinks::callback_sink_mt> web::get_console_sink() {
     });
 }
 
+web::WebContext::WebContext(ServiceProvider* service_provider)
+    : m_queue{},
+      m_main_thread_id{ std::this_thread::get_id() },
+      m_main_thread_handle{ pthread_self() },
+      m_local_storage{ service_provider } { }
+
+web::WebContext::~WebContext() = default;
+
+[[nodiscard]] bool web::WebContext::is_main_thread() const {
+    return std::this_thread::get_id() == m_main_thread_id;
+}
+
+void web::WebContext::do_processing() {
+    ASSERT(is_main_thread() && "can only process in main thread");
+
+    m_queue.execute();
+}
+
+[[nodiscard]] const web::LocalStorage& web::WebContext::local_storage() const {
+    return m_local_storage;
+}
 
 #endif

@@ -18,9 +18,10 @@ public:
 private:
     settings::Settings m_settings;
     std::vector<Callback> m_callbacks;
+    ServiceProvider* m_service_provider;
 
 public:
-    OOPETRIS_GRAPHICS_EXPORTED explicit SettingsManager();
+    OOPETRIS_GRAPHICS_EXPORTED explicit SettingsManager(ServiceProvider* service_provider);
 
     OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] const settings::Settings& settings() const;
 

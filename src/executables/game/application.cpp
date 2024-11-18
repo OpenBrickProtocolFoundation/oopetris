@@ -100,7 +100,13 @@ Application::Application(std::shared_ptr<Window>&& window, CommandLineArguments&
       m_window{ std::move(window) },
       m_renderer{ *m_window, m_command_line_arguments.target_fps.has_value() ? Renderer::VSync::Disabled
                                                                              : Renderer::VSync::Enabled },
-      m_target_framerate{ m_command_line_arguments.target_fps } {
+      m_target_framerate{ m_command_line_arguments.target_fps }
+
+#if defined(__EMSCRIPTEN__)
+      ,
+      m_web_context{ this }
+#endif
+{
     initialize();
 } catch (const helper::GeneralError& general_error) {
     const auto severity = general_error.severity();
@@ -117,6 +123,7 @@ Application::Application(std::shared_ptr<Window>&& window, CommandLineArguments&
 #if defined(__EMSCRIPTEN__)
 void c_loop_entry(void* arg) {
     auto application = reinterpret_cast<Application*>(arg);
+    application->emscripten_do_process();
     application->loop_entry_emscripten();
 }
 
@@ -159,7 +166,9 @@ void Application::main_loop_emscripten() {
 
     main_loop();
 }
-
+void Application::emscripten_do_process() {
+    m_web_context.do_processing();
+}
 
 #endif
 
@@ -212,6 +221,7 @@ void Application::main_loop() {
     const Uint64 current_time = SDL_GetPerformanceCounter();
 
     if (current_time - m_debug->m_start_time >= m_debug->update_time()) {
+        //TODO: debug in emscripten
         const double elapsed = static_cast<double>(current_time - m_debug->m_start_time) / m_debug->count_per_s();
         m_fps_text->set_text(
                 *this, fmt::format("FPS: {:.2f}", static_cast<double>(m_debug->m_frame_counter) / elapsed)
@@ -446,7 +456,7 @@ void Application::initialize() {
     const auto start_time = SDL_GetTicks64();
 
     std::future<void> load_everything_thread = std::async(std::launch::async, [this] {
-        this->m_settings_manager = std::make_unique<SettingsManager>();
+        this->m_settings_manager = std::make_unique<SettingsManager>(this);
 
         this->m_settings_manager->add_callback([this](const auto& settings) { this->reload_api(settings); });
 
@@ -583,11 +593,23 @@ void Application::load_resources() {
 
 #endif
 
+#if defined(__EMSCRIPTEN__)
+
+[[nodiscard]] web::WebContext& Application::web_context() {
+    return m_web_context;
+}
+
+[[nodiscard]] const web::WebContext& Application::web_context() const {
+    return m_web_context;
+}
+
+#endif
+
 
 void Application::reload_api(const settings::Settings& settings) {
 
     if (auto api_url = settings.api_url; api_url.has_value()) {
-        auto maybe_api = lobby::API::get_api(api_url.value());
+        auto maybe_api = lobby::API::get_api(this, api_url.value());
         if (maybe_api.has_value()) {
             //TODO(Totto): do this somehow asynchronous
             m_api = std::make_unique<lobby::API>(std::move(maybe_api.value()));

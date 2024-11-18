@@ -3,6 +3,7 @@
 #include "input/keyboard_input.hpp"
 #include "input/touch_input.hpp"
 
+
 #if defined(__EMSCRIPTEN__)
 #include "helper/web_utils.hpp"
 #endif
@@ -17,10 +18,10 @@ namespace {
 } // namespace
 
 
-SettingsManager::SettingsManager() {
+SettingsManager::SettingsManager(ServiceProvider* service_provider) : m_service_provider{ service_provider } {
 
 #if defined(__EMSCRIPTEN__)
-    const auto content = web::LocalStorage::get_item(settings_key);
+    const auto content = m_service_provider->web_context().local_storage().get_item(settings_key);
 
     helper::expected<settings::Settings, std::pair<std::string, json::ParseError>> result =
             helper::unexpected<std::pair<std::string, json::ParseError>>{ std::make_pair<std::string, json::ParseError>(
@@ -101,7 +102,13 @@ void SettingsManager::save() const {
         return;
     }
 
-    web::LocalStorage::set_item(settings_key, maybe_settings_json.value());
+    auto is_successfull =
+            m_service_provider->web_context().local_storage().set_item(settings_key, maybe_settings_json.value());
+
+    if (not is_successfull) {
+        spdlog::error("unable to save settings to LocalStorage\"{}\": localstorage set error", settings_key);
+        return;
+    }
 
 #else
     const std::filesystem::path settings_file = utils::get_root_folder() / settings_filename;

@@ -211,7 +211,7 @@ namespace scenes {
 
                                     this->m_status = Status::Loading;
                                     //TODO(Totto): do this somehow asynchronous
-                                    lobby::API::check_url(api_url, [this, api_url](bool success) {
+                                    lobby::API::check_url(m_service_provider, api_url, [this, api_url](bool success) {
                                         this->m_status = success ? Status::Ok : Status::Error;
                                         this->m_settings.api_url = api_url;
                                         this->m_did_change_settings = true;

@@ -20,7 +20,7 @@
 #endif
 
 namespace {
-    namespace constants {
+    namespace token::constants {
 
         constexpr const char* api_token_key = "API_TOKEN_save";
     }
@@ -60,11 +60,11 @@ helper::expected<void, std::string> lobby::API::check_reachability() {
     return {};
 }
 
-lobby::API::API(const std::string& api_url)
+lobby::API::API(ServiceProvider* service_provider, const std::string& api_url)
     : m_client{ std::make_unique<oopetris::http::implementation::ActualClient>(api_url) },
-      m_secret_storage{ std::make_unique<secret::SecretStorage>(secret::KeyringType::User) } {
+      m_secret_storage{ std::make_unique<secret::SecretStorage>(service_provider, secret::KeyringType::User) } {
 
-    auto value = m_secret_storage->load(constants::api_token_key);
+    auto value = m_secret_storage->load(token::constants::api_token_key);
 
     if (value.has_value()) {
         if (not this->setup_authentication(value.value().as_string())) {
@@ -89,11 +89,12 @@ lobby::API::API(API&& other) noexcept
 
 lobby::API::~API() = default;
 
-helper::expected<lobby::API, std::string> lobby::API::get_api(const std::string& url) {
+helper::expected<lobby::API, std::string>
+lobby::API::get_api(ServiceProvider* service_provider, const std::string& url) {
 
     try {
 
-        API api{ url };
+        API api{ service_provider, url };
 
         const auto reachable = api.check_reachability();
 
@@ -109,11 +110,15 @@ helper::expected<lobby::API, std::string> lobby::API::get_api(const std::string&
     }
 }
 
-void lobby::API::check_url(const std::string& url, std::function<void(const bool success)>&& callback) {
+void lobby::API::check_url(
+        ServiceProvider* service_provider,
+        const std::string& url,
+        std::function<void(const bool success)>&& callback
+) {
 
-    //TODO(Totto): is this doen correctly
-    std::ignore = std::async(std::launch::async, [url, callback = std::move(callback)] {
-        auto result = lobby::API::get_api(url);
+    //TODO(Totto): is this done correctly
+    std::ignore = std::async(std::launch::async, [url, callback = std::move(callback), service_provider] {
+        auto result = lobby::API::get_api(service_provider, url);
 
         callback(result.has_value());
     });
@@ -156,7 +161,7 @@ bool lobby::API::authenticate(const Credentials& credentials) {
 void lobby::API::logout() {
     m_client->ResetBearerAuth();
 
-    if (auto result = m_secret_storage->remove(constants::api_token_key); result.has_value()) {
+    if (auto result = m_secret_storage->remove(token::constants::api_token_key); result.has_value()) {
         spdlog::error("API: {}", result.value());
     }
 }
@@ -283,7 +288,8 @@ bool lobby::API::setup_authentication(const std::string& token) {
     m_authentication_token = token;
 
     m_client->SetBearerAuth(token);
-    if (auto result = m_secret_storage->store(constants::api_token_key, secret::Buffer{ token }); result.has_value()) {
+    if (auto result = m_secret_storage->store(token::constants::api_token_key, secret::Buffer{ token });
+        result.has_value()) {
         spdlog::error("API {}", result.value());
     }
 

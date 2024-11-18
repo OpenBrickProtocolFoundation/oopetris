@@ -21,6 +21,11 @@
 #include <memory>
 #include <vector>
 
+
+#if defined(__EMSCRIPTEN__)
+#include "helper/web_utils.hpp"
+#endif
+
 namespace helper {
 #if !defined(NDEBUG)
     struct DebugInfo {
@@ -101,6 +106,7 @@ private:
 #if defined(__EMSCRIPTEN__)
     using EmscriptenFunction = std::function<void()>;
     EmscriptenFunction m_current_emscripten_func;
+    web::WebContext m_web_context;
 
     void load_emscripten();
     void main_loop_emscripten();
@@ -144,6 +150,8 @@ public:
 
 #if defined(__EMSCRIPTEN__)
     void loop_entry_emscripten();
+
+    void emscripten_do_process();
 #endif
 
     //TODO(Totto): move those functions bodies to the cpp
@@ -226,6 +234,12 @@ public:
 
 #endif
 
+#if defined(__EMSCRIPTEN__)
+
+    [[nodiscard]] web::WebContext& web_context() override;
+    [[nodiscard]] const web::WebContext& web_context() const override;
+
+#endif
 
 private:
     void initialize();
