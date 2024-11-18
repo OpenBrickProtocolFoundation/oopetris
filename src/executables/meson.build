@@ -53,6 +53,10 @@ if build_application
                     )
                 endif
 
+                if not APP_ROMFS.endswith('/')
+                    APP_ROMFS = APP_ROMFS + '/'
+                endif
+
                 emscripten_link_args += ['--preload-file', APP_ROMFS + '@/assets/']
 
             endif

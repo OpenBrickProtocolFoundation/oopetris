@@ -129,7 +129,7 @@ void Application::load_emscripten() {
 
     const auto duration = std::chrono::milliseconds(SDL_GetTicks64() - m_loading_info->start_time());
 
-    // we can reach this via SDL_QUIT, SDL_APP_TERMINATING or (not console::inMainLoop())
+    // we can reach this via SDL_QUIT or SDL_APP_TERMINATING
     if (not m_loading_info->m_finished_loading or not m_is_running) {
 
         spdlog::debug("Aborted loading after {}", duration);
@@ -464,6 +464,7 @@ void Application::initialize() {
         this->load_resources();
 
 #if !defined(NDEBUG)
+        //TODO(Totto): emscripten: this is using sdl rendering (to a texture) in another thread then the main thread, use proxying to the main thread here too, and disable OOPETRIS_DONT_USE_PRERENDERED_TEXT
         m_fps_text = std::make_unique<ui::Label>(
                 this, "FPS: ?", font_manager().get(FontId::Default), Color::white(),
                 std::pair<double, double>{ 0.95, 0.95 },
@@ -563,6 +564,7 @@ void Application::load_resources() {
         { FontId::NotoColorEmoji,            "NotoColorEmoji.ttf" },
         {        FontId::Symbola,                   "Symbola.ttf" }
     };
+
     for (const auto& [font_id, path] : fonts) {
         const auto font_path = utils::get_assets_folder() / "fonts" / path;
         m_font_manager->load(font_id, font_path, fonts_size);

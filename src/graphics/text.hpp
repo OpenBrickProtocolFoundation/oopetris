@@ -8,13 +8,22 @@
 #include "rect.hpp"
 #include "texture.hpp"
 
+//TODO: set this flag in the build system, or maybe also fix https://github.com/OpenBrickProtocolFoundation/oopetris/issues/132 in the process
+#if defined(__EMSCRIPTEN__)
+#define OOPETRIS_DONT_USE_PRERENDERED_TEXT
+#endif
+
+
 struct Text final {
 private:
     Font m_font;
     Color m_color;
     shapes::URect m_dest;
+#if defined(OOPETRIS_DONT_USE_PRERENDERED_TEXT)
+    std::string m_text;
+#else
     Texture m_text;
-
+#endif
 public:
     OOPETRIS_GRAPHICS_EXPORTED Text(
             const ServiceProvider* service_provider,

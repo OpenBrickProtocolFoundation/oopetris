@@ -9,38 +9,69 @@
 #include <memory>
 #include <string>
 
-std::optional<std::string> web::LocalStorage::get_item(const std::string& key) {
+namespace {
 
-    thread_local const emscripten::val localStorage = emscripten::val::global("localStorage");
-
-    emscripten::val value = localStorage.call<emscripten::val>("getItem", emscripten::val{ key });
-
-    if (value.isNull()) {
-        return std::nullopt;
+    emscripten::val get_local_storage() {
+        thread_local const emscripten::val localStorage = emscripten::val::global("localStorage");
+        return localStorage;
     }
 
-    return value.as<std::string>();
+    [[maybe_unused]] std::optional<std::string> get_item_impl(const std::string& key) {
+
+        thread_local const emscripten::val localStorage = get_local_storage();
+
+        emscripten::val value = localStorage.call<emscripten::val>("getItem", emscripten::val{ key });
+
+        if (value.isNull()) {
+            return std::nullopt;
+        }
+
+        return value.as<std::string>();
+    }
+
+    [[maybe_unused]] void set_item_impl(const std::string& key, const std::string& value) {
+
+        thread_local const emscripten::val localStorage = get_local_storage();
+
+        localStorage.call<void>("setItem", emscripten::val{ key }, emscripten::val{ value });
+    }
+
+    [[maybe_unused]] void remove_item_impl(const std::string& key) {
+
+        thread_local const emscripten::val localStorage = get_local_storage();
+
+        localStorage.call<void>("removeItem", emscripten::val{ key });
+    }
+
+    [[maybe_unused]] void clear_impl() {
+
+        thread_local const emscripten::val localStorage = get_local_storage();
+
+        localStorage.call<void>("clear");
+    }
+
+} // namespace
+
+std::optional<std::string> web::LocalStorage::get_item(const std::string& key) {
+    // we don't have access to the localStorage in threads (Web workers)
+    //TODO: if we are in the main thread, call the impl directly, otherwise use proxying
+    (void) (key);
+    return std::nullopt;
 }
 
 void web::LocalStorage::set_item(const std::string& key, const std::string& value) {
-
-    thread_local const emscripten::val localStorage = emscripten::val::global("localStorage");
-
-    localStorage.call<void>("setItem", emscripten::val{ key }, emscripten::val{ value });
+    //TODO:
+    (void) (key);
+    (void) (value);
 }
 
 void web::LocalStorage::remove_item(const std::string& key) {
-
-    thread_local const emscripten::val localStorage = emscripten::val::global("localStorage");
-
-    localStorage.call<void>("removeItem", emscripten::val{ key });
+    //TODO:
+    (void) (key);
 }
 
 void web::LocalStorage::clear() {
-
-    thread_local const emscripten::val localStorage = emscripten::val::global("localStorage");
-
-    localStorage.call<void>("clear");
+    //TODO:
 }
 
 
@@ -57,18 +88,16 @@ void web::console::log(const std::string& message) {
 }
 
 void web::console::info(const std::string& message) {
-    thread_local const emscripten::val console = emscripten::val::global("console");
-    console.call<void>("info", emscripten::val{ message });
+    emscripten_console_log(message.c_str());
 }
 
 void web::console::debug(const std::string& message) {
-    thread_local const emscripten::val console = emscripten::val::global("console");
-    console.call<void>("debug", emscripten::val{ message });
+    // NOTE: really the console, but also debug output
+    emscripten_dbg(message.c_str());
 }
 
 void web::console::trace(const std::string& message) {
-    thread_local const emscripten::val console = emscripten::val::global("console");
-    console.call<void>("trace", emscripten::val{ message });
+    emscripten_console_trace(message.c_str());
 }
 
 void web::console::clear() {

@@ -2,6 +2,10 @@
 #include "graphic_utils.hpp"
 #include <exception>
 
+#if defined(__EMSCRIPTEN__)
+#include <emscripten.h>
+#endif
+
 SDL_Color utils::sdl_color_from_color(const Color& color) {
     return SDL_Color{ color.r, color.g, color.b, color.a };
 }
@@ -185,6 +189,8 @@ void utils::exit(int status_code) {
     // but is required here
     // see: https://github.com/libsdl-org/SDL/blob/main/docs/README-android.md
     throw utils::ExitException{ status_code };
+#elif defined(__EMSCRIPTEN__)
+    emscripten_force_exit(status_code);
 #else
     std::exit(status_code);
 #endif

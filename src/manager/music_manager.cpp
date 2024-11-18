@@ -56,14 +56,22 @@ MusicManager::MusicManager(ServiceProvider* service_provider, u8 channel_size)
         }
     }
 
+#if defined(__EMSCRIPTEN__)
+    //TODO: do we need this, first do this:
+    // https://github.com/libsdl-org/SDL/issues/6385
+#else
+    const auto audio_channels = 2;
+
     // 2 here means STEREO, note that channels above means tracks, e.g. simultaneous playing source that are mixed,
     // hence the name SDL2_mixer
     const auto audio_result =
-            Mix_OpenAudio(constants::audio_frequency, MIX_DEFAULT_FORMAT, 2, constants::audio_chunk_size);
+            Mix_OpenAudio(constants::audio_frequency, MIX_DEFAULT_FORMAT, audio_channels, constants::audio_chunk_size);
+
 
     if (audio_result != 0) {
         throw helper::InitializationError{ fmt::format("Failed to open an audio device: {}", SDL_GetError()) };
     }
+#endif
 
     m_s_instance = this;
 
