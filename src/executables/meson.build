@@ -57,7 +57,11 @@ if build_application
                     APP_ROMFS = APP_ROMFS + '/'
                 endif
 
-                emscripten_link_args += ['--preload-file', APP_ROMFS + '@/assets/']
+                emscripten_link_args += [
+                    '--preload-file', APP_ROMFS + '@/assets/',
+                    # based on: https://github.com/emscripten-core/emscripten/blob/main/src/shell_minimal.html
+                    '--shell-file', meson.project_source_root() / 'platforms' / 'emscripten' / 'shell_file.html',
+                ]
 
             endif
 
