@@ -177,10 +177,13 @@ void Application::run() {
 
 #if !defined(NDEBUG)
     auto start_time = SDL_GetPerformanceCounter();
+
     const auto update_time = SDL_GetPerformanceFrequency() / 2; //0.5 s
+
     const auto count_per_s = static_cast<double>(SDL_GetPerformanceFrequency());
+
     u64 frame_counter = 0;
-    m_debug = std::make_unique<helper::DebugInfo>(start_time, update_time, count_per_s, frame_counter);
+    m_debug = std::make_unique<helper::DebugInfo>(start_time, frame_counter, update_time, count_per_s);
 #endif
     using namespace std::chrono_literals;
 
@@ -221,11 +224,12 @@ void Application::main_loop() {
     const Uint64 current_time = SDL_GetPerformanceCounter();
 
     if (current_time - m_debug->m_start_time >= m_debug->update_time()) {
-        //TODO: debug in emscripten
         const double elapsed = static_cast<double>(current_time - m_debug->m_start_time) / m_debug->count_per_s();
+
         m_fps_text->set_text(
                 *this, fmt::format("FPS: {:.2f}", static_cast<double>(m_debug->m_frame_counter) / elapsed)
         );
+
         m_debug->m_start_time = current_time;
         m_debug->m_frame_counter = 0;
     }
