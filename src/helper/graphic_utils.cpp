@@ -2,6 +2,10 @@
 #include "graphic_utils.hpp"
 #include <exception>
 
+#if defined(__EMSCRIPTEN__)
+#include <emscripten.h>
+#endif
+
 SDL_Color utils::sdl_color_from_color(const Color& color) {
     return SDL_Color{ color.r, color.g, color.b, color.a };
 }
@@ -35,6 +39,8 @@ std::vector<std::string> utils::supported_features() {
         throw std::runtime_error{ "Failed in getting the Pref Path: " + std::string{ SDL_GetError() } };
     }
     return std::filesystem::path{ std::string{ pref_path } };
+#elif defined(__EMSCRIPTEN__)
+    return std::filesystem::path{ "/" };
 #elif defined(__CONSOLE__)
     // this is in the sdcard of the switch / 3ds , since internal storage is read-only for applications!
     return std::filesystem::path{ "." };
@@ -64,7 +70,7 @@ std::vector<std::string> utils::supported_features() {
 #if defined(__SERENITY__)
 
 
-    // this is a read write location in the serenityos case build, see https://docs.flatpak.org/en/latest/conventions.html
+    // this is a read write location in the serenity-os case build, see https://docs.flatpak.org/en/latest/conventions.html
     const char* data_home = std::getenv("HOME");
     if (data_home == nullptr) {
         throw std::runtime_error{ "Failed to get flatpak data directory (XDG_DATA_HOME)" };
@@ -95,8 +101,11 @@ std::vector<std::string> utils::supported_features() {
 [[nodiscard]] std::filesystem::path utils::get_assets_folder() {
 #if defined(__ANDROID__)
     return std::filesystem::path{ "" };
+#elif defined(__EMSCRIPTEN__)
+    // emscripten mounts a memfs in the / location, we package assest into this dir, see: https://emscripten.org/docs/porting/files/packaging_files.html#packaging-using-emcc
+    return std::filesystem::path{ "/assets" };
 #elif defined(__CONSOLE__)
-    // this is in the internal storage of the nintendo switch, it ios mounted by libnx (runtime switch support library) and filled at compile time with assets (its called ROMFS there)
+    // this is in the internal storage of the nintendo switch, it is mounted by libnx (runtime switch support library) and filled at compile time with assets (its called ROMFS there)
     return std::filesystem::path{ "romfs:/assets" };
 #elif defined(BUILD_INSTALLER)
     // if you build in BUILD_INSTALLER mode, you have to assure that the data is there e.g. music  + fonts!
@@ -180,6 +189,8 @@ void utils::exit(int status_code) {
     // but is required here
     // see: https://github.com/libsdl-org/SDL/blob/main/docs/README-android.md
     throw utils::ExitException{ status_code };
+#elif defined(__EMSCRIPTEN__)
+    emscripten_force_exit(status_code);
 #else
     std::exit(status_code);
 #endif

@@ -1,0 +1,13 @@
+diff --git a/include/fmt/base.h b/include/fmt/base.h
+index 6276494..869e075 100644
+--- a/include/fmt/base.h
++++ b/include/fmt/base.h
+@@ -113,6 +113,8 @@
+ // Detect consteval, C++20 constexpr extensions and std::is_constant_evaluated.
+ #if !defined(__cpp_lib_is_constant_evaluated)
+ #  define FMT_USE_CONSTEVAL 0
++#elif defined(__EMSCRIPTEN__)
++#  define FMT_USE_CONSTEVAL 0
+ #elif FMT_CPLUSPLUS < 201709L
+ #  define FMT_USE_CONSTEVAL 0
+ #elif FMT_GLIBCXX_RELEASE && FMT_GLIBCXX_RELEASE < 10

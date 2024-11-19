@@ -94,7 +94,8 @@ elif cpp.get_id() == 'clang'
         # TODO: once clang with libstdc++ (gcc c++ stdlib) supports std::expected, remove this special behaviour
         allow_tl_expected_fallback = true
     endif
-
+elif cpp.get_id() == 'emscripten'
+    allow_tl_expected_fallback = true
 endif
 
 build_application = true

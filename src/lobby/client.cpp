@@ -3,16 +3,7 @@
 #include "./client.hpp"
 
 
-#if defined(_OOPETRIS_ONLINE_USE_CURL)
-#include "./curl_client.hpp"
-
-
-std::string oopetris::http::status_message([[maybe_unused]] int status) {
-    return "Not Available";
-}
-
-
-#else
+#if _OOPETRIS_ONLINE_SYSTEM == 0
 
 #include "./httplib_client.hpp"
 
@@ -20,6 +11,24 @@ std::string oopetris::http::status_message(int status) {
     return httplib::status_message(status);
 }
 
+#elif _OOPETRIS_ONLINE_SYSTEM == 1
+
+#include "./web_client.hpp"
+
+std::string oopetris::http::status_message([[maybe_unused]] int status) {
+    return "Not Available";
+}
+
+#elif _OOPETRIS_ONLINE_SYSTEM == 2
+
+#include "./curl_client.hpp"
+
+std::string oopetris::http::status_message([[maybe_unused]] int status) {
+    return "Not Available";
+}
+
+#else
+#error "_OOPETRIS_ONLINE_SYSTEM has an invalid value"
 #endif
 
 oopetris::http::Result::~Result() = default;

@@ -2,7 +2,9 @@
 
 set -e
 
-mkdir -p toolchains
+if [ ! -d "toolchains" ]; then
+    mkdir -p toolchains
+fi
 
 export NDK_VER_DOWNLOAD="r28-beta1"
 export NDK_VER_DESC="r28-beta1"
@@ -291,6 +293,10 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
         MESON_CPU_FAMILY="aarch64"
     fi
 
+    export COMPILE_FLAGS="'--sysroot=${SYS_ROOT:?}','-fPIE','-fPIC','--target=$ARM_COMPILER_TRIPLE','-DAUDIO_PREFER_MP3'"
+
+    export LINK_FLAGS="'-fPIE','-L$SYS_ROOT/usr/lib'"
+
     cat <<EOF >"./platforms/crossbuild-android-$ARM_TARGET_ARCH.ini"
 [host_machine]
 system = 'android'
@@ -318,10 +324,11 @@ llvm-config = '$LLVM_CONFIG'
 [built-in options]
 c_std = 'gnu11'
 cpp_std = 'c++23'
-c_args = ['--sysroot=${SYS_ROOT:?}','-fPIE','-fPIC','--target=$ARM_COMPILER_TRIPLE','-DHAVE_USR_INCLUDE_MALLOC_H','-D_MALLOC_H','-D__BITNESS=$BITNESS']
-cpp_args = ['--sysroot=${SYS_ROOT:?}','-fPIE','-fPIC','--target=$ARM_COMPILER_TRIPLE','-D__BITNESS=$BITNESS']
-c_link_args = ['-fPIE','-L$SYS_ROOT/usr/lib']
-cpp_link_args = ['-fPIE','-L$SYS_ROOT/usr/lib']
+c_args = [$COMPILE_FLAGS]
+cpp_args = [$COMPILE_FLAGS]            
+c_link_args = [$LINK_FLAGS]
+cpp_link_args = [$LINK_FLAGS]
+
 prefix = '$SYS_ROOT'
 libdir = '$LIB_PATH'
 
@@ -331,12 +338,14 @@ sys_root = '${SYS_ROOT}'
 
 EOF
 
-    if [ ! -d "$PWD/subprojects/cpu-features" ]; then
-        mkdir -p "$PWD/subprojects/cpu-features/src/"
-        mkdir -p "$PWD/subprojects/cpu-features/include/"
-        ln -s "$BASE_PATH/sources/android/cpufeatures/cpu-features.c" "$PWD/subprojects/cpu-features/src/cpu-features.c"
-        ln -s "$BASE_PATH/sources/android/cpufeatures/cpu-features.h" "$PWD/subprojects/cpu-features/include/cpu-features.h"
-        cat <<EOF >"$PWD/subprojects/cpu-features/meson.build"
+    CPU_FUTURES_ROOT="$PWD/subprojects/cpu-features"
+
+    if [ ! -d "$CPU_FUTURES_ROOT" ]; then
+        mkdir -p "$CPU_FUTURES_ROOT/src/"
+        mkdir -p "$CPU_FUTURES_ROOT/include/"
+        ln -s "$BASE_PATH/sources/android/cpufeatures/cpu-features.c" "$CPU_FUTURES_ROOT/src/cpu-features.c"
+        ln -s "$BASE_PATH/sources/android/cpufeatures/cpu-features.h" "$CPU_FUTURES_ROOT/include/cpu-features.h"
+        cat <<EOF >"$CPU_FUTURES_ROOT/meson.build"
 project('cpu-features','c')
 
 meson.override_dependency(
@@ -367,7 +376,6 @@ EOF
             --cross-file "./platforms/crossbuild-android-$ARM_TARGET_ARCH.ini" \
             "-Dbuildtype=$BUILDTYPE" \
             -Dsdl2:use_hidapi=enabled \
-            -Dcpp_args=-DAUDIO_PREFER_MP3 \
             -Dclang_libcpp=disabled
 
     fi

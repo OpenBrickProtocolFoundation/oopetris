@@ -28,7 +28,109 @@ if meson.is_cross_build()
         #         language: ['cpp'],
         #     )
         # endif
+    elif host_machine.system() == 'android'
+        # noop
+    elif host_machine.system() == 'emscripten'
 
+        # check if the command line flags are supported and a simple example compiles
+        can_compile = cpp.compiles(
+            '''
+        int main() {
+            return 0;
+        }
+        ''',
+        )
+
+        if not can_compile
+            error('Not all Emscripten flags are supported: see logs')
+        endif
+
+        only_allow_native_libs = true
+
+        ## map native libraries to dependencies
+        map_native_dependencies = [
+            ['SDL2-mt', 'SDL2'],
+            ['SDL2_ttf'],
+            ['mpg123'],
+            ['SDL2_mixer_mp3', 'SDL2_mixer'],
+            ['SDL2_image_png-svg-mt', 'SDL2_image'],
+            ['icu_common-mt', 'icu-uc'],
+        ]
+        foreach native_dependency_tuple : map_native_dependencies
+            native_dep_lib_name = native_dependency_tuple[0]
+
+            native_dep_name = native_dependency_tuple.length() == 2 ? native_dependency_tuple[1] : native_dep_lib_name
+
+            native_dep = cpp.find_library(native_dep_lib_name, required: true)
+
+            if native_dep_name == 'SDL2'
+
+                major_version = cpp.get_define(
+                    'SDL_MAJOR_VERSION',
+                    prefix: '#include <SDL2/SDL_version.h>',
+                ).strip('"')
+                assert(
+                    major_version != '',
+                    'failed to get major_version from SDL_version.h',
+                )
+
+                minor_version = cpp.get_define(
+                    'SDL_MINOR_VERSION',
+                    prefix: '#include <SDL2/SDL_version.h>',
+                ).strip('"')
+                assert(
+                    minor_version != '',
+                    'failed to get minor_version from SDL_version.h',
+                )
+
+                patch_version = cpp.get_define(
+                    'SDL_PATCHLEVEL',
+                    prefix: '#include <SDL2/SDL_version.h>',
+                ).strip('"')
+                assert(
+                    patch_version != '',
+                    'failed to get patch_version from SDL_version.h',
+                )
+
+                native_dep_with_version = declare_dependency(
+                    dependencies: native_dep,
+                    version: major_version
+                    + '.'
+                    + minor_version
+                    + '.'
+                    + patch_version,
+                )
+                meson.override_dependency(native_dep_name, native_dep_with_version)
+            else
+                meson.override_dependency(native_dep_name, native_dep)
+
+            endif
+
+        endforeach
+
+        native_deps = []
+
+        native_dep_names = [
+            'embind',
+            'embind-rtti',
+            'freetype',
+            'harfbuzz-mt',
+            'z',
+            'mpg123',
+            'png-mt',
+            'fetch-mt',
+        ]
+
+        foreach native_dep_name : native_dep_names
+            native_deps += cpp.find_library(native_dep_name, required: true)
+        endforeach
+
+        graphics_lib += {
+            'deps': [graphics_lib.get('deps'), native_deps],
+        }
+
+    else
+        error('Unhandled cross built system: ' + host_machine.system())
     endif
 endif
 
@@ -254,15 +356,30 @@ if build_application
         },
     )
 
-    online_multiplayer_user_fallback = false
+    online_multiplayer_system = 'httplib'
 
     if cpp_httlib_dep.found()
 
-        graphics_lib += {'deps': [graphics_lib.get('deps'), cpp_httlib_dep]}
+        graphics_lib += {
+            'deps': [graphics_lib.get('deps'), cpp_httlib_dep],
+            'compile_args': [
+                graphics_lib.get('compile_args'),
+                '-D_OOPETRIS_ONLINE_SYSTEM=0',
+            ],
+        }
 
+    elif meson.is_cross_build() and host_machine.system() == 'emscripten'
+        online_multiplayer_system = 'web'
+
+        graphics_lib += {
+            'compile_args': [
+                graphics_lib.get('compile_args'),
+                '-D_OOPETRIS_ONLINE_SYSTEM=1',
+            ],
+        }
     else
 
-        online_multiplayer_user_fallback = true
+        online_multiplayer_system = 'curl'
 
         curl_cpp_wrapper = dependency(
             'cpr',
@@ -274,7 +391,7 @@ if build_application
             'deps': [graphics_lib.get('deps'), curl_cpp_wrapper],
             'compile_args': [
                 graphics_lib.get('compile_args'),
-                '-D_OOPETRIS_ONLINE_USE_CURL',
+                '-D_OOPETRIS_ONLINE_SYSTEM=2',
             ],
         }
 

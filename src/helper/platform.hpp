@@ -8,7 +8,7 @@
 
 #include "./windows.hpp"
 
-enum class Platform : u8 { PC, Android, Console };
+enum class Platform : u8 { PC, Android, Console, Web };
 
 
 namespace utils {
@@ -19,6 +19,8 @@ namespace utils {
         return Platform::Android;
 #elif defined(__CONSOLE__)
         return Platform::Console;
+#elif defined(__EMSCRIPTEN__)
+        return Platform::Web;
 #else
         return Platform::PC;
 #endif

@@ -9,7 +9,7 @@
 
 #include "./buffer.hpp"
 #include "helper/windows.hpp"
-
+#include "manager/service_provider.hpp"
 
 #if defined(__linux__)
 
@@ -29,6 +29,7 @@ namespace secret {
 
     struct SecretStorage {
     private:
+        [[maybe_unused]] ServiceProvider* m_service_provider;
         KeyringType m_type;
 
 #if defined(__linux__) || defined(__ANDROID__)
@@ -41,7 +42,7 @@ namespace secret {
 
 
     public:
-        OOPETRIS_GRAPHICS_EXPORTED explicit SecretStorage(KeyringType type);
+        OOPETRIS_GRAPHICS_EXPORTED explicit SecretStorage(ServiceProvider* service_provider, KeyringType type);
 
         OOPETRIS_GRAPHICS_EXPORTED ~SecretStorage(); //NOLINT(performance-trivially-destructible)
 

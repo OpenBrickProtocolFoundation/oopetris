@@ -26,7 +26,7 @@ namespace lobby {
 
         [[nodiscard]] helper::expected<void, std::string> check_reachability();
 
-        explicit API(const std::string& api_url);
+        explicit API(ServiceProvider* service_provider, const std::string& api_url);
 
         helper::expected<lobby::VersionResult, std::string> get_version();
 
@@ -42,10 +42,17 @@ namespace lobby {
         OOPETRIS_GRAPHICS_EXPORTED ~API();
 
         OOPETRIS_GRAPHICS_EXPORTED
-        [[nodiscard]] helper::expected<API, std::string> static get_api(const std::string& url);
+        [[nodiscard]] helper::expected<API, std::string> static get_api(
+                ServiceProvider* service_provider,
+                const std::string& url
+        );
 
         OOPETRIS_GRAPHICS_EXPORTED
-        void static check_url(const std::string& url, std::function<void(const bool success)>&& callback);
+        void static check_url(
+                ServiceProvider* service_provider,
+                const std::string& url,
+                std::function<void(const bool success)>&& callback
+        );
 
         OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] bool is_authenticated();
 
