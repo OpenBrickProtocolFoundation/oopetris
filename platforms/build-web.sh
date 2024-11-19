@@ -17,18 +17,18 @@ fi
 
 EMSCRIPTEN_UPSTREAM_ROOT="$EMSCRIPTEN_ROOT/upstream/emscripten"
 
-EMSCRIPTEN_PACTH_FILE="$EMSCRIPTEN_UPSTREAM_ROOT/.patched_manually.meta"
+EMSCRIPTEN_PATCH_FILE="$EMSCRIPTEN_UPSTREAM_ROOT/.patched_manually.meta"
 
 PATCH_DIR="platforms/emscripten"
 
-if ! [ -e "$EMSCRIPTEN_PACTH_FILE" ]; then
+if ! [ -e "$EMSCRIPTEN_PATCH_FILE" ]; then
     ##TODO: upstream those patches
     # see: https://github.com/emscripten-core/emscripten/pull/18379
     # and: https://github.com/emscripten-core/emscripten/pull/22946
 
     git apply --unsafe-paths -p1 --directory="$EMSCRIPTEN_UPSTREAM_ROOT" "$PATCH_DIR/sdl2_image_port.diff"
 
-    touch "$EMSCRIPTEN_PACTH_FILE"
+    touch "$EMSCRIPTEN_PATCH_FILE"
 fi
 
 # git apply path
@@ -41,7 +41,7 @@ embuilder build sdl2-mt harfbuzz-mt freetype zlib sdl2_ttf mpg123 "sdl2_mixer-mp
 
 export EMSCRIPTEN_SYS_ROOT="$EMSCRIPTEN_UPSTREAM_ROOT/cache/sysroot"
 
-export BUILD_DIR="build-web"
+EMSCRIPTEN_SYS_LIB_DIR="$EMSCRIPTEN_SYS_ROOT/lib/wasm32-emscripten"
 
 export CC="emcc"
 export CXX="em++"
@@ -50,12 +50,151 @@ export RANLIB="emranlib"
 export STRIP="emstrip"
 export NM="emnm"
 
+EMSCRIPTEN_PORT_BUILD_DIR="$EMSCRIPTEN_UPSTREAM_ROOT/cache/ports"
+
+BUILD_DIR_FFMPEG="build-ffmpeg"
+
+BUILD_FFMPEG_FILE="$EMSCRIPTEN_PORT_BUILD_DIR/$BUILD_DIR_FFMPEG/build_successfull.meta"
+
+# build the ffmpeg dependencies
+# taken from: https://dev.to/alfg/ffmpeg-webassembly-2cbl
+# modifed to fit the style of this project + some manual modifications
+if [ "$COMPILE_TYPE" == "complete_rebuild" ] || ! [ -e "$BUILD_FFMPEG_FILE" ]; then
+
+    LAST_DIR="$PWD"
+
+    cd "$EMSCRIPTEN_PORT_BUILD_DIR"
+
+    mkdir -p "$BUILD_DIR_FFMPEG"
+
+    cd "$BUILD_DIR_FFMPEG"
+
+    LIBX264_DIR="x264-src"
+
+    if ! [ -e "$LIBX264_DIR" ]; then
+
+        LIBX264_DIR_VERSION="20191217-2245-stable"
+
+        wget "https://download.videolan.org/pub/videolan/x264/snapshots/x264-snapshot-${LIBX264_DIR_VERSION}.tar.bz2"
+
+        tar xvfj "x264-snapshot-${LIBX264_DIR_VERSION}.tar.bz2"
+
+        mv "x264-snapshot-${LIBX264_DIR_VERSION}" "$LIBX264_DIR"
+    fi
+
+    cd "$LIBX264_DIR"
+
+    BUILD_LIBX264_FILE="build_successfull.meta"
+
+    if ! [ -e "$BUILD_LIBX264_FILE" ]; then
+
+        emconfigure ./configure \
+            --enable-static \
+            --disable-cli \
+            --disable-asm \
+            --extra-cflags="-sUSE_PTHREADS=1" \
+            --host=i686-gnu \
+            --sysroot="$EMSCRIPTEN_SYS_ROOT" \
+            --prefix="$EMSCRIPTEN_SYS_ROOT" \
+            --libdir="$EMSCRIPTEN_SYS_LIB_DIR"
+
+        emmake make -j
+
+        emmake make install
+
+        touch "$BUILD_LIBX264_FILE"
+
+    fi
+
+    cd ..
+
+    FFMPEG_CLONE_DIR="ffmpeg-src"
+
+    GIT_FFMPEG_TAG="n7.1"
+
+    if ! [ -e "$FFMPEG_CLONE_DIR" ]; then
+
+        git clone https://github.com/FFmpeg/FFmpeg "$FFMPEG_CLONE_DIR"
+
+        cd "$FFMPEG_CLONE_DIR"
+
+        git checkout "$GIT_FFMPEG_TAG"
+
+    else
+        cd "$FFMPEG_CLONE_DIR"
+
+        git checkout "$GIT_FFMPEG_TAG"
+
+    fi
+
+    FFMPEG_COMMON_FLAGS="-pthread -sUSE_PTHREADS=1"
+
+    FFMPEG_LINK_FLAGS="$COMMON_FLAGS -sWASM=1 -sALLOW_MEMORY_GROWTH=1 -sASSERTIONS=1 -sERROR_ON_UNDEFINED_SYMBOLS=1"
+
+    ##TODO: add --disable-debug, in release mode
+
+    # Configure and build FFmpeg with emscripten.
+    # Disable all programs and only enable features we will use.
+    # https://github.com/FFmpeg/FFmpeg/blob/master/configure
+    emconfigure ./configure \
+        --disable-asm \
+        --disable-x86asm \
+        --disable-inline-asm \
+        --disable-stripping \
+        --target-os=none \
+        --arch=x86_32 \
+        --enable-cross-compile \
+        --disable-doc \
+        --disable-programs \
+        --disable-sdl2 \
+        --disable-all \
+        --enable-avcodec \
+        --enable-avformat \
+        --enable-avfilter \
+        --enable-avdevice \
+        --enable-avutil \
+        --enable-swresample \
+        --enable-swscale \
+        --enable-filters \
+        --enable-protocol="pipe,tcp" \
+        --enable-decoder=h264 \
+        --enable-encoder="h264"\
+        --enable-demuxer="mp4,raw_video" \
+        --enable-muxer="mp4" \
+        --enable-gpl \
+        --enable-libx264 \
+        --extra-cflags="$FFMPEG_COMMON_FLAGS" \
+        --extra-cxxflags="$FFMPEG_COMMON_FLAGS" \
+        --extra-ldflags="$FFMPEG_LINK_FLAGS" \
+        --sysroot="$EMSCRIPTEN_SYS_ROOT" \
+        --prefix="$EMSCRIPTEN_SYS_ROOT" \
+        --libdir="$EMSCRIPTEN_SYS_LIB_DIR" \
+        --nm="$NM" \
+        --ar="$AR" \
+        --cc="$CC" \
+        --cxx="$CXX" \
+        --objcc="$CC" \
+        --dep-cc="$CC"
+
+    emmake make -j
+
+    emmake make install
+
+    touch "$BUILD_FFMPEG_FILE"
+
+    cd "$LAST_DIR"
+
+fi
+
+export BUILD_DIR="build-web"
+
 export ARCH="wasm32"
 export CPU_ARCH="wasm32"
 export ENDIANESS="little"
 
 export ROMFS="platforms/romfs"
 
+#TODO: differentiate between release and debug mode, disable -sASSERTIONS and other debbug utilities
 export PACKAGE_FLAGS="'--use-port=sdl2', '--use-port=harfbuzz', '--use-port=freetype', '--use-port=zlib', '--use-port=sdl2_ttf', '--use-port=mpg123', '--use-port=sdl2_mixer', '-sSDL2_MIXER_FORMATS=[\"mp3\"]','--use-port=libpng', '--use-port=sdl2_image','-sSDL2_IMAGE_FORMATS=[\"png\",\"svg\"]', '--use-port=icu'"
 
 export COMMON_FLAGS="'-fexceptions', '-pthread', '-sUSE_PTHREADS=1', '-sEXCEPTION_CATCHING_ALLOWED=[..]', $PACKAGE_FLAGS"
@@ -154,7 +293,8 @@ if [ "$COMPILE_TYPE" == "complete_rebuild" ] || [ ! -e "$BUILD_DIR" ]; then
         --cross-file "$CROSS_FILE" \
         "-Dbuildtype=$BUILDTYPE" \
         -Ddefault_library=static \
-        -Dtests=false
+        -Dtests=false \
+        -Duse_embedded_ffmpeg=enabled
 
 fi
 

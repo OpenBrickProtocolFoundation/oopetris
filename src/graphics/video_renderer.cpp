@@ -227,3 +227,16 @@ MusicManager& VideoRenderer::music_manager() {
 }
 
 #endif
+
+
+#if defined(__EMSCRIPTEN__)
+
+[[nodiscard]] web::WebContext& VideoRenderer::web_context() {
+    return m_main_provider->web_context();
+}
+
+[[nodiscard]] const web::WebContext& VideoRenderer::web_context() const {
+    return m_main_provider->web_context();
+}
+
+#endif

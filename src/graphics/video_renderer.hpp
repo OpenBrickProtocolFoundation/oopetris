@@ -76,6 +76,13 @@ public:
     [[nodiscard]] const std::optional<DiscordInstance>& discord_instance() const override;
 
 #endif
+
+#if defined(__EMSCRIPTEN__)
+
+    [[nodiscard]] web::WebContext& web_context() override;
+    [[nodiscard]] const web::WebContext& web_context() const override;
+
+#endif
 };
 
 

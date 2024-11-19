@@ -353,7 +353,7 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
     BUILD_DIR_FFMPEG="build-ffmpeg"
 
-    BUILD_FFMPEG_FILE="$SYS_ROOT/$BUILD_DIR_FFMPEG/build_succesfull.meta"
+    BUILD_FFMPEG_FILE="$SYS_ROOT/$BUILD_DIR_FFMPEG/build_successfull.meta"
 
     if [ "$COMPILE_TYPE" == "complete_rebuild" ] || ! [ -e "$BUILD_FFMPEG_FILE" ]; then
 

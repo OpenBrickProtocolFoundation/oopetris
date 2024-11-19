@@ -471,11 +471,11 @@ if build_application
             endif
 
             ffmpeg_dep_names = [
-                'libavutil',
-                'libavcodec',
-                'libavformat',
-                'libavfilter',
-                'libswscale',
+                'avutil',
+                'avcodec',
+                'avformat',
+                'avfilter',
+                'swscale',
             ]
             ffmpeg_deps = []
             found_all_ffmpeg_deps = true
@@ -515,12 +515,12 @@ if build_application
             endif
 
             ffmpeg_dep_names = [
-                'libavutil',
-                'libavcodec',
-                'libavformat',
-                'libavfilter',
-                'libswscale',
-                'libswresample',
+                'avutil',
+                'avcodec',
+                'avformat',
+                'avfilter',
+                'swscale',
+                'swresample',
             ]
 
             if host_machine.system() == 'android'
@@ -533,6 +533,18 @@ if build_application
                 ]
             elif host_machine.system() == '3ds'
                 ffmpeg_can_be_supported = false
+            elif host_machine.system() == 'emscripten'
+                ffmpeg_can_be_supported = true
+
+                ffmpeg_dep_names += [
+                    'x264',
+                ]
+
+                foreach ffmpeg_dep_name : ffmpeg_dep_names
+                    ffmpeg_dep = cpp.find_library(ffmpeg_dep_name, required: use_embedded_ffmpeg_option)
+                    meson.override_dependency(ffmpeg_dep_name, ffmpeg_dep)
+                endforeach
+
             else
 
                 error(
