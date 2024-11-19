@@ -137,8 +137,12 @@ private:
 
 public:
     Application(std::shared_ptr<Window>&& window, CommandLineArguments&& arguments);
+
     Application(const Application&) = delete;
     Application& operator=(const Application&) = delete;
+
+    Application(Application&& other) noexcept = delete;
+    Application& operator=(Application&& other) noexcept = delete;
 
     void run();
 

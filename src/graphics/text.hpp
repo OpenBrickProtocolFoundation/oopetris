@@ -8,7 +8,7 @@
 #include "rect.hpp"
 #include "texture.hpp"
 
-//TODO: set this flag in the build system, or maybe also fix https://github.com/OpenBrickProtocolFoundation/oopetris/issues/132 in the process
+//TODO(Totto): set this flag in the build system, or maybe also fix https://github.com/OpenBrickProtocolFoundation/oopetris/issues/132 in the process
 #if defined(__EMSCRIPTEN__)
 #define OOPETRIS_DONT_USE_PRERENDERED_TEXT
 #endif
