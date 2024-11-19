@@ -36,6 +36,8 @@ fi
 # shellcheck disable=SC1091
 EMSDK_QUIET=1 source "$EMSCRIPTEN_ROOT/emsdk_env.sh" >/dev/null
 
+PTHREAD_POOL_SIZE="8"
+
 ## build theneeded dependencies
 embuilder build sdl2-mt harfbuzz-mt freetype zlib sdl2_ttf mpg123 "sdl2_mixer-mp3-mt" libpng-mt "sdl2_image:formats=png,svg:mt=1" icu-mt
 
@@ -131,7 +133,7 @@ if [ "$COMPILE_TYPE" == "complete_rebuild" ] || ! [ -e "$BUILD_FFMPEG_FILE" ]; t
 
     FFMPEG_COMMON_FLAGS="-pthread -sUSE_PTHREADS=1"
 
-    FFMPEG_LINK_FLAGS="$COMMON_FLAGS -sWASM=1 -sALLOW_MEMORY_GROWTH=1 -sASSERTIONS=1 -sERROR_ON_UNDEFINED_SYMBOLS=1"
+    FFMPEG_LINK_FLAGS="$COMMON_FLAGS -sWASM=1 -sALLOW_MEMORY_GROWTH=1 -sASSERTIONS=1 -sERROR_ON_UNDEFINED_SYMBOLS=1 -sPTHREAD_POOL_SIZE=$PTHREAD_POOL_SIZE"
 
     ##TODO: add --disable-debug, in release mode
 
@@ -203,7 +205,7 @@ export PACKAGE_FLAGS="'--use-port=sdl2', '--use-port=harfbuzz', '--use-port=free
 export COMMON_FLAGS="'-fexceptions', '-pthread', '-sUSE_PTHREADS=1', '-sEXCEPTION_CATCHING_ALLOWED=[..]', $PACKAGE_FLAGS"
 
 # TODO see if ALLOW_MEMORY_GROWTH is needed, but if we load ttf's and music it likely is and we don't have to debug OOm crashes, that aren't handled by some third party library, which is painful
-export LINK_FLAGS="$COMMON_FLAGS, '-sEXPORT_ALL=1', '-sUSE_WEBGPU=1', '-sWASM=1', '-sALLOW_MEMORY_GROWTH=1', '-sASSERTIONS=1','-sERROR_ON_UNDEFINED_SYMBOLS=1', '-sFETCH=1', '-sEXIT_RUNTIME=1'"
+export LINK_FLAGS="$COMMON_FLAGS, '-sEXPORT_ALL=1', '-sUSE_WEBGPU=1', '-sWASM=1', '-sALLOW_MEMORY_GROWTH=1', '-sASSERTIONS=1','-sERROR_ON_UNDEFINED_SYMBOLS=1', '-sFETCH=1', '-sEXIT_RUNTIME=1', '-sPTHREAD_POOL_SIZE=$PTHREAD_POOL_SIZE','-lidbfs.js'"
 export COMPILE_FLAGS="$COMMON_FLAGS ,'-DAUDIO_PREFER_MP3'"
 
 export CROSS_FILE="./platforms/crossbuild-web.ini"
