@@ -42,6 +42,7 @@ embuilder build sdl2-mt harfbuzz-mt freetype zlib sdl2_ttf mpg123 "sdl2_mixer-mp
 export EMSCRIPTEN_SYS_ROOT="$EMSCRIPTEN_UPSTREAM_ROOT/cache/sysroot"
 
 EMSCRIPTEN_SYS_LIB_DIR="$EMSCRIPTEN_SYS_ROOT/lib/wasm32-emscripten"
+EMSCRIPTEN_SYS_PKGCONFIG_DIR="$EMSCRIPTEN_SYS_ROOT/lib/pkgconfig"
 
 export CC="emcc"
 export CXX="em++"
@@ -96,7 +97,8 @@ if [ "$COMPILE_TYPE" == "complete_rebuild" ] || ! [ -e "$BUILD_FFMPEG_FILE" ]; t
             --host=i686-gnu \
             --sysroot="$EMSCRIPTEN_SYS_ROOT" \
             --prefix="$EMSCRIPTEN_SYS_ROOT" \
-            --libdir="$EMSCRIPTEN_SYS_LIB_DIR"
+            --libdir="$EMSCRIPTEN_SYS_LIB_DIR" \
+            --pkgconfigdir="$EMSCRIPTEN_SYS_PKGCONFIG_DIR"
 
         emmake make -j
 
@@ -156,10 +158,10 @@ if [ "$COMPILE_TYPE" == "complete_rebuild" ] || ! [ -e "$BUILD_FFMPEG_FILE" ]; t
         --enable-swresample \
         --enable-swscale \
         --enable-filters \
-        --enable-protocol="pipe,tcp" \
-        --enable-decoder=h264 \
-        --enable-encoder="h264"\
-        --enable-demuxer="mp4,raw_video" \
+        --enable-protocol="file,pipe,tcp" \
+        --enable-decoder="rawvideo" \
+        --enable-encoder="libx264" \
+        --enable-demuxer="rawvideo" \
         --enable-muxer="mp4" \
         --enable-gpl \
         --enable-libx264 \
@@ -169,6 +171,7 @@ if [ "$COMPILE_TYPE" == "complete_rebuild" ] || ! [ -e "$BUILD_FFMPEG_FILE" ]; t
         --sysroot="$EMSCRIPTEN_SYS_ROOT" \
         --prefix="$EMSCRIPTEN_SYS_ROOT" \
         --libdir="$EMSCRIPTEN_SYS_LIB_DIR" \
+        --pkgconfigdir="$EMSCRIPTEN_SYS_PKGCONFIG_DIR" \
         --nm="$NM" \
         --ar="$AR" \
         --cc="$CC" \
