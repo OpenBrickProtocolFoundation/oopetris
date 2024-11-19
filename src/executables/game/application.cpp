@@ -120,6 +120,8 @@ Application::Application(std::shared_ptr<Window>&& window, CommandLineArguments&
     }
 }
 
+Application::~Application() = default;
+
 #if defined(__EMSCRIPTEN__)
 void c_loop_entry(void* arg) {
     auto application = reinterpret_cast<Application*>(arg);
@@ -623,4 +625,74 @@ void Application::reload_api(const settings::Settings& settings) {
     } else {
         spdlog::info("No lobby API provided");
     }
+}
+
+
+void Application::push_scene(std::unique_ptr<scenes::Scene> scene) {
+    m_scene_stack.push_back(std::move(scene));
+}
+
+// implementation of ServiceProvider
+[[nodiscard]] EventDispatcher& Application::event_dispatcher() {
+    return m_event_dispatcher;
+}
+
+[[nodiscard]] const EventDispatcher& Application::event_dispatcher() const {
+    return m_event_dispatcher;
+}
+
+FontManager& Application::font_manager() {
+    return *m_font_manager;
+}
+
+[[nodiscard]] const FontManager& Application::font_manager() const {
+    return *m_font_manager;
+}
+
+CommandLineArguments& Application::command_line_arguments() {
+    return m_command_line_arguments;
+}
+
+[[nodiscard]] const CommandLineArguments& Application::command_line_arguments() const {
+    return m_command_line_arguments;
+}
+
+SettingsManager& Application::settings_manager() {
+    return *m_settings_manager;
+}
+
+[[nodiscard]] const SettingsManager& Application::settings_manager() const {
+    return *m_settings_manager;
+}
+
+MusicManager& Application::music_manager() {
+    return *m_music_manager;
+}
+
+[[nodiscard]] const MusicManager& Application::music_manager() const {
+    return *m_music_manager;
+}
+
+[[nodiscard]] const Renderer& Application::renderer() const {
+    return m_renderer;
+}
+
+[[nodiscard]] const Window& Application::window() const {
+    return *m_window;
+}
+
+[[nodiscard]] Window& Application::window() {
+    return *m_window;
+}
+
+[[nodiscard]] input::InputManager& Application::input_manager() {
+    return *m_input_manager;
+}
+
+[[nodiscard]] const input::InputManager& Application::input_manager() const {
+    return *m_input_manager;
+}
+
+[[nodiscard]] const std::unique_ptr<lobby::API>& Application::api() const {
+    return m_api;
 }
