@@ -471,11 +471,11 @@ if build_application
             endif
 
             ffmpeg_dep_names = [
-                'avutil',
-                'avcodec',
-                'avformat',
-                'avfilter',
-                'swscale',
+                'libavutil',
+                'libavcodec',
+                'libavformat',
+                'libavfilter',
+                'libswscale',
             ]
             ffmpeg_deps = []
             found_all_ffmpeg_deps = true
