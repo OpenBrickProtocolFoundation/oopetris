@@ -48,7 +48,7 @@ std::vector<std::string> utils::supported_features() {
     }
     return std::filesystem::path{ std::string{ pref_path } };
 #elif defined(__EMSCRIPTEN__)
-    return std::filesystem::path{ "/" };
+    return std::filesystem::path{ "/persistent/" };
 #elif defined(__CONSOLE__)
     // this is in the sdcard of the switch / 3ds , since internal storage is read-only for applications!
     return std::filesystem::path{ "." };
