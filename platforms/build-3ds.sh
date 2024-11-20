@@ -260,8 +260,7 @@ if [ "$COMPILE_TYPE" == "complete_rebuild" ] || [ ! -e "$BUILD_DIR" ]; then
         -Dcurl:unittests=disabled \
         -Dcurl:bearer-auth=enabled \
         -Dcurl:brotli=enabled \
-        -Dcurl:libz=enabled \
-        -Duse_embedded_ffmpeg=disabled
+        -Dcurl:libz=enabled
 
 fi
 
