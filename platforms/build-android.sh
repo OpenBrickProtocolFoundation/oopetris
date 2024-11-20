@@ -181,15 +181,17 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
         cd "$BUILD_DIR_MPG123"
 
-        if [ ! -e "mpg123-1.32.6.tar.bz2" ]; then
-            wget -q "https://www.mpg123.de/download/mpg123-1.32.6.tar.bz2"
+        MPG123_VERSION="1.32.9"
+
+        if [ ! -e "mpg123-$MPG123_VERSION.tar.bz2" ]; then
+            wget -q "https://www.mpg123.de/download/mpg123-$MPG123_VERSION.tar.bz2"
         fi
 
-        if [ ! -d "mpg123-1.32.6" ]; then
-            tar -xf "mpg123-1.32.6.tar.bz2"
+        if [ ! -d "mpg123-$MPG123_VERSION" ]; then
+            tar -xf "mpg123-$MPG123_VERSION.tar.bz2"
         fi
 
-        cd "mpg123-1.32.6"
+        cd "mpg123-$MPG123_VERSION"
 
         cd ports/cmake/
 
@@ -239,15 +241,17 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
         cd "$BUILD_DIR_OPENSSL"
 
-        if [ ! -e "openssl-3.3.0.tar.gz" ]; then
-            wget -q "https://github.com/openssl/openssl/releases/download/openssl-3.3.0/openssl-3.3.0.tar.gz"
+        OPENSSL_VERSION="3.4.0"
+
+        if [ ! -e "openssl-$OPENSSL_VERSION.tar.gz" ]; then
+            wget -q "https://github.com/openssl/openssl/releases/download/openssl-$OPENSSL_VERSION/openssl-$OPENSSL_VERSION.tar.gz"
         fi
 
-        if [ ! -d "openssl-3.3.0" ]; then
-            tar -xzf "openssl-3.3.0.tar.gz"
+        if [ ! -d "openssl-$OPENSSL_VERSION" ]; then
+            tar -xzf "openssl-$OPENSSL_VERSION.tar.gz"
         fi
 
-        cd "openssl-3.3.0"
+        cd "openssl-$OPENSSL_VERSION"
 
         OPENSSL_TARGET_ARCH="android-$ARCH"
 
@@ -293,7 +297,7 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
         MESON_CPU_FAMILY="aarch64"
     fi
 
-    export COMPILE_FLAGS="'--sysroot=${SYS_ROOT:?}','-fPIE','-fPIC','--target=$ARM_COMPILER_TRIPLE','-DAUDIO_PREFER_MP3'"
+    export COMPILE_FLAGS="'--sysroot=${SYS_ROOT:?}','-fPIE','-fPIC','--target=$ARM_COMPILER_TRIPLE','-D__ANDROID_API__=$SDK_VERSION', '-DAUDIO_PREFER_MP3'"
 
     export LINK_FLAGS="'-fPIE','-L$SYS_ROOT/usr/lib'"
 
