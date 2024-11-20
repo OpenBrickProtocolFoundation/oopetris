@@ -6,8 +6,8 @@ if [ ! -d "toolchains" ]; then
     mkdir -p toolchains
 fi
 
-export NDK_VER_DOWNLOAD="r28-beta1"
-export NDK_VER_DESC="r28-beta1"
+export NDK_VER_DOWNLOAD="r28-beta2"
+export NDK_VER_DESC="r28-beta2"
 
 export BASE_PATH="$PWD/toolchains/android-ndk-$NDK_VER_DESC"
 export ANDROID_NDK_HOME="$BASE_PATH"
@@ -165,7 +165,7 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
     ## BUILD dependencies not buildable with meson (to complicated to port)
 
-    ## build mpg123 with autotools (meson port is to much work atm, for this feature)
+    ## build mpg123 with cmake (meson port is to much work atm, for this feature)
 
     LAST_DIR="$PWD"
 
@@ -173,7 +173,7 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
     BUILD_DIR_MPG123="build-mpg123"
 
-    BUILD_MPG123_FILE="$SYS_ROOT/$BUILD_DIR_MPG123/build_succesfull.meta"
+    BUILD_MPG123_FILE="$SYS_ROOT/$BUILD_DIR_MPG123/build_successfull.meta"
 
     if [ "$COMPILE_TYPE" == "complete_rebuild" ] || ! [ -e "$BUILD_MPG123_FILE" ]; then
 
@@ -181,19 +181,19 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
         cd "$BUILD_DIR_MPG123"
 
-        if [ ! -e "mpg123-1.32.6.tar.bz2" ]; then
-            wget -q "https://www.mpg123.de/download/mpg123-1.32.6.tar.bz2"
+        MPG123_VERSION="1.32.9"
+
+        if [ ! -e "mpg123-$MPG123_VERSION.tar.bz2" ]; then
+            wget -q "https://www.mpg123.de/download/mpg123-$MPG123_VERSION.tar.bz2"
         fi
 
-        if [ ! -d "mpg123-1.32.6" ]; then
-            tar -xf "mpg123-1.32.6.tar.bz2"
+        if [ ! -d "mpg123-$MPG123_VERSION" ]; then
+            tar -xf "mpg123-$MPG123_VERSION.tar.bz2"
         fi
 
-        cd "mpg123-1.32.6"
+        cd "mpg123-$MPG123_VERSION"
 
         cd ports/cmake/
-
-        BUILD_DIR_MPG123="build-mpg123"
 
         mkdir -p "$BUILD_DIR_MPG123"
 
@@ -223,6 +223,64 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
     cd "$LAST_DIR"
 
+    ## build flac with cmake (meson port doesn't work for 32 bits machines atm) (we need to check for fseeko and ftello correctly in there)
+
+    LAST_DIR="$PWD"
+
+    cd "$SYS_ROOT"
+
+    BUILD_DIR_FLAC="build-flac"
+
+    BUILD_FLAC_FILE="$SYS_ROOT/$BUILD_DIR_FLAC/build_successfull.meta"
+
+    if [ "$COMPILE_TYPE" == "complete_rebuild" ] || ! [ -e "$BUILD_FLAC_FILE" ]; then
+
+        mkdir -p "$BUILD_DIR_FLAC"
+
+        cd "$BUILD_DIR_FLAC"
+
+        FLAC_VERSION="1.4.3"
+
+        if [ ! -e "flac-$FLAC_VERSION.tar.xz" ]; then
+            wget -q "https://github.com/xiph/flac/releases/download/$FLAC_VERSION/flac-$FLAC_VERSION.tar.xz"
+        fi
+
+        if [ ! -d "flac-$FLAC_VERSION" ]; then
+            tar -xf "flac-$FLAC_VERSION.tar.xz"
+        fi
+
+        cd "flac-$FLAC_VERSION"
+
+        mkdir -p "$BUILD_DIR_FLAC"
+
+        cd "$BUILD_DIR_FLAC"
+
+        cmake .. --install-prefix "$SYS_ROOT/usr" "-DCMAKE_SYSROOT=$SYS_ROOT" -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+            "-DCMAKE_SYSTEM_NAME=Android" \
+            "-DCMAKE_SYSTEM_VERSION=$SDK_VERSION" \
+            "-DCMAKE_ANDROID_ARCH_ABI=$KEY" \
+            "-DCMAKE_ANDROID_NDK=$ANDROID_NDK" \
+            "-DCMAKE_ANDROID_NDK_TOOLCHAIN_VERSION=clang" \
+            -DBUILD_PROGRAMS=OFF \
+            -DBUILD_EXAMPLES=OFF \
+            -DBUILD_TESTING=OFF \
+            -DBUILD_CXXLIBS=OFF \
+            -DBUILD_DOCS=OFF \
+            -DWITH_OGG=OFF \
+            -DBUILD_SHARED_LIBS=OFF \
+            -DINSTALL_PKGCONFIG_MODULES=ON
+
+
+        cmake --build .
+
+        cmake --install .
+
+        touch "$BUILD_FLAC_FILE"
+
+    fi
+
+    cd "$LAST_DIR"
+
     ## build openssl with make (meson port is to much work atm, for this feature)
 
     LAST_DIR="$PWD"
@@ -231,7 +289,7 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
     BUILD_DIR_OPENSSL="build-openssl"
 
-    BUILD_OPENSSL_FILE="$SYS_ROOT/$BUILD_DIR_OPENSSL/build_succesfull.meta"
+    BUILD_OPENSSL_FILE="$SYS_ROOT/$BUILD_DIR_OPENSSL/build_successfull.meta"
 
     if [ "$COMPILE_TYPE" == "complete_rebuild" ] || ! [ -e "$BUILD_OPENSSL_FILE" ]; then
 
@@ -239,15 +297,17 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
         cd "$BUILD_DIR_OPENSSL"
 
-        if [ ! -e "openssl-3.3.0.tar.gz" ]; then
-            wget -q "https://github.com/openssl/openssl/releases/download/openssl-3.3.0/openssl-3.3.0.tar.gz"
+        OPENSSL_VERSION="3.4.0"
+
+        if [ ! -e "openssl-$OPENSSL_VERSION.tar.gz" ]; then
+            wget -q "https://github.com/openssl/openssl/releases/download/openssl-$OPENSSL_VERSION/openssl-$OPENSSL_VERSION.tar.gz"
         fi
 
-        if [ ! -d "openssl-3.3.0" ]; then
-            tar -xzf "openssl-3.3.0.tar.gz"
+        if [ ! -d "openssl-$OPENSSL_VERSION" ]; then
+            tar -xzf "openssl-$OPENSSL_VERSION.tar.gz"
         fi
 
-        cd "openssl-3.3.0"
+        cd "openssl-$OPENSSL_VERSION"
 
         OPENSSL_TARGET_ARCH="android-$ARCH"
 
@@ -293,7 +353,7 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
         MESON_CPU_FAMILY="aarch64"
     fi
 
-    export COMPILE_FLAGS="'--sysroot=${SYS_ROOT:?}','-fPIE','-fPIC','--target=$ARM_COMPILER_TRIPLE','-DAUDIO_PREFER_MP3'"
+    export COMPILE_FLAGS="'--sysroot=${SYS_ROOT:?}','-fPIE','-fPIC','--target=$ARM_COMPILER_TRIPLE','-D__ANDROID_API__=$SDK_VERSION', '-DBITNESS=$BITNESS','-DAUDIO_PREFER_MP3'"
 
     export LINK_FLAGS="'-fPIE','-L$SYS_ROOT/usr/lib'"
 
@@ -318,7 +378,7 @@ as      = '$AS'
 ranlib  = '$RANLIB'
 strip   = '$STRIP'
 objcopy = '$OBJCOPY'
-pkg-config = 'false'
+pkg-config = 'pkg-config'
 llvm-config = '$LLVM_CONFIG'
 
 [built-in options]
@@ -333,7 +393,7 @@ prefix = '$SYS_ROOT'
 libdir = '$LIB_PATH'
 
 [properties]
-pkg_config_libdir = '$LIB_PATH'
+pkg_config_libdir = '$SYS_ROOT/usr/lib/pkgconfig'
 sys_root = '${SYS_ROOT}'
 
 EOF
@@ -363,7 +423,7 @@ meson.override_dependency(
 EOF
     fi
 
-    export LIBRARY_PATH="$LIBRARY_PATH:usr/lib/$ARM_NAME_TRIPLE/$SDK_VERSION:$LIB_PATH"
+    export LIBRARY_PATH="$LIBRARY_PATH:$SYS_ROOT/usr/lib/$ARM_NAME_TRIPLE/$SDK_VERSION:$LIB_PATH"
 
     if [ "$COMPILE_TYPE" == "complete_rebuild" ] || [ ! -e "$BUILD_DIR" ]; then
 
@@ -372,7 +432,7 @@ EOF
             "--prefix=$SYS_ROOT" \
             "--wipe" \
             "--includedir=$INC_PATH" \
-            "--libdir=usr/lib/$ARM_NAME_TRIPLE/$SDK_VERSION" \
+            "--libdir=$SYS_ROOT/usr/lib/$ARM_NAME_TRIPLE/$SDK_VERSION" \
             --cross-file "./platforms/crossbuild-android-$ARM_TARGET_ARCH.ini" \
             "-Dbuildtype=$BUILDTYPE" \
             -Dsdl2:use_hidapi=enabled \

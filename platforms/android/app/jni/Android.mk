@@ -51,12 +51,6 @@ include $(PREBUILT_SHARED_LIBRARY)
 
 
 include $(CLEAR_VARS)
-LOCAL_MODULE := flac
-LOCAL_SRC_FILES := $(shell find "${SUBPROJECTS_PATH}" -name libFLAC.so)
-include $(PREBUILT_SHARED_LIBRARY)
-
-
-include $(CLEAR_VARS)
 LOCAL_MODULE := sdl2_image
 LOCAL_SRC_FILES := $(shell find "${SUBPROJECTS_PATH}" -name libsdl2image.so)
 include $(PREBUILT_SHARED_LIBRARY)
@@ -105,7 +99,7 @@ include $(PREBUILT_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := main
-LOCAL_SHARED_LIBRARIES := SDL2 sdl2_ttf freetype png16 sdl2_mixer vorbis vorbisfile ogg flac sdl2_image fmt keyutils oopetris_core oopetris_recordings oopetris_graphics oopetris
+LOCAL_SHARED_LIBRARIES := SDL2 sdl2_ttf freetype png16 sdl2_mixer vorbis vorbisfile ogg sdl2_image fmt keyutils oopetris_core oopetris_recordings oopetris_graphics oopetris
 LOCAL_LDLIBS := -ldl -lGLESv1_CM -lGLESv2 -lOpenSLES -llog -landroid
 LOCAL_LDFLAGS := -Wl,--no-undefined
 include $(BUILD_SHARED_LIBRARY)

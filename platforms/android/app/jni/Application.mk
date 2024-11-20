@@ -11,3 +11,7 @@ APP_PLATFORM := android-35
 # support 16KB page sizes:
 # see: https://developer.android.com/guide/practices/page-sizes 
 APP_SUPPORT_FLEXIBLE_PAGE_SIZES := true
+
+# support weak api defs:
+# see https://developer.android.com/ndk/guides/using-newer-apis
+APP_WEAK_API_DEFS := true

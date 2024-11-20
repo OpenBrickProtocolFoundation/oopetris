@@ -29,7 +29,15 @@ if meson.is_cross_build()
         #     )
         # endif
     elif host_machine.system() == 'android'
-        # noop
+
+        flac_dep = dependency(
+            'flac',
+            allow_fallback: false,
+            required: true,
+        )
+
+        meson.override_dependency('libflac', flac_dep)
+
     elif host_machine.system() == 'emscripten'
 
         # check if the command line flags are supported and a simple example compiles
@@ -384,7 +392,9 @@ if build_application
         curl_cpp_wrapper = dependency(
             'cpr',
             required: true,
-            default_options: {'tests': 'disabled'},
+            default_options: {
+                'tests': 'disabled',
+            },
         )
 
         graphics_lib += {
