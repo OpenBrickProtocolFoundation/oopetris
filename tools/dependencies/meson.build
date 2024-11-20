@@ -386,11 +386,6 @@ if build_application
             required: true,
             default_options: {
                 'tests': 'disabled',
-                'curl:tests': 'disabled',
-                'curl:unittests': 'disabled',
-                'curl:bearer-auth': 'enabled',
-                'curl:brotli': 'enabled',
-                'curl:libz': 'enabled',
             },
         )
 

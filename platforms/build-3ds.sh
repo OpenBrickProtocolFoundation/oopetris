@@ -255,7 +255,12 @@ if [ "$COMPILE_TYPE" == "complete_rebuild" ] || [ ! -e "$BUILD_DIR" ]; then
         "--wipe" \
         --cross-file "$CROSS_FILE" \
         "-Dbuildtype=$BUILDTYPE" \
-        -Ddefault_library=static
+        -Ddefault_library=static \
+        -Dcurl:tests=disabled \
+        -Dcurl:unittests=disabled \
+        -Dcurl:bearer-auth=enabled \
+        -Dcurl:brotli=enabled \
+        -Dcurl:libz=enabled
 
 fi
 
