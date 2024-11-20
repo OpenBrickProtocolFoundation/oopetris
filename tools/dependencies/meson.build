@@ -384,7 +384,14 @@ if build_application
         curl_cpp_wrapper = dependency(
             'cpr',
             required: true,
-            default_options: {'tests': 'disabled'},
+            default_options: {
+                'tests': 'disabled',
+                'curl:tests': 'disabled',
+                'curl:unittests': 'disabled',
+                'curl:bearer-auth': 'enabled',
+                'curl:brotli': 'enabled',
+                'curl:libz': 'enabled',
+            },
         )
 
         graphics_lib += {

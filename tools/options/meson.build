@@ -34,6 +34,42 @@ if meson.is_cross_build() and host_machine.system() == 'serenity'
     ]
     core_lib += {'compile_args': temp}
     temp = 0
+elif meson.is_cross_build() and host_machine.system() == 'android'
+    cpp = meson.get_compiler('cpp')
+    target_android_api = '35'
+
+    android_api = cpp.get_define(
+        '__ANDROID_API__',
+        prefix: '#include <features.h>',
+    ).strip('"')
+    assert(
+        android_api != '',
+        'failed to get android_api version',
+    )
+
+    android_compile_args = []
+    android_link_args = []
+
+    # APP_SUPPORT_FLEXIBLE_PAGE_SIZES
+    android_link_args += '-Wl,-z,max-page-size=16384'
+
+    if android_api != target_android_api
+        android_compile_args += ('-D__ANDROID_API__=' + target_android_api)
+    endif
+
+    android_compile_args += [
+        '-D__ANDROID_UNAVAILABLE_SYMBOLS_ARE_WEAK__',
+        '-Werror=unguarded-availability',
+    ]
+
+    if not meson.is_subproject()
+        add_global_link_arguments(android_link_args, language: ['cpp'])
+        add_global_arguments(android_compile_args, language: ['cpp'])
+    else
+        add_project_link_arguments(android_link_args, language: ['cpp'])
+        add_project_arguments(android_compile_args, language: ['cpp'])
+
+    endif
 endif
 
 cpp = meson.get_compiler('cpp')
