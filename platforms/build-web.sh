@@ -46,7 +46,7 @@ export EMSCRIPTEN_SYS_ROOT="$EMSCRIPTEN_UPSTREAM_ROOT/cache/sysroot"
 EMSCRIPTEN_SYS_LIB_DIR="$EMSCRIPTEN_SYS_ROOT/lib/wasm32-emscripten"
 EMSCRIPTEN_SYS_PKGCONFIG_DIR="$EMSCRIPTEN_SYS_ROOT/lib/pkgconfig"
 
-export PKG_CONFIG_PATH="$EMSCRIPTEN_SYS_PKGCONFIG_DIR:$EMSCRIPTEN_SYS_LIB_DIR/pkgconfig"
+export PKG_CONFIG_PATH="$EMSCRIPTEN_SYS_PKGCONFIG_DIR"
 
 export CC="emcc"
 export CXX="em++"
@@ -101,11 +101,15 @@ if [ "$COMPILE_TYPE" == "complete_rebuild" ] || ! [ -e "$BUILD_FFMPEG_FILE" ]; t
             --host=i686-gnu \
             --sysroot="$EMSCRIPTEN_SYS_ROOT" \
             --prefix="$EMSCRIPTEN_SYS_ROOT" \
-            --libdir="$EMSCRIPTEN_SYS_LIB_DIR" 
+            --libdir="$EMSCRIPTEN_SYS_LIB_DIR"
 
         emmake make -j
 
         emmake make install
+
+        # move pkgconfig file into correct folder
+
+        find "$EMSCRIPTEN_SYS_LIB_DIR/pkgconfig/" -name "*.pc" -exec mv {} "$EMSCRIPTEN_SYS_PKGCONFIG_DIR/" \;
 
         touch "$BUILD_LIBX264_FILE"
 
