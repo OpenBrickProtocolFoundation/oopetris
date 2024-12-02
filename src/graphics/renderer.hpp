@@ -22,10 +22,22 @@ public:
 private:
     SDL_Renderer* m_renderer;
 
+    OOPETRIS_GRAPHICS_EXPORTED explicit Renderer(SDL_Renderer* renderer);
+
+
 public:
     OOPETRIS_GRAPHICS_EXPORTED explicit Renderer(const Window& window, VSync v_sync);
+
+    OOPETRIS_GRAPHICS_EXPORTED static Renderer get_software_renderer(std::unique_ptr<SDL_Surface>& surface);
+
     OOPETRIS_GRAPHICS_EXPORTED Renderer(const Renderer&) = delete;
     OOPETRIS_GRAPHICS_EXPORTED Renderer& operator=(const Renderer&) = delete;
+
+
+    OOPETRIS_GRAPHICS_EXPORTED Renderer(Renderer&& other) noexcept;
+
+    OOPETRIS_GRAPHICS_EXPORTED Renderer& operator=(Renderer&& other) = default;
+
     OOPETRIS_GRAPHICS_EXPORTED ~Renderer();
 
     OOPETRIS_GRAPHICS_EXPORTED void set_draw_color(const Color& color) const;

@@ -110,7 +110,7 @@ void Tetrion::render(const ServiceProvider& service_provider) const {
     }
 }
 
-[[nodiscard]] helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
+[[nodiscard]] ui::Widget::EventHandleResult
 Tetrion::handle_event(const std::shared_ptr<input::InputManager>& /*input_manager*/, const SDL_Event& /*event*/) {
     return false;
 }

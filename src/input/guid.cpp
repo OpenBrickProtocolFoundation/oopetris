@@ -6,6 +6,7 @@
 
 #include <fmt/format.h>
 #include <fmt/ranges.h>
+#include <iostream>
 
 sdl::GUID::GUID(const SDL_GUID& data) : m_guid{} {
     std::ranges::copy(data.data, std::begin(m_guid));

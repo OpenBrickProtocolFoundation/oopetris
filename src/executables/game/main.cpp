@@ -48,7 +48,19 @@ namespace {
 #endif
 
 
-#if !(defined(__EMSCRIPTEN__))
+#if defined(__EMSCRIPTEN__)
+
+        // See: https://emscripten.org/docs/api_reference/Filesystem-API.html#filesystem-api-idbfs
+        EM_ASM(FS.mkdir('/persistent'); FS.mount(IDBFS, { autoPersist: true }, '/persistent'); FS.syncfs(
+                true,
+                function(err) {
+                    if (err) {
+                        console.error(err);
+                    }
+                }
+        ););
+
+#endif
 
         const auto logs_path = utils::get_root_folder() / "logs";
 
@@ -64,7 +76,7 @@ namespace {
                     fmt::format("{}/oopetris.log", logs_path.string()), 1024 * 1024 * 10, 5, true
             ));
         }
-#endif
+
 
         auto combined_logger = std::make_shared<spdlog::logger>("combined_logger", begin(sinks), end(sinks));
         spdlog::set_default_logger(combined_logger);

@@ -19,6 +19,7 @@ namespace details::settings::menu {
 
     struct Action {
         ui::Widget* widget;
+        void* data;
     };
 
     struct Command {

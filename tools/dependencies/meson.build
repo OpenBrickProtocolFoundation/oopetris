@@ -61,7 +61,7 @@ if meson.is_cross_build()
             ['SDL2_ttf'],
             ['mpg123'],
             ['SDL2_mixer_mp3', 'SDL2_mixer'],
-            ['SDL2_image_png-svg-mt', 'SDL2_image'],
+            ['SDL2_image-png-svg-mt', 'SDL2_image'],
             ['icu_common-mt', 'icu-uc'],
         ]
         foreach native_dependency_tuple : map_native_dependencies
@@ -443,7 +443,7 @@ if build_application
         else
             # TODO: create a proper installer for macOS : https://mesonbuild.com/Creating-OSX-packages.html
             error(
-                'unsuported system for building the installer: '
+                'unsupported system for building the installer: '
                 + host_machine.system(),
             )
 
@@ -453,6 +453,152 @@ if build_application
         temp += '-DBUILD_INSTALLER'
         core_lib += {'compile_args': temp}
         temp = 0
+
+    endif
+
+    use_embedded_ffmpeg_option = get_option('use_embedded_ffmpeg')
+    use_embedded_ffmpeg = false
+    replay_video_rendering_enabled = true
+
+    if host_machine.system() == 'darwin' or host_machine.system() == 'linux' or host_machine.system() == 'windows'
+
+        use_embedded_ffmpeg = use_embedded_ffmpeg_option.enable_auto_if(is_flatpak_build).enabled()
+
+        # on the desktop we only use the embedded ffmpeg, if we require it, we prefer the command line tool, that is installed on the system, except for flatpak builds
+        if use_embedded_ffmpeg
+            if host_machine.system() == 'windows'
+                error('Embedded ffmpeg is still WIP on windows')
+            endif
+
+            ffmpeg_dep_names = [
+                'libavutil',
+                'libavcodec',
+                'libavformat',
+                'libavfilter',
+                'libswscale',
+            ]
+            ffmpeg_deps = []
+            found_all_ffmpeg_deps = true
+
+            foreach ffmpeg_dep_name : ffmpeg_dep_names
+                ffmpeg_dep = dependency(ffmpeg_dep_name, required: use_embedded_ffmpeg_option)
+                if not ffmpeg_dep.found()
+                    found_all_ffmpeg_deps = false
+                    break
+                endif
+
+                ffmpeg_deps += ffmpeg_dep
+
+            endforeach
+
+            message(
+                'ffmpeg deps: '
+                + (found_all_ffmpeg_deps ? 'FOUND' : 'NOT ALL FOUND'),
+            )
+
+            replay_video_rendering_enabled = found_all_ffmpeg_deps
+            if replay_video_rendering_enabled
+                graphics_lib += {
+                    'deps': [graphics_lib.get('deps'), ffmpeg_deps],
+                }
+            endif
+
+        endif
+
+    else
+        if meson.is_cross_build()
+
+            use_embedded_ffmpeg = use_embedded_ffmpeg_option.allowed()
+
+            if not use_embedded_ffmpeg
+                error('only embedded ffmpeg is supported in cross builds')
+            endif
+
+            ffmpeg_dep_names = [
+                'libavutil',
+                'libavcodec',
+                'libavformat',
+                'libavfilter',
+                'libswscale',
+                'libswresample',
+            ]
+
+            if host_machine.system() == 'android'
+                ffmpeg_can_be_supported = true
+
+            elif host_machine.system() == 'switch'
+                ffmpeg_can_be_supported = true
+                ffmpeg_dep_names += [
+                    'dav1d',
+                ]
+            elif host_machine.system() == '3ds'
+                ffmpeg_can_be_supported = false
+            elif host_machine.system() == 'emscripten'
+                ffmpeg_can_be_supported = true
+                ffmpeg_dep_names += [
+                    'x264',
+                ]
+            else
+
+                error(
+                    'unhandled cross built system for video rendering: '
+                    + host_machine.system(),
+                )
+            endif
+
+            if not ffmpeg_can_be_supported
+                replay_video_rendering_enabled = false
+            else
+
+                ffmpeg_deps = []
+                found_all_ffmpeg_deps = true
+
+                c = meson.get_compiler('c')
+
+                foreach ffmpeg_dep_name : ffmpeg_dep_names
+                    ffmpeg_dep = dependency(ffmpeg_dep_name, required: use_embedded_ffmpeg_option)
+                    if not ffmpeg_dep.found()
+                        found_all_ffmpeg_deps = false
+                        break
+                    endif
+
+                    ffmpeg_deps += ffmpeg_dep
+
+                endforeach
+
+                message(
+                    'ffmpeg deps: '
+                    + (found_all_ffmpeg_deps ? 'FOUND' : 'NOT ALL FOUND'),
+                )
+
+                replay_video_rendering_enabled = found_all_ffmpeg_deps
+                if replay_video_rendering_enabled
+                    graphics_lib += {
+                        'deps': [graphics_lib.get('deps'), ffmpeg_deps],
+                    }
+                endif
+
+            endif
+
+        else
+            error(
+                'unhandled system for video rendering: '
+                + host_machine.system(),
+            )
+        endif
+    endif
+
+    if replay_video_rendering_enabled
+        _set_flags = ['-D_ENABLE_REPLAY_RENDERING']
+        if use_embedded_ffmpeg
+            _set_flags += ['-D_FFMPEG_USE_EMBEDDED']
+        endif
+
+        graphics_lib += {
+            'compile_args': [graphics_lib.get('compile_args'), _set_flags],
+        }
+
+        _set_flags = 0
 
     endif
 
