@@ -25,6 +25,7 @@ if ! [ -e "$EMSCRIPTEN_PACTH_FILE" ]; then
     ##TODO: upstream those patches
     # see: https://github.com/emscripten-core/emscripten/pull/18379/commits
     # and: https://github.com/emscripten-core/emscripten/pull/18379
+    # and: https://github.com/emscripten-core/emscripten/pull/22946
 
     git apply --unsafe-paths -p1 --directory="$EMSCRIPTEN_UPSTREAM_ROOT" "$PATCH_DIR/sdl2_image_port.diff"
     git apply --unsafe-paths -p1 --directory="$EMSCRIPTEN_UPSTREAM_ROOT" "$PATCH_DIR/sdl2_mixer_port.diff"
