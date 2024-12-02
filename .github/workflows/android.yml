@@ -30,10 +30,10 @@ jobs:
         run: |
           pip install meson --break-system-packages
 
-      - name: Setup ninja
+      - name: Setup dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install ninja-build jq -y --no-install-recommends
+          sudo apt-get install ninja-build jq nasm -y --no-install-recommends
 
       - name: Setup JDK
         uses: actions/setup-java@v4
