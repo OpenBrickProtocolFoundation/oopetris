@@ -147,6 +147,16 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
         find "$HOST_ROOT/sysroot/usr/lib/$ARM_NAME_TRIPLE/$SDK_VERSION/" -maxdepth 1 -name "*.o" -exec ln -s "{}" "${SYS_ROOT:?}/usr/lib/" \;
 
+        # TODO: remove this temporary fix:
+        # see: https://github.com/android/ndk/issues/2107
+        if [ "$ARCH_VERSION" = "armv7a" ]; then
+            sed -i -e 's/asm(/__asm__(/g' "$HOST_ROOT/sysroot/usr/include/arm-linux-androideabi/asm/swab.h"
+        elif [ "$ARCH_VERSION" = "i686" ]; then
+            sed -i -e 's/asm(/__asm__(/g' "$HOST_ROOT/sysroot/usr/include/i686-linux-android/asm/swab.h"
+        elif [ "$ARCH_VERSION" = "x86_64" ]; then
+            sed -i -e 's/asm(/__asm__(/g' "$HOST_ROOT/sysroot/usr/include/x86_64-linux-android/asm/swab.h"
+        fi
+
         cd "$LAST_DIR"
 
     fi
@@ -271,7 +281,6 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
             -DBUILD_SHARED_LIBS=OFF \
             -DINSTALL_PKGCONFIG_MODULES=ON
 
-
         cmake --build .
 
         cmake --install .
@@ -375,7 +384,7 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
         fi
 
-        ./ffmpeg-android-maker.sh "--target-abis=$ARCH" "--android-api-level=$SDK_VERSION"
+        ./ffmpeg-android-maker.sh "--target-abis=$ARCH" "--android-api-level=$SDK_VERSION" --enable-libx264
 
         FFMPEG_MAKER_OUTPUT_DIR="output"
 
