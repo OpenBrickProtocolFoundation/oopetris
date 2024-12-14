@@ -226,6 +226,7 @@ core_lib += {'deps': [core_lib.get('deps'), magic_enum_dep]}
 
 utf8cpp_dep = dependency(
     'utf8cpp',
+    'utfcpp',
     required: true,
     version: '>=4.0.0',
 )
