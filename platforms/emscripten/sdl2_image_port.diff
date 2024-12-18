@@ -1,8 +1,8 @@
 diff --git a/tools/ports/sdl2_image.py b/tools/ports/sdl2_image.py
-index c72ef576..0c12feba 100644
+index 70fa1499..36be807b 100644
 --- a/tools/ports/sdl2_image.py
 +++ b/tools/ports/sdl2_image.py
-@@ -16,15 +16,17 @@ variants = {
+@@ -18,7 +18,8 @@ variants = {
  }
  
  OPTIONS = {
@@ -12,40 +12,38 @@ index c72ef576..0c12feba 100644
  }
  
  SUPPORTED_FORMATS = {'avif', 'bmp', 'gif', 'jpg', 'jxl', 'lbm', 'pcx', 'png',
-                      'pnm', 'qoi', 'svg', 'tga', 'tif', 'webp', 'xcf', 'xpm', 'xv'}
+@@ -26,7 +27,8 @@ SUPPORTED_FORMATS = {'avif', 'bmp', 'gif', 'jpg', 'jxl', 'lbm', 'pcx', 'png',
  
  # user options (from --use-port)
--opts: Dict[str, Set] = {
+ opts: Dict[str, Set] = {
 -  'formats': set()
-+opts = {
 +  'formats': set(),
 +  'mt': 0
  }
  
  
-@@ -42,7 +44,7 @@ def get_lib_name(settings):
+@@ -44,7 +46,7 @@ def get_lib_name(settings):
    libname = 'libSDL2_image'
    if formats != '':
-     libname += '_' + formats
--  return libname + '.a'
-+  return libname + ('-mt' if opts['mt'] else '') + '.a'
+     libname += '-' + formats
+-  if settings.PTHREADS:
++  if settings.PTHREADS or opts['mt']:
+     libname += '-mt'
+   return libname + '.a'
  
- 
- def get(ports, settings, shared):
-@@ -70,6 +72,8 @@ def get(ports, settings, shared):
- 
+@@ -75,7 +77,7 @@ def get(ports, settings, shared):
      if 'jpg' in formats:
-       defs += ['-sUSE_LIBJPEG']
-+    if opts['mt']:
-+      defs += ['-pthread']
+       flags += ['-sUSE_LIBJPEG']
  
-     ports.build_port(src_dir, final, 'sdl2_image', flags=defs, srcs=srcs)
+-    if settings.PTHREADS:
++    if settings.PTHREADS or opts['mt']:
+       flags += ['-pthread']
  
-@@ -99,7 +103,12 @@ def handle_options(options, error_handler):
+     ports.build_port(src_dir, final, 'sdl2_image', flags=flags, srcs=srcs)
+@@ -106,6 +108,12 @@ def handle_options(options, error_handler):
        error_handler(f'{format} is not a supported format')
      else:
        opts['formats'].add(format)
--
 +      
 +  mt = options['mt']
 +  if mt not in ["1","0"]:
@@ -53,5 +51,5 @@ index c72ef576..0c12feba 100644
 +  else:
 +    opts['mt'] = int(mt)
  
+ 
  def show():
-   return 'sdl2_image (-sUSE_SDL_IMAGE=2 or --use-port=sdl2_image; zlib license)'
