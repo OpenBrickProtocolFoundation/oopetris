@@ -12,7 +12,7 @@ struct Game : public ui::Widget {
 private:
     using TetrionHeaders = std::vector<recorder::TetrionHeader>;
 
-    std::unique_ptr<ClockSource> m_clock_source;
+    std::shared_ptr<ClockSource> m_clock_source;
     SimulationStep m_simulation_step_index{ 0 };
     std::unique_ptr<Tetrion> m_tetrion;
     std::shared_ptr<input::GameInput> m_input;
@@ -24,6 +24,15 @@ public:
             const std::shared_ptr<input::GameInput>& input,
             const tetrion::StartingParameters& starting_parameters,
             u32 simulation_frequency,
+            const ui::Layout& layout,
+            bool is_top_level
+    );
+
+    OOPETRIS_GRAPHICS_EXPORTED explicit Game(
+            ServiceProvider* service_provider,
+            const std::shared_ptr<input::GameInput>& input,
+            const tetrion::StartingParameters& starting_parameters,
+            const std::shared_ptr<ClockSource>& clock_source,
             const ui::Layout& layout,
             bool is_top_level
     );

@@ -13,8 +13,10 @@ graphics_src_files += files(
     'link_label.hpp',
     'slider.cpp',
     'slider.hpp',
+    'spinner.cpp',
+    'spinner.hpp',
     'text_button.cpp',
     'text_button.hpp',
     'textinput.cpp',
-    'textinput.hpp',
+    'textinput.cpp',
 )
