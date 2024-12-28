@@ -148,7 +148,7 @@ void detail::ColorCanvas::draw_pseudo_circle(const ServiceProvider& service_prov
     renderer.draw_self_computed_circle(center, diameter, circle_color);
 }
 
-helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
+ui::Widget::EventHandleResult
 detail::ColorCanvas::handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) {
     Widget::EventHandleResult handled = false;
 
@@ -164,7 +164,7 @@ detail::ColorCanvas::handle_event(const std::shared_ptr<input::InputManager>& in
             SDL_CaptureMouse(SDL_TRUE);
             handled = {
                 true,
-                { ui::EventHandleType::RequestFocus, this }
+                { .handle_type = ui::EventHandleType::RequestFocus, .widget = this, .data = nullptr }
             };
         }
     } else if (pointer_event == input::PointerEvent::PointerUp) {
@@ -457,7 +457,7 @@ void ui::ColorPicker::render(const ServiceProvider& service_provider) const {
     m_color_text->render(service_provider);
 }
 
-helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
+ui::Widget::EventHandleResult
 ui::ColorPicker::handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) {
 
     auto handled = m_color_slider->handle_event(input_manager, event);
@@ -487,7 +487,7 @@ ui::ColorPicker::handle_event(const std::shared_ptr<input::InputManager>& input_
 
     if (handled) {
         if (const auto additional = handled.get_additional(); additional.has_value()) {
-            switch (additional.value().first) {
+            switch (additional.value().handle_type) {
                 case ui::EventHandleType::RequestFocus:
                     if (not m_color_text->has_focus()) {
                         m_color_text->focus();

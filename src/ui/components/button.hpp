@@ -102,7 +102,7 @@ namespace ui {
                 if (on_clicked()) {
                     return {
                         true,
-                        { ui::EventHandleType::RequestAction, this }
+                        { ui::EventHandleType::RequestAction, this, nullptr }
                     };
                 }
                 return true;
@@ -114,7 +114,7 @@ namespace ui {
                     if (on_clicked()) {
                         return {
                             true,
-                            { ui::EventHandleType::RequestAction, this }
+                            { ui::EventHandleType::RequestAction, this, nullptr }
                         };
                     }
                 }

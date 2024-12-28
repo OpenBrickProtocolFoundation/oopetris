@@ -49,7 +49,7 @@ if host_machine.system() == 'darwin'
     elif host_machine.cpu_family() == 'x86_64'
         lib_dir = 'lib' / 'x86_64'
     else
-        error('unsuported architectue for macos: ' + host_machine.cpu_family())
+        error('unsupported architecture for macos: ' + host_machine.cpu_family())
     endif
 
 elif host_machine.system() == 'linux'
@@ -81,11 +81,11 @@ elif host_machine.system() == 'linux'
         endif
 
         if linux_distro == 'alpine'
-            error('unsuported libc for linux: musl')
+            error('unsupported libc for linux: musl')
         endif
 
     else
-        error('unsuported architectue for linux: ' + host_machine.cpu_family())
+        error('unsupported architecture for linux: ' + host_machine.cpu_family())
     endif
 elif host_machine.system() == 'windows'
     dynamic_lib = 'discord_game_sdk.dll'
@@ -94,10 +94,10 @@ elif host_machine.system() == 'windows'
     elif host_machine.cpu_family() == 'x86_64'
         lib_dir = 'lib' / 'x86_64'
     else
-        error('unsuported architectue for windows: ' + host_machine.cpu_family())
+        error('unsupported architecture for windows: ' + host_machine.cpu_family())
     endif
 else
-    error('unsuported system: ' + host_machine.system())
+    error('unsupported system: ' + host_machine.system())
 endif
 
 c = meson.get_compiler('c')

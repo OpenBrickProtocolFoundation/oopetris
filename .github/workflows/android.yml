@@ -30,10 +30,10 @@ jobs:
         run: |
           pip install meson --break-system-packages
 
-      - name: Setup ninja
+      - name: Setup dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install ninja-build jq -y --no-install-recommends
+          sudo apt-get install ninja-build jq nasm -y --no-install-recommends
 
       - name: Setup JDK
         uses: actions/setup-java@v4
@@ -50,6 +50,7 @@ jobs:
 
       - name: Build native libraries
         run: |
+          export ANDROID_SDK_HOME="$HOME/.android/sdk"
           bash ./platforms/build-android.sh ${{ matrix.config.arch }} complete_rebuild release
           cp -r ./assets/ platforms/android/app/src/main
 

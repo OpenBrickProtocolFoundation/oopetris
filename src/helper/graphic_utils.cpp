@@ -25,6 +25,14 @@ std::vector<std::string> utils::supported_features() {
     features.emplace_back("discord integration");
 #endif
 
+#if defined(_ENABLE_REPLAY_RENDERING)
+#if defined(_FFMPEG_USE_EMBEDDED)
+    features.emplace_back("replay video rendering (embedded)");
+#else
+    features.emplace_back("replay video rendering (system)");
+#endif
+#endif
+
     return features;
 }
 
@@ -40,7 +48,7 @@ std::vector<std::string> utils::supported_features() {
     }
     return std::filesystem::path{ std::string{ pref_path } };
 #elif defined(__EMSCRIPTEN__)
-    return std::filesystem::path{ "/" };
+    return std::filesystem::path{ "/persistent/" };
 #elif defined(__CONSOLE__)
     // this is in the sdcard of the switch / 3ds , since internal storage is read-only for applications!
     return std::filesystem::path{ "." };
@@ -193,5 +201,35 @@ void utils::exit(int status_code) {
     emscripten_force_exit(status_code);
 #else
     std::exit(status_code);
+#endif
+}
+
+// inspired by SDL_SYS_SetupThread also uses that code for most platforms
+OOPETRIS_GRAPHICS_EXPORTED void utils::set_thread_name(const char* name) {
+
+#if defined(__APPLE__) || defined(__MACOSX__)
+    if (pthread_setname_np(name) == ERANGE) {
+        char namebuf[16] = {}; /* Limited to 16 chars (with 0 byte) */
+        memcpy(namebuf, name, 15);
+        namebuf[15] = '\0';
+        pthread_setname_np(namebuf);
+    }
+#elif defined(__linux__) || defined(__ANDROID__) || defined(FLATPAK_BUILD)
+    if (pthread_setname_np(pthread_self(), name) == ERANGE) {
+        char namebuf[16] = {}; /* Limited to 16 chars (with 0 byte) */
+        memcpy(namebuf, name, 15);
+        namebuf[15] = '\0';
+        pthread_setname_np(pthread_self(), namebuf);
+    }
+#elif defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
+    std::wstring name_w{};
+    for (std::size_t i = 0; i < strlen(name); ++i) {
+        name_w += name[i];
+    }
+
+    SetThreadDescription(GetCurrentThread(), name_w.c_str());
+
+#else
+    UNUSED(name);
 #endif
 }

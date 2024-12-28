@@ -95,13 +95,13 @@ void custom_ui::RecordingFileChooser::render(const ServiceProvider& service_prov
     m_main_grid.render(service_provider);
 }
 
-helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>> custom_ui::RecordingFileChooser::handle_event(
+ui::Widget::EventHandleResult custom_ui::RecordingFileChooser::handle_event(
         const std::shared_ptr<input::InputManager>& input_manager,
         const SDL_Event& event
 ) {
     //TODO(Totto): this double nested component can't correctly detect focus changes (since the checking for a focus change only occurs at one level deep)
     //TODO(Totto): allow horizontal RIGHT <-> LEFT focus change on horizontal focus_layouts
-    if (const auto handled = m_main_grid.handle_event(input_manager, event); handled) {
+    if (auto handled = m_main_grid.handle_event(input_manager, event); handled) {
         return handled;
     }
 

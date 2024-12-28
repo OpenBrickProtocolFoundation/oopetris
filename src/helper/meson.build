@@ -1,4 +1,5 @@
 graphics_src_files += files(
+    'c_helpers.hpp',
     'clock_source.cpp',
     'clock_source.hpp',
     'console_helpers.cpp',
