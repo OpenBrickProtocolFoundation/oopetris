@@ -6,8 +6,8 @@ if [ ! -d "toolchains" ]; then
     mkdir -p toolchains
 fi
 
-export NDK_VER_DOWNLOAD="r28-beta2"
-export NDK_VER_DESC="r28-beta2"
+export NDK_VER_DOWNLOAD="r28-beta3"
+export NDK_VER_DESC="r28-beta3"
 
 export BASE_PATH="$PWD/toolchains/android-ndk-$NDK_VER_DESC"
 export ANDROID_NDK_HOME="$BASE_PATH"
