@@ -23,13 +23,10 @@ PATCH_DIR="platforms/emscripten"
 
 if ! [ -e "$EMSCRIPTEN_PACTH_FILE" ]; then
     ##TODO: upstream those patches
-    # see: https://github.com/emscripten-core/emscripten/pull/18379/commits
-    # and: https://github.com/emscripten-core/emscripten/pull/18379
+    # see: https://github.com/emscripten-core/emscripten/pull/18379
     # and: https://github.com/emscripten-core/emscripten/pull/22946
 
     git apply --unsafe-paths -p1 --directory="$EMSCRIPTEN_UPSTREAM_ROOT" "$PATCH_DIR/sdl2_image_port.diff"
-    git apply --unsafe-paths -p1 --directory="$EMSCRIPTEN_UPSTREAM_ROOT" "$PATCH_DIR/sdl2_mixer_port.diff"
-    git apply --unsafe-paths -p1 --directory="$EMSCRIPTEN_UPSTREAM_ROOT" "$PATCH_DIR/default_settings.diff"
 
     touch "$EMSCRIPTEN_PACTH_FILE"
 fi
@@ -40,7 +37,7 @@ fi
 EMSDK_QUIET=1 source "$EMSCRIPTEN_ROOT/emsdk_env.sh" >/dev/null
 
 ## build theneeded dependencies
-embuilder build sdl2-mt harfbuzz-mt freetype zlib sdl2_ttf mpg123 "sdl2_mixer:formats=mp3" libpng-mt "sdl2_image:formats=png,svg:mt=1" icu-mt
+embuilder build sdl2-mt harfbuzz-mt freetype zlib sdl2_ttf mpg123 "sdl2_mixer-mp3-mt" libpng-mt "sdl2_image:formats=png,svg:mt=1" icu-mt
 
 export EMSCRIPTEN_SYS_ROOT="$EMSCRIPTEN_UPSTREAM_ROOT/cache/sysroot"
 
