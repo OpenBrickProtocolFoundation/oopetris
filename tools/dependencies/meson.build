@@ -60,7 +60,7 @@ if meson.is_cross_build()
             ['SDL2-mt', 'SDL2'],
             ['SDL2_ttf'],
             ['mpg123'],
-            ['SDL2_mixer_mp3', 'SDL2_mixer'],
+            ['SDL2_mixer-mp3-mt', 'SDL2_mixer'],
             ['SDL2_image-png-svg-mt', 'SDL2_image'],
             ['icu_common-mt', 'icu-uc'],
         ]
