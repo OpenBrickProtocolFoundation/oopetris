@@ -43,10 +43,18 @@ jobs:
             architecture: ucrt-x86_64
             shell: 'msys2 {0}'
 
+          - name: Linux (ARM64)
+            os: ubuntu
+            os-version: 24.04-arm
+            use-clang: false
+            arm: true
+            shell: bash
+
           - name: Linux
             os: ubuntu
             os-version: 24.04
             use-clang: false
+            arm: false
             shell: bash
 
           - name: Linux Clang (libstdc++)
@@ -54,6 +62,7 @@ jobs:
             os-version: 24.04
             use-clang: true
             use-clang_stdlib: false
+            arm: false
             shell: bash
 
           - name: Linux Clang (libc++)
@@ -61,6 +70,7 @@ jobs:
             os-version: 24.04
             use-clang: true
             use-clang_stdlib: true
+            arm: false
             shell: bash
 
           - name: MacOS
