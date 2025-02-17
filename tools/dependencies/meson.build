@@ -443,7 +443,7 @@ if build_application
         else
             # TODO: create a proper installer for macOS : https://mesonbuild.com/Creating-OSX-packages.html
             error(
-                'unsuported system for building the installer: '
+                'unsupported system for building the installer: '
                 + host_machine.system(),
             )
 
