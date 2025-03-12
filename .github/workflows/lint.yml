@@ -24,10 +24,10 @@ jobs:
         run: |
           wget https://apt.llvm.org/llvm.sh
           chmod +x llvm.sh
-          sudo ./llvm.sh 19
-          echo "CC=clang-19" >> "$GITHUB_ENV"
-          echo "CXX=clang++-19" >> "$GITHUB_ENV"
-          echo "OBJC=clang-19" >> "$GITHUB_ENV"
+          sudo ./llvm.sh 20
+          echo "CC=clang-20" >> "$GITHUB_ENV"
+          echo "CXX=clang++-20" >> "$GITHUB_ENV"
+          echo "OBJC=clang-20" >> "$GITHUB_ENV"
 
       - name: Prepare compile_commands.json
         run: |
@@ -44,7 +44,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           style: file
-          version: 19
+          version: 20
           database: build
           files-changed-only: ${{ github.event_name != 'workflow_dispatch' }}
           lines-changed-only: ${{ github.event_name != 'workflow_dispatch' }}
