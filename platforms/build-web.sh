@@ -159,3 +159,9 @@ if [ "$COMPILE_TYPE" == "complete_rebuild" ] || [ ! -e "$BUILD_DIR" ]; then
 fi
 
 meson compile -C "$BUILD_DIR"
+
+if [ -n "$ENABLE_TESTING" ]; then
+
+    meson test -C "$BUILD_DIR"
+
+fi

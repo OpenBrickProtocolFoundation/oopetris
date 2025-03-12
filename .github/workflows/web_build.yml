@@ -29,8 +29,7 @@ jobs:
 
       - name: Build
         run: |
-          bash ./platforms/build-web.sh
-          meson test -C build-web
+          ENABLE_TESTING=1 bash ./platforms/build-web.sh
 
       # TODO upload page to gh-pages!
       - name: Upload artifacts
