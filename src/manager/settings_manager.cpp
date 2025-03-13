@@ -20,6 +20,8 @@ namespace {
 
 SettingsManager::SettingsManager(ServiceProvider* service_provider) : m_service_provider{ service_provider } {
 
+    // To stop clang about complaining
+    UNUSED(m_service_provider);
 #if defined(__EMSCRIPTEN__)
     const auto content = m_service_provider->web_context().local_storage().get_item(settings_key);
 
