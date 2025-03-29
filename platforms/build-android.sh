@@ -181,7 +181,7 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
         cd "$BUILD_DIR_MPG123"
 
-        MPG123_VERSION="1.32.9"
+        MPG123_VERSION="1.32.10"
 
         if [ ! -e "mpg123-$MPG123_VERSION.tar.bz2" ]; then
             wget -q "https://www.mpg123.de/download/mpg123-$MPG123_VERSION.tar.bz2"
@@ -239,7 +239,7 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
         cd "$BUILD_DIR_FLAC"
 
-        FLAC_VERSION="1.4.3"
+        FLAC_VERSION="1.5.0"
 
         if [ ! -e "flac-$FLAC_VERSION.tar.xz" ]; then
             wget -q "https://github.com/xiph/flac/releases/download/$FLAC_VERSION/flac-$FLAC_VERSION.tar.xz"
@@ -297,7 +297,7 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
         cd "$BUILD_DIR_OPENSSL"
 
-        OPENSSL_VERSION="3.4.0"
+        OPENSSL_VERSION="3.4.1"
 
         if [ ! -e "openssl-$OPENSSL_VERSION.tar.gz" ]; then
             wget -q "https://github.com/openssl/openssl/releases/download/openssl-$OPENSSL_VERSION/openssl-$OPENSSL_VERSION.tar.gz"
