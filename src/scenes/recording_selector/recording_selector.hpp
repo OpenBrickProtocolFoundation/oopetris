@@ -13,6 +13,7 @@ namespace details::recording::selector {
 
     struct Action {
         ui::Widget* widget;
+        void* data;
     };
 
     struct Command {

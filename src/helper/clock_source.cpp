@@ -1,7 +1,9 @@
 #include "helper/clock_source.hpp"
+#include <core/helper/utils.hpp>
 
 #include <SDL.h>
 #include <cassert>
+#include <iostream>
 #include <spdlog/spdlog.h>
 
 namespace {
@@ -44,4 +46,32 @@ double LocalClock::resume() {
     m_paused_at = std::nullopt;
     spdlog::info("resuming clock (duration of pause: {} s)", duration);
     return duration;
+}
+
+
+ManualClock::ManualClock() = default;
+
+[[nodiscard]] SimulationStep ManualClock::simulation_step_index() const {
+    return m_simulation_step_index;
+}
+
+bool ManualClock::can_be_paused() {
+    return false;
+}
+
+void ManualClock::pause() {
+    UNREACHABLE();
+}
+
+double ManualClock::resume() {
+    UNREACHABLE();
+}
+
+
+void ManualClock::increment_simulation_step_index() {
+    ++m_simulation_step_index;
+}
+
+void ManualClock::set_simulation_step_index(SimulationStep index) {
+    m_simulation_step_index = index;
 }

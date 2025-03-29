@@ -6,8 +6,6 @@
 #include "recording_chooser.hpp"
 #endif
 
-#include <recordings/utility/recording_reader.hpp>
-
 #include "graphics/window.hpp"
 #include "helper/constants.hpp"
 #include "helper/graphic_utils.hpp"
@@ -19,9 +17,15 @@
 #include "ui/layout.hpp"
 #include "ui/layouts/scroll_layout.hpp"
 #include "ui/widget.hpp"
+#include <recordings/utility/recording_reader.hpp>
 
 #include <filesystem>
 #include <stdexcept>
+
+#if defined(_ENABLE_REPLAY_RENDERING)
+#include "graphics/video_renderer.hpp"
+#endif
+
 
 namespace scenes {
 
@@ -99,6 +103,41 @@ namespace scenes {
                                                           ) }
                                     };
                                 }
+
+
+#if defined(_ENABLE_REPLAY_RENDERING)
+                                if (auto render_button = utils::is_child_class<ui::TextButton>(action.widget);
+                                    render_button.has_value()) {
+
+
+                                    auto recording_component = utils::is_child_class<custom_ui::RecordingComponent>(
+                                            reinterpret_cast< //NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+                                                    ui::Widget*>(action.data)
+                                    );
+                                    if (not recording_component.has_value()) {
+                                        throw std::runtime_error(
+                                                "Requested action on render button has invalid data, this is a fatal "
+                                                "error"
+                                        );
+                                    }
+
+                                    const auto recording_path = recording_component.value()->metadata().path;
+
+                                    auto ren = VideoRenderer{
+                                        m_service_provider, recording_path, shapes::UPoint{ 1280, 720 }
+                                    };
+
+                                    //TODO: do this in a seperate thread
+                                    ren.render("test.mp4", 60, [](double progress) {
+                                        // spdlog::info("Progress: {}", progress);
+                                        UNUSED(progress);
+                                    });
+
+                                    return UpdateResult{ SceneUpdate::StopUpdating, std::nullopt };
+                                }
+#endif
+
+
 #if defined(_HAVE_FILE_DIALOGS)
 
                                 if (auto recording_file_chooser =
@@ -137,11 +176,12 @@ namespace scenes {
     bool
     RecordingSelector::handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) {
 
-
         if (const auto event_result = m_main_layout.handle_event(input_manager, event); event_result) {
             if (const auto additional = event_result.get_additional();
-                additional.has_value() and additional.value().first == ui::EventHandleType::RequestAction) {
-                m_next_command = Command{ Action(additional.value().second) };
+                additional.has_value() and additional.value().handle_type == ui::EventHandleType::RequestAction) {
+                m_next_command = Command{
+                    Action{ .widget = additional.value().widget, .data = additional.value().data }
+                };
             }
 
             return true;
@@ -217,6 +257,8 @@ namespace scenes {
         }
 
         auto focus_helper = ui::FocusHelper{ 3 };
+
+        //TODO(Totto): sort by date, get the date from additional information or the file creation date
 
         for (const auto& metadata : metadata_vector) {
             scroll_layout->add<custom_ui::RecordingComponent>(

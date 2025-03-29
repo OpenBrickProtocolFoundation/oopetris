@@ -4,8 +4,8 @@
 #include "input/input.hpp"
 #include "ui/widget.hpp"
 
+#include <iostream>
 #include <ranges>
-
 
 ui::FocusLayout::FocusLayout(const Layout& layout, u32 focus_id, FocusOptions options, bool is_top_level)
     : Widget{ layout, WidgetType::Container, is_top_level },
@@ -70,7 +70,7 @@ ui::Widget::EventHandleResult ui::FocusLayout::handle_focus_change_button_events
         const SDL_Event& event
 ) {
 
-    Widget::EventHandleResult handled = false;
+    ui::Widget::EventHandleResult handled = false;
 
     const auto navigation_action = input_manager->get_navigation_event(event);
 
@@ -96,8 +96,7 @@ ui::Widget::EventHandleResult ui::FocusLayout::handle_focus_change_events(
         return false;
     }
 
-    Widget::EventHandleResult handled = false;
-
+    ui::Widget::EventHandleResult handled{ false };
 
     if (m_focus_id.has_value()) {
         const auto& widget = m_widgets.at(focusable_index_by_id(m_focus_id.value()));
@@ -136,7 +135,7 @@ ui::FocusLayout::handle_event_result(const std::optional<ui::Widget::InnerState>
 
     auto value = result.value();
 
-    switch (value.first) {
+    switch (value.handle_type) {
         case ui::EventHandleType::RequestFocus: {
             const auto focusable = as_focusable(widget);
             if (not focusable.has_value()) {
@@ -161,7 +160,9 @@ ui::FocusLayout::handle_event_result(const std::optional<ui::Widget::InnerState>
 
             // if the layout itself has not focus, it needs focus itself too
             if (not has_focus()) {
-                return ui::Widget::InnerState{ ui::EventHandleType::RequestFocus, value.second };
+                return ui::Widget::InnerState{ .handle_type = ui::EventHandleType::RequestFocus,
+                                               .widget = value.widget,
+                                               .data = value.data };
             }
 
 
@@ -192,12 +193,16 @@ ui::FocusLayout::handle_event_result(const std::optional<ui::Widget::InnerState>
             const auto test_forward = try_set_next_focus(FocusChangeDirection::Forward);
             if (not test_forward) {
                 if (m_options.wrap_around) {
-                    return ui::Widget::InnerState{ ui::EventHandleType::RequestUnFocus, value.second };
+                    return ui::Widget::InnerState{ .handle_type = ui::EventHandleType::RequestUnFocus,
+                                                   .widget = value.widget,
+                                                   .data = value.data };
                 }
 
                 const auto test_backwards = try_set_next_focus(FocusChangeDirection::Backward);
                 if (not test_backwards) {
-                    return ui::Widget::InnerState{ ui::EventHandleType::RequestUnFocus, value.second };
+                    return ui::Widget::InnerState{ .handle_type = ui::EventHandleType::RequestUnFocus,
+                                                   .widget = value.widget,
+                                                   .data = value.data };
                 }
             }
 
@@ -205,7 +210,9 @@ ui::FocusLayout::handle_event_result(const std::optional<ui::Widget::InnerState>
         }
         case ui::EventHandleType::RequestAction: {
             // just forward it
-            return ui::Widget::InnerState{ ui::EventHandleType::RequestAction, value.second };
+            return ui::Widget::InnerState{ .handle_type = ui::EventHandleType::RequestAction,
+                                           .widget = value.widget,
+                                           .data = value.data };
         }
         default:
             UNREACHABLE();

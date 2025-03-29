@@ -114,8 +114,9 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
     export BIN_DIR="$HOST_ROOT/bin"
     export PATH="$BIN_DIR:$PATH"
 
-    LIB_PATH="${SYS_ROOT}/usr/lib/$ARM_TRIPLE:${SYS_ROOT}/usr/lib/$ARM_TRIPLE/${SDK_VERSION}"
-    INC_PATH="${SYS_ROOT}/usr/include"
+    export LIB_PATH="${SYS_ROOT}/usr/lib/$ARM_TRIPLE:${SYS_ROOT}/usr/lib/$ARM_TRIPLE/${SDK_VERSION}"
+    export INC_PATH="${SYS_ROOT}/usr/include"
+    export PKG_CONFIG_PATH="${SYS_ROOT}/usr/lib/pkgconfig/"
 
     export LIBRARY_PATH="$SYS_ROOT/usr/lib/$ARM_NAME_TRIPLE/$SDK_VERSION"
 
@@ -145,6 +146,16 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
         find "$HOST_ROOT/sysroot/usr/lib/$ARM_NAME_TRIPLE/$SDK_VERSION/" -maxdepth 1 -name "*.so" -exec ln -s "{}" "${SYS_ROOT:?}/usr/lib/" \;
 
         find "$HOST_ROOT/sysroot/usr/lib/$ARM_NAME_TRIPLE/$SDK_VERSION/" -maxdepth 1 -name "*.o" -exec ln -s "{}" "${SYS_ROOT:?}/usr/lib/" \;
+
+        # TODO: remove this temporary fix:
+        # see: https://github.com/android/ndk/issues/2107
+        if [ "$ARCH_VERSION" = "armv7a" ]; then
+            sed -i -e 's/asm(/__asm__(/g' "$HOST_ROOT/sysroot/usr/include/arm-linux-androideabi/asm/swab.h"
+        elif [ "$ARCH_VERSION" = "i686" ]; then
+            sed -i -e 's/asm(/__asm__(/g' "$HOST_ROOT/sysroot/usr/include/i686-linux-android/asm/swab.h"
+        elif [ "$ARCH_VERSION" = "x86_64" ]; then
+            sed -i -e 's/asm(/__asm__(/g' "$HOST_ROOT/sysroot/usr/include/x86_64-linux-android/asm/swab.h"
+        fi
 
         cd "$LAST_DIR"
 
@@ -270,7 +281,6 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
             -DBUILD_SHARED_LIBS=OFF \
             -DINSTALL_PKGCONFIG_MODULES=ON
 
-
         cmake --build .
 
         cmake --install .
@@ -344,6 +354,52 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
     cd "$LAST_DIR"
 
+    ## build ffmpeg for android (using https://github.com/Javernaut/ffmpeg-android-maker)
+
+    LAST_DIR="$PWD"
+
+    cd "$SYS_ROOT"
+
+    BUILD_DIR_FFMPEG="build-ffmpeg"
+
+    BUILD_FFMPEG_FILE="$SYS_ROOT/$BUILD_DIR_FFMPEG/build_successfull.meta"
+
+    if [ "$COMPILE_TYPE" == "complete_rebuild" ] || ! [ -e "$BUILD_FFMPEG_FILE" ]; then
+
+        mkdir -p "$BUILD_DIR_FFMPEG"
+
+        cd "$BUILD_DIR_FFMPEG"
+
+        FFMPEG_MAKER_DIR="maker"
+
+        if ! [ -e "$FFMPEG_MAKER_DIR" ]; then
+
+            git clone https://github.com/Javernaut/ffmpeg-android-maker.git "$FFMPEG_MAKER_DIR"
+
+            cd "$FFMPEG_MAKER_DIR"
+        else
+            cd "$FFMPEG_MAKER_DIR"
+
+            git pull
+
+        fi
+
+        ./ffmpeg-android-maker.sh "--target-abis=$ARCH" "--android-api-level=$SDK_VERSION" --enable-libx264
+
+        FFMPEG_MAKER_OUTPUT_DIR="output"
+
+        find "$FFMPEG_MAKER_OUTPUT_DIR/include/" -maxdepth 3 -mindepth 2 -type d -exec cp -r {} "$SYS_ROOT/usr/include/" \;
+
+        find "$FFMPEG_MAKER_OUTPUT_DIR/lib/" -type f -exec cp -r {} "$SYS_ROOT/usr/lib/" \;
+
+        find "build/" -maxdepth 5 -mindepth 4 -type f -name "*.pc" -exec cp -r {} "$SYS_ROOT/usr/lib/pkgconfig/" \;
+
+        touch "$BUILD_FFMPEG_FILE"
+
+    fi
+
+    cd "$LAST_DIR"
+
     ## END of manual build of dependencies
 
     MESON_CPU_FAMILY=$ARCH
@@ -393,7 +449,7 @@ prefix = '$SYS_ROOT'
 libdir = '$LIB_PATH'
 
 [properties]
-pkg_config_libdir = '$SYS_ROOT/usr/lib/pkgconfig'
+pkg_config_libdir = '$PKG_CONFIG_PATH'
 sys_root = '${SYS_ROOT}'
 
 EOF
@@ -436,7 +492,8 @@ EOF
             --cross-file "./platforms/crossbuild-android-$ARM_TARGET_ARCH.ini" \
             "-Dbuildtype=$BUILDTYPE" \
             -Dsdl2:use_hidapi=enabled \
-            -Dclang_libcpp=disabled
+            -Dclang_libcpp=disabled \
+            -Duse_embedded_ffmpeg=enabled
 
     fi
 

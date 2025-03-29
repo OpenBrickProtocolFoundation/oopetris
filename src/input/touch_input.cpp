@@ -6,6 +6,7 @@
 #include "touch_input.hpp"
 
 #include <cmath>
+#include <iostream>
 #include <memory>
 #include <spdlog/spdlog.h>
 #include <stdexcept>

@@ -35,6 +35,7 @@ namespace custom_ui {
     private:
         ui::TileLayout m_main_layout;
         data::RecordingMetadata m_metadata;
+        u32 m_current_focus_id;
 
     public:
         OOPETRIS_GRAPHICS_EXPORTED explicit RecordingComponent(

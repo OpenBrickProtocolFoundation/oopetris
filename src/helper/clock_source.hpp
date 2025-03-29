@@ -40,3 +40,19 @@ public:
     OOPETRIS_GRAPHICS_EXPORTED void pause() override;
     OOPETRIS_GRAPHICS_EXPORTED double resume() override;
 };
+
+
+struct ManualClock : public ClockSource {
+private:
+    SimulationStep m_simulation_step_index{ 0 };
+
+public:
+    OOPETRIS_GRAPHICS_EXPORTED explicit ManualClock();
+    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] SimulationStep simulation_step_index() const override;
+    OOPETRIS_GRAPHICS_EXPORTED bool can_be_paused() override;
+    OOPETRIS_GRAPHICS_EXPORTED void pause() override;
+    OOPETRIS_GRAPHICS_EXPORTED double resume() override;
+
+    OOPETRIS_GRAPHICS_EXPORTED void increment_simulation_step_index();
+    OOPETRIS_GRAPHICS_EXPORTED void set_simulation_step_index(SimulationStep index);
+};
