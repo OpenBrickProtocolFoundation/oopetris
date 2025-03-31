@@ -153,8 +153,7 @@ jobs:
         if: matrix.config.os == 'macos'
         run: |
           brew update
-          # TODO annotate with lld@19, after that is accepted, we don't want to use lld@20 without manually updating it !
-          brew install llvm@19 lld
+          brew install llvm@20 lld@20
           echo "$(brew --prefix)/opt/llvm/bin" >> $GITHUB_PATH
           echo "LDFLAGS=-L$(brew --prefix)/opt/llvm/lib -L$(brew --prefix)/opt/llvm/lib/c++ -Wl,-rpath,$(brew --prefix)/opt/llvm/lib/c++" >> "$GITHUB_ENV"
           echo "CPPFLAGS=-I$(brew --prefix)/opt/llvm/include" >> "$GITHUB_ENV"
