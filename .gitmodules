@@ -14,3 +14,9 @@
 	path = wrapper/python
 	url = https://github.com/Totto16/oopetris_wrapper_python.git
 	ignore = dirty
+[submodule "wrapper/java"]
+	path = wrapper/java
+	url = https://github.com/Totto16/oopetris_wrapper_java.git
+	ignore = dirty
+
+
