@@ -19,10 +19,10 @@ Current:
 - C (C++ binding)
 - Haskell (C binding)
 - Python (C++ binding)
+- Java (C++ binding)
 
 Planned:
 - Lua
-- Java
 - Rust
 
 ## Other
