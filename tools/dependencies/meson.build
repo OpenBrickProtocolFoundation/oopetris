@@ -67,7 +67,9 @@ if meson.is_cross_build()
         foreach native_dependency_tuple : map_native_dependencies
             native_dep_lib_name = native_dependency_tuple[0]
 
-            native_dep_name = native_dependency_tuple.length() == 2 ? native_dependency_tuple[1] : native_dep_lib_name
+            native_dep_name = (
+                native_dependency_tuple.length() == 2 ? native_dependency_tuple[1] : native_dep_lib_name
+            )
 
             native_dep = cpp.find_library(native_dep_lib_name, required: true)
 
@@ -102,13 +104,12 @@ if meson.is_cross_build()
 
                 native_dep_with_version = declare_dependency(
                     dependencies: native_dep,
-                    version: major_version
-                    + '.'
-                    + minor_version
-                    + '.'
-                    + patch_version,
+                    version: major_version + '.' + minor_version + '.' + patch_version,
                 )
-                meson.override_dependency(native_dep_name, native_dep_with_version)
+                meson.override_dependency(
+                    native_dep_name,
+                    native_dep_with_version,
+                )
             else
                 meson.override_dependency(native_dep_name, native_dep)
 
@@ -146,7 +147,8 @@ fmt_use_header_only = false
 
 if (
     meson.is_cross_build()
-    and (host_machine.system() == 'switch' or host_machine.system() == '3ds')
+    and (host_machine.system() == 'switch'
+    or host_machine.system() == '3ds')
 )
     fmt_use_header_only = true
 endif
@@ -350,7 +352,10 @@ if build_application
 
     if (meson.is_cross_build() and host_machine.system() == '3ds')
         graphics_lib += {
-            'compile_args': [graphics_lib.get('compile_args'), '-DSPDLOG_NO_TLS'],
+            'compile_args': [
+                graphics_lib.get('compile_args'),
+                '-DSPDLOG_NO_TLS',
+            ],
         }
     endif
 
@@ -407,8 +412,16 @@ if build_application
 
     endif
 
-    if host_machine.system() == 'linux' or (meson.is_cross_build() and host_machine.system() == 'android')
-        keyutils_dep = dependency('keyutils', required: true, allow_fallback: true)
+    if (
+        host_machine.system() == 'linux'
+        or (meson.is_cross_build()
+        and host_machine.system() == 'android')
+    )
+        keyutils_dep = dependency(
+            'keyutils',
+            required: true,
+            allow_fallback: true,
+        )
         graphics_lib += {'deps': [graphics_lib.get('deps'), keyutils_dep]}
     elif host_machine.system() == 'windows'
         c = meson.get_compiler('c')
@@ -425,8 +438,8 @@ if build_application
     if build_installer
         if get_option('buildtype') != 'release'
             error(
-                'buildtype needs to be \'release\', when building the installer, but was: '
-                + get_option('buildtype'),
+                'buildtype needs to be \'release\', when building the installer, but was: ' +
+                get_option('buildtype'),
             )
         endif
 
@@ -435,7 +448,7 @@ if build_application
                 is_flatpak_build = true
             else
                 error(
-                    'only support flatpak builds, when  building the installer for linux',
+                    'only support flatpak builds, when building the installer for linux',
                 )
             endif
         elif host_machine.system() == 'windows'
@@ -443,8 +456,7 @@ if build_application
         else
             # TODO: create a proper installer for macOS : https://mesonbuild.com/Creating-OSX-packages.html
             error(
-                'unsupported system for building the installer: '
-                + host_machine.system(),
+                'unsupported system for building the installer: ' + host_machine.system(),
             )
 
         endif
@@ -466,7 +478,7 @@ if build_application
     endif
 
     have_file_dialogs = false
-    have_discord_sdk = false
+    have_discord_social_sdk = false
 
     nfde_dep = dependency(
         'nativefiledialog-extended',
@@ -489,29 +501,33 @@ if build_application
 
     c = meson.get_compiler('c')
 
-    discord_dep_required = not meson.is_cross_build() and get_option('build_installer')
+    discord_dep_required = (
+        not meson.is_cross_build()
+        and get_option('build_installer')
+    )
 
-    if host_machine.system() == 'linux' and host_machine.cpu_family() == 'aarch64'
+    if (
+        host_machine.system() == 'linux'
+        and host_machine.cpu_family() == 'aarch64'
+    )
         # not supported on aarch64 linux :(
         discord_dep_required = false
     endif
 
-    discord_sdk_dep = dependency(
-        'discord-game-sdk',
+    discord_social_sdk_dep = dependency(
+        'discord-social-sdk',
         allow_fallback: true,
         required: discord_dep_required,
-        # only with msvc we need a static library, all others work without adding __declspec() everywhere
-        static: c.get_id() == 'msvc',
-        default_options: c.get_id() != 'msvc' ? {} : {'default_library': 'static'},
     )
-    if discord_sdk_dep.found()
-        have_discord_sdk = true
+
+    if discord_social_sdk_dep.found()
+        have_discord_social_sdk = true
         graphics_lib += {
             'compile_args': [
                 graphics_lib.get('compile_args'),
-                '-D_HAVE_DISCORD_SDK',
+                '-D_HAVE_DISCORD_SOCIAL_SDK',
             ],
-            'deps': [graphics_lib.get('deps'), discord_sdk_dep],
+            'deps': [graphics_lib.get('deps'), discord_social_sdk_dep],
         }
     endif
 

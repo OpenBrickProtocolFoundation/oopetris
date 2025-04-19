@@ -13,7 +13,7 @@ if build_application
     subdir('ui')
     subdir('lobby')
 
-    if have_discord_sdk
+    if have_discord_social_sdk
         subdir('discord')
     endif
 
