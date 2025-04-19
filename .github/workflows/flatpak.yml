@@ -11,37 +11,24 @@ on:
 jobs:
   flatpak:
     name: Flatpak build (${{ matrix.config.arch }})
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-${{ matrix.config.os-version }}
     strategy:
       matrix:
         config:
           - arch: x86_64
-            use_qemu: false
+            os-version: 24.04
 
           - arch: aarch64
-            use_qemu: true
-            qemu_arch: arm64
+            os-version: 24.04-arm
       # Don't fail the whole workflow if one architecture fails
       fail-fast: false
     container:
-      image: bilelmoussaoui/flatpak-github-actions:freedesktop-24.08
+      image: ghcr.io/flathub-infra/flatpak-github-actions:freedesktop-24.08
       options: --privileged
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install deps
-        if: ${{ matrix.config.use_qemu == true }}
-        run: |
-          dnf -y install docker
-
-      - name: Set up QEMU
-        if: ${{ matrix.config.use_qemu == true }}
-        id: qemu
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: ${{ matrix.config.qemu_arch }}
-
-      - uses: bilelmoussaoui/flatpak-github-actions/flatpak-builder@v6
+      - uses: flathub-infra/flatpak-github-actions/flatpak-builder@9386d85446c0f8c6b93dea3774002af2abcac3d5
         with:
           bundle: oopetris.flatpak
           manifest-path: io.github.openbrickprotocolfoundation.oopetris.yml
