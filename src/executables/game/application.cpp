@@ -428,7 +428,7 @@ void Application::update() {
         }
     }
 
-#if defined(_HAVE_DISCORD_SDK)
+#if defined(_HAVE_DISCORD_SOCIAL_SDK)
 
     if (m_discord_instance.has_value()) {
         m_discord_instance->update();
@@ -489,7 +489,7 @@ void Application::initialize() {
         );
 #endif
 
-#if defined(_HAVE_DISCORD_SDK)
+#if defined(_HAVE_DISCORD_SOCIAL_SDK)
         if (current_settings.discord) {
             auto discord_instance = DiscordInstance::initialize();
             if (not discord_instance.has_value()) {
@@ -587,7 +587,7 @@ void Application::load_resources() {
     }
 }
 
-#if defined(_HAVE_DISCORD_SDK)
+#if defined(_HAVE_DISCORD_SOCIAL_SDK)
 
 [[nodiscard]] std::optional<DiscordInstance>& Application::discord_instance() {
     return m_discord_instance;
