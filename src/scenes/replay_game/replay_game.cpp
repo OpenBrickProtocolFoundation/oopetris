@@ -53,7 +53,7 @@ namespace scenes {
         }
 
 
-#if defined(_HAVE_DISCORD_SDK)
+#if defined(_HAVE_DISCORD_SOCIAL_SDK)
         if (auto& discord_instance = service_provider->discord_instance(); discord_instance.has_value()) {
 
             discord_instance->set_activity(

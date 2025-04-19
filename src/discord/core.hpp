@@ -17,7 +17,7 @@
 #endif
 #endif
 
-#include <discord.h>
+#include <discordpp.h>
 #include <memory>
 #include <string>
 
