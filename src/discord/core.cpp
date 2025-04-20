@@ -18,8 +18,7 @@
 }
 
 DiscordInstance::DiscordInstance()
-    : m_client{},
-      m_current_user{ std::move(discordpp::UserHandle::nullobj) },
+    : m_current_user{ discordpp::UserHandle::nullobj },
       m_status{ DiscordStatus::Starting } {
 
     m_client.AddLogCallback(
@@ -214,7 +213,7 @@ DiscordActivityWrapper& DiscordActivityWrapper::set_details(const std::string& t
 
 discordpp::ActivityTimestamps DiscordActivityWrapper::get_timestamps() {
 
-    std::optional<discordpp::ActivityTimestamps> timestamps = m_activity.Timestamps();
+    std::optional<discordpp::ActivityTimestamps> timestamps = this->m_activity.Timestamps();
 
     if (timestamps.has_value()) {
         return timestamps.value();
@@ -225,7 +224,7 @@ discordpp::ActivityTimestamps DiscordActivityWrapper::get_timestamps() {
 
 
 [[nodiscard]] discordpp::ActivityAssets DiscordActivityWrapper::get_assets() {
-    std::optional<discordpp::ActivityAssets> assets = m_activity.Assets();
+    std::optional<discordpp::ActivityAssets> assets = this->m_activity.Assets();
 
     if (assets.has_value()) {
         return assets.value();

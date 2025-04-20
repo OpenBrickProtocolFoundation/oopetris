@@ -18,9 +18,7 @@
 #endif
 
 
-// https://discord.com/developers/docs/discord-social-sdk/getting-started/using-c++
 #include <discordpp.h>
-#include <memory>
 #include <string>
 
 namespace constants::discord {
@@ -115,14 +113,18 @@ public:
 
     OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] DiscordStatus get_status();
 
-
     OOPETRIS_GRAPHICS_EXPORTED DiscordInstance(DiscordInstance&& old) noexcept;
 
     OOPETRIS_GRAPHICS_EXPORTED DiscordInstance& operator=(DiscordInstance&& other) noexcept;
 
+    OOPETRIS_GRAPHICS_EXPORTED DiscordInstance(DiscordInstance& old) noexcept = delete;
+
+    OOPETRIS_GRAPHICS_EXPORTED DiscordInstance& operator=(const DiscordInstance& other) noexcept = delete;
+
     OOPETRIS_GRAPHICS_EXPORTED ~DiscordInstance();
 
     OOPETRIS_GRAPHICS_EXPORTED void update();
+
     OOPETRIS_GRAPHICS_EXPORTED void set_activity(const DiscordActivityWrapper& activity);
 
 private:
