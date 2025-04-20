@@ -128,6 +128,10 @@ DiscordInstance::~DiscordInstance() {
     }
 }
 
+[[nodiscard]] DiscordStatus DiscordInstance::get_status() {
+    return m_status;
+}
+
 void DiscordInstance::update() {
     discordpp::RunCallbacks();
 }

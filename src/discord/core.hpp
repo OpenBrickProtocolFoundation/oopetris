@@ -49,6 +49,7 @@ private:
     discordpp::Activity m_activity{};
 
     [[nodiscard]] discordpp::ActivityTimestamps get_timestamps();
+
     [[nodiscard]] discordpp::ActivityAssets get_assets();
 
 public:
