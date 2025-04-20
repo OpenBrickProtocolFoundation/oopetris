@@ -53,11 +53,11 @@ namespace scenes {
         }
 
 
-#if defined(_HAVE_DISCORD_SDK)
+#if defined(_HAVE_DISCORD_SOCIAL_SDK)
         if (auto& discord_instance = service_provider->discord_instance(); discord_instance.has_value()) {
 
             discord_instance->set_activity(
-                    DiscordActivityWrapper("Replaying a game", discord::ActivityType::Playing)
+                    DiscordActivityWrapper("Replaying a game", discordpp::ActivityTypes::Playing)
                             .set_large_image("Playing OOPetris", constants::discord::ArtAsset::Logo)
                             .set_start_timestamp(std::chrono::system_clock::now())
             );

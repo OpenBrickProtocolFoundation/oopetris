@@ -3,7 +3,7 @@
 #include "manager/event_dispatcher.hpp"
 
 
-#if defined(_HAVE_DISCORD_SDK) && !defined(_OOPETRIS_RECORDING_UTILITY)
+#if defined(_HAVE_DISCORD_SOCIAL_SDK) && !defined(_OOPETRIS_RECORDING_UTILITY)
 
 #include "discord/core.hpp"
 
@@ -64,7 +64,7 @@ struct ServiceProvider {
 
     [[nodiscard]] virtual const std::unique_ptr<lobby::API>& api() const = 0;
 
-#if defined(_HAVE_DISCORD_SDK) && !defined(_OOPETRIS_RECORDING_UTILITY)
+#if defined(_HAVE_DISCORD_SOCIAL_SDK) && !defined(_OOPETRIS_RECORDING_UTILITY)
 
     [[nodiscard]] virtual std::optional<DiscordInstance>& discord_instance() = 0;
     [[nodiscard]] virtual const std::optional<DiscordInstance>& discord_instance() const = 0;
