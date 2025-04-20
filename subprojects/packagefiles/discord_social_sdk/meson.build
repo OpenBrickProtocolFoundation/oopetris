@@ -86,10 +86,10 @@ discord_partner_sdk = c.find_library(
     required: true,
 )
 
-discord_social_sdk_lib = library(
+## NOTE: this is a static library, as it doesn't export the symbols correctly, so on windows the dll would fail to link
+discord_social_sdk_lib = static_library(
     'discord_social_sdk',
-    header_files,
-    cpp_args: ['-DDISCORDPP_IMPLEMENTATION'],
+    files('impl.cpp'),
     include_directories: inc_dirs,
     dependencies: discord_partner_sdk,
     install: true,
