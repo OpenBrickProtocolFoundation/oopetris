@@ -86,9 +86,10 @@ discord_partner_sdk = c.find_library(
     required: true,
 )
 
-discord_lib = library(
-    'discord_partner_sdk',
+discord_social_sdk_lib = library(
+    'discord_social_sdk',
     header_files,
+    cpp_args: ['-DDISCORDPP_IMPLEMENTATION'],
     include_directories: inc_dirs,
     dependencies: discord_partner_sdk,
     install: true,
@@ -97,7 +98,7 @@ discord_lib = library(
 discord_social_sdk_dep = declare_dependency(
     include_directories: inc_dirs,
     version: meson.project_version(),
-    link_with: discord_lib,
+    link_with: discord_social_sdk_lib,
 )
 
 meson.override_dependency('discord-social-sdk', discord_social_sdk_dep)
