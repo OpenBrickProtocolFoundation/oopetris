@@ -223,7 +223,7 @@ discordpp::ActivityTimestamps DiscordActivityWrapper::get_timestamps() {
         return timestamps.value();
     }
 
-    return discordpp::ActivityTimestamps::nullobj;
+    return discordpp::ActivityTimestamps();
 }
 
 
@@ -234,5 +234,5 @@ discordpp::ActivityTimestamps DiscordActivityWrapper::get_timestamps() {
         return assets.value();
     }
 
-    return discordpp::ActivityAssets::nullobj;
+    return discordpp::ActivityAssets();
 }
