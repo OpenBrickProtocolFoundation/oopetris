@@ -1,0 +1,30 @@
+name: Meson Checks CI
+
+on:
+  push:
+    branches: ['main']
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  meson_format:
+    name: Run Meson Format Checks
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: '0'
+
+      # NOTE: meson has no dependencies, so --break-system-packages doesn't really break anything!
+      - name: Setup meson
+        run: |
+          pip install meson --break-system-packages
+
+      - name: Check Files
+        run: git ls-files --exclude='meson.build' --exclude='meson.options' --exclude='meson_options.txt' --exclude='*.wrap' --ignored -c -z | xargs -0r meson format -i -c ./meson.format
+
+  ## TODO: use mesonlint from
+  ## https://github.com/JCWasmx86/mesonlsp
+  ## once it is maitained again
+  # meson_lint:
+  #   name: Run Meson Lint Checks
