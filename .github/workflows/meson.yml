@@ -28,7 +28,7 @@ jobs:
           --exclude='meson_options.txt'
           --ignored -c -z | xargs -0r
           meson format --check-only -c ./meson.format
-          || echo "Not all meson files are formatted correctly"
+          || (echo "Not all meson files are formatted correctly" && exit 1)
           && echo "All meson files are formatted correctly"
 
   ## TODO: use mesonlint from
