@@ -46,7 +46,7 @@ namespace constants::discord {
 
 struct DiscordActivityWrapper {
 private:
-    discordpp::Activity m_activity{};
+    discordpp::Activity m_activity;
 
     [[nodiscard]] discordpp::ActivityTimestamps get_timestamps();
 
@@ -124,7 +124,7 @@ public:
 
     OOPETRIS_GRAPHICS_EXPORTED ~DiscordInstance();
 
-    OOPETRIS_GRAPHICS_EXPORTED void update();
+    OOPETRIS_GRAPHICS_EXPORTED static void update();
 
     OOPETRIS_GRAPHICS_EXPORTED void set_activity(const DiscordActivityWrapper& activity);
 

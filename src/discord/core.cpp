@@ -49,11 +49,11 @@ DiscordInstance::DiscordInstance()
 
 
     m_client.SetStatusChangedCallback(
-            [this](discordpp::Client::Status status, discordpp::Client::Error error, int32_t errorDetail) -> void {
+            [this](discordpp::Client::Status status, discordpp::Client::Error error, int32_t error_detail) -> void {
                 if (error != discordpp::Client::Error::None) {
                     this->m_status = DiscordStatus::Error;
                     spdlog::error(
-                            "Connection Error: {} - Details: {}", discordpp::Client::ErrorToString(error), errorDetail
+                            "Connection Error: {} - Details: {}", discordpp::Client::ErrorToString(error), error_detail
                     );
                     return;
                 }
@@ -75,7 +75,7 @@ void DiscordInstance::after_ready() {
 
     this->m_client.GetDiscordClientConnectedUser(
             constants::discord::application_id,
-            [this](discordpp::ClientResult result, std::optional<discordpp::UserHandle> user) -> void {
+            [this](const discordpp::ClientResult& result, std::optional<discordpp::UserHandle> user) -> void {
                 if (result.Successful() and user.has_value()) {
 
                     auto user_handle = m_client.GetUser(user->Id());
@@ -139,7 +139,7 @@ void DiscordInstance::update() {
 
 void DiscordInstance::set_activity(const DiscordActivityWrapper& activity) {
 
-    auto raw_activity = activity.get_raw();
+    const auto& raw_activity = activity.get_raw();
 
     if (not raw_activity.operator bool()) {
         spdlog::error("Tried to set an invalid Discord Activity!");
@@ -147,7 +147,7 @@ void DiscordInstance::set_activity(const DiscordActivityWrapper& activity) {
     }
 
     // Update rich presence
-    m_client.UpdateRichPresence(raw_activity, [](discordpp::ClientResult result) {
+    m_client.UpdateRichPresence(raw_activity, [](const discordpp::ClientResult& result) {
         if (result.Successful()) {
             spdlog::info("Rich Presence updated successfully");
         } else {

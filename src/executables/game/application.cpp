@@ -382,7 +382,8 @@ void Application::update() {
                                 },
                                 [this](const scenes::Scene::Push& push) {
                                     spdlog::info("pushing back scene {}", magic_enum::enum_name(push.target_scene));
-                                    m_scene_stack.push_back(scenes::create_scene(*this, push.target_scene, push.layout)
+                                    m_scene_stack.push_back(
+                                            scenes::create_scene(*this, push.target_scene, push.layout)
                                     );
                                 },
                                 [this](scenes::Scene::RawPush& raw_push) {
@@ -433,14 +434,13 @@ void Application::update() {
     if (m_discord_instance.has_value()) {
 
         switch (m_discord_instance->get_status()) {
-            case DiscordStatus::Starting:
-                break;
             case DiscordStatus::Error:
                 m_discord_instance = std::nullopt;
                 spdlog::warn("Error initializing the discord instance, it might not be running, destroying client!");
                 break;
+            case DiscordStatus::Starting:
             case DiscordStatus::Ok:
-                m_discord_instance->update();
+                DiscordInstance::update();
                 break;
         }
     }
