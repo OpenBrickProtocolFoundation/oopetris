@@ -6,26 +6,9 @@ _3ds_deps = _3ds_options[2]
 
 # libraries
 
-_3ds_dependencies = [
-    'flac',
-    'freetype2',
-    'ogg',
-    'ogg',
-    'opus',
-    'opusfile',
-    'vorbisidec',
-    'zlib',
-]
+_3ds_dependencies = ['flac', 'freetype2', 'ogg', 'ogg', 'opus', 'opusfile', 'vorbisidec', 'zlib']
 
-_3ds_dependencies_native = [
-    'bz2',
-    'ctru',
-    'mad',
-    'mikmod',
-    'modplug',
-    'png16',
-    'SDL2main',
-]
+_3ds_dependencies_native = ['bz2', 'ctru', 'mad', 'mikmod', 'modplug', 'png16', 'SDL2main']
 
 _3ds_library_dirs = meson.get_external_property('library_dirs', [''])
 if _3ds_library_dirs.length() == 0
@@ -64,9 +47,7 @@ _3ds_elf_file = build_target(
     target_type: 'executable',
 )
 
-use_smdh = ['true', 'True', '1', true].contains(
-    meson.get_external_property('USE_SMDH', ''),
-)
+use_smdh = ['true', 'True', '1', true].contains(meson.get_external_property('USE_SMDH', ''))
 
 _3dsxtool = find_program('3dsxtool')
 
@@ -125,11 +106,8 @@ if use_smdh
         endif
 
         if not fs.exists(APP_SMALL_ICON)
-            error(
-                'APP_SMALL_ICON should exist, but doesn\'t: \''
-                + APP_SMALL_ICON
-                + '\'',
-            )
+            error('APP_SMALL_ICON should exist, but doesn\'t: \''
+                + APP_SMALL_ICON + '\'')
         endif
 
         SMDH_FLAGS += APP_SMALL_ICON

@@ -7,7 +7,9 @@ subdir('utility')
 
 temp = recordings_lib.get('compile_args')
 temp += '-DOOPETRIS_LIBRARY_RECORDINGS_TYPE=' + (get_option('default_library') == 'static' ? '1' : '0')
-recordings_lib += {'compile_args': temp}
+recordings_lib += {
+    'compile_args': temp,
+}
 temp = 0
 
 recordings_lib += {

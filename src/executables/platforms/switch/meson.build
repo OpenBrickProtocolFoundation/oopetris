@@ -21,14 +21,7 @@ switch_dependencies = [
     'zlib',
 ]
 
-switch_dependencies_native = [
-    'bz2',
-    'drm_nouveau',
-    'modplug',
-    'nx',
-    'png16',
-    'SDL2main',
-]
+switch_dependencies_native = ['bz2', 'drm_nouveau', 'modplug', 'nx', 'png16', 'SDL2main']
 
 foreach dep : switch_dependencies
     switch_deps += dependency(
@@ -67,9 +60,7 @@ switch_elf_file = build_target(
     target_type: 'executable',
 )
 
-use_nacp = ['true', 'True', '1', true].contains(
-    meson.get_external_property('USE_NACP', ''),
-)
+use_nacp = ['true', 'True', '1', true].contains(meson.get_external_property('USE_NACP', ''))
 
 elf2nro = find_program('elf2nro')
 # executable input elf file, output nro file

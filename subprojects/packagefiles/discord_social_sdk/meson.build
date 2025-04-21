@@ -13,7 +13,10 @@ inc_dirs = include_directories('include')
 
 header_files = files('include' / 'cdiscord.h', 'include' / 'discordpp.h')
 
-install_headers(header_files, subdir: 'discord')
+install_headers(
+    header_files,
+    subdir: 'discord',
+)
 
 lib_base_dir = ''
 
@@ -21,9 +24,7 @@ if host_machine.system() == 'darwin'
     if host_machine.cpu_family() in ['aarch64', 'x86_64']
         lib_base_dir = 'lib'
     else
-        error(
-            'unsupported architecture for macos: ' + host_machine.cpu_family(),
-        )
+        error('unsupported architecture for macos: ' + host_machine.cpu_family())
     endif
 
 elif host_machine.system() == 'linux'
@@ -58,24 +59,19 @@ elif host_machine.system() == 'linux'
         endif
 
     else
-        error(
-            'unsupported architecture for linux: ' + host_machine.cpu_family(),
-        )
+        error('unsupported architecture for linux: ' + host_machine.cpu_family())
     endif
 elif host_machine.system() == 'windows'
     if host_machine.cpu_family() == 'x86_64'
         lib_base_dir = get_option('default_library') == 'static' ? 'bin' : 'lib'
     else
-        error(
-            'unsupported architecture for windows: ' + host_machine.cpu_family(),
-        )
+        error('unsupported architecture for windows: ' + host_machine.cpu_family())
     endif
 else
     error('unsupported system: ' + host_machine.system())
 endif
 
-lib_dir = (
-    lib_base_dir / (get_option('buildtype') == 'release' ? 'release' : 'debug')
+lib_dir = (lib_base_dir / (get_option('buildtype') == 'release' ? 'release' : 'debug')
 )
 
 c = meson.get_compiler('c')

@@ -1,4 +1,1 @@
-graphics_src_files += files(
-    'multiplayer_menu.cpp',
-    'multiplayer_menu.hpp',
-)
+graphics_src_files += files('multiplayer_menu.cpp', 'multiplayer_menu.hpp')

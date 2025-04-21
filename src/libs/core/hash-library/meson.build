@@ -1,10 +1,6 @@
-core_src_files += files(
-    'sha256.cpp',
-)
+core_src_files += files('sha256.cpp')
 
-_header_files = files(
-    'sha256.h',
-)
+_header_files = files('sha256.h')
 
 core_header_files += _header_files
 

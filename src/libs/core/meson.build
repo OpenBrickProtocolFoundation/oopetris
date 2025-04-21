@@ -9,7 +9,9 @@ subdir('helper')
 
 temp = core_lib.get('compile_args')
 temp += '-DOOPETRIS_LIBRARY_CORE_TYPE=' + (get_option('default_library') == 'static' ? '1' : '0')
-core_lib += {'compile_args': temp}
+core_lib += {
+    'compile_args': temp,
+}
 temp = 0
 
 liboopetris_core = library(
