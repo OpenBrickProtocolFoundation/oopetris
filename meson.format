@@ -1,0 +1,6 @@
+max_line_length = 100
+end_of_line = 'lf'
+insert_final_newline = true
+sort_files = true
+kwargs_force_multiline = true
+no_single_comma_function = true
