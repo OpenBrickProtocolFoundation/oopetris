@@ -1,0 +1,14 @@
+diff --git a/include/cdiscord.h b/include/cdiscord.h
+index 534a85f..2ba5d7f 100644
+--- a/include/cdiscord.h
++++ b/include/cdiscord.h
+@@ -10,7 +10,9 @@
+ #ifndef DISCORD_API
+ #if defined(_WIN32)
+ #define DISCORD_API __declspec(dllexport)
++#if ! defined(__MINGW32__)
+ #pragma warning(disable : 4251)
++#endif
+ #else
+ #define DISCORD_API __attribute__((visibility("default")))
+ #endif
