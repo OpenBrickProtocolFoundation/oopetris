@@ -24,6 +24,25 @@
 namespace constants::discord {
     constexpr u64 application_id = 1220147916371394650ULL;
 
+
+//TODO(Totto):  this isn't correct for all platforms and needs to be tested
+#if defined(__ANDROID__)
+#error "Not supported"
+#elif defined(__CONSOLE__)
+#error "Not supported"
+#elif defined(FLATPAK_BUILD)
+    constexpr const char* platform_dependent_launch_arguments =
+            "flatpak run io.github.openbrickprotocolfoundation.oopetris --discord";
+#elif defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
+    constexpr const char* platform_dependent_launch_arguments = "oopetris.exe --discord";
+#elif defined(__APPLE__)
+    constexpr const char* platform_dependent_launch_arguments = "TODO";
+#elif defined(__linux__)
+    constexpr const char* platform_dependent_launch_arguments = "oopetris --discord";
+#else
+#error "Unsupported platform"
+#endif
+
 #if defined(__ANDROID__)
     constexpr const discordpp::ActivityGamePlatforms supported_platforms = discordpp::ActivityGamePlatforms::Android;
 #elif defined(__CONSOLE__)

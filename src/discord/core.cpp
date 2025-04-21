@@ -94,6 +94,13 @@ void DiscordInstance::after_ready() {
                 spdlog::error("Current Connected User Error: {}", result.ToString());
             }
     );
+
+    auto result = m_client.RegisterLaunchCommand(
+            constants::discord::application_id, constants::discord::platform_dependent_launch_arguments
+    );
+    if (not result) {
+        spdlog::warn("Discord: Failed to Register Launch Command");
+    };
 }
 
 
