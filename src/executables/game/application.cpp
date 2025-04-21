@@ -382,8 +382,7 @@ void Application::update() {
                                 },
                                 [this](const scenes::Scene::Push& push) {
                                     spdlog::info("pushing back scene {}", magic_enum::enum_name(push.target_scene));
-                                    m_scene_stack.push_back(
-                                            scenes::create_scene(*this, push.target_scene, push.layout)
+                                    m_scene_stack.push_back(scenes::create_scene(*this, push.target_scene, push.layout)
                                     );
                                 },
                                 [this](scenes::Scene::RawPush& raw_push) {
