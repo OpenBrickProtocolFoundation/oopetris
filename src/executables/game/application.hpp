@@ -120,7 +120,7 @@ private:
     std::unique_ptr<helper::TimeInfo> m_time_info;
     std::unique_ptr<helper::LoadingInfo> m_loading_info;
 
-#if defined(_HAVE_DISCORD_SDK)
+#if defined(_HAVE_DISCORD_SOCIAL_SDK)
     std::optional<DiscordInstance> m_discord_instance{ std::nullopt };
 #endif
 
@@ -196,7 +196,7 @@ public:
     [[nodiscard]] const std::unique_ptr<lobby::API>& api() const override;
 
 
-#if defined(_HAVE_DISCORD_SDK)
+#if defined(_HAVE_DISCORD_SOCIAL_SDK)
 
     [[nodiscard]] std::optional<DiscordInstance>& discord_instance() override;
     [[nodiscard]] const std::optional<DiscordInstance>& discord_instance() const override;

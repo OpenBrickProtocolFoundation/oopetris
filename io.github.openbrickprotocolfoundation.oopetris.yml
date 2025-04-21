@@ -4,18 +4,6 @@ runtime-version: '24.08'
 sdk: org.freedesktop.Sdk
 command: oopetris
 modules:
-  #TODO: remove after discord sets SONAME
-  - name: patchelf
-    buildsystem: simple
-    sources:
-      - type: archive
-        url: https://github.com/NixOS/patchelf/releases/download/0.18.0/patchelf-0.18.0.tar.gz
-        sha256: 64de10e4c6b8b8379db7e87f58030f336ea747c0515f381132e810dbf84a86e7
-    build-commands:
-      - ./configure --prefix=/app
-      - make
-      - make install
-
   - name: OOPetris
     buildsystem: meson
     config-opts:
@@ -42,13 +30,6 @@ cleanup:
   - /include
   - /lib/pkgconfig
   - /share/pkgconfig
-  ## all for the patchelf executable
-  #TODO: remove after removing patchelf build
-  - /bin/patchelf
-  - /lib/debug
-  - /share/doc
-  - /share/man
-  - /share/zsh
 
 finish-args:
   - --socket=x11

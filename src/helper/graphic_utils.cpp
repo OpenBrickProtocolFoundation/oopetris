@@ -21,7 +21,7 @@ std::vector<std::string> utils::supported_features() {
     features.emplace_back("file dialogs");
 #endif
 
-#if defined(_HAVE_DISCORD_SDK)
+#if defined(_HAVE_DISCORD_SOCIAL_SDK)
     features.emplace_back("discord integration");
 #endif
 

@@ -428,10 +428,20 @@ void Application::update() {
         }
     }
 
-#if defined(_HAVE_DISCORD_SDK)
+#if defined(_HAVE_DISCORD_SOCIAL_SDK)
 
     if (m_discord_instance.has_value()) {
-        m_discord_instance->update();
+
+        switch (m_discord_instance->get_status()) {
+            case DiscordStatus::Error:
+                m_discord_instance = std::nullopt;
+                spdlog::warn("Error initializing the discord instance, it might not be running, destroying client!");
+                break;
+            case DiscordStatus::Starting:
+            case DiscordStatus::Ok:
+                DiscordInstance::update();
+                break;
+        }
     }
 
 #endif
@@ -489,17 +499,9 @@ void Application::initialize() {
         );
 #endif
 
-#if defined(_HAVE_DISCORD_SDK)
+#if defined(_HAVE_DISCORD_SOCIAL_SDK)
         if (current_settings.discord) {
-            auto discord_instance = DiscordInstance::initialize();
-            if (not discord_instance.has_value()) {
-                spdlog::warn(
-                        "Error initializing the discord instance, it might not be running: {}", discord_instance.error()
-                );
-            } else {
-                m_discord_instance = std::move(discord_instance.value());
-                m_discord_instance->after_setup();
-            }
+            m_discord_instance = DiscordInstance{};
         }
 
 #endif
@@ -587,7 +589,7 @@ void Application::load_resources() {
     }
 }
 
-#if defined(_HAVE_DISCORD_SDK)
+#if defined(_HAVE_DISCORD_SOCIAL_SDK)
 
 [[nodiscard]] std::optional<DiscordInstance>& Application::discord_instance() {
     return m_discord_instance;
