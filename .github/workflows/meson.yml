@@ -16,7 +16,7 @@ jobs:
           fetch-depth: '0'
 
       - name: Check Files
-        uses: ./.github/actions/meson-format-action
+        uses: Totto16/meson-format-action@1
         with:
           format-file: ./meson.format
           only-git-files: true
