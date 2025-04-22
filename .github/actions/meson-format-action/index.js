@@ -3,34 +3,9 @@ const exec = require('@actions/exec')
 const io = require('@actions/io')
 
 /**
- * @callback ExecListenerCallback
- * @param {Buffer} data
- * @returns {void}
- */
-
-/**
- * @typedef ExecListeners
- * @type {object}
- * @property {ExecListenerCallback} stdout
- */
-
-/**
- * @typedef ExecOptions
- * @type {object}
- * @property {ExecListeners} listeners
- * @property {boolean} failOnStdErr
- * @property {boolean} ignoreReturnCode
- */
-
-/**
- * @typedef AnnotationProperties
- * @type {object}
- * @property {string} title
- * @property {string} file
-/**
  *
  * @param {string} executable
- * @param {string[]} arguments
+ * @param {string[]} args
  * @async
  * @returns {Promise<string[]>}
  */
@@ -38,15 +13,14 @@ async function execAndGetStdout(executable, args) {
 	/** @type {string} */
 	let output = ''
 
-	/** @type {ExecOptions} */
+	/** @type {exec.ExecOptions} */
 	const options = {
 		failOnStdErr: true,
 		ignoreReturnCode: false,
-	}
-
-	options.listeners = {
-		stdout: (data) => {
-			output += data.toString()
+		listeners: {
+			stdout: (data) => {
+				output += data.toString()
+			},
 		},
 	}
 
@@ -121,7 +95,7 @@ async function getMesonFiles(onlyGitFiles) {
  * @returns {Promise<boolean>}
  */
 async function checkFile(file, formatFile) {
-	/** @type {ExecOptions} */
+	/** @type {exec.ExecOptions} */
 	const options = {
 		ignoreReturnCode: true,
 	}
@@ -143,11 +117,11 @@ async function checkFile(file, formatFile) {
  *
  * @param {string[]} items
  * @param {boolean} ordered
- * @returns {string[]}
+ * @returns {string}
  */
 function getMarkdownListOf(items, ordered) {
 	/** @type {string[]} */
-	const items = items.map((item) => `<li>${item}</li>`)
+	const itemsContent = items.map((item) => `<li>${item}</li>`)
 
 	/** @type {string} */
 	const listType = ordered ? 'ol' : 'ul'
@@ -205,7 +179,7 @@ async function main() {
 			if (!result) {
 				notFormattedFiles.push(file)
 
-				/** @type {AnnotationProperties} */
+				/** @type {core.AnnotationProperties} */
 				const properties = {
 					file,
 					title: 'File not formatted correctly',
@@ -237,7 +211,7 @@ async function main() {
 		core.summary.addBreak()
 
 		/** @type {string} */
-		const fileList = getMarkdownListOf(notFormattedFiles)
+		const fileList = getMarkdownListOf(notFormattedFiles, false)
 
 		core.summary.addDetails('Affected Files', fileList)
 		core.summary.addSeparator()
@@ -249,7 +223,7 @@ async function main() {
 		core.summary.addBreak()
 
 		/** @type {string} */
-		const additionalArgs = formatFile === '' ? [] : [`-c "${formatFile}"`]
+		const additionalArgs = formatFile === '' ? '' : `-c "${formatFile}"`
 
 		/** @type {string} */
 		const finalFileList = notFormattedFiles
@@ -265,7 +239,11 @@ async function main() {
 
 		throw new Error('Some files are not formatted correctly')
 	} catch (error) {
-		core.setFailed(error)
+		if (error instanceof Error) {
+			core.setFailed(error)
+		} else {
+			core.setFailed(`Invalid error thrown: ${error}`)
+		}
 	}
 }
 
