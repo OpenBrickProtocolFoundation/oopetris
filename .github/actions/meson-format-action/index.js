@@ -140,6 +140,22 @@ async function checkFile(file, formatFile) {
 }
 
 /**
+ *
+ * @param {string[]} items
+ * @param {boolean} ordered
+ * @returns {string[]}
+ */
+function getMarkdownListOf(items, ordered) {
+	/** @type {string[]} */
+	const items = items.map((item) => `<li>${item}</li>`)
+
+	/** @type {string} */
+	const listType = ordered ? 'ol' : 'ul'
+
+	return `<${listType}>${itemsContent}</${listType}>`
+}
+
+/**
  * @async
  * @returns {Promise<void>}
  */
@@ -221,7 +237,7 @@ async function main() {
 		core.summary.addBreak()
 
 		/** @type {string} */
-		const fileList = notFormattedFiles.map((file) => `- \`${file}\``)
+		const fileList = getMarkdownListOf(notFormattedFiles)
 
 		core.summary.addDetails('Affected Files', fileList)
 		core.summary.addSeparator()
