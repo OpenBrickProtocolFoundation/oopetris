@@ -24,7 +24,7 @@ runs:
       shell: bash
       run: |
         cd "${{github.action_path}}"
-        npm ci
+        npm ci --production
 
     # NOTE: meson has no dependencies, so --break-system-packages doesn't really break anything!
     - name: Setup meson
