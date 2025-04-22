@@ -151,6 +151,10 @@ async function main() {
 			)
 		}
 
+		//WIP
+		core.error(`file input is: ${core.getInput('format-file', { required: false })}`)
+		core.error(`git-file input is: ${core.getInput('only-git-files', { required: false })}`)
+
 		/** @type {string} */
 		const formatFile = core.getInput('format-file', { required: false })
 

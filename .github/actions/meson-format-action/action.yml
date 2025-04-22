@@ -36,5 +36,8 @@ runs:
     - name: Run checker
       shell: bash
       id: meson-format-checker
+      env:
+          INPUT_FORMAT-FILE: ${{ inputs.format-file }}
+          INPUT_ONLY-GIT-FILES: ${{ inputs.only-git-files }}
       run: |
         node "${{github.action_path}}/index.js"
