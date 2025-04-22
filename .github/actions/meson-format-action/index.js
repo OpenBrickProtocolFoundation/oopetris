@@ -210,23 +210,18 @@ async function main() {
 				true
 			)
 
-			core.summary.write()
+			core.summary.write({ overwrite: true })
 			return
 		}
 
 		core.summary.clear()
 
-		core.summary.addList(
-			notFormattedFiles.map((file) => `\`${file}\``),
-			false
-		)
-
-		/** @type {string} */
-		const fileList = core.summary.stringify()
-		core.summary.clear()
-
 		core.summary.addHeading('Result', 1)
 		core.summary.addRaw(':x: Some files are not formatted correctly', true)
+		core.summary.addBreak()
+
+		/** @type {string} */
+		const fileList = notFormattedFiles.map((file) => `- \`${file}\``)
 
 		core.summary.addDetails('Affected Files', fileList)
 		core.summary.addSeparator()
@@ -235,21 +230,24 @@ async function main() {
 			'To format the files run the following command',
 			true
 		)
+		core.summary.addBreak()
 
 		/** @type {string} */
-		const additionalArgs = formatFile === '' ? [] : [`-c ${formatFile}`]
+		const additionalArgs = formatFile === '' ? [] : [`-c "${formatFile}"`]
 
 		/** @type {string} */
-		const finalFileList = notFormattedFiles.join(' ')
+		const finalFileList = notFormattedFiles
+			.map((file) => `"${file}"`)
+			.join(' ')
 
 		core.summary.addCodeBlock(
 			`meson format ${additionalArgs} -i ${finalFileList}`,
 			'bash'
 		)
 
-		core.summary.write()
+		core.summary.write({ overwrite: true })
 
-		throw new Error('Soem files are not formatted correctly')
+		throw new Error('Some files are not formatted correctly')
 	} catch (error) {
 		core.setFailed(error)
 	}
