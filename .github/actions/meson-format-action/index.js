@@ -59,7 +59,10 @@ async function execAndGetStdout(executable, args) {
 		throw new Error(`${executable} exited with exit code ${exitCode}`)
 	}
 
-	return output.split('\n')
+	/** @type {string[]} */
+	const result = output === '' ? [] : output.split('\n')
+
+	return result
 }
 
 /**
@@ -76,7 +79,7 @@ async function getMesonFiles(onlyGitFiles) {
 
 	if (onlyGitFiles) {
 		/** @type {string[]} */
-		const gitFiles = mesonFiles.map((file) => `--exclude='${file}'`)
+		const gitFiles = mesonFiles.flatMap((file) => ['--exclude', file])
 
 		files = await execAndGetStdout('git', [
 			'ls-files',
@@ -124,7 +127,7 @@ async function checkFile(file, formatFile) {
 	}
 
 	/** @type {string[]} */
-	const additionalArgs = formatFile == '' ? [] : ['-c', formatFile]
+	const additionalArgs = formatFile === '' ? [] : ['-c', formatFile]
 
 	/** @type {number} */
 	const exitCode = await exec.exec(
@@ -133,7 +136,7 @@ async function checkFile(file, formatFile) {
 		options
 	)
 
-	return exitCode == 0
+	return exitCode === 0
 }
 
 /**
@@ -150,10 +153,6 @@ async function main() {
 				`Action atm only supported on linux: but are on: ${os}`
 			)
 		}
-
-		//WIP
-		core.error(`file input is: ${core.getInput('format-file', { required: false })}`)
-		core.error(`git-file input is: ${core.getInput('only-git-files', { required: false })}`)
 
 		/** @type {string} */
 		const formatFile = core.getInput('format-file', { required: false })
@@ -202,7 +201,7 @@ async function main() {
 
 		core.endGroup()
 
-		if (notFormattedFiles.length == 0) {
+		if (notFormattedFiles.length === 0) {
 			core.summary.clear()
 
 			core.summary.addHeading('Result', 1)
@@ -238,7 +237,7 @@ async function main() {
 		)
 
 		/** @type {string} */
-		const additionalArgs = formatFile == '' ? [] : [`-c ${formatFile}`]
+		const additionalArgs = formatFile === '' ? [] : [`-c ${formatFile}`]
 
 		/** @type {string} */
 		const finalFileList = notFormattedFiles.join(' ')
