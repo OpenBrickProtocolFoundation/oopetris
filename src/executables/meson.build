@@ -46,11 +46,8 @@ if build_application
                 endif
 
                 if not fs.exists(APP_ROMFS)
-                    error(
-                        'APP_ROMFS should exist, but doesn\'t: \''
-                        + APP_ROMFS
-                        + '\'',
-                    )
+                    error('APP_ROMFS should exist, but doesn\'t: \''
+                        + APP_ROMFS + '\'')
                 endif
 
                 if not APP_ROMFS.endswith('/')
@@ -58,9 +55,11 @@ if build_application
                 endif
 
                 emscripten_link_args += [
-                    '--preload-file', APP_ROMFS + '@/assets/',
+                    '--preload-file',
+                    APP_ROMFS + '@/assets/',
                     # based on: https://github.com/emscripten-core/emscripten/blob/main/src/shell_minimal.html
-                    '--shell-file', meson.project_source_root() / 'platforms' / 'emscripten' / 'shell_file.html',
+                    '--shell-file',
+                    meson.project_source_root() / 'platforms' / 'emscripten' / 'shell_file.html',
                 ]
 
             endif
@@ -85,7 +84,9 @@ if build_application
 
             oopetris_html = executable(
                 emscripten_name,
-                objects: oopetris_js.extract_all_objects(recursive: true),
+                objects: oopetris_js.extract_all_objects(
+                    recursive: true
+                ),
                 dependencies: emscripten_deps,
                 link_args: emscripten_link_args,
                 override_options: emscripten_options,
@@ -94,12 +95,15 @@ if build_application
                 link_depends: [oopetris_js],
             )
 
-            python3 = find_program('python3', required: false)
+            python3 = find_program(
+                'python3',
+                required: false,
+            )
 
             if python3.found()
 
                 server_py = files(
-                    meson.project_source_root() / 'platforms' / 'emscripten' / 'server.py',
+                    meson.project_source_root() / 'platforms' / 'emscripten' / 'server.py'
                 )
 
                 dest_path = meson.project_build_root() / 'src' / 'executables'
@@ -112,7 +116,10 @@ if build_application
 
             endif
 
-            wasm_validate_exe = find_program('wasm-validate', required: false)
+            wasm_validate_exe = find_program(
+                'wasm-validate',
+                required: false,
+            )
 
             if wasm_validate_exe.found()
 
@@ -123,7 +130,6 @@ if build_application
                     wasm_validate_exe,
                     args: ['--enable-threads', wasm_file],
                     depends: [oopetris_js, oopetris_html],
-
                 )
             endif
 
@@ -170,7 +176,7 @@ if build_application
                 makensis = find_program('makensis')
 
                 nsis_script = files(
-                    meson.project_source_root() / 'tools' / 'installer' / 'setup.nsi',
+                    meson.project_source_root() / 'tools' / 'installer' / 'setup.nsi'
                 )
 
                 run_target(
@@ -184,9 +190,7 @@ if build_application
                         + meson.project_source_root(),
                         '-DPROJECT_BUILD_DIR=' + meson.project_build_root(),
                         '-DDYNAMIC_LIBRARIES_DIR='
-                        + (
-                            meson.project_build_root() / 'dynamic_libraries' / get_option('bindir')
-                        ),
+                        + (meson.project_build_root() / 'dynamic_libraries' / get_option('bindir')),
                         nsis_script,
                     ],
                     depends: [oopetris_exe, oopetris_recordings_utility_exe],

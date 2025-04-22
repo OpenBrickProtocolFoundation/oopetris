@@ -3,9 +3,7 @@ oopetris_name = 'OOPetris'
 
 core_lib = {
     'inc_dirs': [],
-    'compile_args': [
-        '-DOOPETRIS_VERSION=' + meson.project_version(),
-    ],
+    'compile_args': ['-DOOPETRIS_VERSION=' + meson.project_version()],
     'deps': [],
 }
 
@@ -27,12 +25,10 @@ graphics_lib = {
 
 if meson.is_cross_build() and host_machine.system() == 'serenity'
     temp = core_lib.get('compile_args')
-    temp += [
-        '-D__SERENITY__',
-        '-DINSTALL_FILES',
-        '-DINSTALL_LOCATION=' + get_option('prefix'),
-    ]
-    core_lib += {'compile_args': temp}
+    temp += ['-D__SERENITY__', '-DINSTALL_FILES', '-DINSTALL_LOCATION=' + get_option('prefix')]
+    core_lib += {
+        'compile_args': temp,
+    }
     temp = 0
 elif meson.is_cross_build() and host_machine.system() == 'android'
     cpp = meson.get_compiler('cpp')
@@ -42,10 +38,7 @@ elif meson.is_cross_build() and host_machine.system() == 'android'
         '__ANDROID_API__',
         prefix: '#include <features.h>',
     ).strip('"')
-    assert(
-        android_api != '',
-        'failed to get android_api version',
-    )
+    assert(android_api != '', 'failed to get android_api version')
 
     android_compile_args = []
     android_link_args = []
@@ -63,11 +56,23 @@ elif meson.is_cross_build() and host_machine.system() == 'android'
     ]
 
     if not meson.is_subproject()
-        add_global_link_arguments(android_link_args, language: ['cpp'])
-        add_global_arguments(android_compile_args, language: ['cpp'])
+        add_global_link_arguments(
+            android_link_args,
+            language: ['cpp'],
+        )
+        add_global_arguments(
+            android_compile_args,
+            language: ['cpp'],
+        )
     else
-        add_project_link_arguments(android_link_args, language: ['cpp'])
-        add_project_arguments(android_compile_args, language: ['cpp'])
+        add_project_link_arguments(
+            android_link_args,
+            language: ['cpp'],
+        )
+        add_project_arguments(
+            android_compile_args,
+            language: ['cpp'],
+        )
 
     endif
 endif
@@ -79,7 +84,10 @@ build_with_libcpp = false
 allow_tl_expected_fallback = false
 
 if cpp.get_id() == 'gcc'
-    add_project_arguments('-Wold-style-cast', language: ['cpp'])
+    add_project_arguments(
+        '-Wold-style-cast',
+        language: ['cpp'],
+    )
 elif cpp.get_id() == 'clang'
 
     build_with_libcpp_option = get_option('clang_libcpp')
@@ -91,8 +99,14 @@ elif cpp.get_id() == 'clang'
             build_with_libcpp = true
         else
 
-            cpp_lib = cpp.find_library('c++', required: false)
-            cppabi_lib = cpp.find_library('c++abi', required: false)
+            cpp_lib = cpp.find_library(
+                'c++',
+                required: false,
+            )
+            cppabi_lib = cpp.find_library(
+                'c++abi',
+                required: false,
+            )
 
             if cpp_lib.found() and cppabi_lib.found()
                 build_with_libcpp = true
@@ -109,20 +123,28 @@ elif cpp.get_id() == 'clang'
 
         core_lib += {
             'compile_args': temp,
-            'deps': [
-                core_lib.get('deps'),
-                cpp.find_library('c++'),
-                cpp.find_library('c++abi'),
-            ],
+            'deps': [core_lib.get('deps'), cpp.find_library('c++'), cpp.find_library('c++abi')],
         }
         temp = 0
 
         if not meson.is_subproject()
-            add_global_link_arguments('-stdlib=libc++', language: ['cpp'])
-            add_global_arguments('-stdlib=libc++', language: ['cpp'])
+            add_global_link_arguments(
+                '-stdlib=libc++',
+                language: ['cpp'],
+            )
+            add_global_arguments(
+                '-stdlib=libc++',
+                language: ['cpp'],
+            )
         else
-            add_project_link_arguments('-stdlib=libc++', language: ['cpp'])
-            add_project_arguments('-stdlib=libc++', language: ['cpp'])
+            add_project_link_arguments(
+                '-stdlib=libc++',
+                language: ['cpp'],
+            )
+            add_project_arguments(
+                '-stdlib=libc++',
+                language: ['cpp'],
+            )
 
         endif
 

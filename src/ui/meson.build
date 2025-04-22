@@ -1,10 +1,4 @@
-graphics_src_files += files(
-    'focusable.hpp',
-    'layout.cpp',
-    'layout.hpp',
-    'widget.cpp',
-    'widget.hpp',
-)
+graphics_src_files += files('focusable.hpp', 'layout.cpp', 'layout.hpp', 'widget.cpp', 'widget.hpp')
 
 subdir('components')
 subdir('layouts')

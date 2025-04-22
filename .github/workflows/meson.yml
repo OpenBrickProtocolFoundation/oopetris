@@ -1,0 +1,28 @@
+name: Meson Checks CI
+
+on:
+  push:
+    branches: ['main']
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  meson_format:
+    name: Run Meson Format Checks
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: '0'
+
+      - name: Check Files
+        uses: Totto16/meson-format-action@1
+        with:
+          format-file: ./meson.format
+          only-git-files: true
+
+  ## TODO: use mesonlint from
+  ## https://github.com/JCWasmx86/mesonlsp
+  ## once it is maitained again
+  # meson_lint:
+  #   name: Run Meson Lint Checks

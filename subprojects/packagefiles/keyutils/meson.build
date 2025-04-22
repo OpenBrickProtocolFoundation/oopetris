@@ -16,9 +16,7 @@ project(
 
 inc_dirs = include_directories('.')
 
-src_files = files(
-    'keyutils.c',
-)
+src_files = files('keyutils.c')
 
 API_VERSON = '1.10'
 
@@ -26,7 +24,8 @@ sh = find_program('sh')
 
 current_date = run_command(
     sh,
-    '-c', 'date -u +%F',
+    '-c',
+    'date -u +%F',
     check: true,
 ).stdout().strip()
 

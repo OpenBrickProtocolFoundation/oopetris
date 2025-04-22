@@ -1,15 +1,6 @@
-core_src_files += files(
-    'mino.cpp',
-    'mino_stack.cpp',
-    'tetromino_type.cpp',
-)
+core_src_files += files('mino.cpp', 'mino_stack.cpp', 'tetromino_type.cpp')
 
-_header_files = files(
-    'grid_properties.hpp',
-    'mino.hpp',
-    'mino_stack.hpp',
-    'tetromino_type.hpp',
-)
+_header_files = files('grid_properties.hpp', 'mino.hpp', 'mino_stack.hpp', 'tetromino_type.hpp')
 
 core_header_files += _header_files
 

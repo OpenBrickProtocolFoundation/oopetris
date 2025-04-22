@@ -46,7 +46,7 @@ if meson.is_cross_build()
         int main() {
             return 0;
         }
-        ''',
+        '''
         )
 
         if not can_compile
@@ -67,11 +67,13 @@ if meson.is_cross_build()
         foreach native_dependency_tuple : map_native_dependencies
             native_dep_lib_name = native_dependency_tuple[0]
 
-            native_dep_name = (
-                native_dependency_tuple.length() == 2 ? native_dependency_tuple[1] : native_dep_lib_name
-            )
+            native_dep_name = (native_dependency_tuple.length() == 2 ? native_dependency_tuple[1] : native_dep_lib_name
+)
 
-            native_dep = cpp.find_library(native_dep_lib_name, required: true)
+            native_dep = cpp.find_library(
+                native_dep_lib_name,
+                required: true,
+            )
 
             if native_dep_name == 'SDL2'
 
@@ -79,37 +81,25 @@ if meson.is_cross_build()
                     'SDL_MAJOR_VERSION',
                     prefix: '#include <SDL2/SDL_version.h>',
                 ).strip('"')
-                assert(
-                    major_version != '',
-                    'failed to get major_version from SDL_version.h',
-                )
+                assert(major_version != '', 'failed to get major_version from SDL_version.h')
 
                 minor_version = cpp.get_define(
                     'SDL_MINOR_VERSION',
                     prefix: '#include <SDL2/SDL_version.h>',
                 ).strip('"')
-                assert(
-                    minor_version != '',
-                    'failed to get minor_version from SDL_version.h',
-                )
+                assert(minor_version != '', 'failed to get minor_version from SDL_version.h')
 
                 patch_version = cpp.get_define(
                     'SDL_PATCHLEVEL',
                     prefix: '#include <SDL2/SDL_version.h>',
                 ).strip('"')
-                assert(
-                    patch_version != '',
-                    'failed to get patch_version from SDL_version.h',
-                )
+                assert(patch_version != '', 'failed to get patch_version from SDL_version.h')
 
                 native_dep_with_version = declare_dependency(
                     dependencies: native_dep,
                     version: major_version + '.' + minor_version + '.' + patch_version,
                 )
-                meson.override_dependency(
-                    native_dep_name,
-                    native_dep_with_version,
-                )
+                meson.override_dependency(native_dep_name, native_dep_with_version)
             else
                 meson.override_dependency(native_dep_name, native_dep)
 
@@ -131,7 +121,10 @@ if meson.is_cross_build()
         ]
 
         foreach native_dep_name : native_dep_names
-            native_deps += cpp.find_library(native_dep_name, required: true)
+            native_deps += cpp.find_library(
+                native_dep_name,
+                required: true,
+            )
         endforeach
 
         graphics_lib += {
@@ -145,10 +138,9 @@ endif
 
 fmt_use_header_only = false
 
-if (
-    meson.is_cross_build()
-    and (host_machine.system() == 'switch'
-    or host_machine.system() == '3ds')
+if (meson.is_cross_build()
+and (host_machine.system() == 'switch'
+or host_machine.system() == '3ds')
 )
     fmt_use_header_only = true
 endif
@@ -162,16 +154,24 @@ if fmt_use_header_only
     meson.override_dependency('fmt', fmt_header_only_dep)
     fmt_dep = fmt_header_only_dep
 else
-    fmt_dep = dependency('fmt', required: true, allow_fallback: true)
+    fmt_dep = dependency(
+        'fmt',
+        required: true,
+        allow_fallback: true,
+    )
 endif
 
-core_lib += {'deps': [core_lib.get('deps'), fmt_dep]}
+core_lib += {
+    'deps': [core_lib.get('deps'), fmt_dep],
+}
 
 nlohmann_json_dep = dependency(
     'nlohmann_json',
     required: true,
 )
-core_lib += {'deps': [core_lib.get('deps'), nlohmann_json_dep]}
+core_lib += {
+    'deps': [core_lib.get('deps'), nlohmann_json_dep],
+}
 
 # check std::expected support
 have_std_expected = cpp.compiles(
@@ -192,7 +192,10 @@ if not have_std_expected
 
     message('Compiler doesn\'t support std::expected, using fallback')
 
-    tl_exp_dep = dependency('tl-expected', required: true)
+    tl_exp_dep = dependency(
+        'tl-expected',
+        required: true,
+    )
 
     temp = core_lib.get('compile_args')
     temp += '-D_USE_TL_EXPECTED'
@@ -222,16 +225,23 @@ endif
 magic_enum_dep = dependency(
     'magic_enum',
     required: true,
-    default_options: {'test': false, 'hash': true},
+    default_options: {
+        'test': false,
+        'hash': true,
+    },
 )
-core_lib += {'deps': [core_lib.get('deps'), magic_enum_dep]}
+core_lib += {
+    'deps': [core_lib.get('deps'), magic_enum_dep],
+}
 
 utf8cpp_dep = dependency(
     'utf8cpp',
     required: true,
     version: '>=4.0.0',
 )
-graphics_lib += {'deps': [graphics_lib.get('deps'), utf8cpp_dep]}
+graphics_lib += {
+    'deps': [graphics_lib.get('deps'), utf8cpp_dep],
+}
 
 icu_dep = dependency(
     'icu-uc',
@@ -240,10 +250,7 @@ icu_dep = dependency(
 
 if icu_dep.found()
     graphics_lib += {
-        'compile_args': [
-            graphics_lib.get('compile_args'),
-            '-D_HAVE_ICU_DEP',
-        ],
+        'compile_args': [graphics_lib.get('compile_args'), '-D_HAVE_ICU_DEP'],
         'deps': [graphics_lib.get('deps'), icu_dep],
     }
 endif
@@ -271,7 +278,9 @@ if build_application
         sdl2_dep = dependency(
             'sdl2',
             required: true,
-            default_options: {'test': false},
+            default_options: {
+                'test': false,
+            },
             version: '>=2.24.0',
         )
         sdl2main_dep = dependency(
@@ -314,15 +323,24 @@ if build_application
         allow_fallback: true,
         required: false,
     )
-    sdl2_mixer_flags = {'flac': 'enabled'}
+    sdl2_mixer_flags = {
+        'flac': 'enabled',
+    }
     sdl2_mixer_defines = ['-DAUDIO_WITH_FLAC_SUPPORT']
     if mpg123_dep.found()
-        sdl2_mixer_flags += {'mpg123': 'enabled'}
+        sdl2_mixer_flags += {
+            'mpg123': 'enabled',
+        }
         sdl2_mixer_defines += '-DAUDIO_WITH_MP3_SUPPORT'
     else
-        mpg123_dep = cpp.find_library('mpg123', required: false)
+        mpg123_dep = cpp.find_library(
+            'mpg123',
+            required: false,
+        )
         if mpg123_dep.found()
-            sdl2_mixer_flags += {'mpg123': 'enabled'}
+            sdl2_mixer_flags += {
+                'mpg123': 'enabled',
+            }
             sdl2_mixer_defines += '-DAUDIO_WITH_MP3_SUPPORT'
 
             meson.override_dependency('mpg123', mpg123_dep)
@@ -344,7 +362,9 @@ if build_application
     spdlog_dep = dependency(
         'spdlog',
         required: true,
-        default_options: {'tests': 'disabled'},
+        default_options: {
+            'tests': 'disabled',
+        },
     )
     graphics_lib += {
         'deps': [graphics_lib.get('deps'), spdlog_dep],
@@ -352,10 +372,7 @@ if build_application
 
     if (meson.is_cross_build() and host_machine.system() == '3ds')
         graphics_lib += {
-            'compile_args': [
-                graphics_lib.get('compile_args'),
-                '-DSPDLOG_NO_TLS',
-            ],
+            'compile_args': [graphics_lib.get('compile_args'), '-DSPDLOG_NO_TLS'],
         }
     endif
 
@@ -375,20 +392,14 @@ if build_application
 
         graphics_lib += {
             'deps': [graphics_lib.get('deps'), cpp_httlib_dep],
-            'compile_args': [
-                graphics_lib.get('compile_args'),
-                '-D_OOPETRIS_ONLINE_SYSTEM=0',
-            ],
+            'compile_args': [graphics_lib.get('compile_args'), '-D_OOPETRIS_ONLINE_SYSTEM=0'],
         }
 
     elif meson.is_cross_build() and host_machine.system() == 'emscripten'
         online_multiplayer_system = 'web'
 
         graphics_lib += {
-            'compile_args': [
-                graphics_lib.get('compile_args'),
-                '-D_OOPETRIS_ONLINE_SYSTEM=1',
-            ],
+            'compile_args': [graphics_lib.get('compile_args'), '-D_OOPETRIS_ONLINE_SYSTEM=1'],
         }
     else
 
@@ -404,30 +415,30 @@ if build_application
 
         graphics_lib += {
             'deps': [graphics_lib.get('deps'), curl_cpp_wrapper],
-            'compile_args': [
-                graphics_lib.get('compile_args'),
-                '-D_OOPETRIS_ONLINE_SYSTEM=2',
-            ],
+            'compile_args': [graphics_lib.get('compile_args'), '-D_OOPETRIS_ONLINE_SYSTEM=2'],
         }
 
     endif
 
-    if (
-        host_machine.system() == 'linux'
-        or (meson.is_cross_build()
-        and host_machine.system() == 'android')
-    )
+    if (host_machine.system() == 'linux'
+or (meson.is_cross_build()
+and host_machine.system() == 'android')
+)
         keyutils_dep = dependency(
             'keyutils',
             required: true,
             allow_fallback: true,
         )
-        graphics_lib += {'deps': [graphics_lib.get('deps'), keyutils_dep]}
+        graphics_lib += {
+            'deps': [graphics_lib.get('deps'), keyutils_dep],
+        }
     elif host_machine.system() == 'windows'
         c = meson.get_compiler('c')
 
         ncrypt_dep = c.find_library('ncrypt')
-        graphics_lib += {'deps': [graphics_lib.get('deps'), ncrypt_dep]}
+        graphics_lib += {
+            'deps': [graphics_lib.get('deps'), ncrypt_dep],
+        }
     endif
 
     build_installer = get_option('build_installer')
@@ -438,8 +449,9 @@ if build_application
     if build_installer
         if get_option('buildtype') != 'release'
             error(
-                'buildtype needs to be \'release\', when building the installer, but was: ' +
-                get_option('buildtype'),
+                'buildtype needs to be \'release\', when building the installer, but was: ' + get_option(
+                    'buildtype'
+                )
             )
         endif
 
@@ -447,23 +459,21 @@ if build_application
             if get_option('prefix') == '/app'
                 is_flatpak_build = true
             else
-                error(
-                    'only support flatpak builds, when building the installer for linux',
-                )
+                error('only support flatpak builds, when building the installer for linux')
             endif
         elif host_machine.system() == 'windows'
             message('Adding a windows installer target: \'windows_installer\'')
         else
             # TODO: create a proper installer for macOS : https://mesonbuild.com/Creating-OSX-packages.html
-            error(
-                'unsupported system for building the installer: ' + host_machine.system(),
-            )
+            error('unsupported system for building the installer: ' + host_machine.system())
 
         endif
 
         temp = core_lib.get('compile_args')
         temp += '-DBUILD_INSTALLER'
-        core_lib += {'compile_args': temp}
+        core_lib += {
+            'compile_args': temp,
+        }
         temp = 0
 
     endif
@@ -473,7 +483,9 @@ if build_application
 
         temp = core_lib.get('compile_args')
         temp += '-DFLATPAK_BUILD'
-        core_lib += {'compile_args': temp}
+        core_lib += {
+            'compile_args': temp,
+        }
         temp = 0
     endif
 
@@ -491,25 +503,20 @@ if build_application
     if nfde_dep.found()
         have_file_dialogs = true
         graphics_lib += {
-            'compile_args': [
-                graphics_lib.get('compile_args'),
-                '-D_HAVE_FILE_DIALOGS',
-            ],
+            'compile_args': [graphics_lib.get('compile_args'), '-D_HAVE_FILE_DIALOGS'],
             'deps': [graphics_lib.get('deps'), nfde_dep],
         }
     endif
 
     c = meson.get_compiler('c')
 
-    discord_dep_required = (
-        not meson.is_cross_build()
-        and get_option('build_installer')
-    )
+    discord_dep_required = (not meson.is_cross_build()
+and get_option('build_installer')
+)
 
-    if (
-        host_machine.system() == 'linux'
-        and host_machine.cpu_family() == 'aarch64'
-    )
+    if (host_machine.system() == 'linux'
+and host_machine.cpu_family() == 'aarch64'
+)
         # not supported on aarch64 linux :(
         discord_dep_required = false
     endif
@@ -523,15 +530,15 @@ if build_application
     if discord_social_sdk_dep.found()
         have_discord_social_sdk = true
         graphics_lib += {
-            'compile_args': [
-                graphics_lib.get('compile_args'),
-                '-D_HAVE_DISCORD_SOCIAL_SDK',
-            ],
+            'compile_args': [graphics_lib.get('compile_args'), '-D_HAVE_DISCORD_SOCIAL_SDK'],
             'deps': [graphics_lib.get('deps'), discord_social_sdk_dep],
         }
     endif
 
-    argparse_dep = dependency('argparse', required: true)
+    argparse_dep = dependency(
+        'argparse',
+        required: true,
+    )
 
     graphic_application_deps += argparse_dep
     recordings_application_deps += argparse_dep

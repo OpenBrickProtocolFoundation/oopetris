@@ -72,7 +72,10 @@ if build_application
         install_tag: 'other',
     )
 
-    desktop_file_validate_exe = find_program('desktop-file-validate', required: require_checks)
+    desktop_file_validate_exe = find_program(
+        'desktop-file-validate',
+        required: require_checks,
+    )
 
     if desktop_file_validate_exe.found()
         test(
@@ -97,18 +100,16 @@ if build_application
             install_tag: 'other',
         )
 
-        ascli_exe = find_program('appstreamcli', required: require_checks)
+        ascli_exe = find_program(
+            'appstreamcli',
+            required: require_checks,
+        )
 
         if ascli_exe.found()
             test(
                 'validate metainfo file',
                 ascli_exe,
-                args: [
-                    'validate',
-                    '--no-net',
-                    '--explain',
-                    '--pedantic', metainfo_file,
-                ],
+                args: ['validate', '--no-net', '--explain', '--pedantic', metainfo_file],
             )
         endif
 
