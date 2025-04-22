@@ -1,0 +1,40 @@
+name: 'Meson Format Action'
+author: Totto16
+description: 'Check if meson files are formatted correctly'
+inputs:
+  format-file:
+    description: 'Path of format file'
+    required: false
+    default: ''
+  only-git-files:
+    description: 'Only check files, that are check into git'
+    required: false
+    default: 'true'
+runs:
+  using: 'composite'
+  steps:
+    - name: Install Node.Js
+      uses: actions/setup-node@v4
+      id: setup-js
+      with:
+        node-version: 22
+
+    - name: Install Node Dependencies
+      id: install-dependencies
+      shell: bash
+      run: |
+        cd "${{github.action_path}}"
+        npm ci
+
+    # NOTE: meson has no dependencies, so --break-system-packages doesn't really break anything!
+    - name: Setup meson
+      id: install-meson
+      shell: bash
+      run: |
+        pip install meson --break-system-packages
+
+    - name: Run checker
+      shell: bash
+      id: meson-format-checker
+      run: |
+        node "${{github.action_path}}/index.js"

@@ -15,21 +15,11 @@ jobs:
         with:
           fetch-depth: '0'
 
-      # NOTE: meson has no dependencies, so --break-system-packages doesn't really break anything!
-      - name: Setup meson
-        run: |
-          pip install meson --break-system-packages
-
       - name: Check Files
-        run: >
-          git ls-files
-          --exclude='meson.build'
-          --exclude='meson.options'
-          --exclude='meson_options.txt'
-          --ignored -c -z | xargs -0r
-          meson format --check-only -c ./meson.format
-          || (echo "Not all meson files are formatted correctly" && exit 1)
-          && echo "All meson files are formatted correctly"
+        uses: ./.github/actions/meson-format-action
+        with:
+          format-file: ./meson.format
+          only-git-files: true
 
   ## TODO: use mesonlint from
   ## https://github.com/JCWasmx86/mesonlsp

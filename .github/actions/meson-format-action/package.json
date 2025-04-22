@@ -1,0 +1,13 @@
+{
+  "name": "meson-format-action",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Totto16",
+  "license": "MIT",
+  "description": "",
+  "dependencies": {
+    "@actions/core": "^1.11.1",
+    "@actions/exec": "^1.1.1",
+    "@actions/io": "^1.1.3"
+  }
+}
