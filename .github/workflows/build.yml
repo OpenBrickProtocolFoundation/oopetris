@@ -165,7 +165,7 @@ jobs:
         if: matrix.config.os == 'ubuntu' && matrix.config.use-clang == false
         uses: egor-tensin/setup-gcc@v1
         with:
-          version: 14
+          version: 15
           platform: x64
 
       - name: Unbreak Python in GHA (MacOS 13 image)
