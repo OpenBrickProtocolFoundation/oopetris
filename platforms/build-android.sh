@@ -51,10 +51,12 @@ export COMPILE_TYPE="smart"
 
 export BUILDTYPE="debug"
 
+export RUN_IN_CI="false"
+
 if [ "$#" -eq 0 ]; then
     # nothing
     echo "Using all architectures"
-elif [ "$#" -eq 1 ] || [ "$#" -eq 2 ] || [ "$#" -eq 3 ]; then
+elif [ "$#" -eq 1 ] || [ "$#" -eq 2 ] || [ "$#" -eq 3 ] || [ "$#" -eq 4 ]; then
     ARCH=$1
 
     FOUND=""
@@ -77,10 +79,20 @@ elif [ "$#" -eq 1 ] || [ "$#" -eq 2 ] || [ "$#" -eq 3 ]; then
     elif [ "$#" -eq 3 ]; then
         COMPILE_TYPE="$2"
         BUILDTYPE="$3"
+    elif [ "$#" -eq 4 ]; then
+        COMPILE_TYPE="$2"
+        BUILDTYPE="$3"
+
+        if [ -z "$4" ]; then
+            RUN_IN_CI="false"
+        else
+            RUN_IN_CI="true"
+        fi
+
     fi
 
 else
-    echo "Too many arguments given, expected 1 ,2 or 3"
+    echo "Too many arguments given, expected 1, 2, 3 or 4"
     exit 1
 fi
 
@@ -270,7 +282,6 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
             -DBUILD_SHARED_LIBS=OFF \
             -DINSTALL_PKGCONFIG_MODULES=ON
 
-
         cmake --build .
 
         cmake --install .
@@ -436,7 +447,8 @@ EOF
             --cross-file "./platforms/crossbuild-android-$ARM_TARGET_ARCH.ini" \
             "-Dbuildtype=$BUILDTYPE" \
             -Dsdl2:use_hidapi=enabled \
-            -Dclang_libcpp=disabled
+            -Dclang_libcpp=disabled \
+            "-Drun_in_ci=$RUN_IN_CI"
 
     fi
 

@@ -199,7 +199,7 @@ jobs:
           brew install sdl2 sdl2_ttf sdl2_mixer sdl2_image
 
       - name: Configure
-        run: meson setup build -Dbuildtype=release -Ddefault_library=${{( matrix.config.os == 'windows' && matrix.config.environment == 'msvc' && matrix.config.static ) && 'static' ||'shared' }} -Dclang_libcpp=${{ ( ( matrix.config.os == 'ubuntu' && matrix.config.use-clang == true && matrix.config.use-clang_stdlib ) || matrix.config.os == 'macos' ) && 'enabled' || 'disabled' }}
+        run: meson setup build -Dbuildtype=release -Ddefault_library=${{( matrix.config.os == 'windows' && matrix.config.environment == 'msvc' && matrix.config.static ) && 'static' ||'shared' }} -Dclang_libcpp=${{ ( ( matrix.config.os == 'ubuntu' && matrix.config.use-clang == true && matrix.config.use-clang_stdlib ) || matrix.config.os == 'macos' ) && 'enabled' || 'disabled' }} -Drun_in_ci=true
 
       - name: Build
         run: meson compile -C build
