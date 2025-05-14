@@ -37,22 +37,23 @@ if get_option('run_in_ci')
 
     clang_19_compiler = ['clang', ['>=19', '<20']]
     gcc_14_compiler = ['gcc', ['>=14', '<15']]
+    msvc_compiler_current = ['msvc', ['>=19.43', '<20']]
 
     ci_config = {
         'cross_android': {
             'compilers': [clang_19_compiler],
         },
         'cross_3ds': {
-            'compilers': [clang_19_compiler],
+            'compilers': [clang_19_compiler, gcc_14_compiler],
         },
         'cross_switch': {
-            'compilers': [clang_19_compiler],
+            'compilers': [clang_19_compiler, gcc_14_compiler],
         },
         'cross_emscripten': {
             'compilers': [clang_19_compiler],
         },
         'windows': {
-            'compilers': [clang_19_compiler],
+            'compilers': [msvc_compiler_current],
         },
         'linux': {
             'compilers': [clang_19_compiler, gcc_14_compiler],
