@@ -35,9 +35,18 @@ if get_option('run_in_ci')
 
     endif
 
-    clang_19_compiler = ['clang', ['>=19', '<20']]
-    gcc_14_compiler = ['gcc', ['>=14', '<15']]
-    msvc_compiler_current = ['msvc', ['>=19.43', '<20']]
+    clang_19_compiler = {
+        'id': 'clang',
+        'checks': ['>=19', '<20'],
+    }
+    gcc_14_compiler = {
+        'id': 'gcc',
+        'checks': ['>=14', '<15'],
+    }
+    msvc_compiler_current = {
+        'id': 'msvc',
+        'checks': ['>=19.43', '<20'],
+    }
 
     ci_config = {
         'cross_android': {
@@ -78,8 +87,8 @@ if get_option('run_in_ci')
     found_compiler_for_ci_config = false
 
     foreach compiler_for_system : compilers_for_system
-        compiler_for_system_name = compiler_for_system[0]
-        version_checks_for_compiler = compiler_for_system[1]
+        compiler_for_system_name = compiler_for_system.get('id')
+        version_checks_for_compiler = compiler_for_system.get('checks')
 
         if c.get_id() != compiler_for_system_name
             continue
@@ -97,7 +106,7 @@ if get_option('run_in_ci')
 
             if not compiler_version.version_compare(version_check_for_compiler)
                 error(
-                    'The compiler "' + c.get_id() + '" doesn\'t meet the version check ' + version_check_for_compiler
+                    'The compiler "' + c.get_id() + '" doesn\'t meet the version check "' + version_check_for_compiler + '"'
                 )
             endif
 
