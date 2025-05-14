@@ -35,6 +35,12 @@ if get_option('run_in_ci')
 
     endif
 
+    # Detect if compiling in an MSYS2-based MinGW/Clang environment
+    host_is_msys2 = host_machine.system() == 'windows' and c.get_argument_syntax() == 'gcc'
+    if host_is_msys2
+        system_name = 'msys2'
+    endif
+
     clang_19_compiler = {
         'id': 'clang',
         'checks': ['>=19', '<20'],
@@ -53,16 +59,25 @@ if get_option('run_in_ci')
             'compilers': [clang_19_compiler],
         },
         'cross_3ds': {
-            'compilers': [clang_19_compiler, gcc_14_compiler],
+            'compilers': [gcc_14_compiler],
         },
         'cross_switch': {
-            'compilers': [clang_19_compiler, gcc_14_compiler],
+            'compilers': [gcc_14_compiler],
         },
         'cross_emscripten': {
             'compilers': [clang_19_compiler],
         },
         'windows': {
             'compilers': [msvc_compiler_current],
+        },
+        'msys2': {
+            # TODO: this needs to be 14, but we can't pin the package atm, see https://github.com/OpenBrickProtocolFoundation/oopetris/pull/224
+            'compilers': [
+                {
+                    'id': 'gcc',
+                    'checks': ['>=15', '<16'],
+                },
+            ],
         },
         'linux': {
             'compilers': [clang_19_compiler, gcc_14_compiler],
