@@ -23,6 +23,95 @@ graphics_lib = {
     'deps': [],
 }
 
+# check if running in CI, than we only support certain versions, this helps in checking if the Ci installs the correct tool version in e.g. msys2
+if get_option('run_in_ci')
+
+    c = meson.get_compiler('c')
+
+    system_name = host_machine.system()
+
+    if meson.is_cross_build()
+        system_name = 'cross_' + host_machine.system()
+
+    endif
+
+    ci_config = {
+        'cross_android': {
+            'compilers': [['clang', ['>=20', '<21']]],
+        },
+        'cross_3ds': {
+            'compilers': [['clang', ['>=20', '<21']]],
+        },
+        'cross_switch': {
+            'compilers': [['clang', ['>=20', '<21']]],
+        },
+        'cross_emscripten': {
+            'compilers': [['clang', ['>=20', '<21']]],
+        },
+        'windows': {
+            'compilers': [['clang', ['>=20', '<21']]],
+        },
+        'linux': {
+            'compilers': [['clang', ['>=20', '<21']]],
+        },
+        'darwin': {
+            'compilers': [['clang', ['>=20', '<21']]],
+        },
+    }
+
+    if not ci_config.has_key(system_name)
+        error('CI config doesn\'t know what to expect from the system "' + system_name + '"')
+    endif
+
+    config_for_system = ci_config.get(system_name)
+
+    compilers_for_system = config_for_system.get('compilers', [])
+
+    if compilers_for_system.length() == 0
+        error('Expected the CI config to have at least one compiler')
+    endif
+
+    found_compiler_for_ci_config = false
+
+    foreach compiler_for_system : compilers_for_system
+        compiler_for_system_name = compiler_for_system[0]
+        version_checks_for_compiler = compiler_for_system[1]
+
+        if c.get_id() != compiler_for_system_name
+            continue
+        endif
+
+        found_compiler_for_ci_config = true
+
+        if version_checks_for_compiler.length() == 0
+            error('Expected the version checks for a compiler to not be empty')
+        endif
+
+        compiler_version = c.version()
+
+        foreach version_check_for_compiler : version_checks_for_compiler
+
+            if not compiler_version.version_compare(version_check_for_compiler)
+                error(
+                    'The compiler "' + c.get_id() + '" doesn\'t meet the version check ' + version_check_for_compiler
+                )
+            endif
+
+        endforeach
+
+
+    endforeach
+
+    if not found_compiler_for_ci_config
+        error(
+            'Couldn\'t find a valid compiler for the CI config, compiler was: "' + c.get_id() + '"'
+        )
+    endif
+
+endif
+
+
+
 if meson.is_cross_build() and host_machine.system() == 'serenity'
     temp = core_lib.get('compile_args')
     temp += ['-D__SERENITY__', '-DINSTALL_FILES', '-DINSTALL_LOCATION=' + get_option('prefix')]
