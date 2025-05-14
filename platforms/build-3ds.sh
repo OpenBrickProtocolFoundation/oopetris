@@ -2,6 +2,44 @@
 
 set -e
 
+## options: "smart, complete_rebuild"
+export COMPILE_TYPE="smart"
+
+export BUILDTYPE="debug"
+
+export RUN_IN_CI="false"
+
+if [ "$#" -eq 0 ]; then
+    # nothing
+    echo "Using compile type '$COMPILE_TYPE'"
+elif [ "$#" -eq 1 ]; then
+    COMPILE_TYPE="$1"
+elif [ "$#" -eq 2 ]; then
+    COMPILE_TYPE="$1"
+    BUILDTYPE="$2"
+elif [ "$#" -eq 3 ]; then
+    COMPILE_TYPE="$1"
+    BUILDTYPE="$2"
+
+    if [ -z "$3" ]; then
+        RUN_IN_CI="false"
+    else
+        RUN_IN_CI="true"
+    fi
+else
+    echo "Too many arguments given, expected 1, 2 or 3"
+    exit 1
+fi
+
+if [ "$COMPILE_TYPE" == "smart" ]; then
+    : # noop
+elif [ "$COMPILE_TYPE" == "complete_rebuild" ]; then
+    : # noop
+else
+    echo "Invalid COMPILE_TYPE, expected: 'smart' or 'complete_rebuild'"
+    exit 1
+fi
+
 export DEVKITPRO="/opt/devkitpro"
 export ARCH_DEVKIT_FOLDER="$DEVKITPRO/devkitARM"
 export COMPILER_BIN="$ARCH_DEVKIT_FOLDER/bin"
@@ -214,33 +252,6 @@ fi
 
 cd ..
 
-## options: "smart, complete_rebuild"
-export COMPILE_TYPE="smart"
-
-export BUILDTYPE="debug"
-
-if [ "$#" -eq 0 ]; then
-    # nothing
-    echo "Using compile type '$COMPILE_TYPE'"
-elif [ "$#" -eq 1 ]; then
-    COMPILE_TYPE="$1"
-elif [ "$#" -eq 2 ]; then
-    COMPILE_TYPE="$1"
-    BUILDTYPE="$2"
-else
-    echo "Too many arguments given, expected 1 or 2"
-    exit 1
-fi
-
-if [ "$COMPILE_TYPE" == "smart" ]; then
-    : # noop
-elif [ "$COMPILE_TYPE" == "complete_rebuild" ]; then
-    : # noop
-else
-    echo "Invalid COMPILE_TYPE, expected: 'smart' or 'complete_rebuild'"
-    exit 1
-fi
-
 if [ ! -d "$ROMFS" ]; then
 
     mkdir -p "$ROMFS"
@@ -260,7 +271,9 @@ if [ "$COMPILE_TYPE" == "complete_rebuild" ] || [ ! -e "$BUILD_DIR" ]; then
         -Dcurl:unittests=disabled \
         -Dcurl:bearer-auth=enabled \
         -Dcurl:brotli=enabled \
-        -Dcurl:libz=enabled
+        -Dcurl:libz=enabled \
+        "-Drun_in_ci=$RUN_IN_CI" \
+        --fatal-meson-warnings
 
 fi
 

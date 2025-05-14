@@ -2,18 +2,59 @@
 
 set -e
 
+## options: "smart, complete_rebuild"
+export COMPILE_TYPE="smart"
+
+export BUILDTYPE="debug"
+
+export RUN_IN_CI="false"
+
+if [ "$#" -eq 0 ]; then
+    # nothing
+    echo "Using compile type '$COMPILE_TYPE'"
+elif [ "$#" -eq 1 ]; then
+    COMPILE_TYPE="$1"
+elif [ "$#" -eq 2 ]; then
+    COMPILE_TYPE="$1"
+    BUILDTYPE="$2"
+elif [ "$#" -eq 3 ]; then
+    COMPILE_TYPE="$1"
+    BUILDTYPE="$2"
+
+    if [ -z "$3" ]; then
+        RUN_IN_CI="false"
+    else
+        RUN_IN_CI="true"
+    fi
+else
+    echo "Too many arguments given, expected 1, 2 or 3"
+    exit 1
+fi
+
+if [ "$COMPILE_TYPE" == "smart" ]; then
+    : # noop
+elif [ "$COMPILE_TYPE" == "complete_rebuild" ]; then
+    : # noop
+else
+    echo "Invalid COMPILE_TYPE, expected: 'smart' or 'complete_rebuild'"
+    exit 1
+fi
+
 if [ ! -d "toolchains" ]; then
     mkdir -p toolchains
 fi
 
 export EMSCRIPTEN_ROOT="$(pwd)/toolchains/emsdk"
 
+export EMSCRIPTEN_RELEASE_TAG="4.0.8"
+
 if [ ! -d "$EMSCRIPTEN_ROOT" ]; then
     git clone https://github.com/emscripten-core/emsdk.git "$EMSCRIPTEN_ROOT"
+    git -C "$EMSCRIPTEN_ROOT" checkout "$EMSCRIPTEN_RELEASE_TAG"
 fi
 
-"$EMSCRIPTEN_ROOT/emsdk" install latest
-"$EMSCRIPTEN_ROOT/emsdk" activate latest
+"$EMSCRIPTEN_ROOT/emsdk" install "$EMSCRIPTEN_RELEASE_TAG"
+"$EMSCRIPTEN_ROOT/emsdk" activate "$EMSCRIPTEN_RELEASE_TAG"
 
 EMSCRIPTEN_UPSTREAM_ROOT="$EMSCRIPTEN_ROOT/upstream/emscripten"
 
@@ -112,33 +153,6 @@ APP_ROMFS='$ROMFS/assets/'
 
 EOF
 
-## options: "smart, complete_rebuild"
-export COMPILE_TYPE="smart"
-
-export BUILDTYPE="debug"
-
-if [ "$#" -eq 0 ]; then
-    # nothing
-    echo "Using compile type '$COMPILE_TYPE'"
-elif [ "$#" -eq 1 ]; then
-    COMPILE_TYPE="$1"
-elif [ "$#" -eq 2 ]; then
-    COMPILE_TYPE="$1"
-    BUILDTYPE="$2"
-else
-    echo "Too many arguments given, expected 1 or 2"
-    exit 1
-fi
-
-if [ "$COMPILE_TYPE" == "smart" ]; then
-    : # noop
-elif [ "$COMPILE_TYPE" == "complete_rebuild" ]; then
-    : # noop
-else
-    echo "Invalid COMPILE_TYPE, expected: 'smart' or 'complete_rebuild'"
-    exit 1
-fi
-
 if [ ! -d "$ROMFS" ]; then
 
     mkdir -p "$ROMFS"
@@ -154,7 +168,9 @@ if [ "$COMPILE_TYPE" == "complete_rebuild" ] || [ ! -e "$BUILD_DIR" ]; then
         --cross-file "$CROSS_FILE" \
         "-Dbuildtype=$BUILDTYPE" \
         -Ddefault_library=static \
-        -Dtests=false
+        -Dtests=false \
+        "-Drun_in_ci=$RUN_IN_CI" \
+        --fatal-meson-warnings
 
 fi
 

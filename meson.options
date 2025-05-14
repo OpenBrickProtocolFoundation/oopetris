@@ -25,3 +25,11 @@ option(
     value: false,
     description: 'if you only want to build the libs, enable this',
 )
+
+
+option(
+    'run_in_ci',
+    type: 'boolean',
+    value: false,
+    description: 'enable this, if it is run in CI',
+)

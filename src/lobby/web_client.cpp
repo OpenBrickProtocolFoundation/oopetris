@@ -1,6 +1,7 @@
 
 #include "./web_client.hpp"
 
+#include <core/helper/utils.hpp>
 #include <core/helper/magic_enum_wrapper.hpp>
 
 // Note: this uses emscripten fetch
@@ -150,7 +151,7 @@ namespace {
         emscripten_fetch_attr_t attr{};
         emscripten_fetch_attr_init(&attr);
 
-        assert(method.size() <= (max_method_size - 1));
+        ASSERT(method.size() <= (max_method_size - 1));
         std::memcpy(attr.requestMethod, method.c_str(), method.size() + 1);
 
         //TODO(Totto): once the http Implementation "Interface" support async thing, use that:

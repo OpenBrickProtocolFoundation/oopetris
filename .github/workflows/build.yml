@@ -21,6 +21,7 @@ jobs:
             environment: msvc
             shell: pwsh
             static: false
+            fatal_warnings: false # TODO: enable fatal warnings, once cpp-httplib is patched either by ourselves or by the maintainers
 
           - name: Windows MSVC (static)
             os: windows
@@ -28,6 +29,7 @@ jobs:
             environment: msvc
             shell: pwsh
             static: true
+            fatal_warnings: false # TODO: enable fatal warnings, once cpp-httplib is patched either by ourselves or by the maintainers
 
           - name: Windows MingGW
             os: windows
@@ -35,6 +37,7 @@ jobs:
             environment: mingw
             architecture: x86_64
             shell: 'msys2 {0}'
+            fatal_warnings: true
 
           - name: Windows UCRT
             os: windows
@@ -42,6 +45,7 @@ jobs:
             environment: ucrt
             architecture: ucrt-x86_64
             shell: 'msys2 {0}'
+            fatal_warnings: true
 
           - name: Linux (ARM64)
             os: ubuntu
@@ -49,6 +53,7 @@ jobs:
             use-clang: false
             arm: true
             shell: bash
+            fatal_warnings: true
 
           - name: Linux
             os: ubuntu
@@ -56,6 +61,7 @@ jobs:
             use-clang: false
             arm: false
             shell: bash
+            fatal_warnings: true
 
           - name: Linux Clang (libstdc++)
             os: ubuntu
@@ -64,6 +70,7 @@ jobs:
             use-clang_stdlib: false
             arm: false
             shell: bash
+            fatal_warnings: true
 
           - name: Linux Clang (libc++)
             os: ubuntu
@@ -72,18 +79,21 @@ jobs:
             use-clang_stdlib: true
             arm: false
             shell: bash
+            fatal_warnings: true
 
           - name: MacOS
             os: macos
             os-version: 13
             arm: false
             shell: bash
+            fatal_warnings: true
 
           - name: MacOS (Arm64)
             os: macos
             os-version: 14
             arm: true
             shell: bash
+            fatal_warnings: true
 
     defaults:
       run:
@@ -199,7 +209,7 @@ jobs:
           brew install sdl2 sdl2_ttf sdl2_mixer sdl2_image
 
       - name: Configure
-        run: meson setup build -Dbuildtype=release -Ddefault_library=${{( matrix.config.os == 'windows' && matrix.config.environment == 'msvc' && matrix.config.static ) && 'static' ||'shared' }} -Dclang_libcpp=${{ ( ( matrix.config.os == 'ubuntu' && matrix.config.use-clang == true && matrix.config.use-clang_stdlib ) || matrix.config.os == 'macos' ) && 'enabled' || 'disabled' }}
+        run: meson setup build -Dbuildtype=release -Ddefault_library=${{( matrix.config.os == 'windows' && matrix.config.environment == 'msvc' && matrix.config.static ) && 'static' ||'shared' }} -Dclang_libcpp=${{ ( ( matrix.config.os == 'ubuntu' && matrix.config.use-clang == true && matrix.config.use-clang_stdlib ) || matrix.config.os == 'macos' ) && 'enabled' || 'disabled' }} -Drun_in_ci=true ${{( matrix.config.fatal_warnings ) && '--fatal-meson-warnings' || '' }}
 
       - name: Build
         run: meson compile -C build

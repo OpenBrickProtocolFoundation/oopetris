@@ -41,7 +41,8 @@ jobs:
         run: 7z x "-oC:/Program Files (x86)/NSIS" "${{ github.workspace }}/envar_plugin.zip"
 
       - name: Configure
-        run: meson setup build -Dbuildtype=release -Ddefault_library=shared -Dbuild_installer=true
+        run: meson setup build -Dbuildtype=release -Ddefault_library=shared -Dbuild_installer=true -Drun_in_ci=true
+        # TODO: enable fatal warnings, once cpp-httplib is patched either by ourselves or by the maintainers: --fatal-meson-warnings
 
       - name: Build installer
         run: |
