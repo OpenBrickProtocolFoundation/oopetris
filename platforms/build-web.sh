@@ -2,6 +2,44 @@
 
 set -e
 
+## options: "smart, complete_rebuild"
+export COMPILE_TYPE="smart"
+
+export BUILDTYPE="debug"
+
+export RUN_IN_CI="false"
+
+if [ "$#" -eq 0 ]; then
+    # nothing
+    echo "Using compile type '$COMPILE_TYPE'"
+elif [ "$#" -eq 1 ]; then
+    COMPILE_TYPE="$1"
+elif [ "$#" -eq 2 ]; then
+    COMPILE_TYPE="$1"
+    BUILDTYPE="$2"
+elif [ "$#" -eq 3 ]; then
+    COMPILE_TYPE="$1"
+    BUILDTYPE="$2"
+
+    if [ -z "$3" ]; then
+        RUN_IN_CI="false"
+    else
+        RUN_IN_CI="true"
+    fi
+else
+    echo "Too many arguments given, expected 1, 2 or 3"
+    exit 1
+fi
+
+if [ "$COMPILE_TYPE" == "smart" ]; then
+    : # noop
+elif [ "$COMPILE_TYPE" == "complete_rebuild" ]; then
+    : # noop
+else
+    echo "Invalid COMPILE_TYPE, expected: 'smart' or 'complete_rebuild'"
+    exit 1
+fi
+
 if [ ! -d "toolchains" ]; then
     mkdir -p toolchains
 fi
@@ -111,44 +149,6 @@ sys_root = '$EMSCRIPTEN_SYS_ROOT'
 APP_ROMFS='$ROMFS/assets/'
 
 EOF
-
-## options: "smart, complete_rebuild"
-export COMPILE_TYPE="smart"
-
-export BUILDTYPE="debug"
-
-export RUN_IN_CI="false"
-
-if [ "$#" -eq 0 ]; then
-    # nothing
-    echo "Using compile type '$COMPILE_TYPE'"
-elif [ "$#" -eq 1 ]; then
-    COMPILE_TYPE="$1"
-elif [ "$#" -eq 2 ]; then
-    COMPILE_TYPE="$1"
-    BUILDTYPE="$2"
-elif [ "$#" -eq 3 ]; then
-    COMPILE_TYPE="$1"
-    BUILDTYPE="$2"
-
-    if [ -z "$3" ]; then
-        RUN_IN_CI="false"
-    else
-        RUN_IN_CI="true"
-    fi
-else
-    echo "Too many arguments given, expected 1, 2 or 3"
-    exit 1
-fi
-
-if [ "$COMPILE_TYPE" == "smart" ]; then
-    : # noop
-elif [ "$COMPILE_TYPE" == "complete_rebuild" ]; then
-    : # noop
-else
-    echo "Invalid COMPILE_TYPE, expected: 'smart' or 'complete_rebuild'"
-    exit 1
-fi
 
 if [ ! -d "$ROMFS" ]; then
 
