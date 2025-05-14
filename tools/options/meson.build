@@ -60,6 +60,11 @@ if get_option('run_in_ci')
         'checks': ['>=19.43', '<20'],
     }
 
+    emscripten_compiler_current = {
+        'id': 'emscripten',
+        'checks': ['>=4', '<5'],
+    }
+
     ci_config = {
         'cross_android': {
             'compilers': [clang_20_compiler],
@@ -71,7 +76,7 @@ if get_option('run_in_ci')
             'compilers': [gcc_14_compiler],
         },
         'cross_emscripten': {
-            'compilers': [clang_19_compiler],
+            'compilers': [emscripten_compiler_current],
         },
         'windows': {
             'compilers': [msvc_compiler_current],
@@ -127,7 +132,7 @@ if get_option('run_in_ci')
 
             if not compiler_version.version_compare(version_check_for_compiler)
                 error(
-                    'The compiler "' + c.get_id() + '" doesn\'t meet the version check "' + version_check_for_compiler + '"'
+                    'The compiler "' + c.get_id() + '" with version "' + compiler_version + '" doesn\'t meet the version check "' + version_check_for_compiler + '"'
                 )
             endif
 
