@@ -297,6 +297,20 @@ if build_application
         }
     endif
 
+    ## the switch sdl2 packages are not findable with '--fatal-meson-warnings' and cmake, so prefind it and than override the dependency
+    if (meson.is_cross_build() and host_machine.system() == 'switch')
+        sdl2_ttf_switch_dep = dependency(
+            'sdl2_ttf',
+            'SDL2_ttf',
+            method: 'pkg-config',
+            allow_fallback: not only_allow_native_libs,
+            required: true,
+        )
+
+        meson.override_dependency('sdl2_ttf', sdl2_ttf_switch_dep)
+
+    endif
+
     sdl2_ttf_dep = dependency(
         'sdl2_ttf',
         'SDL2_ttf',
