@@ -13,7 +13,8 @@
 
 namespace helper {
 
-#ifdef _WIN32
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__) || defined(__MINGW32__) \
+        || defined(__MINGW64__)
     // "WinUser.h" defines "#define MessageBox  MessageBoxA"
     // which breaks this valid code, I love windows xD.
 #ifdef MessageBox
