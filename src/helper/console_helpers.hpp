@@ -8,6 +8,8 @@
 
 #include "./windows.hpp"
 
+#include <string.h>
+
 namespace console {
 
     OOPETRIS_GRAPHICS_EXPORTED void debug_write(const char* text, size_t size);
