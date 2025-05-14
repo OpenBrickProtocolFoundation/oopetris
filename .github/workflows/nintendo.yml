@@ -19,12 +19,12 @@ jobs:
           - name: 3ds
             extension: 3dsx
             container: devkitarm
-            revision: latest
+            revision: "20250102"
 
           - name: switch
             extension: nro
             container: devkita64
-            revision: latest
+            revision: "20241023"
 
     steps:
       - uses: actions/checkout@v4
