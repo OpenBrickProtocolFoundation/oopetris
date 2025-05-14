@@ -448,7 +448,8 @@ EOF
             "-Dbuildtype=$BUILDTYPE" \
             -Dsdl2:use_hidapi=enabled \
             -Dclang_libcpp=disabled \
-            "-Drun_in_ci=$RUN_IN_CI"
+            "-Drun_in_ci=$RUN_IN_CI" \
+            --fatal-meson-warnings
 
     fi
 

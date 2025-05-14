@@ -35,7 +35,7 @@ jobs:
           sudo apt-get install ninja-build libsdl2-2.0-0 libsdl2-dev libsdl2-ttf* libsdl2-mixer* libsdl2-image* gcovr desktop-file-utils -y --no-install-recommends
 
       - name: Configure
-        run: meson setup build -Dbuildtype=debug -Db_coverage=true -Dtests=true -Dclang_libcpp=enabled -Drun_in_ci=true
+        run: meson setup build -Dbuildtype=debug -Db_coverage=true -Dtests=true -Dclang_libcpp=enabled -Drun_in_ci=true --fatal-meson-warnings
 
       - name: Run tests
         run: meson test -C build --verbose

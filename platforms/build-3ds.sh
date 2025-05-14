@@ -272,7 +272,8 @@ if [ "$COMPILE_TYPE" == "complete_rebuild" ] || [ ! -e "$BUILD_DIR" ]; then
         -Dcurl:bearer-auth=enabled \
         -Dcurl:brotli=enabled \
         -Dcurl:libz=enabled \
-        "-Drun_in_ci=$RUN_IN_CI"
+        "-Drun_in_ci=$RUN_IN_CI" \
+        --fatal-meson-warnings
 
 fi
 

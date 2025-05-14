@@ -41,7 +41,7 @@ jobs:
           fetch-depth: '0'
   
       - name: Configure
-        run: meson setup build -Dbuildtype=release -Ddefault_library=shared -Dclang_libcpp=${{ ( matrix.config.use-clang == true && matrix.config.use-clang_stdlib ) && 'enabled' || 'disabled' }} -Drun_in_ci=true
+        run: meson setup build -Dbuildtype=release -Ddefault_library=shared -Dclang_libcpp=${{ ( matrix.config.use-clang == true && matrix.config.use-clang_stdlib ) && 'enabled' || 'disabled' }} -Drun_in_ci=true --fatal-meson-warnings
 
       - name: Build
         run: meson compile -C build

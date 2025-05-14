@@ -166,7 +166,8 @@ if [ "$COMPILE_TYPE" == "complete_rebuild" ] || [ ! -e "$BUILD_DIR" ]; then
         "-Dbuildtype=$BUILDTYPE" \
         -Ddefault_library=static \
         -Dtests=false \
-        "-Drun_in_ci=$RUN_IN_CI"
+        "-Drun_in_ci=$RUN_IN_CI" \
+        --fatal-meson-warnings
 
 fi
 
