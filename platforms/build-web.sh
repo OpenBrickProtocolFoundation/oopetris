@@ -46,12 +46,15 @@ fi
 
 export EMSCRIPTEN_ROOT="$(pwd)/toolchains/emsdk"
 
+export EMSCRIPTEN_RELEASE_TAG="4.0.8"
+
 if [ ! -d "$EMSCRIPTEN_ROOT" ]; then
     git clone https://github.com/emscripten-core/emsdk.git "$EMSCRIPTEN_ROOT"
+    git -C "$EMSCRIPTEN_ROOT" checkout "$EMSCRIPTEN_RELEASE_TAG"
 fi
 
-"$EMSCRIPTEN_ROOT/emsdk" install latest
-"$EMSCRIPTEN_ROOT/emsdk" activate latest
+"$EMSCRIPTEN_ROOT/emsdk" install "$EMSCRIPTEN_RELEASE_TAG"
+"$EMSCRIPTEN_ROOT/emsdk" activate "$EMSCRIPTEN_RELEASE_TAG"
 
 EMSCRIPTEN_UPSTREAM_ROOT="$EMSCRIPTEN_ROOT/upstream/emscripten"
 
