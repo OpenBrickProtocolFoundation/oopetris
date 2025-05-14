@@ -11,7 +11,7 @@ jobs:
     name: Nintendo ${{ matrix.config.name }} CI
     runs-on: ubuntu-24.04
     container:
-      image: devkitpro/${{ matrix.config.container }} ## base on debian:buster-slim
+      image: devkitpro/${{ matrix.config.container }}:${{ matrix.config.revision }} ## based on debian:buster-slim
     strategy:
       fail-fast: false
       matrix:
@@ -19,10 +19,12 @@ jobs:
           - name: 3ds
             extension: 3dsx
             container: devkitarm
+            revision: latest
 
           - name: switch
             extension: nro
             container: devkita64
+            revision: latest
 
     steps:
       - uses: actions/checkout@v4
