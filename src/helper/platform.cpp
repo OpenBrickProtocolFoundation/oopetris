@@ -11,6 +11,7 @@
 #include <SDL.h>
 #include <cerrno>
 #include <cstdlib>
+#include <cstring>
 #include <spdlog/spdlog.h>
 
 namespace {
