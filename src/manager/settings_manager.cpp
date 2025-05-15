@@ -2,7 +2,7 @@
 #include "helper/graphic_utils.hpp"
 #include "input/keyboard_input.hpp"
 #include "input/touch_input.hpp"
-
+#include <core/helper/spdlog_wrapper.hpp>
 
 #if defined(__EMSCRIPTEN__)
 #include "helper/web_utils.hpp"

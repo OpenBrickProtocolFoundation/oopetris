@@ -13,7 +13,7 @@
 #include "ui/components/text_button.hpp"
 #include "ui/layouts/scroll_layout.hpp"
 
-#include <spdlog/spdlog.h>
+#include <core/helper/spdlog_wrapper.hpp>
 
 namespace scenes {
 

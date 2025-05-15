@@ -15,6 +15,7 @@
 #include <memory>
 #include <ranges>
 #include <stdexcept>
+#include <core/helper/spdlog_wrapper.hpp>
 
 #if defined(__CONSOLE__)
 #include "helper/console_helpers.hpp"

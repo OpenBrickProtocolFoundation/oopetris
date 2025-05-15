@@ -7,7 +7,7 @@
 
 #include <cmath>
 #include <memory>
-#include <spdlog/spdlog.h>
+#include <core/helper/spdlog_wrapper.hpp>
 #include <stdexcept>
 
 void input::TouchGameInput::handle_event(const SDL_Event& event) {

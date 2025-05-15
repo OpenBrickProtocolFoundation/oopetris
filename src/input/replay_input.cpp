@@ -1,7 +1,7 @@
 #include "replay_input.hpp"
 #include "game/tetrion.hpp"
 #include <core/helper/magic_enum_wrapper.hpp>
-
+#include <core/helper/spdlog_wrapper.hpp>
 
 input::ReplayGameInput::ReplayGameInput(
         std::shared_ptr<recorder::RecordingReader> recording_reader,

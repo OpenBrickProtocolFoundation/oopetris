@@ -28,10 +28,21 @@
 #include "helper/web_utils.hpp"
 #endif
 
+
+#if defined(_MSC_VER)
+#pragma warning(disable : 4275)
+#pragma warning(disable : 4251)
+#endif
+
+#include <spdlog/spdlog.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/rotating_file_sink.h>
 #include <spdlog/sinks/stdout_sinks.h>
 
+#if defined(_MSC_VER)
+#pragma warning(default : 4275)
+#pragma warning(default : 4251)
+#endif
 
 namespace {
     void initialize_spdlog() {

@@ -14,7 +14,6 @@
 #include <SDL_image.h>
 #include <filesystem>
 #include <fmt/format.h>
-#include <spdlog/spdlog.h>
 #include <string>
 
 enum class RenderType : u8 { Solid, Blended, Shaded };

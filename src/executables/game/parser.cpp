@@ -10,7 +10,7 @@
 
 
 #include <argparse/argparse.hpp>
-#include <spdlog/spdlog.h>
+#include <core/helper/spdlog_wrapper.hpp>
 
 
 helper::expected<CommandLineArguments, std::string> helper::parse_args(const std::vector<std::string>& arguments) {

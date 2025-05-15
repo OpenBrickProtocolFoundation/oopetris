@@ -2,7 +2,7 @@
 
 #include <SDL.h>
 #include <cassert>
-#include <spdlog/spdlog.h>
+#include <core/helper/spdlog_wrapper.hpp>
 
 namespace {
     [[nodiscard]] double elapsed_time() {

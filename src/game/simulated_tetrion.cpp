@@ -9,7 +9,7 @@
 #include "simulated_tetrion.hpp"
 
 #include <cassert>
-#include <spdlog/spdlog.h>
+#include <core/helper/spdlog_wrapper.hpp>
 
 
 SimulatedTetrion::SimulatedTetrion(

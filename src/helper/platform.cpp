@@ -12,7 +12,7 @@
 #include <cerrno>
 #include <cstdlib>
 #include <cstring>
-#include <spdlog/spdlog.h>
+#include <core/helper/spdlog_wrapper.hpp>
 
 namespace {
 

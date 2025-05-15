@@ -2,7 +2,7 @@
 
 #include "helper/graphic_utils.hpp"
 #include "texture.hpp"
-
+#include <core/helper/spdlog_wrapper.hpp>
 
 Texture::Texture(SDL_Texture* raw_texture) : m_raw_texture{ raw_texture } { }
 

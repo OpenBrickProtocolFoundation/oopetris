@@ -3,7 +3,7 @@
 #include <core/helper/color_literals.hpp>
 
 #include <functional>
-#include <spdlog/spdlog.h>
+#include <core/helper/spdlog_wrapper.hpp>
 #include <utility>
 
 #include "graphics/rect.hpp"

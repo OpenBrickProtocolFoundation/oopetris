@@ -10,7 +10,7 @@
 #include <SDL_mixer.h>
 #include <filesystem>
 #include <fmt/format.h>
-#include <spdlog/spdlog.h>
+#include <core/helper/spdlog_wrapper.hpp>
 #include <stdexcept>
 #include <string>
 

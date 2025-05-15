@@ -12,7 +12,7 @@
 #include <algorithm>
 #include <exception>
 #include <filesystem>
-#include <spdlog/spdlog.h>
+#include <core/helper/spdlog_wrapper.hpp>
 
 
 input::JoystickLikeInput::JoystickLikeInput(SDL_JoystickID instance_id, const std::string& name, JoystickLikeType type)

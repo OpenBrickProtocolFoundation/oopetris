@@ -13,7 +13,7 @@
 #include "input_creator.hpp"
 
 #include <fmt/format.h>
-#include <spdlog/spdlog.h>
+#include <core/helper/spdlog_wrapper.hpp>
 #include <stdexcept>
 
 namespace {

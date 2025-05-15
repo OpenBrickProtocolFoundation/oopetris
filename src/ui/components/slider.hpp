@@ -1,7 +1,6 @@
 #pragma once
 
 #include <functional>
-#include <spdlog/spdlog.h>
 #include <utility>
 
 #include "abstract_slider.hpp"

@@ -8,7 +8,6 @@
 
 #include <SDL.h>
 #include <filesystem>
-#include <spdlog/spdlog.h>
 
 namespace utils {
 

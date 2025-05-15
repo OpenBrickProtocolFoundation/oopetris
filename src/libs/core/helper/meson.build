@@ -11,8 +11,8 @@ core_src_files += files(
 
 _header_files = files(
     'bool_wrapper.hpp',
-    'color.hpp',
     'color_literals.hpp',
+    'color.hpp',
     'const_utils.hpp',
     'date.hpp',
     'errors.hpp',
@@ -23,6 +23,7 @@ _header_files = files(
     'point.hpp',
     'random.hpp',
     'sleep.hpp',
+    'spdlog_wrapper.hpp',
     'static_string.hpp',
     'string_manipulation.hpp',
     'timer.hpp',

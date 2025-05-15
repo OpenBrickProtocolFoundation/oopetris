@@ -15,7 +15,7 @@
 
 #include <optional>
 #include <spdlog/sinks/callback_sink.h>
-#include <spdlog/spdlog.h>
+#include <core/helper/spdlog_wrapper.hpp>
 #include <string>
 #include <thread>
 

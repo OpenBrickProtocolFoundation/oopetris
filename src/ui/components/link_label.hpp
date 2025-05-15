@@ -4,7 +4,6 @@
 #include "ui/hoverable.hpp"
 #include "ui/widget.hpp"
 
-#include <spdlog/spdlog.h>
 #include <string>
 
 namespace ui {

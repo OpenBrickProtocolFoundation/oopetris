@@ -6,7 +6,7 @@
 #include "input/replay_input.hpp"
 #include "simulation.hpp"
 
-#include <spdlog/spdlog.h>
+#include <core/helper/spdlog_wrapper.hpp>
 
 
 Simulation::Simulation(
