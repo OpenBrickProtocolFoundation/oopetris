@@ -1,8 +1,8 @@
 
 #include "./web_client.hpp"
 
-#include <core/helper/utils.hpp>
 #include <core/helper/magic_enum_wrapper.hpp>
+#include <core/helper/utils.hpp>
 
 // Note: this uses emscripten fetch
 //see: https://emscripten.org/docs/api_reference/fetch.html

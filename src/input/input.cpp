@@ -10,9 +10,9 @@
 #include "touch_input.hpp"
 
 #include <cassert>
+#include <core/helper/spdlog_wrapper.hpp>
 #include <limits>
 #include <memory>
-#include <core/helper/spdlog_wrapper.hpp>
 #include <stdexcept>
 #include <string>
 

@@ -10,9 +10,9 @@
 #include "joystick_input.hpp"
 
 #include <algorithm>
+#include <core/helper/spdlog_wrapper.hpp>
 #include <exception>
 #include <filesystem>
-#include <core/helper/spdlog_wrapper.hpp>
 
 
 input::JoystickLikeInput::JoystickLikeInput(SDL_JoystickID instance_id, const std::string& name, JoystickLikeType type)

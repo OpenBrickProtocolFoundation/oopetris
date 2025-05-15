@@ -8,9 +8,9 @@
 
 #include <SDL.h>
 #include <SDL_mixer.h>
+#include <core/helper/spdlog_wrapper.hpp>
 #include <filesystem>
 #include <fmt/format.h>
-#include <core/helper/spdlog_wrapper.hpp>
 #include <stdexcept>
 #include <string>
 

@@ -1,7 +1,7 @@
 
 #include "graphic_utils.hpp"
-#include <exception>
 #include <core/helper/spdlog_wrapper.hpp>
+#include <exception>
 
 #if defined(__EMSCRIPTEN__)
 #include <emscripten.h>

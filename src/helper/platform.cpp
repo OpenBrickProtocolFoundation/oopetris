@@ -10,9 +10,9 @@
 
 #include <SDL.h>
 #include <cerrno>
+#include <core/helper/spdlog_wrapper.hpp>
 #include <cstdlib>
 #include <cstring>
-#include <core/helper/spdlog_wrapper.hpp>
 
 namespace {
 

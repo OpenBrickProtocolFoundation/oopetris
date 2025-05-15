@@ -3,8 +3,8 @@
 
 #include "./core.hpp"
 
-#include <fmt/format.h>
 #include <core/helper/spdlog_wrapper.hpp>
+#include <fmt/format.h>
 
 [[nodiscard]] std::string constants::discord ::get_asset_key(constants::discord::ArtAsset asset) {
 

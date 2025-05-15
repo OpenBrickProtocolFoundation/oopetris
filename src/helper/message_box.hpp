@@ -33,8 +33,8 @@ namespace helper {
 #ifdef MessageBox
 #undef MessageBox
 #endif
-// this is to fix include order, if we include windows.h after this, it also works
-using MessageBoxA = MessageBox;
+    // this is to fix include order, if we include windows.h after this, it also works
+    using MessageBoxA = MessageBox;
 #endif
 
 

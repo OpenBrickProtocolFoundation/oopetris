@@ -11,11 +11,11 @@
 #include "ui/layout.hpp"
 
 
+#include <core/helper/spdlog_wrapper.hpp>
 #include <fmt/chrono.h>
 #include <memory>
 #include <ranges>
 #include <stdexcept>
-#include <core/helper/spdlog_wrapper.hpp>
 
 #if defined(__CONSOLE__)
 #include "helper/console_helpers.hpp"

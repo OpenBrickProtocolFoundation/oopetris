@@ -15,7 +15,7 @@ namespace secret {
 
     public:
         OOPETRIS_GRAPHICS_EXPORTED explicit Buffer(const std::string& data);
-        
+
         OOPETRIS_GRAPHICS_EXPORTED explicit Buffer(std::byte* data, std::size_t size);
 
         template<std::size_t A>

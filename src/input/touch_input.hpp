@@ -27,8 +27,7 @@ namespace input {
                 const SDL_Event& event
         ) const override;
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::string describe_navigation_event(
-                NavigationEvent event
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::string describe_navigation_event(NavigationEvent event
         ) const override;
 
         OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::optional<PointerEventHelper> get_pointer_event(
@@ -98,8 +97,7 @@ namespace input {
         OOPETRIS_GRAPHICS_EXPORTED void handle_event(const SDL_Event& event) override;
         OOPETRIS_GRAPHICS_EXPORTED void update(SimulationStep simulation_step_index) override;
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::optional<MenuEvent> get_menu_event(
-                const SDL_Event& event
+        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::optional<MenuEvent> get_menu_event(const SDL_Event& event
         ) const override;
 
         OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::string describe_menu_event(MenuEvent event) const override;
@@ -211,14 +209,12 @@ namespace nlohmann {
 
         static void to_json(json& obj, const input::TouchSettings& settings) {
 
-            obj = nlohmann::json::object(
-                    {
-                            {            "move_x_threshold",            settings.move_x_threshold },
-                            {            "move_y_threshold",            settings.move_y_threshold },
-                            { "rotation_duration_threshold", settings.rotation_duration_threshold },
-                            {     "drop_duration_threshold",     settings.drop_duration_threshold }
-            }
-            );
+            obj = nlohmann::json::object({
+                    {            "move_x_threshold",            settings.move_x_threshold },
+                    {            "move_y_threshold",            settings.move_y_threshold },
+                    { "rotation_duration_threshold", settings.rotation_duration_threshold },
+                    {     "drop_duration_threshold",     settings.drop_duration_threshold }
+            });
         }
     };
 } // namespace nlohmann

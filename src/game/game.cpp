@@ -1,7 +1,7 @@
 
 #include <core/helper/magic_enum_wrapper.hpp>
-#include <core/helper/utils.hpp>
 #include <core/helper/spdlog_wrapper.hpp>
+#include <core/helper/utils.hpp>
 
 #include "game.hpp"
 #include "input/replay_input.hpp"

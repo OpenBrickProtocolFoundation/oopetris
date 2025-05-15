@@ -213,8 +213,7 @@ input::TouchInput::get_by_device_index(const std::shared_ptr<Window>& window, in
 }
 
 
-[[nodiscard]] std::optional<input::NavigationEvent> input::TouchInput::get_navigation_event(
-        const SDL_Event& event
+[[nodiscard]] std::optional<input::NavigationEvent> input::TouchInput::get_navigation_event(const SDL_Event& event
 ) const {
     //technically no touch event, but it's a navigation event, and by APi design it can also handle those
     if (event.type == SDL_KEYDOWN and event.key.keysym.sym == SDLK_AC_BACK) {
@@ -240,8 +239,7 @@ input::TouchInput::get_by_device_index(const std::shared_ptr<Window>& window, in
     }
 }
 
-[[nodiscard]] std::optional<input::PointerEventHelper> input::TouchInput::get_pointer_event(
-        const SDL_Event& event
+[[nodiscard]] std::optional<input::PointerEventHelper> input::TouchInput::get_pointer_event(const SDL_Event& event
 ) const {
 
     auto pointer_event = input::PointerEvent::PointerUp;
@@ -278,8 +276,8 @@ input::TouchInput::get_by_device_index(const std::shared_ptr<Window>& window, in
 }
 
 
-[[nodiscard]] SDL_Event
-input::TouchInput::offset_pointer_event(const SDL_Event& event, const shapes::IPoint& point) const {
+[[nodiscard]] SDL_Event input::TouchInput::offset_pointer_event(const SDL_Event& event, const shapes::IPoint& point)
+        const {
 
 
     auto new_event = event;

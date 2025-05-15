@@ -16,7 +16,7 @@
 #endif
 #endif
 #else
-#define OOPETRIS_CORE_EXPORTED  __attribute__((visibility("default")))
+#define OOPETRIS_CORE_EXPORTED __attribute__((visibility("default")))
 #endif
 #else
 #define OOPETRIS_CORE_EXPORTED

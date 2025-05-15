@@ -33,7 +33,7 @@ typedef unsigned __int64 uint64_t;
 #endif
 #endif
 #else
-#define HASH_LIBRARY_EXPORTED  __attribute__((visibility("default")))
+#define HASH_LIBRARY_EXPORTED __attribute__((visibility("default")))
 #endif
 
 #else
