@@ -1,0 +1,29 @@
+diff --git a/meson.build b/meson.build
+index 1bb306c..dbc08b3 100644
+--- a/meson.build
++++ b/meson.build
+@@ -32,6 +32,10 @@ else
+   spdlog_compile_args += '-DSPDLOG_FMT_EXTERNAL'
+ endif
+ 
++if get_option('no_tls')
++spdlog_compile_args += '-DSPDLOG_NO_TLS'
++endif
++
+ if get_option('compile_library')
+   spdlog_compile_args += '-DSPDLOG_COMPILED_LIB'
+   if get_option('default_library') != 'static'
+diff --git a/meson_options.txt b/meson_options.txt
+index 33dc985..08e844d 100644
+--- a/meson_options.txt
++++ b/meson_options.txt
+@@ -15,3 +15,9 @@ option(
+     type: 'feature',
+     description: 'Use std::format instead of internal fmt lib',
+ )
++option(
++    'no_tls',
++    type: 'boolean',
++    value: false,
++    description: 'prevent spdlog from using thread local storage',
++)
