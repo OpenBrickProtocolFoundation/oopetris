@@ -4,7 +4,7 @@
 #include <core/helper/color.hpp>
 
 #include "graphics/rect.hpp"
-#include "helper/windows.hpp"
+#include "helper/export_symbols.hpp"
 #include "manager/service_provider.hpp"
 #include "ui/layout.hpp"
 #include "ui/widget.hpp"
@@ -26,13 +26,13 @@ public:
 
     [[nodiscard]] shapes::UPoint tile_size() const;
 
-    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] double scale_to_original() const;
+    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED double scale_to_original() const;
 
-    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] shapes::UPoint to_screen_coords(grid::GridPoint grid_coords) const;
+    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED shapes::UPoint to_screen_coords(grid::GridPoint grid_coords) const;
 
     OOPETRIS_GRAPHICS_EXPORTED void render(const ServiceProvider& service_provider) const override;
 
-    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
+    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>>
     handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override;
 
 private:

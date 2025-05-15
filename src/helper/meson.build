@@ -14,7 +14,7 @@ graphics_src_files += files(
     'platform.hpp',
     'web_utils.cpp',
     'web_utils.hpp',
-    'windows.hpp',
+    'export_symbols.hpp',
 )
 
 if have_file_dialogs

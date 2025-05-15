@@ -2,7 +2,7 @@
 
 #include <core/core.hpp>
 
-#include "helper/windows.hpp"
+#include "helper/export_symbols.hpp"
 #include "manager/service_provider.hpp"
 
 enum class MinoTransparency : u8 {

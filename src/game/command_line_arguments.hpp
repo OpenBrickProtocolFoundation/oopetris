@@ -6,7 +6,7 @@
 #include <core/helper/types.hpp>
 #include <core/helper/utils.hpp>
 
-#include "../helper/windows.hpp"
+#include "../helper/export_symbols.hpp"
 
 #include <filesystem>
 #include <optional>

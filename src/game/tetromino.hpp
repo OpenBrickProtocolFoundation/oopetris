@@ -3,7 +3,7 @@
 #include <core/core.hpp>
 
 #include "graphic_helpers.hpp"
-#include "helper/windows.hpp"
+#include "helper/export_symbols.hpp"
 #include "rotation.hpp"
 
 #include <array>
@@ -27,8 +27,8 @@ public:
           m_type{ type },
           m_minos{ create_minos(position, m_rotation, type) } { }
 
-    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] helper::TetrominoType type() const;
-    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] Rotation rotation() const;
+    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED helper::TetrominoType type() const;
+    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED Rotation rotation() const;
 
     OOPETRIS_GRAPHICS_EXPORTED void render(
             const ServiceProvider& service_provider,
@@ -47,7 +47,7 @@ public:
     OOPETRIS_GRAPHICS_EXPORTED void move_right();
     OOPETRIS_GRAPHICS_EXPORTED void move(shapes::AbstractPoint<i8> offset);
 
-    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] const std::array<Mino, 4>& minos() const;
+    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED const std::array<Mino, 4>& minos() const;
 
 
 private:

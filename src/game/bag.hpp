@@ -3,7 +3,7 @@
 #include <core/game/tetromino_type.hpp>
 #include <core/helper/random.hpp>
 
-#include "../helper/windows.hpp"
+#include "../helper/export_symbols.hpp"
 #include <array>
 
 struct Bag final {

@@ -8,7 +8,7 @@
 #include <functional>
 #include <unordered_map>
 
-#include "helper/windows.hpp"
+#include "helper/export_symbols.hpp"
 
 struct SimulatedTetrion;
 
@@ -76,10 +76,10 @@ namespace input {
         OOPETRIS_GRAPHICS_EXPORTED virtual void update(SimulationStep simulation_step_index);
         OOPETRIS_GRAPHICS_EXPORTED virtual void late_update(SimulationStep simulation_step);
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] virtual std::optional<MenuEvent> get_menu_event(const SDL_Event& event
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED virtual std::optional<MenuEvent> get_menu_event(const SDL_Event& event
         ) const = 0;
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] virtual std::string describe_menu_event(MenuEvent event) const = 0;
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED virtual std::string describe_menu_event(MenuEvent event) const = 0;
 
         [[nodiscard]] GameInputType input_type() const {
             return m_input_type;
@@ -99,6 +99,6 @@ namespace input {
         }
 
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] virtual const Input* underlying_input() const = 0;
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED virtual const Input* underlying_input() const = 0;
     };
 } // namespace input

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "../helper/color.hpp"
+#include "../helper/export_symbols.hpp"
 #include "../helper/types.hpp"
-#include "../helper/windows.hpp"
 
 namespace helper {
 
@@ -17,8 +17,8 @@ namespace helper {
         LastType = Z,
     };
 
-    OOPETRIS_CORE_EXPORTED [[nodiscard]] Color get_foreground_color(TetrominoType type, u8 alpha);
+    [[nodiscard]] OOPETRIS_CORE_EXPORTED Color get_foreground_color(TetrominoType type, u8 alpha);
 
-    OOPETRIS_CORE_EXPORTED [[nodiscard]] Color get_background_color(TetrominoType type, u8 alpha);
+    [[nodiscard]] OOPETRIS_CORE_EXPORTED Color get_background_color(TetrominoType type, u8 alpha);
 
 } // namespace helper

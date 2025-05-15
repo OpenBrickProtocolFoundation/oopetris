@@ -1,6 +1,6 @@
 #pragma once
 
-#include "./windows.hpp"
+#include "./export_symbols.hpp"
 #include <core/helper/input_event.hpp>
 #include <core/helper/random.hpp>
 #include <core/helper/types.hpp>
@@ -58,11 +58,11 @@ namespace recorder {
         Recording& operator=(Recording&&) = delete;
         virtual ~Recording() = default;
 
-        OOPETRIS_RECORDINGS_EXPORTED [[nodiscard]] const std::vector<TetrionHeader>& tetrion_headers() const;
+        [[nodiscard]] OOPETRIS_RECORDINGS_EXPORTED const std::vector<TetrionHeader>& tetrion_headers() const;
 
-        OOPETRIS_RECORDINGS_EXPORTED [[nodiscard]] const AdditionalInformation& information() const;
+        [[nodiscard]] OOPETRIS_RECORDINGS_EXPORTED const AdditionalInformation& information() const;
 
-        OOPETRIS_RECORDINGS_EXPORTED [[nodiscard]] static Sha256Stream::Checksum get_header_checksum(
+        [[nodiscard]] OOPETRIS_RECORDINGS_EXPORTED static Sha256Stream::Checksum get_header_checksum(
                 u8 version_number,
                 const std::vector<TetrionHeader>& tetrion_headers,
                 const AdditionalInformation& information

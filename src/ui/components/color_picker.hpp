@@ -63,7 +63,7 @@ namespace detail {
 
         OOPETRIS_GRAPHICS_EXPORTED void render(const ServiceProvider& service_provider) const override;
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] Widget::EventHandleResult
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED Widget::EventHandleResult
         handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override;
 
         OOPETRIS_GRAPHICS_EXPORTED void on_change(ColorChangeOrigin origin, const HSVColor& color);
@@ -118,10 +118,10 @@ namespace ui {
 
         OOPETRIS_GRAPHICS_EXPORTED void render(const ServiceProvider& service_provider) const override;
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] Widget::EventHandleResult
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED Widget::EventHandleResult
         handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override;
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] Color get_color() const;
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED Color get_color() const;
 
     private:
         void after_color_change(detail::ColorChangeOrigin origin, const HSVColor& color);

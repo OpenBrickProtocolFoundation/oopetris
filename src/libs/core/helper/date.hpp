@@ -1,8 +1,8 @@
 #pragma once
 
 #include "./expected.hpp"
+#include "./export_symbols.hpp"
 #include "./types.hpp"
-#include "./windows.hpp"
 
 #include <ctime>
 #include <string>
@@ -23,9 +23,9 @@ namespace date {
         OOPETRIS_CORE_EXPORTED static ISO8601Date now();
         OOPETRIS_CORE_EXPORTED static helper::expected<ISO8601Date, std::string> from_string(const std::string& input);
 
-        OOPETRIS_CORE_EXPORTED [[nodiscard]] helper::expected<std::string, std::string> to_string() const;
+        [[nodiscard]] OOPETRIS_CORE_EXPORTED helper::expected<std::string, std::string> to_string() const;
 
-        OOPETRIS_CORE_EXPORTED [[nodiscard]] u64 value() const;
+        [[nodiscard]] OOPETRIS_CORE_EXPORTED u64 value() const;
 
     private:
         [[nodiscard]] static helper::expected<std::tm, std::string> get_tm_struct(std::time_t value);

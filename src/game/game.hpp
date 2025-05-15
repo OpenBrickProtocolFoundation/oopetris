@@ -3,7 +3,7 @@
 #include <recordings/utility/recording.hpp>
 
 #include "helper/clock_source.hpp"
-#include "helper/windows.hpp"
+#include "helper/export_symbols.hpp"
 #include "input/input_creator.hpp"
 #include "tetrion.hpp"
 #include "ui/widget.hpp"
@@ -32,14 +32,14 @@ public:
 
     OOPETRIS_GRAPHICS_EXPORTED void render(const ServiceProvider& service_provider) const override;
 
-    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] Widget::EventHandleResult
+    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED Widget::EventHandleResult
     handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override;
 
     OOPETRIS_GRAPHICS_EXPORTED void set_paused(bool paused);
 
-    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] bool is_paused() const;
+    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED bool is_paused() const;
 
-    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] bool is_game_finished() const;
+    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED bool is_game_finished() const;
 
-    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] const std::shared_ptr<input::GameInput>& game_input() const;
+    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED const std::shared_ptr<input::GameInput>& game_input() const;
 };

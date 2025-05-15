@@ -1,6 +1,6 @@
 #pragma once
 
-#include "./windows.hpp"
+#include "./export_symbols.hpp"
 
 #include "./helper.hpp"
 
@@ -32,15 +32,15 @@ namespace recorder {
                 const std::filesystem::path& path
         );
 
-        OOPETRIS_RECORDINGS_EXPORTED [[nodiscard]] const Record& at(usize index) const;
+        [[nodiscard]] OOPETRIS_RECORDINGS_EXPORTED const Record& at(usize index) const;
 
-        OOPETRIS_RECORDINGS_EXPORTED [[nodiscard]] usize num_records() const;
+        [[nodiscard]] OOPETRIS_RECORDINGS_EXPORTED usize num_records() const;
 
-        OOPETRIS_RECORDINGS_EXPORTED [[nodiscard]] const UnderlyingContainer& records() const;
+        [[nodiscard]] OOPETRIS_RECORDINGS_EXPORTED const UnderlyingContainer& records() const;
 
-        OOPETRIS_RECORDINGS_EXPORTED [[nodiscard]] const std::vector<TetrionSnapshot>& snapshots() const;
+        [[nodiscard]] OOPETRIS_RECORDINGS_EXPORTED const std::vector<TetrionSnapshot>& snapshots() const;
 
-        OOPETRIS_RECORDINGS_EXPORTED [[nodiscard]] static helper::
+        [[nodiscard]] OOPETRIS_RECORDINGS_EXPORTED static helper::
                 expected<std::pair<recorder::AdditionalInformation, std::vector<recorder::TetrionHeader>>, std::string>
                 is_header_valid(const std::filesystem::path& path);
 
@@ -53,13 +53,13 @@ namespace recorder {
         using reference = UnderlyingContainer::reference;             //NOLINT(readability-identifier-naming)
         using iterator_category = std::bidirectional_iterator_tag;    //NOLINT(readability-identifier-naming)
 
-        OOPETRIS_RECORDINGS_EXPORTED [[nodiscard]] iterator begin();
+        [[nodiscard]] OOPETRIS_RECORDINGS_EXPORTED iterator begin();
 
-        OOPETRIS_RECORDINGS_EXPORTED [[nodiscard]] const_iterator begin() const;
+        [[nodiscard]] OOPETRIS_RECORDINGS_EXPORTED const_iterator begin() const;
 
-        OOPETRIS_RECORDINGS_EXPORTED [[nodiscard]] iterator end();
+        [[nodiscard]] OOPETRIS_RECORDINGS_EXPORTED iterator end();
 
-        OOPETRIS_RECORDINGS_EXPORTED [[nodiscard]] const_iterator end() const;
+        [[nodiscard]] OOPETRIS_RECORDINGS_EXPORTED const_iterator end() const;
 
     private:
         [[nodiscard]] static helper::expected<

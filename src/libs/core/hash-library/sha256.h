@@ -33,14 +33,14 @@ typedef unsigned __int64 uint64_t;
 #endif
 #endif
 #else
-#define HASH_LIBRARY_EXPORTED __attribute__((visibility("default")))
+#define HASH_LIBRARY_EXPORTED
 #endif
 
 #else
 // GCC
 #include <stdint.h>
 
-#define HASH_LIBRARY_EXPORTED
+#define HASH_LIBRARY_EXPORTED __attribute__((visibility("default")))
 #endif
 
 namespace hash_library {

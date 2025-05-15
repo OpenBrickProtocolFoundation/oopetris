@@ -39,14 +39,14 @@ namespace oopetris::http::implementation {
         OOPETRIS_GRAPHICS_EXPORTED ActualResult(const ActualResult& other) = delete;
         OOPETRIS_GRAPHICS_EXPORTED ActualResult& operator=(const ActualResult& other) = delete;
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::optional<std::string> get_header(const std::string& key
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED std::optional<std::string> get_header(const std::string& key
         ) const override;
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::string body() const override;
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED std::string body() const override;
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] int status() const override;
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED int status() const override;
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::optional<std::string> get_error() const override;
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED std::optional<std::string> get_error() const override;
     };
 
 
@@ -65,14 +65,14 @@ namespace oopetris::http::implementation {
 
         OOPETRIS_GRAPHICS_EXPORTED explicit ActualClient(const std::string& api_url);
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::unique_ptr<Result> Get(const std::string& url) override;
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED std::unique_ptr<Result> Get(const std::string& url) override;
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::unique_ptr<Result> Delete(const std::string& url) override;
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED std::unique_ptr<Result> Delete(const std::string& url) override;
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::unique_ptr<Result>
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED std::unique_ptr<Result>
         Post(const std::string& url, const std::optional<std::pair<std::string, std::string>>& payload) override;
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::unique_ptr<Result>
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED std::unique_ptr<Result>
         Put(const std::string& url, const std::optional<std::pair<std::string, std::string>>& payload) override;
 
         OOPETRIS_GRAPHICS_EXPORTED void SetBearerAuth(const std::string& token) override;

@@ -5,7 +5,7 @@
 #include <core/helper/expected.hpp>
 #include <core/helper/types.hpp>
 
-#include "../helper/windows.hpp"
+#include "../helper/export_symbols.hpp"
 
 #include <chrono>
 #ifdef _WIN32
@@ -58,7 +58,7 @@ namespace constants::discord {
     // manually synchronized to https://discord.com/developers/applications/1220147916371394650/rich-presence/assets
     enum class ArtAsset : u8 { Logo };
 
-    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::string get_asset_key(ArtAsset asset);
+    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED std::string get_asset_key(ArtAsset asset);
 
 } // namespace constants::discord
 
@@ -116,7 +116,7 @@ public:
     }
 
 
-    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] const discordpp::Activity& get_raw() const;
+    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED const discordpp::Activity& get_raw() const;
 };
 
 enum class DiscordStatus : u8 { Starting = 0, Ok, Error };
@@ -131,7 +131,7 @@ private:
 public:
     OOPETRIS_GRAPHICS_EXPORTED explicit DiscordInstance();
 
-    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] DiscordStatus get_status();
+    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED DiscordStatus get_status();
 
     OOPETRIS_GRAPHICS_EXPORTED DiscordInstance(DiscordInstance&& old) noexcept;
 

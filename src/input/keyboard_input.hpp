@@ -4,7 +4,7 @@
 #include <core/helper/parse_json.hpp>
 
 #include "game_input.hpp"
-#include "helper/windows.hpp"
+#include "helper/export_symbols.hpp"
 #include "input.hpp"
 #include "manager/event_dispatcher.hpp"
 #include "manager/sdl_key.hpp"
@@ -20,11 +20,11 @@ namespace input {
     public:
         OOPETRIS_GRAPHICS_EXPORTED KeyboardInput();
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::optional<NavigationEvent> get_navigation_event(
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED std::optional<NavigationEvent> get_navigation_event(
                 const SDL_Event& event
         ) const override;
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::string describe_navigation_event(NavigationEvent event
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED std::string describe_navigation_event(NavigationEvent event
         ) const override;
     };
 
@@ -42,7 +42,7 @@ namespace input {
         sdl::Key open_settings;
 
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] helper::expected<void, std::string> validate() const;
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED helper::expected<void, std::string> validate() const;
 
         [[nodiscard]] static KeyboardSettings default_settings() {
             return KeyboardSettings{ .rotate_left = sdl::Key{ SDLK_LEFT },
@@ -75,19 +75,19 @@ namespace input {
         [[nodiscard]] KeyboardGameInput& operator=(const KeyboardGameInput& input) = delete;
 
         OOPETRIS_GRAPHICS_EXPORTED KeyboardGameInput(KeyboardGameInput&& input) noexcept;
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] KeyboardGameInput& operator=(KeyboardGameInput&& input) noexcept;
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED KeyboardGameInput& operator=(KeyboardGameInput&& input) noexcept;
 
 
         OOPETRIS_GRAPHICS_EXPORTED void handle_event(const SDL_Event& event) override;
 
         OOPETRIS_GRAPHICS_EXPORTED void update(SimulationStep simulation_step_index) override;
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::optional<MenuEvent> get_menu_event(const SDL_Event& event
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED std::optional<MenuEvent> get_menu_event(const SDL_Event& event
         ) const override;
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::string describe_menu_event(MenuEvent event) const override;
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED std::string describe_menu_event(MenuEvent event) const override;
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] const KeyboardInput* underlying_input() const override;
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED const KeyboardInput* underlying_input() const override;
 
     private:
         [[nodiscard]] std::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event) const;
@@ -98,7 +98,7 @@ namespace input {
 namespace json_helper {
 
 
-    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] sdl::Key get_key(const nlohmann::json& obj, const std::string& name);
+    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED sdl::Key get_key(const nlohmann::json& obj, const std::string& name);
 
 } // namespace json_helper
 

@@ -9,7 +9,7 @@
 
 #include <core/helper/types.hpp>
 
-#include "./windows.hpp"
+#include "./export_symbols.hpp"
 
 namespace helper {
 

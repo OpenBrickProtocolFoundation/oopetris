@@ -11,12 +11,14 @@ core_src_files += files(
 
 _header_files = files(
     'bool_wrapper.hpp',
-    'color_literals.hpp',
     'color.hpp',
+    'color_literals.hpp',
     'const_utils.hpp',
     'date.hpp',
     'errors.hpp',
     'expected.hpp',
+    'export_helper.hpp',
+    'export_symbols.hpp',
     'input_event.hpp',
     'magic_enum_wrapper.hpp',
     'parse_json.hpp',
@@ -30,7 +32,6 @@ _header_files = files(
     'types.hpp',
     'utils.hpp',
     'versions.hpp',
-    'windows.hpp',
 )
 core_header_files += _header_files
 

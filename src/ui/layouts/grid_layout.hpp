@@ -23,7 +23,7 @@ namespace ui {
                 bool is_top_level = true
         );
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] u32 total_size() const;
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED u32 total_size() const;
 
         OOPETRIS_GRAPHICS_EXPORTED void render(const ServiceProvider& service_provider) const override;
 

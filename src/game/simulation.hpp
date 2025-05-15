@@ -3,7 +3,7 @@
 #include <core/helper/expected.hpp>
 #include <recordings/utility/recording.hpp>
 
-#include "helper/windows.hpp"
+#include "helper/export_symbols.hpp"
 #include "input/input_creator.hpp"
 #include "input/replay_input.hpp"
 #include "simulated_tetrion.hpp"
@@ -28,5 +28,5 @@ public:
 
     OOPETRIS_GRAPHICS_EXPORTED void update();
 
-    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] bool is_game_finished() const;
+    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED bool is_game_finished() const;
 };

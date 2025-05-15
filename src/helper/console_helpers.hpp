@@ -6,7 +6,7 @@
 
 #include <spdlog/sinks/base_sink.h>
 
-#include "./windows.hpp"
+#include "./export_symbols.hpp"
 
 #include <string.h>
 
@@ -22,13 +22,13 @@ namespace console {
         debug_write(value.c_str(), value.size());
     }
 
-    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::string open_url(const std::string& url);
+    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED std::string open_url(const std::string& url);
 
     OOPETRIS_GRAPHICS_EXPORTED void platform_init();
 
     OOPETRIS_GRAPHICS_EXPORTED void platform_exit();
 
-    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] bool inMainLoop();
+    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED bool inMainLoop();
 
 
     template<typename Mutex>

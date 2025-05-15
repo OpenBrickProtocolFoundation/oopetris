@@ -20,9 +20,9 @@ namespace scenes {
                 const std::filesystem::path& recording_path
         );
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] UpdateResult update() override;
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED UpdateResult update() override;
         OOPETRIS_GRAPHICS_EXPORTED void render(const ServiceProvider& service_provider) override;
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] bool
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED bool
         handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override;
     };
 

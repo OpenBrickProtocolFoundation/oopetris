@@ -5,7 +5,7 @@
 #include <cstring>
 #include <string>
 
-#include "helper/windows.hpp"
+#include "helper/export_symbols.hpp"
 
 namespace secret {
     struct Buffer {

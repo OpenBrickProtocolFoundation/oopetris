@@ -5,7 +5,7 @@
 #include <memory>
 #include <string>
 
-#include "helper/windows.hpp"
+#include "helper/export_symbols.hpp"
 
 struct FontLoadingError final : public std::exception {
 private:
@@ -28,7 +28,7 @@ public:
     Font() = default;
     OOPETRIS_GRAPHICS_EXPORTED Font(const std::filesystem::path& path, int size);
 
-    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] TTF_Font* get() const;
+    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED TTF_Font* get() const;
 
     friend struct Text;
     friend struct Renderer;

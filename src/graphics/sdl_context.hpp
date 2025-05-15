@@ -1,6 +1,6 @@
 #pragma once
 
-#include "helper/windows.hpp"
+#include "helper/export_symbols.hpp"
 
 struct SdlContext final {
     OOPETRIS_GRAPHICS_EXPORTED SdlContext();
