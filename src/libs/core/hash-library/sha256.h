@@ -12,7 +12,7 @@
 #include <string>
 
 // define fixed size integer types
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
 // Windows
 typedef unsigned __int8 uint8_t;
 typedef unsigned __int32 uint32_t;
@@ -25,7 +25,7 @@ typedef unsigned __int64 uint64_t;
 #define HASH_LIBRARY_EXPORTED __declspec(dllimport)
 #endif
 #else
-#define HASH_LIBRARY_EXPORTED
+#define HASH_LIBRARY_EXPORTED  __attribute__((visibility("default")))
 #endif
 
 #else
