@@ -111,14 +111,13 @@ jobs:
           arch: x64
           toolset: '14.43'
 
-      - name: Setup MYSYS2 (Windows)
+      - name: Setup MSYS2 (Windows)
         if: matrix.config.os == 'windows' && ( matrix.config.environment == 'mingw' || matrix.config.environment == 'ucrt' )
         uses: msys2/setup-msys2@v2
         with:
           msystem: ${{matrix.config.environment == 'mingw' && 'MINGW64' || 'UCRT64'}}
           update: true
           install: >-
-            mingw-w64-${{matrix.config.architecture}}-gcc
             mingw-w64-${{matrix.config.architecture}}-ninja
             mingw-w64-${{matrix.config.architecture}}-python
             mingw-w64-${{matrix.config.architecture}}-python-pip
@@ -130,6 +129,14 @@ jobs:
             mingw-w64-${{matrix.config.architecture}}-ca-certificates
             mingw-w64-${{matrix.config.architecture}}-cmake
             git
+
+      - name: Setup GCC (MSYS2)
+        if: matrix.config.os == 'windows' && ( matrix.config.environment == 'mingw' || matrix.config.environment == 'ucrt' )
+        uses: Totto16/msys2-install-packages-pinned@v1
+        with:
+          msystem: ${{matrix.config.environment == 'mingw' && 'MINGW64' || 'UCRT64'}}
+          install: gcc=14 gcc-libs=!
+
 
       - name: Setup Clang (Linux) (libc++)
         if: matrix.config.os == 'ubuntu' && matrix.config.use-clang == true && matrix.config.use-clang_stdlib
