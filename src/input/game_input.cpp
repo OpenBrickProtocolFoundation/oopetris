@@ -73,6 +73,12 @@ void input::GameInput::handle_event(const InputEvent event, const SimulationStep
     }
 }
 
+input::GameInput::GameInput(GameInput&&) = default;
+
+input::GameInput& input::GameInput::operator=(GameInput&&) = default;
+
+input::GameInput::~GameInput() = default;
+
 void input::GameInput::update(const SimulationStep simulation_step_index) {
     const auto current_simulation_step_index = simulation_step_index;
 
@@ -96,4 +102,9 @@ void input::GameInput::update(const SimulationStep simulation_step_index) {
             }
         }
     }
+}
+
+
+void input::GameInput::late_update(SimulationStep /*simulation_step*/) {
+    //do nothing, is expected here, this is virtual, so if there is soemthing to do, it gets overridden
 }

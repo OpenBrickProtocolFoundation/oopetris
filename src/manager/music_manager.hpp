@@ -38,11 +38,11 @@ private:
 public:
     OOPETRIS_GRAPHICS_EXPORTED explicit MusicManager(ServiceProvider* service_provider, u8 channel_size = 2);
 
-    OOPETRIS_GRAPHICS_EXPORTED MusicManager(const MusicManager&) = delete;
-    OOPETRIS_GRAPHICS_EXPORTED MusicManager& operator=(const MusicManager&) = delete;
+    MusicManager(const MusicManager&) = delete;
+    MusicManager& operator=(const MusicManager&) = delete;
 
-    OOPETRIS_GRAPHICS_EXPORTED MusicManager(const MusicManager&&) = delete;
-    OOPETRIS_GRAPHICS_EXPORTED MusicManager& operator=(MusicManager&&) = delete;
+    MusicManager(const MusicManager&&) = delete;
+    MusicManager& operator=(MusicManager&&) = delete;
 
     OOPETRIS_GRAPHICS_EXPORTED ~MusicManager() noexcept;
 

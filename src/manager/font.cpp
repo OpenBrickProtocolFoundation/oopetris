@@ -2,6 +2,9 @@
 #include <filesystem>
 #include <string>
 
+FontLoadingError::FontLoadingError(std::string message) : m_message{ std::move(message) } { }
+
+
 Font::Font(const std::filesystem::path& path, int size)
     : m_font{ TTF_OpenFont(path.string().c_str(), size), TTF_CloseFont } {
     if (m_font == nullptr) {

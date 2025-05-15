@@ -251,8 +251,8 @@ namespace input {
 
         OOPETRIS_GRAPHICS_EXPORTED ~JoystickLikeGameInput() override;
 
-        OOPETRIS_GRAPHICS_EXPORTED JoystickLikeGameInput(const JoystickLikeGameInput& input) = delete;
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] JoystickLikeGameInput& operator=(const JoystickLikeGameInput& input
+        JoystickLikeGameInput(const JoystickLikeGameInput& input) = delete;
+        [[nodiscard]] JoystickLikeGameInput& operator=(const JoystickLikeGameInput& input
         ) = delete;
 
         OOPETRIS_GRAPHICS_EXPORTED JoystickLikeGameInput(JoystickLikeGameInput&& input) noexcept;

@@ -24,8 +24,8 @@ private:
 
 public:
     OOPETRIS_GRAPHICS_EXPORTED explicit Renderer(const Window& window, VSync v_sync);
-    OOPETRIS_GRAPHICS_EXPORTED Renderer(const Renderer&) = delete;
-    OOPETRIS_GRAPHICS_EXPORTED Renderer& operator=(const Renderer&) = delete;
+    Renderer(const Renderer&) = delete;
+    Renderer& operator=(const Renderer&) = delete;
     OOPETRIS_GRAPHICS_EXPORTED ~Renderer();
 
     OOPETRIS_GRAPHICS_EXPORTED void set_draw_color(const Color& color) const;

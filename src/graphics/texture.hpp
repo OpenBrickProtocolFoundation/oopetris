@@ -39,8 +39,8 @@ public:
 
     OOPETRIS_GRAPHICS_EXPORTED static Texture get_for_render_target(SDL_Renderer* renderer, const shapes::UPoint& size);
 
-    OOPETRIS_GRAPHICS_EXPORTED Texture(const Texture&) = delete;
-    OOPETRIS_GRAPHICS_EXPORTED Texture& operator=(const Texture&) = delete;
+    Texture(const Texture&) = delete;
+    Texture& operator=(const Texture&) = delete;
 
     OOPETRIS_GRAPHICS_EXPORTED Texture(Texture&& old) noexcept;
 

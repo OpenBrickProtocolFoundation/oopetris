@@ -65,17 +65,16 @@ namespace input {
         }
 
     public:
-        OOPETRIS_GRAPHICS_EXPORTED GameInput(const GameInput&) = delete;
-        OOPETRIS_GRAPHICS_EXPORTED GameInput& operator=(const GameInput&) = delete;
+        GameInput(const GameInput&) = delete;
+        GameInput& operator=(const GameInput&) = delete;
 
-        OOPETRIS_GRAPHICS_EXPORTED GameInput(GameInput&&) = default;
-        OOPETRIS_GRAPHICS_EXPORTED GameInput& operator=(GameInput&&) = default;
+        OOPETRIS_GRAPHICS_EXPORTED GameInput(GameInput&&);
+        OOPETRIS_GRAPHICS_EXPORTED GameInput& operator=(GameInput&&);
 
-        OOPETRIS_GRAPHICS_EXPORTED virtual ~GameInput() = default;
-
+        OOPETRIS_GRAPHICS_EXPORTED virtual ~GameInput();
 
         OOPETRIS_GRAPHICS_EXPORTED virtual void update(SimulationStep simulation_step_index);
-        OOPETRIS_GRAPHICS_EXPORTED virtual void late_update(SimulationStep /*simulation_step*/){};
+        OOPETRIS_GRAPHICS_EXPORTED virtual void late_update(SimulationStep simulation_step);
 
         OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] virtual std::optional<MenuEvent> get_menu_event(const SDL_Event& event
         ) const = 0;

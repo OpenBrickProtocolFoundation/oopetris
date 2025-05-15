@@ -34,10 +34,10 @@ namespace lobby {
 
     public:
         OOPETRIS_GRAPHICS_EXPORTED API(API&& other) noexcept;
-        OOPETRIS_GRAPHICS_EXPORTED API& operator=(API&& other) noexcept = delete;
+        API& operator=(API&& other) noexcept = delete;
 
-        OOPETRIS_GRAPHICS_EXPORTED API(const API& other) = delete;
-        OOPETRIS_GRAPHICS_EXPORTED API& operator=(const API& other) = delete;
+        API(const API& other) = delete;
+        API& operator=(const API& other) = delete;
 
         OOPETRIS_GRAPHICS_EXPORTED ~API();
 

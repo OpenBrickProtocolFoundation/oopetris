@@ -137,9 +137,9 @@ public:
 
     OOPETRIS_GRAPHICS_EXPORTED DiscordInstance& operator=(DiscordInstance&& other) noexcept;
 
-    OOPETRIS_GRAPHICS_EXPORTED DiscordInstance(DiscordInstance& old) noexcept = delete;
+    DiscordInstance(DiscordInstance& old) noexcept = delete;
 
-    OOPETRIS_GRAPHICS_EXPORTED DiscordInstance& operator=(const DiscordInstance& other) noexcept = delete;
+    DiscordInstance& operator=(const DiscordInstance& other) noexcept = delete;
 
     OOPETRIS_GRAPHICS_EXPORTED ~DiscordInstance();
 

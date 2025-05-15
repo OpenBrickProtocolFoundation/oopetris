@@ -1,6 +1,10 @@
 
 #include "ui/layout.hpp"
 
+ui::FullScreenLayout::FullScreenLayout(const shapes::URect& rect) : Layout{ rect, LayoutType::FullScreen } { }
+ui::FullScreenLayout::FullScreenLayout(const Window& window) : FullScreenLayout{ window.screen_rect() } { }
+ui::FullScreenLayout::FullScreenLayout(const Window* window) : FullScreenLayout{ window->screen_rect() } { }
+
 
 [[nodiscard]] u32 ui::get_horizontal_alignment_offset(const Layout& layout, AlignmentHorizontal alignment, u32 width) {
     switch (alignment) {

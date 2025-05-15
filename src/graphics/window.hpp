@@ -25,10 +25,10 @@ public:
     OOPETRIS_GRAPHICS_EXPORTED Window(const std::string& title, u32 x_pos, u32 y_pos, u32 width, u32 height);
     OOPETRIS_GRAPHICS_EXPORTED Window(const std::string& title, WindowPosition position);
     OOPETRIS_GRAPHICS_EXPORTED Window(const std::string& title, u32 x_pos, u32 y_pos);
-    OOPETRIS_GRAPHICS_EXPORTED Window(const Window&) = delete;
-    OOPETRIS_GRAPHICS_EXPORTED Window(Window&&) = delete;
-    OOPETRIS_GRAPHICS_EXPORTED Window& operator=(const Window&) = delete;
-    OOPETRIS_GRAPHICS_EXPORTED Window& operator=(Window&&) = delete;
+    Window(const Window&) = delete;
+    Window(Window&&) = delete;
+    Window& operator=(const Window&) = delete;
+    Window& operator=(Window&&) = delete;
     OOPETRIS_GRAPHICS_EXPORTED ~Window();
 
     OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] shapes::UPoint size() const;

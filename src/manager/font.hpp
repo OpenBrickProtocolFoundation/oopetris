@@ -12,7 +12,7 @@ private:
     std::string m_message;
 
 public:
-    OOPETRIS_GRAPHICS_EXPORTED explicit FontLoadingError(std::string message) : m_message{ std::move(message) } { }
+    OOPETRIS_GRAPHICS_EXPORTED explicit FontLoadingError(std::string message);
 
     [[nodiscard]] const char* what() const noexcept override {
         return m_message.c_str();

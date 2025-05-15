@@ -43,12 +43,9 @@ namespace ui {
 
 
     struct FullScreenLayout : public Layout {
-        OOPETRIS_GRAPHICS_EXPORTED explicit FullScreenLayout(const shapes::URect& rect)
-            : Layout{ rect, LayoutType::FullScreen } { }
-        OOPETRIS_GRAPHICS_EXPORTED explicit FullScreenLayout(const Window& window)
-            : FullScreenLayout{ window.screen_rect() } { }
-        OOPETRIS_GRAPHICS_EXPORTED explicit FullScreenLayout(const Window* window)
-            : FullScreenLayout{ window->screen_rect() } { }
+        OOPETRIS_GRAPHICS_EXPORTED explicit FullScreenLayout(const shapes::URect& rect);
+        OOPETRIS_GRAPHICS_EXPORTED explicit FullScreenLayout(const Window& window);
+        OOPETRIS_GRAPHICS_EXPORTED explicit FullScreenLayout(const Window* window);
     };
 
 

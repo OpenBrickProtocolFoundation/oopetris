@@ -16,7 +16,7 @@ private:
     helper::TetrominoType m_type;
 
 public:
-    OOPETRIS_CORE_EXPORTED explicit constexpr Mino(grid::GridPoint position, helper::TetrominoType type)
+    explicit constexpr Mino(grid::GridPoint position, helper::TetrominoType type)
         : m_position{ position },
           m_type{ type } { }
 

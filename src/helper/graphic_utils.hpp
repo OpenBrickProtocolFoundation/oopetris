@@ -8,6 +8,7 @@
 
 #include <SDL.h>
 #include <filesystem>
+#include <vector>
 
 namespace utils {
 
