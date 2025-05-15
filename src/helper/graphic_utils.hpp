@@ -50,12 +50,20 @@ namespace utils {
 #endif
 
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
 #if defined(OOPETRIS_LIBRARY_GRAPHICS_TYPE) && OOPETRIS_LIBRARY_GRAPHICS_TYPE == 0
 #if defined(OOPETRIS_LIBRARY_GRAPHICS_EXPORT)
+#if defined(__GNUC__)
+#define OOPETRIS_GRAPHICS_EXPORTED_NORETURN __attribute__((dllexport, noreturn))
+#else
 #define OOPETRIS_GRAPHICS_EXPORTED_NORETURN __declspec(dllexport, noreturn)
+#endif
+#else
+#if defined(__GNUC__)
+#define OOPETRIS_GRAPHICS_EXPORTED_NORETURN __attribute__((dllimport, noreturn))
 #else
 #define OOPETRIS_GRAPHICS_EXPORTED_NORETURN __declspec(dllimport, noreturn)
+#endif
 #endif
 #else
 #define OOPETRIS_GRAPHICS_EXPORTED_NORETURN __declspec(noreturn)

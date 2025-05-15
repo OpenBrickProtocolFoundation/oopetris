@@ -20,9 +20,17 @@ typedef unsigned __int64 uint64_t;
 
 #if defined(OOPETRIS_LIBRARY_CORE_TYPE) && OOPETRIS_LIBRARY_CORE_TYPE == 0
 #if defined(OOPETRIS_LIBRARY_CORE_EXPORT)
+#if defined(__GNUC__)
+#define HASH_LIBRARY_EXPORTED __attribute__((dllexport))
+#else
 #define HASH_LIBRARY_EXPORTED __declspec(dllexport)
+#endif
+#else
+#if defined(__GNUC__)
+#define HASH_LIBRARY_EXPORTED __attribute__((dllimport))
 #else
 #define HASH_LIBRARY_EXPORTED __declspec(dllimport)
+#endif
 #endif
 #else
 #define HASH_LIBRARY_EXPORTED  __attribute__((visibility("default")))
