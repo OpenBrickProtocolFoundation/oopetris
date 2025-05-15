@@ -82,13 +82,7 @@ if get_option('run_in_ci')
             'compilers': [msvc_compiler_current],
         },
         'msys2': {
-            # TODO: this needs to be 14, but we can't pin the package atm, see https://github.com/OpenBrickProtocolFoundation/oopetris/pull/224
-            'compilers': [
-                {
-                    'id': 'gcc',
-                    'checks': ['>=15', '<16'],
-                },
-            ],
+            'compilers': [gcc_14_compiler],
         },
         'linux': {
             'compilers': [clang_19_compiler, gcc_14_compiler],
