@@ -2,7 +2,7 @@
 
 #include <core/helper/color_literals.hpp>
 
-#include <core/helper/spdlog_wrapper.hpp>
+#include "helper/spdlog_wrapper.hpp"
 #include <functional>
 #include <utility>
 

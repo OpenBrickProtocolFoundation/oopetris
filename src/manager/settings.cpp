@@ -4,7 +4,7 @@
 #include "input/touch_input.hpp"
 
 
-#include <core/helper/spdlog_wrapper.hpp>
+#include "helper/spdlog_wrapper.hpp"
 
 
 void settings::to_json(nlohmann::json& obj, const settings::Settings& settings) {

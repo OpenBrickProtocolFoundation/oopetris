@@ -150,7 +150,7 @@ secret::SecretStorage::store(const std::string& key, const Buffer& value, bool u
 
 #elif defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
 
-#include <core/helper/spdlog_wrapper.hpp>
+#include "helper/spdlog_wrapper.hpp"
 #include <fmt/format.h>
 
 #ifndef NOMINMAX

@@ -1,9 +1,9 @@
 
+#include "helper/spdlog_wrapper.hpp"
 #include <core/helper/utils.hpp>
 
 #include "./core.hpp"
 
-#include <core/helper/spdlog_wrapper.hpp>
 #include <fmt/format.h>
 
 [[nodiscard]] std::string constants::discord ::get_asset_key(constants::discord::ArtAsset asset) {

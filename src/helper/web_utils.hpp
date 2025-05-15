@@ -13,7 +13,7 @@
 
 #include "manager/service_provider.hpp"
 
-#include <core/helper/spdlog_wrapper.hpp>
+#include "helper/spdlog_wrapper.hpp"
 #include <optional>
 #include <spdlog/sinks/callback_sink.h>
 #include <string>

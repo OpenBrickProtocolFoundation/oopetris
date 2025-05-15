@@ -25,7 +25,6 @@ _header_files = files(
     'point.hpp',
     'random.hpp',
     'sleep.hpp',
-    'spdlog_wrapper.hpp',
     'static_string.hpp',
     'string_manipulation.hpp',
     'timer.hpp',

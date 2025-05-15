@@ -2,7 +2,7 @@
 #include "input.hpp"
 #include "manager/event_dispatcher.hpp"
 
-#include <core/helper/spdlog_wrapper.hpp>
+#include "helper/spdlog_wrapper.hpp"
 
 
 void input::GameInput::handle_event(const InputEvent event, const SimulationStep simulation_step_index) {

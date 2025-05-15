@@ -9,8 +9,8 @@
 #include "mouse_input.hpp"
 #include "touch_input.hpp"
 
+#include "helper/spdlog_wrapper.hpp"
 #include <cassert>
-#include <core/helper/spdlog_wrapper.hpp>
 #include <limits>
 #include <memory>
 #include <stdexcept>

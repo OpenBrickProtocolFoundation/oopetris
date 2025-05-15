@@ -8,8 +8,8 @@
 #include "manager/music_manager.hpp"
 #include "simulated_tetrion.hpp"
 
+#include "helper/spdlog_wrapper.hpp"
 #include <cassert>
-#include <core/helper/spdlog_wrapper.hpp>
 
 
 SimulatedTetrion::SimulatedTetrion(

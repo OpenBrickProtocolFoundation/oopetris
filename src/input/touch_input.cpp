@@ -5,8 +5,8 @@
 #include "input/input.hpp"
 #include "touch_input.hpp"
 
+#include "helper/spdlog_wrapper.hpp"
 #include <cmath>
-#include <core/helper/spdlog_wrapper.hpp>
 #include <memory>
 #include <stdexcept>
 

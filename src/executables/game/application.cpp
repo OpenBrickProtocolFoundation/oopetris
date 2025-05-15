@@ -11,7 +11,7 @@
 #include "ui/layout.hpp"
 
 
-#include <core/helper/spdlog_wrapper.hpp>
+#include "helper/spdlog_wrapper.hpp"
 #include <fmt/chrono.h>
 #include <memory>
 #include <ranges>

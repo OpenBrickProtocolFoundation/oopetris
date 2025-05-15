@@ -1,7 +1,7 @@
 #include "grid.hpp"
 #include "graphics/renderer.hpp"
 
-#include <core/helper/spdlog_wrapper.hpp>
+#include "helper/spdlog_wrapper.hpp"
 
 Grid::Grid(const ui::Layout& layout, bool is_top_level)
     : ui::Widget{ layout, ui::WidgetType::Component, is_top_level } {

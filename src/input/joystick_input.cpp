@@ -9,8 +9,8 @@
 #include "input/input.hpp"
 #include "joystick_input.hpp"
 
+#include "helper/spdlog_wrapper.hpp"
 #include <algorithm>
-#include <core/helper/spdlog_wrapper.hpp>
 #include <exception>
 #include <filesystem>
 

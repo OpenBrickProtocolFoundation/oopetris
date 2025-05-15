@@ -1,8 +1,8 @@
 #include "helper/clock_source.hpp"
 
+#include "helper/spdlog_wrapper.hpp"
 #include <SDL.h>
 #include <cassert>
-#include <core/helper/spdlog_wrapper.hpp>
 
 namespace {
     [[nodiscard]] double elapsed_time() {

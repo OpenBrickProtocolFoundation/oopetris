@@ -8,9 +8,9 @@
 #include "input/console_buttons.hpp"
 #endif
 
+#include "helper/spdlog_wrapper.hpp"
 #include <SDL.h>
 #include <cerrno>
-#include <core/helper/spdlog_wrapper.hpp>
 #include <cstdlib>
 #include <cstring>
 

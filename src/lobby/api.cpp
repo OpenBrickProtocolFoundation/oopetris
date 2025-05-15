@@ -2,7 +2,7 @@
 
 #include "api.hpp"
 
-#include <core/helper/spdlog_wrapper.hpp>
+#include "helper/spdlog_wrapper.hpp"
 #include <future>
 
 #if !defined(_OOPETRIS_ONLINE_SYSTEM)
