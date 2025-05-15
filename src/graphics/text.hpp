@@ -2,7 +2,7 @@
 
 #include <core/helper/color.hpp>
 
-#include "helper/windows.hpp"
+#include "helper/export_symbols.hpp"
 #include "manager/font.hpp"
 #include "manager/service_provider.hpp"
 #include "rect.hpp"

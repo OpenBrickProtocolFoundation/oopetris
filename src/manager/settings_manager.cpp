@@ -1,8 +1,8 @@
 #include "settings_manager.hpp"
 #include "helper/graphic_utils.hpp"
+#include "helper/spdlog_wrapper.hpp"
 #include "input/keyboard_input.hpp"
 #include "input/touch_input.hpp"
-
 
 #if defined(__EMSCRIPTEN__)
 #include "helper/web_utils.hpp"

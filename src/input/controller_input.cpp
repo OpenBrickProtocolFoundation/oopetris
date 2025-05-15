@@ -7,7 +7,7 @@
 #include "manager/sdl_controller_key.hpp"
 
 
-#include <spdlog/spdlog.h>
+#include "helper/spdlog_wrapper.hpp"
 
 input::ControllerInput::ControllerInput(
         SDL_GameController* controller,

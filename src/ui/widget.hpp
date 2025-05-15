@@ -59,9 +59,9 @@ namespace ui {
         handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) = 0;
     };
 
-    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::optional<Focusable*> as_focusable(Widget* widget);
+    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED std::optional<Focusable*> as_focusable(Widget* widget);
 
-    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::optional<Hoverable*> as_hoverable(Widget* widget);
+    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED std::optional<Hoverable*> as_hoverable(Widget* widget);
 
 
 } // namespace ui

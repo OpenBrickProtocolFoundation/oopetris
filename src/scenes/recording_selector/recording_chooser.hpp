@@ -28,10 +28,10 @@ namespace custom_ui {
 
         OOPETRIS_GRAPHICS_EXPORTED void render(const ServiceProvider& service_provider) const override;
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] Widget::EventHandleResult
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED Widget::EventHandleResult
         handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override;
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] const std::vector<std::filesystem::path>& get_currently_chosen_files(
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED const std::vector<std::filesystem::path>& get_currently_chosen_files(
         ) const;
 
     private:

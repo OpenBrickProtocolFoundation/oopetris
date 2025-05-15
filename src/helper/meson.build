@@ -4,6 +4,7 @@ graphics_src_files += files(
     'console_helpers.cpp',
     'console_helpers.hpp',
     'constants.hpp',
+    'export_symbols.hpp',
     'git_helper.hpp',
     'graphic_utils.cpp',
     'graphic_utils.hpp',
@@ -12,9 +13,9 @@ graphics_src_files += files(
     'music_utils.hpp',
     'platform.cpp',
     'platform.hpp',
+    'spdlog_wrapper.hpp',
     'web_utils.cpp',
     'web_utils.hpp',
-    'windows.hpp',
 )
 
 if have_file_dialogs

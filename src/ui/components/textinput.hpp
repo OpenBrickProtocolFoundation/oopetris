@@ -70,7 +70,7 @@ namespace ui {
 
         OOPETRIS_GRAPHICS_EXPORTED void set_text(const std::string& text);
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] const std::string& get_text() const;
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED const std::string& get_text() const;
 
     private:
         void recalculate_textures(bool text_changed);

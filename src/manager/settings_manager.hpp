@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include "helper/windows.hpp"
+#include "helper/export_symbols.hpp"
 #include "input/controller_input.hpp"
 #include "input/joystick_input.hpp"
 #include "input/keyboard_input.hpp"
@@ -23,7 +23,7 @@ private:
 public:
     OOPETRIS_GRAPHICS_EXPORTED explicit SettingsManager(ServiceProvider* service_provider);
 
-    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] const settings::Settings& settings() const;
+    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED const settings::Settings& settings() const;
 
     OOPETRIS_GRAPHICS_EXPORTED void add_callback(Callback&& callback);
 

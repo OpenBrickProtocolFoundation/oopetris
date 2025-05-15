@@ -10,6 +10,7 @@ recordings_src_files = files(
 _header_files = files(
     'additional_information.hpp',
     'checksum_helper.hpp',
+    'export_symbols.hpp',
     'helper.hpp',
     'recording.hpp',
     'recording_json_wrapper.hpp',
@@ -17,7 +18,6 @@ _header_files = files(
     'recording_writer.hpp',
     'tetrion_core_information.hpp',
     'tetrion_snapshot.hpp',
-    'windows.hpp',
 )
 
 recordings_header_files += _header_files

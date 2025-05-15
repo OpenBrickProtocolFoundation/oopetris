@@ -2,8 +2,8 @@
 
 #pragma once
 
+#include "./export_symbols.hpp"
 #include "./types.hpp"
-#include "./windows.hpp"
 
 #include <core/helper/types.hpp>
 
@@ -32,12 +32,12 @@ namespace helper {
         [[nodiscard]] GeneralError& operator=(const GeneralError& error) noexcept;
 
         OOPETRIS_CORE_EXPORTED GeneralError(GeneralError&& error) noexcept;
-        OOPETRIS_CORE_EXPORTED [[nodiscard]] GeneralError& operator=(GeneralError&& error) noexcept;
+        [[nodiscard]] OOPETRIS_CORE_EXPORTED GeneralError& operator=(GeneralError&& error) noexcept;
 
-        OOPETRIS_CORE_EXPORTED [[nodiscard]] const std::string& message() const;
-        OOPETRIS_CORE_EXPORTED [[nodiscard]] error::Severity severity() const;
+        [[nodiscard]] OOPETRIS_CORE_EXPORTED const std::string& message() const;
+        [[nodiscard]] OOPETRIS_CORE_EXPORTED error::Severity severity() const;
 
-        OOPETRIS_CORE_EXPORTED [[nodiscard]] const char* what() const noexcept override;
+        [[nodiscard]] OOPETRIS_CORE_EXPORTED const char* what() const noexcept override;
     };
 
     struct FatalError : public GeneralError {

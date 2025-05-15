@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include "helper/windows.hpp"
+#include "helper/export_symbols.hpp"
 #include "input/controller_input.hpp"
 #include "input/joystick_input.hpp"
 #include "input/keyboard_input.hpp"

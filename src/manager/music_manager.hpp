@@ -3,7 +3,7 @@
 
 #include <core/helper/types.hpp>
 
-#include "helper/windows.hpp"
+#include "helper/export_symbols.hpp"
 #include "input/input.hpp"
 #include "manager/service_provider.hpp"
 
@@ -38,11 +38,11 @@ private:
 public:
     OOPETRIS_GRAPHICS_EXPORTED explicit MusicManager(ServiceProvider* service_provider, u8 channel_size = 2);
 
-    OOPETRIS_GRAPHICS_EXPORTED MusicManager(const MusicManager&) = delete;
-    OOPETRIS_GRAPHICS_EXPORTED MusicManager& operator=(const MusicManager&) = delete;
+    MusicManager(const MusicManager&) = delete;
+    MusicManager& operator=(const MusicManager&) = delete;
 
-    OOPETRIS_GRAPHICS_EXPORTED MusicManager(const MusicManager&&) = delete;
-    OOPETRIS_GRAPHICS_EXPORTED MusicManager& operator=(MusicManager&&) = delete;
+    MusicManager(const MusicManager&&) = delete;
+    MusicManager& operator=(MusicManager&&) = delete;
 
     OOPETRIS_GRAPHICS_EXPORTED ~MusicManager() noexcept;
 
@@ -55,7 +55,7 @@ public:
     play_effect(const std::string& name, u8 channel_num = 1, int loop = 0);
 
     //TODO(Totto):  atm the volume changers only work on the music channel, when adding more effects, this should support channels via  https://wiki.libsdl.org/SDL2_mixer/Mix_Volume
-    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::optional<double> get_volume() const;
+    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED std::optional<double> get_volume() const;
 
     OOPETRIS_GRAPHICS_EXPORTED void
     set_volume(std::optional<double> new_volume, bool force_update = false, bool notify_listeners = true);

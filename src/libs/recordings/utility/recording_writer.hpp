@@ -5,7 +5,7 @@
 #include "./recording.hpp"
 #include "./tetrion_core_information.hpp"
 
-#include "./windows.hpp"
+#include "./export_symbols.hpp"
 #include <core/helper/expected.hpp>
 
 #include <filesystem>
@@ -32,13 +32,13 @@ namespace recorder {
                 bool overwrite = false
         );
 
-        OOPETRIS_RECORDINGS_EXPORTED [[nodiscard]] helper::expected<void, std::string> add_record(
+        [[nodiscard]] OOPETRIS_RECORDINGS_EXPORTED helper::expected<void, std::string> add_record(
                 u8 tetrion_index, // NOLINT(bugprone-easily-swappable-parameters)
                 u64 simulation_step_index,
                 InputEvent event
         );
 
-        OOPETRIS_RECORDINGS_EXPORTED [[nodiscard]] helper::expected<void, std::string>
+        [[nodiscard]] OOPETRIS_RECORDINGS_EXPORTED helper::expected<void, std::string>
         add_snapshot(u64 simulation_step_index, std::unique_ptr<TetrionCoreInformation> information);
 
     private:

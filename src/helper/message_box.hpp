@@ -9,18 +9,9 @@
 
 #include <core/helper/types.hpp>
 
-#include "./windows.hpp"
+#include "./export_symbols.hpp"
 
 namespace helper {
-
-#ifdef _WIN32
-    // "WinUser.h" defines "#define MessageBox  MessageBoxA"
-    // which breaks this valid code, I love windows xD.
-#ifdef MessageBox
-#undef MessageBox
-#endif
-#endif
-
 
     struct MessageBox {
         enum class Type : u8 { Error, Warning, Information };
@@ -33,6 +24,18 @@ namespace helper {
 
         //TODO(Totto):  add option to use the complicated API, that supports more buttons and also a result which button was pressed!
     };
+
+
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__) || defined(__MINGW32__) \
+        || defined(__MINGW64__)
+    // "WinUser.h" defines "#define MessageBox  MessageBoxA"
+    // which breaks this valid code, I love windows xD.
+#ifdef MessageBox
+#undef MessageBox
+#endif
+    // this is to fix include order, if we include windows.h after this, it also works
+    using MessageBoxA = MessageBox;
+#endif
 
 
 } // namespace helper

@@ -47,10 +47,10 @@ namespace custom_ui {
 
         OOPETRIS_GRAPHICS_EXPORTED void render(const ServiceProvider& service_provider) const override;
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] Widget::EventHandleResult
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED Widget::EventHandleResult
         handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override;
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] data::RecordingMetadata metadata() const;
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED data::RecordingMetadata metadata() const;
 
     private:
         [[nodiscard]] std::tuple<ui::Label*, ui::Label*, ui::Label*, ui::Label*> get_texts();

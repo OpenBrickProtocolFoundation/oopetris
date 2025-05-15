@@ -1,7 +1,6 @@
 #pragma once
 
 #include <functional>
-#include <spdlog/spdlog.h>
 #include <type_traits>
 #include <utility>
 

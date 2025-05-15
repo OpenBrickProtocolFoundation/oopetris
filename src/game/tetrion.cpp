@@ -8,7 +8,7 @@
 #include "tetrion.hpp"
 #include "ui/components/label.hpp"
 
-#include <spdlog/spdlog.h>
+#include "helper/spdlog_wrapper.hpp"
 #include <sstream>
 
 

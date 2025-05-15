@@ -2,7 +2,7 @@
 
 #include <core/helper/color.hpp>
 
-#include "helper/windows.hpp"
+#include "helper/export_symbols.hpp"
 #include "manager/font.hpp"
 #include "rect.hpp"
 #include "texture.hpp"
@@ -24,8 +24,8 @@ private:
 
 public:
     OOPETRIS_GRAPHICS_EXPORTED explicit Renderer(const Window& window, VSync v_sync);
-    OOPETRIS_GRAPHICS_EXPORTED Renderer(const Renderer&) = delete;
-    OOPETRIS_GRAPHICS_EXPORTED Renderer& operator=(const Renderer&) = delete;
+    Renderer(const Renderer&) = delete;
+    Renderer& operator=(const Renderer&) = delete;
     OOPETRIS_GRAPHICS_EXPORTED ~Renderer();
 
     OOPETRIS_GRAPHICS_EXPORTED void set_draw_color(const Color& color) const;
@@ -78,15 +78,15 @@ public:
         texture.render(m_renderer, from, dest);
     }
 
-    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] Texture load_image(const std::filesystem::path& image_path) const;
-    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] Texture prerender_text(
+    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED Texture load_image(const std::filesystem::path& image_path) const;
+    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED Texture prerender_text(
             const std::string& text,
             const Font& font,
             const Color& color,
             RenderType render_type = RenderType::Blended,
             const Color& background_color = Color::black()
     ) const;
-    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] Texture get_texture_for_render_target(const shapes::UPoint& size) const;
+    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED Texture get_texture_for_render_target(const shapes::UPoint& size) const;
 
     OOPETRIS_GRAPHICS_EXPORTED void set_render_target(const Texture& texture) const;
     OOPETRIS_GRAPHICS_EXPORTED void reset_render_target() const;

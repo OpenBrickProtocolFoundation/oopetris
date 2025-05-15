@@ -6,7 +6,7 @@
 #include <core/helper/point.hpp>
 #include <core/helper/utils.hpp>
 
-#include "helper/windows.hpp"
+#include "helper/export_symbols.hpp"
 #include "manager/font.hpp"
 #include "rect.hpp"
 
@@ -14,7 +14,6 @@
 #include <SDL_image.h>
 #include <filesystem>
 #include <fmt/format.h>
-#include <spdlog/spdlog.h>
 #include <string>
 
 enum class RenderType : u8 { Solid, Blended, Shaded };
@@ -40,8 +39,8 @@ public:
 
     OOPETRIS_GRAPHICS_EXPORTED static Texture get_for_render_target(SDL_Renderer* renderer, const shapes::UPoint& size);
 
-    OOPETRIS_GRAPHICS_EXPORTED Texture(const Texture&) = delete;
-    OOPETRIS_GRAPHICS_EXPORTED Texture& operator=(const Texture&) = delete;
+    Texture(const Texture&) = delete;
+    Texture& operator=(const Texture&) = delete;
 
     OOPETRIS_GRAPHICS_EXPORTED Texture(Texture&& old) noexcept;
 
@@ -62,7 +61,7 @@ public:
         SDL_RenderCopy(renderer, m_raw_texture, &from_rect_sdl, &to_rect_sdl);
     }
 
-    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] shapes::UPoint size() const;
+    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED shapes::UPoint size() const;
 
     OOPETRIS_GRAPHICS_EXPORTED void set_as_render_target(SDL_Renderer* renderer) const;
 };

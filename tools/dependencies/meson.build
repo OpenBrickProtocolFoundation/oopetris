@@ -373,22 +373,23 @@ if build_application
         'compile_args': [graphics_lib.get('compile_args'), sdl2_mixer_defines],
     }
 
+    spdlog_no_tls = false
+
+    if (meson.is_cross_build() and host_machine.system() == '3ds')
+        spdlog_no_tls = true
+    endif
+
     spdlog_dep = dependency(
         'spdlog',
         required: true,
         default_options: {
             'tests': 'disabled',
+            'no_tls': spdlog_no_tls,
         },
     )
     graphics_lib += {
         'deps': [graphics_lib.get('deps'), spdlog_dep],
     }
-
-    if (meson.is_cross_build() and host_machine.system() == '3ds')
-        graphics_lib += {
-            'compile_args': [graphics_lib.get('compile_args'), '-DSPDLOG_NO_TLS'],
-        }
-    endif
 
     cpp_httlib_dep = dependency(
         'cpp-httplib',

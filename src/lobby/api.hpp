@@ -6,7 +6,7 @@
 
 #include "./credentials/secret.hpp"
 #include "./types.hpp"
-#include "helper/windows.hpp"
+#include "helper/export_symbols.hpp"
 
 #include <core/helper/static_string.hpp>
 
@@ -34,15 +34,14 @@ namespace lobby {
 
     public:
         OOPETRIS_GRAPHICS_EXPORTED API(API&& other) noexcept;
-        OOPETRIS_GRAPHICS_EXPORTED API& operator=(API&& other) noexcept = delete;
+        API& operator=(API&& other) noexcept = delete;
 
-        OOPETRIS_GRAPHICS_EXPORTED API(const API& other) = delete;
-        OOPETRIS_GRAPHICS_EXPORTED API& operator=(const API& other) = delete;
+        API(const API& other) = delete;
+        API& operator=(const API& other) = delete;
 
         OOPETRIS_GRAPHICS_EXPORTED ~API();
 
-        OOPETRIS_GRAPHICS_EXPORTED
-        [[nodiscard]] helper::expected<API, std::string> static get_api(
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED helper::expected<API, std::string> static get_api(
                 ServiceProvider* service_provider,
                 const std::string& url
         );
@@ -54,38 +53,38 @@ namespace lobby {
                 std::function<void(const bool success)>&& callback
         );
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] bool is_authenticated();
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED bool is_authenticated();
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] bool authenticate(const Credentials& credentials);
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED bool authenticate(const Credentials& credentials);
 
         OOPETRIS_GRAPHICS_EXPORTED void logout();
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] helper::expected<std::vector<LobbyInfo>, std::string> get_lobbies();
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED helper::expected<std::vector<LobbyInfo>, std::string> get_lobbies();
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] helper::expected<void, std::string> join_lobby(int lobby_id);
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED helper::expected<void, std::string> join_lobby(int lobby_id);
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] helper::expected<LobbyDetail, std::string> get_lobby_detail(
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED helper::expected<LobbyDetail, std::string> get_lobby_detail(
                 int lobby_id
         );
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] helper::expected<void, std::string> delete_lobby(int lobby_id);
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED helper::expected<void, std::string> delete_lobby(int lobby_id);
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] helper::expected<void, std::string> leave_lobby(int lobby_id);
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED helper::expected<void, std::string> leave_lobby(int lobby_id);
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] helper::expected<void, std::string> start_lobby(int lobby_id);
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED helper::expected<void, std::string> start_lobby(int lobby_id);
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] helper::expected<LobbyCreateResponse, std::string> create_lobby(
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED helper::expected<LobbyCreateResponse, std::string> create_lobby(
                 const CreateLobbyRequest& arguments
         );
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] helper::expected<std::vector<PlayerInfo>, std::string> get_users();
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED helper::expected<std::vector<PlayerInfo>, std::string> get_users();
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] helper::expected<void, std::string> register_user(
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED helper::expected<void, std::string> register_user(
                 const RegisterRequest& register_request
         );
 
     private:
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] bool setup_authentication(const std::string& token);
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED bool setup_authentication(const std::string& token);
     };
 
 

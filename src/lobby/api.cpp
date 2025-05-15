@@ -2,8 +2,8 @@
 
 #include "api.hpp"
 
+#include "helper/spdlog_wrapper.hpp"
 #include <future>
-#include <spdlog/spdlog.h>
 
 #if !defined(_OOPETRIS_ONLINE_SYSTEM)
 #error "_OOPETRIS_ONLINE_SYSTEM has to be defined"

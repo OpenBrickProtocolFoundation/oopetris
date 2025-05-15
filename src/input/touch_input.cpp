@@ -5,9 +5,9 @@
 #include "input/input.hpp"
 #include "touch_input.hpp"
 
+#include "helper/spdlog_wrapper.hpp"
 #include <cmath>
 #include <memory>
-#include <spdlog/spdlog.h>
 #include <stdexcept>
 
 void input::TouchGameInput::handle_event(const SDL_Event& event) {
@@ -314,6 +314,13 @@ input::TouchInput::get_by_device_index(const std::shared_ptr<Window>& window, in
     }
 
     return {};
+}
+
+input::TouchSettings input::TouchSettings::default_settings() {
+    return TouchSettings{ .move_x_threshold = 150.0 / 2160.0,
+                          .move_y_threshold = 400.0 / 1080.0,
+                          .rotation_duration_threshold = 500,
+                          .drop_duration_threshold = 200 };
 }
 
 

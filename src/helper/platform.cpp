@@ -8,10 +8,11 @@
 #include "input/console_buttons.hpp"
 #endif
 
+#include "helper/spdlog_wrapper.hpp"
 #include <SDL.h>
 #include <cerrno>
 #include <cstdlib>
-#include <spdlog/spdlog.h>
+#include <cstring>
 
 namespace {
 

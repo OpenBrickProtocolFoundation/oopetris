@@ -30,13 +30,13 @@ namespace detail {
                 bool is_top_level
         );
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] Color& color();
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED Color& color();
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] const Color& color() const;
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED const Color& color() const;
 
         OOPETRIS_GRAPHICS_EXPORTED void render(const ServiceProvider& service_provider) const override;
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] Widget::EventHandleResult
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED Widget::EventHandleResult
         handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override;
     };
 
@@ -56,7 +56,7 @@ namespace detail {
                 Callback callback
         );
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] scenes::Scene::UpdateResult update() override;
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED scenes::Scene::UpdateResult update() override;
 
         OOPETRIS_GRAPHICS_EXPORTED void render(const ServiceProvider& service_provider) override;
 

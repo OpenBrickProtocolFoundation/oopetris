@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "helper/windows.hpp"
+#include "helper/export_symbols.hpp"
 #include "input.hpp"
 #include "joystick_input.hpp"
 #include "manager/sdl_controller_key.hpp"
@@ -25,14 +25,14 @@ namespace input {
         OOPETRIS_GRAPHICS_EXPORTED ControllerInput(ControllerInput&& input) noexcept;
         OOPETRIS_GRAPHICS_EXPORTED ControllerInput& operator=(ControllerInput&& input) noexcept;
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] static helper::expected<std::unique_ptr<ControllerInput>, std::string>
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED static helper::expected<std::unique_ptr<ControllerInput>, std::string>
         get_by_device_index(int device_index);
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::optional<NavigationEvent> get_navigation_event(
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED std::optional<NavigationEvent> get_navigation_event(
                 const SDL_Event& event
         ) const override;
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::string describe_navigation_event(NavigationEvent event
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED std::string describe_navigation_event(NavigationEvent event
         ) const override;
 
     private:
@@ -52,7 +52,7 @@ namespace input {
         sdl::ControllerKey open_settings;
 
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] helper::expected<void, std::string> validate() const;
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED helper::expected<void, std::string> validate() const;
 
 
         [[nodiscard]] static ControllerSettings default_settings() {
@@ -82,12 +82,12 @@ namespace input {
                 ControllerInput* underlying_input
         );
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::optional<MenuEvent> get_menu_event(const SDL_Event& event
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED std::optional<MenuEvent> get_menu_event(const SDL_Event& event
         ) const override;
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::string describe_menu_event(MenuEvent event) const override;
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED std::string describe_menu_event(MenuEvent event) const override;
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] const ControllerInput* underlying_input() const override;
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED const ControllerInput* underlying_input() const override;
 
     protected:
         [[nodiscard]] std::optional<InputEvent> sdl_event_to_input_event(const SDL_Event& event) const override;

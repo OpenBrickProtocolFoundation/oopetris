@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "./windows.hpp"
+#include "./export_symbols.hpp"
 
 #include <string>
 #include <vector>

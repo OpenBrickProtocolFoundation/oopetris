@@ -1,7 +1,7 @@
 
 #include "link_label.hpp"
 #include "helper/platform.hpp"
-
+#include "helper/spdlog_wrapper.hpp"
 
 ui::LinkLabel::LinkLabel(
         ServiceProvider* service_provider,

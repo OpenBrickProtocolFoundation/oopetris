@@ -8,7 +8,7 @@
 #include <core/helper/types.hpp>
 
 #include "./buffer.hpp"
-#include "helper/windows.hpp"
+#include "helper/export_symbols.hpp"
 #include "manager/service_provider.hpp"
 
 #if defined(__linux__)
@@ -46,19 +46,19 @@ namespace secret {
 
         OOPETRIS_GRAPHICS_EXPORTED ~SecretStorage(); //NOLINT(performance-trivially-destructible)
 
-        OOPETRIS_GRAPHICS_EXPORTED SecretStorage(const SecretStorage& other) = delete;
-        OOPETRIS_GRAPHICS_EXPORTED SecretStorage& operator=(const SecretStorage& other) = delete;
+        SecretStorage(const SecretStorage& other) = delete;
+        SecretStorage& operator=(const SecretStorage& other) = delete;
 
         OOPETRIS_GRAPHICS_EXPORTED SecretStorage(SecretStorage&& other) noexcept;
-        OOPETRIS_GRAPHICS_EXPORTED SecretStorage& operator=(SecretStorage&& other) noexcept = delete;
+        SecretStorage& operator=(SecretStorage&& other) noexcept = delete;
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] helper::expected<Buffer, std::string> load(const std::string& key
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED helper::expected<Buffer, std::string> load(const std::string& key
         ) const;
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::optional<std::string>
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED std::optional<std::string>
         store(const std::string& key, const Buffer& value, bool update = true) const;
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::optional<std::string> remove(const std::string& key) const;
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED std::optional<std::string> remove(const std::string& key) const;
     };
 
 } // namespace secret

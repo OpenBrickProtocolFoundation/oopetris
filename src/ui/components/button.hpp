@@ -2,8 +2,8 @@
 
 #include <core/helper/color_literals.hpp>
 
+#include "helper/spdlog_wrapper.hpp"
 #include <functional>
-#include <spdlog/spdlog.h>
 #include <utility>
 
 #include "graphics/rect.hpp"

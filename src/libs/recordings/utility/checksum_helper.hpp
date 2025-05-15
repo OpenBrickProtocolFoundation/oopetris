@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "./windows.hpp"
+#include "./export_symbols.hpp"
 #include <core/hash-library/sha256.h>
 #include <core/helper/utils.hpp>
 
@@ -48,5 +48,5 @@ struct Sha256Stream {
         return *this;
     }
 
-    OOPETRIS_RECORDINGS_EXPORTED [[nodiscard]] Checksum get_hash();
+    [[nodiscard]] OOPETRIS_RECORDINGS_EXPORTED Checksum get_hash();
 };

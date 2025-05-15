@@ -13,9 +13,9 @@
 
 #include "manager/service_provider.hpp"
 
+#include "helper/spdlog_wrapper.hpp"
 #include <optional>
 #include <spdlog/sinks/callback_sink.h>
-#include <spdlog/spdlog.h>
 #include <string>
 #include <thread>
 

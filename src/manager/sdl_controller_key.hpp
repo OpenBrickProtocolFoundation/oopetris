@@ -2,7 +2,7 @@
 
 #include <core/helper/expected.hpp>
 
-#include "helper/windows.hpp"
+#include "helper/export_symbols.hpp"
 
 #include <SDL.h>
 #include <fmt/format.h>
@@ -21,9 +21,9 @@ namespace sdl {
                 const std::string& value
         );
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] bool operator==(const ControllerKey& other) const;
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED bool operator==(const ControllerKey& other) const;
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::string to_string() const;
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED std::string to_string() const;
     };
 
 

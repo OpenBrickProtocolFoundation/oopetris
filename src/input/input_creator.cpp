@@ -12,8 +12,8 @@
 #include "input/replay_input.hpp"
 #include "input_creator.hpp"
 
+#include "helper/spdlog_wrapper.hpp"
 #include <fmt/format.h>
-#include <spdlog/spdlog.h>
 #include <stdexcept>
 
 namespace {

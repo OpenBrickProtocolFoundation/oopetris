@@ -1,0 +1,12 @@
+diff --git a/meson.build b/meson.build
+index 18d34cd..1bb306c 100644
+--- a/meson.build
++++ b/meson.build
+@@ -38,7 +38,6 @@ if get_option('compile_library')
+     spdlog_compile_args += '-DSPDLOG_SHARED_LIB'
+     spdlog_compile_args += '-Dspdlog_EXPORTS'
+     if not fmt_dep.found()
+-      spdlog_compile_args += '-DFMT_EXPORT'
+       spdlog_compile_args += '-DFMT_SHARED'
+     endif
+   endif

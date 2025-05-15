@@ -5,7 +5,7 @@
 #include <core/helper/types.hpp>
 #include <recordings/utility/tetrion_core_information.hpp>
 
-#include "helper/windows.hpp"
+#include "helper/export_symbols.hpp"
 #include "input/game_input.hpp"
 #include "manager/service_provider.hpp"
 #include "simulated_tetrion.hpp"
@@ -44,13 +44,13 @@ public:
     OOPETRIS_GRAPHICS_EXPORTED Tetrion& operator=(Tetrion&& other) noexcept = delete;
 
     OOPETRIS_GRAPHICS_EXPORTED void render(const ServiceProvider& service_provider) const override;
-    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] Widget::EventHandleResult
+    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED Widget::EventHandleResult
     handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) override;
 
-    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] Grid* get_grid();
-    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] const Grid* get_grid() const;
-    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] ui::GridLayout* get_text_layout();
-    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] const ui::GridLayout* get_text_layout() const;
+    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED Grid* get_grid();
+    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED const Grid* get_grid() const;
+    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED ui::GridLayout* get_text_layout();
+    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED const ui::GridLayout* get_text_layout() const;
 
 private:
     void refresh_texts() override;

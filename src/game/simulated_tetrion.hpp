@@ -8,7 +8,7 @@
 
 #include "bag.hpp"
 #include "grid.hpp"
-#include "helper/windows.hpp"
+#include "helper/export_symbols.hpp"
 #include "input/game_input.hpp"
 #include "manager/service_provider.hpp"
 #include "tetromino.hpp"
@@ -123,14 +123,14 @@ public:
     OOPETRIS_GRAPHICS_EXPORTED bool drop_tetromino(SimulationStep simulation_step_index);
     OOPETRIS_GRAPHICS_EXPORTED void hold_tetromino(SimulationStep simulation_step_index);
 
-    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] u8 tetrion_index() const;
-    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] u32 level() const;
-    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] u64 score() const;
-    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] u32 lines_cleared() const;
-    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] const MinoStack& mino_stack() const;
-    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::unique_ptr<TetrionCoreInformation> core_information() const;
+    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED u8 tetrion_index() const;
+    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED u32 level() const;
+    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED u64 score() const;
+    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED u32 lines_cleared() const;
+    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED const MinoStack& mino_stack() const;
+    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED std::unique_ptr<TetrionCoreInformation> core_information() const;
 
-    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] bool is_game_over() const;
+    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED bool is_game_over() const;
 
 private:
     template<typename Callable>

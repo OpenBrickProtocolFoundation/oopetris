@@ -41,7 +41,7 @@ namespace ui {
 
         OOPETRIS_GRAPHICS_EXPORTED void update() override;
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] u32 widget_count() const;
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED u32 widget_count() const;
 
 
         template<typename T, typename... Args>

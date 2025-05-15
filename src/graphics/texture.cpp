@@ -1,8 +1,8 @@
 #include <core/helper/point.hpp>
 
 #include "helper/graphic_utils.hpp"
+#include "helper/spdlog_wrapper.hpp"
 #include "texture.hpp"
-
 
 Texture::Texture(SDL_Texture* raw_texture) : m_raw_texture{ raw_texture } { }
 

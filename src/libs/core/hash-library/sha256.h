@@ -12,7 +12,7 @@
 #include <string>
 
 // define fixed size integer types
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
 // Windows
 typedef unsigned __int8 uint8_t;
 typedef unsigned __int32 uint32_t;
@@ -20,9 +20,17 @@ typedef unsigned __int64 uint64_t;
 
 #if defined(OOPETRIS_LIBRARY_CORE_TYPE) && OOPETRIS_LIBRARY_CORE_TYPE == 0
 #if defined(OOPETRIS_LIBRARY_CORE_EXPORT)
+#if defined(__GNUC__)
+#define HASH_LIBRARY_EXPORTED __attribute__((dllexport))
+#else
 #define HASH_LIBRARY_EXPORTED __declspec(dllexport)
+#endif
+#else
+#if defined(__GNUC__)
+#define HASH_LIBRARY_EXPORTED __attribute__((dllimport))
 #else
 #define HASH_LIBRARY_EXPORTED __declspec(dllimport)
+#endif
 #endif
 #else
 #define HASH_LIBRARY_EXPORTED
@@ -32,7 +40,7 @@ typedef unsigned __int64 uint64_t;
 // GCC
 #include <stdint.h>
 
-#define HASH_LIBRARY_EXPORTED
+#define HASH_LIBRARY_EXPORTED __attribute__((visibility("default")))
 #endif
 
 namespace hash_library {

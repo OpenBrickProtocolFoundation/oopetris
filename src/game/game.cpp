@@ -1,4 +1,5 @@
 
+#include "helper/spdlog_wrapper.hpp"
 #include <core/helper/magic_enum_wrapper.hpp>
 #include <core/helper/utils.hpp>
 

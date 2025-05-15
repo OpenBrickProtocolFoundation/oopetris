@@ -23,9 +23,9 @@ namespace ui {
         ItemSize(u32 height, ItemSizeType type);
 
     public:
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] u32 get_height() const;
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED u32 get_height() const;
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] ItemSizeType get_type() const;
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED ItemSizeType get_type() const;
     };
 
     struct AbsolutItemSize : public ItemSize {

@@ -1,7 +1,7 @@
 #pragma once
 
+#include "./export_symbols.hpp"
 #include "./utils.hpp"
-#include "./windows.hpp"
 
 #include <random>
 
@@ -24,9 +24,9 @@ public:
         return distribution(m_generator);
     }
 
-    OOPETRIS_CORE_EXPORTED [[nodiscard]] double random();
+    [[nodiscard]] OOPETRIS_CORE_EXPORTED double random();
 
-    OOPETRIS_CORE_EXPORTED [[nodiscard]] Seed seed() const;
+    [[nodiscard]] OOPETRIS_CORE_EXPORTED Seed seed() const;
 
     OOPETRIS_CORE_EXPORTED void seed(Seed seed);
 

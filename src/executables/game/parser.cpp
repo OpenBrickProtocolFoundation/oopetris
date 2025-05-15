@@ -9,8 +9,8 @@
 #include "helper/graphic_utils.hpp"
 
 
+#include "helper/spdlog_wrapper.hpp"
 #include <argparse/argparse.hpp>
-#include <spdlog/spdlog.h>
 
 
 helper::expected<CommandLineArguments, std::string> helper::parse_args(const std::vector<std::string>& arguments) {

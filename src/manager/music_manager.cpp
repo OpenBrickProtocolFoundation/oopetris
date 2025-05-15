@@ -6,11 +6,11 @@
 #include "manager/music_manager.hpp"
 #include "manager/sdl_key.hpp"
 
+#include "helper/spdlog_wrapper.hpp"
 #include <SDL.h>
 #include <SDL_mixer.h>
 #include <filesystem>
 #include <fmt/format.h>
-#include <spdlog/spdlog.h>
 #include <stdexcept>
 #include <string>
 

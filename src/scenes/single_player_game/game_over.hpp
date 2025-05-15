@@ -18,7 +18,7 @@ namespace scenes {
                 const std::shared_ptr<input::GameInput>& game_input
         );
 
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] UpdateResult update() override;
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED UpdateResult update() override;
 
         OOPETRIS_GRAPHICS_EXPORTED void render(const ServiceProvider& service_provider) override;
 

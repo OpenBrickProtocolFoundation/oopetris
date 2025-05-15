@@ -1,13 +1,13 @@
 [wrap-file]
 directory = icu
-source_url = https://github.com/unicode-org/icu/releases/download/release-76-1/icu4c-76_1-src.tgz
-source_filename = icu4c-76_1-src.tgz
-source_hash = dfacb46bfe4747410472ce3e1144bf28a102feeaa4e3875bac9b4c6cf30f4f3e
-patch_filename = icu_76.1-2_patch.zip
-patch_url = https://wrapdb.mesonbuild.com/v2/icu_76.1-2/get_patch
-patch_hash = aa53ee7a3f742be81b597a7066d21777fcf9ab8f8793fa91b0565848854c27d6
-source_fallback_url = https://github.com/mesonbuild/wrapdb/releases/download/icu_76.1-2/icu4c-76_1-src.tgz
-wrapdb_version = 76.1-2
+source_url = https://github.com/unicode-org/icu/releases/download/release-77-1/icu4c-77_1-src.tgz
+source_filename = icu4c-77_1-src.tgz
+source_hash = 588e431f77327c39031ffbb8843c0e3bc122c211374485fa87dc5f3faff24061
+patch_filename = icu_77.1-1_patch.zip
+patch_url = https://wrapdb.mesonbuild.com/v2/icu_77.1-1/get_patch
+patch_hash = e74d6061fbb6c72f30fc8f755ed7a7780d8a35551630c71f4677a8e2b6a34547
+source_fallback_url = https://github.com/mesonbuild/wrapdb/releases/download/icu_77.1-1/icu4c-77_1-src.tgz
+wrapdb_version = 77.1-1
 
 [provide]
 icu-uc = icuuc_dep

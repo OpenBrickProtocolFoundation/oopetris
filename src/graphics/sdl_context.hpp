@@ -1,12 +1,12 @@
 #pragma once
 
-#include "helper/windows.hpp"
+#include "helper/export_symbols.hpp"
 
 struct SdlContext final {
     OOPETRIS_GRAPHICS_EXPORTED SdlContext();
-    OOPETRIS_GRAPHICS_EXPORTED SdlContext(const SdlContext&) = delete;
-    OOPETRIS_GRAPHICS_EXPORTED SdlContext(SdlContext&&) = delete;
-    OOPETRIS_GRAPHICS_EXPORTED SdlContext& operator=(const SdlContext&) = delete;
-    OOPETRIS_GRAPHICS_EXPORTED SdlContext& operator=(SdlContext&&) = delete;
+    SdlContext(const SdlContext&) = delete;
+    SdlContext(SdlContext&&) = delete;
+    SdlContext& operator=(const SdlContext&) = delete;
+    SdlContext& operator=(SdlContext&&) = delete;
     OOPETRIS_GRAPHICS_EXPORTED ~SdlContext();
 };

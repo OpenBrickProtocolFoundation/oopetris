@@ -2,7 +2,7 @@
 
 #include <core/helper/types.hpp>
 
-#include "../helper/windows.hpp"
+#include "../helper/export_symbols.hpp"
 
 enum class Rotation : u8 {
     North = 0,

@@ -80,9 +80,9 @@ namespace scenes {
         handle_event(const std::shared_ptr<input::InputManager>& input_manager, const SDL_Event& event) = 0;
         // override this, if you (the scene) could potentially be displayed in non fullscreen!
         OOPETRIS_GRAPHICS_EXPORTED virtual void on_unhover();
-        OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] const ui::Layout& get_layout() const;
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED const ui::Layout& get_layout() const;
     };
 
-    OOPETRIS_GRAPHICS_EXPORTED [[nodiscard]] std::unique_ptr<scenes::Scene>
+    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED std::unique_ptr<scenes::Scene>
     create_scene(ServiceProvider& service_provider, SceneId identifier, const ui::Layout& layout);
 } // namespace scenes

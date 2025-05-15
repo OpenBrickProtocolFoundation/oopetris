@@ -5,7 +5,7 @@
 #include <cstring>
 #include <string>
 
-#include "helper/windows.hpp"
+#include "helper/export_symbols.hpp"
 
 namespace secret {
     struct Buffer {
@@ -15,7 +15,9 @@ namespace secret {
 
     public:
         OOPETRIS_GRAPHICS_EXPORTED explicit Buffer(const std::string& data);
+
         OOPETRIS_GRAPHICS_EXPORTED explicit Buffer(std::byte* data, std::size_t size);
+
         template<std::size_t A>
         explicit Buffer(std::array<std::byte, A> data) : m_size{ data.size() } {
             if (m_size == 0) {
@@ -28,11 +30,11 @@ namespace secret {
 
         OOPETRIS_GRAPHICS_EXPORTED ~Buffer();
 
-        OOPETRIS_GRAPHICS_EXPORTED Buffer(const Buffer& other) = delete;
-        OOPETRIS_GRAPHICS_EXPORTED Buffer& operator=(const Buffer& other) = delete;
+        Buffer(const Buffer& other) = delete;
+        Buffer& operator=(const Buffer& other) = delete;
 
         OOPETRIS_GRAPHICS_EXPORTED Buffer(Buffer&& other) noexcept;
-        OOPETRIS_GRAPHICS_EXPORTED Buffer& operator=(Buffer&& other) noexcept = delete;
+        Buffer& operator=(Buffer&& other) noexcept = delete;
 
         [[nodiscard]] std::string as_string() const;
 
