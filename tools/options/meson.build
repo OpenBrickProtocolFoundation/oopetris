@@ -46,9 +46,9 @@ if get_option('run_in_ci')
         'checks': ['>=20', '<21'],
     }
 
-    gcc_14_compiler = {
+    gcc_15_compiler = {
         'id': 'gcc',
-        'checks': ['>=14', '<15'],
+        'checks': ['>=15', '<16'],
     }
 
     msvc_compiler_current = {
@@ -66,10 +66,10 @@ if get_option('run_in_ci')
             'compilers': [clang_20_compiler],
         },
         'cross_3ds': {
-            'compilers': [gcc_14_compiler],
+            'compilers': [gcc_15_compiler],
         },
         'cross_switch': {
-            'compilers': [gcc_14_compiler],
+            'compilers': [gcc_15_compiler],
         },
         'cross_emscripten': {
             'compilers': [emscripten_compiler_current],
@@ -78,10 +78,10 @@ if get_option('run_in_ci')
             'compilers': [msvc_compiler_current],
         },
         'msys2': {
-            'compilers': [gcc_14_compiler],
+            'compilers': [gcc_15_compiler],
         },
         'linux': {
-            'compilers': [clang_20_compiler, gcc_14_compiler],
+            'compilers': [clang_20_compiler, gcc_15_compiler],
         },
         'darwin': {
             'compilers': [clang_20_compiler],
