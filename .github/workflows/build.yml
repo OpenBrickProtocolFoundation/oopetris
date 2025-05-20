@@ -135,7 +135,7 @@ jobs:
         uses: Totto16/msys2-install-packages-pinned@v1
         with:
           msystem: ${{matrix.config.environment == 'mingw' && 'MINGW64' || 'UCRT64'}}
-          install: gcc=14 gcc-libs=!
+          install: gcc=15 gcc-libs=!
 
 
       - name: Setup Clang (Linux) (libc++)
