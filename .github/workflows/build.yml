@@ -135,7 +135,7 @@ jobs:
         uses: Totto16/msys2-install-packages-pinned@v1
         with:
           msystem: ${{matrix.config.environment == 'mingw' && 'MINGW64' || 'UCRT64'}}
-          install: gcc=14 gcc-libs=!
+          install: gcc=15 gcc-libs=!
 
 
       - name: Setup Clang (Linux) (libc++)
@@ -163,7 +163,7 @@ jobs:
         if: matrix.config.os == 'ubuntu' && matrix.config.use-clang == false
         uses: egor-tensin/setup-gcc@v1
         with:
-          version: 14
+          version: 15
           platform: x64
 
       - name: Unbreak Python in GHA (MacOS 13 image)
