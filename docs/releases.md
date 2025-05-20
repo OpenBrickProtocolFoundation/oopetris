@@ -8,8 +8,10 @@ So here is a list of supported "package managers" / installation platforms.
 
 ## Android / FDroid
 
-> [!NOTE]
-> This is still WIP
+You cyn use the repo from
+`https://fdroid.oopetris.totto.lt/repo`
+
+Or just visit [it](https://fdroid.oopetris.totto.lt/repo/) in the browser and scan the QR-Code.
 
 ## Linux / Flatpak
 
