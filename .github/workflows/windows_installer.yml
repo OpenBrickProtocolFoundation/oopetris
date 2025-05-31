@@ -40,10 +40,12 @@ jobs:
           echo "C:\Program Files (x86)\NSIS" | Out-File -FilePath $env:GITHUB_PATH -Append
           Write-Host "Current PATH:"
           Write-Host $env:PATH
+          Invoke-WebRequest https://deac-riga.dl.sourceforge.net/project/nsis/NSIS%203/3.11/nsis-3.11-setup.exe?viasf=1 -OutFile C:\WINDOWS\Temp\nsis-3.11-setup.exe
+          Invoke-Expression "& C:\WINDOWS\Temp\nsis-3.11-setup.exe \S"
 
       - name: Test 2
         run: |
-          Get-ChildItem -Path "C:\" -Recurse -Directory -Filter NSIS -ErrorAction SilentlyContinue
+          Get-ChildItem -Path "C:\Program Files (x86)\NSIS" -Recurse | Format-Table FullName
 
 
       - name: Configure
