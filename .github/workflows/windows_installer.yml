@@ -30,7 +30,7 @@ jobs:
           pip install meson
 
       - name: Install NSIS with EnVar plugin
-        uses: Totto16/install-nsis@3940a3e6478539f605e182a6ea4abbb358d52b36
+        uses: Totto16/install-nsis@2cdf87622e707cbd65a5732b24ceed2674423adf
         with:
           nsis-version: '3.11'
           
