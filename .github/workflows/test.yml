@@ -19,10 +19,10 @@ jobs:
         run: |
           wget https://apt.llvm.org/llvm.sh
           chmod +x llvm.sh
-          sudo ./llvm.sh 19
-          sudo apt-get install libc++-19* libc++abi*19* llvm-19 -y --no-install-recommends
-          echo "CC=clang-19" >> "$GITHUB_ENV"
-          echo "CXX=clang++-19" >> "$GITHUB_ENV"
+          sudo ./llvm.sh 20
+          sudo apt-get install libc++-20* libc++abi*20* llvm-20 -y --no-install-recommends
+          echo "CC=clang-20" >> "$GITHUB_ENV"
+          echo "CXX=clang++-20" >> "$GITHUB_ENV"
 
       # NOTE: meson has no dependencies, so --break-system-packages doesn't really break anything!
       - name: Setup meson
