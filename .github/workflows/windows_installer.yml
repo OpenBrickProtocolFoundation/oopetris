@@ -37,13 +37,14 @@ jobs:
       - name: Test 1
         run: |
           echo "C:\Program Files (x86)\NSIS\Bin" | Out-File -FilePath $env:GITHUB_PATH -Append
+          echo "C:\Program Files (x86)\NSIS" | Out-File -FilePath $env:GITHUB_PATH -Append
           Write-Host "Current PATH:"
           Write-Host $env:PATH
 
       - name: Test 2
         run: |
-          Write-Host "Current PATH 2:"
-          Write-Host $env:PATH
+          Get-ChildItem -Path "C:\" -Recurse -Directory -Filter NSIS -ErrorAction SilentlyContinue
+
 
       - name: Configure
         run: meson setup build -Dbuildtype=release -Ddefault_library=shared -Dbuild_installer=true -Drun_in_ci=true
