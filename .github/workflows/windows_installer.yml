@@ -33,6 +33,10 @@ jobs:
         uses: Totto16/install-nsis@a2a93824b8242244d53cb4b27f3af9a63aed3508
         with:
           nsis-version: '3.11'
+          
+      - name: Test 1
+        run: |
+          echo "C:\Program Files (x86)\NSIS" | Out-File -FilePath $env:GITHUB_PATH -Append
 
       - name: Configure
         run: meson setup build -Dbuildtype=release -Ddefault_library=shared -Dbuild_installer=true -Drun_in_ci=true
