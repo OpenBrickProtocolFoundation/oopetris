@@ -9,8 +9,7 @@ on:
 jobs:
   installer:
     name: Windows MSVC Installer
-    runs-on: windows-2022
-
+    runs-on: windows-2025
     defaults:
       run:
         shell: pwsh
