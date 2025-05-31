@@ -41,10 +41,6 @@ if get_option('run_in_ci')
         system_name = 'msys2'
     endif
 
-    clang_19_compiler = {
-        'id': 'clang',
-        'checks': ['>=19', '<20'],
-    }
     clang_20_compiler = {
         'id': 'clang',
         'checks': ['>=20', '<21'],
@@ -85,10 +81,10 @@ if get_option('run_in_ci')
             'compilers': [gcc_14_compiler],
         },
         'linux': {
-            'compilers': [clang_19_compiler, gcc_14_compiler],
+            'compilers': [clang_20_compiler, gcc_14_compiler],
         },
         'darwin': {
-            'compilers': [clang_19_compiler],
+            'compilers': [clang_20_compiler],
         },
     }
 
