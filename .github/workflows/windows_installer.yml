@@ -43,6 +43,11 @@ jobs:
           Invoke-WebRequest https://deac-riga.dl.sourceforge.net/project/nsis/NSIS%203/3.10/nsis-3.10-setup.exe?viasf=1 -OutFile C:\WINDOWS\Temp\nsis-3.10-setup.exe
           Get-Item C:\WINDOWS\Temp\nsis-3.10-setup.exe | Format-List
           Invoke-Expression "& C:\WINDOWS\Temp\nsis-3.10-setup.exe \S"
+          if ($LASTEXITCODE -eq 0) {
+              Write-Host "Installer ran successfully."
+          } else {
+              Write-Host "Installer failed with exit code $LASTEXITCODE."
+          }
 
       - name: Test 2
         run: |
