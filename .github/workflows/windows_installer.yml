@@ -32,7 +32,7 @@ jobs:
       - name: Install NSIS with EnVar plugin
         uses: Totto16/install-nsis@2cdf87622e707cbd65a5732b24ceed2674423adf
         with:
-          nsis-version: '3.11'
+          nsis-version: '3.10'
           
       - name: Test 1
         run: |
@@ -40,8 +40,8 @@ jobs:
           echo "C:\Program Files (x86)\NSIS" | Out-File -FilePath $env:GITHUB_PATH -Append
           Write-Host "Current PATH:"
           Write-Host $env:PATH
-          Invoke-WebRequest https://deac-riga.dl.sourceforge.net/project/nsis/NSIS%203/3.11/nsis-3.11-setup.exe?viasf=1 -OutFile C:\WINDOWS\Temp\nsis-3.11-setup.exe
-          Invoke-Expression "& C:\WINDOWS\Temp\nsis-3.11-setup.exe \S"
+          Invoke-WebRequest https://deac-riga.dl.sourceforge.net/project/nsis/NSIS%203/3.10/nsis-3.10-setup.exe?viasf=1 -OutFile C:\WINDOWS\Temp\nsis-3.10-setup.exe
+          Invoke-Expression "& C:\WINDOWS\Temp\nsis-3.10-setup.exe \S"
 
       - name: Test 2
         run: |
