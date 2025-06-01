@@ -42,11 +42,13 @@ jobs:
           Write-Host $env:PATH
           Invoke-WebRequest https://deac-riga.dl.sourceforge.net/project/nsis/NSIS%203/3.10/nsis-3.10-setup.exe?viasf=1 -OutFile C:\WINDOWS\Temp\nsis-3.10-setup.exe
           Get-Item C:\WINDOWS\Temp\nsis-3.10-setup.exe | Format-List
-          Invoke-Expression "& C:\WINDOWS\Temp\nsis-3.10-setup.exe"
+          Invoke-Expression "& C:\WINDOWS\Temp\nsis-3.10-setup.exe \S"
 
       - name: Test 2
         run: |
           Get-ChildItem -Path "C:\Program Files (x86)\NSIS" -Recurse | Format-Table FullName
+          Get-Command makensis
+          Get-Command makensis.EXE
 
       - name: Configure
         run: meson setup build -Dbuildtype=release -Ddefault_library=shared -Dbuild_installer=true -Drun_in_ci=true
