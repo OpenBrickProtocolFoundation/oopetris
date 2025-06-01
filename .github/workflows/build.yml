@@ -135,10 +135,7 @@ jobs:
         uses: Totto16/msys2-install-packages-pinned@v1
         with:
           msystem: ${{matrix.config.environment == 'mingw' && 'MINGW64' || 'UCRT64'}}
-          # gcc-libs 14 don't provbide the virtual package cc-libs, only gcc-libs 15 (see https://github.com/msys2/MINGW-packages/commit/9fa882f7eb6f639780a13df016497a93e45544ac) provide it, so until we use gcc 15, nghttp3 < 1.10.1 needs to be used (see https://github.com/msys2/MINGW-packages/commit/16b7f94772f29f1c207764701d863d266a5de64c) since 1.10.1 needs cc-libs and not gcc-libs. The newest version matching that constraint is 1.9.0
-          install: |
-            nghttp3=1.9
-            gcc=14 gcc-libs=!
+          install: gcc=15 gcc-libs=!
 
       - name: Setup Clang (Linux) (libc++)
         if: matrix.config.os == 'ubuntu' && matrix.config.use-clang == true && matrix.config.use-clang_stdlib
@@ -165,7 +162,7 @@ jobs:
         if: matrix.config.os == 'ubuntu' && matrix.config.use-clang == false
         uses: egor-tensin/setup-gcc@v1
         with:
-          version: 14
+          version: 15
           platform: x64
 
       - name: Unbreak Python in GHA (MacOS 13 image)
