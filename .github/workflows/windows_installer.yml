@@ -9,8 +9,7 @@ on:
 jobs:
   installer:
     name: Windows MSVC Installer
-    runs-on: windows-2022
-
+    runs-on: windows-2025
     defaults:
       run:
         shell: pwsh
@@ -30,15 +29,10 @@ jobs:
         run: |
           pip install meson
 
-      - name: Download EnVar plugin for NSIS
-        uses: carlosperate/download-file-action@v2
+      - name: Install NSIS with EnVar plugin
+        uses: repolevedavaj/install-nsis@v1.0.3
         with:
-          file-url: https://nsis.sourceforge.io/mediawiki/images/7/7f/EnVar_plugin.zip
-          file-name: envar_plugin.zip
-          location: ${{ github.workspace }}
-
-      - name: Extract EnVar plugin
-        run: 7z x "-oC:/Program Files (x86)/NSIS" "${{ github.workspace }}/envar_plugin.zip"
+          nsis-version: '3.11'
 
       - name: Configure
         run: meson setup build -Dbuildtype=release -Ddefault_library=shared -Dbuild_installer=true -Drun_in_ci=true

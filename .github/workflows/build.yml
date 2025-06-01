@@ -17,7 +17,7 @@ jobs:
         config:
           - name: Windows MSVC (dynamic)
             os: windows
-            os-version: 2022
+            os-version: 2025
             environment: msvc
             shell: pwsh
             static: false
@@ -25,7 +25,7 @@ jobs:
 
           - name: Windows MSVC (static)
             os: windows
-            os-version: 2022
+            os-version: 2025
             environment: msvc
             shell: pwsh
             static: true
@@ -33,7 +33,7 @@ jobs:
 
           - name: Windows MingGW
             os: windows
-            os-version: 2022
+            os-version: 2025
             environment: mingw
             architecture: x86_64
             shell: 'msys2 {0}'
@@ -41,7 +41,7 @@ jobs:
 
           - name: Windows UCRT
             os: windows
-            os-version: 2022
+            os-version: 2025
             environment: ucrt
             architecture: ucrt-x86_64
             shell: 'msys2 {0}'
@@ -90,7 +90,7 @@ jobs:
 
           - name: MacOS (Arm64)
             os: macos
-            os-version: 14
+            os-version: 15
             arm: true
             shell: bash
             fatal_warnings: true
