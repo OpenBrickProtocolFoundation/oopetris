@@ -28,9 +28,10 @@ jobs:
       - name: Setup meson
         run: |
           pip install meson
-
+        
+      # TODO: use the upstream version, once everything is merged
       - name: Install NSIS with EnVar plugin
-        uses: repolevedavaj/install-nsis@v1.0.1
+        uses: Totto16/install-nsis@c2c3e016bf85cd88bb9f435cc7966422ea2766de
         with:
           nsis-version: '3.11'
 
