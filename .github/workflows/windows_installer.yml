@@ -42,7 +42,7 @@ jobs:
           Write-Host $env:PATH
           Invoke-WebRequest https://deac-riga.dl.sourceforge.net/project/nsis/NSIS%203/3.11/nsis-3.11-setup.exe?viasf=1 -OutFile C:\WINDOWS\Temp\nsis-3.11-setup.exe
           Get-Item C:\WINDOWS\Temp\nsis-3.11-setup.exe | Format-List
-          $process = Start-Process "C:\WINDOWS\Temp\nsis-3.11-setup.exe" -ArgumentList "\S" -Wait -PassThru
+          $process = Start-Process "C:\WINDOWS\Temp\nsis-3.11-setup.exe" -ArgumentList "/S" -Wait -PassThru
           $exitCode = $process.ExitCode
           if ($exitCode -eq 0) {
               Write-Host "Installer ran successfully."
