@@ -105,6 +105,14 @@ jobs:
             shell: bash
             fatal_warnings: true
 
+          - name: Linux Clang (libc++, ARM64)
+            os: ubuntu
+            os-version: 24.04-arm
+            use-clang: true
+            use-clang_stdlib: true
+            shell: bash
+            fatal_warnings: true
+
           - name: MacOS
             os: macos
             os-version: 13
