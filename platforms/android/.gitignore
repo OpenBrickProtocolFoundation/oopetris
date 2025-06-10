@@ -2,3 +2,4 @@
 app/build/
 app/.cxx
 /local.properties
+build/reports/

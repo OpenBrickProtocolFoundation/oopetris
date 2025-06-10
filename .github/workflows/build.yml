@@ -136,8 +136,17 @@ jobs:
         with:
           msystem: ${{matrix.config.environment == 'mingw' && 'MINGW64' || 'UCRT64'}}
           # gcc-libs 14 don't provbide the virtual package cc-libs, only gcc-libs 15 (see https://github.com/msys2/MINGW-packages/commit/9fa882f7eb6f639780a13df016497a93e45544ac) provide it, so until we use gcc 15, nghttp3 < 1.10.1 needs to be used (see https://github.com/msys2/MINGW-packages/commit/16b7f94772f29f1c207764701d863d266a5de64c) since 1.10.1 needs cc-libs and not gcc-libs. The newest version matching that constraint is 1.9.0
+          # for the other pavckages see https://github.com/msys2/MINGW-packages/commit/62308009e77d772a126313626b194e503b0e5135
           install: |
             nghttp3=1.9
+            SDL2=2.32.4
+            aom=3.12.0
+            curl=8.13.0
+            gnutls=3.8.8
+            libarchive=3.7.9
+            mpg123=1.32.9
+            ngtcp2=1.12.0
+            python=3.12.9-4
             gcc=14 gcc-libs=!
 
       - name: Setup Clang (Linux) (libc++)

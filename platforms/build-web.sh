@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 
+# Exit immediately if a command exits with a non-zero status.
 set -e
+## Treat undefined variables as an error
+set -u
+# fails if any part of a pipeline (|) fails
+set -o pipefail
 
 ## options: "smart, complete_rebuild"
 export COMPILE_TYPE="smart"
@@ -44,7 +49,8 @@ if [ ! -d "toolchains" ]; then
     mkdir -p toolchains
 fi
 
-export EMSCRIPTEN_ROOT="$(pwd)/toolchains/emsdk"
+EMSCRIPTEN_ROOT="$(pwd)/toolchains/emsdk"
+export EMSCRIPTEN_ROOT
 
 export EMSCRIPTEN_RELEASE_TAG="4.0.8"
 
