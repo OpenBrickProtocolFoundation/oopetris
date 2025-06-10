@@ -142,7 +142,7 @@ jobs:
         if: matrix.config.os == 'windows' && matrix.config.environment == 'msvc'
         uses: TheMrMilchmann/setup-msvc-dev@v3
         with:
-          arch: ${{matrix.config.os-version == '11-arm' && 'x64' || 'x64'}} # note this action doesn't really support arm64 yet, but it works like this already (by accident)
+          arch: ${{matrix.config.os-version == '11-arm' && 'x64' || 'x64'}} # TODO:fix this action: note this action doesn't really support arm64 yet, but it works like this already (by accident)
           toolset: '14.43'
 
       - name: Setup MSYS2 (Windows)
@@ -218,7 +218,7 @@ jobs:
         uses: egor-tensin/setup-gcc@v1
         with:
           version: 14
-          platform: ${{matrix.config.os-version == '24.04-arm' && 'x64' || 'x64'}} # note this action doesn't really support arm64 yet, but it works like this already (by accident)
+          platform: ${{matrix.config.os-version == '24.04-arm' && 'x64' || 'x64'}} # TODO:fix this action: note this action doesn't really support arm64 yet, but it works like this already (by accident)
 
       - name: Unbreak Python in GHA (MacOS 13 image)
         if: matrix.config.os == 'macos' && matrix.config.os-version == 13
