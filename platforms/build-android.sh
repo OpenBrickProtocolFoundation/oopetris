@@ -19,6 +19,7 @@ if [ ! -d "$BASE_PATH" ]; then
 
     if [ ! -e "android-ndk-$NDK_VER_DOWNLOAD-linux.zip" ]; then
 
+        echo "Downloading android NDK $NDK_VER_DESC"
         wget -q "https://dl.google.com/android/repository/android-ndk-$NDK_VER_DOWNLOAD-linux.zip"
     fi
     unzip -q "android-ndk-$NDK_VER_DOWNLOAD-linux.zip"
@@ -40,7 +41,8 @@ if [ ! -e "$BASE_PATH/meta/platforms.json" ]; then
 
 fi
 
-export SDK_VERSION=$(jq '.max' -M -r -c "$BASE_PATH/meta/platforms.json")
+SDK_VERSION=$(jq '.max' -M -r -c "$BASE_PATH/meta/platforms.json")
+export SDK_VERSION
 
 mapfile -t ARCH_KEYS < <(jq 'keys' -M -r -c "$BASE_PATH/meta/abis.json" | tr -d '[]"' | sed 's/,/\n/g')
 
@@ -117,7 +119,7 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
     ARM_TARGET_ARCH=$KEY
     ARM_TRIPLE=$ARM_NAME_TRIPLE$SDK_VERSION
     ARM_COMPILER_TRIPLE=$(echo "$RAW_JSON" | jq -M -r -c '."llvm_triple"')
-    ARM_TOOL_TRIPLE=$(echo "$ARM_NAME_TRIPLE$SDK_VERSION" | sed s/$ARCH/$ARCH_VERSION/)
+    ARM_TOOL_TRIPLE=$(echo "$ARM_NAME_TRIPLE$SDK_VERSION" | sed "s/$ARCH/$ARCH_VERSION/")
 
     export SYM_LINK_PATH=sym-$ARCH_VERSION
 
@@ -396,7 +398,7 @@ llvm-config = '$LLVM_CONFIG'
 c_std = 'gnu11'
 cpp_std = 'c++23'
 c_args = [$COMPILE_FLAGS]
-cpp_args = [$COMPILE_FLAGS]            
+cpp_args = [$COMPILE_FLAGS]
 c_link_args = [$LINK_FLAGS]
 cpp_link_args = [$LINK_FLAGS]
 
@@ -438,7 +440,6 @@ EOF
 
     if [ "$COMPILE_TYPE" == "complete_rebuild" ] || [ ! -e "$BUILD_DIR" ]; then
 
-        # TODO: enbale hidapi, by not dependening on libusb, that is not availbale on android
         meson setup "$BUILD_DIR" \
             "--prefix=$SYS_ROOT" \
             "--wipe" \

@@ -44,7 +44,8 @@ if [ ! -d "toolchains" ]; then
     mkdir -p toolchains
 fi
 
-export EMSCRIPTEN_ROOT="$(pwd)/toolchains/emsdk"
+EMSCRIPTEN_ROOT="$(pwd)/toolchains/emsdk"
+export EMSCRIPTEN_ROOT
 
 export EMSCRIPTEN_RELEASE_TAG="4.0.8"
 
