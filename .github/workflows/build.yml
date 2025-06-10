@@ -31,19 +31,47 @@ jobs:
             static: true
             fatal_warnings: false # TODO: enable fatal warnings, once cpp-httplib is patched either by ourselves or by the maintainers
 
-          - name: Windows MingGW
+          - name: Windows MSVC (ARM64, static)
+            os: windows
+            os-version: 11-arm
+            environment: msvc
+            shell: pwsh
+            static: true
+            fatal_warnings: false # TODO: enable fatal warnings, once cpp-httplib is patched either by ourselves or by the maintainers
+
+          - name: Windows MSYS2 (MingGW)
             os: windows
             os-version: 2025
-            environment: mingw
+            environment: msys2
+            msystem: MINGW64
             architecture: x86_64
             shell: 'msys2 {0}'
             fatal_warnings: true
 
-          - name: Windows UCRT
+          - name: Windows MSYS2 (UCRT)
             os: windows
             os-version: 2025
-            environment: ucrt
+            environment: msys2
+            msystem: UCRT64
             architecture: ucrt-x86_64
+            shell: 'msys2 {0}'
+            fatal_warnings: true
+
+          - name: Windows MSYS2 (CLANG)
+            os: windows
+            os-version: 2025
+            environment: msys2
+            msystem: CLANG64
+            architecture: clang-x86_64
+            shell: 'msys2 {0}'
+            fatal_warnings: true
+
+          - name: Windows MSYS2 (ARM64, CLANG)
+            os: windows
+            os-version: 11-arm
+            environment: msys2
+            msystem: CLANGARM64
+            architecture: clang-x86_64
             shell: 'msys2 {0}'
             fatal_warnings: true
 
@@ -112,10 +140,10 @@ jobs:
           toolset: '14.43'
 
       - name: Setup MSYS2 (Windows)
-        if: matrix.config.os == 'windows' && ( matrix.config.environment == 'mingw' || matrix.config.environment == 'ucrt' )
+        if: matrix.config.os == 'windows' && matrix.config.environment == 'msys2'
         uses: msys2/setup-msys2@v2
         with:
-          msystem: ${{matrix.config.environment == 'mingw' && 'MINGW64' || 'UCRT64'}}
+          msystem: ${{matrix.config.msystem}}
           update: true
           install: >-
             mingw-w64-${{matrix.config.architecture}}-ninja
@@ -131,11 +159,11 @@ jobs:
             git
 
       - name: Setup GCC (MSYS2)
-        if: matrix.config.os == 'windows' && ( matrix.config.environment == 'mingw' || matrix.config.environment == 'ucrt' )
+        if: matrix.config.os == 'windows' && matrix.config.environment == 'msys2'
         uses: Totto16/msys2-install-packages-pinned@v1
         with:
-          msystem: ${{matrix.config.environment == 'mingw' && 'MINGW64' || 'UCRT64'}}
-          # gcc-libs 14 don't provbide the virtual package cc-libs, only gcc-libs 15 (see https://github.com/msys2/MINGW-packages/commit/9fa882f7eb6f639780a13df016497a93e45544ac) provide it, so until we use gcc 15, nghttp3 < 1.10.1 needs to be used (see https://github.com/msys2/MINGW-packages/commit/16b7f94772f29f1c207764701d863d266a5de64c) since 1.10.1 needs cc-libs and not gcc-libs. The newest version matching that constraint is 1.9.0
+          msystem: ${{matrix.config.msystem}}
+          # gcc-libs 14 don't provide the virtual package cc-libs, only gcc-libs 15 (see https://github.com/msys2/MINGW-packages/commit/9fa882f7eb6f639780a13df016497a93e45544ac) provide it, so until we use gcc 15, nghttp3 < 1.10.1 needs to be used (see https://github.com/msys2/MINGW-packages/commit/16b7f94772f29f1c207764701d863d266a5de64c) since 1.10.1 needs cc-libs and not gcc-libs. The newest version matching that constraint is 1.9.0
           # for the other pavckages see https://github.com/msys2/MINGW-packages/commit/62308009e77d772a126313626b194e503b0e5135
           install: |
             nghttp3=1.9
