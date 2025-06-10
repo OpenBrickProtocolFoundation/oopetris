@@ -79,7 +79,6 @@ jobs:
             os: ubuntu
             os-version: 24.04-arm
             use-clang: false
-            arm: true
             shell: bash
             fatal_warnings: true
 
@@ -87,7 +86,6 @@ jobs:
             os: ubuntu
             os-version: 24.04
             use-clang: false
-            arm: false
             shell: bash
             fatal_warnings: true
 
@@ -96,7 +94,6 @@ jobs:
             os-version: 24.04
             use-clang: true
             use-clang_stdlib: false
-            arm: false
             shell: bash
             fatal_warnings: true
 
@@ -105,21 +102,18 @@ jobs:
             os-version: 24.04
             use-clang: true
             use-clang_stdlib: true
-            arm: false
             shell: bash
             fatal_warnings: true
 
           - name: MacOS
             os: macos
             os-version: 13
-            arm: false
             shell: bash
             fatal_warnings: true
 
           - name: MacOS (Arm64)
             os: macos
             os-version: 15
-            arm: true
             shell: bash
             fatal_warnings: true
 
@@ -136,7 +130,7 @@ jobs:
         if: matrix.config.os == 'windows' && matrix.config.environment == 'msvc'
         uses: TheMrMilchmann/setup-msvc-dev@v3
         with:
-          arch: x64
+          arch: ${{matrix.config.os-version == '11-arm' && 'x64' || 'x64'}} # note this action doesn't really support arm64 yet, but it works like this already (by accident)
           toolset: '14.43'
 
       - name: Setup MSYS2 (Windows)
@@ -203,7 +197,7 @@ jobs:
         uses: egor-tensin/setup-gcc@v1
         with:
           version: 14
-          platform: x64
+          platform: ${{matrix.config.os-version == '24.04-arm' && 'x64' || 'x64'}} # note this action doesn't really support arm64 yet, but it works like this already (by accident)
 
       - name: Unbreak Python in GHA (MacOS 13 image)
         if: matrix.config.os == 'macos' && matrix.config.os-version == 13
