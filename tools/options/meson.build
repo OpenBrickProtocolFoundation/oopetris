@@ -78,7 +78,7 @@ if get_option('run_in_ci')
             'compilers': [msvc_compiler_current],
         },
         'msys2': {
-            'compilers': [gcc_14_compiler],
+            'compilers': [clang_20_compiler, gcc_14_compiler],
         },
         'linux': {
             'compilers': [clang_20_compiler, gcc_14_compiler],

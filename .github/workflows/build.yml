@@ -45,6 +45,7 @@ jobs:
             environment: msys2
             msystem: MINGW64
             architecture: x86_64
+            use-clang: false
             shell: 'msys2 {0}'
             fatal_warnings: true
 
@@ -54,6 +55,7 @@ jobs:
             environment: msys2
             msystem: UCRT64
             architecture: ucrt-x86_64
+            use-clang: false
             shell: 'msys2 {0}'
             fatal_warnings: true
 
@@ -63,6 +65,7 @@ jobs:
             environment: msys2
             msystem: CLANG64
             architecture: clang-x86_64
+            use-clang: true
             shell: 'msys2 {0}'
             fatal_warnings: true
 
@@ -72,6 +75,7 @@ jobs:
             environment: msys2
             msystem: CLANGARM64
             architecture: clang-x86_64
+            use-clang: true
             shell: 'msys2 {0}'
             fatal_warnings: true
 
@@ -161,7 +165,7 @@ jobs:
             git
 
       - name: Setup GCC (MSYS2)
-        if: matrix.config.os == 'windows' && matrix.config.environment == 'msys2'
+        if: matrix.config.os == 'windows' && matrix.config.environment == 'msys2' && matrix.config.use-clang == false
         uses: Totto16/msys2-install-packages-pinned@v1
         with:
           msystem: ${{matrix.config.msystem}}
@@ -179,7 +183,16 @@ jobs:
             python=3.12.9-4
             gcc=14 gcc-libs=!
 
-      - name: Setup Clang (Linux) (libc++)
+      - name: Setup Clang (MSYS2, libc++)
+        if: matrix.config.os == 'windows' && matrix.config.environment == 'msys2' && matrix.config.use-clang == true
+        uses: Totto16/msys2-install-packages-pinned@v1
+        with:
+          msystem: ${{matrix.config.msystem}}
+          install: |
+            clang=20
+            libc++=20
+
+      - name: Setup Clang (Linux, libc++)
         if: matrix.config.os == 'ubuntu' && matrix.config.use-clang == true && matrix.config.use-clang_stdlib
         run: |
           wget https://apt.llvm.org/llvm.sh
@@ -190,7 +203,7 @@ jobs:
           echo "CXX=clang++-20" >> "$GITHUB_ENV"
           echo "OBJC=clang-20" >> "$GITHUB_ENV"
 
-      - name: Setup Clang (Linux) (libstdc++)
+      - name: Setup Clang (Linux, libstdc++)
         if: matrix.config.os == 'ubuntu' && matrix.config.use-clang == true && (! matrix.config.use-clang_stdlib)
         run: |
           wget https://apt.llvm.org/llvm.sh
@@ -257,7 +270,7 @@ jobs:
           brew install sdl2 sdl2_ttf sdl2_mixer sdl2_image
 
       - name: Configure
-        run: meson setup build -Dbuildtype=release -Ddefault_library=${{( matrix.config.os == 'windows' && matrix.config.environment == 'msvc' && matrix.config.static ) && 'static' ||'shared' }} -Dclang_libcpp=${{ ( ( matrix.config.os == 'ubuntu' && matrix.config.use-clang == true && matrix.config.use-clang_stdlib ) || matrix.config.os == 'macos' ) && 'enabled' || 'disabled' }} -Drun_in_ci=true ${{( matrix.config.fatal_warnings ) && '--fatal-meson-warnings' || '' }}
+        run: meson setup build -Dbuildtype=release -Ddefault_library=${{( matrix.config.os == 'windows' && matrix.config.environment == 'msvc' && matrix.config.static ) && 'static' ||'shared' }} -Dclang_libcpp=${{ ( ( matrix.config.os == 'ubuntu' && matrix.config.use-clang == true && matrix.config.use-clang_stdlib ) || matrix.config.os == 'macos' || ( matrix.config.os == 'windows' && matrix.config.environment == 'msys2' && matrix.config.use-clang == true ) ) && 'enabled' || 'disabled' }} -Drun_in_ci=true ${{( matrix.config.fatal_warnings ) && '--fatal-meson-warnings' || '' }}
 
       - name: Build
         run: meson compile -C build
