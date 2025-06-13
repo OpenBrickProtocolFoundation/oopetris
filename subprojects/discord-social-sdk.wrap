@@ -1,11 +1,10 @@
 [wrap-file]
 directory = discord_social_sdk
-source_url = https://oopetris.totto.lt/static/assets/discord/DiscordSocialSdk-1.2.8730.zip
-source_filename = DiscordSocialSdk-1.2.8730.zip
-source_hash = f0a8158169c490116500dc338290c93720c27126fd817663b11c4e8ebfa9cc00
+source_url = https://oopetris.totto.lt/static/assets/discord/DiscordSocialSdk-1.3.9273.zip
+source_filename = DiscordSocialSdk-1.3.9273.zip
+source_hash = 031bfdd7e7754b9c535bb1bdf4a4186718202b2e36b6a99f2e75ff0397500cac
 patch_directory = discord_social_sdk
-diff_files = discord_social_sdk-1.2.8730_mingw.diff
+diff_files = discord_social_sdk-1.3.9273_mingw.diff
 
 [provide]
 discord-social-sdk = discord_social_sdk_dep
-
