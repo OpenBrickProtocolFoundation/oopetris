@@ -2,7 +2,7 @@ project(
     'discord-social-sdk',
     'cpp',
     'c',
-    version: '1.2.8730',
+    version: '1.3.9273',
     meson_version: '>=1.4.0',
     default_options: {
         'cpp_std': ['c++17'],
