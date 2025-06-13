@@ -31,19 +31,51 @@ jobs:
             static: true
             fatal_warnings: false # TODO: enable fatal warnings, once cpp-httplib is patched either by ourselves or by the maintainers
 
-          - name: Windows MingGW
+          - name: Windows MSVC (ARM64, static)
+            os: windows
+            os-version: 11-arm
+            environment: msvc
+            shell: pwsh
+            static: true
+            fatal_warnings: false # TODO: enable fatal warnings, once cpp-httplib is patched either by ourselves or by the maintainers
+
+          - name: Windows MSYS2 (MingGW)
             os: windows
             os-version: 2025
-            environment: mingw
+            environment: msys2
+            msystem: MINGW64
             architecture: x86_64
+            use-clang: false
             shell: 'msys2 {0}'
             fatal_warnings: true
 
-          - name: Windows UCRT
+          - name: Windows MSYS2 (UCRT)
             os: windows
             os-version: 2025
-            environment: ucrt
+            environment: msys2
+            msystem: UCRT64
             architecture: ucrt-x86_64
+            use-clang: false
+            shell: 'msys2 {0}'
+            fatal_warnings: true
+
+          - name: Windows MSYS2 (CLANG)
+            os: windows
+            os-version: 2025
+            environment: msys2
+            msystem: CLANG64
+            architecture: clang-x86_64
+            use-clang: true
+            shell: 'msys2 {0}'
+            fatal_warnings: true
+
+          - name: Windows MSYS2 (ARM64, CLANG)
+            os: windows
+            os-version: 11-arm
+            environment: msys2
+            msystem: CLANGARM64
+            architecture: clang-x86_64
+            use-clang: true
             shell: 'msys2 {0}'
             fatal_warnings: true
 
@@ -51,7 +83,6 @@ jobs:
             os: ubuntu
             os-version: 24.04-arm
             use-clang: false
-            arm: true
             shell: bash
             fatal_warnings: true
 
@@ -59,7 +90,6 @@ jobs:
             os: ubuntu
             os-version: 24.04
             use-clang: false
-            arm: false
             shell: bash
             fatal_warnings: true
 
@@ -68,7 +98,6 @@ jobs:
             os-version: 24.04
             use-clang: true
             use-clang_stdlib: false
-            arm: false
             shell: bash
             fatal_warnings: true
 
@@ -77,21 +106,26 @@ jobs:
             os-version: 24.04
             use-clang: true
             use-clang_stdlib: true
-            arm: false
+            shell: bash
+            fatal_warnings: true
+
+          - name: Linux Clang (libc++, ARM64)
+            os: ubuntu
+            os-version: 24.04-arm
+            use-clang: true
+            use-clang_stdlib: true
             shell: bash
             fatal_warnings: true
 
           - name: MacOS
             os: macos
             os-version: 13
-            arm: false
             shell: bash
             fatal_warnings: true
 
           - name: MacOS (Arm64)
             os: macos
             os-version: 15
-            arm: true
             shell: bash
             fatal_warnings: true
 
@@ -108,14 +142,14 @@ jobs:
         if: matrix.config.os == 'windows' && matrix.config.environment == 'msvc'
         uses: TheMrMilchmann/setup-msvc-dev@v3
         with:
-          arch: x64
+          arch: ${{matrix.config.os-version == '11-arm' && 'x64' || 'x64'}} # TODO:fix this action: note this action doesn't really support arm64 yet, but it works like this already (by accident)
           toolset: '14.43'
 
       - name: Setup MSYS2 (Windows)
-        if: matrix.config.os == 'windows' && ( matrix.config.environment == 'mingw' || matrix.config.environment == 'ucrt' )
+        if: matrix.config.os == 'windows' && matrix.config.environment == 'msys2'
         uses: msys2/setup-msys2@v2
         with:
-          msystem: ${{matrix.config.environment == 'mingw' && 'MINGW64' || 'UCRT64'}}
+          msystem: ${{matrix.config.msystem}}
           update: true
           install: >-
             mingw-w64-${{matrix.config.architecture}}-ninja
@@ -131,11 +165,11 @@ jobs:
             git
 
       - name: Setup GCC (MSYS2)
-        if: matrix.config.os == 'windows' && ( matrix.config.environment == 'mingw' || matrix.config.environment == 'ucrt' )
+        if: matrix.config.os == 'windows' && matrix.config.environment == 'msys2' && matrix.config.use-clang == false
         uses: Totto16/msys2-install-packages-pinned@v1
         with:
-          msystem: ${{matrix.config.environment == 'mingw' && 'MINGW64' || 'UCRT64'}}
-          # gcc-libs 14 don't provbide the virtual package cc-libs, only gcc-libs 15 (see https://github.com/msys2/MINGW-packages/commit/9fa882f7eb6f639780a13df016497a93e45544ac) provide it, so until we use gcc 15, nghttp3 < 1.10.1 needs to be used (see https://github.com/msys2/MINGW-packages/commit/16b7f94772f29f1c207764701d863d266a5de64c) since 1.10.1 needs cc-libs and not gcc-libs. The newest version matching that constraint is 1.9.0
+          msystem: ${{matrix.config.msystem}}
+          # gcc-libs 14 don't provide the virtual package cc-libs, only gcc-libs 15 (see https://github.com/msys2/MINGW-packages/commit/9fa882f7eb6f639780a13df016497a93e45544ac) provide it, so until we use gcc 15, nghttp3 < 1.10.1 needs to be used (see https://github.com/msys2/MINGW-packages/commit/16b7f94772f29f1c207764701d863d266a5de64c) since 1.10.1 needs cc-libs and not gcc-libs. The newest version matching that constraint is 1.9.0
           # for the other pavckages see https://github.com/msys2/MINGW-packages/commit/62308009e77d772a126313626b194e503b0e5135
           install: |
             nghttp3=1.9
@@ -149,7 +183,16 @@ jobs:
             python=3.12.9-4
             gcc=14 gcc-libs=!
 
-      - name: Setup Clang (Linux) (libc++)
+      - name: Setup Clang (MSYS2, libc++)
+        if: matrix.config.os == 'windows' && matrix.config.environment == 'msys2' && matrix.config.use-clang == true
+        uses: Totto16/msys2-install-packages-pinned@v1
+        with:
+          msystem: ${{matrix.config.msystem}}
+          install: |
+            clang=20
+            libc++=20
+
+      - name: Setup Clang (Linux, libc++)
         if: matrix.config.os == 'ubuntu' && matrix.config.use-clang == true && matrix.config.use-clang_stdlib
         run: |
           wget https://apt.llvm.org/llvm.sh
@@ -160,7 +203,7 @@ jobs:
           echo "CXX=clang++-20" >> "$GITHUB_ENV"
           echo "OBJC=clang-20" >> "$GITHUB_ENV"
 
-      - name: Setup Clang (Linux) (libstdc++)
+      - name: Setup Clang (Linux, libstdc++)
         if: matrix.config.os == 'ubuntu' && matrix.config.use-clang == true && (! matrix.config.use-clang_stdlib)
         run: |
           wget https://apt.llvm.org/llvm.sh
@@ -175,7 +218,7 @@ jobs:
         uses: egor-tensin/setup-gcc@v1
         with:
           version: 14
-          platform: x64
+          platform: ${{matrix.config.os-version == '24.04-arm' && 'x64' || 'x64'}} # TODO:fix this action: note this action doesn't really support arm64 yet, but it works like this already (by accident)
 
       - name: Unbreak Python in GHA (MacOS 13 image)
         if: matrix.config.os == 'macos' && matrix.config.os-version == 13
@@ -227,7 +270,7 @@ jobs:
           brew install sdl2 sdl2_ttf sdl2_mixer sdl2_image
 
       - name: Configure
-        run: meson setup build -Dbuildtype=release -Ddefault_library=${{( matrix.config.os == 'windows' && matrix.config.environment == 'msvc' && matrix.config.static ) && 'static' ||'shared' }} -Dclang_libcpp=${{ ( ( matrix.config.os == 'ubuntu' && matrix.config.use-clang == true && matrix.config.use-clang_stdlib ) || matrix.config.os == 'macos' ) && 'enabled' || 'disabled' }} -Drun_in_ci=true ${{( matrix.config.fatal_warnings ) && '--fatal-meson-warnings' || '' }}
+        run: meson setup build -Dbuildtype=release -Ddefault_library=${{( matrix.config.os == 'windows' && matrix.config.environment == 'msvc' && matrix.config.static ) && 'static' ||'shared' }} -Dclang_libcpp=${{ ( ( matrix.config.os == 'ubuntu' && matrix.config.use-clang == true && matrix.config.use-clang_stdlib ) || matrix.config.os == 'macos' || ( matrix.config.os == 'windows' && matrix.config.environment == 'msys2' && matrix.config.use-clang == true ) ) && 'enabled' || 'disabled' }} -Drun_in_ci=true ${{( matrix.config.fatal_warnings ) && '--fatal-meson-warnings' || '' }}
 
       - name: Build
         run: meson compile -C build
