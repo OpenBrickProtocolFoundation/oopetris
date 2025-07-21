@@ -27,7 +27,7 @@ namespace constants::discord {
 
 //TODO(Totto):  this isn't correct for all platforms and needs to be tested
 #if defined(__ANDROID__)
-#error "Not supported"
+    constexpr const char* platform_dependent_launch_arguments = "TODO";
 #elif defined(__CONSOLE__)
 #error "Not supported"
 #elif defined(FLATPAK_BUILD)
@@ -88,9 +88,9 @@ public:
     template<typename T>
     DiscordActivityWrapper& set_start_timestamp(const std::chrono::time_point<T>& point) {
 
-        const auto seconds_since_epoch =
-                static_cast<u64>(std::chrono::duration_cast<std::chrono::milliseconds>(point.time_since_epoch()).count()
-                );
+        const auto seconds_since_epoch = static_cast<u64>(
+                std::chrono::duration_cast<std::chrono::milliseconds>(point.time_since_epoch()).count()
+        );
 
         auto timestamps = this->get_timestamps();
 
@@ -103,9 +103,9 @@ public:
     template<typename T>
     DiscordActivityWrapper& set_end_timestamp(const std::chrono::time_point<T>& point) {
 
-        const auto seconds_since_epoch =
-                static_cast<u64>(std::chrono::duration_cast<std::chrono::milliseconds>(point.time_since_epoch()).count()
-                );
+        const auto seconds_since_epoch = static_cast<u64>(
+                std::chrono::duration_cast<std::chrono::milliseconds>(point.time_since_epoch()).count()
+        );
 
         auto timestamps = this->get_timestamps();
 

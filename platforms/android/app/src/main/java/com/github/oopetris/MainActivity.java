@@ -1,10 +1,17 @@
 package com.github.oopetris;
 
 import org.libsdl.app.SDLActivity;
+import com.discord.socialsdk.DiscordSocialSdkInit;
+import android.os.Bundle;
 
-/**
- * A sample wrapper class that just calls SDLActivity 
- */
+public class MainActivity extends SDLActivity { 
 
-public class MainActivity extends SDLActivity { }
+    // Setup
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        DiscordSocialSdkInit.setEngineActivity(this);
+    }
+
+}
 
