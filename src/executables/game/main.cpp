@@ -36,7 +36,7 @@
 
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/rotating_file_sink.h>
-#include <spdlog/sinks/stdout_sinks.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
 
 #if defined(_MSC_VER)
@@ -49,13 +49,13 @@ namespace {
 
         std::vector<spdlog::sink_ptr> sinks;
 #if defined(__ANDROID__)
-        sinks.push_back(std::make_shared<spdlog::sinks::android_sink_mt>());
+        sinks.push_back(std::make_shared<spdlog::sinks::android_sink_mt>(constants::program_name.c_str()));
 #elif defined(__CONSOLE__)
         sinks.push_back(std::make_shared<console::debug_sink_mt>());
 #elif defined(__EMSCRIPTEN__)
         sinks.push_back(web::get_console_sink());
 #else
-        sinks.push_back(std::make_shared<spdlog::sinks::stdout_sink_mt>());
+        sinks.push_back(std::make_shared<spdlog::sinks::stdout_color_sink_mt>(spdlog::color_mode::automatic));
 #endif
 
 
