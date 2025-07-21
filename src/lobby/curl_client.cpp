@@ -12,7 +12,8 @@ oopetris::http::implementation::ActualResult::~ActualResult() = default;
 oopetris::http::implementation::ActualResult::ActualResult(ActualResult&& other) noexcept
     : m_result{ std::move(other.m_result) } { }
 
-[[nodiscard]] std::optional<std::string> oopetris::http::implementation::ActualResult::get_header(const std::string& key
+[[nodiscard]] std::optional<std::string> oopetris::http::implementation::ActualResult::get_header(
+        const std::string& key
 ) const {
 
     if (not m_result.header.contains(key)) {
@@ -60,13 +61,17 @@ oopetris::http::implementation::ActualClient::ActualClient(const std::string& ap
     : m_base_url{ normalize_url(api_url) } {
 
     m_session->SetUrl(cpr::Url{ api_url });
-    m_session->SetAcceptEncoding(cpr::AcceptEncoding{
-            { cpr::AcceptEncodingMethods::deflate, cpr::AcceptEncodingMethods::gzip,
-             cpr::AcceptEncodingMethods::zlib }
-    });
-    m_session->SetHeader(cpr::Header{
-            { "Accept", ::http::constants::json_content_type }
-    });
+    m_session->SetAcceptEncoding(
+            cpr::AcceptEncoding{
+                    { cpr::AcceptEncodingMethods::deflate, cpr::AcceptEncodingMethods::gzip,
+                     cpr::AcceptEncodingMethods::zlib }
+    }
+    );
+    m_session->SetHeader(
+            cpr::Header{
+                    { "Accept", ::http::constants::json_content_type }
+    }
+    );
 }
 
 
@@ -128,7 +133,7 @@ void oopetris::http::implementation::ActualClient::SetBearerAuth(const std::stri
 
 
 #if CPR_LIBCURL_VERSION_NUM >= 0x073D00
-    m_session->SetBearer(token);
+    m_session->SetBearer(cpr::Bearer{ token });
 #else
     m_session->SetHeader(cpr::Header{ "Authorization", fmt::format("Bearer {}", token) });
 #endif
@@ -139,7 +144,7 @@ void oopetris::http::implementation::ActualClient::ResetBearerAuth() {
 
 
 #if CPR_LIBCURL_VERSION_NUM >= 0x073D00
-    m_session->SetBearer(std::string{});
+    m_session->SetBearer(cpr::Bearer{""});
 #else
     m_session->SetHeader();
 #endif
