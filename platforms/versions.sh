@@ -2,7 +2,7 @@
 
 ## 3ds section
 
-export SDL_3DS_VERSION="2.30.6"
+export SDL_3DS_VERSION="2.32.8"
 
 export SDL_TTF_3DS_VERSION="2.22.0"
 

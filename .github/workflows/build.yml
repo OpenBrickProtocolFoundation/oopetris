@@ -139,7 +139,7 @@ jobs:
           # for the other pavckages see https://github.com/msys2/MINGW-packages/commit/62308009e77d772a126313626b194e503b0e5135
           install: |
             nghttp3=1.9
-            SDL2=2.32.4
+            SDL2=2.32.8
             aom=3.12.0
             curl=8.13.0
             gnutls=3.8.8
