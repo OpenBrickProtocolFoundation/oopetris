@@ -129,20 +129,13 @@ public:
     [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED const discordpp::Activity& get_raw() const;
 };
 
-enum class DiscordStatus : u8 { Starting = 0, Ok, Error };
-
 struct DiscordInstance {
 private:
     discordpp::Client m_client;
     discordpp::UserHandle m_current_user;
-    DiscordStatus m_status;
-    std::optional<DiscordActivityWrapper> m_current_activity;
-
 
 public:
     OOPETRIS_GRAPHICS_EXPORTED explicit DiscordInstance();
-
-    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED DiscordStatus get_status();
 
     OOPETRIS_GRAPHICS_EXPORTED DiscordInstance(DiscordInstance&& old) noexcept;
 
@@ -159,8 +152,6 @@ public:
     OOPETRIS_GRAPHICS_EXPORTED void set_activity(DiscordActivityWrapper activity);
 
 private:
-    void set_activity_internal();
-
     void after_ready();
     void clear_activity();
 };
