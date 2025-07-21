@@ -74,16 +74,26 @@ private:
 public:
     //TODO(Totto):  Add support for party and invites / join / invitations / spectate
 
-    OOPETRIS_GRAPHICS_EXPORTED DiscordActivityWrapper(const std::string& details, discordpp::ActivityTypes type);
+    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED
+    DiscordActivityWrapper(const std::string& details, discordpp::ActivityTypes type);
 
-    OOPETRIS_GRAPHICS_EXPORTED DiscordActivityWrapper&
+    OOPETRIS_GRAPHICS_EXPORTED DiscordActivityWrapper(DiscordActivityWrapper&& old) noexcept;
+
+    OOPETRIS_GRAPHICS_EXPORTED DiscordActivityWrapper& operator=(DiscordActivityWrapper&& other) noexcept;
+
+    DiscordActivityWrapper(DiscordActivityWrapper& old) noexcept = delete;
+
+    DiscordActivityWrapper& operator=(const DiscordActivityWrapper& other) noexcept = delete;
+
+    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED DiscordActivityWrapper&
     set_large_image(const std::string& text, constants::discord::ArtAsset asset);
 
-    OOPETRIS_GRAPHICS_EXPORTED DiscordActivityWrapper&
+    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED DiscordActivityWrapper&
     set_small_image(const std::string& text, constants::discord::ArtAsset asset);
 
-    OOPETRIS_GRAPHICS_EXPORTED DiscordActivityWrapper& set_details(const std::string& text);
+    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED DiscordActivityWrapper& set_details(const std::string& text);
 
+    [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED DiscordActivityWrapper build();
 
     template<typename T>
     DiscordActivityWrapper& set_start_timestamp(const std::chrono::time_point<T>& point) {
@@ -126,6 +136,7 @@ private:
     discordpp::Client m_client;
     discordpp::UserHandle m_current_user;
     DiscordStatus m_status;
+    std::optional<DiscordActivityWrapper> m_current_activity;
 
 
 public:
@@ -145,9 +156,11 @@ public:
 
     OOPETRIS_GRAPHICS_EXPORTED static void update();
 
-    OOPETRIS_GRAPHICS_EXPORTED void set_activity(const DiscordActivityWrapper& activity);
+    OOPETRIS_GRAPHICS_EXPORTED void set_activity(DiscordActivityWrapper activity);
 
 private:
+    void set_activity_internal();
+
     void after_ready();
     void clear_activity();
 };

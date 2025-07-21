@@ -1,7 +1,7 @@
 
-#include "helper/spdlog_wrapper.hpp"
 #include <core/helper/utils.hpp>
 
+#include "../helper/spdlog_wrapper.hpp"
 #include "./core.hpp"
 
 #include <fmt/format.h>
@@ -18,7 +18,8 @@
 
 DiscordInstance::DiscordInstance()
     : m_current_user{ discordpp::UserHandle::nullobj },
-      m_status{ DiscordStatus::Starting } {
+      m_status{ DiscordStatus::Starting },
+      m_current_activity{ std::nullopt } {
 
     m_client.AddLogCallback(
             [](std::string message, discordpp::LoggingSeverity severity) -> void {
@@ -99,7 +100,11 @@ void DiscordInstance::after_ready() {
     );
     if (not result) {
         spdlog::warn("Discord: Failed to Register Launch Command");
-    };
+    }
+
+    if (m_current_activity.has_value()) {
+        set_activity_internal();
+    }
 }
 
 
@@ -143,9 +148,31 @@ void DiscordInstance::update() {
 }
 
 
-void DiscordInstance::set_activity(const DiscordActivityWrapper& activity) {
+void DiscordInstance::set_activity(DiscordActivityWrapper activity) {
 
-    const auto& raw_activity = activity.get_raw();
+    if (m_status == DiscordStatus::Error) {
+        // don't set activity
+        return;
+    }
+
+    m_current_activity = std::move(activity);
+
+    if (m_status == DiscordStatus::Starting) {
+        // return after we stored the current activity, the after_ready callback will set the activity
+        return;
+    }
+
+    set_activity_internal();
+}
+
+void DiscordInstance::set_activity_internal() {
+
+    if (not m_current_activity.has_value()) {
+        return;
+    }
+
+
+    const auto& raw_activity = m_current_activity.value().get_raw();
 
     if (not raw_activity.operator bool()) {
         spdlog::error("Tried to set an invalid Discord Activity!");
@@ -153,12 +180,14 @@ void DiscordInstance::set_activity(const DiscordActivityWrapper& activity) {
     }
 
     // Update rich presence
-    m_client.UpdateRichPresence(raw_activity, [](const discordpp::ClientResult& result) {
+    m_client.UpdateRichPresence(raw_activity, [this](const discordpp::ClientResult& result) {
         if (result.Successful()) {
             spdlog::info("Rich Presence updated successfully");
         } else {
             spdlog::error("Rich Presence update failed: {}", result.ToString());
         }
+
+        this->m_current_activity = std::nullopt;
     });
 }
 
@@ -167,12 +196,27 @@ void DiscordInstance::clear_activity() {
     m_client.ClearRichPresence();
 }
 
+DiscordActivityWrapper::DiscordActivityWrapper(DiscordActivityWrapper&& old) noexcept
+    : m_activity{ std::move(old.m_activity) } {
+    old.m_activity = discordpp::Activity::nullobj;
+}
+
+
+DiscordActivityWrapper& DiscordActivityWrapper::operator=(DiscordActivityWrapper&& other) noexcept {
+    if (this != &other) {
+
+        m_activity = std::move(other.m_activity);
+
+        other.m_activity = discordpp::Activity::nullobj;
+    }
+    return *this;
+};
 
 DiscordActivityWrapper::DiscordActivityWrapper(const std::string& details, discordpp::ActivityTypes type) {
     // NOTE: this are partial fields, that are set by the final call, do not set them manually
     // https://discord.com/developers/docs/rich-presence/using-with-the-game-sdk#partial-activity-struct
-    // m_activity.SetName(constants::program_name);
-    // m_activity.SetApplicationId(constants::application_id);
+    // m_activity.SetName(constants::program_name.c_str());
+    // m_activity.SetApplicationId(constants::discord::application_id);
 
     m_activity.SetDetails(details);
     m_activity.SetType(type);
@@ -215,6 +259,11 @@ DiscordActivityWrapper& DiscordActivityWrapper::set_details(const std::string& t
     return *this;
 }
 
+
+DiscordActivityWrapper DiscordActivityWrapper::build() {
+
+    return std::move(*this);
+}
 
 [[nodiscard]] const discordpp::Activity& DiscordActivityWrapper::get_raw() const {
     return m_activity;

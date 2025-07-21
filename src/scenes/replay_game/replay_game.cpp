@@ -60,6 +60,7 @@ namespace scenes {
                     DiscordActivityWrapper("Replaying a game", discordpp::ActivityTypes::Playing)
                             .set_large_image("Playing OOPetris", constants::discord::ArtAsset::Logo)
                             .set_start_timestamp(std::chrono::system_clock::now())
+                            .build()
             );
         }
 
