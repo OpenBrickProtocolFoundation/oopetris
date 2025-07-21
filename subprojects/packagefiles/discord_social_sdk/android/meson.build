@@ -2,6 +2,9 @@
 
 # this isn't feature complete and doesn't care about actual defintion and config files, it uses a fixed static layout from the .aar file and uses it hard coded
 
+## see: https://discord.com/developers/docs/social-sdk/md_pages_2mobile.html
+# on how discord for android works
+
 aar_file = meson.project_source_root() / 'lib' / (get_option('buildtype') == 'release' ? 'release' : 'debug') / 'discord_partner_sdk.aar'
 
 unzip = find_program('unzip')
