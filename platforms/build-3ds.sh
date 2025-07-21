@@ -171,12 +171,14 @@ echo "*" >.gitignore
 
 mkdir -p "$SDL_ROOT_DIR"
 
-# build sdl2
+# source dependency version information
 
 SCRIPT_DIR="$(realpath "$(dirname -- "$0")")"
 
 # shellcheck source=./platforms/versions.sh
 source  "$SCRIPT_DIR/versions.sh"
+
+# build sdl2
 
 export SDL2_SRC_DIR="SDL2-${SDL_3DS_VERSION}"
 

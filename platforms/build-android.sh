@@ -182,6 +182,13 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
     export LLVM_CONFIG="llvm-config"
     unset PKG_CONFIG
 
+    # source dependency version information
+
+    SCRIPT_DIR="$(realpath "$(dirname -- "$0")")"
+
+    # shellcheck source=./platforms/versions.sh
+    source "$SCRIPT_DIR/versions.sh"
+
     ## BUILD dependencies not buildable with meson (to complicated to port)
 
     ## build mpg123 with cmake (meson port is to much work atm, for this feature)
@@ -200,17 +207,15 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
         cd "$BUILD_DIR_MPG123"
 
-        MPG123_VERSION="1.32.10"
-
-        if [ ! -e "mpg123-$MPG123_VERSION.tar.bz2" ]; then
-            wget -q "https://www.mpg123.de/download/mpg123-$MPG123_VERSION.tar.bz2"
+        if [ ! -e "mpg123-$MPG123_ANDROID_VERSION.tar.bz2" ]; then
+            wget -q "https://www.mpg123.de/download/mpg123-$MPG123_ANDROID_VERSION.tar.bz2"
         fi
 
-        if [ ! -d "mpg123-$MPG123_VERSION" ]; then
-            tar -xf "mpg123-$MPG123_VERSION.tar.bz2"
+        if [ ! -d "mpg123-$MPG123_ANDROID_VERSION" ]; then
+            tar -xf "mpg123-$MPG123_ANDROID_VERSION.tar.bz2"
         fi
 
-        cd "mpg123-$MPG123_VERSION"
+        cd "mpg123-$MPG123_ANDROID_VERSION"
 
         cd ports/cmake/
 
@@ -258,17 +263,15 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
         cd "$BUILD_DIR_FLAC"
 
-        FLAC_VERSION="1.5.0"
-
-        if [ ! -e "flac-$FLAC_VERSION.tar.xz" ]; then
-            wget -q "https://github.com/xiph/flac/releases/download/$FLAC_VERSION/flac-$FLAC_VERSION.tar.xz"
+        if [ ! -e "flac-$FLAC_ANDROID_VERSION.tar.xz" ]; then
+            wget -q "https://github.com/xiph/flac/releases/download/$FLAC_ANDROID_VERSION/flac-$FLAC_ANDROID_VERSION.tar.xz"
         fi
 
-        if [ ! -d "flac-$FLAC_VERSION" ]; then
-            tar -xf "flac-$FLAC_VERSION.tar.xz"
+        if [ ! -d "flac-$FLAC_ANDROID_VERSION" ]; then
+            tar -xf "flac-$FLAC_ANDROID_VERSION.tar.xz"
         fi
 
-        cd "flac-$FLAC_VERSION"
+        cd "flac-$FLAC_ANDROID_VERSION"
 
         mkdir -p "$BUILD_DIR_FLAC"
 
@@ -315,17 +318,15 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
         cd "$BUILD_DIR_OPENSSL"
 
-        OPENSSL_VERSION="3.4.1"
-
-        if [ ! -e "openssl-$OPENSSL_VERSION.tar.gz" ]; then
-            wget -q "https://github.com/openssl/openssl/releases/download/openssl-$OPENSSL_VERSION/openssl-$OPENSSL_VERSION.tar.gz"
+        if [ ! -e "openssl-$OPENSSL_ANDROID_VERSION.tar.gz" ]; then
+            wget -q "https://github.com/openssl/openssl/releases/download/openssl-$OPENSSL_ANDROID_VERSION/openssl-$OPENSSL_ANDROID_VERSION.tar.gz"
         fi
 
-        if [ ! -d "openssl-$OPENSSL_VERSION" ]; then
-            tar -xzf "openssl-$OPENSSL_VERSION.tar.gz"
+        if [ ! -d "openssl-$OPENSSL_ANDROID_VERSION" ]; then
+            tar -xzf "openssl-$OPENSSL_ANDROID_VERSION.tar.gz"
         fi
 
-        cd "openssl-$OPENSSL_VERSION"
+        cd "openssl-$OPENSSL_ANDROID_VERSION"
 
         OPENSSL_TARGET_ARCH="android-$ARCH"
 
