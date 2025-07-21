@@ -396,8 +396,8 @@ if build_application
         required: false,
         allow_fallback: true,
         default_options: {
-            'cpp-httplib_openssl': 'enabled',
-            'cpp-httplib_zlib': 'enabled',
+            'openssl': 'enabled',
+            'zlib': 'enabled',
         },
     )
 
