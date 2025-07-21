@@ -63,6 +63,12 @@ include $(PREBUILT_SHARED_LIBRARY)
 
 
 include $(CLEAR_VARS)
+LOCAL_MODULE := spdlog
+LOCAL_SRC_FILES := $(shell find "${SUBPROJECTS_PATH}" -name libspdlog.so)
+include $(PREBUILT_SHARED_LIBRARY)
+
+
+include $(CLEAR_VARS)
 LOCAL_MODULE := keyutils
 LOCAL_SRC_FILES := $(shell find "${SUBPROJECTS_PATH}" -name libkeyutils.so)
 include $(PREBUILT_SHARED_LIBRARY)
@@ -99,7 +105,7 @@ include $(PREBUILT_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := main
-LOCAL_SHARED_LIBRARIES := SDL2 sdl2_ttf freetype png16 sdl2_mixer vorbis vorbisfile ogg sdl2_image fmt keyutils oopetris_core oopetris_recordings oopetris_graphics oopetris
+LOCAL_SHARED_LIBRARIES := SDL2 sdl2_ttf freetype png16 sdl2_mixer vorbis vorbisfile ogg sdl2_image fmt spdlog keyutils oopetris_core oopetris_recordings oopetris_graphics oopetris
 LOCAL_LDLIBS := -ldl -lGLESv1_CM -lGLESv2 -lOpenSLES -llog -landroid
 LOCAL_LDFLAGS := -Wl,--no-undefined
 include $(BUILD_SHARED_LIBRARY)
