@@ -159,7 +159,7 @@ String getVersion() {
 
         if (versionResult.getV3() != 0) {
             throw new Exception(
-                    'An error occured while trying to detect the version: process exited with exit code: ' +
+                    'An error occurred while trying to detect the version: process exited with exit code: ' +
                             versionResult.getV3() +
                             ' and stderr:\n' +
                             versionResult.getV2().join("\n")
@@ -167,11 +167,11 @@ String getVersion() {
         }
 
         if (versionResult.getV2() != null && !versionResult.getV2().isEmpty()) {
-            throw new Exception('An error occured while trying to detect the version (code 1): ' + versionResult.getV2().join("\n"));
+            throw new Exception('An error occurred while trying to detect the version (code 1): ' + versionResult.getV2().join("\n"));
         }
 
         if (versionResult.getV1() == null || versionResult.getV1().size() != 1) {
-            throw new Exception('An error occured while trying to detect the version (code 2): ' + versionResult.getV1().join("\n"));
+            throw new Exception('An error occurred while trying to detect the version (code 2): ' + versionResult.getV1().join("\n"));
         }
 
         String version = versionResult.getV1()[0];
@@ -182,7 +182,7 @@ String getVersion() {
 
         for (version1 in versions) {
             if (version != version1) {
-                throw new Exception("Recievd two versions, that didn't match: " + version1 + " != " + version);
+                throw new Exception("Received two versions, that didn't match: " + version1 + " != " + version);
             }
         }
 
@@ -192,7 +192,7 @@ String getVersion() {
 
 
     if (versions.size() == 0) {
-        throw new Exception("ERROR: at least one version has to be detected (at least one abi has to be returend by 'getAndroidABIs()')");
+        throw new Exception("ERROR: at least one version has to be detected (at least one abi has to be returned by 'getAndroidABIs()')");
     }
 
     // we guarantee, that every string in there is the same, and that it has at least one entry 
@@ -224,7 +224,81 @@ Boolean shouldBuildUniversalApk(List<String> abisToUse) {
 
     return true;
 
+}
 
+
+/**
+ * get the meson build type
+ * @return String
+ */
+String getMesonBuildType() {
+    List<String> abis = getAndroidABIs();
+    List<String> buildtypes = new ArrayList<String>();
+
+    for (abi in abis) {
+        File abiDir = getABIDir(abi);
+
+        Tuple3<List<String>, List<String>, Integer> buildtypeResult = executePipeline(Arrays.asList(
+                Arrays.asList("meson", "introspect", "--buildoptions", abiDir.getAbsolutePath()),
+                Arrays.asList("jq", "-r", ".[] | select(.name == \"buildtype\") | .value")
+        ));
+
+        if (buildtypeResult.getV3() != 0) {
+            throw new Exception(
+                    'An error occurred while trying to detect the buildtype: process exited with exit code: ' +
+                            buildtypeResult.getV3() +
+                            ' and stderr:\n' +
+                            buildtypeResult.getV2().join("\n")
+            );
+        }
+
+        if (buildtypeResult.getV2() != null && !buildtypeResult.getV2().isEmpty()) {
+            throw new Exception('An error occurred while trying to detect the buildtype (code 1): ' + buildtypeResult.getV2().join("\n"));
+        }
+
+        if (buildtypeResult.getV1() == null || buildtypeResult.getV1().size() != 1) {
+            throw new Exception('An error occurred while trying to detect the buildtype (code 2): ' + buildtypeResult.getV1().join("\n"));
+        }
+
+        String buildtype = buildtypeResult.getV1()[0];
+
+        if (buildtype == "") {
+            throw new Exception("Auto detection of buildtype returned invalid buildtype: '" + version + "'");
+        }
+
+        for (buildtype1 in buildtypes) {
+            if (buildtype != buildtype1) {
+                throw new Exception("Received two buildtypes, that didn't match: " + buildtype1 + " != " + buildtype);
+            }
+        }
+
+        buildtypes.add(buildtype);
+
+    }
+
+
+    if (buildtypes.size() == 0) {
+        throw new Exception("ERROR: at least one buildtype has to be detected (at least one abi has to be returned by 'getAndroidABIs()')");
+    }
+
+    // we guarantee, that every string in there is the same, and that it has at least one entry 
+    return buildtypes[0];
+
+}
+
+/**
+ * Returns the aar file for discord
+ * @return File
+ */
+File getDiscordLib() {
+    String target = getMesonBuildType() == 'release' ? 'release' : 'debug'
+    String path = "../../../../subprojects/discord_social_sdk/lib/" + target + "/discord_partner_sdk.aar";
+    File file = project.file(project.getLayout().getBuildDirectory().file(path));
+    if(!file.exists()){
+        throw new Exception("ERROR: discord aar is not present at the location we expected it to be!")
+    }
+
+    return file;
 }
 
 
@@ -315,4 +389,5 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation files(getDiscordLib())
 }

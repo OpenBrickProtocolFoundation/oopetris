@@ -51,6 +51,11 @@ if get_option('run_in_ci')
         'checks': ['>=14', '<15'],
     }
 
+    gcc_15_compiler = {
+        'id': 'gcc',
+        'checks': ['>=15', '<16'],
+    }
+
     msvc_compiler_current = {
         'id': 'msvc',
         'checks': ['>=19.43', '<20'],
@@ -78,7 +83,7 @@ if get_option('run_in_ci')
             'compilers': [msvc_compiler_current],
         },
         'msys2': {
-            'compilers': [gcc_14_compiler],
+            'compilers': [gcc_15_compiler],
         },
         'linux': {
             'compilers': [clang_20_compiler, gcc_14_compiler],

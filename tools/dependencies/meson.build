@@ -396,8 +396,8 @@ if build_application
         required: false,
         allow_fallback: true,
         default_options: {
-            'cpp-httplib_openssl': 'enabled',
-            'cpp-httplib_zlib': 'enabled',
+            'openssl': 'enabled',
+            'zlib': 'enabled',
         },
     )
 
@@ -525,9 +525,8 @@ and host_machine.system() == 'android')
 
     c = meson.get_compiler('c')
 
-    discord_dep_required = (not meson.is_cross_build()
-and get_option('build_installer')
-)
+    discord_dep_required = (not meson.is_cross_build() and get_option('build_installer')) or (meson.is_cross_build() and host_machine.system() == 'android')
+
 
     if (host_machine.system() == 'linux'
 and host_machine.cpu_family() == 'aarch64'

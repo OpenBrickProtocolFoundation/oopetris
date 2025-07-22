@@ -1,10 +1,32 @@
 
-#include "helper/spdlog_wrapper.hpp"
 #include <core/helper/utils.hpp>
 
+#include "../helper/spdlog_wrapper.hpp"
 #include "./core.hpp"
 
 #include <fmt/format.h>
+
+namespace {
+
+    [[nodiscard]] std::string result_to_string(const discordpp::ClientResult& result) {
+        const auto error_type = result.Type();
+
+        if (error_type == discordpp::ErrorType::None) {
+            return "None";
+        }
+
+        if (error_type == discordpp::ErrorType::HTTPError) {
+            return fmt::format(
+                    "ErrorType: {} Message: {} Status: {} ErrorCode: {}", discordpp::EnumToString(error_type),
+                    result.Error(), discordpp::EnumToString(result.Status()), result.ErrorCode()
+            );
+        }
+
+        return fmt::format("ErrorType: {} Message: {}", discordpp::EnumToString(error_type), result.Error());
+    }
+
+} // namespace
+
 
 [[nodiscard]] std::string constants::discord ::get_asset_key(constants::discord::ArtAsset asset) {
 
@@ -16,9 +38,10 @@
     }
 }
 
-DiscordInstance::DiscordInstance()
-    : m_current_user{ discordpp::UserHandle::nullobj },
-      m_status{ DiscordStatus::Starting } {
+
+DiscordInstance::DiscordInstance() : m_current_user{ discordpp::UserHandle::nullobj } {
+
+    m_client.SetApplicationId(constants::discord::application_id);
 
     m_client.AddLogCallback(
             [](std::string message, discordpp::LoggingSeverity severity) -> void {
@@ -46,28 +69,7 @@ DiscordInstance::DiscordInstance()
 #endif
     );
 
-
-    m_client.SetStatusChangedCallback(
-            [this](discordpp::Client::Status status, discordpp::Client::Error error, int32_t error_detail) -> void {
-                if (error != discordpp::Client::Error::None) {
-                    this->m_status = DiscordStatus::Error;
-                    spdlog::error(
-                            "Connection Error: {} - Details: {}", discordpp::Client::ErrorToString(error), error_detail
-                    );
-                    return;
-                }
-
-                if (status == discordpp::Client::Status::Ready) {
-                    this->m_status = DiscordStatus::Ok;
-                    this->after_ready();
-                    return;
-                }
-            }
-    );
-
-    m_client.SetApplicationId(constants::discord::application_id);
-
-    m_client.Connect();
+    after_ready();
 }
 
 void DiscordInstance::after_ready() {
@@ -77,20 +79,13 @@ void DiscordInstance::after_ready() {
             [this](const discordpp::ClientResult& result, std::optional<discordpp::UserHandle> user) -> void {
                 if (result.Successful() and user.has_value()) {
 
-                    auto user_handle = m_client.GetUser(user->Id());
-                    if (not user_handle.has_value()) {
-                        spdlog::error("Current Connected User Error: Can't get userhandle from id: {}", user->Id());
-
-                        return;
-                    }
-
-                    this->m_current_user = user_handle.value();
-                    spdlog::info("Current user updated: {}", user_handle->Username());
+                    this->m_current_user = user.value();
+                    spdlog::info("Current user updated: {}", user->Username());
 
                     return;
                 }
 
-                spdlog::error("Current Connected User Error: {}", result.ToString());
+                spdlog::error("Current Connected User Error: {}", result_to_string(result));
             }
     );
 
@@ -99,17 +94,15 @@ void DiscordInstance::after_ready() {
     );
     if (not result) {
         spdlog::warn("Discord: Failed to Register Launch Command");
-    };
+    }
 }
 
 
 DiscordInstance::DiscordInstance(DiscordInstance&& old) noexcept
     : m_client{ std::move(old.m_client) },
-      m_current_user{ std::move(old.m_current_user) },
-      m_status{ old.m_status } {
+      m_current_user{ std::move(old.m_current_user) } {
     old.m_client = discordpp::Client{};
     old.m_current_user = discordpp::UserHandle::nullobj;
-    old.m_status = DiscordStatus::Error;
 }
 
 
@@ -118,11 +111,9 @@ DiscordInstance& DiscordInstance::operator=(DiscordInstance&& other) noexcept {
 
         m_client = std::move(other.m_client);
         m_current_user = std::move(other.m_current_user);
-        m_status = other.m_status;
 
         other.m_client = discordpp::Client{};
         other.m_current_user = discordpp::UserHandle::nullobj;
-        other.m_status = DiscordStatus::Error;
     }
     return *this;
 };
@@ -130,12 +121,7 @@ DiscordInstance& DiscordInstance::operator=(DiscordInstance&& other) noexcept {
 DiscordInstance::~DiscordInstance() {
     if (m_client.operator bool()) {
         clear_activity();
-        m_client.Disconnect();
     }
-}
-
-[[nodiscard]] DiscordStatus DiscordInstance::get_status() {
-    return m_status;
 }
 
 void DiscordInstance::update() {
@@ -143,7 +129,8 @@ void DiscordInstance::update() {
 }
 
 
-void DiscordInstance::set_activity(const DiscordActivityWrapper& activity) {
+void DiscordInstance::set_activity(DiscordActivityWrapper activity) {
+
 
     const auto& raw_activity = activity.get_raw();
 
@@ -157,7 +144,7 @@ void DiscordInstance::set_activity(const DiscordActivityWrapper& activity) {
         if (result.Successful()) {
             spdlog::info("Rich Presence updated successfully");
         } else {
-            spdlog::error("Rich Presence update failed: {}", result.ToString());
+            spdlog::error("Rich Presence update failed: {}", result_to_string(result));
         }
     });
 }
@@ -167,12 +154,27 @@ void DiscordInstance::clear_activity() {
     m_client.ClearRichPresence();
 }
 
+DiscordActivityWrapper::DiscordActivityWrapper(DiscordActivityWrapper&& old) noexcept
+    : m_activity{ std::move(old.m_activity) } {
+    old.m_activity = discordpp::Activity::nullobj;
+}
+
+
+DiscordActivityWrapper& DiscordActivityWrapper::operator=(DiscordActivityWrapper&& other) noexcept {
+    if (this != &other) {
+
+        m_activity = std::move(other.m_activity);
+
+        other.m_activity = discordpp::Activity::nullobj;
+    }
+    return *this;
+};
 
 DiscordActivityWrapper::DiscordActivityWrapper(const std::string& details, discordpp::ActivityTypes type) {
     // NOTE: this are partial fields, that are set by the final call, do not set them manually
     // https://discord.com/developers/docs/rich-presence/using-with-the-game-sdk#partial-activity-struct
-    // m_activity.SetName(constants::program_name);
-    // m_activity.SetApplicationId(constants::application_id);
+    // m_activity.SetName(constants::program_name.c_str());
+    // m_activity.SetApplicationId(constants::discord::application_id);
 
     m_activity.SetDetails(details);
     m_activity.SetType(type);
@@ -215,6 +217,11 @@ DiscordActivityWrapper& DiscordActivityWrapper::set_details(const std::string& t
     return *this;
 }
 
+
+DiscordActivityWrapper DiscordActivityWrapper::build() {
+
+    return std::move(*this);
+}
 
 [[nodiscard]] const discordpp::Activity& DiscordActivityWrapper::get_raw() const {
     return m_activity;

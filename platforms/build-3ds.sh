@@ -156,6 +156,13 @@ APP_ROMFS='$ROMFS'
 
 EOF
 
+# source dependency version information
+
+SCRIPT_DIR="$(realpath "$(dirname -- "${BASH_SOURCE[0]}")")"
+
+# shellcheck source=./platforms/versions.sh
+source "$SCRIPT_DIR/versions.sh"
+
 ## build sdl2 and libraries (ttf, mixer, image)
 
 export SDL_TOP_BUILD_DIR="SDL2_local_build_3ds"
@@ -173,15 +180,15 @@ mkdir -p "$SDL_ROOT_DIR"
 
 # build sdl2
 
-export SDL2_SRC_DIR="SDL2-2.30.6"
+export SDL2_SRC_DIR="SDL2-${SDL_3DS_VERSION}"
 
 if [ ! -d "$SDL2_SRC_DIR" ]; then
 
-    wget "https://github.com/libsdl-org/SDL/releases/download/release-2.30.6/SDL2-2.30.6.tar.gz"
-    tar xzf SDL2-2.30.6.tar.gz
-    rm -rf SDL2-2.30.6.tar.gz
+    wget "https://github.com/libsdl-org/SDL/releases/download/release-${SDL_3DS_VERSION}/SDL2-${SDL_3DS_VERSION}.tar.gz"
+    tar xzf "SDL2-${SDL_3DS_VERSION}.tar.gz"
+    rm -rf "SDL2-${SDL_3DS_VERSION}.tar.gz"
 
-    cd $SDL2_SRC_DIR
+    cd "$SDL2_SRC_DIR"
 
     cmake -S. "-B$SDL_BUILD_DIR" -DCMAKE_TOOLCHAIN_FILE="$DEVKITPRO/cmake/3DS.cmake" -DCMAKE_BUILD_TYPE=Release "-DCMAKE_INSTALL_PREFIX=$SDL_ROOT_DIR/"
     cmake --build "$SDL_BUILD_DIR"
@@ -195,13 +202,13 @@ export SDL_CMAKE_DIR="$SDL_ROOT_DIR/lib/cmake/SDL2"
 
 # build sdl2_ttf
 
-export SDL2_TTF_SRC_DIR="SDL2_ttf-2.22.0"
+export SDL2_TTF_SRC_DIR="SDL2_ttf-${SDL_TTF_3DS_VERSION}"
 
 if [ ! -d "$SDL2_TTF_SRC_DIR" ]; then
 
-    wget "https://github.com/libsdl-org/SDL_ttf/releases/download/release-2.22.0/SDL2_ttf-2.22.0.tar.gz"
-    tar xzf SDL2_ttf-2.22.0.tar.gz
-    rm -rf SDL2_ttf-2.22.0.tar.gz
+    wget "https://github.com/libsdl-org/SDL_ttf/releases/download/release-${SDL_TTF_3DS_VERSION}/SDL2_ttf-${SDL_TTF_3DS_VERSION}.tar.gz"
+    tar xzf "SDL2_ttf-${SDL_TTF_3DS_VERSION}.tar.gz"
+    rm -rf "SDL2_ttf-${SDL_TTF_3DS_VERSION}.tar.gz"
 
     cd $SDL2_TTF_SRC_DIR
 
@@ -215,13 +222,13 @@ fi
 
 # build sdl2_mixer
 
-export SDL2_MIXER_SRC_DIR="SDL2_mixer-2.8.0"
+export SDL2_MIXER_SRC_DIR="SDL2_mixer-${SDL_MIXER_3DS_VERSION}"
 
 if [ ! -d "$SDL2_MIXER_SRC_DIR" ]; then
 
-    wget "https://github.com/libsdl-org/SDL_mixer/releases/download/release-2.8.0/SDL2_mixer-2.8.0.tar.gz"
-    tar xzf SDL2_mixer-2.8.0.tar.gz
-    rm -rf SDL2_mixer-2.8.0.tar.gz
+    wget "https://github.com/libsdl-org/SDL_mixer/releases/download/release-${SDL_MIXER_3DS_VERSION}/SDL2_mixer-${SDL_MIXER_3DS_VERSION}.tar.gz"
+    tar xzf "SDL2_mixer-${SDL_MIXER_3DS_VERSION}.tar.gz"
+    rm -rf "SDL2_mixer-${SDL_MIXER_3DS_VERSION}.tar.gz"
 
     cd $SDL2_MIXER_SRC_DIR
 
@@ -235,13 +242,13 @@ fi
 
 # build sdl2_image
 
-export SDL2_IMAGE_SRC_DIR="SDL2_image-2.8.2"
+export SDL2_IMAGE_SRC_DIR="SDL2_image-${SDL_IMAGE_3DS_VERSION}"
 
 if [ ! -d "$SDL2_IMAGE_SRC_DIR" ]; then
 
-    wget "https://github.com/libsdl-org/SDL_image/releases/download/release-2.8.2/SDL2_image-2.8.2.tar.gz"
-    tar xzf SDL2_image-2.8.2.tar.gz
-    rm -rf SDL2_image-2.8.2.tar.gz
+    wget "https://github.com/libsdl-org/SDL_image/releases/download/release-${SDL_IMAGE_3DS_VERSION}/SDL2_image-${SDL_IMAGE_3DS_VERSION}.tar.gz"
+    tar xzf "SDL2_image-${SDL_IMAGE_3DS_VERSION}.tar.gz"
+    rm -rf "SDL2_image-${SDL_IMAGE_3DS_VERSION}.tar.gz"
 
     cd $SDL2_IMAGE_SRC_DIR
 

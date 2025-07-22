@@ -202,10 +202,11 @@ void Application::run() {
     return;
 #else
 
-    while (m_is_running
+    while (
+            m_is_running
 
 #if defined(__CONSOLE__)
-           and console::inMainLoop()
+            and console::inMainLoop()
 #endif
 
     ) {
@@ -383,7 +384,8 @@ void Application::update() {
                                 },
                                 [this](const scenes::Scene::Push& push) {
                                     spdlog::info("pushing back scene {}", magic_enum::enum_name(push.target_scene));
-                                    m_scene_stack.push_back(scenes::create_scene(*this, push.target_scene, push.layout)
+                                    m_scene_stack.push_back(
+                                            scenes::create_scene(*this, push.target_scene, push.layout)
                                     );
                                 },
                                 [this](scenes::Scene::RawPush& raw_push) {
@@ -432,17 +434,7 @@ void Application::update() {
 #if defined(_HAVE_DISCORD_SOCIAL_SDK)
 
     if (m_discord_instance.has_value()) {
-
-        switch (m_discord_instance->get_status()) {
-            case DiscordStatus::Error:
-                m_discord_instance = std::nullopt;
-                spdlog::warn("Error initializing the discord instance, it might not be running, destroying client!");
-                break;
-            case DiscordStatus::Starting:
-            case DiscordStatus::Ok:
-                DiscordInstance::update();
-                break;
-        }
+        DiscordInstance::update();
     }
 
 #endif
@@ -542,9 +534,10 @@ void Application::initialize() {
     emscripten_set_main_loop_arg(c_loop_entry, this, selected_fps, true);
     UNREACHABLE();
 #else
-    while ((not m_loading_info->m_finished_loading) and m_is_running
+    while (
+            (not m_loading_info->m_finished_loading) and m_is_running
 #if defined(__CONSOLE__)
-           and console::inMainLoop()
+            and console::inMainLoop()
 #endif
     ) {
         load_loop();
