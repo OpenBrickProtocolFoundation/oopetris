@@ -112,6 +112,13 @@ else
     exit 1
 fi
 
+# source dependency version information
+
+SCRIPT_DIR="$(realpath "$(dirname -- "${BASH_SOURCE[0]}")")"
+
+# shellcheck source=./platforms/versions.sh
+source "$SCRIPT_DIR/versions.sh"
+
 for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
     export KEY=${ARCH_KEYS[$INDEX]}
 
@@ -181,13 +188,6 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
     export OBJCOPY="llvm-objcop"
     export LLVM_CONFIG="llvm-config"
     unset PKG_CONFIG
-
-    # source dependency version information
-
-    SCRIPT_DIR="$(realpath "$(dirname -- "$0")")"
-
-    # shellcheck source=./platforms/versions.sh
-    source "$SCRIPT_DIR/versions.sh"
 
     ## BUILD dependencies not buildable with meson (to complicated to port)
 

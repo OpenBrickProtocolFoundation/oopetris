@@ -156,6 +156,13 @@ APP_ROMFS='$ROMFS'
 
 EOF
 
+# source dependency version information
+
+SCRIPT_DIR="$(realpath "$(dirname -- "${BASH_SOURCE[0]}")")"
+
+# shellcheck source=./platforms/versions.sh
+source "$SCRIPT_DIR/versions.sh"
+
 ## build sdl2 and libraries (ttf, mixer, image)
 
 export SDL_TOP_BUILD_DIR="SDL2_local_build_3ds"
@@ -170,13 +177,6 @@ cd "$SDL_TOP_BUILD_DIR" || exit 1
 echo "*" >.gitignore
 
 mkdir -p "$SDL_ROOT_DIR"
-
-# source dependency version information
-
-SCRIPT_DIR="$(realpath "$(dirname -- "$0")")"
-
-# shellcheck source=./platforms/versions.sh
-source  "$SCRIPT_DIR/versions.sh"
 
 # build sdl2
 
