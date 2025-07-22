@@ -6,6 +6,28 @@
 
 #include <fmt/format.h>
 
+namespace {
+
+    [[nodiscard]] std::string result_to_string(const discordpp::ClientResult& result) {
+        const auto error_type = result.Type();
+
+        if (error_type == discordpp::ErrorType::None) {
+            return "None";
+        }
+
+        if (error_type == discordpp::ErrorType::HTTPError) {
+            return fmt::format(
+                    "ErrorType: {} Message: {} Status: {} ErrorCode: {}", discordpp::EnumToString(error_type),
+                    result.Error(), discordpp::EnumToString(result.Status()), result.ErrorCode()
+            );
+        }
+
+        return fmt::format("ErrorType: {} Message: {}", discordpp::EnumToString(error_type), result.Error());
+    }
+
+} // namespace
+
+
 [[nodiscard]] std::string constants::discord ::get_asset_key(constants::discord::ArtAsset asset) {
 
     switch (asset) {
@@ -63,7 +85,7 @@ void DiscordInstance::after_ready() {
                     return;
                 }
 
-                spdlog::error("Current Connected User Error: {}", result.ToString());
+                spdlog::error("Current Connected User Error: {}", result_to_string(result));
             }
     );
 
@@ -122,7 +144,7 @@ void DiscordInstance::set_activity(DiscordActivityWrapper activity) {
         if (result.Successful()) {
             spdlog::info("Rich Presence updated successfully");
         } else {
-            spdlog::error("Rich Presence update failed: {}", result.ToString());
+            spdlog::error("Rich Presence update failed: {}", result_to_string(result));
         }
     });
 }
