@@ -58,7 +58,7 @@ if host_machine.cpu_family() == 'arm'
     arch_name = 'armeabi-v7a'
 elif host_machine.cpu_family() == 'aarch64'
     arch_name = 'arm64-v8a'
-elif host_machine.cpu_family() == 'x86' or ost_machine.cpu_family() == 'x86_64'
+elif host_machine.cpu_family() == 'x86' or host_machine.cpu_family() == 'x86_64'
     # name is already correct
 else
     error('unsupported android architecture: ' + host_machine.cpu_family())
