@@ -23,14 +23,16 @@ if not fs.exists(destination_directory)
 
     run_command(
         mkdir,
-        '-pv', destination_directory,
+        '-pv',
+        destination_directory,
         check: true,
     )
 
     run_command(
         unzip,
         aar_file,
-        '-d', destination_directory,
+        '-d',
+        destination_directory,
         check: true,
     )
 
