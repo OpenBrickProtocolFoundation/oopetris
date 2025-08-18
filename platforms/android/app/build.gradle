@@ -294,7 +294,7 @@ File getDiscordLib() {
     String target = getMesonBuildType() == 'release' ? 'release' : 'debug'
     String path = "../../../../subprojects/discord_social_sdk/lib/" + target + "/discord_partner_sdk.aar";
     File file = project.file(project.getLayout().getBuildDirectory().file(path));
-    if(!file.exists()){
+    if (!file.exists()) {
         throw new Exception("ERROR: discord aar is not present at the location we expected it to be!")
     }
 
@@ -322,7 +322,7 @@ android {
     }
 
     compileSdkVersion 35
-    ndkVersion "29.0.13599879"
+    ndkVersion = "29.0.13846066"
     defaultConfig {
         if (buildAsApplication) {
             applicationId "com.github.oopetris"
@@ -339,9 +339,9 @@ android {
         }
     }
     lint {
-        abortOnError false
+        abortOnError = false
     }
-    namespace 'com.github.oopetris'
+    namespace = 'com.github.oopetris'
     applicationVariants.all { variant ->
         tasks["merge${variant.name.capitalize()}Assets"]
                 .dependsOn("externalNativeBuild${variant.name.capitalize()}")
@@ -373,7 +373,7 @@ android {
         // Configures multiple APKs based on ABI.
         abi {
             // Enables building multiple APKs per ABI.
-            enable true
+            enable = true
             // By default all ABIs are included, so use reset() and include to specify that you only
             // want APKs for the ones with a ndk variant (4, android did in the past support more: https://developer.android.com/ndk/guides/abis.html#sa)
             // Resets the list of ABIs for Gradle to create APKs for to none.
@@ -381,7 +381,7 @@ android {
             // Specifies a list of ABIs for Gradle to create APKs for.
             include(*abisToUse)
             // Specifies that you don't want to also generate a universal APK that includes all ABIs.
-            universalApk(buildUniversalApk)
+            universalApk = buildUniversalApk
         }
     }
 

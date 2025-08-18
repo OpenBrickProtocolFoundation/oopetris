@@ -150,9 +150,9 @@ public:
 
     void handle_event(const SDL_Event& event) override;
 
-    virtual void update();
+    void update();
 
-    virtual void render() const;
+    void render() const;
 
 #if defined(__EMSCRIPTEN__)
     void loop_entry_emscripten();

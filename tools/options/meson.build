@@ -46,6 +46,11 @@ if get_option('run_in_ci')
         'checks': ['>=20', '<21'],
     }
 
+    clang_21_compiler = {
+        'id': 'clang',
+        'checks': ['>=21', '<22'],
+    }
+
     gcc_14_compiler = {
         'id': 'gcc',
         'checks': ['>=14', '<15'],
@@ -68,7 +73,7 @@ if get_option('run_in_ci')
 
     ci_config = {
         'cross_android': {
-            'compilers': [clang_20_compiler],
+            'compilers': [clang_21_compiler],
         },
         'cross_3ds': {
             'compilers': [gcc_14_compiler],
