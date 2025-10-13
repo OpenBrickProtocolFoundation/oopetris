@@ -51,6 +51,11 @@ if get_option('run_in_ci')
         'checks': ['>=15', '<16'],
     }
 
+    gcc_14_or_15_compiler = {
+        'id': 'gcc',
+        'checks': ['>=14', '<16'],
+    }
+
     msvc_compiler_current = {
         'id': 'msvc',
         'checks': ['>=19.43', '<20'],
