@@ -130,7 +130,7 @@ List getAndroidABIs() {
 /**
  * Determine the version
  * if you specify it explicitly, that will be used, otherwise meson introspect will be called
- * @return String
+ * @returns String
  */
 String getVersion() {
     String property = project.findProperty('VERSION')
@@ -319,14 +319,14 @@ android {
         targetCompatibility JavaVersion.VERSION_21
     }
 
-    compileSdkVersion 35
-    ndkVersion = "29.0.14206865"
+    compileSdkVersion 36
+    ndkVersion = "29.0.14033849"
     defaultConfig {
         if (buildAsApplication) {
             applicationId "com.github.oopetris"
         }
         minSdkVersion 21
-        targetSdkVersion 35
+        targetSdkVersion 36
         versionCode 7
         versionName(versionString)
     }
