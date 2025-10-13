@@ -2,7 +2,7 @@ project(
     'discord-social-sdk',
     'cpp',
     'c',
-    version: '1.4.9649',
+    version: '1.6.11894',
     meson_version: '>=1.4.0',
     default_options: {
         'cpp_std': ['c++17'],
@@ -66,6 +66,8 @@ if not meson.is_cross_build()
     elif host_machine.system() == 'windows'
         if host_machine.cpu_family() == 'x86_64'
             lib_base_dir = get_option('default_library') == 'static' ? 'bin' : 'lib'
+        elif host_machine.cpu_family() == 'aarch64'
+            lib_base_dir = (get_option('default_library') == 'static' ? 'bin' : 'lib') / 'arm64'
         else
             error('unsupported architecture for windows: ' + host_machine.cpu_family())
         endif
