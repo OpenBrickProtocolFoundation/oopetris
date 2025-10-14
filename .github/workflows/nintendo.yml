@@ -30,7 +30,6 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: '0'
-
       # NOTE: meson has no dependencies, so --break-system-packages doesn't really break anything!
       - name: Setup Meson
         run: |
