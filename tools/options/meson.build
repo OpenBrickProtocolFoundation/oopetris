@@ -1,15 +1,70 @@
 oopetris_author = 'Coder2k'
 oopetris_name = 'OOPetris'
 
+cpp = meson.get_compiler('cpp')
+
+common_compiler_args = cpp.get_supported_arguments(
+    '-Wassign-enum',
+    '-Wenum-conversion',
+    '-Wenum-switch',
+    '-fstrict-enums',
+    '-Wenum-identifier',
+    '-Wenum-compare',
+    '-Wenum-enum-conversion',
+    '-Wenum-float-conversion',
+    '-Wenum-too-large',
+    '-Wenum-compare-switch',
+    '-Wenum-compare-conditional',
+    '-fno-strict-aliasing',
+    '-Wpointer-arith',
+    '-Wmissing-declarations',
+    '-Wformat=2',
+    '-Wstrict-prototypes',
+    '-Wmissing-prototypes',
+    '-Wnested-externs',
+    '-Wold-style-definition',
+    '-Wundef',
+    '-Wunused',
+    '-Wcast-align',
+    '-Wmissing-format-attribute',
+    '-Wmissing-include-dirs',
+    '-Wlogical-op',
+    '-Wignored-qualifiers',
+    '-Werror=redundant-decls',
+    '-Werror=implicit',
+    '-Werror=nonnull',
+    '-Werror=init-self',
+    '-Werror=main',
+    '-Werror=missing-braces',
+    '-Werror=sequence-point',
+    '-Werror=return-type',
+    '-Werror=trigraphs',
+    '-Werror=array-bounds',
+    '-Werror=write-strings',
+    '-Werror=address',
+    '-Werror=int-to-pointer-cast',
+    '-Werror=pointer-to-int-cast',
+    '-Werror=empty-body',
+    '-Werror=write-strings',
+    '-Werror=strict-aliasing',
+    '-Wno-sign-compare',
+    '-Wno-cast-function-type',
+    '-Wno-unused-parameter',
+    '-Wno-missing-field-initializers',
+    '-Wno-type-limits',
+    '-Wshadow',
+    '-Wfloat-conversion',
+)
+
 core_lib = {
     'inc_dirs': [],
-    'compile_args': ['-DOOPETRIS_VERSION=' + meson.project_version()],
+    'compile_args': ['-DOOPETRIS_VERSION=' + meson.project_version()] + common_compiler_args,
     'deps': [],
 }
 
 recordings_lib = {
     'inc_dirs': [],
-    'compile_args': [],
+    'compile_args': [] + common_compiler_args,
     'deps': [],
 }
 
@@ -19,7 +74,7 @@ graphics_lib = {
         '-DOOPETRIS_VERSION=' + meson.project_version(),
         '-DOOPETRIS_NAME=' + oopetris_name,
         '-DOOPETRIS_AUTHOR=' + oopetris_author,
-    ],
+    ] + common_compiler_args,
     'deps': [],
 }
 
