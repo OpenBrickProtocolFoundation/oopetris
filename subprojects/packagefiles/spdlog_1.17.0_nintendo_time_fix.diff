@@ -15,7 +15,7 @@ index 92dfe12..5ebc0e3 100644
      auto offset_seconds = utc_time_t - local_time_t;
      return static_cast<int>(offset_seconds / 60);
  }
-+#elif defined(__3DS__)
++#elif defined(__3DS__) || defined(__SWITCH__)
 +SPDLOG_INLINE int utc_minutes_offset(const std::tm &/* tm */) {
 +    throw_spdlog_ex("Not implemented yet on this platform", errno);
 +}
