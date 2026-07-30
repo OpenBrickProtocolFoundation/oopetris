@@ -12,11 +12,11 @@ export SDL_IMAGE_3DS_VERSION="2.8.12"
 
 ## android section
 
-export MPG123_ANDROID_VERSION="1.32.10"
+export MPG123_ANDROID_VERSION="1.33.6"
 
 export FLAC_ANDROID_VERSION="1.5.0"
 
-export OPENSSL_ANDROID_VERSION="3.4.1"
+export OPENSSL_ANDROID_VERSION="3.6.3"
 
 
 ### NDK section (still android)
