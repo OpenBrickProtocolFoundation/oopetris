@@ -148,13 +148,14 @@ if (
 endif
 
 if fmt_use_header_only
-    fmt_header_only_dep = dependency(
-        'fmt_header_only',
+    fmt_dep = dependency(
+        'fmt',
         required: true,
-        allow_fallback: true,
+        fallback: ['fmt', 'fmt_header_only_dep'],
+        default_options: {
+            'header-only': true,
+        },
     )
-    meson.override_dependency('fmt', fmt_header_only_dep)
-    fmt_dep = fmt_header_only_dep
 else
     fmt_dep = dependency(
         'fmt',
