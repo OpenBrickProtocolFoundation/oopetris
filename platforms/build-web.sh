@@ -96,12 +96,14 @@ fi
 # shellcheck disable=SC1091
 EMSDK_QUIET=1 source "$EMSCRIPTEN_ROOT/emsdk_env.sh" >/dev/null
 
-## build theneeded dependencies
+## build the needed dependencies
 embuilder build sdl2-mt harfbuzz-mt freetype zlib sdl2_ttf mpg123 "sdl2_mixer-mp3-mt" libpng-mt "sdl2_image:formats=png,svg:mt=1" icu-mt
 
 export EMSCRIPTEN_SYS_ROOT="$EMSCRIPTEN_UPSTREAM_ROOT/cache/sysroot"
 
 export BUILD_DIR="build/web"
+
+export PKG_CONFIG_PATH="$EMSCRIPTEN_SYS_ROOT/lib/pkgconfig"
 
 export CC="emcc"
 export CXX="em++"
@@ -168,10 +170,20 @@ c_link_args = [$LINK_FLAGS]
 cpp_link_args = [$LINK_FLAGS]
 
 [properties]
+pkg_config_libdir = '$PKG_CONFIG_PATH'
 needs_exe_wrapper = true
 sys_root = '$EMSCRIPTEN_SYS_ROOT'
 
 APP_ROMFS='$ROMFS/assets/'
+
+[cmake]
+
+CMAKE_FIND_ROOT_PATH_MODE_PROGRAM  = 'BOTH'
+CMAKE_FIND_ROOT_PATH_MODE_LIBRARY  = 'ONLY'
+CMAKE_FIND_ROOT_PATH_MODE_INCLUDE  = 'ONLY'
+CMAKE_FIND_ROOT_PATH_MODE_PACKAGE  = 'ONLY'
+
+CMAKE_FIND_ROOT_PATH = '$EMSCRIPTEN_SYS_ROOT/lib/cmake'
 
 EOF
 

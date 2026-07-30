@@ -178,6 +178,8 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
     export BUILD_DIR="build/android-$ARM_TARGET_ARCH"
 
+    export PKG_CONFIG_PATH="$SYS_ROOT/usr/lib/pkgconfig"
+
     export CC="$ARM_TOOL_TRIPLE-clang"
     export CXX="$ARM_TOOL_TRIPLE-clang++"
     export LD="llvm-ld"
@@ -412,8 +414,17 @@ prefix = '$SYS_ROOT'
 libdir = '$LIB_PATH'
 
 [properties]
-pkg_config_libdir = '$SYS_ROOT/usr/lib/pkgconfig'
+pkg_config_libdir = '$PKG_CONFIG_PATH'
 sys_root = '${SYS_ROOT}'
+
+[cmake]
+
+CMAKE_FIND_ROOT_PATH_MODE_PROGRAM  = 'BOTH'
+CMAKE_FIND_ROOT_PATH_MODE_LIBRARY  = 'ONLY'
+CMAKE_FIND_ROOT_PATH_MODE_INCLUDE  = 'ONLY'
+CMAKE_FIND_ROOT_PATH_MODE_PACKAGE  = 'ONLY'
+
+CMAKE_FIND_ROOT_PATH = '$SYS_ROOT/usr/lib/cmake'
 
 EOF
 
