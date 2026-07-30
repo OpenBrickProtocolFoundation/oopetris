@@ -83,14 +83,14 @@ jobs:
 
           - name: MacOS
             os: macos
-            os-version: 13
+            os-version: 26-intel
             arm: false
             shell: bash
             fatal_warnings: true
 
           - name: MacOS (Arm64)
             os: macos
-            os-version: 15
+            os-version: 26
             arm: true
             shell: bash
             fatal_warnings: true
