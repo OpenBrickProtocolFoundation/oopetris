@@ -65,10 +65,15 @@ export EMSCRIPTEN_ROOT
 if [ ! -d "$EMSCRIPTEN_ROOT" ]; then
     git clone https://github.com/emscripten-core/emsdk.git "$EMSCRIPTEN_ROOT"
     git -C "$EMSCRIPTEN_ROOT" checkout "$EMSCRIPTEN_RELEASE_TAG"
+else
+    git -C "$EMSCRIPTEN_ROOT" fetch
+    git -C "$EMSCRIPTEN_ROOT" checkout "$EMSCRIPTEN_RELEASE_TAG"
 fi
 
-"$EMSCRIPTEN_ROOT/emsdk" install "$EMSCRIPTEN_RELEASE_TAG"
-"$EMSCRIPTEN_ROOT/emsdk" activate "$EMSCRIPTEN_RELEASE_TAG"
+export EMSDK_NODE_TOOL="node-$EMSDK_EXECUTE_NODE_VERSION-64bit"
+
+"$EMSCRIPTEN_ROOT/emsdk" install "$EMSCRIPTEN_RELEASE_TAG" "$EMSDK_NODE_TOOL"
+"$EMSCRIPTEN_ROOT/emsdk" activate "$EMSCRIPTEN_RELEASE_TAG" "$EMSDK_NODE_TOOL"
 
 EMSCRIPTEN_UPSTREAM_ROOT="$EMSCRIPTEN_ROOT/upstream/emscripten"
 
@@ -113,10 +118,11 @@ export ROMFS="platforms/romfs"
 
 export PACKAGE_FLAGS="'--use-port=sdl2', '--use-port=harfbuzz', '--use-port=freetype', '--use-port=zlib', '--use-port=sdl2_ttf', '--use-port=mpg123', '--use-port=sdl2_mixer', '-sSDL2_MIXER_FORMATS=[\"mp3\"]','--use-port=libpng', '--use-port=sdl2_image','-sSDL2_IMAGE_FORMATS=[\"png\",\"svg\"]', '--use-port=icu'"
 
+#TODO use '-sMEMORY64', '-m64',  and target wasm64
 export COMMON_FLAGS="'-fexceptions', '-pthread', '-sUSE_PTHREADS=1', '-sEXCEPTION_CATCHING_ALLOWED=[..]', $PACKAGE_FLAGS"
 
 # TODO see if ALLOW_MEMORY_GROWTH is needed, but if we load ttf's and music it likely is and we don't have to debug OOm crashes, that aren't handled by some third party library, which is painful
-export LINK_FLAGS="$COMMON_FLAGS, '-sEXPORT_ALL=1', '-sUSE_WEBGPU=1', '-sWASM=1', '-sALLOW_MEMORY_GROWTH=1', '-sASSERTIONS=1','-sERROR_ON_UNDEFINED_SYMBOLS=1', '-sFETCH=1', '-sEXIT_RUNTIME=1'"
+export LINK_FLAGS="$COMMON_FLAGS, '-sEXPORT_ALL=1', '-sWASM=1', '-sALLOW_MEMORY_GROWTH=1', '-sASSERTIONS=1','-sERROR_ON_UNDEFINED_SYMBOLS=1', '-sFETCH=1', '-sEXIT_RUNTIME=1'"
 export COMPILE_FLAGS="$COMMON_FLAGS ,'-DAUDIO_PREFER_MP3'"
 
 export CROSS_FILE="./platforms/crossbuild/web.ini"
