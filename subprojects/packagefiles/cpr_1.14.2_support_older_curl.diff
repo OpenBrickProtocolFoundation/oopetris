@@ -1,0 +1,25 @@
+diff --git a/meson.build b/meson.build
+index c80bf55..f51bdc7 100644
+--- a/meson.build
++++ b/meson.build
+@@ -8,9 +8,19 @@ project(
+ 
+ override_cpp = 'cpp_std=c++17'
+ 
++curl_version = '>=7.71.0'
++
++if meson.is_cross_build()
++  if host_machine.system() == 'switch'
++    curl_version = '>=7.69.1'
++  else
++    error('Unhandled cross built system: ' + host_machine.system())
++  endif
++endif
++
+ curl_dep = dependency(
+   'libcurl',
+-  version: '>=7.71.0',
++  version: curl_version,
+ )
+ thread_dep = dependency('threads')
+ 
