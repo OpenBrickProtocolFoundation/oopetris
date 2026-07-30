@@ -32,9 +32,11 @@ jobs:
       - name: Install dependencies
         run: |
           apk update
-          apk add wget meson ca-certificates samurai git openssl-dev openssl pkgconf sdl2 sdl2-dev sdl2_mixer-dev sdl2_ttf-dev sdl2_mixer-dev sdl2_image-dev dbus-dev ${{ ( matrix.config.use-clang == true ) && 'lld21 clang21' || 'gcc g++' }} ${{ ( matrix.config.use-clang == true && matrix.config.use-clang_stdlib == true ) && 'libc++ libc++-dev llvm-libunwind llvm-libunwind-dev ' || '' }}
+          apk add wget meson ca-certificates samurai git openssl-dev openssl binutils patch pkgconf sdl2 sdl2-dev sdl2_mixer-dev sdl2_ttf-dev sdl2_mixer-dev sdl2_image-dev dbus-dev ${{ ( matrix.config.use-clang == true ) && 'lld21 clang21' || 'gcc g++' }} ${{ ( matrix.config.use-clang == true && matrix.config.use-clang_stdlib == true ) && 'libc++ libc++-dev llvm-libunwind llvm-libunwind-dev gcc' || 'gcc' }}
           echo "CC=${{ matrix.config.use-clang == true && 'clang-21' || 'gcc' }}" >> "$GITHUB_ENV"
           echo "CXX=${{ matrix.config.use-clang == true && 'clang++-21' || 'g++' }}" >> "$GITHUB_ENV"
+          echo "CC_LD=${{ matrix.config.use-clang == true && 'lld' || 'ld' }}" >> "$GITHUB_ENV"
+          echo "CXX_LD=${{ matrix.config.use-clang == true && 'lld' || 'ld' }}" >> "$GITHUB_ENV"
 
       - uses: actions/checkout@v7
         with:
