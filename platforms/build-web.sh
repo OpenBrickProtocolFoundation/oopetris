@@ -210,7 +210,7 @@ fi
 
 meson compile -C "$BUILD_DIR"
 
-if [ -n "$ENABLE_TESTING" ]; then
+if [ -n "${ENABLE_TESTING:-}" ]; then
 
     meson test -C "$BUILD_DIR"
 
