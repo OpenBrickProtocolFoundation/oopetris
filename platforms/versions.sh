@@ -17,3 +17,14 @@ export MPG123_ANDROID_VERSION="1.32.10"
 export FLAC_ANDROID_VERSION="1.5.0"
 
 export OPENSSL_ANDROID_VERSION="3.4.1"
+
+
+### NDK section (still android)
+
+export NDK_VER_DOWNLOAD="r29-beta3"
+export NDK_VER_DESC="r29-beta3"
+
+
+# emscripten section
+
+export EMSCRIPTEN_RELEASE_TAG="4.0.8"

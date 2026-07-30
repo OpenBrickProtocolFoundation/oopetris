@@ -11,8 +11,9 @@ if [ ! -d "toolchains" ]; then
     mkdir -p toolchains
 fi
 
-export NDK_VER_DOWNLOAD="r29-beta3"
-export NDK_VER_DESC="r29-beta3"
+# shellcheck source=./platforms/versions.sh
+source "$SCRIPT_DIR/versions.sh"
+
 
 export BASE_PATH="$PWD/toolchains/android-ndk-$NDK_VER_DESC"
 export ANDROID_NDK_HOME="$BASE_PATH"

@@ -49,10 +49,12 @@ if [ ! -d "toolchains" ]; then
     mkdir -p toolchains
 fi
 
+# shellcheck source=./platforms/versions.sh
+source "$SCRIPT_DIR/versions.sh"
+
+
 EMSCRIPTEN_ROOT="$(pwd)/toolchains/emsdk"
 export EMSCRIPTEN_ROOT
-
-export EMSCRIPTEN_RELEASE_TAG="4.0.8"
 
 if [ ! -d "$EMSCRIPTEN_ROOT" ]; then
     git clone https://github.com/emscripten-core/emsdk.git "$EMSCRIPTEN_ROOT"
