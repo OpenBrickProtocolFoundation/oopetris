@@ -27,4 +27,5 @@ export NDK_VER_DESC="r29"
 
 # emscripten section
 
-export EMSCRIPTEN_RELEASE_TAG="4.0.8"
+export EMSCRIPTEN_RELEASE_TAG="6.0.5"
+
