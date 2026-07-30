@@ -17,8 +17,8 @@ We use meson and cross-compilation files, everything is wrapped into shell scrip
 
 
 ```bash
-./platforms/build-3ds.sh 
+./platforms/build.sh 3ds 
 
 ```
 After that you can find the runnable executable (also supports emulators)
-in `build-3ds/oopetris.3dsx`
+in `build/3ds/oopetris.3dsx`

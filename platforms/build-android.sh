@@ -14,6 +14,8 @@ fi
 # shellcheck source=./platforms/versions.sh
 source "$SCRIPT_DIR/versions.sh"
 
+# shellcheck source=./platforms/helper.sh
+source "$SCRIPT_DIR/helper.sh"
 
 export BASE_PATH="$PWD/toolchains/android-ndk-$NDK_VER_DESC"
 export ANDROID_NDK_HOME="$BASE_PATH"
@@ -120,6 +122,9 @@ SCRIPT_DIR="$(realpath "$(dirname -- "${BASH_SOURCE[0]}")")"
 # shellcheck source=./platforms/versions.sh
 source "$SCRIPT_DIR/versions.sh"
 
+# shellcheck source=./platforms/helper.sh
+source "$SCRIPT_DIR/helper.sh"
+
 for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
     export KEY=${ARCH_KEYS[$INDEX]}
 
@@ -177,7 +182,7 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
     fi
 
-    export BUILD_DIR="build-$ARM_TARGET_ARCH"
+    export BUILD_DIR="build/android-$ARM_TARGET_ARCH"
 
     export CC="$ARM_TOOL_TRIPLE-clang"
     export CXX="$ARM_TOOL_TRIPLE-clang++"
@@ -377,7 +382,12 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
     export LINK_FLAGS="'-fPIE','-L$SYS_ROOT/usr/lib'"
 
-    cat <<EOF >"./platforms/crossbuild-android-$ARM_TARGET_ARCH.ini"
+    CROSS_FILE="./platforms/crossbuild/android-$ARM_TARGET_ARCH.ini"
+
+    validate_parent_dir "$CROSS_FILE"
+
+
+    cat <<EOF >"$CROSS_FILE"
 [host_machine]
 system = 'android'
 cpu_family = '$MESON_CPU_FAMILY'
@@ -452,7 +462,7 @@ EOF
             "--wipe" \
             "--includedir=$INC_PATH" \
             "--libdir=$SYS_ROOT/usr/lib/$ARM_NAME_TRIPLE/$SDK_VERSION" \
-            --cross-file "./platforms/crossbuild-android-$ARM_TARGET_ARCH.ini" \
+            --cross-file "$CROSS_FILE" \
             "-Dbuildtype=$BUILDTYPE" \
             -Dsdl2:use_hidapi=enabled \
             -Dclang_libcpp=disabled \

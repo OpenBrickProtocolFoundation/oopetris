@@ -16,8 +16,8 @@ We use meson and cross-compilation files, everything is wrapped into shell scrip
 
 
 ```bash
-./platforms/build-switch.sh 
+./platforms/build.sh switch 
 
 ```
 After that you can find the runnable executable (also supports emulators)
-in `build-switch/oopetris.nro`
+in `build/switch/oopetris.nro`

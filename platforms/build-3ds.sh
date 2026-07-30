@@ -63,7 +63,7 @@ export PKG_CONFIG_PATH="$PKG_CONFIG_PATH_PORTLIB"
 
 export ROMFS="platforms/romfs"
 
-export BUILD_DIR="build-3ds"
+export BUILD_DIR="build/3ds"
 
 export TOOL_PREFIX="arm-none-eabi"
 
@@ -95,7 +95,19 @@ export COMPILE_FLAGS="'-D_3DS','-D__3DS__','-D__CONSOLE__','-D__NINTENDO_CONSOLE
 
 export LINK_FLAGS="'-L$PORTLIBS_LIB','-L$LIBCTRU_LIB','-fPIE','-specs=$ARCH_DEVKIT_FOLDER/$TOOL_PREFIX/lib/3dsx.specs'"
 
-export CROSS_FILE="./platforms/crossbuild-3ds.ini"
+# source dependency version information
+
+SCRIPT_DIR="$(realpath "$(dirname -- "${BASH_SOURCE[0]}")")"
+
+# shellcheck source=./platforms/versions.sh
+source "$SCRIPT_DIR/versions.sh"
+
+# shellcheck source=./platforms/helper.sh
+source "$SCRIPT_DIR/helper.sh"
+
+export CROSS_FILE="./platforms/crossbuild/3ds.ini"
+
+validate_parent_dir "$CROSS_FILE"
 
 cat <<EOF >"$CROSS_FILE"
 [host_machine]
@@ -156,16 +168,10 @@ APP_ROMFS='$ROMFS'
 
 EOF
 
-# source dependency version information
-
-SCRIPT_DIR="$(realpath "$(dirname -- "${BASH_SOURCE[0]}")")"
-
-# shellcheck source=./platforms/versions.sh
-source "$SCRIPT_DIR/versions.sh"
 
 ## build sdl2 and libraries (ttf, mixer, image)
 
-export SDL_TOP_BUILD_DIR="SDL2_local_build_3ds"
+export SDL_TOP_BUILD_DIR=".private/SDL2_local_build_3ds"
 export SDL_BUILD_DIR="build_dir"
 
 export SDL_ROOT_DIR="$PORTLIBS_PATH_3DS"

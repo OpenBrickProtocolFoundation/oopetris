@@ -86,6 +86,7 @@ cmake-build-*
 /recordings/
 logs/
 /build-*
+/build/
 /toolchains/
 .flatpak-builder/
 flatpak-build/

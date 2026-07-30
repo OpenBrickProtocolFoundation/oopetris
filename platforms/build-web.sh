@@ -52,6 +52,9 @@ fi
 # shellcheck source=./platforms/versions.sh
 source "$SCRIPT_DIR/versions.sh"
 
+# shellcheck source=./platforms/helper.sh
+source "$SCRIPT_DIR/helper.sh"
+
 
 EMSCRIPTEN_ROOT="$(pwd)/toolchains/emsdk"
 export EMSCRIPTEN_ROOT
@@ -90,7 +93,7 @@ embuilder build sdl2-mt harfbuzz-mt freetype zlib sdl2_ttf mpg123 "sdl2_mixer-mp
 
 export EMSCRIPTEN_SYS_ROOT="$EMSCRIPTEN_UPSTREAM_ROOT/cache/sysroot"
 
-export BUILD_DIR="build-web"
+export BUILD_DIR="build/web"
 
 export CC="emcc"
 export CXX="em++"
@@ -113,7 +116,9 @@ export COMMON_FLAGS="'-fexceptions', '-pthread', '-sUSE_PTHREADS=1', '-sEXCEPTIO
 export LINK_FLAGS="$COMMON_FLAGS, '-sEXPORT_ALL=1', '-sUSE_WEBGPU=1', '-sWASM=1', '-sALLOW_MEMORY_GROWTH=1', '-sASSERTIONS=1','-sERROR_ON_UNDEFINED_SYMBOLS=1', '-sFETCH=1', '-sEXIT_RUNTIME=1'"
 export COMPILE_FLAGS="$COMMON_FLAGS ,'-DAUDIO_PREFER_MP3'"
 
-export CROSS_FILE="./platforms/crossbuild-web.ini"
+export CROSS_FILE="./platforms/crossbuild/web.ini"
+
+validate_parent_dir "$CROSS_FILE"
 
 cat <<EOF >"$CROSS_FILE"
 [host_machine]

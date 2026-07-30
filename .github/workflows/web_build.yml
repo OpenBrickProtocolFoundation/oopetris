@@ -29,11 +29,11 @@ jobs:
 
       - name: Build
         run: |
-          ENABLE_TESTING=1 bash ./platforms/build-web.sh complete_rebuild release CI
+          ENABLE_TESTING=1 bash ./platforms/build.sh web complete_rebuild release CI
 
       # TODO upload page to gh-pages!
       - name: Upload artifacts
         uses: actions/upload-artifact@v7
         with:
           name: oopetris-assets
-          path: build-web/src/executables/
+          path: build/web/src/executables/

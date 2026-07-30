@@ -19,7 +19,7 @@ To build all just don't specify any architecture in the build steps.
 The first step runs a shell script, that downloads the used Android NDK and builds the `.so` (shared library) that we use with and Android Java App, it so you just need to run:
 
 ```bash
-./platforms/build-android.sh <arch> # one of the 4 mentioned ones, or nothing, to build all 
+./platforms/build,sh android <arch> # one of the 4 mentioned ones, or nothing, to build all 
 ```
 
 

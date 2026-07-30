@@ -45,6 +45,17 @@ else
     exit 1
 fi
 
+# source dependency version information
+
+SCRIPT_DIR="$(realpath "$(dirname -- "${BASH_SOURCE[0]}")")"
+
+# shellcheck source=./platforms/versions.sh
+source "$SCRIPT_DIR/versions.sh"
+
+# shellcheck source=./platforms/helper.sh
+source "$SCRIPT_DIR/helper.sh"
+
+
 export DEVKITPRO="/opt/devkitpro"
 export ARCH_DEVKIT_FOLDER="$DEVKITPRO/devkitA64"
 export COMPILER_BIN="$ARCH_DEVKIT_FOLDER/bin"
@@ -61,7 +72,7 @@ export PKG_CONFIG_PATH="$PORTLIBS_LIB/pkgconfig/"
 
 export ROMFS="platforms/romfs"
 
-export BUILD_DIR="build-switch"
+export BUILD_DIR="build/switch"
 
 export TOOL_PREFIX="aarch64-none-elf"
 
@@ -93,7 +104,9 @@ export COMPILE_FLAGS="'-D__SWITCH__','-D__CONSOLE__','-D__NINTENDO_CONSOLE__','-
 
 export LINK_FLAGS="'-L$PORTLIBS_LIB','-L$LIBNX_LIB','-fPIE','-specs=$DEVKITPRO/libnx/switch.specs'"
 
-export CROSS_FILE="./platforms/crossbuild-switch.ini"
+export CROSS_FILE="./platforms/crossbuild/switch.ini"
+
+validate_parent_dir "$CROSS_FILE"
 
 cat <<EOF >"$CROSS_FILE"
 [host_machine]
