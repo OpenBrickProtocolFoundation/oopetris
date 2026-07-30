@@ -98,7 +98,7 @@ export ENDIANESS="little"
 export COMMON_FLAGS="'-ftls-model=local-exec','-march=armv8-a+crc+crypto','-mtune=cortex-a57','-mtp=soft','-ftls-model=local-exec','-fPIC','-ffunction-sections','-fdata-sections'"
 
 # compat flags for some POSIX functions
-export EXTRA_COMPILE_FLAGS="'-D_XOPEN_SOURCE'"
+export EXTRA_COMPILE_FLAGS="'-D_XOPEN_SOURCE', '-D_DEFAULT_SOURCE'"
 
 export COMPILE_FLAGS="'-D__SWITCH__','-D__CONSOLE__','-D__NINTENDO_CONSOLE__','-isystem','$LIBNX/include','-I$PORTLIBS_PATH_SWITCH/include'"
 
