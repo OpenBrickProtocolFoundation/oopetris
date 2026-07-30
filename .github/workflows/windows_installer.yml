@@ -20,7 +20,7 @@ jobs:
           fetch-depth: '0'
 
       - name: Setup MSVC (Windows)
-        uses: TheMrMilchmann/setup-msvc-dev@v3
+        uses: TheMrMilchmann/setup-msvc-dev@v4
         with:
           arch: x64
           toolset: '14.44'
