@@ -11,6 +11,10 @@ if [ ! -d "toolchains" ]; then
     mkdir -p toolchains
 fi
 
+# source dependency version information
+
+SCRIPT_DIR="$(realpath "$(dirname -- "${BASH_SOURCE[0]}")")"
+
 # shellcheck source=./platforms/versions.sh
 source "$SCRIPT_DIR/versions.sh"
 
@@ -115,15 +119,6 @@ else
     exit 1
 fi
 
-# source dependency version information
-
-SCRIPT_DIR="$(realpath "$(dirname -- "${BASH_SOURCE[0]}")")"
-
-# shellcheck source=./platforms/versions.sh
-source "$SCRIPT_DIR/versions.sh"
-
-# shellcheck source=./platforms/helper.sh
-source "$SCRIPT_DIR/helper.sh"
 
 for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
     export KEY=${ARCH_KEYS[$INDEX]}
