@@ -1,13 +1,13 @@
 diff --git a/meson.build b/meson.build
-index 1bb306c..dbc08b3 100644
+index 9d0fa22..b8d00ef 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -32,6 +32,10 @@ else
+@@ -34,6 +34,10 @@ else
    spdlog_compile_args += '-DSPDLOG_FMT_EXTERNAL'
  endif
  
 +if get_option('no_tls')
-+spdlog_compile_args += '-DSPDLOG_NO_TLS'
++  spdlog_compile_args += '-DSPDLOG_NO_TLS'
 +endif
 +
  if get_option('compile_library')
