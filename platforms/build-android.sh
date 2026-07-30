@@ -23,7 +23,7 @@ export ANDROID_NDK="$BASE_PATH"
 
 if [ ! -d "$BASE_PATH" ]; then
 
-    cd toolchains
+    pushd toolchains
 
     if [ ! -e "android-ndk-$NDK_VER_DOWNLOAD-linux.zip" ]; then
 
@@ -32,7 +32,7 @@ if [ ! -d "$BASE_PATH" ]; then
     fi
     unzip -q "android-ndk-$NDK_VER_DOWNLOAD-linux.zip"
 
-    cd ..
+    popd
 fi
 
 if [ ! -e "$BASE_PATH/meta/abis.json" ]; then
@@ -153,7 +153,6 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
     if [ "$COMPILE_TYPE" == "complete_rebuild" ] || ! [ -e "$SYS_ROOT" ]; then
 
-        LAST_DIR=$PWD
 
         if [ -d "${SYS_ROOT:?}/" ]; then
 
@@ -162,7 +161,7 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
         mkdir -p "${SYS_ROOT:?}/usr/lib"
 
-        cd "${SYS_ROOT:?}/usr/"
+        pushd "${SYS_ROOT:?}/usr/"
 
         ln -s "$HOST_ROOT/sysroot/usr/local" "${SYS_ROOT:?}/usr/"
 
@@ -178,7 +177,7 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
         find "$HOST_ROOT/sysroot/usr/lib/$ARM_NAME_TRIPLE/$SDK_VERSION/" -maxdepth 1 -name "*.o" -exec ln -s "{}" "${SYS_ROOT:?}/usr/lib/" \;
 
-        cd "$LAST_DIR"
+        popd
 
     fi
 
@@ -199,9 +198,7 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
     ## build mpg123 with cmake (meson port is to much work atm, for this feature)
 
-    LAST_DIR="$PWD"
-
-    cd "$SYS_ROOT"
+    pushd "$SYS_ROOT"
 
     BUILD_DIR_MPG123="build-mpg123"
 
@@ -251,13 +248,12 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
     fi
 
-    cd "$LAST_DIR"
+    popd
 
     ## build flac with cmake (meson port doesn't work for 32 bits machines atm) (we need to check for fseeko and ftello correctly in there)
 
-    LAST_DIR="$PWD"
 
-    cd "$SYS_ROOT"
+    pushd "$SYS_ROOT"
 
     BUILD_DIR_FLAC="build-flac"
 
@@ -306,13 +302,11 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
     fi
 
-    cd "$LAST_DIR"
+    popd
 
     ## build openssl with make (meson port is to much work atm, for this feature)
 
-    LAST_DIR="$PWD"
-
-    cd "$SYS_ROOT"
+    pushd "$SYS_ROOT"
 
     BUILD_DIR_OPENSSL="build-openssl"
 
@@ -367,7 +361,7 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
     fi
 
-    cd "$LAST_DIR"
+    popd
 
     ## END of manual build of dependencies
 
