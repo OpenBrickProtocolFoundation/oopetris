@@ -194,7 +194,7 @@ if [ "$COMPILE_TYPE" == "complete_rebuild" ] || [ ! -e "$BUILD_DIR" ]; then
         -Dcurl:tests=disabled \
         -Dcurl:unittests=disabled \
         -Dcurl:bearer-auth=enabled \
-        -Dcurl:brotli=enabled \
+        -Dcurl:brotli=auto \
         -Dcurl:libz=enabled \
         "-Drun_in_ci=$RUN_IN_CI" \
         --fatal-meson-warnings
