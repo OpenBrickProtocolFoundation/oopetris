@@ -21,8 +21,8 @@ export OPENSSL_ANDROID_VERSION="3.6.3"
 
 ### NDK section (still android)
 
-export NDK_VER_DOWNLOAD="r29-beta3"
-export NDK_VER_DESC="r29-beta3"
+export NDK_VER_DOWNLOAD="r29"
+export NDK_VER_DESC="r29"
 
 
 # emscripten section
