@@ -9,7 +9,7 @@ on:
 jobs:
   nintendo-build:
     name: Nintendo ${{ matrix.config.name }} CI
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     container:
       image: devkitpro/${{ matrix.config.container }}:${{ matrix.config.revision }} ## based on debian:buster-slim
     strategy:
