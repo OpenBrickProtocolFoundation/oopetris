@@ -36,7 +36,7 @@ jobs:
           echo "CC=${{ matrix.config.use-clang == true && 'clang-20' || 'gcc' }}" >> "$GITHUB_ENV"
           echo "CXX=${{ matrix.config.use-clang == true && 'clang++-20' || 'g++' }}" >> "$GITHUB_ENV"
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: '0'
   
