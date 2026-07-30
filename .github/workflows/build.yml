@@ -222,7 +222,7 @@ jobs:
         run: meson compile -C build
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.config.name }} Executable
           path: build/src/executables/oopetris*

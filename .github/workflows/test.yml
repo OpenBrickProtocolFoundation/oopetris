@@ -57,7 +57,7 @@ jobs:
           # TODO: use the diff feature of that later when we require test coverage on PR's to not go down
 
       - name: Upload test coverage artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Tests coverage artifacts
           path: |
