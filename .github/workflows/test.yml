@@ -45,7 +45,7 @@ jobs:
           ninja coverage -C build
 
       - name: Create Coverage Report
-        uses: insightsengineering/coverage-action@v2
+        uses: insightsengineering/coverage-action@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           path: ./build/meson-logs/coverage.xml
