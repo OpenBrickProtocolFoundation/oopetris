@@ -30,9 +30,9 @@ jobs:
           pip install meson
 
       - name: Install NSIS with EnVar plugin
-        uses: repolevedavaj/install-nsis@v1.0.3
+        uses: repolevedavaj/install-nsis@v1.2.1
         with:
-          nsis-version: '3.11'
+          nsis-version: '3.12'
 
       - name: Configure
         run: meson setup build -Dbuildtype=release -Ddefault_library=shared -Dbuild_installer=true -Drun_in_ci=true
