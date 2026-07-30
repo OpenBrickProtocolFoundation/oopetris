@@ -5,8 +5,7 @@ elif online_multiplayer_system == 'httplib'
 elif online_multiplayer_system == 'web'
     graphics_src_files += files('web_client.cpp', 'web_client.hpp')
 else
-    error('Unhandled online_multiplayer_system: \''
-        + online_multiplayer_system + '\'')
+    error('Unhandled online_multiplayer_system: \'' + online_multiplayer_system + '\'')
 endif
 
 graphics_src_files += files(

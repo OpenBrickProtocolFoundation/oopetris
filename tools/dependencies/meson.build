@@ -67,8 +67,9 @@ if meson.is_cross_build()
         foreach native_dependency_tuple : map_native_dependencies
             native_dep_lib_name = native_dependency_tuple[0]
 
-            native_dep_name = (native_dependency_tuple.length() == 2 ? native_dependency_tuple[1] : native_dep_lib_name
-)
+            native_dep_name = (
+                native_dependency_tuple.length() == 2 ? native_dependency_tuple[1] : native_dep_lib_name
+            )
 
             native_dep = cpp.find_library(
                 native_dep_lib_name,
@@ -138,9 +139,10 @@ endif
 
 fmt_use_header_only = false
 
-if (meson.is_cross_build()
-and (host_machine.system() == 'switch'
-or host_machine.system() == '3ds')
+if (
+    meson.is_cross_build()
+    and (host_machine.system() == 'switch'
+    or host_machine.system() == '3ds')
 )
     fmt_use_header_only = true
 endif
@@ -435,10 +437,11 @@ if build_application
 
     endif
 
-    if (host_machine.system() == 'linux'
-or (meson.is_cross_build()
-and host_machine.system() == 'android')
-)
+    if (
+        host_machine.system() == 'linux'
+        or (meson.is_cross_build()
+        and host_machine.system() == 'android')
+    )
         keyutils_dep = dependency(
             'keyutils',
             required: true,
@@ -525,12 +528,16 @@ and host_machine.system() == 'android')
 
     c = meson.get_compiler('c')
 
-    discord_dep_required = (not meson.is_cross_build() and get_option('build_installer')) or (meson.is_cross_build() and host_machine.system() == 'android')
+    discord_dep_required = (not meson.is_cross_build() and get_option('build_installer')) or (
+        meson.is_cross_build()
+        and host_machine.system() == 'android'
+    )
 
 
-    if (host_machine.system() == 'linux'
-and host_machine.cpu_family() == 'aarch64'
-)
+    if (
+        host_machine.system() == 'linux'
+        and host_machine.cpu_family() == 'aarch64'
+    )
         # not supported on aarch64 linux :(
         discord_dep_required = false
     endif
