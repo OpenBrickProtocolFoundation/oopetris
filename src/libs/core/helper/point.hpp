@@ -1,8 +1,20 @@
 #pragma once
 
 #include <cassert>
-#include <ostream>
 #include <type_traits>
+
+#if defined(__3DS__)
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#endif
+
+#include <ostream>
+
+#if defined(__3DS__)
+#pragma GCC diagnostic pop
+#endif
+
 
 #include "../helper/types.hpp"
 
