@@ -94,7 +94,7 @@ export EXTRA_COMPILE_FLAGS="'-D_XOPEN_SOURCE'"
 
 export COMPILE_FLAGS="'-D_3DS','-D__3DS__','-D__CONSOLE__','-D__NINTENDO_CONSOLE__','-isystem','$LIBCTRU/include','-I$PORTLIBS_PATH_3DS/include'"
 
-export LINK_FLAGS="'-L$PORTLIBS_LIB','-L$LIBCTRU_LIB','-fPIE','-specs=$ARCH_DEVKIT_FOLDER/$TOOL_PREFIX/lib/3dsx.specs'"
+export LINK_FLAGS="'-L$PORTLIBS_LIB','-L$LIBCTRU_LIB','-fPIE','-specs=$ARCH_DEVKIT_FOLDER/$TOOL_PREFIX/lib/3dsx.specs', '-lctru'"
 
 # source dependency version information
 
