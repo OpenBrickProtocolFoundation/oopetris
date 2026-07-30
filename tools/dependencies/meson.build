@@ -113,7 +113,7 @@ if meson.is_cross_build()
 
         native_dep_names = [
             'embind',
-            'embind-rtti',
+            'embind-mt-rtti',
             'freetype',
             'harfbuzz-mt',
             'z',
