@@ -2,13 +2,13 @@
 
 ## 3ds section
 
-export SDL_3DS_VERSION="2.32.8"
+export SDL_3DS_VERSION="2.32.10"
 
-export SDL_TTF_3DS_VERSION="2.22.0"
+export SDL_TTF_3DS_VERSION="2.24.0"
 
-export SDL_MIXER_3DS_VERSION="2.8.0"
+export SDL_MIXER_3DS_VERSION="2.8.2"
 
-export SDL_IMAGE_3DS_VERSION="2.8.2"
+export SDL_IMAGE_3DS_VERSION="2.8.12"
 
 ## android section
 
