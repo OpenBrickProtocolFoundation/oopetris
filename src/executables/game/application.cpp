@@ -124,7 +124,7 @@ Application::Application(std::shared_ptr<Window>&& window, CommandLineArguments&
 Application::~Application() = default;
 
 #if defined(__EMSCRIPTEN__)
-void c_loop_entry(void* arg) {
+static void c_loop_entry(void* arg) {
     auto application = reinterpret_cast<Application*>(arg);
     application->emscripten_do_process();
     application->loop_entry_emscripten();
@@ -376,23 +376,23 @@ void Application::update() {
 
                 std::visit(
                         helper::Overloaded{
-                                [this, index](const scenes::Scene::Pop&) {
+                                [this, index](const scenes::Scene::Pop&) -> void {
                                     m_scene_stack.erase(
                                             m_scene_stack.begin()
                                             + static_cast<decltype(m_scene_stack.begin())::difference_type>(index)
                                     );
                                 },
-                                [this](const scenes::Scene::Push& push) {
+                                [this](const scenes::Scene::Push& push) -> void {
                                     spdlog::info("pushing back scene {}", magic_enum::enum_name(push.target_scene));
                                     m_scene_stack.push_back(
                                             scenes::create_scene(*this, push.target_scene, push.layout)
                                     );
                                 },
-                                [this](scenes::Scene::RawPush& raw_push) {
+                                [this](scenes::Scene::RawPush& raw_push) -> void {
                                     spdlog::info("pushing back scene {}", raw_push.name);
                                     m_scene_stack.push_back(std::move(raw_push.scene));
                                 },
-                                [this](const scenes::Scene::Switch& scene_switch) {
+                                [this](const scenes::Scene::Switch& scene_switch) -> void {
                                     spdlog::info(
                                             "switching to scene {}", magic_enum::enum_name(scene_switch.m_target_scene)
                                     );

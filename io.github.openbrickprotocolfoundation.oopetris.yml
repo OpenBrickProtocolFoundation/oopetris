@@ -12,10 +12,10 @@ modules:
       - -Dbuild_installer=true
       - --libdir=lib
       - -Dtests=true
-      - -Dsdl2_image:test=false
       - --fatal-meson-warnings
       - -Drun_in_ci=true # note we always want the CI checks in the case we built the flatpak
       - --force-fallback-for=fmt # note, the freedesktop sdk has this installed, but it is not copiable into the runtime, so we need to build it ourself, to be able to install it correctly
+      - -Dsdl2_image:test=false # disable failing sdl2_image tests
     builddir: true
     build-options:
       build-args:

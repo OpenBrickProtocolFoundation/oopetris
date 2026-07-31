@@ -97,14 +97,14 @@ namespace recorder {
                                     return false;
                                 }
 
-                                const auto& other = this->as<std::vector<InformationValue>>();
+                                const auto& nested_other = this->as<std::vector<InformationValue>>();
 
-                                if (other.size() != value.size()) {
+                                if (nested_other.size() != value.size()) {
                                     return false;
                                 }
 
-                                for (decltype(other.size()) i = 0; i < other.size(); ++i) {
-                                    if (other.at(i) != value.at(i)) {
+                                for (decltype(nested_other.size()) i = 0; i < nested_other.size(); ++i) {
+                                    if (nested_other.at(i) != value.at(i)) {
                                         return false;
                                     }
                                 }

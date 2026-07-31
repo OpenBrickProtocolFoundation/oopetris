@@ -27,7 +27,8 @@ namespace input {
                 const SDL_Event& event
         ) const override;
 
-        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED std::string describe_navigation_event(NavigationEvent event
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED std::string describe_navigation_event(
+                NavigationEvent event
         ) const override;
 
         [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED std::optional<PointerEventHelper> get_pointer_event(
@@ -62,8 +63,12 @@ namespace input {
         Uint32 timestamp;
         float x;
         float y;
-        explicit PressedState(Uint32 timestamp, float x_pos, float y_pos) //NOLINT(bugprone-easily-swappable-parameters)
-            : timestamp{ timestamp },
+        explicit PressedState(
+                Uint32 timestamp_a, //NOLINT(bugprone-easily-swappable-parameters)
+                float x_pos,
+                float y_pos
+        )
+            : timestamp{ timestamp_a },
               x{ x_pos },
               y{ y_pos } { }
     };
@@ -97,7 +102,8 @@ namespace input {
         OOPETRIS_GRAPHICS_EXPORTED void handle_event(const SDL_Event& event) override;
         OOPETRIS_GRAPHICS_EXPORTED void update(SimulationStep simulation_step_index) override;
 
-        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED std::optional<MenuEvent> get_menu_event(const SDL_Event& event
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED std::optional<MenuEvent> get_menu_event(
+                const SDL_Event& event
         ) const override;
 
         [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED std::string describe_menu_event(MenuEvent event) const override;
@@ -177,14 +183,13 @@ namespace nlohmann {
 
 
             ::json::check_for_no_additional_keys(
-                    obj,
-                    {
-                            "type",
-                            "move_x_threshold",
-                            "move_y_threshold",
-                            "rotation_duration_threshold",
-                            "drop_duration_threshold",
-                    }
+                    obj, {
+                                 "type",
+                                 "move_x_threshold",
+                                 "move_y_threshold",
+                                 "rotation_duration_threshold",
+                                 "drop_duration_threshold",
+                         }
             );
 
             const auto move_x_threshold = json_helper::get_number<double>(obj, "move_x_threshold");
@@ -209,12 +214,14 @@ namespace nlohmann {
 
         static void to_json(json& obj, const input::TouchSettings& settings) {
 
-            obj = nlohmann::json::object({
-                    {            "move_x_threshold",            settings.move_x_threshold },
-                    {            "move_y_threshold",            settings.move_y_threshold },
-                    { "rotation_duration_threshold", settings.rotation_duration_threshold },
-                    {     "drop_duration_threshold",     settings.drop_duration_threshold }
-            });
+            obj = nlohmann::json::object(
+                    {
+                            {            "move_x_threshold",            settings.move_x_threshold },
+                            {            "move_y_threshold",            settings.move_y_threshold },
+                            { "rotation_duration_threshold", settings.rotation_duration_threshold },
+                            {     "drop_duration_threshold",     settings.drop_duration_threshold }
+            }
+            );
         }
     };
 } // namespace nlohmann

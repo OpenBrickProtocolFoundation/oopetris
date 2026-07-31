@@ -13,7 +13,18 @@
 
 #if defined(__linux__)
 
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wshadow"
+#endif
+
 #include <keyutils.h>
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
+
+
 #elif defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
 
 #include <basetsd.h>
@@ -52,7 +63,8 @@ namespace secret {
         OOPETRIS_GRAPHICS_EXPORTED SecretStorage(SecretStorage&& other) noexcept;
         SecretStorage& operator=(SecretStorage&& other) noexcept = delete;
 
-        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED helper::expected<Buffer, std::string> load(const std::string& key
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED helper::expected<Buffer, std::string> load(
+                const std::string& key
         ) const;
 
         [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED std::optional<std::string>

@@ -85,8 +85,8 @@ namespace scenes {
         service_provider->music_manager().add_volume_listener(
                 listener_name,
                 [this, scroll_layout_index, slider_index](std::optional<double>) {
-                    auto* scroll_layout = this->m_main_layout.get<ui::ScrollLayout>(scroll_layout_index);
-                    scroll_layout->get<ui::Slider>(slider_index)->on_change();
+                    auto* volume_scroll_layout = this->m_main_layout.get<ui::ScrollLayout>(scroll_layout_index);
+                    volume_scroll_layout->get<ui::Slider>(slider_index)->on_change();
 
                     if (auto volume = this->m_service_provider->music_manager().get_volume(); volume.has_value()) {
                         this->m_settings.volume = static_cast<float>(volume.value());

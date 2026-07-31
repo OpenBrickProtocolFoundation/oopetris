@@ -31,27 +31,27 @@ namespace scenes {
             std::string name;
             std::unique_ptr<Scene> scene;
 
-            RawSwitch(std::string name, std::unique_ptr<Scene>&& scene)
-                : name{ std::move(name) },
-                  scene{ std::move(scene) } { }
+            RawSwitch(std::string name_a, std::unique_ptr<Scene>&& scene_a)
+                : name{ std::move(name_a) },
+                  scene{ std::move(scene_a) } { }
         };
 
         struct Push {
             SceneId target_scene;
             ui::Layout layout;
 
-            Push(const SceneId target_scene, const ui::Layout& layout)
-                : target_scene{ target_scene },
-                  layout{ layout } { }
+            Push(const SceneId target_scene_a, const ui::Layout& layout_a)
+                : target_scene{ target_scene_a },
+                  layout{ layout_a } { }
         };
 
         struct RawPush {
             std::string name;
             std::unique_ptr<Scene> scene;
 
-            RawPush(std::string name, std::unique_ptr<Scene>&& scene)
-                : name{ std::move(name) },
-                  scene{ std::move(scene) } { }
+            RawPush(std::string name_a, std::unique_ptr<Scene>&& scene_a)
+                : name{ std::move(name_a) },
+                  scene{ std::move(scene_a) } { }
         };
 
         struct Pop { };

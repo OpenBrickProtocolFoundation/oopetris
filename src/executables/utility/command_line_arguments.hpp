@@ -25,14 +25,14 @@ public:
 
 
     template<typename T>
-    CommandLineArguments(std::filesystem::path&& recording_path, T&& value)
-        : recording_path{ std::move(recording_path) },
-          value{ std::forward<T>(value) } { }
+    CommandLineArguments(std::filesystem::path&& recording_path_a, T&& value_a)
+        : recording_path{ std::move(recording_path_a) },
+          value{ std::forward<T>(value_a) } { }
 
     template<typename T>
-    CommandLineArguments(std::filesystem::path&& recording_path, const T& value)
-        : recording_path{ std::move(recording_path) },
-          value{ value } { }
+    CommandLineArguments(std::filesystem::path&& recording_path_a, const T& value_a)
+        : recording_path{ std::move(recording_path_a) },
+          value{ value_a } { }
 
 
     [[nodiscard]] static helper::expected<CommandLineArguments, std::string> from_args(int argc, char** argv) noexcept {

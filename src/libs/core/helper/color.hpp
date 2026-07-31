@@ -223,9 +223,9 @@ struct Color {
 
         const FloatType offset = value - chroma;
 
-        const auto finish_value = [offset](FloatType value) -> u8 {
+        const auto finish_value = [offset](FloatType f_value) -> u8 {
             const auto result =
-                    std::clamp<FloatType>(value + offset, static_cast<FloatType>(0.0), static_cast<FloatType>(1.0))
+                    std::clamp<FloatType>(f_value + offset, static_cast<FloatType>(0.0), static_cast<FloatType>(1.0))
                     * static_cast<FloatType>(0xFF);
 
             return static_cast<u8>(round_constexpr(result));

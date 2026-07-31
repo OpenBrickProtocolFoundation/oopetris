@@ -378,8 +378,35 @@ if build_application
 
     spdlog_no_tls = false
 
+
     if (meson.is_cross_build() and host_machine.system() == '3ds')
         spdlog_no_tls = true
+    endif
+
+    spdlog_std_format = 'auto'
+
+    if not cpp.has_header_symbol(
+        'format',
+        '__cpp_lib_format',
+        args: core_lib.get('compile_args'),
+    ) or not cpp.compiles(
+        '''
+        #include <format>
+        int main(void) {
+            /* If it's not defined as a macro, try to use as a symbol */
+            #ifndef __cpp_lib_format
+                __cpp_lib_format;
+            #else
+            #if __cpp_lib_format < 202207L
+                #error "fmt not supported"
+            #endif
+            #endif
+            return 0;
+        }
+        ''',
+        args: core_lib.get('compile_args'),
+    )
+        spdlog_std_format = 'disabled'
     endif
 
     spdlog_dep = dependency(
@@ -388,6 +415,7 @@ if build_application
         default_options: {
             'tests': 'disabled',
             'no_tls': spdlog_no_tls,
+            'std_format': spdlog_std_format,
         },
     )
     graphics_lib += {
@@ -399,8 +427,12 @@ if build_application
         required: false,
         allow_fallback: true,
         default_options: {
-            'openssl': 'enabled',
+            'tls': 'enabled',
+            'tls_backend': 'openssl',
             'zlib': 'enabled',
+            'brotli': 'auto',
+            'zstd': 'auto',
+            'test': false,
         },
     )
 

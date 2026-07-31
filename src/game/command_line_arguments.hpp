@@ -23,9 +23,9 @@ struct CommandLineArguments final {
     bool silent;
 
     OOPETRIS_GRAPHICS_EXPORTED CommandLineArguments(
-            std::optional<std::filesystem::path> recording_path,
-            std::optional<u32> target_fps,
-            Level starting_level = default_starting_level,
-            bool silent = default_silent
+            std::optional<std::filesystem::path> recording_path_a,
+            std::optional<u32> target_fps_a,
+            Level starting_level_a = default_starting_level,
+            bool silent_a = default_silent
     );
 };

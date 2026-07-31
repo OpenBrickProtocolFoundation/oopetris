@@ -87,7 +87,18 @@ date::ISO8601Date::format_tm_struct(std::tm time_struct, const char* format_stri
     static constexpr auto buffer_size = usize{ 100 };
     std::array<char, buffer_size> buffer{};
 
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#endif
+
     const auto result = std::strftime(buffer.data(), buffer.size(), format_string, &time_struct);
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
+
+
     if (result == 0) {
         return helper::unexpected<std::string>{ "error calling std::strftime" };
     }

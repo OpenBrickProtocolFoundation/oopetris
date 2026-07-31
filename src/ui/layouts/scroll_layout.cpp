@@ -3,7 +3,7 @@
 #include "input/input.hpp"
 #include "scroll_layout.hpp"
 
-ui::ItemSize::ItemSize(const u32 height, ItemSizeType type) : height{ height }, type{ type } { }
+ui::ItemSize::ItemSize(const u32 height_a, ItemSizeType type_a) : height{ height_a }, type{ type_a } { }
 
 
 [[nodiscard]] u32 ui::ItemSize::get_height() const {
@@ -14,34 +14,36 @@ ui::ItemSize::ItemSize(const u32 height, ItemSizeType type) : height{ height }, 
     return type;
 }
 
-ui::AbsolutItemSize::AbsolutItemSize(const u32 height) : ItemSize{ height, ItemSizeType::Absolut } { }
+ui::AbsolutItemSize::AbsolutItemSize(const u32 height_a) : ItemSize{ height_a, ItemSizeType::Absolut } { }
 
-ui::RelativeItemSize::RelativeItemSize(const shapes::URect& rect, const double height)
-    : ItemSize{ static_cast<u32>(height * rect.height()), ItemSizeType::Relative } {
+ui::RelativeItemSize::RelativeItemSize(const shapes::URect& rect, const double height_d)
+    : ItemSize{ static_cast<u32>(height_d * rect.height()), ItemSizeType::Relative } {
     // no checks for upper cases, since it theoretically can also be larger than the whole screen!
-    assert(height >= 0.0 && "height has to be in correct percentage range!");
+    assert(height_d >= 0.0 && "height has to be in correct percentage range!");
 }
-ui::RelativeItemSize::RelativeItemSize(const Window* window, const double height)
-    : RelativeItemSize{ window->screen_rect(), height } { }
-ui::RelativeItemSize::RelativeItemSize(const Window& window, const double height)
-    : RelativeItemSize{ window.screen_rect(), height } { }
-ui::RelativeItemSize::RelativeItemSize(const Layout& layout, const double height)
-    : RelativeItemSize{ layout.get_rect(), height } { }
+ui::RelativeItemSize::RelativeItemSize(const Window* window, const double height_d)
+    : RelativeItemSize{ window->screen_rect(), height_d } { }
+ui::RelativeItemSize::RelativeItemSize(const Window& window, const double height_d)
+    : RelativeItemSize{ window.screen_rect(), height_d } { }
+ui::RelativeItemSize::RelativeItemSize(const Layout& layout, const double height_d)
+    : RelativeItemSize{ layout.get_rect(), height_d } { }
 
 ui::ScrollLayout::ScrollLayout(
-                ServiceProvider* service_provider,
-                u32 focus_id,
-                Margin gap,
-                std::pair<double, double> margin,
-                const Layout& layout,
-                bool is_top_level 
-        )
-            : FocusLayout{
-                  layout, focus_id, FocusOptions{ .wrap_around=is_top_level, .allow_tab=is_top_level }, is_top_level}, // if on top, we support tab and wrap around, otherwise not
-                  m_gap{ gap },
-                  m_texture{ std::nullopt },
-                  m_service_provider{ service_provider },
-                  m_step_size{ static_cast<u32>(layout.get_rect().height() * 0.05) } {
+        ServiceProvider* service_provider,
+        u32 focus_id,
+        Margin gap,
+        std::pair<double, double> margin,
+        const Layout& layout,
+        bool is_top_level
+)
+    : FocusLayout{
+          layout, focus_id, FocusOptions{ .wrap_around = is_top_level, .allow_tab = is_top_level },
+            is_top_level
+}, // if on top, we support tab and wrap around, otherwise not
+      m_gap{ gap },
+      m_texture{ std::nullopt },
+      m_service_provider{ service_provider },
+      m_step_size{ static_cast<u32>(layout.get_rect().height() * 0.05) } {
 
     const auto layout_rect = layout.get_rect();
     const auto absolut_margin = std::pair<u32, u32>{ static_cast<u32>(margin.first * layout_rect.width()),
