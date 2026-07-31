@@ -14,9 +14,9 @@ namespace shapes {
         Point bottom_right;
 
         constexpr AbstractRect() = default;
-        constexpr AbstractRect(Point top_left, Point bottom_right) // NOLINT(bugprone-easily-swappable-parameters)
-            : top_left{ top_left },
-              bottom_right{ bottom_right } { }
+        constexpr AbstractRect(Point top_left_a, Point bottom_right_a) // NOLINT(bugprone-easily-swappable-parameters)
+            : top_left{ top_left_a },
+              bottom_right{ bottom_right_a } { }
         constexpr AbstractRect(T x_pos, T y_pos, T width, T height)
             : top_left{ x_pos, y_pos },
               bottom_right{ x_pos + width - 1, y_pos + height - 1 } { }

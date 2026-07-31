@@ -389,8 +389,8 @@ void Application::update() {
                                     );
                                 },
                                 [this](scenes::Scene::RawPush& raw_push) -> void {
-                                    spdlog::info("pushing back scene {}", raw_push.m_name);
-                                    m_scene_stack.push_back(std::move(raw_push.m_scene));
+                                    spdlog::info("pushing back scene {}", raw_push.name);
+                                    m_scene_stack.push_back(std::move(raw_push.scene));
                                 },
                                 [this](const scenes::Scene::Switch& scene_switch) -> void {
                                     spdlog::info(

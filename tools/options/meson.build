@@ -68,6 +68,10 @@ foreach internal_cpp_compiler_arg : internal_cpp_compiler_args
 
 endforeach
 
+if cpp.get_id() == 'gcc'
+    common_cpp_compiler_args += cpp.get_supported_arguments('-Wno-missing-braces')
+endif
+
 core_lib = {
     'inc_dirs': [],
     'compile_args': ['-DOOPETRIS_VERSION=' + meson.project_version()] + common_cpp_compiler_args,
