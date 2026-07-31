@@ -438,6 +438,8 @@ if build_application
 
     endif
 
+    message('Using online_multiplayer_system: \'' + online_multiplayer_system + '\'')
+
     if (
         host_machine.system() == 'linux'
         or (meson.is_cross_build()
