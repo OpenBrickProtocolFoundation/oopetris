@@ -18,6 +18,7 @@ TOOL="G++"
 # Capture all args
 ARGS=("$@")
 
+DEPENDENCIES=()
 MODE="unknown"
 
 change_mode() {
@@ -62,6 +63,10 @@ for arg in "${ARGS[@]}"; do
             case "$arg" in
             *.a | *.so)
                 change_mode "link"
+                DEPENDENCIES+=("$arg")
+                ;;
+            *.o)
+                DEPENDENCIES+=("$arg")
                 ;;
             *) ;;
             esac
@@ -86,7 +91,11 @@ elif [[ "$MODE" == "compile" ]]; then
     "cwd": "$(pwd)",
     "args": $(printf '%s\n' "${ARGS[@]}" | jq -R . | jq -sc .),
     "language": "cpp",
-    "type": "compile"
+    "type": "compile",
+    "dependencies": {
+        "output": "$OUTPUT_FILE",
+        "files": $(printf '%s\n' "${DEPENDENCIES[@]}" | jq -R . | jq -sc .)
+    }
 }
 EOF
 
@@ -104,7 +113,11 @@ elif [[ "$MODE" == "link" ]]; then
     "cwd": "$(pwd)",
     "args": $(printf '%s\n' "${ARGS[@]}" | jq -R . | jq -sc .),
     "language": "cpp",
-    "type": "link"
+    "type": "link",
+    "dependencies": {
+        "output": "$OUTPUT_FILE",
+        "files": $(printf '%s\n' "${DEPENDENCIES[@]}" | jq -R . | jq -sc .)
+    }
 }
 EOF
 
