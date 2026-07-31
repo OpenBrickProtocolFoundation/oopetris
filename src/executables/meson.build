@@ -12,7 +12,7 @@ if build_application
                 'oopetris',
                 main_files,
                 dependencies: [liboopetris_graphics_dep, graphic_application_deps],
-                cpp_args: common_compiler_args,
+                cpp_args: common_cpp_compiler_args,
                 override_options: {
                     'warning_level': '3',
                     'werror': true,
