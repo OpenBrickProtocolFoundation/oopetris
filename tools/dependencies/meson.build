@@ -58,7 +58,7 @@ if meson.is_cross_build()
         ## map native libraries to dependencies
         map_native_dependencies = [
             ['SDL2-mt', 'SDL2'],
-            ['SDL2_ttf-mt','SDL2_ttf'],
+            ['SDL2_ttf-mt', 'SDL2_ttf'],
             ['mpg123'],
             ['SDL2_mixer-mp3-mt', 'SDL2_mixer'],
             ['SDL2_image-png-svg-mt', 'SDL2_image'],
