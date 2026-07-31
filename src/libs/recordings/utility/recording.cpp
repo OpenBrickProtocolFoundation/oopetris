@@ -4,9 +4,12 @@
 #include <stdexcept>
 
 
-recorder::TetrionHeader::TetrionHeader(Random::Seed seed, u32 starting_level)
-    : seed{ seed },
-      starting_level{ starting_level } { }
+recorder::TetrionHeader::TetrionHeader(
+        Random::Seed seed_a, //NOLINT(bugprone-easily-swappable-parameters)
+        u32 starting_level_a
+)
+    : seed{ seed_a },
+      starting_level{ starting_level_a } { }
 
 
 [[nodiscard]] const std::vector<recorder::TetrionHeader>& recorder::Recording::tetrion_headers() const {

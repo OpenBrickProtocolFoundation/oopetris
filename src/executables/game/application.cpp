@@ -376,23 +376,23 @@ void Application::update() {
 
                 std::visit(
                         helper::Overloaded{
-                                [this, index](const scenes::Scene::Pop&) {
+                                [this, index](const scenes::Scene::Pop&) -> void {
                                     m_scene_stack.erase(
                                             m_scene_stack.begin()
                                             + static_cast<decltype(m_scene_stack.begin())::difference_type>(index)
                                     );
                                 },
-                                [this](const scenes::Scene::Push& push) {
+                                [this](const scenes::Scene::Push& push) -> void {
                                     spdlog::info("pushing back scene {}", magic_enum::enum_name(push.target_scene));
                                     m_scene_stack.push_back(
                                             scenes::create_scene(*this, push.target_scene, push.layout)
                                     );
                                 },
-                                [this](scenes::Scene::RawPush& raw_push) {
-                                    spdlog::info("pushing back scene {}", raw_push.name);
-                                    m_scene_stack.push_back(std::move(raw_push.scene));
+                                [this](scenes::Scene::RawPush& raw_push) -> void {
+                                    spdlog::info("pushing back scene {}", raw_push.m_name);
+                                    m_scene_stack.push_back(std::move(raw_push.m_scene));
                                 },
-                                [this](const scenes::Scene::Switch& scene_switch) {
+                                [this](const scenes::Scene::Switch& scene_switch) -> void {
                                     spdlog::info(
                                             "switching to scene {}", magic_enum::enum_name(scene_switch.m_target_scene)
                                     );

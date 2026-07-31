@@ -49,9 +49,9 @@ namespace scenes {
             std::string name;
             std::unique_ptr<Scene> scene;
 
-            RawPush(std::string name, std::unique_ptr<Scene>&& scene)
-                : name{ std::move(name) },
-                  scene{ std::move(scene) } { }
+            RawPush(std::string name_a, std::unique_ptr<Scene>&& scene_a)
+                : name{ std::move(name_a) },
+                  scene{ std::move(scene_a) } { }
         };
 
         struct Pop { };
