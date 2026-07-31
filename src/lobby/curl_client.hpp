@@ -8,6 +8,7 @@
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
+#pragma GCC diagnostic ignored "-Wundef"
 #endif
 
 #include <cpr/cpr.h>
