@@ -11,4 +11,4 @@ patch_hash = 56adbbda2fbfcfba5aaf4a9eb326c37d95889215352d0336a14611608257dcfe
 wrapdb_version = 1.5.0-3
 
 [provide]
-dependency_names = flac, libflac
+dependency_names = flac
