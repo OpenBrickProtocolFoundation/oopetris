@@ -19,7 +19,7 @@ jobs:
           - name: 3ds
             extension: 3dsx
             container: devkitarm
-            revision: "latest"
+            revision: "20260221"
 
           - name: switch
             extension: nro
