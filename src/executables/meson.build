@@ -46,8 +46,7 @@ if build_application
                 endif
 
                 if not fs.exists(APP_ROMFS)
-                    error('APP_ROMFS should exist, but doesn\'t: \''
-                        + APP_ROMFS + '\'')
+                    error('APP_ROMFS should exist, but doesn\'t: \'' + APP_ROMFS + '\'')
                 endif
 
                 if not APP_ROMFS.endswith('/')
@@ -186,11 +185,11 @@ if build_application
                         '-DVERSION=' + meson.project_version(),
                         '-DNAME=' + oopetris_name,
                         '-DAUTHOR=' + oopetris_author,
-                        '-DPROJECT_SOURCE_DIR='
-                        + meson.project_source_root(),
+                        '-DPROJECT_SOURCE_DIR=' + meson.project_source_root(),
                         '-DPROJECT_BUILD_DIR=' + meson.project_build_root(),
-                        '-DDYNAMIC_LIBRARIES_DIR='
-                        + (meson.project_build_root() / 'dynamic_libraries' / get_option('bindir')),
+                        '-DDYNAMIC_LIBRARIES_DIR=' + (
+                            meson.project_build_root() / 'dynamic_libraries' / get_option('bindir')
+                        ),
                         nsis_script,
                     ],
                     depends: [oopetris_exe, oopetris_recordings_utility_exe],

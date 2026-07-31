@@ -11,8 +11,15 @@ if [ ! -d "toolchains" ]; then
     mkdir -p toolchains
 fi
 
-export NDK_VER_DOWNLOAD="r29-beta3"
-export NDK_VER_DESC="r29-beta3"
+# source dependency version information
+
+SCRIPT_DIR="$(realpath "$(dirname -- "${BASH_SOURCE[0]}")")"
+
+# shellcheck source=./platforms/versions.sh
+source "$SCRIPT_DIR/versions.sh"
+
+# shellcheck source=./platforms/helper.sh
+source "$SCRIPT_DIR/helper.sh"
 
 export BASE_PATH="$PWD/toolchains/android-ndk-$NDK_VER_DESC"
 export ANDROID_NDK_HOME="$BASE_PATH"
@@ -20,7 +27,7 @@ export ANDROID_NDK="$BASE_PATH"
 
 if [ ! -d "$BASE_PATH" ]; then
 
-    cd toolchains
+    pushd toolchains
 
     if [ ! -e "android-ndk-$NDK_VER_DOWNLOAD-linux.zip" ]; then
 
@@ -29,7 +36,7 @@ if [ ! -d "$BASE_PATH" ]; then
     fi
     unzip -q "android-ndk-$NDK_VER_DOWNLOAD-linux.zip"
 
-    cd ..
+    popd
 fi
 
 if [ ! -e "$BASE_PATH/meta/abis.json" ]; then
@@ -112,12 +119,6 @@ else
     exit 1
 fi
 
-# source dependency version information
-
-SCRIPT_DIR="$(realpath "$(dirname -- "${BASH_SOURCE[0]}")")"
-
-# shellcheck source=./platforms/versions.sh
-source "$SCRIPT_DIR/versions.sh"
 
 for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
     export KEY=${ARCH_KEYS[$INDEX]}
@@ -147,7 +148,6 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
     if [ "$COMPILE_TYPE" == "complete_rebuild" ] || ! [ -e "$SYS_ROOT" ]; then
 
-        LAST_DIR=$PWD
 
         if [ -d "${SYS_ROOT:?}/" ]; then
 
@@ -156,7 +156,7 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
         mkdir -p "${SYS_ROOT:?}/usr/lib"
 
-        cd "${SYS_ROOT:?}/usr/"
+        pushd "${SYS_ROOT:?}/usr/"
 
         ln -s "$HOST_ROOT/sysroot/usr/local" "${SYS_ROOT:?}/usr/"
 
@@ -172,11 +172,13 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
         find "$HOST_ROOT/sysroot/usr/lib/$ARM_NAME_TRIPLE/$SDK_VERSION/" -maxdepth 1 -name "*.o" -exec ln -s "{}" "${SYS_ROOT:?}/usr/lib/" \;
 
-        cd "$LAST_DIR"
+        popd
 
     fi
 
-    export BUILD_DIR="build-$ARM_TARGET_ARCH"
+    export BUILD_DIR="build/android-$ARM_TARGET_ARCH"
+
+    export PKG_CONFIG_PATH="$SYS_ROOT/usr/lib/pkgconfig"
 
     export CC="$ARM_TOOL_TRIPLE-clang"
     export CXX="$ARM_TOOL_TRIPLE-clang++"
@@ -193,9 +195,7 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
     ## build mpg123 with cmake (meson port is to much work atm, for this feature)
 
-    LAST_DIR="$PWD"
-
-    cd "$SYS_ROOT"
+    pushd "$SYS_ROOT"
 
     BUILD_DIR_MPG123="build-mpg123"
 
@@ -245,13 +245,12 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
     fi
 
-    cd "$LAST_DIR"
+    popd
 
     ## build flac with cmake (meson port doesn't work for 32 bits machines atm) (we need to check for fseeko and ftello correctly in there)
 
-    LAST_DIR="$PWD"
 
-    cd "$SYS_ROOT"
+    pushd "$SYS_ROOT"
 
     BUILD_DIR_FLAC="build-flac"
 
@@ -300,13 +299,11 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
     fi
 
-    cd "$LAST_DIR"
+    popd
 
     ## build openssl with make (meson port is to much work atm, for this feature)
 
-    LAST_DIR="$PWD"
-
-    cd "$SYS_ROOT"
+    pushd "$SYS_ROOT"
 
     BUILD_DIR_OPENSSL="build-openssl"
 
@@ -361,7 +358,7 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
     fi
 
-    cd "$LAST_DIR"
+    popd
 
     ## END of manual build of dependencies
 
@@ -376,7 +373,12 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
 
     export LINK_FLAGS="'-fPIE','-L$SYS_ROOT/usr/lib'"
 
-    cat <<EOF >"./platforms/crossbuild-android-$ARM_TARGET_ARCH.ini"
+    CROSS_FILE="./platforms/crossbuild/android-$ARM_TARGET_ARCH.ini"
+
+    validate_parent_dir "$CROSS_FILE"
+
+
+    cat <<EOF >"$CROSS_FILE"
 [host_machine]
 system = 'android'
 cpu_family = '$MESON_CPU_FAMILY'
@@ -412,8 +414,17 @@ prefix = '$SYS_ROOT'
 libdir = '$LIB_PATH'
 
 [properties]
-pkg_config_libdir = '$SYS_ROOT/usr/lib/pkgconfig'
+pkg_config_libdir = '$PKG_CONFIG_PATH'
 sys_root = '${SYS_ROOT}'
+
+[cmake]
+
+CMAKE_FIND_ROOT_PATH_MODE_PROGRAM  = 'BOTH'
+CMAKE_FIND_ROOT_PATH_MODE_LIBRARY  = 'ONLY'
+CMAKE_FIND_ROOT_PATH_MODE_INCLUDE  = 'ONLY'
+CMAKE_FIND_ROOT_PATH_MODE_PACKAGE  = 'ONLY'
+
+CMAKE_FIND_ROOT_PATH = '$SYS_ROOT/usr/lib/cmake'
 
 EOF
 
@@ -451,7 +462,7 @@ EOF
             "--wipe" \
             "--includedir=$INC_PATH" \
             "--libdir=$SYS_ROOT/usr/lib/$ARM_NAME_TRIPLE/$SDK_VERSION" \
-            --cross-file "./platforms/crossbuild-android-$ARM_TARGET_ARCH.ini" \
+            --cross-file "$CROSS_FILE" \
             "-Dbuildtype=$BUILDTYPE" \
             -Dsdl2:use_hidapi=enabled \
             -Dclang_libcpp=disabled \

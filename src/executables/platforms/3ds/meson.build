@@ -106,8 +106,7 @@ if use_smdh
         endif
 
         if not fs.exists(APP_SMALL_ICON)
-            error('APP_SMALL_ICON should exist, but doesn\'t: \''
-                + APP_SMALL_ICON + '\'')
+            error('APP_SMALL_ICON should exist, but doesn\'t: \'' + APP_SMALL_ICON + '\'')
         endif
 
         SMDH_FLAGS += APP_SMALL_ICON

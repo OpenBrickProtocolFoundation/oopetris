@@ -8,6 +8,7 @@
 
 #include "./export_symbols.hpp"
 
+#include <mutex>
 #include <string.h>
 
 namespace console {

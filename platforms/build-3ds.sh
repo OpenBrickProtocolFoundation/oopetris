@@ -58,14 +58,15 @@ export LIBCTRU="$DEVKITPRO/libctru"
 export PORTLIBS_LIB="$PORTLIBS_PATH_3DS/lib"
 export LIBCTRU_LIB="$LIBCTRU/lib"
 
-export PKG_CONFIG_PATH_PORTLIB="$PORTLIBS_LIB/pkgconfig/"
+export PKG_CONFIG_PATH_PORTLIB="$PORTLIBS_LIB/pkgconfig"
 export PKG_CONFIG_PATH="$PKG_CONFIG_PATH_PORTLIB"
 
 export ROMFS="platforms/romfs"
 
-export BUILD_DIR="build-3ds"
+export BUILD_DIR="build/3ds"
 
 export TOOL_PREFIX="arm-none-eabi"
+
 
 export BIN_DIR="$PORTLIBS_PATH_3DS/bin"
 export PKG_CONFIG_EXEC="$BIN_DIR/$TOOL_PREFIX-pkg-config"
@@ -93,9 +94,21 @@ export EXTRA_COMPILE_FLAGS="'-D_XOPEN_SOURCE'"
 
 export COMPILE_FLAGS="'-D_3DS','-D__3DS__','-D__CONSOLE__','-D__NINTENDO_CONSOLE__','-isystem','$LIBCTRU/include','-I$PORTLIBS_PATH_3DS/include'"
 
-export LINK_FLAGS="'-L$PORTLIBS_LIB','-L$LIBCTRU_LIB','-fPIE','-specs=$ARCH_DEVKIT_FOLDER/$TOOL_PREFIX/lib/3dsx.specs'"
+export LINK_FLAGS="'-L$PORTLIBS_LIB','-L$LIBCTRU_LIB','-fPIE','-specs=$ARCH_DEVKIT_FOLDER/$TOOL_PREFIX/lib/3dsx.specs', '-lctru'"
 
-export CROSS_FILE="./platforms/crossbuild-3ds.ini"
+# source dependency version information
+
+SCRIPT_DIR="$(realpath "$(dirname -- "${BASH_SOURCE[0]}")")"
+
+# shellcheck source=./platforms/versions.sh
+source "$SCRIPT_DIR/versions.sh"
+
+# shellcheck source=./platforms/helper.sh
+source "$SCRIPT_DIR/helper.sh"
+
+export CROSS_FILE="./platforms/crossbuild/3ds.ini"
+
+validate_parent_dir "$CROSS_FILE"
 
 cat <<EOF >"$CROSS_FILE"
 [host_machine]
@@ -154,25 +167,30 @@ USE_SMDH    = true
 
 APP_ROMFS='$ROMFS'
 
+[cmake]
+
+CMAKE_FIND_ROOT_PATH_MODE_PROGRAM  = 'BOTH'
+CMAKE_FIND_ROOT_PATH_MODE_LIBRARY  = 'ONLY'
+CMAKE_FIND_ROOT_PATH_MODE_INCLUDE  = 'ONLY'
+CMAKE_FIND_ROOT_PATH_MODE_PACKAGE  = 'ONLY'
+CMAKE_SYSTEM_INCLUDE_PATH = '/include'
+CMAKE_SYSTEM_LIBRARY_PATH = '/lib'
+CMAKE_SYSTEM_PROGRAM_PATH = '/bin'
+
+CMAKE_FIND_ROOT_PATH = '$PORTLIBS_LIB/cmake'
+
 EOF
-
-# source dependency version information
-
-SCRIPT_DIR="$(realpath "$(dirname -- "${BASH_SOURCE[0]}")")"
-
-# shellcheck source=./platforms/versions.sh
-source "$SCRIPT_DIR/versions.sh"
 
 ## build sdl2 and libraries (ttf, mixer, image)
 
-export SDL_TOP_BUILD_DIR="SDL2_local_build_3ds"
+export SDL_TOP_BUILD_DIR=".private/SDL2_local_build_3ds"
 export SDL_BUILD_DIR="build_dir"
 
 export SDL_ROOT_DIR="$PORTLIBS_PATH_3DS"
 
 mkdir -p "$SDL_TOP_BUILD_DIR"
 
-cd "$SDL_TOP_BUILD_DIR" || exit 1
+pushd "$SDL_TOP_BUILD_DIR" || exit 1
 
 echo "*" >.gitignore
 
@@ -188,13 +206,13 @@ if [ ! -d "$SDL2_SRC_DIR" ]; then
     tar xzf "SDL2-${SDL_3DS_VERSION}.tar.gz"
     rm -rf "SDL2-${SDL_3DS_VERSION}.tar.gz"
 
-    cd "$SDL2_SRC_DIR"
+    pushd "$SDL2_SRC_DIR"
 
     cmake -S. "-B$SDL_BUILD_DIR" -DCMAKE_TOOLCHAIN_FILE="$DEVKITPRO/cmake/3DS.cmake" -DCMAKE_BUILD_TYPE=Release "-DCMAKE_INSTALL_PREFIX=$SDL_ROOT_DIR/"
     cmake --build "$SDL_BUILD_DIR"
     cmake --install "$SDL_BUILD_DIR" --prefix "$SDL_ROOT_DIR/"
 
-    cd ..
+    popd
 
 fi
 
@@ -210,13 +228,13 @@ if [ ! -d "$SDL2_TTF_SRC_DIR" ]; then
     tar xzf "SDL2_ttf-${SDL_TTF_3DS_VERSION}.tar.gz"
     rm -rf "SDL2_ttf-${SDL_TTF_3DS_VERSION}.tar.gz"
 
-    cd $SDL2_TTF_SRC_DIR
+    pushd $SDL2_TTF_SRC_DIR
 
     cmake -S. "-B$SDL_BUILD_DIR" -DCMAKE_TOOLCHAIN_FILE="$DEVKITPRO/cmake/3DS.cmake" -DCMAKE_BUILD_TYPE=Release "-DSDL2_DIR=$SDL_CMAKE_DIR" "-DSDL2TTF_SAMPLES=OFF" "-DCMAKE_INSTALL_PREFIX=$SDL_ROOT_DIR/"
     cmake --build "$SDL_BUILD_DIR"
     cmake --install "$SDL_BUILD_DIR" --prefix "$SDL_ROOT_DIR/"
 
-    cd ..
+    popd
 
 fi
 
@@ -230,13 +248,13 @@ if [ ! -d "$SDL2_MIXER_SRC_DIR" ]; then
     tar xzf "SDL2_mixer-${SDL_MIXER_3DS_VERSION}.tar.gz"
     rm -rf "SDL2_mixer-${SDL_MIXER_3DS_VERSION}.tar.gz"
 
-    cd $SDL2_MIXER_SRC_DIR
+    pushd $SDL2_MIXER_SRC_DIR
 
     cmake -S. "-B$SDL_BUILD_DIR" -DCMAKE_TOOLCHAIN_FILE="$DEVKITPRO/cmake/3DS.cmake" -DCMAKE_BUILD_TYPE=Release "-DSDL2_DIR=$SDL_CMAKE_DIR" "-DSDL2MIXER_DEPS_SHARED=OFF" "-DSDL2MIXER_MIDI=OFF" "-DSDL2MIXER_WAVPACK=OFF" "-DCMAKE_INSTALL_PREFIX=$SDL_ROOT_DIR/"
     cmake --build "$SDL_BUILD_DIR"
     cmake --install "$SDL_BUILD_DIR" --prefix "$SDL_ROOT_DIR/"
 
-    cd ..
+    popd
 
 fi
 
@@ -250,19 +268,19 @@ if [ ! -d "$SDL2_IMAGE_SRC_DIR" ]; then
     tar xzf "SDL2_image-${SDL_IMAGE_3DS_VERSION}.tar.gz"
     rm -rf "SDL2_image-${SDL_IMAGE_3DS_VERSION}.tar.gz"
 
-    cd $SDL2_IMAGE_SRC_DIR
+    pushd $SDL2_IMAGE_SRC_DIR
 
     cmake -S. "-B$SDL_BUILD_DIR" -DCMAKE_TOOLCHAIN_FILE="$DEVKITPRO/cmake/3DS.cmake" -DCMAKE_BUILD_TYPE=Release "-DSDL2_DIR=$SDL_CMAKE_DIR" "-DCMAKE_INSTALL_PREFIX=$SDL_ROOT_DIR/"
     cmake --build "$SDL_BUILD_DIR"
     cmake --install "$SDL_BUILD_DIR" --prefix "$SDL_ROOT_DIR/"
 
-    cd ..
+    popd
 
 fi
 
 # exit the build tree
 
-cd ..
+popd
 
 if [ ! -d "$ROMFS" ]; then
 

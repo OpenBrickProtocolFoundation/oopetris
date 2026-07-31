@@ -1,13 +1,15 @@
 [wrap-file]
-directory = cpr-1.12.0
-source_url = https://github.com/libcpr/cpr/archive/1.12.0.tar.gz
-source_filename = cpr-1.12.0.tar.gz
-source_hash = f64b501de66e163d6a278fbb6a95f395ee873b7a66c905dd785eae107266a709
-patch_filename = cpr_1.12.0-1_patch.zip
-patch_url = https://wrapdb.mesonbuild.com/v2/cpr_1.12.0-1/get_patch
-patch_hash = 16404431dd8b2dbb49afc78a07b3bbe3c84c9f83ce1f45c3510934fadab99e72
-source_fallback_url = https://github.com/mesonbuild/wrapdb/releases/download/cpr_1.12.0-1/cpr-1.12.0.tar.gz
-wrapdb_version = 1.12.0-1
+directory = cpr-1.14.2
+source_url = https://github.com/libcpr/cpr/archive/1.14.2.tar.gz
+source_filename = cpr-1.14.2.tar.gz
+source_hash = b9b529b47083bfe80bba855ca5308d12d767ae7c7b629aef5ef018c4343cf62b
+source_fallback_url = https://wrapdb.mesonbuild.com/v2/cpr_1.14.2-1/get_source/cpr-1.14.2.tar.gz
+patch_filename = cpr_1.14.2-1_patch.zip
+patch_url = https://wrapdb.mesonbuild.com/v2/cpr_1.14.2-1/get_patch
+patch_fallback_url = https://github.com/mesonbuild/wrapdb/releases/download/cpr_1.14.2-1/cpr_1.14.2-1_patch.zip
+patch_hash = 0804441332112115789eb196f008fcf20d4b95d67c77d53822478212e88216df
+wrapdb_version = 1.14.2-1
+diff_files = cpr_1.14.2_support_older_curl.diff
 
 [provide]
-cpr = cpr_dep
+dependency_names = cpr

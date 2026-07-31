@@ -1,0 +1,24 @@
+diff --git a/include/spdlog/details/os-inl.h b/include/spdlog/details/os-inl.h
+index 92dfe12..5ebc0e3 100644
+--- a/include/spdlog/details/os-inl.h
++++ b/include/spdlog/details/os-inl.h
+@@ -244,7 +244,7 @@ SPDLOG_INLINE size_t filesize(FILE *f) {
+ #endif
+ 
+ #if !defined(SPDLOG_NO_TZ_OFFSET)
+-#ifdef _WIN32
++#ifdef _WIN32 
+ // Compare the timestamp as Local (mktime) vs UTC (_mkgmtime) to get the offset.
+ SPDLOG_INLINE int utc_minutes_offset(const std::tm &tm) {
+     std::tm local_tm = tm;  // copy since mktime might adjust it (normalize dates, set tm_isdst)
+@@ -260,6 +260,10 @@ SPDLOG_INLINE int utc_minutes_offset(const std::tm &tm) {
+     auto offset_seconds = utc_time_t - local_time_t;
+     return static_cast<int>(offset_seconds / 60);
+ }
++#elif defined(__3DS__) || defined(__SWITCH__)
++SPDLOG_INLINE int utc_minutes_offset(const std::tm &/* tm */) {
++    throw_spdlog_ex("Not implemented yet on this platform", errno);
++}
+ #else
+ // On unix simply use tm_gmtoff
+ SPDLOG_INLINE int utc_minutes_offset(const std::tm &tm) {

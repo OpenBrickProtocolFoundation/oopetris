@@ -11,9 +11,9 @@ on:
 jobs:
   web-build:
     name: Build for the web
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: '0'
 
@@ -29,11 +29,11 @@ jobs:
 
       - name: Build
         run: |
-          ENABLE_TESTING=1 bash ./platforms/build-web.sh complete_rebuild release CI
+          ENABLE_TESTING=1 bash ./platforms/build.sh web complete_rebuild release CI
 
       # TODO upload page to gh-pages!
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: oopetris-assets
-          path: build-web/src/executables/
+          path: build/web/src/executables/

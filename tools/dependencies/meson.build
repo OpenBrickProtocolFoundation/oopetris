@@ -58,17 +58,19 @@ if meson.is_cross_build()
         ## map native libraries to dependencies
         map_native_dependencies = [
             ['SDL2-mt', 'SDL2'],
-            ['SDL2_ttf'],
+            ['SDL2_ttf-mt', 'SDL2_ttf'],
             ['mpg123'],
             ['SDL2_mixer-mp3-mt', 'SDL2_mixer'],
             ['SDL2_image-png-svg-mt', 'SDL2_image'],
             ['icu_common-mt', 'icu-uc'],
+            ['embind-mt-rtti', 'embind-rtti'],
         ]
         foreach native_dependency_tuple : map_native_dependencies
             native_dep_lib_name = native_dependency_tuple[0]
 
-            native_dep_name = (native_dependency_tuple.length() == 2 ? native_dependency_tuple[1] : native_dep_lib_name
-)
+            native_dep_name = (
+                native_dependency_tuple.length() == 2 ? native_dependency_tuple[1] : native_dep_lib_name
+            )
 
             native_dep = cpp.find_library(
                 native_dep_lib_name,
@@ -111,7 +113,7 @@ if meson.is_cross_build()
 
         native_dep_names = [
             'embind',
-            'embind-rtti',
+            'embind-mt-rtti',
             'freetype',
             'harfbuzz-mt',
             'z',
@@ -138,21 +140,23 @@ endif
 
 fmt_use_header_only = false
 
-if (meson.is_cross_build()
-and (host_machine.system() == 'switch'
-or host_machine.system() == '3ds')
+if (
+    meson.is_cross_build()
+    and (host_machine.system() == 'switch'
+    or host_machine.system() == '3ds')
 )
     fmt_use_header_only = true
 endif
 
 if fmt_use_header_only
-    fmt_header_only_dep = dependency(
-        'fmt_header_only',
+    fmt_dep = dependency(
+        'fmt',
         required: true,
-        allow_fallback: true,
+        fallback: ['fmt', 'fmt_header_only_dep'],
+        default_options: {
+            'header-only': true,
+        },
     )
-    meson.override_dependency('fmt', fmt_header_only_dep)
-    fmt_dep = fmt_header_only_dep
 else
     fmt_dep = dependency(
         'fmt',
@@ -226,7 +230,6 @@ magic_enum_dep = dependency(
     'magic_enum',
     required: true,
     default_options: {
-        'test': false,
         'hash': true,
     },
 )
@@ -435,10 +438,13 @@ if build_application
 
     endif
 
-    if (host_machine.system() == 'linux'
-or (meson.is_cross_build()
-and host_machine.system() == 'android')
-)
+    message('Using online_multiplayer_system: \'' + online_multiplayer_system + '\'')
+
+    if (
+        host_machine.system() == 'linux'
+        or (meson.is_cross_build()
+        and host_machine.system() == 'android')
+    )
         keyutils_dep = dependency(
             'keyutils',
             required: true,
@@ -525,12 +531,16 @@ and host_machine.system() == 'android')
 
     c = meson.get_compiler('c')
 
-    discord_dep_required = (not meson.is_cross_build() and get_option('build_installer')) or (meson.is_cross_build() and host_machine.system() == 'android')
+    discord_dep_required = (not meson.is_cross_build() and get_option('build_installer')) or (
+        meson.is_cross_build()
+        and host_machine.system() == 'android'
+    )
 
 
-    if (host_machine.system() == 'linux'
-and host_machine.cpu_family() == 'aarch64'
-)
+    if (
+        host_machine.system() == 'linux'
+        and host_machine.cpu_family() == 'aarch64'
+    )
         # not supported on aarch64 linux :(
         discord_dep_required = false
     endif

@@ -9,9 +9,9 @@ on:
 jobs:
   test:
     name: Run Tests
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: '0'
 
@@ -19,10 +19,10 @@ jobs:
         run: |
           wget https://apt.llvm.org/llvm.sh
           chmod +x llvm.sh
-          sudo ./llvm.sh 20
-          sudo apt-get install libc++-20* libc++abi*20* llvm-20 -y --no-install-recommends
-          echo "CC=clang-20" >> "$GITHUB_ENV"
-          echo "CXX=clang++-20" >> "$GITHUB_ENV"
+          sudo ./llvm.sh 21
+          sudo apt-get install libc++-21* libc++abi*21* llvm-21 -y --no-install-recommends
+          echo "CC=clang-21" >> "$GITHUB_ENV"
+          echo "CXX=clang++-21" >> "$GITHUB_ENV"
 
       # NOTE: meson has no dependencies, so --break-system-packages doesn't really break anything!
       - name: Setup meson
@@ -45,7 +45,7 @@ jobs:
           ninja coverage -C build
 
       - name: Create Coverage Report
-        uses: insightsengineering/coverage-action@v2
+        uses: insightsengineering/coverage-action@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           path: ./build/meson-logs/coverage.xml
@@ -57,7 +57,7 @@ jobs:
           # TODO: use the diff feature of that later when we require test coverage on PR's to not go down
 
       - name: Upload test coverage artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Tests coverage artifacts
           path: |

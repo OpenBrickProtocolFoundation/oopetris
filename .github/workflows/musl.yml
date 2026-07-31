@@ -9,8 +9,8 @@ on:
 jobs:
   build:
     name: ${{ matrix.config.name }}
-    runs-on: ubuntu-24.04
-    container: alpine:3.22
+    runs-on: ubuntu-26.04
+    container: alpine:3.24
 
     strategy:
       fail-fast: false
@@ -32,11 +32,13 @@ jobs:
       - name: Install dependencies
         run: |
           apk update
-          apk add wget meson ca-certificates samurai git openssl-dev openssl pkgconf sdl2 sdl2-dev sdl2_mixer-dev sdl2_ttf-dev sdl2_mixer-dev sdl2_image-dev dbus-dev ${{ ( matrix.config.use-clang == true ) && 'clang20' || 'gcc g++' }} ${{ ( matrix.config.use-clang == true && matrix.config.use-clang_stdlib == true ) && 'libc++ libc++-dev llvm-libunwind llvm-libunwind-dev ' || '' }}
-          echo "CC=${{ matrix.config.use-clang == true && 'clang-20' || 'gcc' }}" >> "$GITHUB_ENV"
-          echo "CXX=${{ matrix.config.use-clang == true && 'clang++-20' || 'g++' }}" >> "$GITHUB_ENV"
+          apk add wget meson ca-certificates samurai git openssl-dev openssl binutils patch pkgconf sdl2 sdl2-dev sdl2_mixer-dev sdl2_ttf-dev sdl2_mixer-dev sdl2_image-dev dbus-dev ${{ ( matrix.config.use-clang == true ) && 'lld21 clang21' || 'gcc g++' }} ${{ ( matrix.config.use-clang == true && matrix.config.use-clang_stdlib == true ) && 'libc++ libc++-dev llvm-libunwind llvm-libunwind-dev gcc' || 'gcc' }}
+          echo "CC=${{ matrix.config.use-clang == true && 'clang-21' || 'gcc' }}" >> "$GITHUB_ENV"
+          echo "CXX=${{ matrix.config.use-clang == true && 'clang++-21' || 'g++' }}" >> "$GITHUB_ENV"
+          echo "CC_LD=${{ matrix.config.use-clang == true && 'lld' || '' }}" >> "$GITHUB_ENV"
+          echo "CXX_LD=${{ matrix.config.use-clang == true && 'lld' || '' }}" >> "$GITHUB_ENV"
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: '0'
   
@@ -47,7 +49,7 @@ jobs:
         run: meson compile -C build
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.config.name }} Executable
           path: build/src/executables/oopetris*

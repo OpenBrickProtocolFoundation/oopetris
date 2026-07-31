@@ -1,0 +1,13 @@
+diff --git a/meson.build b/meson.build
+index be820cf..b354993 100644
+--- a/meson.build
++++ b/meson.build
+@@ -16,7 +16,7 @@ ogg_dep = dependency('ogg')
+ vorbis_dep = dependency('vorbis')
+ vorbisfile_dep = dependency('vorbisfile')
+ 
+-flac_dep = dependency('libflac', required: get_option('flac'))
++flac_dep = dependency('libflac', fallback: ['flac','flac_dep'], required: get_option('flac'))
+ if flac_dep.found()
+   feature_args += '-DMUSIC_FLAC_LIBFLAC'
+ endif

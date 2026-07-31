@@ -9,7 +9,7 @@ on:
 jobs:
   nintendo-build:
     name: Nintendo ${{ matrix.config.name }} CI
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     container:
       image: devkitpro/${{ matrix.config.container }}:${{ matrix.config.revision }} ## based on debian:buster-slim
     strategy:
@@ -19,24 +19,24 @@ jobs:
           - name: 3ds
             extension: 3dsx
             container: devkitarm
-            revision: "20250102"
+            revision: "20260221"
 
           - name: switch
             extension: nro
             container: devkita64
-            revision: "20241023"
+            revision: "20260219"
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: '0'
 
+      # NOTE: meson has no dependencies, so --break-system-packages doesn't really break anything!
       - name: Setup Meson
         run: |
           sudo apt-get update
           sudo apt-get install python3 python3-pip -y --no-install-recommends
-          python3 -m pip install --upgrade pip
-          pip install meson
+          pip install meson --break-system-packages
 
       - name: Setup ninja
         run: |
@@ -48,7 +48,7 @@ jobs:
           bash ./platforms/build-${{ matrix.config.name }}.sh complete_rebuild release CI
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.config.name }} Executable
-          path: build-${{ matrix.config.name }}/oopetris.${{ matrix.config.extension }}
+          path: build/${{ matrix.config.name }}/oopetris.${{ matrix.config.extension }}

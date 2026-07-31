@@ -11,7 +11,7 @@ on:
 jobs:
   android-build:
     name: Build android apk for - ${{ matrix.config.arch }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     strategy:
       fail-fast: false
       matrix:
@@ -21,7 +21,7 @@ jobs:
           - arch: x86
           - arch: x86_64
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: '0'
 
@@ -36,21 +36,21 @@ jobs:
           sudo apt-get install ninja-build jq -y --no-install-recommends
 
       - name: Setup JDK
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '21'
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
 
       - name: Setup NDK
         run: |
-          sdkmanager --install "ndk;29.0.13846066"
+          sdkmanager --install "ndk;29.0.14206865"
 
       - name: Build native libraries
         run: |
-          bash ./platforms/build-android.sh ${{ matrix.config.arch }} complete_rebuild release CI
+          bash ./platforms/build.sh android ${{ matrix.config.arch }} complete_rebuild release CI
           cp -r ./assets/ platforms/android/app/src/main
 
       - name: Build APK
@@ -59,7 +59,7 @@ jobs:
           ./gradlew assembleDebug --no-daemon -PANDROID_ABI=${{ matrix.config.arch }}
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: oopetris.${{ matrix.config.arch }}.apk
           path: platforms/android/app/build/outputs/apk/debug/app-*-debug.apk

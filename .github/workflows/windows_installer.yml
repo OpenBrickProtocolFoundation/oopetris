@@ -15,12 +15,12 @@ jobs:
         shell: pwsh
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: '0'
 
       - name: Setup MSVC (Windows)
-        uses: TheMrMilchmann/setup-msvc-dev@v3
+        uses: TheMrMilchmann/setup-msvc-dev@v4
         with:
           arch: x64
           toolset: '14.44'
@@ -30,9 +30,9 @@ jobs:
           pip install meson
 
       - name: Install NSIS with EnVar plugin
-        uses: repolevedavaj/install-nsis@v1.0.3
+        uses: repolevedavaj/install-nsis@v1.2.1
         with:
-          nsis-version: '3.11'
+          nsis-version: '3.12'
 
       - name: Configure
         run: meson setup build -Dbuildtype=release -Ddefault_library=shared -Dbuild_installer=true -Drun_in_ci=true
@@ -45,7 +45,7 @@ jobs:
           meson compile -C build windows_installer
 
       - name: Upload artifacts - Windows
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: OOpetris Setup
           path: tools/installer/OOPetris Setup.exe

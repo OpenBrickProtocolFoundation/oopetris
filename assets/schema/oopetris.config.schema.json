@@ -1,6 +1,5 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://git.uibk.ac.at/csba1761/bsc/-/blob/main/backend/assets/environments.schema.json",
     "$ref": "#/$defs/Root",
     "$defs": {
         "Root": {

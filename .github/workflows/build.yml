@@ -49,7 +49,7 @@ jobs:
 
           - name: Linux (ARM64)
             os: ubuntu
-            os-version: 24.04-arm
+            os-version: 26.04-arm
             use-clang: false
             arm: true
             shell: bash
@@ -57,7 +57,7 @@ jobs:
 
           - name: Linux
             os: ubuntu
-            os-version: 24.04
+            os-version: 26.04
             use-clang: false
             arm: false
             shell: bash
@@ -65,7 +65,7 @@ jobs:
 
           - name: Linux Clang (libstdc++)
             os: ubuntu
-            os-version: 24.04
+            os-version: 26.04
             use-clang: true
             use-clang_stdlib: false
             arm: false
@@ -74,7 +74,7 @@ jobs:
 
           - name: Linux Clang (libc++)
             os: ubuntu
-            os-version: 24.04
+            os-version: 26.04
             use-clang: true
             use-clang_stdlib: true
             arm: false
@@ -83,14 +83,14 @@ jobs:
 
           - name: MacOS
             os: macos
-            os-version: 13
+            os-version: 26-intel
             arm: false
             shell: bash
             fatal_warnings: true
 
           - name: MacOS (Arm64)
             os: macos
-            os-version: 15
+            os-version: 26
             arm: true
             shell: bash
             fatal_warnings: true
@@ -100,13 +100,13 @@ jobs:
         shell: ${{ matrix.config.shell }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: '0'
 
       - name: Setup MSVC (Windows)
         if: matrix.config.os == 'windows' && matrix.config.environment == 'msvc'
-        uses: TheMrMilchmann/setup-msvc-dev@v3
+        uses: TheMrMilchmann/setup-msvc-dev@v4
         with:
           arch: x64
           toolset: '14.44'
@@ -143,27 +143,27 @@ jobs:
         run: |
           wget https://apt.llvm.org/llvm.sh
           chmod +x llvm.sh
-          sudo ./llvm.sh 20
-          sudo apt-get install libc++-20* libc++abi*20* -y --no-install-recommends
-          echo "CC=clang-20" >> "$GITHUB_ENV"
-          echo "CXX=clang++-20" >> "$GITHUB_ENV"
-          echo "OBJC=clang-20" >> "$GITHUB_ENV"
+          sudo ./llvm.sh 21
+          sudo apt-get install libc++-21* libc++abi*21* -y --no-install-recommends
+          echo "CC=clang-21" >> "$GITHUB_ENV"
+          echo "CXX=clang++-21" >> "$GITHUB_ENV"
+          echo "OBJC=clang-21" >> "$GITHUB_ENV"
 
       - name: Setup Clang (Linux) (libstdc++)
         if: matrix.config.os == 'ubuntu' && matrix.config.use-clang == true && (! matrix.config.use-clang_stdlib)
         run: |
           wget https://apt.llvm.org/llvm.sh
           chmod +x llvm.sh
-          sudo ./llvm.sh 20
-          echo "CC=clang-20" >> "$GITHUB_ENV"
-          echo "CXX=clang++-20" >> "$GITHUB_ENV"
-          echo "OBJC=clang-20" >> "$GITHUB_ENV"
+          sudo ./llvm.sh 21
+          echo "CC=clang-21" >> "$GITHUB_ENV"
+          echo "CXX=clang++-21" >> "$GITHUB_ENV"
+          echo "OBJC=clang-21" >> "$GITHUB_ENV"
 
       - name: Setup GCC (Linux)
         if: matrix.config.os == 'ubuntu' && matrix.config.use-clang == false
-        uses: egor-tensin/setup-gcc@v1
+        uses: egor-tensin/setup-gcc@v2
         with:
-          version: 14
+          version: 15
           platform: x64
 
       - name: Unbreak Python in GHA (MacOS 13 image)
@@ -180,10 +180,10 @@ jobs:
         if: matrix.config.os == 'macos'
         run: |
           brew update
-          brew install llvm@20 lld@20
-          echo "$(brew --prefix)/opt/llvm@20/bin:$(brew --prefix)/opt/lld@20/bin" >> $GITHUB_PATH
-          echo "LDFLAGS=-L$(brew --prefix)/opt/llvm@20/lib -L$(brew --prefix)/opt/llvm@20/lib/c++ -Wl,-rpath,$(brew --prefix)/opt/llvm@20/lib/c++ -L$(brew --prefix)/opt/lld@20/lib" >> "$GITHUB_ENV"
-          echo "CPPFLAGS=-I$(brew --prefix)/opt/llvm@20/include -I$(brew --prefix)/opt/lld@20/include" >> "$GITHUB_ENV"
+          brew install llvm@21 lld@21
+          echo "$(brew --prefix)/opt/llvm@21/bin:$(brew --prefix)/opt/lld@21/bin" >> $GITHUB_PATH
+          echo "LDFLAGS=-L$(brew --prefix)/opt/llvm@21/lib -L$(brew --prefix)/opt/llvm@21/lib/c++ -Wl,-rpath,$(brew --prefix)/opt/llvm@21/lib/c++ -L$(brew --prefix)/opt/lld@21/lib" >> "$GITHUB_ENV"
+          echo "CPPFLAGS=-I$(brew --prefix)/opt/llvm@21/include -I$(brew --prefix)/opt/lld@21/include" >> "$GITHUB_ENV"
           echo "CC=clang" >> "$GITHUB_ENV"
           echo "CXX=clang++" >> "$GITHUB_ENV"
           echo "OBJC=clang" >> "$GITHUB_ENV"
@@ -222,7 +222,7 @@ jobs:
         run: meson compile -C build
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.config.name }} Executable
           path: build/src/executables/oopetris*

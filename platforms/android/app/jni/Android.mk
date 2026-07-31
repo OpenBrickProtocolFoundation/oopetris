@@ -1,5 +1,5 @@
 LOCAL_PATH := $(call my-dir)
-BUILD_PATH=$(LOCAL_PATH)/../../../../build-$(TARGET_ARCH_ABI)
+BUILD_PATH=$(LOCAL_PATH)/../../../../build/android-$(TARGET_ARCH_ABI)
 SUBPROJECTS_PATH :=$(BUILD_PATH)/subprojects
 
 include $(CLEAR_VARS)

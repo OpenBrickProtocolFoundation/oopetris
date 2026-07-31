@@ -1,4 +1,4 @@
-def buildAsLibrary = project.hasProperty('BUILD_AS_LIBRARY');
+def buildAsLibrary = project.hasProperty('BUILD_AS_LIBRARY')
 def buildAsApplication = !buildAsLibrary
 
 if (buildAsApplication) {
@@ -11,24 +11,24 @@ if (buildAsApplication) {
  * Internal helper function
  */
 File getABIDir(String abi) {
-    String path = "../../../../build-" + abi;
-    File file = project.file(project.getLayout().getBuildDirectory().file(path));
-    return file;
+    String path = "../../../../build/android-" + abi
+    File file = project.file(project.getLayout().getBuildDirectory().file(path))
+    return file
 }
 
 /**
  * Internal helper function
  */
 boolean existsABIDir(String abi) {
-    File file = getABIDir(abi);
-    return file.exists() && file.isDirectory();
+    File file = getABIDir(abi)
+    return file.exists() && file.isDirectory()
 }
 
 /**
  * Internal helper function
  */
 static List<String> readInputStream(InputStream stream) {
-    InputStreamReader reader = new InputStreamReader(stream);
+    InputStreamReader reader = new InputStreamReader(stream)
     return reader.readLines()
 }
 
@@ -36,17 +36,17 @@ static List<String> readInputStream(InputStream stream) {
  * Internal helper function
  */
 static Tuple3<List<String>, List<String>, Integer> executePipeline(List<List<String>> commands) {
-    List<ProcessBuilder> builders = commands.collect { it -> new ProcessBuilder(it) };
+    List<ProcessBuilder> builders = commands.collect { it -> new ProcessBuilder(it) }
 
-    List<Process> processes = ProcessBuilder.startPipeline(builders);
-    Process last = processes.get(processes.size() - 1);
+    List<Process> processes = ProcessBuilder.startPipeline(builders)
+    Process last = processes.get(processes.size() - 1)
 
-    int exitCode = last.waitFor();
+    int exitCode = last.waitFor()
 
-    List<String> stdout = readInputStream(last.getInputStream());
-    List<String> stderr = readInputStream(last.getErrorStream());
+    List<String> stdout = readInputStream(last.getInputStream())
+    List<String> stderr = readInputStream(last.getErrorStream())
 
-    return new Tuple3<List<String>, List<String>, Integer>(stdout, stderr, exitCode);
+    return new Tuple3<List<String>, List<String>, Integer>(stdout, stderr, exitCode)
 }
 
 /**
@@ -54,29 +54,29 @@ static Tuple3<List<String>, List<String>, Integer> executePipeline(List<List<Str
  */
 static boolean isValidVersion(String version) {
     if (version == null) {
-        return false;
+        return false
     }
 
     List<String> parts = version.split("\\.")
 
     if (parts.size() != 3) {
-        return false;
+        return false
     }
 
     for (part in parts) {
         if (!part.isInteger()) {
-            return false;
+            return false
         }
     }
 
-    return true;
+    return true
 }
 
 /**
  * Internal helper function
  */
 static List<String> getSupportedABIs() {
-    return ["armeabi-v7a", "arm64-v8a", "x86", "x86_64"];
+    return ["armeabi-v7a", "arm64-v8a", "x86", "x86_64"]
 }
 
 /**
@@ -94,33 +94,33 @@ List getAndroidABIs() {
         // auto detect
         for (abi in supportedABIs) {
             if (existsABIDir(abi)) {
-                AbiFilters.add(abi);
+                AbiFilters.add(abi)
             }
         }
     } else if (property == "all") {
         for (abi in supportedABIs) {
-            AbiFilters.add(abi);
+            AbiFilters.add(abi)
         }
     } else if (property.equalsIgnoreCase('armeabi-v7a')) {
-        AbiFilters.add(property);
+        AbiFilters.add(property)
     } else if (property.equalsIgnoreCase('arm64-v8a')) {
-        AbiFilters.add(property);
+        AbiFilters.add(property)
     } else if (property.equalsIgnoreCase('x86')) {
-        AbiFilters.add(property);
+        AbiFilters.add(property)
     } else if (property.equalsIgnoreCase('x86_64')) {
-        AbiFilters.add(property);
+        AbiFilters.add(property)
     } else {
         throw new Exception('ERROR: Invalid ANDROID_ABI entered: ' + property)
     }
 
     for (abi in AbiFilters) {
         if (!existsABIDir(abi)) {
-            throw new Exception("ERROR: build folder for abi '" + abi + "' doesn't  exist: " + file);
+            throw new Exception("ERROR: build folder for abi '" + abi + "' doesn't  exist: " + file)
         }
     }
 
     if (AbiFilters.size() == 0) {
-        throw new Exception('ERROR: at least one ABI is needed to build this app!');
+        throw new Exception('ERROR: at least one ABI is needed to build this app!')
     }
 
     return AbiFilters
@@ -138,24 +138,24 @@ String getVersion() {
 
     if (property != null) {
         if (!isValidVersion(property)) {
-            throw new Exception('User defined version is invalid: ' + property);
+            throw new Exception('User defined version is invalid: ' + property)
         }
 
-        return property;
+        return property
     }
 
     // auto detect
 
-    List<String> abis = getAndroidABIs();
-    List<String> versions = new ArrayList<String>();
+    List<String> abis = getAndroidABIs()
+    List<String> versions = new ArrayList<String>()
 
     for (abi in abis) {
-        File abiDir = getABIDir(abi);
+        File abiDir = getABIDir(abi)
 
         Tuple3<List<String>, List<String>, Integer> versionResult = executePipeline(Arrays.asList(
                 Arrays.asList("meson", "introspect", "--projectinfo", abiDir.getAbsolutePath()),
                 Arrays.asList("jq", "-r", ".version")
-        ));
+        ))
 
         if (versionResult.getV3() != 0) {
             throw new Exception(
@@ -163,40 +163,38 @@ String getVersion() {
                             versionResult.getV3() +
                             ' and stderr:\n' +
                             versionResult.getV2().join("\n")
-            );
+            )
         }
 
         if (versionResult.getV2() != null && !versionResult.getV2().isEmpty()) {
-            throw new Exception('An error occurred while trying to detect the version (code 1): ' + versionResult.getV2().join("\n"));
+            throw new Exception('An error occurred while trying to detect the version (code 1): ' + versionResult.getV2().join("\n"))
         }
 
         if (versionResult.getV1() == null || versionResult.getV1().size() != 1) {
-            throw new Exception('An error occurred while trying to detect the version (code 2): ' + versionResult.getV1().join("\n"));
+            throw new Exception('An error occurred while trying to detect the version (code 2): ' + versionResult.getV1().join("\n"))
         }
 
-        String version = versionResult.getV1()[0];
+        String version = versionResult.getV1()[0]
 
         if (!isValidVersion(version)) {
-            throw new Exception("Auto detection of version returned invalid version: '" + version + "'");
+            throw new Exception("Auto detection of version returned invalid version: '" + version + "'")
         }
 
         for (version1 in versions) {
             if (version != version1) {
-                throw new Exception("Received two versions, that didn't match: " + version1 + " != " + version);
+                throw new Exception("Received two versions, that didn't match: " + version1 + " != " + version)
             }
         }
 
-        versions.add(version);
-
+        versions.add(version)
     }
 
-
     if (versions.size() == 0) {
-        throw new Exception("ERROR: at least one version has to be detected (at least one abi has to be returned by 'getAndroidABIs()')");
+        throw new Exception("ERROR: at least one version has to be detected (at least one abi has to be returned by 'getAndroidABIs()')")
     }
 
     // we guarantee, that every string in there is the same, and that it has at least one entry 
-    return versions[0];
+    return versions[0]
 
 }
 
@@ -218,11 +216,11 @@ Boolean shouldBuildUniversalApk(List<String> abisToUse) {
     // return true, if all abis, we support are specified
     for (abi in supportedABIs) {
         if (!abisToUse.contains(abi)) {
-            return false;
+            return false
         }
     }
 
-    return true;
+    return true
 
 }
 
@@ -232,16 +230,16 @@ Boolean shouldBuildUniversalApk(List<String> abisToUse) {
  * @return String
  */
 String getMesonBuildType() {
-    List<String> abis = getAndroidABIs();
-    List<String> buildtypes = new ArrayList<String>();
+    List<String> abis = getAndroidABIs()
+    List<String> buildtypes = new ArrayList<String>()
 
     for (abi in abis) {
-        File abiDir = getABIDir(abi);
+        File abiDir = getABIDir(abi)
 
         Tuple3<List<String>, List<String>, Integer> buildtypeResult = executePipeline(Arrays.asList(
                 Arrays.asList("meson", "introspect", "--buildoptions", abiDir.getAbsolutePath()),
                 Arrays.asList("jq", "-r", ".[] | select(.name == \"buildtype\") | .value")
-        ));
+        ))
 
         if (buildtypeResult.getV3() != 0) {
             throw new Exception(
@@ -249,40 +247,40 @@ String getMesonBuildType() {
                             buildtypeResult.getV3() +
                             ' and stderr:\n' +
                             buildtypeResult.getV2().join("\n")
-            );
+            )
         }
 
         if (buildtypeResult.getV2() != null && !buildtypeResult.getV2().isEmpty()) {
-            throw new Exception('An error occurred while trying to detect the buildtype (code 1): ' + buildtypeResult.getV2().join("\n"));
+            throw new Exception('An error occurred while trying to detect the buildtype (code 1): ' + buildtypeResult.getV2().join("\n"))
         }
 
         if (buildtypeResult.getV1() == null || buildtypeResult.getV1().size() != 1) {
-            throw new Exception('An error occurred while trying to detect the buildtype (code 2): ' + buildtypeResult.getV1().join("\n"));
+            throw new Exception('An error occurred while trying to detect the buildtype (code 2): ' + buildtypeResult.getV1().join("\n"))
         }
 
-        String buildtype = buildtypeResult.getV1()[0];
+        String buildtype = buildtypeResult.getV1()[0]
 
         if (buildtype == "") {
-            throw new Exception("Auto detection of buildtype returned invalid buildtype: '" + version + "'");
+            throw new Exception("Auto detection of buildtype returned invalid buildtype: '" + version + "'")
         }
 
         for (buildtype1 in buildtypes) {
             if (buildtype != buildtype1) {
-                throw new Exception("Received two buildtypes, that didn't match: " + buildtype1 + " != " + buildtype);
+                throw new Exception("Received two buildtypes, that didn't match: " + buildtype1 + " != " + buildtype)
             }
         }
 
-        buildtypes.add(buildtype);
+        buildtypes.add(buildtype)
 
     }
 
 
     if (buildtypes.size() == 0) {
-        throw new Exception("ERROR: at least one buildtype has to be detected (at least one abi has to be returned by 'getAndroidABIs()')");
+        throw new Exception("ERROR: at least one buildtype has to be detected (at least one abi has to be returned by 'getAndroidABIs()')")
     }
 
     // we guarantee, that every string in there is the same, and that it has at least one entry 
-    return buildtypes[0];
+    return buildtypes[0]
 
 }
 
@@ -292,13 +290,13 @@ String getMesonBuildType() {
  */
 File getDiscordLib() {
     String target = getMesonBuildType() == 'release' ? 'release' : 'debug'
-    String path = "../../../../subprojects/discord_social_sdk/lib/" + target + "/discord_partner_sdk.aar";
-    File file = project.file(project.getLayout().getBuildDirectory().file(path));
+    String path = "../../../../subprojects/discord_social_sdk/lib/" + target + "/discord_partner_sdk.aar"
+    File file = project.file(project.getLayout().getBuildDirectory().file(path))
     if (!file.exists()) {
         throw new Exception("ERROR: discord aar is not present at the location we expected it to be!")
     }
 
-    return file;
+    return file
 }
 
 
@@ -322,7 +320,7 @@ android {
     }
 
     compileSdkVersion 35
-    ndkVersion = "29.0.13846066"
+    ndkVersion = "29.0.14206865"
     defaultConfig {
         if (buildAsApplication) {
             applicationId "com.github.oopetris"
@@ -335,17 +333,13 @@ android {
     buildTypes {
         release {
             minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
     lint {
         abortOnError = false
     }
     namespace = 'com.github.oopetris'
-    applicationVariants.all { variant ->
-        tasks["merge${variant.name.capitalize()}Assets"]
-                .dependsOn("externalNativeBuild${variant.name.capitalize()}")
-    }
 
     sourceSets.main {
         jniLibs.srcDir 'libs'
@@ -362,8 +356,8 @@ android {
             variant.outputs.each { output ->
                 def outputFile = output.outputFile
                 if (outputFile != null && outputFile.name.endsWith(".aar")) {
-                    def fileName = "com.github.oopetris.aar";
-                    output.outputFile = new File(outputFile.parent, fileName);
+                    def fileName = "com.github.oopetris.aar"
+                    output.outputFile = new File(outputFile.parent, fileName)
                 }
             }
         }
@@ -385,6 +379,20 @@ android {
         }
     }
 
+}
+
+androidComponents {
+    onVariants(selector().all()) {
+        variant ->
+            String taskName = "merge${variant.name.capitalize()}Assets"
+
+            tasks.configureEach { task ->
+                if (task.name == taskName) {
+                    task.dependsOn("externalNativeBuild${variant.name.capitalize()}")
+                }
+            }
+
+    }
 }
 
 dependencies {

@@ -45,6 +45,17 @@ else
     exit 1
 fi
 
+# source dependency version information
+
+SCRIPT_DIR="$(realpath "$(dirname -- "${BASH_SOURCE[0]}")")"
+
+# shellcheck source=./platforms/versions.sh
+source "$SCRIPT_DIR/versions.sh"
+
+# shellcheck source=./platforms/helper.sh
+source "$SCRIPT_DIR/helper.sh"
+
+
 export DEVKITPRO="/opt/devkitpro"
 export ARCH_DEVKIT_FOLDER="$DEVKITPRO/devkitA64"
 export COMPILER_BIN="$ARCH_DEVKIT_FOLDER/bin"
@@ -57,11 +68,11 @@ export LIBNX="$DEVKITPRO/libnx"
 export PORTLIBS_LIB="$PORTLIBS_PATH_SWITCH/lib"
 export LIBNX_LIB="$LIBNX/lib"
 
-export PKG_CONFIG_PATH="$PORTLIBS_LIB/pkgconfig/"
+export PKG_CONFIG_PATH="$PORTLIBS_LIB/pkgconfig"
 
 export ROMFS="platforms/romfs"
 
-export BUILD_DIR="build-switch"
+export BUILD_DIR="build/switch"
 
 export TOOL_PREFIX="aarch64-none-elf"
 
@@ -87,13 +98,15 @@ export ENDIANESS="little"
 export COMMON_FLAGS="'-ftls-model=local-exec','-march=armv8-a+crc+crypto','-mtune=cortex-a57','-mtp=soft','-ftls-model=local-exec','-fPIC','-ffunction-sections','-fdata-sections'"
 
 # compat flags for some POSIX functions
-export EXTRA_COMPILE_FLAGS="'-D_XOPEN_SOURCE'"
+export EXTRA_COMPILE_FLAGS="'-D_XOPEN_SOURCE', '-D_DEFAULT_SOURCE'"
 
 export COMPILE_FLAGS="'-D__SWITCH__','-D__CONSOLE__','-D__NINTENDO_CONSOLE__','-isystem','$LIBNX/include','-I$PORTLIBS_PATH_SWITCH/include'"
 
 export LINK_FLAGS="'-L$PORTLIBS_LIB','-L$LIBNX_LIB','-fPIE','-specs=$DEVKITPRO/libnx/switch.specs'"
 
-export CROSS_FILE="./platforms/crossbuild-switch.ini"
+export CROSS_FILE="./platforms/crossbuild/switch.ini"
+
+validate_parent_dir "$CROSS_FILE"
 
 cat <<EOF >"$CROSS_FILE"
 [host_machine]
@@ -152,6 +165,15 @@ USE_NACP    = true
 
 APP_ROMFS='$ROMFS'
 
+[cmake]
+
+CMAKE_FIND_ROOT_PATH_MODE_PROGRAM  = 'BOTH'
+CMAKE_FIND_ROOT_PATH_MODE_LIBRARY  = 'ONLY'
+CMAKE_FIND_ROOT_PATH_MODE_INCLUDE  = 'ONLY'
+CMAKE_FIND_ROOT_PATH_MODE_PACKAGE  = 'ONLY'
+
+CMAKE_FIND_ROOT_PATH = '$PORTLIBS_LIB/cmake'
+
 EOF
 
 if [ ! -d "$ROMFS" ]; then
@@ -172,7 +194,7 @@ if [ "$COMPILE_TYPE" == "complete_rebuild" ] || [ ! -e "$BUILD_DIR" ]; then
         -Dcurl:tests=disabled \
         -Dcurl:unittests=disabled \
         -Dcurl:bearer-auth=enabled \
-        -Dcurl:brotli=enabled \
+        -Dcurl:brotli=auto \
         -Dcurl:libz=enabled \
         "-Drun_in_ci=$RUN_IN_CI" \
         --fatal-meson-warnings
