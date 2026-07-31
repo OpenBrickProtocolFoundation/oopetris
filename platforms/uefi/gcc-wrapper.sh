@@ -40,7 +40,7 @@ for arg in "${ARGS[@]}"; do
         MODE="O_FILES"
         NEW_ARGS+=("$arg")
         ;;
-    --version | -dM)
+    --version | -dM | -xc)
         MODE="pass"
         NEW_ARGS+=("$arg")
         ;;
