@@ -150,7 +150,7 @@ if meson.is_cross_build() and host_machine.system() == 'serenity'
     temp = 0
 elif meson.is_cross_build() and host_machine.system() == 'android'
     cpp = meson.get_compiler('cpp')
-    target_android_api = '35'
+    target_android_api = '37'
 
     android_api = cpp.get_define(
         '__ANDROID_API__',
