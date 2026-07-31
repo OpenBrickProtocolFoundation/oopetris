@@ -87,6 +87,21 @@ if not meson.is_cross_build()
         required: true,
     )
 
+
+    if host_machine.system() == 'linux'
+        install_lib_dir = get_option('prefix') / get_option('libdir')
+
+        discord_partner_sdk_file = files(
+            meson.project_source_root() / lib_dir / 'libdiscord_partner_sdk.so'
+        )
+
+        install_data(
+            discord_partner_sdk_file,
+            install_dir: install_lib_dir,
+            install_tag: 'runtime',
+        )
+    endif
+
     ## NOTE: this is a static library, as it doesn't export the symbols correctly, so on windows the dll would fail to link
     discord_social_sdk_lib = static_library(
         'discord_social_sdk',
