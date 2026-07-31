@@ -13,52 +13,58 @@ SCRIPT_DIR="$(realpath "$(dirname -- "${BASH_SOURCE[0]}")")"
 source "$SCRIPT_DIR/../helper.sh"
 
 CXX="g++-15"
+TOOL="G++"
 
 # Capture all args
 ARGS=("$@")
-NEW_ARGS=()
 
 MODE="unknown"
+
+change_mode() {
+    local NEW_MODE="$1"
+
+    if [[ "$MODE" == "unknown" ]]; then
+        MODE="$NEW_MODE"
+    elif [[ "$MODE" == "$NEW_MODE" ]]; then
+        :
+    else
+        echo "<$TOOL> ${ARGS[*]}" >&2
+        echo "Can't change mode from $MODE to $NEW_MODE" >&2
+        exit 4
+    fi
+}
+
 OUTPUT_FILE=""
 NEXT_IS_OUTPUT="false"
 
 for arg in "${ARGS[@]}"; do
     case "$arg" in
     -Wl,--version | -Wl,-v)
-        MODE="pass"
-        NEW_ARGS+=("$arg")
+        change_mode "pass"
         ;;
     -c)
-        MODE="compile"
-        NEW_ARGS+=("$arg")
+        change_mode "compile"
         ;;
     -o)
-        NEW_ARGS+=("$arg")
         NEXT_IS_OUTPUT="true"
         ;;
-    *.o)
-        MODE="O_FILES"
-        NEW_ARGS+=("$arg")
-        ;;
     --version | -dM | -xc\+\+)
-        MODE="pass"
-        NEW_ARGS+=("$arg")
+        change_mode "pass"
         ;;
     *)
         if [[ "$NEXT_IS_OUTPUT" == true ]]; then
             OUTPUT_FILE="$arg"
             NEXT_IS_OUTPUT=false
         fi
-        NEW_ARGS+=("$arg")
         ;;
     esac
 done
 
 if [[ "$MODE" == "pass" ]]; then
-    exec "$CXX" "${NEW_ARGS[@]}"
+    exec "$CXX" "${ARGS[@]}"
 elif [[ "$MODE" == "compile" ]]; then
     if [ -z "$OUTPUT_FILE" ]; then
-        echo "<G++> ${NEW_ARGS[*]}" >&2
+        echo "<$TOOL> ${ARGS[*]}" >&2
         echo "Missing output file" >&2
         exit 2
     fi
@@ -67,14 +73,14 @@ elif [[ "$MODE" == "compile" ]]; then
 
     cat <<EOF >"$OUTPUT_FILE"
 { 
-    "invocation": $(printf '%s\n' "${ARGS[@]}" | jq -R . | jq -sc .),
-    "args": $(printf '%s\n' "${NEW_ARGS[@]}" | jq -R . | jq -sc .),
+    "cwd": "$(pwd)",
+    "args": $(printf '%s\n' "${ARGS[@]}" | jq -R . | jq -sc .),
     "type": "cpp"
 }
 EOF
 
 else
-    echo "<G++> ${NEW_ARGS[*]}" >&2
+    echo "<$TOOL> ${ARGS[*]}" >&2
     echo "Not recognized intent: $MODE" >&2
     exit 2
 fi

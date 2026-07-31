@@ -15,11 +15,27 @@ source "$SCRIPT_DIR/../helper.sh"
 LIBRARIES_FILE="$SCRIPT_DIR/references/libraries.json"
 
 PKG_CONFIG="pkg-config"
+TOOL="PKG-CONFIG"
 
 # Capture all args
 ARGS=("$@")
 
 MODE="unknown"
+
+change_mode() {
+    local NEW_MODE="$1"
+
+    if [[ "$MODE" == "unknown" ]]; then
+        MODE="$NEW_MODE"
+    elif [[ "$MODE" == "$NEW_MODE" ]]; then
+        :
+    else
+        echo "<$TOOL> ${ARGS[*]}" >&2
+        echo "Can't change mode from $MODE to $NEW_MODE" >&2
+        exit 4
+    fi
+}
+
 WHAT=""
 PACKAGE_NAME=""
 NEXT_IS_PACKAGE_NAME="false"
@@ -27,20 +43,20 @@ NEXT_IS_PACKAGE_NAME="false"
 for arg in "${ARGS[@]}"; do
     case "$arg" in
     --version)
-        MODE="pass"
+        change_mode "pass"
         ;;
     --modversion)
-        MODE="get"
+        change_mode "get"
         WHAT="version"
         NEXT_IS_PACKAGE_NAME="true"
         ;;
     --cflags)
-        MODE="get"
+        change_mode "get"
         WHAT="cflags"
         NEXT_IS_PACKAGE_NAME="true"
         ;;
     --libs)
-        MODE="get"
+        change_mode "get"
         WHAT="libflags"
         NEXT_IS_PACKAGE_NAME="true"
         ;;
@@ -57,7 +73,7 @@ if [[ "$MODE" == "pass" ]]; then
     exec "$PKG_CONFIG" "${ARGS[@]}"
 elif [[ "$MODE" == "get" ]]; then
     if [ -z "$PACKAGE_NAME" ]; then
-        echo "<PKG-CONFIG> ${ARGS[*]}" >&2
+        echo "<$TOOL> ${ARGS[*]}" >&2
         echo "Missing package name" >&2
         exit 2
     fi
@@ -80,13 +96,13 @@ elif [[ "$MODE" == "get" ]]; then
         echo "-L,--lib_name=$("$LIBRARY_ENTRY" | jq -M -r -c ".[\"name\"]")"
         exit 0
     else
-        echo "<PKG-CONFIG> ${ARGS[*]}" >&2
+        echo "<$TOOL> ${ARGS[*]}" >&2
         echo "Not recognized intent: $MODE" >&2
         exit 3
     fi
 
 else
-    echo "<PKG-CONFIG> ${ARGS[*]}" >&2
+    echo "<$TOOL> ${ARGS[*]}" >&2
     echo "Not recognized intent: $MODE" >&2
     exit 2
 fi
