@@ -134,7 +134,18 @@ if build_application
             endif
 
         elif host_machine.system() == 'uefi'
-            warning('TODO: implement')
+            warning('TODO: implement fully')
+
+            oopetris_exe = executable(
+                'oopetris',
+                main_files,
+                dependencies: [liboopetris_graphics_dep, graphic_application_deps],
+                override_options: {
+                    'warning_level': '3',
+                    'werror': true,
+                },
+                install: true,
+            )
         else
             error('Unhandled cross built system: ' + host_machine.system())
         endif

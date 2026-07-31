@@ -45,6 +45,9 @@ for arg in "${ARGS[@]}"; do
     -c)
         change_mode "compile"
         ;;
+    -Wl,*)
+        change_mode "link"
+        ;;
     -o)
         NEXT_IS_OUTPUT="true"
         ;;
@@ -55,6 +58,13 @@ for arg in "${ARGS[@]}"; do
         if [[ "$NEXT_IS_OUTPUT" == true ]]; then
             OUTPUT_FILE="$arg"
             NEXT_IS_OUTPUT=false
+        else
+            case "$arg" in
+            *.a | *.so)
+                change_mode "link"
+                ;;
+            *) ;;
+            esac
         fi
         ;;
     esac
@@ -75,7 +85,26 @@ elif [[ "$MODE" == "compile" ]]; then
 { 
     "cwd": "$(pwd)",
     "args": $(printf '%s\n' "${ARGS[@]}" | jq -R . | jq -sc .),
-    "type": "cpp"
+    "language": "cpp",
+    "type": "compile"
+}
+EOF
+
+elif [[ "$MODE" == "link" ]]; then
+    if [ -z "$OUTPUT_FILE" ]; then
+        echo "<$TOOL> ${ARGS[*]}" >&2
+        echo "Missing output file" >&2
+        exit 2
+    fi
+
+    validate_parent_dir "$OUTPUT_FILE"
+
+    cat <<EOF >"$OUTPUT_FILE"
+{ 
+    "cwd": "$(pwd)",
+    "args": $(printf '%s\n' "${ARGS[@]}" | jq -R . | jq -sc .),
+    "language": "cpp",
+    "type": "link"
 }
 EOF
 
