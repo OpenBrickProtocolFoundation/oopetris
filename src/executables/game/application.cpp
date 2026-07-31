@@ -124,7 +124,7 @@ Application::Application(std::shared_ptr<Window>&& window, CommandLineArguments&
 Application::~Application() = default;
 
 #if defined(__EMSCRIPTEN__)
-void c_loop_entry(void* arg) {
+static void c_loop_entry(void* arg) {
     auto application = reinterpret_cast<Application*>(arg);
     application->emscripten_do_process();
     application->loop_entry_emscripten();
