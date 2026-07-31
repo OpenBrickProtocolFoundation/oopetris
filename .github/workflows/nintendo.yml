@@ -51,4 +51,4 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.config.name }} Executable
-          path: build-${{ matrix.config.name }}/oopetris.${{ matrix.config.extension }}
+          path: build/${{ matrix.config.name }}/oopetris.${{ matrix.config.extension }}
