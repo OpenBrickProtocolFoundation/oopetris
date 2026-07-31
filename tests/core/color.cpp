@@ -35,18 +35,18 @@ operator==(const HSVColor& value1, const HSVColor& value2) { //NOLINT(misc-use-i
 
 
 // make colors printable
-void PrintTo(const Color& color, std::ostream* os) { //NOLINT(misc-use-internal-linkage)
+static void PrintTo(const Color& color, std::ostream* os) { //NOLINT(misc-use-internal-linkage)
     *os << color.to_string();
 }
 
-void PrintTo(const HSVColor& color, std::ostream* os) { //NOLINT(misc-use-internal-linkage)
+static void PrintTo(const HSVColor& color, std::ostream* os) { //NOLINT(misc-use-internal-linkage)
     *os << color.to_string();
 }
 
 
 namespace color {
 
-    void PrintTo(const SerializeMode& value, std::ostream* os) { //NOLINT(misc-use-internal-linkage)
+    static void PrintTo(const SerializeMode& value, std::ostream* os) { //NOLINT(misc-use-internal-linkage)
         *os << magic_enum::enum_name(value);
     }
 
