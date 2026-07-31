@@ -30,3 +30,7 @@ export NDK_VER_DESC="r29"
 export EMSCRIPTEN_RELEASE_TAG="6.0.5"
 
 export EMSDK_EXECUTE_NODE_VERSION="24.7.0"
+
+# edk2 section
+
+export EDK2_RELEASE_TAG="edk2-stable202605"
