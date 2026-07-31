@@ -10,7 +10,20 @@
 #ifdef _WIN32
 #define NFD_DIFFERENT_NATIVE_FUNCTIONS
 #endif
+
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wundef"
+
+#endif
+
 #include <nfd.hpp>
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
+
 
 #include <filesystem>
 #include <optional>

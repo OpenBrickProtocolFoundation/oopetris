@@ -4,7 +4,7 @@
 
 #include "./client.hpp"
 
-#if defined(__3DS__)
+#if defined(__GNUC__)
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
@@ -14,7 +14,7 @@
 #include <cpr/cpr.h>
 
 
-#if defined(__3DS__)
+#if defined(__GNUC__)
 #pragma GCC diagnostic pop
 #endif
 
