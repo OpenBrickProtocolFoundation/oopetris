@@ -58,7 +58,7 @@ if get_option('run_in_ci')
 
     emscripten_compiler_current = {
         'id': 'emscripten',
-        'checks': ['>=4', '<5'],
+        'checks': ['>=6', '<7'],
     }
 
     ci_config = {
