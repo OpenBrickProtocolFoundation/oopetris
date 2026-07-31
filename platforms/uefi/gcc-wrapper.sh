@@ -19,6 +19,21 @@ TOOL="GCC"
 ARGS=("$@")
 
 DEPENDENCIES=()
+
+validate_dependencies() {
+
+    for DEPENDENCY in "${DEPENDENCIES[@]}"; do
+        FILE="$(realpath "$DEPENDENCY")"
+
+        if ! (jq -e "." "$FILE" >/dev/null); then
+            echo "<$TOOL> ${ARGS[*]}" >&2
+            echo "Dependency '$FILE' is not a valid json file" >&2
+            exit 5
+        fi
+
+    done
+}
+
 MODE="unknown"
 
 change_mode() {
@@ -36,7 +51,7 @@ change_mode() {
 }
 
 OUTPUT_FILE=""
-NEXT_IS_OUTPUT="false"
+NEXT_TYPE="unknown"
 
 for arg in "${ARGS[@]}"; do
     case "$arg" in
@@ -50,15 +65,20 @@ for arg in "${ARGS[@]}"; do
         change_mode "link"
         ;;
     -o)
-        NEXT_IS_OUTPUT="true"
+        NEXT_TYPE="output"
+        ;;
+    -MQ)
+        NEXT_TYPE="ignore"
         ;;
     --version | -dM | -xc)
         change_mode "pass"
         ;;
     *)
-        if [[ "$NEXT_IS_OUTPUT" == true ]]; then
+        if [[ "$NEXT_TYPE" == "output" ]]; then
             OUTPUT_FILE="$arg"
-            NEXT_IS_OUTPUT=false
+            NEXT_TYPE="unknown"
+        elif [[ "$NEXT_TYPE" == "ignore" ]]; then
+            NEXT_TYPE="unknown"
         else
             case "$arg" in
             *.a | *.so)
@@ -86,6 +106,8 @@ elif [[ "$MODE" == "compile" ]]; then
 
     validate_parent_dir "$OUTPUT_FILE"
 
+    validate_dependencies
+
     cat <<EOF >"$OUTPUT_FILE"
 {
     "cwd": "$(pwd)",
@@ -107,6 +129,8 @@ elif [[ "$MODE" == "link" ]]; then
     fi
 
     validate_parent_dir "$OUTPUT_FILE"
+
+    validate_dependencies
 
     cat <<EOF >"$OUTPUT_FILE"
 {
