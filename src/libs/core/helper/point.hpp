@@ -3,7 +3,7 @@
 #include <cassert>
 #include <type_traits>
 
-#if defined(__3DS__)
+#ifdef __3DS__
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
@@ -11,7 +11,7 @@
 
 #include <ostream>
 
-#if defined(__3DS__)
+#ifdef __3DS__
 #pragma GCC diagnostic pop
 #endif
 
