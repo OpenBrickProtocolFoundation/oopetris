@@ -454,6 +454,12 @@ if build_application
         graphics_lib += {
             'compile_args': [graphics_lib.get('compile_args'), '-D_OOPETRIS_ONLINE_SYSTEM=1'],
         }
+    elif meson.is_cross_build() and host_machine.system() == 'uefi'
+        online_multiplayer_system = 'uefi'
+
+        graphics_lib += {
+            'compile_args': [graphics_lib.get('compile_args'), '-D_OOPETRIS_ONLINE_SYSTEM=2'],
+        }
     else
 
         online_multiplayer_system = 'curl'

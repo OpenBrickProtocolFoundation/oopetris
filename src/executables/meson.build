@@ -133,6 +133,8 @@ if build_application
                 )
             endif
 
+        elif host_machine.system() == 'uefi'
+            warning('TODO: implement')
         else
             error('Unhandled cross built system: ' + host_machine.system())
         endif
