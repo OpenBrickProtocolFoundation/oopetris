@@ -6,6 +6,7 @@
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wundef"
 #elif defined(_MSC_VER)
 #pragma warning(disable : 4100)
 #endif
