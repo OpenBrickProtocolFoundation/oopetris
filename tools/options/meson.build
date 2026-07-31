@@ -321,6 +321,8 @@ elif cpp.get_id() == 'clang'
 
         endif
 
+        message('Building C++ with libc++')
+
     else
         # TODO: once clang with libstdc++ (gcc c++ stdlib) supports std::expected, remove this special behaviour
         allow_tl_expected_fallback = true
