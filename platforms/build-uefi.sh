@@ -97,7 +97,6 @@ git -C "$EDK2_ROOT" submodule update --init
 export EDK_TOOLS_PATH="$EDK2_ROOT/BaseTools"
 export PACKAGES_PATH="$EDK2_ROOT"
 
-
 pushd "$EDK2_ROOT"
 
 make -C BaseTools
@@ -105,7 +104,7 @@ make -C BaseTools
 set +u
 
 # shellcheck disable=SC1091
-source "$EDK2_ROOT/edksetup.sh"
+source "$EDK2_ROOT/edksetup.sh" "--reconfig"
 
 set -u
 
@@ -122,7 +121,12 @@ else
     exit 1
 fi
 
-declare -A EDK2_TARGET_PROPERTIES=(["ACTIVE_PLATFORM"]="$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM" ["TARGET"]="$(echo "$BUILDTYPE" | tr "[:lower:]" "[:upper:]")" ["TARGET_ARCH"]="X64" ["TOOL_CHAIN_TAG"]="GCC")
+EDK2_TARGET_PROPERTIES_BUILDTYPE="$(echo "$BUILDTYPE" | tr "[:lower:]" "[:upper:]")"
+
+EDK2_TARGET_PROPERTIES_ARCH="X64"
+EDK2_TARGET_PROPERTIES_TOOLCHAIN="GCC"
+
+declare -A EDK2_TARGET_PROPERTIES=(["ACTIVE_PLATFORM"]="$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM" ["TARGET"]="$EDK2_TARGET_PROPERTIES_BUILDTYPE" ["TARGET_ARCH"]="$EDK2_TARGET_PROPERTIES_ARCH" ["TOOL_CHAIN_TAG"]="$EDK2_TARGET_PROPERTIES_TOOLCHAIN")
 
 for EDK2_TARGET_PROPERTY in "${!EDK2_TARGET_PROPERTIES[@]}"; do
     EDK2_TARGET_PROPERTY_VALUE="${EDK2_TARGET_PROPERTIES[$EDK2_TARGET_PROPERTY]}"
@@ -133,45 +137,39 @@ done
 export EDK2_LINUX_BIN_PATH="$EDK_TOOLS_PATH/Bin/Linux-x86_64"
 export EDK2_POSIX_BIN_PATH="$EDK_TOOLS_PATH/BinWrappers/PosixLike"
 
-
 export EDK2_BUILD_COMMAND="$EDK2_POSIX_BIN_PATH/build"
+
+if ! [ -e "$WORKSPACE/OopetrisPkg" ]; then
+    ln -s "$SCRIPT_DIR/uefi/references/OopetrisPkg" "$WORKSPACE/OopetrisPkg"
+fi
 
 popd
 
-exit 1
+export BUILD_DIR="build/uefi"
 
-## build the needed dependencies
-embuilder build sdl2-mt harfbuzz-mt freetype zlib sdl2_ttf mpg123 "sdl2_mixer-mp3-mt" libpng-mt "sdl2_image:formats=png,svg:mt=1" icu-mt
+export PKG_CONFIG_PATH="$EDK2_ROOT/lib/pkgconfig"
 
-export EDK2_SYS_ROOT="$EDK2_UPSTREAM_ROOT/cache/sysroot"
+export CC="$SCRIPT_DIR/uefi/gcc-wrapper.sh"
+export CXX="$SCRIPT_DIR/uefi/g++-wrapper.sh"
+export AR=""
+export RANLIB=""
+export STRIP=""
+export NM=""
 
-export BUILD_DIR="build/web"
+export PKG_CONFIG_EXEC="$SCRIPT_DIR/uefi/pkg-config-wrapper.sh"
 
-export PKG_CONFIG_PATH="$EDK2_SYS_ROOT/lib/pkgconfig"
-
-export CC="emcc"
-export CXX="em++"
-export AR="emar"
-export RANLIB="emranlib"
-export STRIP="emstrip"
-export NM="emnm"
-
-export ARCH="wasm32"
-export CPU_ARCH="wasm32"
+export ARCH="x86_64"
+export CPU_ARCH="x86_64"
 export ENDIANESS="little"
 
 export ROMFS="platforms/romfs"
 
-export PACKAGE_FLAGS="'--use-port=sdl2', '--use-port=harfbuzz', '--use-port=freetype', '--use-port=zlib', '--use-port=sdl2_ttf', '--use-port=mpg123', '--use-port=sdl2_mixer', '-sSDL2_MIXER_FORMATS=[\"mp3\"]','--use-port=libpng', '--use-port=sdl2_image','-sSDL2_IMAGE_FORMATS=[\"png\",\"svg\"]', '--use-port=icu'"
+export COMMON_FLAGS="'-fexceptions', '-pthread'"
 
-#TODO use '-sMEMORY64', '-m64',  and target wasm64
-export COMMON_FLAGS="'-fexceptions', '-pthread', '-sUSE_PTHREADS=1', '-sEXCEPTION_CATCHING_ALLOWED=[..]', $PACKAGE_FLAGS"
-
-# TODO see if ALLOW_MEMORY_GROWTH is needed, but if we load ttf's and music it likely is and we don't have to debug OOm crashes, that aren't handled by some third party library, which is painful
-export LINK_FLAGS="$COMMON_FLAGS, '-sEXPORT_ALL=1', '-sWASM=1', '-sALLOW_MEMORY_GROWTH=1', '-sASSERTIONS=1','-sERROR_ON_UNDEFINED_SYMBOLS=1', '-sFETCH=1', '-sEXIT_RUNTIME=1'"
+export LINK_FLAGS="$COMMON_FLAGS"
 export COMPILE_FLAGS="$COMMON_FLAGS ,'-DAUDIO_PREFER_MP3'"
 
-export CROSS_FILE="./platforms/crossbuild/web.ini"
+export CROSS_FILE="./platforms/crossbuild/uefi.ini"
 
 validate_parent_dir "$CROSS_FILE"
 
@@ -199,11 +197,9 @@ ranlib  = '$RANLIB'
 strip   = '$STRIP'
 nm = '$NM'
 
-# pkg-config = ['emmake', 'pkg-config']
-# cmake = ['emmake', 'cmake']
-# sdl2-config = ['emconfigure', 'sdl2-config']
 
-# exe_wrapper = '$EMSDK_NODE'
+pkg-config = '$PKG_CONFIG_EXEC'
+cmake = ''
 
 [built-in options]
 c_std = 'c11'
@@ -216,7 +212,6 @@ cpp_link_args = [$LINK_FLAGS]
 [properties]
 pkg_config_libdir = '$PKG_CONFIG_PATH'
 needs_exe_wrapper = true
-sys_root = '$EDK2_SYS_ROOT'
 
 APP_ROMFS='$ROMFS/assets/'
 
@@ -227,7 +222,7 @@ CMAKE_FIND_ROOT_PATH_MODE_LIBRARY  = 'ONLY'
 CMAKE_FIND_ROOT_PATH_MODE_INCLUDE  = 'ONLY'
 CMAKE_FIND_ROOT_PATH_MODE_PACKAGE  = 'ONLY'
 
-CMAKE_FIND_ROOT_PATH = '$EDK2_SYS_ROOT/lib/cmake'
+CMAKE_FIND_ROOT_PATH = ''
 
 EOF
 
@@ -238,6 +233,29 @@ if [ ! -d "$ROMFS" ]; then
     cp -r assets "$ROMFS/"
 
 fi
+
+export EDK2_INFO_FILE="./platforms/crossbuild/uefi_info.json"
+
+validate_parent_dir "$EDK2_INFO_FILE"
+
+cat <<EOF >"$EDK2_INFO_FILE"
+{
+    "build": "$EDK2_BUILD_COMMAND",
+    "arch": "$EDK2_TARGET_PROPERTIES_ARCH",
+    "workspace": "$WORKSPACE",
+    "platform": "$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM",
+    "buildtype": "$EDK2_TARGET_PROPERTIES_BUILDTYPE",
+    "toolchain": "$EDK2_TARGET_PROPERTIES_TOOLCHAIN"
+}
+EOF
+
+# "$EDK2_BUILD_COMMAND" -a "$EDK2_TARGET_PROPERTIES_ARCH" \
+#     -p "$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM" \
+#     -m "$WORKSPACE/CustomPkg/HelloWorld.inf" \
+#     -b "$EDK2_TARGET_PROPERTIES_BUILDTYPE" \
+#     -t "$EDK2_TARGET_PROPERTIES_TOOLCHAIN" \
+#     -w \
+#     -v
 
 if [ "$COMPILE_TYPE" == "complete_rebuild" ] || [ ! -e "$BUILD_DIR" ]; then
 
