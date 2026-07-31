@@ -24,7 +24,7 @@ jobs:
           - name: switch
             extension: nro
             container: devkita64
-            revision: "latest"
+            revision: "20260219"
 
     steps:
       - uses: actions/checkout@v7
