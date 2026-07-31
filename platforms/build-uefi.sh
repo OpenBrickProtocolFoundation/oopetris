@@ -140,7 +140,7 @@ export EDK2_POSIX_BIN_PATH="$EDK_TOOLS_PATH/BinWrappers/PosixLike"
 export EDK2_BUILD_COMMAND="$EDK2_POSIX_BIN_PATH/build"
 
 if ! [ -e "$WORKSPACE/OopetrisPkg" ]; then
-    ln -s "$SCRIPT_DIR/uefi/references/OopetrisPkg" "$WORKSPACE/OopetrisPkg"
+    ln -s "$WORKSPACE/OopetrisPkg" "$SCRIPT_DIR/uefi/references/OopetrisPkg"
 fi
 
 popd
@@ -265,10 +265,10 @@ if [ "$COMPILE_TYPE" == "complete_rebuild" ] || [ ! -e "$BUILD_DIR" ]; then
         "-Dbuildtype=$BUILDTYPE" \
         -Ddefault_library=static \
         -Dtests=false \
-        --force-fallback-for="fmt,nlohmann_json,magic_enum,utf8cpp" \
+        --force-fallback-for="fmt,nlohmann_json,magic_enum,utf8cpp,sdl2_ttf,freetype2,spdlog" \
         --wrap-mode=nofallback \
         "-Drun_in_ci=$RUN_IN_CI" #TODO: enable \
-        #--fatal-meson-warnings
+    #--fatal-meson-warnings
 
 fi
 
