@@ -319,14 +319,14 @@ android {
         targetCompatibility JavaVersion.VERSION_21
     }
 
-    compileSdkVersion 36
+    compileSdkVersion 35
     ndkVersion = "29.0.14033849"
     defaultConfig {
         if (buildAsApplication) {
             applicationId "com.github.oopetris"
         }
         minSdkVersion 21
-        targetSdkVersion 36
+        targetSdkVersion 35
         versionCode 7
         versionName(versionString)
     }
