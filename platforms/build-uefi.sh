@@ -265,6 +265,7 @@ if [ "$COMPILE_TYPE" == "complete_rebuild" ] || [ ! -e "$BUILD_DIR" ]; then
         "-Dbuildtype=$BUILDTYPE" \
         -Ddefault_library=static \
         -Dtests=false \
+        --force-fallback-for="fmt,nlohmann_json,magic_enum,utf8cpp" \
         --wrap-mode=nofallback \
         "-Drun_in_ci=$RUN_IN_CI" #TODO: enable \
         #--fatal-meson-warnings

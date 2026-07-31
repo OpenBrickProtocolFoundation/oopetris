@@ -133,6 +133,8 @@ if meson.is_cross_build()
             'deps': [graphics_lib.get('deps'), native_deps],
         }
 
+    elif host_machine.system() == 'uefi'
+        warning('TODO: implement')
     else
         error('Unhandled cross built system: ' + host_machine.system())
     endif
@@ -143,7 +145,8 @@ fmt_use_header_only = false
 if (
     meson.is_cross_build()
     and (host_machine.system() == 'switch'
-    or host_machine.system() == '3ds')
+    or host_machine.system() == '3ds'
+    or host_machine.system() == 'uefi')
 )
     fmt_use_header_only = true
 endif

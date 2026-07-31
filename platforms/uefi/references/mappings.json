@@ -1,0 +1,10 @@
+{
+    "oopetris": {
+        "type": "application",
+        "name": "OOpetrisApplication"
+    },
+    "oopetris_core": {
+        "type": "library",
+        "name": "OOpetrisCore"
+    }
+}

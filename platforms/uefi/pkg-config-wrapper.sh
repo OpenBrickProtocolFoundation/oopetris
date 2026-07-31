@@ -1,13 +1,92 @@
 #!/usr/bin/env bash
 
-set -eu
+# Exit immediately if a command exits with a non-zero status.
+set -e
+## Treat undefined variables as an error
+set -u
+# fails if any part of a pipeline (|) fails
+set -o pipefail
+
+SCRIPT_DIR="$(realpath "$(dirname -- "${BASH_SOURCE[0]}")")"
+
+# shellcheck source=./platforms/helper.sh
+source "$SCRIPT_DIR/../helper.sh"
+
+LIBRARIES_FILE="$SCRIPT_DIR/references/libraries.json"
+
+PKG_CONFIG="pkg-config"
 
 # Capture all args
 ARGS=("$@")
-NEW_ARGS=()
 
-for ARG in "${ARGS[@]}"; do
-    echo "$ARG"
+MODE="unknown"
+WHAT=""
+PACKAGE_NAME=""
+NEXT_IS_PACKAGE_NAME="false"
+
+for arg in "${ARGS[@]}"; do
+    case "$arg" in
+    --version)
+        MODE="pass"
+        ;;
+    --modversion)
+        MODE="get"
+        WHAT="version"
+        NEXT_IS_PACKAGE_NAME="true"
+        ;;
+    --cflags)
+        MODE="get"
+        WHAT="cflags"
+        NEXT_IS_PACKAGE_NAME="true"
+        ;;
+    --libs)
+        MODE="get"
+        WHAT="libflags"
+        NEXT_IS_PACKAGE_NAME="true"
+        ;;
+    *)
+        if [[ "$NEXT_IS_PACKAGE_NAME" == true ]]; then
+            PACKAGE_NAME="$arg"
+            NEXT_IS_PACKAGE_NAME=false
+        fi
+        ;;
+    esac
 done
 
-exit 2
+if [[ "$MODE" == "pass" ]]; then
+    exec "$PKG_CONFIG" "${ARGS[@]}"
+elif [[ "$MODE" == "get" ]]; then
+    if [ -z "$PACKAGE_NAME" ]; then
+        echo "<PKG-CONFIG> ${ARGS[*]}" >&2
+        echo "Missing package name" >&2
+        exit 2
+    fi
+
+    LIBRARY_ENTRY="$(jq -M -r -c ".[\"${PACKAGE_NAME}\"]" "$LIBRARIES_FILE")"
+
+    if [ "$LIBRARY_ENTRY" = "null" ]; then
+        exit 1
+    fi
+
+    if [[ "$WHAT" == "version" ]]; then
+        echo "$LIBRARY_ENTRY" | jq -M -r -c ".[\"version\"]"
+        exit 0
+    elif [[ "$WHAT" == "cflags" ]]; then
+        echo "--use-lib=$PACKAGE_NAME"
+        echo "--lib_name=$("$LIBRARY_ENTRY" | jq -M -r -c ".[\"name\"]")"
+        exit 0
+    elif [[ "$WHAT" == "libflags" ]]; then
+        echo "-L,--use-lib=$PACKAGE_NAME"
+        echo "-L,--lib_name=$("$LIBRARY_ENTRY" | jq -M -r -c ".[\"name\"]")"
+        exit 0
+    else
+        echo "<PKG-CONFIG> ${ARGS[*]}" >&2
+        echo "Not recognized intent: $MODE" >&2
+        exit 3
+    fi
+
+else
+    echo "<PKG-CONFIG> ${ARGS[*]}" >&2
+    echo "Not recognized intent: $MODE" >&2
+    exit 2
+fi

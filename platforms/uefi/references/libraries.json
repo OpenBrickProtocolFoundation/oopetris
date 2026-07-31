@@ -1,0 +1,6 @@
+{
+    "sdl2": {
+        "name": "LibraryPkg/SDL2Pkg.inf",
+        "version": "2.32.10"
+    }
+}
