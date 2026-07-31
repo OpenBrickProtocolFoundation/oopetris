@@ -19,7 +19,15 @@ std::vector<std::string> utils::supported_features() {
     features.emplace_back("online multiplayer");
 
 #if defined(_HAVE_FILE_DIALOGS)
+#if !defined(_OOPETRIS_FILE_DIALOGS_TYPE)
+#error "Undefined FILE DIALOG TYPE"
+#elif _OOPETRIS_FILE_DIALOGS_TYPE == 1
     features.emplace_back("file dialogs");
+#elif _OOPETRIS_FILE_DIALOGS_TYPE == 2
+    features.emplace_back("android native file dialogs");
+#else
+#error "Invalid FILE DIALOG TYPE"
+#endif
 #endif
 
 #if defined(_HAVE_DISCORD_SOCIAL_SDK)

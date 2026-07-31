@@ -3,26 +3,41 @@
 
 #include <recordings/recordings.hpp>
 
+
+#if !defined(_OOPETRIS_FILE_DIALOGS_TYPE)
+#error "Undefined FILE DIALOG TYPE"
+#elif _OOPETRIS_FILE_DIALOGS_TYPE == 1
 #include "helper/nfd_include.hpp"
+#elif _OOPETRIS_FILE_DIALOGS_TYPE == 2
+#error "TODO"
+#else
+#error "Invalid FILE DIALOG TYPE"
+#endif
+
+
 #include "manager/event_dispatcher.hpp"
 #include "manager/font.hpp"
 #include "manager/resource_manager.hpp"
 #include "ui/components/text_button.hpp"
 
 custom_ui::RecordingFileChooser::RecordingFileChooser(
-                ServiceProvider* service_provider,
-                ui::FocusHelper& focus_helper,
-                const ui::Layout& layout,
-                bool is_top_level
-        ):ui::Widget{layout, ui::WidgetType::Component, is_top_level},
-        ui::Focusable{focus_helper.focus_id()},
-        ui::Hoverable{layout.get_rect()},
-        m_main_grid{  focus_helper.focus_id(), 2,
-        ui::Direction::Horizontal,
-                  ui::RelativeMargin{ layout, ui::Direction::Vertical, 0.05 },
-    std::pair<double, double>{ 0.05, 0.05 } ,
-    ui::RelativeLayout{layout, 0.0, 0.2, 1.0, 0.5  },false
-       }{
+        ServiceProvider* service_provider,
+        ui::FocusHelper& focus_helper,
+        const ui::Layout& layout,
+        bool is_top_level
+)
+    : ui::Widget{
+          layout, ui::WidgetType::Component, is_top_level
+},
+      ui::Focusable{ focus_helper.focus_id() },
+      ui::Hoverable{ layout.get_rect() },
+      m_main_grid{ focus_helper.focus_id(),
+                   2,
+                   ui::Direction::Horizontal,
+                   ui::RelativeMargin{ layout, ui::Direction::Vertical, 0.05 },
+                   std::pair<double, double>{ 0.05, 0.05 },
+                   ui::RelativeLayout{ layout, 0.0, 0.2, 1.0, 0.5 },
+                   false } {
 
 
     m_main_grid.add<ui::TextButton>(
@@ -31,9 +46,12 @@ custom_ui::RecordingFileChooser::RecordingFileChooser(
             [service_provider, this](const ui::TextButton&) -> bool {
                 this->prepare_dialog(service_provider);
 
-                const auto result = helper::open_multiple_files_dialog({
-                        { .name = "OOPetris Recording", .extension_list = { constants::recording::extension } }
-                });
+                const auto result = helper::open_multiple_files_dialog(
+                        {
+                                { .name = "OOPetris Recording",
+                                 .extension_list = { constants::recording::extension } }
+                }
+                );
 
                 if (result.has_value()) {
                     for (const auto& path : result.value()) {
@@ -114,8 +132,8 @@ helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>> custom_ui::Reco
 }
 
 
-[[nodiscard]] const std::vector<std::filesystem::path>& custom_ui::RecordingFileChooser::get_currently_chosen_files(
-) const {
+[[nodiscard]] const std::vector<std::filesystem::path>&
+custom_ui::RecordingFileChooser::get_currently_chosen_files() const {
     return m_currently_chosen_files;
 }
 

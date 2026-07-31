@@ -18,7 +18,7 @@ graphics_src_files += files(
     'web_utils.hpp',
 )
 
-if have_file_dialogs
+if have_file_dialogs and file_dialogs_type == 'nfd'
     graphics_src_files += files('nfd.cpp', 'nfd_include.hpp')
 endif
 

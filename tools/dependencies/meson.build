@@ -543,6 +543,7 @@ if build_application
     endif
 
     have_file_dialogs = false
+    file_dialogs_type = 'none'
     have_discord_social_sdk = false
 
     nfde_dep = dependency(
@@ -555,9 +556,17 @@ if build_application
     )
     if nfde_dep.found()
         have_file_dialogs = true
+        file_dialogs_type = 'nfd'
         graphics_lib += {
-            'compile_args': [graphics_lib.get('compile_args'), '-D_HAVE_FILE_DIALOGS'],
+            'compile_args': [graphics_lib.get('compile_args'), '-D_HAVE_FILE_DIALOGS','-D_OOPETRIS_FILE_DIALOGS_TYPE=1'],
             'deps': [graphics_lib.get('deps'), nfde_dep],
+        }
+    elif (meson.is_cross_build()
+        and host_machine.system() == 'android')
+        have_file_dialogs = true
+        file_dialogs_type = 'android'
+        graphics_lib += {
+            'compile_args': [graphics_lib.get('compile_args'), '-D_HAVE_FILE_DIALOGS','-D_OOPETRIS_FILE_DIALOGS_TYPE=2'],
         }
     endif
 

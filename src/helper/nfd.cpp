@@ -1,6 +1,6 @@
 
 
-#if defined(_HAVE_FILE_DIALOGS)
+#if defined(_HAVE_FILE_DIALOGS) && _OOPETRIS_FILE_DIALOGS_TYPE == 1
 
 #include <core/helper/types.hpp>
 #include <core/helper/utils.hpp>

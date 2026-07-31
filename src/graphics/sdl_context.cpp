@@ -10,7 +10,7 @@
 #include "helper/console_helpers.hpp"
 #endif
 
-#if defined(_HAVE_FILE_DIALOGS)
+#if defined(_HAVE_FILE_DIALOGS) && _OOPETRIS_FILE_DIALOGS_TYPE == 1
 
 #include "helper/nfd_include.hpp"
 
@@ -29,7 +29,7 @@ SdlContext::SdlContext() {
     console::platform_init();
 #endif
 
-#if defined(_HAVE_FILE_DIALOGS)
+#if defined(_HAVE_FILE_DIALOGS) && _OOPETRIS_FILE_DIALOGS_TYPE == 1
     if (NFD::Init() != NFD_OKAY) {
         throw helper::InitializationError{
             fmt::format("Failed to initialize the file dialog library: {}", NFD::GetError())
@@ -41,7 +41,7 @@ SdlContext::SdlContext() {
 
 SdlContext::~SdlContext() {
 
-#if defined(_HAVE_FILE_DIALOGS)
+#if defined(_HAVE_FILE_DIALOGS) && _OOPETRIS_FILE_DIALOGS_TYPE == 1
     NFD::Quit();
 #endif
 
