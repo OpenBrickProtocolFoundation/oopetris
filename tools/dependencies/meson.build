@@ -386,11 +386,11 @@ if build_application
     spdlog_std_format = 'auto'
 
     if not cpp.has_header_symbol(
-            'format',
-            '__cpp_lib_format',
-            args: core_lib.get('compile_args'),
-        ) or not cpp.compiles(
-            '''
+        'format',
+        '__cpp_lib_format',
+        args: core_lib.get('compile_args'),
+    ) or not cpp.compiles(
+        '''
         #include <format>
         int main(void) {
             /* If it's not defined as a macro, try to use as a symbol */
@@ -404,8 +404,8 @@ if build_application
             return 0;
         }
         ''',
-            args: core_lib.get('compile_args'),
-        )
+        args: core_lib.get('compile_args'),
+    )
         spdlog_std_format = 'disabled'
     endif
 
