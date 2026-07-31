@@ -83,6 +83,8 @@ source "$SCRIPT_DIR/helper.sh"
 EDK2_ROOT="$(pwd)/toolchains/edk2"
 export EDK2_ROOT
 
+export WORKSPACE="$EDK2_ROOT"
+
 if [ ! -d "$EDK2_ROOT" ]; then
     git clone https://github.com/tianocore/edk2 "$EDK2_ROOT"
 else
@@ -93,6 +95,8 @@ git -C "$EDK2_ROOT" checkout "$EDK2_RELEASE_TAG"
 git -C "$EDK2_ROOT" submodule update --init
 
 export EDK_TOOLS_PATH="$EDK2_ROOT/BaseTools"
+export PACKAGES_PATH="$EDK2_ROOT"
+
 
 pushd "$EDK2_ROOT"
 
@@ -125,6 +129,12 @@ for EDK2_TARGET_PROPERTY in "${!EDK2_TARGET_PROPERTIES[@]}"; do
 
     sed -i "s|^${EDK2_TARGET_PROPERTY}[[:space:]]*=.*\$|${EDK2_TARGET_PROPERTY} = $EDK2_TARGET_PROPERTY_VALUE|" "$EDK2_CONF_TARGET"
 done
+
+export EDK2_LINUX_BIN_PATH="$EDK_TOOLS_PATH/Bin/Linux-x86_64"
+export EDK2_POSIX_BIN_PATH="$EDK_TOOLS_PATH/BinWrappers/PosixLike"
+
+
+export EDK2_BUILD_COMMAND="$EDK2_POSIX_BIN_PATH/build"
 
 popd
 
