@@ -3,7 +3,7 @@ oopetris_name = 'OOPetris'
 
 cpp = meson.get_compiler('cpp')
 
-common_compiler_args = cpp.get_supported_arguments(
+internal_cpp_compiler_args = cpp.get_supported_arguments(
     '-Wassign-enum',
     '-Wenum-conversion',
     '-Wenum-switch',
@@ -56,15 +56,27 @@ common_compiler_args = cpp.get_supported_arguments(
     '-Wfloat-conversion',
 )
 
+common_cpp_compiler_args = []
+
+foreach internal_cpp_compiler_arg : internal_cpp_compiler_args
+
+    # cpp.get_supported_arguments reports true, but it is not really smart and the actual compiler doesn't accept this :(
+    ##TODO: maybe file a meson bug?
+    if internal_cpp_compiler_arg not in ['-Werror=implicit', '-Werror=pointer-to-int-cast']
+        common_cpp_compiler_args += internal_cpp_compiler_arg
+    endif
+
+endforeach
+
 core_lib = {
     'inc_dirs': [],
-    'compile_args': ['-DOOPETRIS_VERSION=' + meson.project_version()] + common_compiler_args,
+    'compile_args': ['-DOOPETRIS_VERSION=' + meson.project_version()] + common_cpp_compiler_args,
     'deps': [],
 }
 
 recordings_lib = {
     'inc_dirs': [],
-    'compile_args': [] + common_compiler_args,
+    'compile_args': [] + common_cpp_compiler_args,
     'deps': [],
 }
 
@@ -74,7 +86,7 @@ graphics_lib = {
         '-DOOPETRIS_VERSION=' + meson.project_version(),
         '-DOOPETRIS_NAME=' + oopetris_name,
         '-DOOPETRIS_AUTHOR=' + oopetris_author,
-    ] + common_compiler_args,
+    ] + common_cpp_compiler_args,
     'deps': [],
 }
 
