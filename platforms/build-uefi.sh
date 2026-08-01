@@ -192,7 +192,7 @@ export ENDIANESS="little"
 
 export ROMFS="platforms/romfs"
 
-export COMMON_FLAGS="'-fexceptions', '-pthread'"
+export COMMON_FLAGS="'-fexceptions', '-pthread', '-fshort-wchar', '-fno-builtin', '-fno-strict-aliasing', '-fno-common', '-fstack-protector', '-ffunction-sections', '-fdata-sections', '-m64', '-DEFIAPI=__attribute__((ms_abi))', '-maccumulate-outgoing-args', '-mno-red-zone', '-mcmodel=small', '-fno-asynchronous-unwind-tables', '-fno-omit-frame-pointer'"
 
 export LINK_FLAGS="$COMMON_FLAGS"
 export COMPILE_FLAGS="$COMMON_FLAGS ,'-DAUDIO_PREFER_MP3'"
@@ -278,7 +278,6 @@ cat <<EOF >"$EDK2_INFO_FILE"
     "generated_packages": "$EDK2_GENERATED_PACKAGES"
 }
 EOF
-
 
 if [ "$COMPILE_TYPE" == "complete_rebuild" ] || [ ! -e "$BUILD_DIR" ]; then
 
