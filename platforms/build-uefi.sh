@@ -152,8 +152,6 @@ export EDK2_BUILD_COMMAND="$EDK2_POSIX_BIN_PATH/build"
 
 # add links to needed packages
 
-set -x
-
 EDK2_LIB_PACKAGES=("StdLib" "StdLibPrivateInternalFiles")
 
 for EDK2_LIB_PACKAGE in "${EDK2_LIB_PACKAGES[@]}"; do

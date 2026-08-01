@@ -20,11 +20,36 @@
             "guid": "0bfc59b5-090c-4cd0-a0b7-498dcbed1e6e",
             "version": "oopetris"
         },
+        "OOPetrisRecordingsPkg": {
+            "type": "library",
+            "name": "OOPetrisRecordingsLib",
+            "lib": "LibOOPetrisRecordings",
+            "guid": "84b90385-bd32-41e3-ba8d-ba4a056d72f5",
+            "version": "oopetris"
+        },
         "SDL2TTFPkg": {
             "type": "library",
             "name": "SDL2TTFLib",
             "lib": "LibSDL2TTF",
             "guid": "2252bce8-bee1-4ab8-9896-2ab58576e9db"
+        },
+        "FreetypePkg": {
+            "type": "library",
+            "name": "FreetypeLib",
+            "lib": "LibFreetype",
+            "guid": "d6ea8d4f-c8e7-4a8c-988d-e316100b0742"
+        },
+        "ZLibPkg": {
+            "type": "library",
+            "name": "ZLib",
+            "lib": "LibZ",
+            "guid": "cc61c805-2419-4b68-b806-495d11be162c"
+        },
+        "SpdlogPkg": {
+            "type": "library",
+            "name": "SpdlogLib",
+            "lib": "LibSpdlog",
+            "guid": "dee047db-15c9-4d79-ab08-79d6244d9b0e"
         }
     },
     "name": {

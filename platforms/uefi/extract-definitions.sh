@@ -23,8 +23,6 @@ expand_array_inf() {
 
 }
 
-set -x
-
 get_mapped_version() {
   local INPUT="$1"
 
