@@ -105,15 +105,27 @@ link_package() {
     rm "$FINAL_FILE"
   fi
 
+  validate_parent_dir "$FINAL_FILE"
+
   ln -s "$SOURCE_FILE" "$FINAL_FILE"
 
-  add_component_to_platform "$PACKAGE_NAME"
+  local SOURCE_FILE_EXT="${SOURCE_FILE##*.}"
+
+  if [ "$SOURCE_FILE_EXT" == "inf" ]; then
+    add_component_to_platform "$PACKAGE_NAME"
+  elif [ "$SOURCE_FILE_EXT" == "dec" ]; then
+    :
+  else
+    echo "Invalid package extension in link_package '$SOURCE_FILE_EXT'" >&2
+    exit 2
+  fi
 
 }
 
 DEP_SOURCES=()
 DEP_PACKAGES=()
 DEP_BUILD_OPTIONS=()
+DEP_INCLUDES=()
 
 for FILE_DEPENDENCY in "${FILE_DEPENDENCIES[@]}"; do
 
@@ -151,8 +163,7 @@ for FILE_DEPENDENCY in "${FILE_DEPENDENCIES[@]}"; do
       exit 2
     fi
 
-    PACKAGE_NAME="GeneratedPackages/$MAPPING_ENTRY_DEP_NAME.inf"
-    PACKAGE_NAME_DEC="GeneratedPackages/$MAPPING_ENTRY_DEP_NAME.dec"
+    PACKAGE_NAME="GeneratedPackages/Lib/$MAPPING_ENTRY_DEP_NAME.dec"
 
     DEP_OUTPUT_FILE="$DEST_FILE_DIR/$MAPPING_ENTRY_DEP_NAME.inf"
 
@@ -160,15 +171,13 @@ for FILE_DEPENDENCY in "${FILE_DEPENDENCIES[@]}"; do
       "$SCRIPT_DIR/extract-definitions.sh" "$FILE_DEPENDENCY" "$DEP_OUTPUT_FILE"
     fi
 
-    DEP_PACKAGES+=("$PACKAGE_NAME_DEC")
+    DEP_PACKAGES+=("$PACKAGE_NAME")
   else
     echo "Error: invalid source file type: $FILE_DEPENDENCY_TYPE" >&2
     exit 2
   fi
 
 done
-
-validate_parent_dir "$DEST_FILE"
 
 MAPPING_TYPE="$(echo "$MAPPING_ENTRY" | jq -M -r -c ".[\"type\"]")"
 MAPPING_NAME="$(echo "$MAPPING_ENTRY" | jq -M -r -c ".[\"name\"]")"
@@ -182,6 +191,8 @@ if [ -z "$MAPPING_VERSION" ]; then
 fi
 
 if [ "$MAPPING_TYPE" == "application" ]; then
+
+  validate_parent_dir "$DEST_FILE"
 
   cat <<EOF >"$DEST_FILE"
 [Defines]
@@ -217,11 +228,19 @@ $(expand_array_inf "${DEP_PACKAGES[@]}")
 $(expand_array_inf "${DEP_BUILD_OPTIONS[@]}")
 EOF
 
+  link_package "$DEST_FILE_NAME" "$DEST_FILE"
+
 elif [ "$MAPPING_TYPE" == "library" ]; then
 
   MAPPING_LIB_NAME="$(echo "$MAPPING_ENTRY" | jq -M -r -c ".[\"lib\"]")"
 
-  cat <<EOF >"$DEST_FILE"
+  LIB_DEST_DIR="$DEST_FILE_DIR/Lib"
+
+  validate_parent_dir "$LIB_DEST_DIR/dummy"
+
+  LIB_DEST_FILE_INF="$LIB_DEST_DIR/$DEST_FILE_STEM.inf"
+
+  cat <<EOF >"$LIB_DEST_FILE_INF"
 [Defines]
   INF_VERSION = 1.25
   BASE_NAME = $MAPPING_NAME
@@ -240,22 +259,32 @@ $(expand_array_inf "${DEP_PACKAGES[@]}")
 [LibraryClasses]
   UefiLib
 
-[Guids]
-
-[Ppis]
-
-[Protocols]
-
-[FeaturePcd]
-
-[Pcd]
-
 [BuildOptions]
 $(expand_array_inf "${DEP_BUILD_OPTIONS[@]}")
 EOF
+
+  link_package "Lib/$DEST_FILE_STEM.inf" "$LIB_DEST_FILE_INF"
+
+  LIB_DEST_FILE_DEC="$LIB_DEST_DIR/$DEST_FILE_STEM.dec"
+
+  cat <<EOF >"$LIB_DEST_FILE_DEC"
+[Defines]
+  DEC_SPECIFICATION   = 1.25
+  PACKAGE_NAME                   = $MAPPING_NAME
+  PACKAGE_GUID                   = $MAPPING_GUID
+  PACKAGE_VERSION                = $MAPPING_VERSION
+
+[Includes]
+$(expand_array_inf "${DEP_INCLUDES[@]}")
+
+[LibraryClasses]
+  ##TODO
+$(expand_array_inf "${DEP_BUILD_OPTIONS[@]}")
+EOF
+
+  link_package "Lib/$DEST_FILE_STEM.dec" "$LIB_DEST_FILE_DEC"
+
 else
   echo "Error: invalid mapping type: $MAPPING_TYPE" >&2
   exit 2
 fi
-
-link_package "$DEST_FILE_NAME" "$DEST_FILE"
