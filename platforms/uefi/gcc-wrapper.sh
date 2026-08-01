@@ -18,6 +18,8 @@ TOOL="GCC"
 # shellcheck source=./platforms/uefi/base.sh
 source "$SCRIPT_DIR/base.sh"
 
+COMPILED=()
+
 # Capture all args
 ARGS=("$@")
 
@@ -60,7 +62,7 @@ for arg in "${ARGS[@]}"; do
                 DEPENDENCIES+=("$arg")
                 ;;
             *.c)
-                DEPENDENCIES+=("$arg")
+                COMPILED+=("$arg")
                 ;;
             *) ;;
             esac
@@ -85,12 +87,14 @@ elif [[ "$MODE" == "compile" ]]; then
     cat <<EOF >"$OUTPUT_FILE"
 {
     "cwd": "$(pwd)",
-    "args": $(printf '%s\n' "${ARGS[@]}" | jq -R . | jq -sc .),
+    "args": $(to_json_array "${ARGS[@]}"),
     "language": "c",
     "type": "compile",
     "dependencies": {
         "output": "$OUTPUT_FILE",
-        "files": $(printf '%s\n' "${DEPENDENCIES[@]}" | jq -R . | jq -sc .)
+        "files": $(to_json_array "${DEPENDENCIES[@]}" "${COMPILED[@]}"),
+        "dependencies": $(to_json_array "${DEPENDENCIES[@]}"),
+        "compiled": $(to_json_array "${COMPILED[@]}")
     }
 }
 EOF
@@ -109,12 +113,12 @@ elif [[ "$MODE" == "link" ]]; then
     cat <<EOF >"$OUTPUT_FILE"
 {
     "cwd": "$(pwd)",
-    "args": $(printf '%s\n' "${ARGS[@]}" | jq -R . | jq -sc .),
+    "args": $(to_json_array "${ARGS[@]}"),
     "language": "c",
     "type": "link",
     "dependencies": {
         "output": "$OUTPUT_FILE",
-        "files": $(printf '%s\n' "${DEPENDENCIES[@]}" | jq -R . | jq -sc .)
+        "files": $(to_json_array "${DEPENDENCIES[@]}")
     }
 }
 EOF

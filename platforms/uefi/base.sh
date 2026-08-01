@@ -31,3 +31,13 @@ change_mode() {
         exit 4
     fi
 }
+
+to_json_array() {
+    local ARRAY=("$@")
+
+    if [ "${#ARRAY[@]}" -eq 0 ]; then
+        echo "[]"
+    else
+        printf '%s\n' "${ARRAY[@]}" | jq -R . | jq -sc .
+    fi
+}

@@ -4,7 +4,7 @@
             "type": "application",
             "name": "OOPetrisApplication",
             "guid": "da6e059f-d6bd-4136-8f1b-b19c9062f3cd",
-            "version": "@OOPETRIS_VERSION@",
+            "version": "@OOPETRIS_VERSION@"
         },
         "OOPetrisCorePkg": {
             "type": "library",

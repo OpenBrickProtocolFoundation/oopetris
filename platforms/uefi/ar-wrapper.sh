@@ -67,12 +67,12 @@ elif [[ "$MODE" == "create" ]]; then
     cat <<EOF >"$OUTPUT_FILE"
 {
     "cwd": "$(pwd)",
-    "args": $(printf '%s\n' "${ARGS[@]}" | jq -R . | jq -sc .),
+    "args": $(to_json_array "${ARGS[@]}"),
     "language": "ar",
     "type": "archive",
     "dependencies": {
         "output": "$OUTPUT_FILE",
-        "files": $(printf '%s\n' "${DEPENDENCIES[@]}" | jq -R . | jq -sc .)
+        "files": $(to_json_array "${DEPENDENCIES[@]}")
     }
 }
 EOF
