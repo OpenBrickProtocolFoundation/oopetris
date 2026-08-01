@@ -12,7 +12,7 @@ SCRIPT_DIR="$(realpath "$(dirname -- "${BASH_SOURCE[0]}")")"
 # shellcheck source=./platforms/helper.sh
 source "$SCRIPT_DIR/../helper.sh"
 
-LIBRARIES_FILE="$SCRIPT_DIR/references/libraries.json"
+LIBRARIES_FILE="$(realpath "$SCRIPT_DIR/../../src/executables/platforms/uefi/libraries.json")"
 
 PKG_CONFIG="pkg-config"
 TOOL="PKG-CONFIG"

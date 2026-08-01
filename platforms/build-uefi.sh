@@ -275,7 +275,7 @@ cat <<EOF >"$EDK2_INFO_FILE"
     "workspace": "$WORKSPACE",
     "platform": "$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM",
     "buildtype": "$EDK2_TARGET_PROPERTIES_BUILDTYPE",
-    "toolchain": "$EDK2_TARGET_PROPERTIES_TOOLCHAIN"
+    "toolchain": "$EDK2_TARGET_PROPERTIES_TOOLCHAIN",
     "generated_packages": "$EDK2_GENERATED_PACKAGES"
 }
 EOF

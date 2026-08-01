@@ -8,7 +8,7 @@
         "version": "2.6.3"
     },
     "sdl2_mixer": {
-        "name": "LibraryPkg/SDL2ImagePkg.inf",
+        "name": "LibraryPkg/SDL2MixerPkg.inf",
         "version": "2.6.2"
     }
 }
