@@ -31,25 +31,29 @@
             "type": "library",
             "name": "SDL2TTFLib",
             "lib": "LibSDL2TTF",
-            "guid": "2252bce8-bee1-4ab8-9896-2ab58576e9db"
+            "guid": "2252bce8-bee1-4ab8-9896-2ab58576e9db",
+            "version": "sdl2_ttf"
         },
         "FreetypePkg": {
             "type": "library",
             "name": "FreetypeLib",
             "lib": "LibFreetype",
-            "guid": "d6ea8d4f-c8e7-4a8c-988d-e316100b0742"
+            "guid": "d6ea8d4f-c8e7-4a8c-988d-e316100b0742",
+            "version": "freetype2"
         },
         "ZLibPkg": {
             "type": "library",
             "name": "ZLib",
             "lib": "LibZ",
-            "guid": "cc61c805-2419-4b68-b806-495d11be162c"
+            "guid": "cc61c805-2419-4b68-b806-495d11be162c",
+            "version": "zlib"
         },
         "SpdlogPkg": {
             "type": "library",
             "name": "SpdlogLib",
             "lib": "LibSpdlog",
-            "guid": "dee047db-15c9-4d79-ab08-79d6244d9b0e"
+            "guid": "dee047db-15c9-4d79-ab08-79d6244d9b0e",
+            "version": "spdlog"
         }
     },
     "name": {

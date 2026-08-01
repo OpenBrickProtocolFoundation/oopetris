@@ -30,6 +30,9 @@ get_mapped_version() {
 
   if [ "$INPUT" == "oopetris" ]; then
     jq -M -r -c ".[\"version\"]" "$MESON_INFO_FILE"
+  elif [ "$INPUT" == "null" ]; then
+    echo "Error: invalid version argument: $INPUT" >&2
+    exit 2
   else
     jq -M -r -c ".[\"subprojects\"][] | select(.[\"name\"] == \"$INPUT\") | .[\"version\"] " "$MESON_INFO_FILE"
   fi
@@ -76,6 +79,21 @@ mapfile -t FILE_DEPENDENCIES < <(jq '.["dependencies"]["files"][]' -M -r -c "$SO
 
 UEFI_INFO_FILE="$(realpath "$SCRIPT_DIR/../crossbuild/uefi_info.json")"
 UEFI_INFO_GENERATED_PACKAGES_DIR="$(jq -M -r -c '.["generated_packages"]' "$UEFI_INFO_FILE")"
+EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM="$(jq -M -r -c '.["platform"]' "$UEFI_INFO_FILE")"
+
+add_component_to_platform() {
+  local PACKAGE_NAME="$1"
+
+  local FINAL_PKG_NAME="GeneratedPackages/$PACKAGE_NAME"
+
+  if grep -q "$FINAL_PKG_NAME" "$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM"; then
+    : # found already, do nothing
+  else
+    echo "[Components]" >>"$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM"
+    echo "  $FINAL_PKG_NAME" >>"$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM"
+  fi
+
+}
 
 link_package() {
   local PACKAGE_NAME="$1"
@@ -88,6 +106,8 @@ link_package() {
   fi
 
   ln -s "$SOURCE_FILE" "$FINAL_FILE"
+
+  add_component_to_platform "$PACKAGE_NAME"
 
 }
 
@@ -132,6 +152,7 @@ for FILE_DEPENDENCY in "${FILE_DEPENDENCIES[@]}"; do
     fi
 
     PACKAGE_NAME="GeneratedPackages/$MAPPING_ENTRY_DEP_NAME.inf"
+    PACKAGE_NAME_DEC="GeneratedPackages/$MAPPING_ENTRY_DEP_NAME.dec"
 
     DEP_OUTPUT_FILE="$DEST_FILE_DIR/$MAPPING_ENTRY_DEP_NAME.inf"
 
@@ -139,7 +160,7 @@ for FILE_DEPENDENCY in "${FILE_DEPENDENCIES[@]}"; do
       "$SCRIPT_DIR/extract-definitions.sh" "$FILE_DEPENDENCY" "$DEP_OUTPUT_FILE"
     fi
 
-    DEP_PACKAGES+=("$PACKAGE_NAME")
+    DEP_PACKAGES+=("$PACKAGE_NAME_DEC")
   else
     echo "Error: invalid source file type: $FILE_DEPENDENCY_TYPE" >&2
     exit 2
@@ -153,6 +174,12 @@ MAPPING_TYPE="$(echo "$MAPPING_ENTRY" | jq -M -r -c ".[\"type\"]")"
 MAPPING_NAME="$(echo "$MAPPING_ENTRY" | jq -M -r -c ".[\"name\"]")"
 MAPPING_GUID="$(echo "$MAPPING_ENTRY" | jq -M -r -c ".[\"guid\"]")"
 MAPPING_VERSION="$(get_mapped_version "$(echo "$MAPPING_ENTRY" | jq -M -r -c ".[\"version\"]")")"
+
+if [ -z "$MAPPING_VERSION" ]; then
+  echo "Error: invalid version extracted '$MAPPING_NAME': $MAPPING_VERSION" >&2
+  exit 2
+
+fi
 
 if [ "$MAPPING_TYPE" == "application" ]; then
 

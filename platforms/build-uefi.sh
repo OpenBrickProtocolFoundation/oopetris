@@ -279,13 +279,6 @@ cat <<EOF >"$EDK2_INFO_FILE"
 }
 EOF
 
-# "$EDK2_BUILD_COMMAND" -a "$EDK2_TARGET_PROPERTIES_ARCH" \
-#     -p "$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM" \
-#     -m "$WORKSPACE/CustomPkg/HelloWorld.inf" \
-#     -b "$EDK2_TARGET_PROPERTIES_BUILDTYPE" \
-#     -t "$EDK2_TARGET_PROPERTIES_TOOLCHAIN" \
-#     -w \
-#     -v
 
 if [ "$COMPILE_TYPE" == "complete_rebuild" ] || [ ! -e "$BUILD_DIR" ]; then
 
