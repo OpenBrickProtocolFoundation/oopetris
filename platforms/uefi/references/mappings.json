@@ -1,10 +1,41 @@
 {
-    "oopetris": {
-        "type": "application",
-        "name": "OOpetrisApplication"
+    "file": {
+        "OOPetrisPkg": {
+            "type": "application",
+            "name": "OOPetrisApplication",
+            "guid": "da6e059f-d6bd-4136-8f1b-b19c9062f3cd",
+            "version": "0.5.6",
+            "comment": "TODO: generate this file by meson, and set the version by it! (use .in template)"
+        },
+        "OOPetrisCorePkg": {
+            "type": "library",
+            "name": "OOPetrisCoreLib",
+            "lib": "LibOOPetrisCore",
+            "guid": "022bf605-571b-4d01-aeb5-e587e0045d6a",
+            "version": "0.5.6"
+        }
     },
-    "oopetris_core": {
-        "type": "library",
-        "name": "OOpetrisCore"
+    "name": {
+        "liboopetris_graphics": {
+            "name": "OOPetrisGraphicsPkg"
+        },
+        "liboopetris_recordings": {
+            "name": "OOPetrisRecordingsPkg"
+        },
+        "liboopetris_core": {
+            "name": "OOPetrisCorePkg"
+        },
+        "libsdl2_ttf": {
+            "name": "SDL2TTFPkg"
+        },
+        "libfreetype": {
+            "name": "FreetypePkg"
+        },
+        "libz": {
+            "name": "ZLibPkg"
+        },
+        "libspdlog": {
+            "name": "SpdlogPkg"
+        }
     }
 }

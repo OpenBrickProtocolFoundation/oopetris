@@ -18,7 +18,6 @@ TOOL="G++"
 # shellcheck source=./platforms/uefi/base.sh
 source "$SCRIPT_DIR/base.sh"
 
-
 # Capture all args
 ARGS=("$@")
 
@@ -58,6 +57,9 @@ for arg in "${ARGS[@]}"; do
                 DEPENDENCIES+=("$arg")
                 ;;
             *.o)
+                DEPENDENCIES+=("$arg")
+                ;;
+            *.cpp)
                 DEPENDENCIES+=("$arg")
                 ;;
             *) ;;

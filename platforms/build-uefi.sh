@@ -42,9 +42,9 @@ elif [ "$#" -eq 4 ]; then
     else
         RUN_IN_CI="true"
     fi
-    RUNTIME_TARGET="$2"
+    RUNTIME_TARGET="$4"
 else
-    echo "Too many arguments given, expected 1, 2 or 3"
+    echo "Too many arguments given, expected 1, 2 or 3" >&2
     exit 1
 fi
 
@@ -53,7 +53,7 @@ if [ "$COMPILE_TYPE" == "smart" ]; then
 elif [ "$COMPILE_TYPE" == "complete_rebuild" ]; then
     : # noop
 else
-    echo "Invalid COMPILE_TYPE, expected: 'smart' or 'complete_rebuild'"
+    echo "Invalid COMPILE_TYPE, expected: 'smart' or 'complete_rebuild'" >&2
     exit 1
 fi
 
@@ -62,7 +62,7 @@ if [ "$RUNTIME_TARGET" == "emulator" ]; then
 elif [ "$RUNTIME_TARGET" == "hardware" ]; then
     : # noop
 else
-    echo "Invalid RUNTIME_TARGET, expected: 'emulator' or 'hardware'"
+    echo "Invalid RUNTIME_TARGET, expected: 'emulator' or 'hardware'" >&2
     exit 1
 fi
 
@@ -94,6 +94,17 @@ fi
 git -C "$EDK2_ROOT" checkout "$EDK2_RELEASE_TAG"
 git -C "$EDK2_ROOT" submodule update --init
 
+EDK2_LIBC_ROOT="$(pwd)/toolchains/edk2-libc"
+export EDK2_LIBC_ROOT
+
+if [ ! -d "$EDK2_LIBC_ROOT" ]; then
+    git clone https://github.com/tianocore/edk2-libc "$EDK2_LIBC_ROOT"
+else
+    git -C "$EDK2_LIBC_ROOT" fetch
+fi
+
+git -C "$EDK2_LIBC_ROOT" checkout "$EDK2_LIBC_COMMIT_HASH"
+
 export EDK_TOOLS_PATH="$EDK2_ROOT/BaseTools"
 export PACKAGES_PATH="$EDK2_ROOT"
 
@@ -117,7 +128,7 @@ if [ "$RUNTIME_TARGET" == "emulator" ]; then
 elif [ "$RUNTIME_TARGET" == "hardware" ]; then
     EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM="MdeModulePkg/MdeModulePkg.dsc"
 else
-    echo "Invalid RUNTIME_TARGET, expected: 'emulator' or 'hardware'"
+    echo "Invalid RUNTIME_TARGET, expected: 'emulator' or 'hardware'" >&2
     exit 1
 fi
 
@@ -139,13 +150,32 @@ export EDK2_POSIX_BIN_PATH="$EDK_TOOLS_PATH/BinWrappers/PosixLike"
 
 export EDK2_BUILD_COMMAND="$EDK2_POSIX_BIN_PATH/build"
 
-if ! [ -e "$WORKSPACE/OopetrisPkg" ]; then
-    ln -s "$WORKSPACE/OopetrisPkg" "$SCRIPT_DIR/uefi/references/OopetrisPkg"
+# add links to needed packages
+
+set -x
+
+EDK2_LIB_PACKAGES=("StdLib" "StdLibPrivateInternalFiles")
+
+for EDK2_LIB_PACKAGE in "${EDK2_LIB_PACKAGES[@]}"; do
+
+    if ! [ -e "$WORKSPACE/$EDK2_LIB_PACKAGE" ]; then
+        ln -s "$EDK2_LIBC_ROOT/$EDK2_LIB_PACKAGE" "$WORKSPACE/$EDK2_LIB_PACKAGE"
+    fi
+
+done
+
+export BUILD_DIR="build/uefi"
+
+export BUILD_DIR_ABS="$(pwd)/$BUILD_DIR"
+
+export EDK2_GENERATED_PACKAGES="$BUILD_DIR_ABS/GeneratedPackages"
+
+if ! [ -e "$WORKSPACE/GeneratedPackages" ]; then
+    mkdir -p "$EDK2_GENERATED_PACKAGES"
+    ln -s "$EDK2_GENERATED_PACKAGES" "$WORKSPACE/GeneratedPackages"
 fi
 
 popd
-
-export BUILD_DIR="build/uefi"
 
 export PKG_CONFIG_PATH="$EDK2_ROOT/lib/pkgconfig"
 
@@ -246,6 +276,7 @@ cat <<EOF >"$EDK2_INFO_FILE"
     "platform": "$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM",
     "buildtype": "$EDK2_TARGET_PROPERTIES_BUILDTYPE",
     "toolchain": "$EDK2_TARGET_PROPERTIES_TOOLCHAIN"
+    "generated_packages": "$EDK2_GENERATED_PACKAGES"
 }
 EOF
 
