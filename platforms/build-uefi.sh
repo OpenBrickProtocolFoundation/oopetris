@@ -151,7 +151,7 @@ export PKG_CONFIG_PATH="$EDK2_ROOT/lib/pkgconfig"
 
 export CC="$SCRIPT_DIR/uefi/gcc-wrapper.sh"
 export CXX="$SCRIPT_DIR/uefi/g++-wrapper.sh"
-export AR=""
+export AR="$SCRIPT_DIR/uefi/ar-wrapper.sh"
 export RANLIB=""
 export STRIP=""
 export NM=""

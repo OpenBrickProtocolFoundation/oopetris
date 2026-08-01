@@ -12,12 +12,11 @@ SCRIPT_DIR="$(realpath "$(dirname -- "${BASH_SOURCE[0]}")")"
 # shellcheck source=./platforms/helper.sh
 source "$SCRIPT_DIR/../helper.sh"
 
-CXX="g++-15"
-TOOL="G++"
+TOOL="AR"
+AR="gcc-ar-15"
 
 # shellcheck source=./platforms/uefi/base.sh
 source "$SCRIPT_DIR/base.sh"
-
 
 # Capture all args
 ARGS=("$@")
@@ -27,23 +26,12 @@ NEXT_TYPE="unknown"
 
 for arg in "${ARGS[@]}"; do
     case "$arg" in
-    -Wl,--version | -Wl,-v)
+    --version)
         change_mode "pass"
         ;;
-    -c)
-        change_mode "compile"
-        ;;
-    -Wl,*)
-        change_mode "link"
-        ;;
-    -o)
+    csr)
+        change_mode "create"
         NEXT_TYPE="output"
-        ;;
-    -MQ)
-        NEXT_TYPE="ignore"
-        ;;
-    --version | -dM | -xc\+\+)
-        change_mode "pass"
         ;;
     *)
         if [[ "$NEXT_TYPE" == "output" ]]; then
@@ -53,11 +41,7 @@ for arg in "${ARGS[@]}"; do
             NEXT_TYPE="unknown"
         else
             case "$arg" in
-            *.a | *.so)
-                change_mode "link"
-                DEPENDENCIES+=("$arg")
-                ;;
-            *.o)
+            *.a | *.so | *.o)
                 DEPENDENCIES+=("$arg")
                 ;;
             *) ;;
@@ -68,8 +52,8 @@ for arg in "${ARGS[@]}"; do
 done
 
 if [[ "$MODE" == "pass" ]]; then
-    exec "$CXX" "${ARGS[@]}"
-elif [[ "$MODE" == "compile" ]]; then
+    exec "$AR" "${ARGS[@]}"
+elif [[ "$MODE" == "create" ]]; then
     if [ -z "$OUTPUT_FILE" ]; then
         echo "<$TOOL> ${ARGS[*]}" >&2
         echo "Missing output file" >&2
@@ -78,34 +62,14 @@ elif [[ "$MODE" == "compile" ]]; then
 
     validate_parent_dir "$OUTPUT_FILE"
 
-    cat <<EOF >"$OUTPUT_FILE"
-{ 
-    "cwd": "$(pwd)",
-    "args": $(printf '%s\n' "${ARGS[@]}" | jq -R . | jq -sc .),
-    "language": "cpp",
-    "type": "compile",
-    "dependencies": {
-        "output": "$OUTPUT_FILE",
-        "files": $(printf '%s\n' "${DEPENDENCIES[@]}" | jq -R . | jq -sc .)
-    }
-}
-EOF
-
-elif [[ "$MODE" == "link" ]]; then
-    if [ -z "$OUTPUT_FILE" ]; then
-        echo "<$TOOL> ${ARGS[*]}" >&2
-        echo "Missing output file" >&2
-        exit 2
-    fi
-
-    validate_parent_dir "$OUTPUT_FILE"
+    validate_dependencies
 
     cat <<EOF >"$OUTPUT_FILE"
-{ 
+{
     "cwd": "$(pwd)",
     "args": $(printf '%s\n' "${ARGS[@]}" | jq -R . | jq -sc .),
-    "language": "cpp",
-    "type": "link",
+    "language": "ar",
+    "type": "archive",
     "dependencies": {
         "output": "$OUTPUT_FILE",
         "files": $(printf '%s\n' "${DEPENDENCIES[@]}" | jq -R . | jq -sc .)
