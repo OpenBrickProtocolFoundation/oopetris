@@ -28,5 +28,5 @@ for PLTFRM in "${SUPPORTED_PLATFORMS[@]}"; do
 
 done
 
-echo "Invalid PLATFORM, expected one of: ${SUPPORTED_PLATFORMS[*]}"
+echo "Invalid PLATFORM, expected one of: ${SUPPORTED_PLATFORMS[*]}" >&2
 exit 1

@@ -32,7 +32,7 @@ elif [ "$#" -eq 3 ]; then
         RUN_IN_CI="true"
     fi
 else
-    echo "Too many arguments given, expected 1, 2 or 3"
+    echo "Too many arguments given, expected 1, 2 or 3" >&2
     exit 1
 fi
 
@@ -41,7 +41,7 @@ if [ "$COMPILE_TYPE" == "smart" ]; then
 elif [ "$COMPILE_TYPE" == "complete_rebuild" ]; then
     : # noop
 else
-    echo "Invalid COMPILE_TYPE, expected: 'smart' or 'complete_rebuild'"
+    echo "Invalid COMPILE_TYPE, expected: 'smart' or 'complete_rebuild'" >&2
     exit 1
 fi
 
@@ -54,7 +54,6 @@ source "$SCRIPT_DIR/versions.sh"
 
 # shellcheck source=./platforms/helper.sh
 source "$SCRIPT_DIR/helper.sh"
-
 
 export DEVKITPRO="/opt/devkitpro"
 export ARCH_DEVKIT_FOLDER="$DEVKITPRO/devkitA64"

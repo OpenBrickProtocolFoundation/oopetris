@@ -41,14 +41,14 @@ fi
 
 if [ ! -e "$BASE_PATH/meta/abis.json" ]; then
 
-    echo "no abis.json file found, to determine supported abis"
+    echo "no abis.json file found, to determine supported abis" >&2
     exit 2
 
 fi
 
 if [ ! -e "$BASE_PATH/meta/platforms.json" ]; then
 
-    echo "no platforms.json file found, to determine supported platforms and SDKs"
+    echo "no platforms.json file found, to determine supported platforms and SDKs" >&2
     exit 2
 
 fi
@@ -56,7 +56,7 @@ fi
 SDK_VERSION=$(jq '.max' -M -r -c "$BASE_PATH/meta/platforms.json")
 export SDK_VERSION
 
-mapfile -t ARCH_KEYS < <(jq 'keys' -M -r -c "$BASE_PATH/meta/abis.json" | tr -d '[]"' | sed 's/,/\n/g')
+mapfile -t ARCH_KEYS < <(jq 'keys[]' -M -r -c "$BASE_PATH/meta/abis.json")
 
 export ARCH_KEYS_INDEX=("${!ARCH_KEYS[@]}")
 
@@ -82,7 +82,7 @@ elif [ "$#" -eq 1 ] || [ "$#" -eq 2 ] || [ "$#" -eq 3 ] || [ "$#" -eq 4 ]; then
     done
 
     if [ -z "$FOUND" ]; then
-        echo "Invalid arch: '${ARCH}', supported archs are:" "${ARCH_KEYS[@]}"
+        echo "Invalid arch: '${ARCH}', supported archs are:" "${ARCH_KEYS[@]}" >&2
         exit 2
     fi
 
@@ -106,7 +106,7 @@ elif [ "$#" -eq 1 ] || [ "$#" -eq 2 ] || [ "$#" -eq 3 ] || [ "$#" -eq 4 ]; then
     fi
 
 else
-    echo "Too many arguments given, expected 1, 2, 3 or 4"
+    echo "Too many arguments given, expected 1, 2, 3 or 4" >&2
     exit 1
 fi
 
@@ -115,10 +115,9 @@ if [ "$COMPILE_TYPE" == "smart" ]; then
 elif [ "$COMPILE_TYPE" == "complete_rebuild" ]; then
     : # noop
 else
-    echo "Invalid COMPILE_TYPE, expected: 'smart' or 'complete_rebuild'"
+    echo "Invalid COMPILE_TYPE, expected: 'smart' or 'complete_rebuild'" >&2
     exit 1
 fi
-
 
 for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
     export KEY=${ARCH_KEYS[$INDEX]}
@@ -147,7 +146,6 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
     export LIBRARY_PATH="$SYS_ROOT/usr/lib/$ARM_NAME_TRIPLE/$SDK_VERSION"
 
     if [ "$COMPILE_TYPE" == "complete_rebuild" ] || ! [ -e "$SYS_ROOT" ]; then
-
 
         if [ -d "${SYS_ROOT:?}/" ]; then
 
@@ -248,7 +246,6 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
     popd
 
     ## build flac with cmake (meson port doesn't work for 32 bits machines atm) (we need to check for fseeko and ftello correctly in there)
-
 
     pushd "$SYS_ROOT"
 
@@ -376,7 +373,6 @@ for INDEX in "${ARCH_KEYS_INDEX[@]}"; do
     CROSS_FILE="./platforms/crossbuild/android-$ARM_TARGET_ARCH.ini"
 
     validate_parent_dir "$CROSS_FILE"
-
 
     cat <<EOF >"$CROSS_FILE"
 [host_machine]
