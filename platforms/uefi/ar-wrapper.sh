@@ -35,14 +35,14 @@ for ARG in "${ARGS[@]}"; do
         ;;
     *)
         if [[ "$NEXT_TYPE" == "output" ]]; then
-            OUTPUT_FILE="$ARG"
+            OUTPUT_FILE="$(normalize_file "$ARG")"
             NEXT_TYPE="unknown"
         elif [[ "$NEXT_TYPE" == "ignore" ]]; then
             NEXT_TYPE="unknown"
         else
             case "$ARG" in
             *.a | *.so | *.o)
-                DEPENDENCIES+=("$ARG")
+                DEPENDENCIES+=("$(resolve_file "$ARG")")
                 ;;
             *) ;;
             esac

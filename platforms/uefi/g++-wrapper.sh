@@ -48,7 +48,7 @@ for ARG in "${ARGS[@]}"; do
         ;;
     *)
         if [[ "$NEXT_TYPE" == "output" ]]; then
-            OUTPUT_FILE="$ARG"
+            OUTPUT_FILE="$(normalize_file "$ARG")"
             NEXT_TYPE="unknown"
         elif [[ "$NEXT_TYPE" == "ignore" ]]; then
             NEXT_TYPE="unknown"
@@ -56,13 +56,13 @@ for ARG in "${ARGS[@]}"; do
             case "$ARG" in
             *.a | *.so)
                 change_mode "link"
-                DEPENDENCIES+=("$ARG")
+                DEPENDENCIES+=("$(resolve_file "$ARG")")
                 ;;
             *.o)
-                DEPENDENCIES+=("$ARG")
+                DEPENDENCIES+=("$(resolve_file "$ARG")")
                 ;;
             *.cpp)
-                COMPILED+=("$ARG")
+                COMPILED+=("$(resolve_file "$ARG")")
                 ;;
             *) ;;
             esac

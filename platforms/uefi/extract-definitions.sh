@@ -25,7 +25,7 @@ expand_array_inf() {
 
 if [ "$#" -eq 3 ]; then
   SOURCE_FILE="$1"
-  DEST_FILE="$2"
+  DEST_FILE="$(realpath "$2")"
   MAPPINGS_FILE="$3"
 else
   echo "Too many arguments given, expected 3" >&2

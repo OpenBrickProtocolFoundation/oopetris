@@ -41,3 +41,22 @@ to_json_array() {
         printf '%s\n' "${ARRAY[@]}" | jq -R . | jq -sc .
     fi
 }
+
+resolve_file() {
+    local FILE="$1"
+
+    if ! [ -e "$FILE" ]; then
+        echo "<$TOOL> ${ARGS[*]}" >&2
+        echo "Can't resolve file '$FILE': not found" >&2
+        exit 6
+    fi
+
+    realpath "$FILE"
+
+}
+
+normalize_file() {
+    local FILE="$1"
+
+    realpath "$FILE"
+}
