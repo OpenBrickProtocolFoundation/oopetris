@@ -28,9 +28,30 @@ EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM="$(jq -M -r -c '.["platform"]' "$UEFI_INF
 EDK2_TARGET_PROPERTIES_BUILDTYPE="$(jq -M -r -c '.["buildtype"]' "$UEFI_INFO_FILE")"
 EDK2_TARGET_PROPERTIES_TOOLCHAIN="$(jq -M -r -c '.["toolchain"]' "$UEFI_INFO_FILE")"
 
+BUILD_NAME=$(basename -- $"$BUILD_INF")
+
+BUILD_FILE_TARGET="GeneratedPackages/$BUILD_NAME"
+
+BUILD_FILE_TARGET_ABS="$WORKSPACE/$BUILD_FILE_TARGET"
+
+if ! [ -e "$BUILD_FILE_TARGET_ABS" ]; then
+    echo "Build file is not in the workspace: $BUILD_FILE_TARGET" >&2
+    exit 2
+elif ! readlink "$BUILD_FILE_TARGET_ABS"; then
+    echo "Build file is not a symlink: $BUILD_FILE_TARGET_ABS" >&2
+    exit 2
+else
+    BUILD_TARGET_LINK_TARGET="$(readlink "$BUILD_FILE_TARGET_ABS")"
+
+    if [ "$BUILD_TARGET_LINK_TARGET" != "$BUILD_INF" ]; then
+        echo "Build file isn't linked correctly: '$BUILD_TARGET_LINK_TARGET' != '$BUILD_INF'" >&2
+        exit 2
+    fi
+fi
+
 "$EDK2_BUILD_COMMAND" -a "$EDK2_TARGET_PROPERTIES_ARCH" \
     -p "$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM" \
-    -m "$BUILD_INF" \
+    -m "$BUILD_FILE_TARGET" \
     -b "$EDK2_TARGET_PROPERTIES_BUILDTYPE" \
     -t "$EDK2_TARGET_PROPERTIES_TOOLCHAIN" \
     -w # -v # verbose
