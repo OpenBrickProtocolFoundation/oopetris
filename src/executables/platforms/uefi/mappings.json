@@ -58,25 +58,35 @@
     },
     "name": {
         "liboopetris_graphics": {
-            "name": "OOPetrisGraphicsPkg"
+            "name": "OOPetrisGraphicsPkg",
+            "meson": "oopetris_graphics"
         },
         "liboopetris_recordings": {
-            "name": "OOPetrisRecordingsPkg"
+            "name": "OOPetrisRecordingsPkg",
+            "meson": "oopetris_recordings"
         },
         "liboopetris_core": {
-            "name": "OOPetrisCorePkg"
+            "name": "OOPetrisCorePkg",
+            "meson": "oopetris_core"
         },
         "libsdl2_ttf": {
-            "name": "SDL2TTFPkg"
+            "name": "SDL2TTFPkg",
+            "meson": "sdl2_ttf"
         },
         "libfreetype": {
-            "name": "FreetypePkg"
+            "name": "FreetypePkg",
+            "meson": "freetype"
         },
         "libz": {
-            "name": "ZLibPkg"
+            "name": "ZLibPkg",
+            "meson": "z"
         },
         "libspdlog": {
-            "name": "SpdlogPkg"
+            "name": "SpdlogPkg",
+            "meson": "spdlog"
+        },
+        "oopetris": {
+            "meson": "oopetris"
         }
     }
 }

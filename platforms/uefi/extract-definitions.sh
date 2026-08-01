@@ -26,15 +26,15 @@ expand_array_inf() {
 get_mapped_version() {
   local INPUT="$1"
 
-  MESON_INFO_FILE="$(pwd)/meson-info/intro-projectinfo.json"
+  MESON_PROJECT_INFO_FILE="$(pwd)/meson-info/intro-projectinfo.json"
 
   if [ "$INPUT" == "oopetris" ]; then
-    jq -M -r -c ".[\"version\"]" "$MESON_INFO_FILE"
+    jq -M -r -c ".[\"version\"]" "$MESON_PROJECT_INFO_FILE"
   elif [ "$INPUT" == "null" ]; then
     echo "Error: invalid version argument: $INPUT" >&2
     exit 2
   else
-    jq -M -r -c ".[\"subprojects\"][] | select(.[\"name\"] == \"$INPUT\") | .[\"version\"] " "$MESON_INFO_FILE"
+    jq -M -r -c ".[\"subprojects\"][] | select(.[\"name\"] == \"$INPUT\") | .[\"version\"]" "$MESON_PROJECT_INFO_FILE"
   fi
 
 }
@@ -125,7 +125,6 @@ link_package() {
 DEP_SOURCES=()
 DEP_PACKAGES=()
 DEP_BUILD_OPTIONS=()
-DEP_INCLUDES=()
 
 for FILE_DEPENDENCY in "${FILE_DEPENDENCIES[@]}"; do
 
@@ -177,6 +176,64 @@ for FILE_DEPENDENCY in "${FILE_DEPENDENCIES[@]}"; do
     exit 2
   fi
 
+done
+
+DEP_INCLUDES=()
+
+MESON_TARGETS_INFO_FILE="$(pwd)/meson-info/intro-targets.json"
+
+SOURCE_FILE_OUTPUT="$(jq -M -r -c '.["dependencies"]["output"]' "$SOURCE_FILE")"
+
+if [ "$SOURCE_FILE_OUTPUT" = "null" ]; then
+  echo "Error: output '$SOURCE_FILE_OUTPUT'" >&2
+  exit 2
+fi
+
+SOURCE_FILE_OUTPUT_NAME=$(basename -- "$SOURCE_FILE_OUTPUT")
+SOURCE_FILE_OUTPUT_STEM="${SOURCE_FILE_OUTPUT_NAME%.*}"
+
+SOURCE_FILE_ENTRY="$(jq -M -r -c ".[\"name\"][\"${SOURCE_FILE_OUTPUT_STEM}\"]" "$MAPPINGS_FILE")"
+
+if [ "$SOURCE_FILE_ENTRY" = "null" ]; then
+  echo "Error: invalid name '$SOURCE_FILE_OUTPUT_STEM': not found in mappings 'name'" >&2
+  exit 2
+fi
+
+SOURCE_FILE_ENTRY_MESON_NAME="$(echo "$SOURCE_FILE_ENTRY" | jq -M -r -c ".[\"meson\"]")"
+
+if [ "$SOURCE_FILE_ENTRY_MESON_NAME" = "null" ]; then
+  echo "Error: invalid name '$SOURCE_FILE_ENTRY_MESON_NAME': not found in dependency mapping 'meson'" >&2
+  exit 2
+fi
+
+MESON_TARGETS_INFO_LIB="$(
+  jq -M -r -c ".[] | select(.[\"name\"] == \"$SOURCE_FILE_ENTRY_MESON_NAME\")" "$MESON_TARGETS_INFO_FILE"
+)"
+
+if [ "$MESON_TARGETS_INFO_LIB" = "null" ]; then
+  echo "Error: invalid name '$SOURCE_FILE_ENTRY_MESON_NAME': not found in meson targets file'" >&2
+  exit 2
+fi
+
+MESON_TARGETS_INFO_LIB_TYPE="$(echo "$MESON_TARGETS_INFO_LIB" | jq -M -r -c ".[\"type\"]")"
+
+if [ "$MESON_TARGETS_INFO_LIB_TYPE" == "static library" ] || [ "$MESON_TARGETS_INFO_LIB_TYPE" == "executable" ]; then
+  :
+else
+  echo "Error: invalid meson target type: $MESON_TARGETS_INFO_LIB_TYPE" >&2
+  exit 2
+fi
+
+mapfile -t MESON_TARGETS_INFO_LIB_PARAMATERS < <(echo "$MESON_TARGETS_INFO_LIB" | jq '.["target_sources"][] | select( has("compiler") ) | .["parameters"][]' -M -r -c)
+
+for MESON_TARGETS_INFO_LIB_PARAMATER in "${MESON_TARGETS_INFO_LIB_PARAMATERS[@]}"; do
+
+  case "$MESON_TARGETS_INFO_LIB_PARAMATER" in
+  -I*)
+    DEP_INCLUDES+=("${MESON_TARGETS_INFO_LIB_PARAMATER:2}")
+    ;;
+  *) ;;
+  esac
 done
 
 MAPPING_TYPE="$(echo "$MAPPING_ENTRY" | jq -M -r -c ".[\"type\"]")"
@@ -279,7 +336,6 @@ $(expand_array_inf "${DEP_INCLUDES[@]}")
 
 [LibraryClasses]
   ##TODO
-$(expand_array_inf "${DEP_BUILD_OPTIONS[@]}")
 EOF
 
   link_package "Lib/$DEST_FILE_STEM.dec" "$LIB_DEST_FILE_DEC"
