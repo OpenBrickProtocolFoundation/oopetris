@@ -108,6 +108,20 @@ git -C "$EDK2_LIBC_ROOT" checkout "$EDK2_LIBC_COMMIT_HASH"
 export EDK_TOOLS_PATH="$EDK2_ROOT/BaseTools"
 export PACKAGES_PATH="$EDK2_ROOT"
 
+EDK2_PATCH_FILE="$EDK2_ROOT/.patched_manually.meta"
+
+PATCH_DIR="platforms/uefi"
+
+if ! [ -e "$EDK2_PATCH_FILE" ]; then
+    ##TODO: upstream those patches
+    # see: https://github.com/emscripten-core/emscripten/pull/18379
+    # and: https://github.com/emscripten-core/emscripten/pull/22946
+
+    git apply --unsafe-paths -p1 --directory="$EDK2_ROOT" "$PATCH_DIR/cxx_compiler.diff"
+
+    touch "$EDK2_PATCH_FILE"
+fi
+
 pushd "$EDK2_ROOT"
 
 make -C BaseTools
@@ -177,8 +191,12 @@ popd
 
 export PKG_CONFIG_PATH="$EDK2_ROOT/lib/pkgconfig"
 
-export CC="$SCRIPT_DIR/uefi/gcc-wrapper.sh"
-export CXX="$SCRIPT_DIR/uefi/g++-wrapper.sh"
+export CC_WRAPPER="$SCRIPT_DIR/uefi/gcc-wrapper.sh"
+export CXX_WRAPPER="$SCRIPT_DIR/uefi/g++-wrapper.sh"
+
+export CC="gcc-15"
+export CXX="g++-15"
+
 export AR="$SCRIPT_DIR/uefi/ar-wrapper.sh"
 export RANLIB=""
 export STRIP=""
@@ -195,7 +213,7 @@ export ROMFS="platforms/romfs"
 export COMMON_FLAGS="'-fexceptions', '-pthread', '-fshort-wchar', '-fno-builtin', '-fno-strict-aliasing', '-fno-common', '-fstack-protector', '-ffunction-sections', '-fdata-sections', '-m64', '-DEFIAPI=__attribute__((ms_abi))', '-maccumulate-outgoing-args', '-mno-red-zone', '-mcmodel=small', '-fno-asynchronous-unwind-tables', '-fno-omit-frame-pointer'"
 
 export LINK_FLAGS="$COMMON_FLAGS"
-export COMPILE_FLAGS="$COMMON_FLAGS ,'-DAUDIO_PREFER_MP3'"
+export COMPILE_FLAGS="$COMMON_FLAGS ,'-D__UEFI__', '-DAUDIO_PREFER_MP3'"
 
 export CROSS_FILE="./platforms/crossbuild/uefi.ini"
 
@@ -218,8 +236,8 @@ endian = '$ENDIANESS'
 edk2_root = '$EDK2_ROOT'
 
 [binaries]
-c = '$CC'
-cpp = '$CXX'
+c = '$CC_WRAPPER'
+cpp = '$CXX_WRAPPER'
 ar      = '$AR'
 ranlib  = '$RANLIB'
 strip   = '$STRIP'

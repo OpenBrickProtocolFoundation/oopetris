@@ -282,6 +282,11 @@ $(expand_array_inf "${DEP_PACKAGES[@]}")
 [Pcd]
 
 [BuildOptions]
+  *_*_*_CC_FLAGS = -D__UEFI__
+
+  *_*_*_CC_FLAGS  = -std=c11
+  *_*_*_CXX_FLAGS = -std=c++23
+
 $(expand_array_inf "${DEP_BUILD_OPTIONS[@]}")
 EOF
 
@@ -317,6 +322,13 @@ $(expand_array_inf "${DEP_PACKAGES[@]}")
   UefiLib
 
 [BuildOptions]
+[BuildOptions]
+  *_*_*_CC_FLAGS = -D__UEFI__
+
+  *_*_*_CC_FLAGS  = -std=c11
+  *_*_*_CXX_FLAGS = -std=c++23
+
+$(expand_array_inf "${DEP_BUILD_OPTIONS[@]}")
 $(expand_array_inf "${DEP_BUILD_OPTIONS[@]}")
 EOF
 

@@ -129,6 +129,13 @@ namespace utils {
 
 #define UNUSED(x) (void(x)) // NOLINT(cppcoreguidelines-macro-usage)
 
+
+#if defined(__UEFI__)
+#ifdef UNREACHABLE
+#undef UNREACHABLE
+#endif
+#endif
+
 #if !defined(NDEBUG)
 #define UNREACHABLE()                             /* NOLINT(cppcoreguidelines-macro-usage)*/                       \
     do {                                          /* NOLINT(cppcoreguidelines-avoid-do-while)*/                    \

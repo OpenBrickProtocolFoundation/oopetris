@@ -1,0 +1,21 @@
+diff --git a/BaseTools/Conf/build_rule.template b/BaseTools/Conf/build_rule.template
+index 0c454ee3d5..4b9d63e912 100755
+--- a/BaseTools/Conf/build_rule.template
++++ b/BaseTools/Conf/build_rule.template
+@@ -144,13 +144,13 @@
+         $(OUTPUT_DIR)(+)${s_dir}(+)${s_base}.obj
+ 
+     <Command.MSFT, Command.INTEL>
+-        "$(CC)" /Fo${dst} $(DEPS_FLAGS) $(CC_FLAGS) $(CXX_FLAGS) $(INC) ${src}
++        "$(CXX)" /Fo${dst} $(DEPS_FLAGS) $(CXX_FLAGS) $(INC) ${src}
+ 
+     <Command.GCC>
+-        "$(CC)" $(DEPS_FLAGS) $(CC_FLAGS) $(CXX_FLAGS) -c -o ${dst} $(INC) ${src}
++        "$(CXX)" $(DEPS_FLAGS) $(CXX_FLAGS) -c -o ${dst} $(INC) ${src}
+ 
+     <Command.XCODE>
+-        "$(CC)" $(DEPS_FLAGS) $(CC_FLAGS) $(CXX_FLAGS) -o ${dst} $(INC) ${src}
++        "$(CXX)" $(DEPS_FLAGS) $(CXX_FLAGS) -o ${dst} $(INC) ${src}
+ 
+ [C-Code-File.BASE.AARCH64,C-Code-File.SEC.AARCH64,C-Code-File.PEI_CORE.AARCH64,C-Code-File.PEIM.AARCH64]
+     <InputFile>
