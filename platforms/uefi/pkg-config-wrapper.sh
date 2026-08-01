@@ -17,7 +17,7 @@ LIBRARIES_FILE="$(realpath "$SCRIPT_DIR/../../src/executables/platforms/uefi/lib
 PKG_CONFIG="pkg-config"
 TOOL="PKG-CONFIG"
 
-# Capture all args
+# Capture all ARGs
 ARGS=("$@")
 
 MODE="unknown"
@@ -40,8 +40,8 @@ WHAT=""
 PACKAGE_NAME=""
 NEXT_IS_PACKAGE_NAME="false"
 
-for arg in "${ARGS[@]}"; do
-    case "$arg" in
+for ARG in "${ARGS[@]}"; do
+    case "$ARG" in
     --version)
         change_mode "pass"
         ;;
@@ -62,7 +62,7 @@ for arg in "${ARGS[@]}"; do
         ;;
     *)
         if [[ "$NEXT_IS_PACKAGE_NAME" == true ]]; then
-            PACKAGE_NAME="$arg"
+            PACKAGE_NAME="$ARG"
             NEXT_IS_PACKAGE_NAME=false
         fi
         ;;

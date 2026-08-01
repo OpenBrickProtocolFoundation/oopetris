@@ -24,8 +24,8 @@ ARGS=("$@")
 OUTPUT_FILE=""
 NEXT_TYPE="unknown"
 
-for arg in "${ARGS[@]}"; do
-    case "$arg" in
+for ARG in "${ARGS[@]}"; do
+    case "$ARG" in
     --version)
         change_mode "pass"
         ;;
@@ -35,14 +35,14 @@ for arg in "${ARGS[@]}"; do
         ;;
     *)
         if [[ "$NEXT_TYPE" == "output" ]]; then
-            OUTPUT_FILE="$arg"
+            OUTPUT_FILE="$ARG"
             NEXT_TYPE="unknown"
         elif [[ "$NEXT_TYPE" == "ignore" ]]; then
             NEXT_TYPE="unknown"
         else
-            case "$arg" in
+            case "$ARG" in
             *.a | *.so | *.o)
-                DEPENDENCIES+=("$arg")
+                DEPENDENCIES+=("$ARG")
                 ;;
             *) ;;
             esac

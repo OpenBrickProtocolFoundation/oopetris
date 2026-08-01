@@ -73,7 +73,11 @@ link_package() {
     rm "$FINAL_FILE"
   fi
 
+  set -x
+
   ln -s "$SOURCE_FILE" "$FINAL_FILE"
+
+  set +x
 
 }
 
@@ -122,7 +126,7 @@ for FILE_DEPENDENCY in "${FILE_DEPENDENCIES[@]}"; do
     DEP_OUTPUT_FILE="$DEST_FILE_DIR/$MAPPING_ENTRY_DEP_NAME.inf"
 
     if ! [ -e "$DEP_OUTPUT_FILE" ]; then
-      "$SCRIPT_DIR/extract-definitions.sh" "$FILE_DEPENDENCY" "$DEP_OUTPUT_FILE"
+      "$SCRIPT_DIR/extract-definitions.sh" "$FILE_DEPENDENCY" "$DEP_OUTPUT_FILE" "$MAPPINGS_FILE"
     fi
 
     DEP_PACKAGES+=("$PACKAGE_NAME")
