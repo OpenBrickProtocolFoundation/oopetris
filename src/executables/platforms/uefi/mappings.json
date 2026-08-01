@@ -4,28 +4,27 @@
             "type": "application",
             "name": "OOPetrisApplication",
             "guid": "da6e059f-d6bd-4136-8f1b-b19c9062f3cd",
-            "version": "@OOPETRIS_VERSION@"
+            "version": "oopetris"
         },
         "OOPetrisCorePkg": {
             "type": "library",
             "name": "OOPetrisCoreLib",
             "lib": "LibOOPetrisCore",
             "guid": "022bf605-571b-4d01-aeb5-e587e0045d6a",
-            "version": "@OOPETRIS_VERSION@"
+            "version": "oopetris"
         },
         "OOPetrisGraphicsPkg": {
             "type": "library",
             "name": "OOPetrisGraphicsLib",
             "lib": "LibOOPetrisGraphics",
             "guid": "0bfc59b5-090c-4cd0-a0b7-498dcbed1e6e",
-            "version": "@OOPETRIS_VERSION@"
+            "version": "oopetris"
         },
         "SDL2TTFPkg": {
             "type": "library",
             "name": "SDL2TTFLib",
             "lib": "LibSDL2TTF",
-            "guid": "2252bce8-bee1-4ab8-9896-2ab58576e9db",
-            "version": "@SDL2_TTF_VERSION@"
+            "guid": "2252bce8-bee1-4ab8-9896-2ab58576e9db"
         }
     },
     "name": {

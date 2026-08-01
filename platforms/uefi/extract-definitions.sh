@@ -23,14 +23,30 @@ expand_array_inf() {
 
 }
 
-if [ "$#" -eq 3 ]; then
+set -x
+
+get_mapped_version() {
+  local INPUT="$1"
+
+  MESON_INFO_FILE="$(pwd)/meson-info/intro-projectinfo.json"
+
+  if [ "$INPUT" == "oopetris" ]; then
+    jq -M -r -c ".[\"version\"]" "$MESON_INFO_FILE"
+  else
+    jq -M -r -c ".[\"subprojects\"][] | select(.[\"name\"] == \"$INPUT\") | .[\"version\"] " "$MESON_INFO_FILE"
+  fi
+
+}
+
+if [ "$#" -eq 2 ]; then
   SOURCE_FILE="$1"
   DEST_FILE="$(realpath "$2")"
-  MAPPINGS_FILE="$3"
 else
-  echo "Too many arguments given, expected 3" >&2
+  echo "Too many arguments given, expected 2" >&2
   exit 1
 fi
+
+MAPPINGS_FILE="$(realpath "$SCRIPT_DIR/../../src/executables/platforms/uefi/mappings.json")"
 
 DEST_FILE_DIR=$(dirname -- "$DEST_FILE")
 DEST_FILE_NAME=$(basename -- "$DEST_FILE")
@@ -73,11 +89,7 @@ link_package() {
     rm "$FINAL_FILE"
   fi
 
-  set -x
-
   ln -s "$SOURCE_FILE" "$FINAL_FILE"
-
-  set +x
 
 }
 
@@ -126,7 +138,7 @@ for FILE_DEPENDENCY in "${FILE_DEPENDENCIES[@]}"; do
     DEP_OUTPUT_FILE="$DEST_FILE_DIR/$MAPPING_ENTRY_DEP_NAME.inf"
 
     if ! [ -e "$DEP_OUTPUT_FILE" ]; then
-      "$SCRIPT_DIR/extract-definitions.sh" "$FILE_DEPENDENCY" "$DEP_OUTPUT_FILE" "$MAPPINGS_FILE"
+      "$SCRIPT_DIR/extract-definitions.sh" "$FILE_DEPENDENCY" "$DEP_OUTPUT_FILE"
     fi
 
     DEP_PACKAGES+=("$PACKAGE_NAME")
@@ -142,7 +154,7 @@ validate_parent_dir "$DEST_FILE"
 MAPPING_TYPE="$(echo "$MAPPING_ENTRY" | jq -M -r -c ".[\"type\"]")"
 MAPPING_NAME="$(echo "$MAPPING_ENTRY" | jq -M -r -c ".[\"name\"]")"
 MAPPING_GUID="$(echo "$MAPPING_ENTRY" | jq -M -r -c ".[\"guid\"]")"
-MAPPING_VERSION="$(echo "$MAPPING_ENTRY" | jq -M -r -c ".[\"version\"]")"
+MAPPING_VERSION="$(get_mapped_version "$(echo "$MAPPING_ENTRY" | jq -M -r -c ".[\"version\"]")")"
 
 if [ "$MAPPING_TYPE" == "application" ]; then
 
