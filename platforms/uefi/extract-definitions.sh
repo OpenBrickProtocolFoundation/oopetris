@@ -107,7 +107,7 @@ link_package() {
 
   validate_parent_dir "$FINAL_FILE"
 
-  ln -s "$SOURCE_FILE" "$FINAL_FILE"
+  link_files_checked "$SOURCE_FILE" "$FINAL_FILE"
 
   local SOURCE_FILE_EXT="${SOURCE_FILE##*.}"
 

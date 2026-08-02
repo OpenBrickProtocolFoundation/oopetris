@@ -122,6 +122,10 @@ if ! [ -e "$EDK2_PATCH_FILE" ]; then
     touch "$EDK2_PATCH_FILE"
 fi
 
+export BUILD_DIR="build/uefi"
+
+export BUILD_DIR_ABS="$(pwd)/$BUILD_DIR"
+
 pushd "$EDK2_ROOT"
 
 make -C BaseTools
@@ -171,20 +175,16 @@ EDK2_LIB_PACKAGES=("StdLib" "StdLibPrivateInternalFiles")
 for EDK2_LIB_PACKAGE in "${EDK2_LIB_PACKAGES[@]}"; do
 
     if ! [ -e "$WORKSPACE/$EDK2_LIB_PACKAGE" ]; then
-        ln -s "$EDK2_LIBC_ROOT/$EDK2_LIB_PACKAGE" "$WORKSPACE/$EDK2_LIB_PACKAGE"
+        link_files_checked "$EDK2_LIBC_ROOT/$EDK2_LIB_PACKAGE" "$WORKSPACE/$EDK2_LIB_PACKAGE"
     fi
 
 done
-
-export BUILD_DIR="build/uefi"
-
-export BUILD_DIR_ABS="$(pwd)/$BUILD_DIR"
 
 export EDK2_GENERATED_PACKAGES="$BUILD_DIR_ABS/GeneratedPackages"
 
 if ! [ -e "$WORKSPACE/GeneratedPackages" ]; then
     mkdir -p "$EDK2_GENERATED_PACKAGES"
-    ln -s "$EDK2_GENERATED_PACKAGES" "$WORKSPACE/GeneratedPackages"
+    link_files_checked "$EDK2_GENERATED_PACKAGES" "$WORKSPACE/GeneratedPackages"
 fi
 
 popd
