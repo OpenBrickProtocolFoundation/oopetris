@@ -4,7 +4,7 @@
         "version": "2.32.10"
     },
     "sdl2_image": {
-        "name": "SDL2ImagePkg",
+        "pkg": "SDL2ImagePkg",
         "version": "2.6.3"
     },
     "sdl2_mixer": {

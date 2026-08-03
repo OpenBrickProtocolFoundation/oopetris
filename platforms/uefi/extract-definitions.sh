@@ -233,30 +233,32 @@ fi
 
 MESON_TARGETS_INFO_LIB_TYPE="$(echo "$MESON_TARGETS_INFO_LIB" | jq -M -r -c ".[\"type\"]")"
 
+mapfile -t MESON_TARGETS_INFO_LIB_PARAMATERS < <(echo "$MESON_TARGETS_INFO_LIB" | jq '.["target_sources"][] | select( has("compiler") ) | .["parameters"][]' -M -r -c)
+
+for MESON_TARGETS_INFO_LIB_PARAMATER in "${MESON_TARGETS_INFO_LIB_PARAMATERS[@]}"; do
+
+  case "$MESON_TARGETS_INFO_LIB_PARAMATER" in
+  -I*)
+    DEP_INCLUDES+=("${MESON_TARGETS_INFO_LIB_PARAMATER:2}")
+    ;;
+  -D*)
+    DEP_BUILD_OPTIONS+=("*_*_*_*_FLAGS = ${MESON_TARGETS_INFO_LIB_PARAMATER}")
+    ;;
+  -t:use-lib:pkg=*)
+    DEP_PACKAGE_NAME="${MESON_TARGETS_INFO_LIB_PARAMATER:15}"
+    DEP_PACKAGES+=("LibraryPkg/$DEP_PACKAGE_NAME/$DEP_PACKAGE_NAME.dec")
+    ;;
+
+  *) ;;
+  esac
+done
+
+# TODO: what should i do here, archives alias static_libraries don't specify argument, but executables and shared libraries hae -Wl -l or similar arguments
 if [ "$MESON_TARGETS_INFO_LIB_TYPE" == "static library" ]; then
-
-  mapfile -t MESON_TARGETS_INFO_LIB_PARAMATERS < <(echo "$MESON_TARGETS_INFO_LIB" | jq '.["target_sources"][] | select( has("compiler") ) | .["parameters"][]' -M -r -c)
-
-  for MESON_TARGETS_INFO_LIB_PARAMATER in "${MESON_TARGETS_INFO_LIB_PARAMATERS[@]}"; do
-
-    case "$MESON_TARGETS_INFO_LIB_PARAMATER" in
-    -I*)
-      DEP_INCLUDES+=("${MESON_TARGETS_INFO_LIB_PARAMATER:2}")
-      ;;
-    -D*)
-      DEP_BUILD_OPTIONS+=("*_*_*_*_FLAGS = ${MESON_TARGETS_INFO_LIB_PARAMATER}")
-      ;;
-    -t:use-lib:pkg=*)
-      DEP_PACKAGE_NAME="${MESON_TARGETS_INFO_LIB_PARAMATER:15}"
-      DEP_PACKAGES+=("LibraryPkg/$DEP_PACKAGE_NAME/$DEP_PACKAGE_NAME.dec")
-      ;;
-
-    *) ;;
-    esac
-  done
+  echo "TODO"
 elif [ "$MESON_TARGETS_INFO_LIB_TYPE" == "executable" ] || [ "$MESON_TARGETS_INFO_LIB_TYPE" == "shared library" ]; then
   echo "TODO"
-  exit 34
+  # exit 34
 else
   echo "Error: invalid meson target type: $MESON_TARGETS_INFO_LIB_TYPE" >&2
   exit 2
