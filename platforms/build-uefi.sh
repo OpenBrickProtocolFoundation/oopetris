@@ -310,6 +310,11 @@ if [ "$COMPILE_TYPE" == "complete_rebuild" ] || [ ! -e "$BUILD_DIR" ]; then
         "-Drun_in_ci=$RUN_IN_CI" #TODO: enable \
     #--fatal-meson-warnings
 
+    if  ! [ -e "$WORKSPACE/GeneratedPackages" ]; then
+        mkdir -p "$EDK2_GENERATED_PACKAGES"
+        link_files_checked "$EDK2_GENERATED_PACKAGES" "$WORKSPACE/GeneratedPackages"
+    fi
+
 fi
 
 meson compile -C "$BUILD_DIR"

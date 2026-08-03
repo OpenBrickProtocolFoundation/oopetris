@@ -23,6 +23,22 @@ expand_array_inf() {
 
 }
 
+is_soname() {
+  local SO_NAME="$1"
+  [[ "$SO_NAME" =~ (^|/)lib[^/]+\.so(\.[0-9]+)*$ ]]
+}
+
+output_stem() {
+  local INPUT="$1"
+
+  if is_soname "$INPUT"; then
+    echo "${INPUT%%.so*}"
+  else
+    echo "${INPUT%.*}"
+  fi
+
+}
+
 get_mapped_version() {
   local INPUT="$1"
 
@@ -75,7 +91,7 @@ else
   exit 2
 fi
 
-mapfile -t FILE_DEPENDENCIES < <(jq '.["dependencies"]["files"][]' -M -r -c "$SOURCE_FILE")
+mapfile -t FILE_DEPENDENCIES < <(jq -e '.["dependencies"]["files"][]' -M -r -c "$SOURCE_FILE")
 
 UEFI_INFO_FILE="$(realpath "$SCRIPT_DIR/../crossbuild/uefi_info.json")"
 UEFI_INFO_GENERATED_PACKAGES_DIR="$(jq -M -r -c '.["generated_packages"]' "$UEFI_INFO_FILE")"
@@ -131,14 +147,14 @@ for FILE_DEPENDENCY in "${FILE_DEPENDENCIES[@]}"; do
   FILE_DEPENDENCY_TYPE="$(jq -M -r -c '.["type"]' "$FILE_DEPENDENCY")"
 
   if [ "$FILE_DEPENDENCY_TYPE" == "compile" ]; then
-    mapfile -t FILE_DEPENDENCY_FILES < <(jq '.["dependencies"]["files"][]' -M -r -c "$FILE_DEPENDENCY")
+    mapfile -t FILE_DEPENDENCY_SRC < <(jq -e '.["dependencies"]["src"][]' -M -r -c "$FILE_DEPENDENCY")
 
-    for FILE_DEPENDENCY_FILE in "${FILE_DEPENDENCY_FILES[@]}"; do
-      DEP_SOURCES+=("$FILE_DEPENDENCY_FILE")
+    for FILE_DEPENDENCY_SRC in "${FILE_DEPENDENCY_SRC[@]}"; do
+      DEP_SOURCES+=("$FILE_DEPENDENCY_SRC")
     done
   elif [ "$FILE_DEPENDENCY_TYPE" == "archive" ] || [ "$FILE_DEPENDENCY_TYPE" == "link" ]; then
 
-    DEP_OUTPUT="$(jq -M -r -c '.["dependencies"]["output"]' "$FILE_DEPENDENCY")"
+    DEP_OUTPUT="$(jq -e -M -r -c '.["dependencies"]["output"]' "$FILE_DEPENDENCY")"
 
     if [ "$DEP_OUTPUT" = "null" ]; then
       echo "Error: output '$DEP_OUTPUT'" >&2
@@ -146,12 +162,12 @@ for FILE_DEPENDENCY in "${FILE_DEPENDENCIES[@]}"; do
     fi
 
     DEP_OUTPUT_NAME=$(basename -- "$DEP_OUTPUT")
-    DEP_OUTPUT_STEM="${DEP_OUTPUT_NAME%.*}"
+    DEP_OUTPUT_STEM="$(output_stem "$DEP_OUTPUT_NAME")"
 
     MAPPING_ENTRY_DEP="$(jq -M -r -c ".[\"name\"][\"${DEP_OUTPUT_STEM}\"]" "$MAPPINGS_FILE")"
 
     if [ "$MAPPING_ENTRY_DEP" = "null" ]; then
-      echo "Error: invalid name '$DEP_OUTPUT_STEM': not found in mappings 'name'" >&2
+      echo "Error: invalid name '$DEP_OUTPUT_STEM': not found in mappings 'name' (dep)" >&2
       exit 2
     fi
 
@@ -190,12 +206,12 @@ if [ "$SOURCE_FILE_OUTPUT" = "null" ]; then
 fi
 
 SOURCE_FILE_OUTPUT_NAME=$(basename -- "$SOURCE_FILE_OUTPUT")
-SOURCE_FILE_OUTPUT_STEM="${SOURCE_FILE_OUTPUT_NAME%.*}"
+SOURCE_FILE_OUTPUT_STEM="$(output_stem "$SOURCE_FILE_OUTPUT_NAME")"
 
 SOURCE_FILE_ENTRY="$(jq -M -r -c ".[\"name\"][\"${SOURCE_FILE_OUTPUT_STEM}\"]" "$MAPPINGS_FILE")"
 
 if [ "$SOURCE_FILE_ENTRY" = "null" ]; then
-  echo "Error: invalid name '$SOURCE_FILE_OUTPUT_STEM': not found in mappings 'name'" >&2
+  echo "Error: invalid name '$SOURCE_FILE_OUTPUT_STEM': not found in mappings 'name' (src)" >&2
   exit 2
 fi
 
@@ -217,32 +233,34 @@ fi
 
 MESON_TARGETS_INFO_LIB_TYPE="$(echo "$MESON_TARGETS_INFO_LIB" | jq -M -r -c ".[\"type\"]")"
 
-if [ "$MESON_TARGETS_INFO_LIB_TYPE" == "static library" ] || [ "$MESON_TARGETS_INFO_LIB_TYPE" == "executable" ]; then
-  :
+if [ "$MESON_TARGETS_INFO_LIB_TYPE" == "static library" ]; then
+
+  mapfile -t MESON_TARGETS_INFO_LIB_PARAMATERS < <(echo "$MESON_TARGETS_INFO_LIB" | jq '.["target_sources"][] | select( has("compiler") ) | .["parameters"][]' -M -r -c)
+
+  for MESON_TARGETS_INFO_LIB_PARAMATER in "${MESON_TARGETS_INFO_LIB_PARAMATERS[@]}"; do
+
+    case "$MESON_TARGETS_INFO_LIB_PARAMATER" in
+    -I*)
+      DEP_INCLUDES+=("${MESON_TARGETS_INFO_LIB_PARAMATER:2}")
+      ;;
+    -D*)
+      DEP_BUILD_OPTIONS+=("*_*_*_*_FLAGS = ${MESON_TARGETS_INFO_LIB_PARAMATER}")
+      ;;
+    -t:use-lib:pkg=*)
+      DEP_PACKAGE_NAME="${MESON_TARGETS_INFO_LIB_PARAMATER:15}"
+      DEP_PACKAGES+=("LibraryPkg/$DEP_PACKAGE_NAME/$DEP_PACKAGE_NAME.dec")
+      ;;
+
+    *) ;;
+    esac
+  done
+elif [ "$MESON_TARGETS_INFO_LIB_TYPE" == "executable" ] || [ "$MESON_TARGETS_INFO_LIB_TYPE" == "shared library" ]; then
+  echo "TODO"
+  exit 34
 else
   echo "Error: invalid meson target type: $MESON_TARGETS_INFO_LIB_TYPE" >&2
   exit 2
 fi
-
-mapfile -t MESON_TARGETS_INFO_LIB_PARAMATERS < <(echo "$MESON_TARGETS_INFO_LIB" | jq '.["target_sources"][] | select( has("compiler") ) | .["parameters"][]' -M -r -c)
-
-for MESON_TARGETS_INFO_LIB_PARAMATER in "${MESON_TARGETS_INFO_LIB_PARAMATERS[@]}"; do
-
-  case "$MESON_TARGETS_INFO_LIB_PARAMATER" in
-  -I*)
-    DEP_INCLUDES+=("${MESON_TARGETS_INFO_LIB_PARAMATER:2}")
-    ;;
-  -D*)
-    DEP_BUILD_OPTIONS+=("*_*_*_*_FLAGS = ${MESON_TARGETS_INFO_LIB_PARAMATER}")
-    ;;
-  --use-lib:pkg=*)
-    DEP_PACKAGE_NAME="${MESON_TARGETS_INFO_LIB_PARAMATER:14}"
-    DEP_PACKAGES+=("LibraryPkg/$DEP_PACKAGE_NAME/$DEP_PACKAGE_NAME.dec")
-    ;;
-
-  *) ;;
-  esac
-done
 
 MAPPING_TYPE="$(echo "$MAPPING_ENTRY" | jq -M -r -c ".[\"type\"]")"
 MAPPING_NAME="$(echo "$MAPPING_ENTRY" | jq -M -r -c ".[\"name\"]")"

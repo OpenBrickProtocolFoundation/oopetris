@@ -197,8 +197,7 @@ elif [[ "$MODE" == "link" ]]; then
     "type": "link",
     "dependencies": {
         "output": "$OUTPUT_FILE",
-        "o_files": $(to_json_array "${DEPENDENCIES_O[@]}"),
-        "link_files": $(to_json_array "${DEPENDENCIES_LINK[@]}")
+        "files": $(to_json_array "${DEPENDENCIES_O[@]}" "${DEPENDENCIES_LINK[@]}")
     }
 }
 EOF
