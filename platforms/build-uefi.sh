@@ -124,8 +124,6 @@ fi
 
 export BUILD_DIR="build/uefi"
 
-export BUILD_DIR_ABS="$(pwd)/$BUILD_DIR"
-
 pushd "$EDK2_ROOT"
 
 make -C BaseTools
@@ -179,13 +177,6 @@ for EDK2_LIB_PACKAGE in "${EDK2_LIB_PACKAGES[@]}"; do
     fi
 
 done
-
-export EDK2_GENERATED_PACKAGES="$BUILD_DIR_ABS/GeneratedPackages"
-
-if [ -e "$BUILD_DIR_ABS" ] && ! [ -e "$WORKSPACE/GeneratedPackages" ]; then
-    mkdir -p "$EDK2_GENERATED_PACKAGES"
-    link_files_checked "$EDK2_GENERATED_PACKAGES" "$WORKSPACE/GeneratedPackages"
-fi
 
 popd
 
@@ -284,6 +275,8 @@ export EDK2_INFO_FILE="./platforms/crossbuild/uefi_info.json"
 
 validate_parent_dir "$EDK2_INFO_FILE"
 
+export EDK2_GENERATED_PACKAGES="$(pwd)/$BUILD_DIR/GeneratedPackages"
+
 cat <<EOF >"$EDK2_INFO_FILE"
 {
     "build": "$EDK2_BUILD_COMMAND",
@@ -310,7 +303,9 @@ if [ "$COMPILE_TYPE" == "complete_rebuild" ] || [ ! -e "$BUILD_DIR" ]; then
         "-Drun_in_ci=$RUN_IN_CI" #TODO: enable \
     #--fatal-meson-warnings
 
-    if  ! [ -e "$WORKSPACE/GeneratedPackages" ]; then
+    if ! [ -L "$WORKSPACE/GeneratedPackages" ]; then
+
+        echo "mkdir: $EDK2_GENERATED_PACKAGES"
         mkdir -p "$EDK2_GENERATED_PACKAGES"
         link_files_checked "$EDK2_GENERATED_PACKAGES" "$WORKSPACE/GeneratedPackages"
     fi
