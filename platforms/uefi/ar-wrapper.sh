@@ -22,7 +22,7 @@ source "$SCRIPT_DIR/base.sh"
 ARGS=("$@")
 
 OUTPUT_FILE=""
-NEXT_TYPE="unknown"
+DEPENDENCIES=()
 
 for ARG in "${ARGS[@]}"; do
     case "$ARG" in
@@ -31,21 +31,31 @@ for ARG in "${ARGS[@]}"; do
         ;;
     csr)
         change_mode "create"
-        NEXT_TYPE="output"
+        change_next_type "output"
         ;;
     *)
         if [[ "$NEXT_TYPE" == "output" ]]; then
             OUTPUT_FILE="$(normalize_file "$ARG")"
-            NEXT_TYPE="unknown"
+            reset_next_type
         elif [[ "$NEXT_TYPE" == "ignore" ]]; then
-            NEXT_TYPE="unknown"
-        else
+            reset_next_type
+        elif [[ "$NEXT_TYPE" == "unknown" ]]; then
             case "$ARG" in
-            *.a | *.so | *.o)
+            *.o)
                 DEPENDENCIES+=("$(resolve_file "$ARG")")
                 ;;
-            *) ;;
+            *.a | *.so)
+                echo "Invalid file detected: '$ARG'" >&2
+                exit 5
+                ;;
+            *)
+                echo "Invalid argument detected: '$ARG'" >&2
+                exit 6
+                ;;
             esac
+        else
+            echo "Not recognized next type: $NEXT_TYPE" >&2
+            exit 11
         fi
         ;;
     esac
@@ -62,7 +72,7 @@ elif [[ "$MODE" == "create" ]]; then
 
     validate_parent_dir "$OUTPUT_FILE"
 
-    validate_dependencies
+    validate_dependencies "${DEPENDENCIES[@]}"
 
     cat <<EOF >"$OUTPUT_FILE"
 {
