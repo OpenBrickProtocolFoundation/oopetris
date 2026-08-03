@@ -232,6 +232,14 @@ for MESON_TARGETS_INFO_LIB_PARAMATER in "${MESON_TARGETS_INFO_LIB_PARAMATERS[@]}
   -I*)
     DEP_INCLUDES+=("${MESON_TARGETS_INFO_LIB_PARAMATER:2}")
     ;;
+  -D*)
+    DEP_BUILD_OPTIONS+=("*_*_*_*_FLAGS = ${MESON_TARGETS_INFO_LIB_PARAMATER}")
+    ;;
+  --use-lib:pkg=*)
+    DEP_PACKAGE_NAME="${MESON_TARGETS_INFO_LIB_PARAMATER:14}"
+    DEP_PACKAGES+=("LibraryPkg/$DEP_PACKAGE_NAME/$DEP_PACKAGE_NAME.dec")
+    ;;
+
   *) ;;
   esac
 done
@@ -282,8 +290,6 @@ $(expand_array_inf "${DEP_PACKAGES[@]}")
 [Pcd]
 
 [BuildOptions]
-  *_*_*_CC_FLAGS = -D__UEFI__
-
   *_*_*_CC_FLAGS  = -std=c11
   *_*_*_CXX_FLAGS = -std=c++23
 
@@ -322,13 +328,9 @@ $(expand_array_inf "${DEP_PACKAGES[@]}")
   UefiLib
 
 [BuildOptions]
-[BuildOptions]
-  *_*_*_CC_FLAGS = -D__UEFI__
-
   *_*_*_CC_FLAGS  = -std=c11
   *_*_*_CXX_FLAGS = -std=c++23
 
-$(expand_array_inf "${DEP_BUILD_OPTIONS[@]}")
 $(expand_array_inf "${DEP_BUILD_OPTIONS[@]}")
 EOF
 

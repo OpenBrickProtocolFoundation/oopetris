@@ -1,14 +1,14 @@
 {
     "sdl2": {
-        "name": "LibraryPkg/SDL2Pkg.inf",
+        "pkg": "SDL2Pkg",
         "version": "2.32.10"
     },
     "sdl2_image": {
-        "name": "LibraryPkg/SDL2ImagePkg.inf",
+        "name": "SDL2ImagePkg",
         "version": "2.6.3"
     },
     "sdl2_mixer": {
-        "name": "LibraryPkg/SDL2MixerPkg.inf",
+        "pkg": "SDL2MixerPkg",
         "version": "2.6.2"
     }
 }

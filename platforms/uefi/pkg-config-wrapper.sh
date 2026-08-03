@@ -88,12 +88,12 @@ elif [[ "$MODE" == "get" ]]; then
         echo "$LIBRARY_ENTRY" | jq -M -r -c ".[\"version\"]"
         exit 0
     elif [[ "$WHAT" == "cflags" ]]; then
-        echo "--use-lib=$PACKAGE_NAME"
-        echo "--lib_name=$(echo "$LIBRARY_ENTRY" | jq -M -r -c ".[\"name\"]")"
+        echo "--use-lib:name=$PACKAGE_NAME"
+        echo "--use-lib:pkg=$(echo "$LIBRARY_ENTRY" | jq -M -r -c ".[\"pkg\"]")"
         exit 0
     elif [[ "$WHAT" == "libflags" ]]; then
-        echo "-L,--use-lib=$PACKAGE_NAME"
-        echo "-L,--lib_name=$(echo "$LIBRARY_ENTRY" | jq -M -r -c ".[\"name\"]")"
+        echo "-L,--use-lib:name=$PACKAGE_NAME"
+        echo "-L,--use-lib:pkg=$(echo "$LIBRARY_ENTRY" | jq -M -r -c ".[\"pkg\"]")"
         exit 0
     else
         echo "<$TOOL> ${ARGS[*]}" >&2
