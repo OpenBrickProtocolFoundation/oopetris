@@ -45,7 +45,7 @@ for ARG in "${ARGS[@]}"; do
         change_mode "link"
         LINK_ARG="${ARG:4}"
         case "$LINK_ARG" in
-        --as-needed | --no-undefined | -O* | -soname,* | -rpath,*)
+        --as-needed | --no-undefined | --whole-archive | --no-whole-archive | -O* | -soname,* | -rpath,*)
             # ignore, valid arguments
             ;;
         --start-group)
@@ -98,6 +98,9 @@ for ARG in "${ARGS[@]}"; do
             reset_next_type
         elif [[ "$NEXT_TYPE" == "link" ]]; then
             case "$ARG" in
+            -pthread | -m*)
+                # ignore
+                ;;
             -l*)
                 DEPENDENCIES_LINK+=("SYSTEM:${ARG:2}")
                 ;;

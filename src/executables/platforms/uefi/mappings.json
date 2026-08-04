@@ -54,6 +54,20 @@
             "lib": "LibSpdlog",
             "guid": "dee047db-15c9-4d79-ab08-79d6244d9b0e",
             "version": "spdlog"
+        },
+        "SDL2ImagePkg": {
+            "type": "library",
+            "name": "SDL2ImageLib",
+            "lib": "LibSDL2Image",
+            "guid": "80834111-5231-4b9d-b781-381bc4a7ac38",
+            "version": "sdl2_image"
+        },
+        "SDL2MixerPkg": {
+            "type": "library",
+            "name": "SDL2MixerLib",
+            "lib": "LibSDL2Mixer",
+            "guid": "9a0df316-4a64-4336-99b2-09af1e8f7e53",
+            "version": "sdl2_mixer"
         }
     },
     "name": {
@@ -87,6 +101,14 @@
         },
         "oopetris": {
             "meson": "oopetris"
+        },
+        "libsdl2image": {
+            "name": "SDL2ImagePkg",
+            "meson": "sdl2_image"
+        },
+        "libsdl2mixer": {
+            "name": "SDL2MixerPkg",
+            "meson": "sdl2_mixer"
         }
     }
 }

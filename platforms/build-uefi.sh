@@ -236,10 +236,10 @@ export ENDIANESS="little"
 
 export ROMFS="platforms/romfs"
 
-export COMMON_FLAGS="'-fexceptions', '-pthread', '-fshort-wchar', '-fno-builtin', '-fno-strict-aliasing', '-fno-common', '-fstack-protector', '-ffunction-sections', '-fdata-sections', '-m64', '-maccumulate-outgoing-args', '-mno-red-zone', '-mcmodel=small', '-fno-asynchronous-unwind-tables', '-fno-omit-frame-pointer'"
+export COMMON_FLAGS="'-pthread', '-m64', '-maccumulate-outgoing-args', '-mno-red-zone', '-mcmodel=small'"
 
 export LINK_FLAGS="$COMMON_FLAGS"
-export COMPILE_FLAGS="$COMMON_FLAGS ,'-D__UEFI__', '-DEFIAPI=__attribute__((ms_abi))', '-DAUDIO_PREFER_MP3'"
+export COMPILE_FLAGS="$COMMON_FLAGS ,'-D__UEFI__', '-DEFIAPI=__attribute__((ms_abi))', '-fexceptions', '-fshort-wchar', '-fno-builtin', '-fno-strict-aliasing', '-fno-common', '-fstack-protector', '-ffunction-sections', '-fdata-sections', '-fno-asynchronous-unwind-tables', '-fno-omit-frame-pointer', '-DAUDIO_PREFER_MP3'"
 
 export CROSS_FILE="./platforms/crossbuild/uefi.ini"
 
