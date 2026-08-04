@@ -34,7 +34,11 @@ for ARG in "${ARGS[@]}"; do
         change_mode "pass"
         ;;
     -c)
-        change_mode "compile"
+        if [[ "$MODE" == "pass_override" ]]; then
+            :
+        else
+            change_mode "compile"
+        fi
         ;;
     -E)
         change_mode "pass"
@@ -82,6 +86,16 @@ for ARG in "${ARGS[@]}"; do
         if [[ "$NEXT_TYPE" == "output" ]]; then
             OUTPUT_FILE="$(normalize_file "$ARG")"
             reset_next_type
+
+            case "$OUTPUT_FILE" in
+            *.obj)
+                # meson compatibility, .obj is used for cc.compiles and cc.sizeof calls
+                MODE="unknown"
+                change_mode "pass_override"
+                ;;
+            *) ;;
+            esac
+
         elif [[ "$NEXT_TYPE" == "ignore" ]]; then
             reset_next_type
         elif [[ "$NEXT_TYPE" == "link" ]]; then
@@ -149,7 +163,7 @@ for ARG in "${ARGS[@]}"; do
     esac
 done
 
-if [[ "$MODE" == "pass" ]]; then
+if [[ "$MODE" == "pass" ]] || [[ "$MODE" == "pass_override" ]]; then
     exec "$CXX" "${ARGS[@]}"
 elif [[ "$MODE" == "compile" ]]; then
     if [ -z "$OUTPUT_FILE" ]; then
