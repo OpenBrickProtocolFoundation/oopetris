@@ -332,6 +332,9 @@ if build_application
         'SDL2_image',
         allow_fallback: not only_allow_native_libs,
         required: true,
+        default_options: {
+            'test': false,
+        },
     )
     graphics_lib += {
         'deps': [graphics_lib.get('deps'), sdl2_image_dep],

@@ -80,7 +80,9 @@ source "$SCRIPT_DIR/versions.sh"
 # shellcheck source=./platforms/helper.sh
 source "$SCRIPT_DIR/helper.sh"
 
-EDK2_ROOT="$(pwd)/toolchains/edk2"
+TOOLCHAIN_DIR="$(pwd)/toolchains"
+
+EDK2_ROOT="$TOOLCHAIN_DIR/edk2"
 export EDK2_ROOT
 
 export WORKSPACE="$EDK2_ROOT"
@@ -94,7 +96,7 @@ fi
 git -C "$EDK2_ROOT" checkout "$EDK2_RELEASE_TAG"
 git -C "$EDK2_ROOT" submodule update --init
 
-EDK2_LIBC_ROOT="$(pwd)/toolchains/edk2-libc"
+EDK2_LIBC_ROOT="$TOOLCHAIN_DIR/edk2-libc"
 export EDK2_LIBC_ROOT
 
 if [ ! -d "$EDK2_LIBC_ROOT" ]; then
@@ -126,7 +128,7 @@ export BUILD_DIR="build/uefi"
 
 pushd "$EDK2_ROOT"
 
-make -C BaseTools
+make -C BaseTools --quiet >/dev/null 2>&1
 
 set +u
 
@@ -174,6 +176,39 @@ for EDK2_LIB_PACKAGE in "${EDK2_LIB_PACKAGES[@]}"; do
 
     if ! [ -e "$WORKSPACE/$EDK2_LIB_PACKAGE" ]; then
         link_files_checked "$EDK2_LIBC_ROOT/$EDK2_LIB_PACKAGE" "$WORKSPACE/$EDK2_LIB_PACKAGE"
+    fi
+
+done
+
+LIBRARY_PKG_ROOT="$WORKSPACE/LibraryPkg"
+
+mkdir -p "$LIBRARY_PKG_ROOT"
+
+EDK2_PORT_NAMES=("SDL2Pkg" "SDL2MixerPkg" "SDL2ImagePkg")
+EDK2_PORT_URLS=("https://github.com/Totto16/SDL2_UEFI" "TODO" "TODO     ")
+EDK2_PORT_TAGS=("uefi_port" "TODO" "TODO")
+
+for EDK2_PORT_KEY in "${!EDK2_PORT_NAMES[@]}"; do
+
+    EDK2_PORT_NAME="${EDK2_PORT_NAMES[$EDK2_PORT_KEY]}"
+    EDK2_PORT_URL="${EDK2_PORT_URLS[$EDK2_PORT_KEY]}"
+    EDK2_PORT_TAG="${EDK2_PORT_TAGS[$EDK2_PORT_KEY]}"
+
+    EDK2_PORT_ROOT="$TOOLCHAIN_DIR/$EDK2_PORT_NAME"
+
+    #TODO: use after sdl2 packages are ported
+    continue
+
+    if [ ! -d "$EDK2_PORT_ROOT" ]; then
+        git clone "$EDK2_PORT_URL" "$EDK2_PORT_ROOT"
+    else
+        git -C "$EDK2_PORT_ROOT" fetch
+    fi
+
+    git -C "$EDK2_PORT_ROOT" checkout "$EDK2_PORT_TAG"
+
+    if ! [ -e "$LIBRARY_PKG_ROOT/$EDK2_PORT_NAME" ]; then
+        link_files_checked "$EDK2_PORT_ROOT" "$LIBRARY_PKG_ROOT/$EDK2_PORT_NAME"
     fi
 
 done
@@ -298,7 +333,7 @@ if [ "$COMPILE_TYPE" == "complete_rebuild" ] || [ ! -e "$BUILD_DIR" ]; then
         "-Dbuildtype=$BUILDTYPE" \
         -Ddefault_library=shared \
         -Dtests=false \
-        --force-fallback-for="fmt,nlohmann_json,magic_enum,utf8cpp,sdl2_ttf,freetype2,spdlog,argparse" \
+        --force-fallback-for="fmt,nlohmann_json,magic_enum,utf8cpp,sdl2_ttf,freetype2,spdlog,argparse,sdl2_image,sdl2_mixer,ogg,vorbis,flac" \
         --wrap-mode=nofallback \
         "-Drun_in_ci=$RUN_IN_CI" #TODO: enable \
     #--fatal-meson-warnings

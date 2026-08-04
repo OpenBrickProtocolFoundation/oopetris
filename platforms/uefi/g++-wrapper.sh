@@ -36,6 +36,9 @@ for ARG in "${ARGS[@]}"; do
     -c)
         change_mode "compile"
         ;;
+    -E)
+        change_mode "pass"
+        ;;
     -Wl,*)
         change_mode "link"
         LINK_ARG="${ARG:4}"
@@ -122,7 +125,7 @@ for ARG in "${ARGS[@]}"; do
             -cpp)
                 # ignore this for meson usage, even if gcc only uses this for fortran, but it doesn't complain about it
                 ;;
-            -v | -E | - | -g | -MD | -pthread | -shared | -std=* | -f* | -m* | -D* | -U* | -W* | -O* | -I*)
+            -v | - | -g | -P | -MD | -pthread | -shared | -std=* | -f* | -m* | -D* | -U* | -W* | -O* | -I* | -L* | -l*)
                 # ignore, valid arguments
                 ;;
             -t:use-lib*)
