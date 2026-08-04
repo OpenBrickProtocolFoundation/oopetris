@@ -260,7 +260,7 @@ elif [ "$MESON_TARGETS_INFO_LIB_TYPE" == "executable" ] || [ "$MESON_TARGETS_INF
   echo "TODO"
   # exit 34
 else
-  echo "Error: invalid meson target type: $MESON_TARGETS_INFO_LIB_TYPE" >&2
+  echo "Error: invalid meson target type fo '$SOURCE_FILE_ENTRY_MESON_NAME': $MESON_TARGETS_INFO_LIB_TYPE" >&2
   exit 2
 fi
 
