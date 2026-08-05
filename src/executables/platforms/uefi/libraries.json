@@ -1,7 +1,7 @@
 {
     "sdl2": {
         "pkg": "SDL2Pkg",
-        "lib": "SDL2Lib",
+        "lib": "LibSDL2",
         "version": "2.32.10"
     },
     "sdl2_image_TODO": {

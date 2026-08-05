@@ -36,6 +36,41 @@ change_mode() {
     fi
 }
 
+UEFI_INFO_FILE="$(realpath "$SCRIPT_DIR/../crossbuild/uefi_info.json")"
+EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM="$(jq -M -r -c '.["platform"]' "$UEFI_INFO_FILE")"
+
+link_built_libray() {
+    local PACKAGE_NAME="$1"
+    local PACKAGE_NAME_PKG="$2"
+    local PACKAGE_NAME_LIB="$3"
+
+    local FINAL_PKG_NAME="LibraryPkg/$PACKAGE_NAME_PKG/$PACKAGE_NAME_PKG.inf"
+
+    if grep -q "$FINAL_PKG_NAME" "$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM"; then
+        : # found already, do nothing
+    else
+        cat <<EOF >>"$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM"
+[Components]
+  $FINAL_PKG_NAME
+
+EOF
+
+    fi
+
+    local FINAL_PKG_INC_NAME="LibraryPkg/$PACKAGE_NAME_PKG/$PACKAGE_NAME_PKG.inc"
+
+    if grep -q "$FINAL_PKG_INC_NAME" "$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM"; then
+        : # found already, do nothing
+    else
+        cat <<EOF >>"$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM"
+!include $FINAL_PKG_INC_NAME
+
+EOF
+
+    fi
+
+}
+
 WHAT=""
 PACKAGE_NAME=""
 NEXT_IS_PACKAGE_NAME="false"
@@ -88,14 +123,26 @@ elif [[ "$MODE" == "get" ]]; then
         echo "$LIBRARY_ENTRY" | jq -M -r -c ".[\"version\"]"
         exit 0
     elif [[ "$WHAT" == "cflags" ]]; then
+        PACKAGE_NAME_PKG="$(echo "$LIBRARY_ENTRY" | jq -M -r -c ".[\"pkg\"]")"
+        PACKAGE_NAME_LIB="$(echo "$LIBRARY_ENTRY" | jq -M -r -c ".[\"lib\"]")"
+
         echo "-t:use-lib:name=$PACKAGE_NAME"
-        echo "-t:use-lib:pkg=$(echo "$LIBRARY_ENTRY" | jq -M -r -c ".[\"pkg\"]")"
-        echo "-t:use-lib:lib=$(echo "$LIBRARY_ENTRY" | jq -M -r -c ".[\"lib\"]")"
+        echo "-t:use-lib:pkg=$PACKAGE_NAME_PKG"
+        echo "-t:use-lib:lib=$PACKAGE_NAME_LIB"
+
+        link_built_libray "$PACKAGE_NAME" "$PACKAGE_NAME_PKG" "$PACKAGE_NAME_LIB"
+
         exit 0
     elif [[ "$WHAT" == "libflags" ]]; then
+        PACKAGE_NAME_PKG="$(echo "$LIBRARY_ENTRY" | jq -M -r -c ".[\"pkg\"]")"
+        PACKAGE_NAME_LIB="$(echo "$LIBRARY_ENTRY" | jq -M -r -c ".[\"lib\"]")"
+
         echo "-Wl,-t:use-lib:name=$PACKAGE_NAME"
-        echo "-Wl,-t:use-lib:pkg=$(echo "$LIBRARY_ENTRY" | jq -M -r -c ".[\"pkg\"]")"
-        echo "-Wl,-t:use-lib:lib=$(echo "$LIBRARY_ENTRY" | jq -M -r -c ".[\"lib\"]")"
+        echo "-Wl,-t:use-lib:pkg=$PACKAGE_NAME_PKG"
+        echo "-Wl,-t:use-lib:lib=$PACKAGE_NAME_LIB"
+
+        link_built_libray "$PACKAGE_NAME" "$PACKAGE_NAME_PKG" "$PACKAGE_NAME_LIB"
+
         exit 0
     else
         echo "<$TOOL> ${ARGS[*]}" >&2
