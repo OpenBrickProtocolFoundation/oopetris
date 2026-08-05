@@ -142,7 +142,7 @@ for ARG in "${ARGS[@]}"; do
             -cpp)
                 # ignore this for meson usage, even if gcc only uses this for fortran, but it doesn't complain about it
                 ;;
-            -v | - | -g | -P | -MD | -pthread | -shared | -nostdinc | -isystem=* | --sysroot=* | -std=* | -f* | -m* | -D* | -U* | -W* | -O* | -I* | -L* | -l*)
+            -v | - | -g | -P | -MD | -pthread | -shared | -nostdinc | -nostdinc++ | -nodefaultlibs | -isystem=* | --sysroot=* | -std=* | -f* | -m* | -D* | -U* | -W* | -O* | -I* | -L* | -l*)
                 # ignore, valid arguments
                 ;;
             -t:use-lib*)

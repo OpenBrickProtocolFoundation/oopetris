@@ -283,7 +283,7 @@ for MESON_TARGETS_INFO_LIB_PARAMATER in "${MESON_TARGETS_INFO_LIB_PARAMATERS[@]}
   -W*)
     # TODO: include warnings
     ;;
-  -nostdinc | -D* | --sysroot=* | -isystem=*)
+  -nostdinc | -nostdinc++ | -nodefaultlibs | -D* | --sysroot=* | -isystem=*)
     DEP_BUILD_OPTIONS+=("*_*_*_CC_FLAGS = \"${MESON_TARGETS_INFO_LIB_PARAMATER}\"")
     ;;
   -t:use-lib:pkg=*)
