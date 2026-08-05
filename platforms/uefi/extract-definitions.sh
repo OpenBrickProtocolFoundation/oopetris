@@ -272,7 +272,17 @@ fi
 
 MESON_TARGETS_INFO_LIB_TYPE="$(echo "$MESON_TARGETS_INFO_LIB" | jq -M -r -c ".[\"type\"]")"
 
-mapfile -t MESON_TARGETS_INFO_LIB_PARAMATERS < <(echo "$MESON_TARGETS_INFO_LIB" | jq '.["target_sources"][] | select( has("compiler") ) | .["parameters"][]' -M -r -c)
+mapfile -t MESON_TARGETS_INFO_LIB_COMPILER_TARGETS < <(echo "$MESON_TARGETS_INFO_LIB" | jq '.["target_sources"][] | select( has("compiler") )' -M -r -c)
+
+if [ "${#MESON_TARGETS_INFO_LIB_COMPILER_TARGETS[@]}" -ne 1 ]; then
+  echo "Array is not one element long but ${#MESON_TARGETS_INFO_LIB_COMPILER_TARGETS[@]} long" >&2
+  printf '%s\n' "${MESON_TARGETS_INFO_LIB_COMPILER_TARGETS[@]}" >&2
+  exit 9
+fi
+
+MESON_TARGETS_INFO_LIB_COMPILER_TARGET="${MESON_TARGETS_INFO_LIB_COMPILER_TARGETS[0]}"
+
+mapfile -t MESON_TARGETS_INFO_LIB_PARAMATERS < <(echo "$MESON_TARGETS_INFO_LIB_COMPILER_TARGET" | jq '.["parameters"][]' -M -r -c)
 
 for MESON_TARGETS_INFO_LIB_PARAMATER in "${MESON_TARGETS_INFO_LIB_PARAMATERS[@]}"; do
 
@@ -283,7 +293,7 @@ for MESON_TARGETS_INFO_LIB_PARAMATER in "${MESON_TARGETS_INFO_LIB_PARAMATERS[@]}
   -W*)
     # TODO: include warnings
     ;;
-  -nostdinc | -nostdinc++ | -nodefaultlibs | -D* | --sysroot=* | -isystem=*)
+  -nostdinc | -nostdinc++ | -nodefaultlibs | -D* | --sysroot=* | -isystem*)
     DEP_BUILD_OPTIONS+=("*_*_*_CC_FLAGS = \"${MESON_TARGETS_INFO_LIB_PARAMATER}\"")
     ;;
   -t:use-lib:pkg=*)
@@ -331,10 +341,11 @@ fi
 
 if [ "$MAPPING_TYPE" == "application" ]; then
 
-  # add include directories to the build options
+  # add include directories to the build options (as the files build inside the application need that)
   for DEP_INCLUDE in "${DEP_INCLUDES[@]}"; do
     DEP_BUILD_OPTIONS+=("*_*_*_CC_FLAGS = \"-I${DEP_INCLUDE}\"")
   done
+
   validate_parent_dir "$DEST_FILE"
 
   cat <<EOF >"$DEST_FILE"
@@ -380,6 +391,24 @@ EOF
   link_package "$DEST_FILE_NAME" "$DEST_FILE"
 
 elif [ "$MAPPING_TYPE" == "library" ]; then
+
+  # add include directories to the build options (as the files build inside the library need that)
+  # NOTE: we also define these as [Include], which is not entirely correct, but it didn't lead to problems until now
+  # TODO: ^ these should be private include dirs not public ones
+  for DEP_INCLUDE in "${DEP_INCLUDES[@]}"; do
+    DEP_BUILD_OPTIONS+=("*_*_*_CC_FLAGS = \"-I${DEP_INCLUDE}\"")
+  done
+
+  # add custom options, that override fix dependencies
+  MAPPING_OPTIONS="$(echo "$MAPPING_ENTRY" | jq -M -r -c ".[\"options\"]")"
+
+  if [ "$MAPPING_OPTIONS" != "null" ]; then
+    mapfile -t MAPPING_OPTIONS_ENTRIES < <(echo "$MAPPING_OPTIONS" | jq -e '.[]' -M -r -c)
+
+    for MAPPING_OPTIONS_ENTRY in "${MAPPING_OPTIONS_ENTRIES[@]}"; do
+      DEP_BUILD_OPTIONS+=("*_*_*_CC_FLAGS = \"${MAPPING_OPTIONS_ENTRY}\"")
+    done
+  fi
 
   MAPPING_LIB_NAME="$(echo "$MAPPING_ENTRY" | jq -M -r -c ".[\"lib\"]")"
 

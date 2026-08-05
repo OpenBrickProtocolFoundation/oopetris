@@ -70,7 +70,7 @@ require_empty_array() {
     local ARRAY=("$@")
 
     if [ "${#ARRAY[@]}" -ne 0 ]; then
-        echo "Array is nto empty but ${#ARRAY[@]} long" >&2
+        echo "Array is not empty but ${#ARRAY[@]} long" >&2
         exit 9
     fi
 }

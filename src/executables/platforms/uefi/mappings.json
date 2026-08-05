@@ -60,7 +60,10 @@
             "name": "SDL2ImageLib",
             "lib": "LibSDL2Image",
             "guid": "80834111-5231-4b9d-b781-381bc4a7ac38",
-            "version": "sdl2_image"
+            "version": "sdl2_image",
+            "options": [
+                "-Wno-misleading-indentation"
+            ]
         },
         "REMOVE_SDL2MixerPkg": {
             "type": "library",
@@ -150,7 +153,7 @@
         "libflac_avx2": {
             "name": "REMOVE_FlacPkg",
             "meson": "flac_avx2",
-            "comment":"this is detect wrongly"
+            "comment": "this is detect wrongly"
         }
     }
 }
