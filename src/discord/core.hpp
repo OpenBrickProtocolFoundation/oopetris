@@ -28,7 +28,7 @@ namespace constants::discord {
 //TODO(Totto):  this isn't correct for all platforms and needs to be tested
 #if defined(__ANDROID__)
     constexpr const char* platform_dependent_launch_arguments = "TODO";
-#elif defined(__CONSOLE__)
+#elif defined(__CONSOLE__) || defined(__UEFI__)
 #error "Not supported"
 #elif defined(FLATPAK_BUILD)
     constexpr const char* platform_dependent_launch_arguments =
@@ -45,10 +45,10 @@ namespace constants::discord {
 
 #if defined(__ANDROID__)
     constexpr const discordpp::ActivityGamePlatforms supported_platforms = discordpp::ActivityGamePlatforms::Android;
-#elif defined(__CONSOLE__)
+#elif defined(__CONSOLE__) || defined(__UEFI__)
 #error "Not supported"
 #elif defined(FLATPAK_BUILD) || defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__) \
-        || defined(__APPLE__) || defined(__linux__)
+        || defined(__APPLE__) || defined(__linux__) || defined(__UEFI__)
     constexpr const discordpp::ActivityGamePlatforms supported_platforms = discordpp::ActivityGamePlatforms::Desktop;
 #else
 #error "Unsupported platform"

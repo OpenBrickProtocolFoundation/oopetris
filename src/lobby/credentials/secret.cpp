@@ -1,7 +1,7 @@
 
 #include "./secret.hpp"
 
-#if defined(__linux__) || defined(__ANDROID__)
+#if defined(_HAVE_KEYUTILS)
 
 #include <core/helper/utils.hpp>
 #include <fmt/format.h>

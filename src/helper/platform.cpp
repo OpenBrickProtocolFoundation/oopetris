@@ -49,6 +49,8 @@ namespace {
     return "Nintendo Switch";
 #elif defined(__3DS__)
     return "Nintendo 3DS";
+#elif defined(__UEFI__)
+    return "UEFI";
 #elif defined(FLATPAK_BUILD)
     return "Linux (Flatpak)";
 #elif defined(__linux__)
@@ -76,7 +78,9 @@ namespace {
     }
 
     return true;
-
+#elif defined(__UEFI__)
+    UNUSED(url);
+    return false;
 #elif defined(__CONSOLE__)
     auto result = console::open_url(url);
     spdlog::info("Returned string from url open was: {}", result);
