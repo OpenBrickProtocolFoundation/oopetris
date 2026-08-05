@@ -242,7 +242,7 @@ for MESON_TARGETS_INFO_LIB_PARAMATER in "${MESON_TARGETS_INFO_LIB_PARAMATERS[@]}
     DEP_INCLUDES+=("${MESON_TARGETS_INFO_LIB_PARAMATER:2}")
     ;;
   -D*)
-    DEP_BUILD_OPTIONS+=("*_*_*_*_FLAGS = ${MESON_TARGETS_INFO_LIB_PARAMATER}")
+    DEP_BUILD_OPTIONS+=("*_*_*_*_FLAGS = \"${MESON_TARGETS_INFO_LIB_PARAMATER}\"")
     ;;
   -t:use-lib:pkg=*)
     DEP_PACKAGE_NAME="${MESON_TARGETS_INFO_LIB_PARAMATER:15}"
@@ -310,7 +310,7 @@ $(expand_array_inf "${DEP_PACKAGES[@]}")
 [Pcd]
 
 [BuildOptions]
-  *_*_*_CC_FLAGS  = -std=c11
+  *_*_*_CCONLY_FLAGS  = -std=c11
   *_*_*_CXX_FLAGS = -std=c++23
 
 $(expand_array_inf "${DEP_BUILD_OPTIONS[@]}")
@@ -348,7 +348,7 @@ $(expand_array_inf "${DEP_PACKAGES[@]}")
   UefiLib
 
 [BuildOptions]
-  *_*_*_CC_FLAGS  = -std=c11
+  *_*_*_CCONLY_FLAGS  = -std=c11
   *_*_*_CXX_FLAGS = -std=c++23
 
 $(expand_array_inf "${DEP_BUILD_OPTIONS[@]}")

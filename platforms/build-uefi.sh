@@ -14,7 +14,7 @@ export BUILDTYPE="debug"
 
 export RUN_IN_CI="false"
 
-export RUNTIME_TARGET="emulator"
+export RUNTIME_TARGET="hardware"
 
 if [ "$#" -eq 0 ]; then
     # nothing
@@ -217,11 +217,8 @@ popd
 
 export PKG_CONFIG_PATH="$EDK2_ROOT/lib/pkgconfig"
 
-export CC_WRAPPER="$SCRIPT_DIR/uefi/gcc-wrapper.sh"
-export CXX_WRAPPER="$SCRIPT_DIR/uefi/g++-wrapper.sh"
-
-export CC="gcc-15"
-export CXX="g++-15"
+export CC="$SCRIPT_DIR/uefi/gcc-wrapper.sh"
+export CXX="$SCRIPT_DIR/uefi/g++-wrapper.sh"
 
 export AR="$SCRIPT_DIR/uefi/ar-wrapper.sh"
 export RANLIB=""
@@ -262,8 +259,8 @@ endian = '$ENDIANESS'
 edk2_root = '$EDK2_ROOT'
 
 [binaries]
-c = '$CC_WRAPPER'
-cpp = '$CXX_WRAPPER'
+c = '$CC'
+cpp = '$CXX'
 ar      = '$AR'
 ranlib  = '$RANLIB'
 strip   = '$STRIP'
