@@ -71,9 +71,11 @@ namespace {
 
 
         if (not created_log_dir.has_value()) {
-            sinks.push_back(std::make_shared<spdlog::sinks::rotating_file_sink_mt>(
-                    fmt::format("{}/oopetris.log", logs_path.string()), 1024 * 1024 * 10, 5, true
-            ));
+            sinks.push_back(
+                    std::make_shared<spdlog::sinks::rotating_file_sink_mt>(
+                            fmt::format("{}/oopetris.log", logs_path.string()), 1024 * 1024 * 10, 5, true
+                    )
+            );
         }
 #endif
 
@@ -174,3 +176,26 @@ namespace {
 int main(int argc, char** argv) {
     return main_no_sdl_replace(argc, argv);
 }
+
+#if defined(__UEFI__)
+
+#include <Library/UefiBootServicesTableLib.h>
+#include <Library/UefiLib.h>
+#include <Uefi.h>
+
+extern "C" {
+
+EFI_STATUS EFIAPI UefiMain(IN EFI_HANDLE imgHandle, IN EFI_SYSTEM_TABLE* sysTable) {
+    //TODO: correctly initialize every systems, even that edk2 supports constructors for used libraries
+    gST = sysTable;
+    gBS = sysTable->BootServices;
+    gImageHandle = imgHandle;
+
+    int result = main(0, nullptr);
+
+    return result == 0 ? EFI_SUCCESS : RETURN_LOAD_ERROR;
+}
+}
+
+
+#endif
