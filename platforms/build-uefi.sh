@@ -150,6 +150,16 @@ else
     exit 1
 fi
 
+# add stdlib to active platform
+
+STDLIB_PACKAGE_INCLUDE="!include StdLib/StdLib.inc"
+
+if grep -q "$STDLIB_PACKAGE_INCLUDE" "$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM"; then
+    : # found already, do nothing
+else
+    echo -e "$STDLIB_PACKAGE_INCLUDE\n" >>"$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM"
+fi
+
 EDK2_TARGET_PROPERTIES_BUILDTYPE="$(echo "$BUILDTYPE" | tr "[:lower:]" "[:upper:]")"
 
 EDK2_TARGET_PROPERTIES_ARCH="X64"
@@ -170,7 +180,7 @@ export EDK2_BUILD_COMMAND="$EDK2_POSIX_BIN_PATH/build"
 
 # add links to needed packages
 
-EDK2_LIB_PACKAGES=("StdLib" "StdLibPrivateInternalFiles")
+EDK2_LIB_PACKAGES=("AppPkg" "StdLib" "StdLibPrivateInternalFiles")
 
 for EDK2_LIB_PACKAGE in "${EDK2_LIB_PACKAGES[@]}"; do
 

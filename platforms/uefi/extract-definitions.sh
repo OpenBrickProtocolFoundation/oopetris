@@ -105,8 +105,29 @@ add_component_to_platform() {
   if grep -q "$FINAL_PKG_NAME" "$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM"; then
     : # found already, do nothing
   else
-    echo "[Components]" >>"$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM"
-    echo "  $FINAL_PKG_NAME" >>"$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM"
+    cat <<EOF >>"$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM"
+[Components]
+  $FINAL_PKG_NAME
+
+EOF
+
+  fi
+
+}
+
+add_include_to_platform() {
+  local PACKAGE_NAME="$1"
+
+  local FINAL_PKG_INC_NAME="GeneratedPackages/$PACKAGE_NAME"
+
+  if grep -q "$FINAL_PKG_INC_NAME" "$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM"; then
+    : # found already, do nothing
+  else
+    cat <<EOF >>"$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM"
+!include $FINAL_PKG_INC_NAME
+
+EOF
+
   fi
 
 }
@@ -131,6 +152,8 @@ link_package() {
     add_component_to_platform "$PACKAGE_NAME"
   elif [ "$SOURCE_FILE_EXT" == "dec" ]; then
     :
+  elif [ "$SOURCE_FILE_EXT" == "inc" ]; then
+    add_include_to_platform "$PACKAGE_NAME"
   else
     echo "Invalid package extension in link_package '$SOURCE_FILE_EXT'" >&2
     exit 2
@@ -140,6 +163,7 @@ link_package() {
 
 DEP_SOURCES=()
 DEP_PACKAGES=()
+DEP_CLASSES=()
 DEP_BUILD_OPTIONS=()
 
 for FILE_DEPENDENCY in "${FILE_DEPENDENCIES[@]}"; do
@@ -178,6 +202,20 @@ for FILE_DEPENDENCY in "${FILE_DEPENDENCIES[@]}"; do
       exit 2
     fi
 
+    MAPPING_ENTRY_FOR_LIB="$(jq -M -r -c ".[\"file\"][\"${MAPPING_ENTRY_DEP_NAME}\"]" "$MAPPINGS_FILE")"
+
+    if [ "$MAPPING_ENTRY_FOR_LIB" = "null" ]; then
+      echo "Error: invalid name '$MAPPING_ENTRY_DEP_NAME': not found in mappings 'file'" >&2
+      exit 2
+    fi
+
+    MAPPING_ENTRY_DEP_LIB="$(echo "$MAPPING_ENTRY_FOR_LIB" | jq -M -r -c ".[\"lib\"]")"
+
+    if [ "$MAPPING_ENTRY_DEP_LIB" = "null" ]; then
+      echo "Error: invalid lib name '$MAPPING_ENTRY_DEP_LIB': not found in dependency mapping 'lib'" >&2
+      exit 2
+    fi
+
     PACKAGE_NAME="GeneratedPackages/Lib/$MAPPING_ENTRY_DEP_NAME.dec"
 
     DEP_OUTPUT_FILE="$DEST_FILE_DIR/$MAPPING_ENTRY_DEP_NAME.inf"
@@ -187,6 +225,7 @@ for FILE_DEPENDENCY in "${FILE_DEPENDENCIES[@]}"; do
     fi
 
     DEP_PACKAGES+=("$PACKAGE_NAME")
+    DEP_CLASSES+=("$MAPPING_ENTRY_DEP_LIB")
   else
     echo "Error: invalid source file type: $FILE_DEPENDENCY_TYPE" >&2
     exit 2
@@ -254,6 +293,10 @@ for MESON_TARGETS_INFO_LIB_PARAMATER in "${MESON_TARGETS_INFO_LIB_PARAMATERS[@]}
   -t:use-lib:name=*)
     #ignore
     ;;
+  -t:use-lib:lib=*)
+    DEP_PACKAGE_LIB="${MESON_TARGETS_INFO_LIB_PARAMATER:15}"
+    DEP_CLASSES+=("$DEP_PACKAGE_LIB")
+    ;;
   -g | -pthread | -std=* | -f* | -m* | -O*)
     #ignore
     ;;
@@ -308,11 +351,14 @@ $(expand_array_inf "${DEP_SOURCES[@]}")
 
 [Packages]
   MdePkg/MdePkg.dec
+  StdLib/StdLib.dec
 $(expand_array_inf "${DEP_PACKAGES[@]}")
 
 [LibraryClasses]
   UefiApplicationEntryPoint
   UefiLib
+  LibC
+$(expand_array_inf "${DEP_CLASSES[@]}")
 
 [Guids]
 
@@ -357,10 +403,13 @@ $(expand_array_inf "${DEP_SOURCES[@]}")
 
 [Packages]
   MdePkg/MdePkg.dec
+  StdLib/StdLib.dec
 $(expand_array_inf "${DEP_PACKAGES[@]}")
 
 [LibraryClasses]
   UefiLib
+  LibC
+$(expand_array_inf "${DEP_CLASSES[@]}")
 
 [BuildOptions]
   *_*_*_CCONLY_FLAGS  = -std=c11
@@ -384,10 +433,19 @@ EOF
 $(expand_array_inf "${DEP_INCLUDES[@]}")
 
 [LibraryClasses]
-  ##TODO
+# None # TODO, also add dsc? with ,.inf mappings
 EOF
 
   link_package "Lib/$DEST_FILE_STEM.dec" "$LIB_DEST_FILE_DEC"
+
+  LIB_DEST_FILE_INC="$LIB_DEST_DIR/$DEST_FILE_STEM.inc"
+
+  cat <<EOF >"$LIB_DEST_FILE_INC"
+[LibraryClasses.common]
+  $MAPPING_LIB_NAME|GeneratedPackages/Lib/$DEST_FILE_STEM.inf
+EOF
+
+  link_package "Lib/$DEST_FILE_STEM.inc" "$LIB_DEST_FILE_INC"
 
 else
   echo "Error: invalid mapping type: $MAPPING_TYPE" >&2
