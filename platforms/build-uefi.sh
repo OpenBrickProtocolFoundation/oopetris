@@ -81,9 +81,9 @@ source "$SCRIPT_DIR/versions.sh"
 source "$SCRIPT_DIR/helper.sh"
 
 TOOLCHAIN_DIR="$(pwd)/toolchains"
+export TOOLCHAIN_DIR
 
-EDK2_ROOT="$TOOLCHAIN_DIR/edk2"
-export EDK2_ROOT
+export EDK2_ROOT="$TOOLCHAIN_DIR/edk2"
 
 export WORKSPACE="$EDK2_ROOT"
 
@@ -96,8 +96,7 @@ fi
 git -C "$EDK2_ROOT" checkout "$EDK2_RELEASE_TAG"
 git -C "$EDK2_ROOT" submodule update --init
 
-EDK2_LIBC_ROOT="$TOOLCHAIN_DIR/edk2-libc"
-export EDK2_LIBC_ROOT
+export EDK2_LIBC_ROOT="$TOOLCHAIN_DIR/edk2-libc"
 
 if [ ! -d "$EDK2_LIBC_ROOT" ]; then
     git clone https://github.com/tianocore/edk2-libc "$EDK2_LIBC_ROOT"
@@ -106,6 +105,20 @@ else
 fi
 
 git -C "$EDK2_LIBC_ROOT" checkout "$EDK2_LIBC_COMMIT_HASH"
+
+export EDK2_LLVM_ROOT="$TOOLCHAIN_DIR/llvm-project"
+
+if [ ! -d "$EDK2_LLVM_ROOT" ]; then
+
+    git clone --filter=blob:none --sparse https://github.com/llvm/llvm-project.git "$EDK2_LLVM_ROOT"
+    git -C "$EDK2_LLVM_ROOT" sparse-checkout set libcxx
+else
+    git -C "$EDK2_LLVM_ROOT" fetch
+fi
+
+git -C "$EDK2_LLVM_ROOT" checkout "$EDK2_LIBCXX_RELEASE_TAG"
+
+export EDK2_LIBCXX_ROOT="$EDK2_LLVM_ROOT/libcxx"
 
 export EDK_TOOLS_PATH="$EDK2_ROOT/BaseTools"
 export PACKAGES_PATH="$EDK2_ROOT"
@@ -190,6 +203,10 @@ for EDK2_LIB_PACKAGE in "${EDK2_LIB_PACKAGES[@]}"; do
 
 done
 
+if ! [ -e "$WORKSPACE/LibCXX" ]; then
+    link_files_checked "$EDK2_LIBCXX_ROOT" "$WORKSPACE/LibCXX"
+fi
+
 LIBRARY_PKG_ROOT="$WORKSPACE/LibraryPkg"
 
 mkdir -p "$LIBRARY_PKG_ROOT"
@@ -243,17 +260,17 @@ export ROMFS="platforms/romfs"
 
 export COMMON_FLAGS="'-pthread', '-m64', '-maccumulate-outgoing-args', '-mno-red-zone', '-mcmodel=small'"
 
-export SYS_ROOT="$EDK2_ROOT"
+export SYS_ROOT="$WORKSPACE"
 
 export PKG_CONFIG_PATH="$SYS_ROOT/lib/pkgconfig"
 
 export LINK_FLAGS="$COMMON_FLAGS"
 export COMPILE_FLAGS="$COMMON_FLAGS ,'--sysroot=${SYS_ROOT}', '-D__UEFI__', '-DEFIAPI=__attribute__((ms_abi))', '-fexceptions', '-fshort-wchar', '-fno-builtin', '-fno-strict-aliasing', '-fno-common', '-fstack-protector', '-ffunction-sections', '-fdata-sections', '-fno-asynchronous-unwind-tables', '-fno-omit-frame-pointer', '-DAUDIO_PREFER_MP3'"
 
-export CC_COMPILE_FLAGS="'-nostdinc', '-isystem=$WORKSPACE/StdLib/Include', '-isystem=$WORKSPACE/StdLib/Include/$EDK2_TARGET_PROPERTIES_ARCH',"
+export CC_COMPILE_FLAGS="'-nostdinc', '-isystem=/StdLib/Include', '-isystem=/StdLib/Include/$EDK2_TARGET_PROPERTIES_ARCH'"
 
 #TODO use libc++ built for UEFI
-export CXX_COMPILE_FLAGS="'-fno-exceptions', '-fno-rtti', '-fno-threadsafe-statics', '-fno-use-cxa-atexit', '-fno-unwind-tables', '-fno-asynchronous-unwind-tables'"
+export CXX_COMPILE_FLAGS="'-fno-exceptions', '-fno-rtti', '-fno-threadsafe-statics', '-fno-use-cxa-atexit', '-fno-unwind-tables', '-fno-asynchronous-unwind-tables', '-nostdinc++', '-nodefaultlibs', '-isystem=/LibCXX/include'"
 
 export CROSS_FILE="./platforms/crossbuild/uefi.ini"
 
