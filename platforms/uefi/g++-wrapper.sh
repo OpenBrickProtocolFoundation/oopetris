@@ -68,7 +68,7 @@ for ARG in "${ARGS[@]}"; do
     -o)
         change_next_type "output"
         ;;
-    -MQ | -MF)
+    -MQ | -MF | -isystem)
         change_next_type "ignore"
         ;;
     --version | -dM)
@@ -142,7 +142,7 @@ for ARG in "${ARGS[@]}"; do
             -cpp)
                 # ignore this for meson usage, even if gcc only uses this for fortran, but it doesn't complain about it
                 ;;
-            -v | - | -g | -P | -MD | -pthread | -shared | -std=* | -f* | -m* | -D* | -U* | -W* | -O* | -I* | -L* | -l*)
+            -v | - | -g | -P | -MD | -pthread | -shared | -nostdinc | -isystem=* | --sysroot=* | -std=* | -f* | -m* | -D* | -U* | -W* | -O* | -I* | -L* | -l*)
                 # ignore, valid arguments
                 ;;
             -t:use-lib*)

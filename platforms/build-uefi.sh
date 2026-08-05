@@ -215,8 +215,6 @@ done
 
 popd
 
-export PKG_CONFIG_PATH="$EDK2_ROOT/lib/pkgconfig"
-
 export CC="$SCRIPT_DIR/uefi/gcc-wrapper.sh"
 export CXX="$SCRIPT_DIR/uefi/g++-wrapper.sh"
 
@@ -235,8 +233,17 @@ export ROMFS="platforms/romfs"
 
 export COMMON_FLAGS="'-pthread', '-m64', '-maccumulate-outgoing-args', '-mno-red-zone', '-mcmodel=small'"
 
+export SYS_ROOT="$EDK2_ROOT"
+
+export PKG_CONFIG_PATH="$SYS_ROOT/lib/pkgconfig"
+
 export LINK_FLAGS="$COMMON_FLAGS"
-export COMPILE_FLAGS="$COMMON_FLAGS ,'-D__UEFI__', '-DEFIAPI=__attribute__((ms_abi))', '-fexceptions', '-fshort-wchar', '-fno-builtin', '-fno-strict-aliasing', '-fno-common', '-fstack-protector', '-ffunction-sections', '-fdata-sections', '-fno-asynchronous-unwind-tables', '-fno-omit-frame-pointer', '-DAUDIO_PREFER_MP3'"
+export COMPILE_FLAGS="$COMMON_FLAGS ,'--sysroot=${SYS_ROOT}', '-D__UEFI__', '-DEFIAPI=__attribute__((ms_abi))', '-fexceptions', '-fshort-wchar', '-fno-builtin', '-fno-strict-aliasing', '-fno-common', '-fstack-protector', '-ffunction-sections', '-fdata-sections', '-fno-asynchronous-unwind-tables', '-fno-omit-frame-pointer', '-DAUDIO_PREFER_MP3'"
+
+export CC_COMPILE_FLAGS="'-nostdinc', '-isystem=$WORKSPACE/StdLib/Include', '-isystem=$WORKSPACE/StdLib/Include/$EDK2_TARGET_PROPERTIES_ARCH',"
+
+#TODO use libc++ built for UEFI
+export CXX_COMPILE_FLAGS="'-fno-exceptions', '-fno-rtti', '-fno-threadsafe-statics', '-fno-use-cxa-atexit', '-fno-unwind-tables', '-fno-asynchronous-unwind-tables'"
 
 export CROSS_FILE="./platforms/crossbuild/uefi.ini"
 
@@ -273,13 +280,16 @@ cmake = ''
 [built-in options]
 c_std = 'c11'
 cpp_std = 'c++23'
-c_args = [$COMPILE_FLAGS]
-cpp_args = [$COMPILE_FLAGS]
+c_args = [$COMPILE_FLAGS, $CC_COMPILE_FLAGS]
+cpp_args = [$COMPILE_FLAGS, $CXX_COMPILE_FLAGS]
 c_link_args = [$LINK_FLAGS]
 cpp_link_args = [$LINK_FLAGS]
 
+prefix = '$SYS_ROOT'
+
 [properties]
 pkg_config_libdir = '$PKG_CONFIG_PATH'
+sys_root = '${SYS_ROOT}'
 needs_exe_wrapper = true
 
 APP_ROMFS='$ROMFS/assets/'
@@ -291,7 +301,7 @@ CMAKE_FIND_ROOT_PATH_MODE_LIBRARY  = 'ONLY'
 CMAKE_FIND_ROOT_PATH_MODE_INCLUDE  = 'ONLY'
 CMAKE_FIND_ROOT_PATH_MODE_PACKAGE  = 'ONLY'
 
-CMAKE_FIND_ROOT_PATH = ''
+CMAKE_FIND_ROOT_PATH = '$SYS_ROOT/usr/lib/cmake'
 
 EOF
 
@@ -325,6 +335,7 @@ EOF
 if [ "$COMPILE_TYPE" == "complete_rebuild" ] || [ ! -e "$BUILD_DIR" ]; then
 
     meson setup "$BUILD_DIR" \
+        "--prefix=$SYS_ROOT" \
         "--wipe" \
         --cross-file "$CROSS_FILE" \
         "-Dbuildtype=$BUILDTYPE" \

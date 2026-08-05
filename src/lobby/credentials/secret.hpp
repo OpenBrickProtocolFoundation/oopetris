@@ -11,7 +11,7 @@
 #include "helper/export_symbols.hpp"
 #include "manager/service_provider.hpp"
 
-#if defined(__linux__)
+#if defined(__linux__) && !defined(__UEFI__)
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic push
@@ -43,7 +43,7 @@ namespace secret {
         [[maybe_unused]] ServiceProvider* m_service_provider;
         KeyringType m_type;
 
-#if defined(__linux__) || defined(__ANDROID__)
+#if (defined(__linux__) && !defined(__UEFI__)) || defined(__ANDROID__)
         key_serial_t m_ring_id;
 #elif defined(__CONSOLE__) || defined(__APPLE__)
         std::string m_file_path;

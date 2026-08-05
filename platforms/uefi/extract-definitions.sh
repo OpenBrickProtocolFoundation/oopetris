@@ -241,15 +241,26 @@ for MESON_TARGETS_INFO_LIB_PARAMATER in "${MESON_TARGETS_INFO_LIB_PARAMATERS[@]}
   -I*)
     DEP_INCLUDES+=("${MESON_TARGETS_INFO_LIB_PARAMATER:2}")
     ;;
-  -D*)
-    DEP_BUILD_OPTIONS+=("*_*_*_*_FLAGS = \"${MESON_TARGETS_INFO_LIB_PARAMATER}\"")
+  -W*)
+    # TODO: include warnings
+    ;;
+  -nostdinc | -D* | --sysroot=* | -isystem=*)
+    DEP_BUILD_OPTIONS+=("*_*_*_CC_FLAGS = \"${MESON_TARGETS_INFO_LIB_PARAMATER}\"")
     ;;
   -t:use-lib:pkg=*)
     DEP_PACKAGE_NAME="${MESON_TARGETS_INFO_LIB_PARAMATER:15}"
     DEP_PACKAGES+=("LibraryPkg/$DEP_PACKAGE_NAME/$DEP_PACKAGE_NAME.dec")
     ;;
-
-  *) ;;
+  -t:use-lib:name=*)
+    #ignore
+    ;;
+  -g | -pthread | -std=* | -f* | -m* | -O*)
+    #ignore
+    ;;
+  *)
+    echo "Invalid argument detected for compiling '$SOURCE_FILE_ENTRY_MESON_NAME': '$MESON_TARGETS_INFO_LIB_PARAMATER'" >&2
+    exit 6
+    ;;
   esac
 done
 
@@ -277,6 +288,10 @@ fi
 
 if [ "$MAPPING_TYPE" == "application" ]; then
 
+  # add include directories to the build options
+  for DEP_INCLUDE in "${DEP_INCLUDES[@]}"; do
+    DEP_BUILD_OPTIONS+=("*_*_*_CC_FLAGS = \"-I${DEP_INCLUDE}\"")
+  done
   validate_parent_dir "$DEST_FILE"
 
   cat <<EOF >"$DEST_FILE"
