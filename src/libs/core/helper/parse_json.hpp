@@ -85,7 +85,11 @@ namespace json {
             ) };
         }
 
+#if defined(__OOPETRIS_NO_STREAMS)
+        compat::ifstream file_stream{ file };
+#else
         std::ifstream file_stream{ file };
+#endif
 
         if (not file_stream.is_open()) {
             return helper::unexpected<std::pair<std::string, ParseError>>{ std::make_pair<std::string, ParseError>(
@@ -93,8 +97,14 @@ namespace json {
             ) };
         }
 
-        std::stringstream result;
-        result << file_stream.rdbuf();
+        std::string result;
+#if defined(__OOPETRIS_NO_STREAMS)
+        result = std::move(file_stream.copied_data());
+#else
+        std::stringstream result_str;
+        result_str << file_stream.rdbuf();
+        result = result_str.str();
+#endif
 
         file_stream.close();
 
@@ -104,7 +114,7 @@ namespace json {
             ) };
         }
 
-        auto parse_result = try_parse_json<T>(result.str());
+        auto parse_result = try_parse_json<T>(result);
         if (not parse_result.has_value()) {
             return helper::unexpected<std::pair<std::string, ParseError>>{
                 std::make_pair<std::string, ParseError>(std::move(parse_result.error()), ParseError::FormatError)

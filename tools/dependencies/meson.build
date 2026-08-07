@@ -153,6 +153,7 @@ if (
     temp = core_lib.get('compile_args')
     temp += '-DFMT_USE_LOCALE=0'
     temp += '-D__OOPETRIS_NO_EXCEPTIONS=1'
+    temp += '-D__OOPETRIS_NO_STREAMS=1'
     core_lib += {
         'compile_args': temp,
     }

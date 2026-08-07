@@ -1,5 +1,6 @@
 core_src_files += files(
     'color.cpp',
+    'compat.cpp',
     'date.cpp',
     'errors.cpp',
     'parse_json.cpp',
@@ -13,6 +14,7 @@ _header_files = files(
     'bool_wrapper.hpp',
     'color.hpp',
     'color_literals.hpp',
+    'compat.hpp',
     'const_utils.hpp',
     'date.hpp',
     'errors.hpp',
