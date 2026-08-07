@@ -68,7 +68,7 @@ lobby::API::API(ServiceProvider* service_provider, const std::string& api_url)
 
     if (value.has_value()) {
         if (not this->setup_authentication(value.value().as_string())) {
-            throw std::runtime_error("Couldn't setup authentication");
+            utils::throw_(std::runtime_error("Couldn't setup authentication"));
         }
     } else {
         spdlog::info("API: Key not found, so probably not logged in already: {}", value.error());
@@ -238,7 +238,8 @@ helper::expected<void, std::string> lobby::API::start_lobby(int lobby_id) {
     return is_request_ok(res, 204);
 }
 
-helper::expected<lobby::LobbyCreateResponse, std::string> lobby::API::create_lobby(const CreateLobbyRequest& arguments
+helper::expected<lobby::LobbyCreateResponse, std::string> lobby::API::create_lobby(
+        const CreateLobbyRequest& arguments
 ) {
     if (not is_authenticated()) {
         return helper::unexpected<std::string>{

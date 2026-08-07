@@ -58,9 +58,16 @@ namespace json {
 
     template<typename T>
     [[nodiscard]] helper::expected<T, std::string> try_parse_json(const std::string& content) noexcept {
+#if defined(__OOPETRIS_NO_EXCEPTIONS)
 
+        T result = nlohmann::json::parse(content, nullptr, false);
+        return result;
+#else
         try {
             T result = nlohmann::json::parse(content);
+            if (result.is_discarded()) {
+                return helper::unexpected<std::string>{ "A JSON error occurred, but no further details available" };
+            }
             return result;
 
         } catch (nlohmann::json::parse_error& parse_error) {
@@ -72,6 +79,7 @@ namespace json {
         } catch (std::exception& exception) {
             return helper::unexpected<std::string>{ fmt::format("unknown exception: {}", exception.what()) };
         }
+#endif
     }
 
     template<typename T>

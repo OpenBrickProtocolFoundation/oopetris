@@ -468,7 +468,7 @@ if build_application
         online_multiplayer_system = 'uefi'
 
         graphics_lib += {
-            'compile_args': [graphics_lib.get('compile_args'), '-D_OOPETRIS_ONLINE_SYSTEM=2'],
+            'compile_args': [graphics_lib.get('compile_args'), '-D_OOPETRIS_ONLINE_SYSTEM=3'],
         }
     else
 

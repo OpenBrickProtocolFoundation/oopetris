@@ -42,7 +42,7 @@ recorder::TetrionHeader::TetrionHeader(
 
     const auto information_checksum = information.get_checksum();
     if (not information_checksum.has_value()) {
-        throw std::runtime_error(information_checksum.error());
+        utils::throw_(std::runtime_error(information_checksum.error()));
     }
 
     sha256_creator << information_checksum.value();

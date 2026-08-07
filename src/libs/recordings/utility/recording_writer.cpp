@@ -3,7 +3,7 @@
 #include "./tetrion_snapshot.hpp"
 
 recorder::RecordingWriter::RecordingWriter(
-        recordings::ofstream&& output_file,
+        std::ofstream&& output_file,
         std::vector<TetrionHeader>&& tetrion_headers,
         AdditionalInformation&& information
 )
@@ -34,7 +34,7 @@ helper::expected<recorder::RecordingWriter, std::string> recorder::RecordingWrit
     }
 
 
-    auto output_file = recordings::ofstream{ path, mode };
+    auto output_file = std::ofstream{ path, mode };
 
     if (not output_file) {
         return helper::unexpected<std::string>{ fmt::format("failed to open output file \"{}\"", path.string()) };
@@ -143,7 +143,7 @@ helper::expected<void, std::string> recorder::RecordingWriter::add_snapshot(
 
 
 helper::expected<void, std::string>
-recorder::RecordingWriter::write_tetrion_header_to_file(recordings::ofstream& file, const TetrionHeader& header) {
+recorder::RecordingWriter::write_tetrion_header_to_file(std::ofstream& file, const TetrionHeader& header) {
     helper::expected<void, std::string> result{};
 
     static_assert(sizeof(decltype(header.seed)) == 8);
@@ -162,7 +162,7 @@ recorder::RecordingWriter::write_tetrion_header_to_file(recordings::ofstream& fi
 }
 
 helper::expected<void, std::string> recorder::RecordingWriter::write_checksum_to_file(
-        recordings::ofstream& file,
+        std::ofstream& file,
         const std::vector<TetrionHeader>& tetrion_headers,
         const AdditionalInformation& information
 ) {
