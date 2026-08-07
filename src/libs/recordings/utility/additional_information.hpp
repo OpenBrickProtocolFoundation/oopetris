@@ -46,7 +46,7 @@ namespace recorder {
         template<typename T>
         [[nodiscard]] T& as() {
             if (!is<T>()) {
-                throw std::runtime_error(fmt::format("Bad cast: can't cast to type '{}' !", typeid(T).name()));
+                utils::throw_(std::runtime_error(fmt::format("Bad cast: can't cast to type '{}' !", typeid(T).name())));
             }
 
             return std::get<T>(m_value);
@@ -55,7 +55,7 @@ namespace recorder {
         template<typename T>
         [[nodiscard]] const T& as() const {
             if (!is<T>()) {
-                throw std::runtime_error(fmt::format("Bad cast: can't cast to type '{}' !", typeid(T).name()));
+                utils::throw_(std::runtime_error(fmt::format("Bad cast: can't cast to type '{}' !", typeid(T).name())));
             }
 
             return std::get<T>(m_value);
@@ -180,8 +180,8 @@ namespace recorder {
 
         [[nodiscard]] OOPETRIS_RECORDINGS_EXPORTED helper::expected<std::vector<char>, std::string> to_bytes() const;
 
-        [[nodiscard]] OOPETRIS_RECORDINGS_EXPORTED helper::expected<Sha256Stream::Checksum, std::string> get_checksum(
-        ) const;
+        [[nodiscard]] OOPETRIS_RECORDINGS_EXPORTED helper::expected<Sha256Stream::Checksum, std::string>
+        get_checksum() const;
 
         // iterator trait
         using iterator = UnderlyingContainer::iterator;               //NOLINT(readability-identifier-naming)

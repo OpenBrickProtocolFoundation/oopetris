@@ -18,6 +18,10 @@
 #include <sstream>
 #include <string>
 
+#if defined(__OOPETRIS_NO_STREAMS)
+#include "./compat.hpp"
+#endif
+
 // START: general json parser helper
 
 //helper for std::optional json conversion
@@ -86,7 +90,7 @@ namespace json {
         }
 
 #if defined(__OOPETRIS_NO_STREAMS)
-        compat::ifstream file_stream{ file };
+        compat::ifstream_basic file_stream{ file };
 #else
         std::ifstream file_stream{ file };
 #endif
@@ -178,7 +182,12 @@ namespace json {
             return fmt::format("unable to convert settings to json: {}", result.error());
         }
 
+#if defined(__OOPETRIS_NO_STREAMS)
+        compat::ofstream file_stream{ file };
+#else
         std::ofstream file_stream{ file };
+#endif
+
 
         if (not file_stream.is_open()) {
             return fmt::format("File '{}' couldn't be opened!", file.string());

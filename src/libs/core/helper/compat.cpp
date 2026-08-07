@@ -72,7 +72,7 @@ static helper::expected<compat::Buffer, std::string> read_file(const char* file_
 }
 
 
-compat::ifstream::ifstream(const std::filesystem::path& path) {
+compat::ifstream_basic::ifstream_basic(const std::filesystem::path& path) {
     auto data = read_file(path.string().c_str());
 
     if (not data.has_value()) {
@@ -86,23 +86,23 @@ compat::ifstream::ifstream(const std::filesystem::path& path) {
     m_open = true;
 }
 
-compat::ifstream::~ifstream() noexcept {
+compat::ifstream_basic::~ifstream_basic() noexcept {
     free(m_data.data);
 }
 
-std::string compat::ifstream::copied_data() {
+std::string compat::ifstream_basic::copied_data() {
     return std::string{ (char*)m_data.data, m_data.size };
 }
 
-bool compat::ifstream::is_open() const {
+bool compat::ifstream_basic::is_open() const {
     return m_open;
 }
 
-bool compat::ifstream::fail() const {
+bool compat::ifstream_basic::fail() const {
     return m_fail;
 }
 
-void compat::ifstream::close() {
+void compat::ifstream_basic::close() {
     m_open = false;
 }
 

@@ -1,5 +1,6 @@
 
 #include "./date.hpp"
+#include "./utils.hpp"
 
 #include <array>
 #include <chrono>
@@ -13,7 +14,7 @@ date::ISO8601Date::ISO8601Date(std::tm time_struct) {
     const std::time_t time = std::mktime(&time_struct);
 
     if (time < 0) {
-        throw std::runtime_error("Couldn't convert std::tm to std::time_t");
+        utils::throw_(std::runtime_error("Couldn't convert std::tm to std::time_t"));
     }
 
     m_value = static_cast<u64>(time);
@@ -72,6 +73,12 @@ helper::expected<date::ISO8601Date, std::string> date::ISO8601Date::from_string(
     if (gmtime_s(&time_struct, &value) != 0) {
         return helper::unexpected<std::string>{ "error calling gmtime_s" };
     }
+#elif defined(__UEFI__)
+    std::tm* tm_p = ::localtime(&value);
+    if (tm_p == nullptr) {
+        return helper::unexpected<std::string>{ fmt::format("error calling gmtime: {}", std::strerror(errno)) };
+    }
+    time_struct = *tm_p;
 #else
     if (gmtime_r(&value, &time_struct) == nullptr) {
         return helper::unexpected<std::string>{ fmt::format("error calling gmtime_r: {}", std::strerror(errno)) };

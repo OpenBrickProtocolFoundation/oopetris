@@ -14,9 +14,9 @@ namespace compat {
         size_t size;
     };
 
-    class ifstream {
+    class ifstream_basic {
     public:
-        explicit ifstream(const std::filesystem::path& path);
+        explicit ifstream_basic(const std::filesystem::path& path);
 
         bool is_open() const;
         bool fail() const;
@@ -24,7 +24,7 @@ namespace compat {
 
         std::string copied_data();
 
-        ~ifstream() noexcept;
+        ~ifstream_basic() noexcept;
 
     private:
         bool m_open = false;
@@ -32,6 +32,28 @@ namespace compat {
 
         Buffer m_data;
     };
+
+
+    class ifstream_seekable {
+    public:
+        explicit ifstream_seekable(const std::filesystem::path& path);
+
+        bool is_open() const;
+        bool fail() const;
+        void close();
+
+        ifstream_seekable& read(char* s, size_t count);
+
+    private:
+        FILE* m_file;
+    };
+
+
+    class ofstream {
+    public:
+    private:
+    };
+
 
 } // namespace compat
 

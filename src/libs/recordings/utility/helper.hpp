@@ -14,6 +14,21 @@
 #include <utility>
 #include <vector>
 
+
+#if defined(__OOPETRIS_NO_STREAMS)
+#include <core/helper/compat.hpp>
+namespace recordings {
+    using ifstream = compat::ifstream_seekable;
+    using ofstream = compat::ofstream;
+}; // namespace recordings
+#else
+namespace recordings {
+    using ifstream = std::ifstream;
+    using ofstream = std::ofstream;
+}; // namespace recordings
+#endif
+
+
 namespace helper {
 
     namespace reader {
@@ -30,7 +45,7 @@ namespace helper {
         using ReadResult = helper::expected<Result, ReadError>;
 
         template<std::integral Integral>
-        [[nodiscard]] ReadResult<std::remove_cv_t<Integral>> read_integral_from_file(std::ifstream& file) {
+        [[nodiscard]] ReadResult<std::remove_cv_t<Integral>> read_integral_from_file(recordings::ifstream& file) {
             if (file.fail()) {
                 return helper::unexpected<ReadError>{
                     { ReadErrorType::InvalidStream, "failed to read data from file (before reading)" }
@@ -53,7 +68,7 @@ namespace helper {
         }
 
         template<typename Type, usize Size>
-        [[nodiscard]] ReadResult<std::array<Type, Size>> read_array_from_file(std::ifstream& file) {
+        [[nodiscard]] ReadResult<std::array<Type, Size>> read_array_from_file(recordings::ifstream& file) {
             if (file.fail()) {
                 return helper::unexpected<ReadError>{
                     { ReadErrorType::InvalidStream, "failed to read data from file (before reading)" }
@@ -97,7 +112,7 @@ namespace helper {
         }
 
         template<typename Type, usize Size>
-        [[nodiscard]] std::optional<std::array<Type, Size>> read_array_from_istream(std::istream& istream) {
+        [[nodiscard]] std::optional<std::array<Type, Size>> read_array_from_istream(recordings::istream& istream) {
             if (istream.fail()) {
                 return std::nullopt;
             }
@@ -124,7 +139,7 @@ namespace helper {
     namespace writer {
 
         template<std::integral Integral>
-        helper::expected<void, std::string> write_integral_to_file(std::ofstream& file, const Integral data) {
+        helper::expected<void, std::string> write_integral_to_file(recordings::ofstream& file, const Integral data) {
             if (file.fail()) {
                 return helper::unexpected<std::string>{ fmt::format("failed to write data \"{}\"", data) };
             }
@@ -141,7 +156,8 @@ namespace helper {
         }
 
         template<typename T>
-        helper::expected<void, std::string> write_vector_to_file(std::ofstream& file, const std::vector<T>& values) {
+        helper::expected<void, std::string>
+        write_vector_to_file(recordings::ofstream& file, const std::vector<T>& values) {
             helper::expected<void, std::string> result{};
             for (const auto& value : values) {
                 result = write_integral_to_file<T>(file, value);
