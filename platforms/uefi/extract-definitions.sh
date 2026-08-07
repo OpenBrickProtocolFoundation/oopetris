@@ -288,12 +288,14 @@ for MESON_TARGETS_INFO_LIB_PARAMATER in "${MESON_TARGETS_INFO_LIB_PARAMATERS[@]}
 
   case "$MESON_TARGETS_INFO_LIB_PARAMATER" in
   -I*)
+    #TODO: if it is cpp this should be modified to CXX_FLAGS
     DEP_INCLUDES+=("${MESON_TARGETS_INFO_LIB_PARAMATER:2}")
     ;;
   -W*)
     # TODO: include warnings
     ;;
   -nostdinc | -nostdinc++ | -nodefaultlibs | -D* | --sysroot=* | -isystem*)
+    #TODO: if it is cpp this should be modified to CXX_FLAGS
     DEP_BUILD_OPTIONS+=("*_*_*_CC_FLAGS = \"${MESON_TARGETS_INFO_LIB_PARAMATER}\"")
     ;;
   -t:use-lib:pkg=*)
@@ -307,7 +309,13 @@ for MESON_TARGETS_INFO_LIB_PARAMATER in "${MESON_TARGETS_INFO_LIB_PARAMATERS[@]}
     DEP_PACKAGE_LIB="${MESON_TARGETS_INFO_LIB_PARAMATER:15}"
     DEP_CLASSES+=("$DEP_PACKAGE_LIB")
     ;;
-  -g | -pthread | -std=* | -f* | -m* | -O*)
+  -pthread)
+    # ignore pthread
+    ;;
+  -f* | -m*)
+    DEP_BUILD_OPTIONS+=("*_*_*_CC_FLAGS = \"${MESON_TARGETS_INFO_LIB_PARAMATER}\"")
+    ;;
+  -g | -std=* | -O*)
     #ignore
     ;;
   *)
@@ -343,6 +351,7 @@ if [ "$MAPPING_TYPE" == "application" ]; then
 
   # add include directories to the build options (as the files build inside the application need that)
   for DEP_INCLUDE in "${DEP_INCLUDES[@]}"; do
+    #TODO: if it is cpp this should be modified to CXX_FLAGS
     DEP_BUILD_OPTIONS+=("*_*_*_CC_FLAGS = \"-I${DEP_INCLUDE}\"")
   done
 
@@ -396,6 +405,7 @@ elif [ "$MAPPING_TYPE" == "library" ]; then
   # NOTE: we also define these as [Include], which is not entirely correct, but it didn't lead to problems until now
   # TODO: ^ these should be private include dirs not public ones
   for DEP_INCLUDE in "${DEP_INCLUDES[@]}"; do
+    #TODO: if it is cpp this should be modified to CXX_FLAGS
     DEP_BUILD_OPTIONS+=("*_*_*_CC_FLAGS = \"-I${DEP_INCLUDE}\"")
   done
 

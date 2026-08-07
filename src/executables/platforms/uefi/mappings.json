@@ -53,7 +53,12 @@
             "name": "SpdlogLib",
             "lib": "LibSpdlog",
             "guid": "dee047db-15c9-4d79-ab08-79d6244d9b0e",
-            "version": "spdlog"
+            "version": "spdlog",
+            "options": [
+                "-DFMT_USE_LOCALE=0",
+                "-DSPDLOG_NO_EXCEPTIONS=1",
+                "-DSPDLOG_NO_TLS=1"
+            ]
         },
         "SDL2ImagePkg": {
             "type": "library",
@@ -62,36 +67,10 @@
             "guid": "80834111-5231-4b9d-b781-381bc4a7ac38",
             "version": "sdl2_image",
             "options": [
-                "-Wno-misleading-indentation"
+                "-Wno-misleading-indentation",
+                "-DSTBI_NO_SIMD",
+                "-Wno-unused-but-set-variable"
             ]
-        },
-        "REMOVE_SDL2MixerPkg": {
-            "type": "library",
-            "name": "SDL2MixerLib",
-            "lib": "LibSDL2Mixer",
-            "guid": "9a0df316-4a64-4336-99b2-09af1e8f7e53",
-            "version": "sdl2_mixer"
-        },
-        "REMOVE_VorbisPkg": {
-            "type": "library",
-            "name": "VorbisLib",
-            "lib": "LibVorbis",
-            "guid": "9a0df316-4a64-4336-99b2-09af1e8f7e53",
-            "version": "vorbis"
-        },
-        "REMOVE_OggPkg": {
-            "type": "library",
-            "name": "OggLib",
-            "lib": "LibOgg",
-            "guid": "9a0df316-4a64-4336-99b2-09af1e8f7e53",
-            "version": "ogg"
-        },
-        "REMOVE_FlacPkg": {
-            "type": "library",
-            "name": "FlacLib",
-            "lib": "LibFlac",
-            "guid": "9a0df316-4a64-4336-99b2-09af1e8f7e53",
-            "version": "flac"
         }
     },
     "name": {
@@ -129,31 +108,6 @@
         "libsdl2image": {
             "name": "SDL2ImagePkg",
             "meson": "sdl2image"
-        },
-        "libsdl2mixer": {
-            "name": "REMOVE_SDL2MixerPkg",
-            "meson": "sdl2mixer"
-        },
-        "libvorbisfile": {
-            "name": "REMOVE_VorbisPkg",
-            "meson": "vorbisfile"
-        },
-        "libvorbis": {
-            "name": "REMOVE_VorbisPkg",
-            "meson": "vorbis"
-        },
-        "libogg": {
-            "name": "REMOVE_OggPkg",
-            "meson": "ogg"
-        },
-        "libFLAC": {
-            "name": "REMOVE_FlacPkg",
-            "meson": "FLAC"
-        },
-        "libflac_avx2": {
-            "name": "REMOVE_FlacPkg",
-            "meson": "flac_avx2",
-            "comment": "this is detect wrongly"
         }
     }
 }

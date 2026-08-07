@@ -4,16 +4,9 @@
         "lib": "LibSDL2",
         "version": "2.32.10"
     },
-    "sdl2_image_TODO": {
-        "pkg": "SDL2ImagePkg",
-        "lib": "sdl2_image_TODO",
-        "version": "2.6.3",
-        "comment": "maybe nor port needed?"
-    },
-    "sdl2_mixer_TODO": {
+    "sdl2_mixer": {
         "pkg": "SDL2MixerPkg",
-        "lib": "sdl2_mixer_TODO",
-        "version": "2.6.2",
-        "comment": "port this for sure, only use dummy output (no ogg etc needed), as uefi has no audio drivers"
+        "lib": "LibSDL2Mixer",
+        "version": "2.8.2"
     }
 }

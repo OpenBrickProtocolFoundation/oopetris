@@ -211,9 +211,9 @@ LIBRARY_PKG_ROOT="$WORKSPACE/LibraryPkg"
 
 mkdir -p "$LIBRARY_PKG_ROOT"
 
-EDK2_PORT_NAMES=("SDL2Pkg" "SDL2MixerPkg" "SDL2ImagePkg")
-EDK2_PORT_URLS=("https://github.com/Totto16/SDL2_UEFI" "TODO" "TODO     ")
-EDK2_PORT_TAGS=("uefi_port" "TODO" "TODO")
+EDK2_PORT_NAMES=("SDL2Pkg" "SDL2MixerPkg")
+EDK2_PORT_URLS=("https://github.com/Totto16/SDL2_UEFI" "https://github.com/Totto16/SDL2_mixer_UEFI")
+EDK2_PORT_TAGS=("uefi_port" "uefi_port")
 
 for EDK2_PORT_KEY in "${!EDK2_PORT_NAMES[@]}"; do
 
@@ -258,7 +258,7 @@ export ENDIANESS="little"
 
 export ROMFS="platforms/romfs"
 
-export COMMON_FLAGS="'-pthread', '-m64', '-maccumulate-outgoing-args', '-mno-red-zone', '-mcmodel=small'"
+export COMMON_FLAGS="'-m64', '-maccumulate-outgoing-args', '-mno-red-zone', '-mcmodel=small'"
 
 export SYS_ROOT="$WORKSPACE"
 
@@ -368,7 +368,7 @@ if [ "$COMPILE_TYPE" == "complete_rebuild" ] || [ ! -e "$BUILD_DIR" ]; then
         "-Dbuildtype=$BUILDTYPE" \
         -Ddefault_library=shared \
         -Dtests=false \
-        --force-fallback-for="fmt,nlohmann_json,magic_enum,utf8cpp,sdl2_ttf,freetype2,spdlog,argparse,sdl2_image,sdl2_mixer,ogg,vorbis,flac" \
+        --force-fallback-for="fmt,nlohmann_json,magic_enum,utf8cpp,sdl2_ttf,freetype2,spdlog,argparse,sdl2_image" \
         --wrap-mode=nofallback \
         "-Drun_in_ci=$RUN_IN_CI" #TODO: enable \
     #--fatal-meson-warnings
