@@ -15,6 +15,10 @@
 #include <type_traits>
 #include <utility>
 
+#if defined(__UEFI__)
+#include <Library/DebugLib.h>
+#endif
+
 namespace helper {
 
     template<class... Ts>
@@ -124,6 +128,20 @@ namespace utils {
 #define STATIC_ASSERT_WITH_MESSAGE(check, msg) static_assert(check); // NOLINT(cppcoreguidelines-macro-usage)
 #endif
 
+    template<typename E>
+    inline void throw_(E&& exc) {
+#if defined(__OOPETRIS_NO_EXCEPTIONS)
+#if defined(__UEFI__)
+        DebugPrint(DEBUG_ERROR, "Exception: %s", exc.what());
+#else
+        std::cerr << "Exception: " << exc.what() << "\n";
+#endif
+        abort();
+#else
+        throw std::forward<E>(exc);
+#endif
+    }
+
 
 } // namespace utils
 
@@ -137,6 +155,13 @@ namespace utils {
 #endif
 
 #if !defined(NDEBUG)
+#if defined(__UEFI__)
+#define UNREACHABLE() /* NOLINT(cppcoreguidelines-macro-usage)*/                               \
+    do {              /* NOLINT(cppcoreguidelines-avoid-do-while)*/                            \
+        DebugPrint(DEBUG_ERROR, "UNREACHABLE %s:%d - %s\n", __FILE__, __LINE__, __FUNCTION__); \
+        utils::unreachable();                                                                  \
+    } while (false)
+#else
 #define UNREACHABLE()                             /* NOLINT(cppcoreguidelines-macro-usage)*/                       \
     do {                                          /* NOLINT(cppcoreguidelines-avoid-do-while)*/                    \
         std::cerr << "UNREACHABLE " << (__FILE__) /* NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay)*/ \
@@ -145,10 +170,18 @@ namespace utils {
                   << "\n";                                                                                         \
         utils::unreachable();                                                                                      \
     } while (false)
+#endif
 #else
 #define UNREACHABLE() utils::unreachable() // NOLINT(cppcoreguidelines-macro-usage)
 #endif
 // NOLINT(cppcoreguidelines-macro-usage)
+
+
+#if defined(__UEFI__)
+#ifdef ASSERT
+#undef ASSERT
+#endif
+#endif
 
 
 #if defined(NDEBUG)

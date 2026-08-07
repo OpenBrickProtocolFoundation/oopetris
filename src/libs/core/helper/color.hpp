@@ -46,14 +46,14 @@ struct HSVColor {
         } else {
 
             if (h < 0.0 || h > 360.0) {
-                throw std::runtime_error{ fmt::format("h has to be in range 0.0 - 360.0 but was: {}", h) };
+                utils::throw_(std::runtime_error{ fmt::format("h has to be in range 0.0 - 360.0 but was: {}", h) });
             }
             if (s < 0.0 || s > 1.0) {
 
-                throw std::runtime_error{ fmt::format("s has to be in range 0.0 - 1.0 but was: {}", s) };
+                utils::throw_(std::runtime_error{ fmt::format("s has to be in range 0.0 - 1.0 but was: {}", s) });
             }
             if (v < 0.0 || v > 1.0) {
-                throw std::runtime_error{ fmt::format("v has to be in range 0.0 - 1.0 but was: {}", v) };
+                utils::throw_(std::runtime_error{ fmt::format("v has to be in range 0.0 - 1.0 but was: {}", v) });
             }
         }
     }

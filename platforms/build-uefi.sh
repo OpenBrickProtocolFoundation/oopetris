@@ -270,7 +270,7 @@ export COMPILE_FLAGS="$COMMON_FLAGS ,'--sysroot=${SYS_ROOT}', '-D__UEFI__', '-DE
 export CC_COMPILE_FLAGS="'-nostdinc', '-I$WORKSPACE/StdLib/Include', '-I$WORKSPACE/StdLib/Include/$EDK2_TARGET_PROPERTIES_ARCH'"
 
 #TODO use libc++ built for UEFI
-export CXX_COMPILE_FLAGS="'-fno-exceptions', '-fno-rtti', '-fno-threadsafe-statics', '-fno-use-cxa-atexit', '-fno-unwind-tables', '-fno-asynchronous-unwind-tables', '-nostdinc++', '-nodefaultlibs', '-I$WORKSPACE/LibCXX/include'"
+export CXX_COMPILE_FLAGS="'-fno-exceptions', '-fno-threadsafe-statics', '-fno-use-cxa-atexit', '-fno-unwind-tables', '-fno-asynchronous-unwind-tables', '-nostdinc++', '-nodefaultlibs', '-I$WORKSPACE/LibCXX/include'"
 
 export CROSS_FILE="./platforms/crossbuild/uefi.ini"
 
