@@ -1,0 +1,111 @@
+diff --git a/include/spdlog/cfg/helpers-inl.h b/include/spdlog/cfg/helpers-inl.h
+index 6ed8695..6d4a55b 100644
+--- a/include/spdlog/cfg/helpers-inl.h
++++ b/include/spdlog/cfg/helpers-inl.h
+@@ -54,6 +54,7 @@ inline std::pair<std::string, std::string> extract_kv_(char sep, const std::stri
+     return std::make_pair(trim_(k), trim_(v));
+ }
+ 
++#if !defined(__UEFI__)
+ // return vector of key/value pairs from a sequence of "K1=V1,K2=V2,.."
+ // "a=AAA,b=BBB,c=CCC,.." => {("a","AAA"),("b","BBB"),("c", "CCC"),...}
+ inline std::unordered_map<std::string, std::string> extract_key_vals_(const std::string &str) {
+@@ -69,6 +70,29 @@ inline std::unordered_map<std::string, std::string> extract_key_vals_(const std:
+     }
+     return rv;
+ }
++#else
++inline std::unordered_map<std::string, std::string> extract_key_vals_(const std::string &str) {
++    std::unordered_map<std::string, std::string> rv{};
++
++    size_t start = 0;
++    while (start < str.size()) {
++        size_t end = str.find(',', start);
++        if (end == std::string::npos) {
++            end = str.size();
++        }
++
++        if (end > start) {
++            auto token = str.substr(start, end - start);
++            auto kv = extract_kv_('=', token);
++            rv[kv.first] = kv.second;
++        }
++
++        start = end + 1;
++    }
++
++    return rv;
++}
++#endif
+ 
+ SPDLOG_INLINE void load_levels(const std::string &input) {
+     if (input.empty() || input.size() >= 32768) {
+diff --git a/include/spdlog/details/os-inl.h b/include/spdlog/details/os-inl.h
+index b4bfe83..6a5f408 100644
+--- a/include/spdlog/details/os-inl.h
++++ b/include/spdlog/details/os-inl.h
+@@ -42,7 +42,7 @@
+ #include <fcntl.h>
+ #include <unistd.h>
+ 
+-#ifdef __linux__
++#if defined(__linux__) && !defined(__UEFI__)
+ #include <sys/syscall.h>  //Use gettid() syscall under linux to get thread id
+ 
+ #elif defined(_AIX)
+@@ -88,6 +88,9 @@ SPDLOG_INLINE std::tm localtime(const std::time_t &time_tt) SPDLOG_NOEXCEPT {
+ #ifdef _WIN32
+     std::tm tm;
+     ::localtime_s(&tm, &time_tt);
++#elif defined(__UEFI__)
++    std::tm* tm_p = ::localtime(&time_tt);
++    std::tm tm = *tm_p;
+ #else
+     std::tm tm;
+     ::localtime_r(&time_tt, &tm);
+@@ -104,6 +107,9 @@ SPDLOG_INLINE std::tm gmtime(const std::time_t &time_tt) SPDLOG_NOEXCEPT {
+ #ifdef _WIN32
+     std::tm tm;
+     ::gmtime_s(&tm, &time_tt);
++#elif defined(__UEFI__)
++    std::tm* tm_p = ::gmtime(&time_tt);
++    std::tm tm = *tm_p;
+ #else
+     std::tm tm;
+     ::gmtime_r(&time_tt, &tm);
+@@ -216,7 +222,7 @@ SPDLOG_INLINE size_t filesize(FILE *f) {
+ 
+ #else  // unix
+ // OpenBSD and AIX doesn't compile with :: before the fileno(..)
+-#if defined(__OpenBSD__) || defined(_AIX)
++#if defined(__OpenBSD__) || defined(_AIX) || defined(__UEFI__)
+     int fd = fileno(f);
+ #else
+     int fd = ::fileno(f);
+@@ -260,7 +266,7 @@ SPDLOG_INLINE int utc_minutes_offset(const std::tm &tm) {
+     auto offset_seconds = utc_time_t - local_time_t;
+     return static_cast<int>(offset_seconds / 60);
+ }
+-#elif defined(__3DS__) || defined(__SWITCH__)
++#elif defined(__3DS__) || defined(__SWITCH__) || defined(__UEFI__)
+ SPDLOG_INLINE int utc_minutes_offset(const std::tm &/* tm */) {
+     throw_spdlog_ex("Not implemented yet on this platform", errno);
+ }
+@@ -278,6 +284,8 @@ SPDLOG_INLINE int utc_minutes_offset(const std::tm &tm) {
+ SPDLOG_INLINE size_t _thread_id() SPDLOG_NOEXCEPT {
+ #ifdef _WIN32
+     return static_cast<size_t>(::GetCurrentThreadId());
++#elif defined(__UEFI__)
++    return std::hash<std::thread::id>{}(std::this_thread::get_id());
+ #elif defined(__linux__)
+ #if defined(__ANDROID__) && defined(__ANDROID_API__) && (__ANDROID_API__ < 21)
+ #define SYS_gettid __NR_gettid
+@@ -552,6 +560,8 @@ std::string SPDLOG_INLINE getenv(const char *field) {
+ SPDLOG_INLINE bool fsync(FILE *fp) {
+ #ifdef _WIN32
+     return FlushFileBuffers(reinterpret_cast<HANDLE>(_get_osfhandle(_fileno(fp)))) != 0;
++#elif defined(__UEFI__)
++    return fflush(fp) == 0;
+ #else
+     return ::fsync(fileno(fp)) == 0;
+ #endif
