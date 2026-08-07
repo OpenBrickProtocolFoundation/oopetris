@@ -14,10 +14,10 @@ namespace recorder {
 
     struct RecordingWriter : public Recording {
     private:
-        recordings::ofstream m_output_file;
+        std::ofstream m_output_file;
 
         explicit RecordingWriter(
-                recordings::ofstream&& output_file,
+                std::ofstream&& output_file,
                 std::vector<TetrionHeader>&& tetrion_headers,
                 AdditionalInformation&& information
         );
@@ -43,10 +43,10 @@ namespace recorder {
 
     private:
         static helper::expected<void, std::string>
-        write_tetrion_header_to_file(recordings::ofstream& file, const TetrionHeader& header);
+        write_tetrion_header_to_file(std::ofstream& file, const TetrionHeader& header);
 
         static helper::expected<void, std::string> write_checksum_to_file(
-                recordings::ofstream& file,
+                std::ofstream& file,
                 const std::vector<TetrionHeader>& tetrion_headers,
                 const AdditionalInformation& information
         );

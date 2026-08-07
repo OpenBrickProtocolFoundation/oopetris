@@ -5,7 +5,7 @@ elif online_multiplayer_system == 'httplib'
 elif online_multiplayer_system == 'web'
     graphics_src_files += files('web_client.cpp', 'web_client.hpp')
 elif online_multiplayer_system == 'uefi'
-    warning('TODO: implement')
+    graphics_src_files += files('uefi_client.cpp', 'uefi_client.hpp')
 else
     error('Unhandled online_multiplayer_system: \'' + online_multiplayer_system + '\'')
 endif

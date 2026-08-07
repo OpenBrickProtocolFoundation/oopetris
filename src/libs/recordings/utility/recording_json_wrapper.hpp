@@ -11,6 +11,8 @@
 #include "./recording_reader.hpp"
 #include "./tetrion_snapshot.hpp"
 
+//TODO: for ALL json wrappers, make a api, that returns std::optional<std::string> so that it can work without exceptions
+// support nlohmann json per using a tenmoplate type, that make an adl_serializer for all these types!
 namespace nlohmann {
     template<>
     struct adl_serializer<recorder::InformationValue> {

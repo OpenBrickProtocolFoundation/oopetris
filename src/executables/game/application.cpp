@@ -109,7 +109,9 @@ Application::Application(std::shared_ptr<Window>&& window, CommandLineArguments&
 #endif
 {
     initialize();
-} catch (const helper::GeneralError& general_error) {
+}
+#if !defined(__OOPETRIS_NO_EXCEPTIONS)
+catch (const helper::GeneralError& general_error) {
     const auto severity = general_error.severity();
     const auto notification_level = get_notification_level(severity);
 
@@ -120,6 +122,7 @@ Application::Application(std::shared_ptr<Window>&& window, CommandLineArguments&
         throw general_error;
     }
 }
+#endif
 
 Application::~Application() = default;
 

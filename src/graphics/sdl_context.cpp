@@ -1,4 +1,5 @@
 #include <core/helper/errors.hpp>
+#include <core/helper/utils.hpp>
 
 #include "graphics/sdl_context.hpp"
 
@@ -18,7 +19,7 @@
 
 SdlContext::SdlContext() {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-        throw helper::InitializationError{ fmt::format("Failed in initializing sdl: {}", SDL_GetError()) };
+        utils::throw_(helper::InitializationError{ fmt::format("Failed in initializing sdl: {}", SDL_GetError()) });
     }
 
     if (TTF_Init() < 0) {

@@ -18,12 +18,15 @@ Renderer::Renderer(const Window& window, const VSync v_sync)
       ) } {
 
     if (m_renderer == nullptr) {
-        throw helper::InitializationError{ fmt::format("Failed creating a SDL Renderer: {}", SDL_GetError()) };
+        utils::throw_(helper::InitializationError{ fmt::format("Failed creating a SDL Renderer: {}", SDL_GetError()) });
     }
 
     auto result = SDL_SetRenderDrawBlendMode(m_renderer, SDL_BLENDMODE_BLEND);
     if (result < 0) {
-        throw helper::InitializationError{ fmt::format("Failed in setting BlendMode on Renderer: {}", SDL_GetError()) };
+        utils::throw_(
+                helper::InitializationError{
+                        fmt::format("Failed in setting BlendMode on Renderer: {}", SDL_GetError()) }
+        );
     }
 }
 
@@ -65,7 +68,7 @@ Texture Renderer::get_texture_for_render_target(const shapes::UPoint& size) cons
     const auto supported = SDL_RenderTargetSupported(m_renderer);
 
     if (supported == SDL_FALSE) {
-        throw helper::FatalError{ "SDL does not support a target renderer, but we need one!" };
+        utils::throw_(helper::FatalError{ "SDL does not support a target renderer, but we need one!" });
     }
 
     return Texture::get_for_render_target(m_renderer, size);
@@ -79,7 +82,9 @@ void Renderer::set_render_target(const Texture& texture) const {
 void Renderer::reset_render_target() const {
     const auto result = SDL_SetRenderTarget(m_renderer, nullptr);
     if (result < 0) {
-        throw helper::FatalError{ fmt::format("Failed to set render texture target with error: {}", SDL_GetError()) };
+        utils::throw_(
+                helper::FatalError{ fmt::format("Failed to set render texture target with error: {}", SDL_GetError()) }
+        );
     }
 }
 

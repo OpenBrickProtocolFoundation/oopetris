@@ -15,6 +15,8 @@
 #include "./web_client.hpp"
 #elif _OOPETRIS_ONLINE_SYSTEM == 2
 #include "./curl_client.hpp"
+#elif _OOPETRIS_ONLINE_SYSTEM == 3
+#include "./uefi_client.hpp"
 #else
 #error "_OOPETRIS_ONLINE_SYSTEM has an invalid value"
 #endif
@@ -92,7 +94,9 @@ lobby::API::~API() = default;
 helper::expected<lobby::API, std::string>
 lobby::API::get_api(ServiceProvider* service_provider, const std::string& url) {
 
+#if !defined(__OOPETRIS_NO_EXCEPTIONS)
     try {
+#endif
 
         API api{ service_provider, url };
 
@@ -105,9 +109,11 @@ lobby::API::get_api(ServiceProvider* service_provider, const std::string& url) {
         //TODO(Totto):  once version is standard, check here if the version is supported
 
         return api;
+#if !defined(__OOPETRIS_NO_EXCEPTIONS)
     } catch (const std::exception& error) {
         return helper::unexpected<std::string>{ error.what() };
     }
+#endif
 }
 
 void lobby::API::check_url(
