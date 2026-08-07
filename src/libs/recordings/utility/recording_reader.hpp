@@ -63,15 +63,15 @@ namespace recorder {
 
     private:
         [[nodiscard]] static helper::expected<
-                std::tuple<recordings::ifstream, std::vector<TetrionHeader>, recorder::AdditionalInformation>,
+                std::tuple<std::ifstream, std::vector<TetrionHeader>, recorder::AdditionalInformation>,
                 std::string>
         get_header_from_path(const std::filesystem::path& path);
 
 
-        [[nodiscard]] static helper::reader::ReadResult<TetrionHeader> read_tetrion_header_from_file(recordings::ifstream& file
+        [[nodiscard]] static helper::reader::ReadResult<TetrionHeader> read_tetrion_header_from_file(std::ifstream& file
         );
 
-        [[nodiscard]] static helper::reader::ReadResult<Record> read_record_from_file(recordings::ifstream& file);
+        [[nodiscard]] static helper::reader::ReadResult<Record> read_record_from_file(std::ifstream& file);
     };
 
     STATIC_ASSERT_WITH_MESSAGE(utils::IsIterator<RecordingReader>::value, "RecordingReader has to be an iterator");

@@ -55,7 +55,6 @@
             "guid": "dee047db-15c9-4d79-ab08-79d6244d9b0e",
             "version": "spdlog",
             "options": [
-                "-DFMT_USE_LOCALE=0",
                 "-DSPDLOG_NO_EXCEPTIONS=1",
                 "-DSPDLOG_NO_TLS=1"
             ]

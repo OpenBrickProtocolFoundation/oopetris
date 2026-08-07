@@ -25,11 +25,11 @@ recorder::RecordingReader::RecordingReader(RecordingReader&& old) noexcept
 
 
 helper::expected<
-        std::tuple<recordings::ifstream, std::vector<recorder::TetrionHeader>, recorder::AdditionalInformation>,
+        std::tuple<std::ifstream, std::vector<recorder::TetrionHeader>, recorder::AdditionalInformation>,
         std::string>
 recorder::RecordingReader::get_header_from_path(const std::filesystem::path& path) {
 
-    recordings::ifstream file{ path, std::ios::in | std::ios::binary };
+    std::ifstream file{ path, std::ios::in | std::ios::binary };
     if (file.fail()) {
         return helper::unexpected<std::string>{
             fmt::format("unable to load recording from file \"{}\"", path.string())
@@ -98,7 +98,7 @@ recorder::RecordingReader::get_header_from_path(const std::filesystem::path& pat
         ) };
     }
 
-    return std::make_tuple<recordings::ifstream, std::vector<TetrionHeader>, AdditionalInformation>(
+    return std::make_tuple<std::ifstream, std::vector<TetrionHeader>, AdditionalInformation>(
             std::move(file), std::move(tetrion_headers), std::move(information.value())
     );
 }
@@ -209,7 +209,7 @@ helper::expected<recorder::RecordingReader, std::string> recorder::RecordingRead
 
 
 [[nodiscard]] helper::reader::ReadResult<recorder::TetrionHeader>
-recorder::RecordingReader::read_tetrion_header_from_file(recordings::ifstream& file) {
+recorder::RecordingReader::read_tetrion_header_from_file(std::ifstream& file) {
     if (file.fail()) {
         return helper::unexpected<helper::reader::ReadError>{
             { helper::reader::ReadErrorType::InvalidStream, "failed to read data from file" }
@@ -235,7 +235,7 @@ recorder::RecordingReader::read_tetrion_header_from_file(recordings::ifstream& f
 }
 
 [[nodiscard]] helper::reader::ReadResult<recorder::Record> recorder::RecordingReader::read_record_from_file(
-        recordings::ifstream& file
+        std::ifstream& file
 ) {
     if (file.fail()) {
         return helper::unexpected<helper::reader::ReadError>{
