@@ -1,23 +1,25 @@
 
 #pragma once
 
+#include <Library/HttpIoLib.h>
 
 #include "./client.hpp"
 
+#include <vector>
+
 
 namespace oopetris::http::implementation {
-
     namespace details {
-        using FetchHeader = std::unordered_map<std::string, std::string>;
+        using HttpHeaders = std::vector<EFI_HTTP_HEADER>;
     }
+
 
     struct ActualResult : ::oopetris::http::Result {
     private:
-        std::unique_ptr<emscripten_fetch_t> m_request;
-        details::FetchHeader m_response_headers;
+        HTTP_IO_RESPONSE_DATA m_response;
 
     public:
-        OOPETRIS_GRAPHICS_EXPORTED explicit ActualResult(std::unique_ptr<emscripten_fetch_t>&& request);
+        OOPETRIS_GRAPHICS_EXPORTED explicit ActualResult(HTTP_IO_RESPONSE_DATA&& response);
 
         OOPETRIS_GRAPHICS_EXPORTED ~ActualResult() override;
 
@@ -27,7 +29,8 @@ namespace oopetris::http::implementation {
         OOPETRIS_GRAPHICS_EXPORTED ActualResult(const ActualResult& other) = delete;
         OOPETRIS_GRAPHICS_EXPORTED ActualResult& operator=(const ActualResult& other) = delete;
 
-        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED std::optional<std::string> get_header(const std::string& key
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED std::optional<std::string> get_header(
+                const std::string& key
         ) const override;
 
         [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED std::string body() const override;
@@ -42,7 +45,7 @@ namespace oopetris::http::implementation {
 
     private:
         std::string m_base_url;
-        details::FetchHeader m_headers;
+        details::HttpHeaders m_headers;
 
     public:
         OOPETRIS_GRAPHICS_EXPORTED ActualClient(ActualClient&& other) noexcept;

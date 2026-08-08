@@ -302,10 +302,18 @@ for MESON_TARGETS_INFO_LIB_PARAMATER in "${MESON_TARGETS_INFO_LIB_PARAMATERS[@]}
     DEP_PACKAGE_NAME="${MESON_TARGETS_INFO_LIB_PARAMATER:15}"
     DEP_PACKAGES+=("LibraryPkg/$DEP_PACKAGE_NAME/$DEP_PACKAGE_NAME.dec")
     ;;
-  -t:use-lib:name=*)
+  -t:use-pkg:pkg=*)
+    DEP_PACKAGE_NAME="${MESON_TARGETS_INFO_LIB_PARAMATER:15}"
+    DEP_PACKAGES+=("$DEP_PACKAGE_NAME")
+    ;;
+  -t:use-lib:name=* | -t:use-pkg:name=*)
     #ignore
     ;;
   -t:use-lib:lib=*)
+    DEP_PACKAGE_LIB="${MESON_TARGETS_INFO_LIB_PARAMATER:15}"
+    DEP_CLASSES+=("$DEP_PACKAGE_LIB")
+    ;;
+  -t:use-pkg:lib=*)
     DEP_PACKAGE_LIB="${MESON_TARGETS_INFO_LIB_PARAMATER:15}"
     DEP_CLASSES+=("$DEP_PACKAGE_LIB")
     ;;

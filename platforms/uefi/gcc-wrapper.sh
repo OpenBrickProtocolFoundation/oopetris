@@ -54,7 +54,7 @@ for ARG in "${ARGS[@]}"; do
         --end-group)
             reset_next_type
             ;;
-        -t:use-lib*)
+        -t:use-lib* | -t:use-pkg*)
             # ignore here, the extraction uses that for inf and dec dependencies
             ;;
         *)
@@ -143,7 +143,7 @@ for ARG in "${ARGS[@]}"; do
             -v | - | -g | -P | -MD | -pthread | -shared | -nostdinc | -nodefaultlibs | -isystem* | --sysroot=* | -std=* | -f* | -m* | -D* | -U* | -W* | -O* | -I* | -L* | -l*)
                 # ignore, valid arguments
                 ;;
-            -t:use-lib*)
+            -t:use-lib* | -t:use-pkg*)
                 # ignore here, the extraction uses that for inf and dec dependencies
                 ;;
             *)

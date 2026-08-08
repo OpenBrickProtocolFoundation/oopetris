@@ -60,14 +60,16 @@ namespace json {
     [[nodiscard]] helper::expected<T, std::string> try_parse_json(const std::string& content) noexcept {
 #if defined(__OOPETRIS_NO_EXCEPTIONS)
 
-        T result = nlohmann::json::parse(content, nullptr, false);
+        auto result_j = nlohmann::json::parse(content, nullptr, false);
+        if (result_j.is_discarded()) {
+            return helper::unexpected<std::string>{ "A JSON error occurred, but no further details available" };
+        }
+        T result = result_j;
+
         return result;
 #else
         try {
             T result = nlohmann::json::parse(content);
-            if (result.is_discarded()) {
-                return helper::unexpected<std::string>{ "A JSON error occurred, but no further details available" };
-            }
             return result;
 
         } catch (nlohmann::json::parse_error& parse_error) {
@@ -127,7 +129,7 @@ namespace json {
 
 #if defined(__OOPETRIS_NO_EXCEPTIONS)
         nlohmann::json value = input;
-#error "TODO"
+        //TODO: this may throw exceptions, but they just abort, which is not in the spirit of this function so either use another nlohmann json mechanism or another json library that supports return values for custom subparser
         return value;
 #else
         try {

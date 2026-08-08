@@ -38,36 +38,43 @@ change_mode() {
 
 UEFI_INFO_FILE="$(realpath "$SCRIPT_DIR/../crossbuild/uefi_info.json")"
 EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM="$(jq -M -r -c '.["platform"]' "$UEFI_INFO_FILE")"
+EDK2_WORKSPACE="$(jq -M -r -c '.["workspace"]' "$UEFI_INFO_FILE")"
 
-link_built_libray() {
-    local PACKAGE_NAME="$1"
-    local PACKAGE_NAME_PKG="$2"
-    local PACKAGE_NAME_LIB="$3"
+link_uefi_libray() {
+    local LIB_NAME_INF="$1"
+    local PACKAGE_NAME_INC="$2"
 
-    local FINAL_PKG_NAME="LibraryPkg/$PACKAGE_NAME_PKG/$PACKAGE_NAME_PKG.inf"
-
-    if grep -q "$FINAL_PKG_NAME" "$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM"; then
+    if grep -q "$LIB_NAME_INF" "$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM"; then
         : # found already, do nothing
     else
         cat <<EOF >>"$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM"
 [Components]
-  $FINAL_PKG_NAME
+  $LIB_NAME_INF
 
 EOF
 
     fi
 
-    local FINAL_PKG_INC_NAME="LibraryPkg/$PACKAGE_NAME_PKG/$PACKAGE_NAME_PKG.inc"
-
-    if grep -q "$FINAL_PKG_INC_NAME" "$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM"; then
+    if grep -q "$PACKAGE_NAME_INC" "$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM"; then
         : # found already, do nothing
     else
         cat <<EOF >>"$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM"
-!include $FINAL_PKG_INC_NAME
+!include $PACKAGE_NAME_INC
 
 EOF
 
     fi
+
+}
+
+link_built_libray() {
+    local PACKAGE_NAME_PKG="$1"
+
+    local FINAL_PKG_NAME="LibraryPkg/$PACKAGE_NAME_PKG/$PACKAGE_NAME_PKG.inf"
+
+    local FINAL_PKG_INC_NAME="LibraryPkg/$PACKAGE_NAME_PKG/$PACKAGE_NAME_PKG.inc"
+
+    link_uefi_libray "$FINAL_PKG_NAME" "$FINAL_PKG_INC_NAME"
 
 }
 
@@ -113,7 +120,63 @@ elif [[ "$MODE" == "get" ]]; then
         exit 2
     fi
 
-    LIBRARY_ENTRY="$(jq -M -r -c ".[\"${PACKAGE_NAME}\"]" "$LIBRARIES_FILE")"
+    case "$PACKAGE_NAME" in
+    uefi:*)
+        # special handling
+
+        LIB_ENTRY_NAME_UEFI="${PACKAGE_NAME:5}"
+
+        LIBRARY_ENTRY_UEFI="$(jq -M -r -c ".[\"uefi\"][\"${LIB_ENTRY_NAME_UEFI}\"]" "$LIBRARIES_FILE")"
+
+        if [ "$LIBRARY_ENTRY_UEFI" = "null" ]; then
+            exit 1
+        fi
+
+        PACKAGE_NAME_UEFI="$(echo "$LIBRARY_ENTRY_UEFI" | jq -M -r -c ".[\"pkg\"]")"
+        LIB_NAME_UEFI="$(echo "$LIBRARY_ENTRY_UEFI" | jq -M -r -c ".[\"lib\"]")"
+        INF_FILE_UEFI="$(echo "$LIBRARY_ENTRY_UEFI" | jq -M -r -c ".[\"inf\"]")"
+        INC_FILE_UEFI="$(echo "$LIBRARY_ENTRY_UEFI" | jq -M -r -c ".[\"inc\"]")"
+
+        PACKAGE_NAME_DEC="$PACKAGE_NAME_UEFI.dec"
+        PACKAGE_DESC_FILE="$EDK2_WORKSPACE/$PACKAGE_NAME_DEC"
+
+        if ! [ -e "$PACKAGE_DESC_FILE" ]; then
+            exit 1
+        fi
+
+        if [[ "$WHAT" == "version" ]]; then
+            PACKAGE_VERSION=$(grep -E '^[[:space:]]*PACKAGE_VERSION[[:space:]]*=' "$PACKAGE_DESC_FILE" | cut -d= -f2 | xargs)
+            echo "$PACKAGE_VERSION"
+            exit 0
+        elif [[ "$WHAT" == "cflags" ]]; then
+            echo "-t:use-pkg:name=$PACKAGE_NAME_UEFI"
+            echo "-t:use-pkg:pkg=$PACKAGE_NAME_DEC"
+            echo "-t:use-pkg:lib=$LIB_NAME_UEFI"
+
+            link_uefi_libray "$INF_FILE_UEFI" "$INC_FILE_UEFI"
+
+            exit 0
+        elif [[ "$WHAT" == "libflags" ]]; then
+
+            echo "-Wl,-t:use-pkg:name=$PACKAGE_NAME_UEFI"
+            echo "-Wl,-t:use-pkg:pkg=$PACKAGE_NAME_DEC"
+            echo "-Wl,-t:use-pkg:lib=$LIB_NAME_UEFI"
+
+            link_uefi_libray "$INF_FILE_UEFI" "$INC_FILE_UEFI"
+
+            exit 0
+        else
+            echo "<$TOOL> ${ARGS[*]}" >&2
+            echo "Not recognized intent: $MODE" >&2
+            exit 3
+        fi
+        ;;
+    *)
+        # fall through
+        ;;
+    esac
+
+    LIBRARY_ENTRY="$(jq -M -r -c ".[\"custom\"][\"${PACKAGE_NAME}\"]" "$LIBRARIES_FILE")"
 
     if [ "$LIBRARY_ENTRY" = "null" ]; then
         exit 1
@@ -130,7 +193,7 @@ elif [[ "$MODE" == "get" ]]; then
         echo "-t:use-lib:pkg=$PACKAGE_NAME_PKG"
         echo "-t:use-lib:lib=$PACKAGE_NAME_LIB"
 
-        link_built_libray "$PACKAGE_NAME" "$PACKAGE_NAME_PKG" "$PACKAGE_NAME_LIB"
+        link_built_libray "$PACKAGE_NAME_PKG"
 
         exit 0
     elif [[ "$WHAT" == "libflags" ]]; then
@@ -141,7 +204,7 @@ elif [[ "$MODE" == "get" ]]; then
         echo "-Wl,-t:use-lib:pkg=$PACKAGE_NAME_PKG"
         echo "-Wl,-t:use-lib:lib=$PACKAGE_NAME_LIB"
 
-        link_built_libray "$PACKAGE_NAME" "$PACKAGE_NAME_PKG" "$PACKAGE_NAME_LIB"
+        link_built_libray "$PACKAGE_NAME_PKG"
 
         exit 0
     else

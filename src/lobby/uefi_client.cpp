@@ -4,11 +4,6 @@
 #include <core/helper/magic_enum_wrapper.hpp>
 #include <core/helper/utils.hpp>
 
-// Note: this uses emscripten fetch
-//see: https://emscripten.org/docs/api_reference/fetch.html
-
-//Note: Synchronous Emscripten Fetch operations are subject to a number of restrictions, depending on which Emscripten build mode (linker flags) is used:
-// we use: -pthread: Synchronous Fetch operations are available on pthreads, but not on the main thread.
 
 #define TRANSFORM_RESULT(result) std::make_unique<ActualResult>((result)) //NOLINT(cppcoreguidelines-macro-usage
 
@@ -100,7 +95,6 @@ oopetris::http::implementation::ActualResult::ActualResult(ActualResult&& other)
 
 [[nodiscard]] std::string oopetris::http::implementation::ActualResult::body() const {
 
-    //TODO: test if this is correct
     auto size = m_request->numBytes;
 
     std::string result{ m_request->data, m_request->data + size };
