@@ -231,9 +231,10 @@ ui::TextInput::handle_event( //NOLINT(readability-function-cognitive-complexity)
                     if (ctrl_pressed) {
                         const int result = SDL_SetClipboardText(m_text.c_str());
                         if (result != 0) {
-                            throw helper::MinorError{
-                                fmt::format("failed in setting the clipboard text: {}", SDL_GetError())
-                            };
+                            utils::throw_(
+                                    helper::MinorError{
+                                            fmt::format("failed in setting the clipboard text: {}", SDL_GetError()) }
+                            );
                         }
                         return true;
                     }
@@ -302,7 +303,8 @@ void ui::TextInput::recalculate_textures(bool text_changed) {
 
 
         if (text_changed) {
-            m_text_texture = renderer.get_texture_for_render_target(shapes::UPoint(1, 1) // this is a dummy point!
+            m_text_texture = renderer.get_texture_for_render_target(
+                    shapes::UPoint(1, 1) // this is a dummy point!
             );
             m_scaled_text_size = 0;
         }
@@ -348,7 +350,7 @@ void ui::TextInput::recalculate_textures(bool text_changed) {
         const int result = TTF_SizeUTF8(m_font.get(), sub_string.c_str(), &width, &height);
 
         if (result < 0) {
-            throw helper::FatalError{ fmt::format("Error during SDL_TTF_SizeUTF8: {}", SDL_GetError()) };
+            utils::throw_(helper::FatalError{ fmt::format("Error during SDL_TTF_SizeUTF8: {}", SDL_GetError()) });
         }
 
         const double ratio_sub_string = static_cast<double>(height) / static_cast<double>(fill_rect().height());
@@ -414,7 +416,7 @@ bool ui::TextInput::add_string(const std::string& add) {
 
     // cursor_position is the range [0, length] (inclusively !)
     if (m_cursor_position > current_string_length) {
-        throw std::runtime_error("cursor_postion is invalid!");
+        utils::throw_(std::runtime_error("cursor_postion is invalid!"));
     }
 
     std::string result{};
@@ -460,7 +462,7 @@ bool ui::TextInput::remove_at_cursor(RemoveMode remove_mode) {
 
     // cursor_position is the range [0, length] (inclusively !)
     if (m_cursor_position > current_string_length) {
-        throw std::runtime_error("cursor_postion is invalid!");
+        utils::throw_( std::runtime_error("cursor_postion is invalid!"));
     }
 
 
