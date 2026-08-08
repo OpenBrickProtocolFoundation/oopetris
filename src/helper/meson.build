@@ -14,6 +14,8 @@ graphics_src_files += files(
     'platform.cpp',
     'platform.hpp',
     'spdlog_wrapper.hpp',
+    'uefi_utils.cpp',
+    'uefi_utils.hpp',
     'web_utils.cpp',
     'web_utils.hpp',
 )

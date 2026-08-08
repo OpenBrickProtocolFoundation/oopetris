@@ -24,6 +24,11 @@
 #include "helper/console_helpers.hpp"
 #endif
 
+#if defined(__UEFI__)
+#include "helper/uefi_utils.hpp"
+#endif
+
+
 #if defined(__EMSCRIPTEN__)
 #include "helper/web_utils.hpp"
 #endif
@@ -52,6 +57,8 @@ namespace {
         sinks.push_back(std::make_shared<spdlog::sinks::android_sink_mt>(constants::program_name.c_str()));
 #elif defined(__CONSOLE__)
         sinks.push_back(std::make_shared<console::debug_sink_mt>());
+#elif defined(__UEFI__)
+        sinks.push_back(uefi::get_debug_sink());
 #elif defined(__EMSCRIPTEN__)
         sinks.push_back(web::get_console_sink());
 #else

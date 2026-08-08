@@ -4,7 +4,7 @@
 
 #include <core/helper/utils.hpp>
 
-#include "web_utils.hpp"
+#include "./web_utils.hpp"
 
 #include <emscripten/console.h>
 #include <emscripten/val.h>
