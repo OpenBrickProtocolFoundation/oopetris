@@ -29,7 +29,7 @@ bool LocalClock::can_be_paused() {
 
 void LocalClock::pause() {
     if (m_paused_at) {
-        throw std::runtime_error("cannot pause if already paused");
+        utils::throw_(std::runtime_error("cannot pause if already paused"));
     }
     m_paused_at = elapsed_time();
     spdlog::info("pausing clock");
@@ -37,7 +37,7 @@ void LocalClock::pause() {
 
 double LocalClock::resume() {
     if (not m_paused_at) {
-        throw std::runtime_error("must have been paused before to be able to resume");
+        utils::throw_(std::runtime_error("must have been paused before to be able to resume"));
     }
     const auto duration = elapsed_time() - *m_paused_at;
     m_start_time += duration;

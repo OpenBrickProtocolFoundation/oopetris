@@ -129,7 +129,7 @@ namespace utils {
 #endif
 
     template<typename E>
-    inline void throw_(E&& exc) {
+    [[noreturn]] inline void throw_(E&& exc) { //NOLINT(readability-identifier-naming)
 #if defined(__OOPETRIS_NO_EXCEPTIONS)
 #if defined(__UEFI__)
         DebugPrint(DEBUG_ERROR, "Exception: %s", exc.what());
