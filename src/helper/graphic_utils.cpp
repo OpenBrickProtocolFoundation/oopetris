@@ -163,7 +163,9 @@ std::optional<std::string> utils::create_directory(const std::filesystem::path& 
         return std::nullopt;
     }
 
+#if !defined(__OOPETRIS_NO_EXCEPTIONS)
     try {
+#endif
         if (recursive) {
             auto result = std::filesystem::create_directories(folder);
             if (not result) {
@@ -178,9 +180,11 @@ std::optional<std::string> utils::create_directory(const std::filesystem::path& 
             return "an unknown error occurred";
         }
         return std::nullopt;
+#if !defined(__OOPETRIS_NO_EXCEPTIONS)
     } catch (const std::exception& error) {
         return error.what();
     }
+#endif
 }
 
 void utils::exit(int status_code) {

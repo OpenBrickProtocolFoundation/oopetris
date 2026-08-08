@@ -24,7 +24,8 @@ namespace input {
                 const SDL_Event& event
         ) const override;
 
-        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED std::string describe_navigation_event(NavigationEvent event
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED std::string describe_navigation_event(
+                NavigationEvent event
         ) const override;
     };
 
@@ -82,7 +83,8 @@ namespace input {
 
         OOPETRIS_GRAPHICS_EXPORTED void update(SimulationStep simulation_step_index) override;
 
-        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED std::optional<MenuEvent> get_menu_event(const SDL_Event& event
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED std::optional<MenuEvent> get_menu_event(
+                const SDL_Event& event
         ) const override;
 
         [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED std::string describe_menu_event(MenuEvent event) const override;
@@ -140,24 +142,28 @@ namespace nlohmann {
 
             const auto is_valid = settings.validate();
             if (not is_valid.has_value()) {
-                throw std::runtime_error(is_valid.error());
+                utils::throw_(std::runtime_error(is_valid.error()));
             }
 
             return settings;
         }
 
         static void to_json(json& obj, const input::KeyboardSettings& settings) {
-            obj = nlohmann::json::object({
-                    {  "rotate_left",                                                                                 settings.rotate_left.to_string() },
-                    { "rotate_right",                                                                                settings.rotate_right.to_string() },
-                    {    "move_left",                                                                                   settings.move_left.to_string() },
-                    {   "move_right",                                                                                  settings.move_right.to_string() },
-                    {    "move_down",                                                                                   settings.move_down.to_string() },
-                    {         "drop",                                                                                        settings.drop.to_string() },
-                    {         "hold",                                                                                        settings.hold.to_string() },
-                    {         "menu", nlohmann::json::object({ { "pause", settings.pause.to_string() },
- { "open_settings", settings.open_settings.to_string() } })                                                      }
-            });
+            obj = nlohmann::json::object(
+                    {
+                            {  "rotate_left",       settings.rotate_left.to_string() },
+                            { "rotate_right",      settings.rotate_right.to_string() },
+                            {    "move_left",         settings.move_left.to_string() },
+                            {   "move_right",        settings.move_right.to_string() },
+                            {    "move_down",         settings.move_down.to_string() },
+                            {         "drop",              settings.drop.to_string() },
+                            {         "hold",              settings.hold.to_string() },
+                            {         "menu", nlohmann::json::object(
+ { { "pause", settings.pause.to_string() },
+ { "open_settings", settings.open_settings.to_string() } }
+ )                                     }
+            }
+            );
         }
     };
 } // namespace nlohmann

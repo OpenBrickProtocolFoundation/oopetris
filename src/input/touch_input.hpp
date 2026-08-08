@@ -156,13 +156,15 @@ namespace json_helper {
 
         if (not error.has_value()) {
 
-            throw nlohmann::json::type_error::create(
-                    302,
-                    fmt::format(
-                            "Expected a valid number of type '{}' for key '{}' but an error occurred: {}",
-                            typeid(T).name(), name, error.error()
-                    ),
-                    &context
+            utils::throw_(
+                    nlohmann::json::type_error::create(
+                            302,
+                            fmt::format(
+                                    "Expected a valid number of type '{}' for key '{}' but an error occurred: {}",
+                                    typeid(T).name(), name, error.error()
+                            ),
+                            &context
+                    )
             );
         }
 
@@ -206,7 +208,7 @@ namespace nlohmann {
 
             const auto is_valid = settings.validate();
             if (not is_valid.has_value()) {
-                throw std::runtime_error(is_valid.error());
+                utils::throw_(std::runtime_error(is_valid.error()));
             }
 
             return settings;
