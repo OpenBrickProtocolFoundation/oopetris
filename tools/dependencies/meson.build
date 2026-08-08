@@ -153,6 +153,7 @@ if (
     temp = core_lib.get('compile_args')
     temp += '-D__OOPETRIS_NO_EXCEPTIONS=1'
     temp += '-DJSON_NOEXCEPTION=1'
+    temp +='-DSPDLOG_NO_EXCEPTIONS=1'
     core_lib += {
         'compile_args': temp,
     }

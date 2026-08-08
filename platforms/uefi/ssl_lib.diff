@@ -1,0 +1,43 @@
+diff --git a/CryptoPkg/CryptoPkgCustom.dsc.inc b/CryptoPkg/CryptoPkgCustom.dsc.inc
+new file mode 100644
+index 0000000000..b9279e9ce8
+--- /dev/null
++++ b/CryptoPkg/CryptoPkgCustom.dsc.inc
+@@ -0,0 +1,25 @@
++[LibraryClasses]
++  BaseLib|MdePkg/Library/BaseLib/BaseLib.inf
++  BaseMemoryLib|MdePkg/Library/BaseMemoryLib/BaseMemoryLib.inf
++  DevicePathLib|MdePkg/Library/UefiDevicePathLib/UefiDevicePathLib.inf
++  SafeIntLib|MdePkg/Library/BaseSafeIntLib/BaseSafeIntLib.inf
++  SynchronizationLib|MdePkg/Library/BaseSynchronizationLib/BaseSynchronizationLib.inf
++  TimerLib|MdePkg/Library/BaseTimerLibNullTemplate/BaseTimerLibNullTemplate.inf
++  RngLib|MdePkg/Library/BaseRngLibNull/BaseRngLibNull.inf
++  PrintLib|MdePkg/Library/BasePrintLib/BasePrintLib.inf
++  DebugLib|MdeModulePkg/Library/PeiDxeDebugLibReportStatusCode/PeiDxeDebugLibReportStatusCode.inf
++  DebugPrintErrorLevelLib|MdePkg/Library/BaseDebugPrintErrorLevelLib/BaseDebugPrintErrorLevelLib.inf
++  OemHookStatusCodeLib|MdeModulePkg/Library/OemHookStatusCodeLibNull/OemHookStatusCodeLibNull.inf
++  HashApiLib|CryptoPkg/Library/BaseHashApiLib/BaseHashApiLib.inf
++  OpensslLib|CryptoPkg/Library/OpensslLib/OpensslLib.inf
++  IntrinsicLib|CryptoPkg/Library/IntrinsicLib/IntrinsicLib.inf
++
++[LibraryClasses.IA32, LibraryClasses.X64, LibraryClasses.AARCH64]
++  RngLib|MdePkg/Library/BaseRngLib/BaseRngLib.inf
++
++[LibraryClasses.AARCH64]
++  ArmLib|MdePkg/Library/ArmLib/ArmBaseLib.inf
++
++[LibraryClasses.common]
++  BaseCryptLib|CryptoPkg/Library/BaseCryptLib/BaseCryptLib.inf
++  TlsLib|CryptoPkg/Library/TlsLib/TlsLib.inf
+diff --git a/CryptoPkg/Library/OpensslLib/OpensslLib.inf b/CryptoPkg/Library/OpensslLib/OpensslLib.inf
+index 094d4439b1..aa36664108 100644
+--- a/CryptoPkg/Library/OpensslLib/OpensslLib.inf
++++ b/CryptoPkg/Library/OpensslLib/OpensslLib.inf
+@@ -775,6 +775,7 @@
+   #   -Werror=unused-but-set-variable: Warn whenever a local variable is assigned to, but otherwise unused (aside from its declaration).
+   #
+   GCC:RELEASE_*_*_CC_FLAGS = -DNDEBUG
++  *_*_*_CC_FLAGS = -D__STDC_NO_ATOMICS__
+   GCC:*_*_IA32_CC_FLAGS    = -U_WIN32 -UWIN32 -U_WIN64 -U_MSC_VER $(OPENSSL_FLAGS) $(OPENSSL_FLAGS_NOASM) -Wno-error=maybe-uninitialized -Wno-error=unused-but-set-variable
+   GCC:*_*_X64_CC_FLAGS     = -U_WIN32 -UWIN32 -U_WIN64 -U_MSC_VER $(OPENSSL_FLAGS) $(OPENSSL_FLAGS_NOASM) -Wno-error=maybe-uninitialized -Wno-error=format -Wno-format -Wno-error=unused-but-set-variable -DNO_MSABI_VA_FUNCS
+   GCC:*_*_AARCH64_CC_FLAGS = $(OPENSSL_FLAGS) -Wno-error=maybe-uninitialized -Wno-format -Wno-error=unused-but-set-variable -Wno-error=format
