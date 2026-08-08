@@ -32,7 +32,7 @@
 
 namespace {
 
-    [[nodiscard]] helper::MessageBox::Type get_notification_level(helper::error::Severity severity) {
+    [[nodiscard]] [[maybe_unused]] helper::MessageBox::Type get_notification_level(helper::error::Severity severity) {
         return severity == helper::error::Severity::Fatal   ? helper::MessageBox::Type::Error
                : severity == helper::error::Severity::Major ? helper::MessageBox::Type::Warning
                                                             : helper::MessageBox::Type::Information;
@@ -96,7 +96,12 @@ helper::LoadingInfo::LoadingInfo(
     return m_load_everything_thread;
 }
 
-Application::Application(std::shared_ptr<Window>&& window, CommandLineArguments&& arguments) try
+Application::Application(std::shared_ptr<Window>&& window, CommandLineArguments&& arguments)
+
+#if !defined(__OOPETRIS_NO_EXCEPTIONS)
+        try
+#endif
+
     : m_command_line_arguments{ std::move(arguments) },
       m_window{ std::move(window) },
       m_renderer{ *m_window, m_command_line_arguments.target_fps.has_value() ? Renderer::VSync::Disabled
@@ -372,7 +377,9 @@ void Application::update() {
 
     for (usize i = 0; i < num_scenes; ++i) {
         const auto index = num_scenes - i - 1;
+#if !defined(__OOPETRIS_NO_EXCEPTIONS)
         try {
+#endif
             auto [scene_update, scene_change] = m_scene_stack.at(index)->update();
 
             if (scene_change) {
@@ -424,7 +431,7 @@ void Application::update() {
             // if an error occurred on:
             // - creation:  the creation wasn't finished, so just not pushing / switching to the scene
             // -update: the update failed in the middle, and the scene, that caused the error, has to make sure, that ignoring it, (and not crashing) resets the state, so that this doesn't occur on every frame
-
+#if !defined(__OOPETRIS_NO_EXCEPTIONS)
         } catch (const std::runtime_error& error) {
             m_window->show_simple(helper::MessageBox::Type::Error, "Error on Scene Initialization", error.what());
         } catch (const helper::GeneralError& general_error) {
@@ -432,6 +439,7 @@ void Application::update() {
 
             m_window->show_simple(notification_level, "Error on Scene Initialization", general_error.message());
         }
+#endif
     }
 
 #if defined(_HAVE_DISCORD_SOCIAL_SDK)

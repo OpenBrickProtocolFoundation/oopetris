@@ -22,7 +22,10 @@ helper::expected<CommandLineArguments, std::string> helper::parse_args(const std
             .scan<'i', CommandLineArguments::Level>()
             .default_value(CommandLineArguments::default_starting_level);
     parser.add_argument("-s", "--silent").help("disable audio output").default_value(false).implicit_value(true);
+
+#if !defined(__OOPETRIS_NO_EXCEPTIONS)
     try {
+#endif
         parser.parse_args(arguments);
 
         CommandLineArguments result{ std::nullopt, std::nullopt };
@@ -63,7 +66,9 @@ helper::expected<CommandLineArguments, std::string> helper::parse_args(const std
         result.silent = parser.get<bool>("--silent");
 
         return result;
+#if !defined(__OOPETRIS_NO_EXCEPTIONS)
     } catch (const std::exception& error) {
         return helper::unexpected<std::string>{ error.what() };
     }
+#endif
 }

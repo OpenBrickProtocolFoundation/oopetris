@@ -94,8 +94,9 @@ namespace {
 
         std::shared_ptr<Window> window{ nullptr };
 
+#if !defined(__OOPETRIS_NO_EXCEPTIONS)
         try {
-
+#endif
             initialize_spdlog();
 
             std::vector<std::string> arguments_vector{};
@@ -120,18 +121,21 @@ namespace {
 
             [[maybe_unused]] constexpr auto window_name = constants::program_name.c_str();
 
-
+#if !defined(__OOPETRIS_NO_EXCEPTIONS)
             try {
+#endif
 #if defined(__ANDROID__) or defined(__CONSOLE__) or defined(__SERENITY__) or defined(__EMSCRIPTEN__)
                 window = std::make_shared<Window>(window_name, WindowPosition::Centered);
 #else
-                [[maybe_unused]] static constexpr int width = 1280;
-                [[maybe_unused]] static constexpr int height = 720;
-                window = std::make_shared<Window>(window_name, WindowPosition::Centered, width, height);
+        [[maybe_unused]] static constexpr int width = 1280;
+        [[maybe_unused]] static constexpr int height = 720;
+        window = std::make_shared<Window>(window_name, WindowPosition::Centered, width, height);
 #endif
+#if !defined(__OOPETRIS_NO_EXCEPTIONS)
             } catch (const helper::GeneralError& general_error) {
                 spdlog::error("Couldn't initialize window: {}", general_error.message());
             }
+#endif
 
             if (window == nullptr) {
                 helper::MessageBox::show_simple(
@@ -144,7 +148,7 @@ namespace {
 
             app.run();
             return EXIT_SUCCESS;
-
+#if !defined(__OOPETRIS_NO_EXCEPTIONS)
         } catch (const helper::GeneralError& general_error) {
             spdlog::error("{}", general_error.message());
 
@@ -167,6 +171,7 @@ namespace {
             std::cerr << error.what();
             return EXIT_FAILURE;
         }
+#endif
     }
 
 
