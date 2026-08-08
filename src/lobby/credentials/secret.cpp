@@ -45,7 +45,8 @@ secret::SecretStorage::SecretStorage(ServiceProvider* service_provider, KeyringT
             // -1 stands for current uid, 0 stands for: do not create a link to another keyring
             auto result = keyctl_get_persistent(-1, 0);
             if (result < 0) {
-                throw std::runtime_error(fmt::format("Error while getting the persistent keyring: {}", strerror(errno))
+                throw std::runtime_error(
+                        fmt::format("Error while getting the persistent keyring: {}", strerror(errno))
                 );
             }
 
@@ -373,7 +374,7 @@ secret::SecretStorage::store(const std::string& key, const Buffer& value, bool u
     return std::nullopt;
 }
 
-#elif defined(__CONSOLE__) || defined(__APPLE__)
+#elif defined(_SECRET_USE_JSON_FILE)
 
 #include "helper/graphic_utils.hpp"
 #include <core/helper/parse_json.hpp>

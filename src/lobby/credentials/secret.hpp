@@ -38,6 +38,10 @@ namespace oopetris::secret::details {
 
 #endif
 
+#if defined(__CONSOLE__) || defined(__APPLE__) || defined(__UEFI__)
+#define _SECRET_USE_JSON_FILE
+#endif
+
 namespace secret {
 
     enum class KeyringType : u8 { User, Session, Persistent };
@@ -49,7 +53,7 @@ namespace secret {
 
 #if defined(_HAVE_KEYUTILS)
         key_serial_t m_ring_id;
-#elif defined(__CONSOLE__) || defined(__APPLE__)
+#elif defined(_SECRET_USE_JSON_FILE)
         std::string m_file_path;
 #elif defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
         oopetris::secret::details::NCRYPT_PROV_HANDLE m_phProvider;

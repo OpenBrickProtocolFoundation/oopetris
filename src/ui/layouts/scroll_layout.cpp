@@ -294,7 +294,7 @@ void ui::ScrollLayout::clear_widgets() {
 
 [[nodiscard]] ui::Layout ui::ScrollLayout::get_layout_for_index(u32 /*index*/) {
     // see TODO comment over handle_event in header file
-    throw std::runtime_error("NOT SUPPORTED");
+    utils::throw_(std::runtime_error("NOT SUPPORTED"));
 }
 
 [[nodiscard]] ui::Layout ui::ScrollLayout::get_layout_for_new(ItemSize size) {

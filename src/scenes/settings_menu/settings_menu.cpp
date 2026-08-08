@@ -29,17 +29,25 @@ namespace scenes {
     )
         : SettingsMenu{ service_provider, layout, std::optional<std::shared_ptr<input::GameInput>>{ game_input } } { }
 
-    SettingsMenu::SettingsMenu(ServiceProvider* service_provider, const  ui::Layout& layout,  const std::optional<std::shared_ptr<input::GameInput>>& game_input) : Scene{service_provider, layout}
-    , m_main_layout{    utils::SizeIdentity<3>(),
-    0,
-    ui::Direction::Vertical,
-                    { 0.1, 0.9 },
-                    ui::AbsolutMargin{ 10 },
-                    std::pair<double, double>{ 0.05, 0.03 },
-                    layout
+    SettingsMenu::SettingsMenu(
+            ServiceProvider* service_provider,
+            const ui::Layout& layout,
+            const std::optional<std::shared_ptr<input::GameInput>>& game_input
+    )
+        : Scene{
+              service_provider, layout
     },
-    m_colors{COLOR_LITERAL("#FF33FF"),  COLOR_LITERAL("hsv(281.71, 0.70085, 0.45882)"), COLOR_LITERAL("rgb(246, 255, 61)"),COLOR_LITERAL("hsv(103.12, 0.39024, 0.32157)")},m_game_input{game_input},m_settings{m_service_provider->settings_manager().settings()}
-{
+          m_main_layout{ utils::SizeIdentity<3>(),
+                         0,
+                         ui::Direction::Vertical,
+                         { 0.1, 0.9 },
+                         ui::AbsolutMargin{ 10 },
+                         std::pair<double, double>{ 0.05, 0.03 },
+                         layout },
+          m_colors{ COLOR_LITERAL("#FF33FF"), COLOR_LITERAL("hsv(281.71, 0.70085, 0.45882)"),
+                    COLOR_LITERAL("rgb(246, 255, 61)"), COLOR_LITERAL("hsv(103.12, 0.39024, 0.32157)") },
+          m_game_input{ game_input },
+          m_settings{ m_service_provider->settings_manager().settings() } {
         auto focus_helper = ui::FocusHelper{ 1 };
 
         m_main_layout.add<ui::Label>(
@@ -83,8 +91,7 @@ namespace scenes {
         );
 
         service_provider->music_manager().add_volume_listener(
-                listener_name,
-                [this, scroll_layout_index, slider_index](std::optional<double>) {
+                listener_name, [this, scroll_layout_index, slider_index](std::optional<double>) {
                     auto* volume_scroll_layout = this->m_main_layout.get<ui::ScrollLayout>(scroll_layout_index);
                     volume_scroll_layout->get<ui::Slider>(slider_index)->on_change();
 
@@ -224,7 +231,9 @@ namespace scenes {
                                 }
 
 
-                                throw std::runtime_error("Requested action on unknown widget, this is a fatal error");
+                                utils::throw_(
+                                        std::runtime_error("Requested action on unknown widget, this is a fatal error")
+                                );
                             } },
                     m_next_command.value().m_value
             );

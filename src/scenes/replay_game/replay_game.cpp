@@ -34,7 +34,7 @@ namespace scenes {
         } else {
 
             //TODO(Totto): support bigger layouts than just 2
-            throw std::runtime_error("At the moment only replays from up to two players are supported");
+            utils::throw_(std::runtime_error("At the moment only replays from up to two players are supported"));
         }
 
         u32 simulation_frequency = constants::simulation_frequency;

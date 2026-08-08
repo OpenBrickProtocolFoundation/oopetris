@@ -23,7 +23,7 @@ SdlContext::SdlContext() {
     }
 
     if (TTF_Init() < 0) {
-        throw helper::InitializationError{ fmt::format("Failed in initializing sdl ttf: {}", TTF_GetError()) };
+        utils::throw_(helper::InitializationError{ fmt::format("Failed in initializing sdl ttf: {}", TTF_GetError()) });
     }
 
 #if defined(__CONSOLE__)
@@ -32,9 +32,10 @@ SdlContext::SdlContext() {
 
 #if defined(_HAVE_FILE_DIALOGS)
     if (NFD::Init() != NFD_OKAY) {
-        throw helper::InitializationError{
-            fmt::format("Failed to initialize the file dialog library: {}", NFD::GetError())
-        };
+        utils::throw_(
+                helper::InitializationError{
+                        fmt::format("Failed to initialize the file dialog library: {}", NFD::GetError()) }
+        );
     }
 
 #endif
