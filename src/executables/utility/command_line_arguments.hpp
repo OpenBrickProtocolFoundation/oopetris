@@ -2,7 +2,10 @@
 
 #include <core/helper/expected.hpp>
 
+#if !defined(__UEFI__)
 #include <argparse/argparse.hpp>
+#endif
+
 #include <filesystem>
 #include <fmt/format.h>
 #include <stdexcept>
