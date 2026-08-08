@@ -282,21 +282,32 @@ fi
 
 MESON_TARGETS_INFO_LIB_COMPILER_TARGET="${MESON_TARGETS_INFO_LIB_COMPILER_TARGETS[0]}"
 
+MESON_TARGETS_INFO_LIB_LANGUAGE="$(echo "$MESON_TARGETS_INFO_LIB_COMPILER_TARGET" | jq -M -r -c ".[\"language\"]")"
+
+FLAGS_TARGET="CC"
+
+if [ "$MESON_TARGETS_INFO_LIB_LANGUAGE" == "cpp" ]; then
+  FLAGS_TARGET="CXX"
+elif [ "$MESON_TARGETS_INFO_LIB_LANGUAGE" == "c" ]; then
+  FLAGS_TARGET="CC"
+else
+  echo "Error: invalid meson target language: $MESON_TARGETS_INFO_LIB_LANGUAGE" >&2
+  exit 2
+fi
+
 mapfile -t MESON_TARGETS_INFO_LIB_PARAMATERS < <(echo "$MESON_TARGETS_INFO_LIB_COMPILER_TARGET" | jq '.["parameters"][]' -M -r -c)
 
 for MESON_TARGETS_INFO_LIB_PARAMATER in "${MESON_TARGETS_INFO_LIB_PARAMATERS[@]}"; do
 
   case "$MESON_TARGETS_INFO_LIB_PARAMATER" in
   -I*)
-    #TODO: if it is cpp this should be modified to CXX_FLAGS
     DEP_INCLUDES+=("${MESON_TARGETS_INFO_LIB_PARAMATER:2}")
     ;;
   -W*)
     # TODO: include warnings
     ;;
   -nostdinc | -nostdinc++ | -nodefaultlibs | -D* | --sysroot=* | -isystem*)
-    #TODO: if it is cpp this should be modified to CXX_FLAGS
-    DEP_BUILD_OPTIONS+=("*_*_*_CC_FLAGS = \"${MESON_TARGETS_INFO_LIB_PARAMATER}\"")
+    DEP_BUILD_OPTIONS+=("*_*_*_${FLAGS_TARGET}_FLAGS = \"${MESON_TARGETS_INFO_LIB_PARAMATER}\"")
     ;;
   -t:use-lib:pkg=*)
     DEP_PACKAGE_NAME="${MESON_TARGETS_INFO_LIB_PARAMATER:15}"
@@ -321,7 +332,7 @@ for MESON_TARGETS_INFO_LIB_PARAMATER in "${MESON_TARGETS_INFO_LIB_PARAMATERS[@]}
     # ignore pthread
     ;;
   -f* | -m*)
-    DEP_BUILD_OPTIONS+=("*_*_*_CC_FLAGS = \"${MESON_TARGETS_INFO_LIB_PARAMATER}\"")
+    DEP_BUILD_OPTIONS+=("*_*_*_${FLAGS_TARGET}_FLAGS = \"${MESON_TARGETS_INFO_LIB_PARAMATER}\"")
     ;;
   -g | -std=* | -O*)
     #ignore
@@ -340,7 +351,7 @@ elif [ "$MESON_TARGETS_INFO_LIB_TYPE" == "executable" ] || [ "$MESON_TARGETS_INF
   echo "TODO"
   # exit 34
 else
-  echo "Error: invalid meson target type fo '$SOURCE_FILE_ENTRY_MESON_NAME': $MESON_TARGETS_INFO_LIB_TYPE" >&2
+  echo "Error: invalid meson target type for '$SOURCE_FILE_ENTRY_MESON_NAME': $MESON_TARGETS_INFO_LIB_TYPE" >&2
   exit 2
 fi
 
@@ -359,8 +370,7 @@ if [ "$MAPPING_TYPE" == "application" ]; then
 
   # add include directories to the build options (as the files build inside the application need that)
   for DEP_INCLUDE in "${DEP_INCLUDES[@]}"; do
-    #TODO: if it is cpp this should be modified to CXX_FLAGS
-    DEP_BUILD_OPTIONS+=("*_*_*_CC_FLAGS = \"-I${DEP_INCLUDE}\"")
+    DEP_BUILD_OPTIONS+=("*_*_*_${FLAGS_TARGET}_FLAGS = \"-I${DEP_INCLUDE}\"")
   done
 
   validate_parent_dir "$DEST_FILE"
@@ -413,8 +423,7 @@ elif [ "$MAPPING_TYPE" == "library" ]; then
   # NOTE: we also define these as [Include], which is not entirely correct, but it didn't lead to problems until now
   # TODO: ^ these should be private include dirs not public ones
   for DEP_INCLUDE in "${DEP_INCLUDES[@]}"; do
-    #TODO: if it is cpp this should be modified to CXX_FLAGS
-    DEP_BUILD_OPTIONS+=("*_*_*_CC_FLAGS = \"-I${DEP_INCLUDE}\"")
+    DEP_BUILD_OPTIONS+=("*_*_*_${FLAGS_TARGET}_FLAGS = \"-I${DEP_INCLUDE}\"")
   done
 
   # add custom options, that override fix dependencies
@@ -424,7 +433,7 @@ elif [ "$MAPPING_TYPE" == "library" ]; then
     mapfile -t MAPPING_OPTIONS_ENTRIES < <(echo "$MAPPING_OPTIONS" | jq -e '.[]' -M -r -c)
 
     for MAPPING_OPTIONS_ENTRY in "${MAPPING_OPTIONS_ENTRIES[@]}"; do
-      DEP_BUILD_OPTIONS+=("*_*_*_CC_FLAGS = \"${MAPPING_OPTIONS_ENTRY}\"")
+      DEP_BUILD_OPTIONS+=("*_*_*_${FLAGS_TARGET}_FLAGS = \"${MAPPING_OPTIONS_ENTRY}\"")
     done
   fi
 

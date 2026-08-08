@@ -12,10 +12,18 @@
 extern "C" {
 #include <Uefi.h>
 
+
+//this is needed to mix stdlib and openssl / crypto / tls libraries
+
+#undef NTOHL
+#undef HTONL
+#undef NTOHS
+#undef HTONS
+
 #include <Library/HttpIoLib.h>
 }
 
-//this i needed to mix stdlib and openssl / crypto / tls libraries
+//this is needed to mix stdlib and openssl / crypto / tls libraries
 
 #undef NTOHL
 #undef HTONL
