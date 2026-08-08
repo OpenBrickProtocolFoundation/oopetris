@@ -174,6 +174,16 @@ else
     echo -e "$STDLIB_PACKAGE_INCLUDE\n" >>"$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM"
 fi
 
+# add libcxx to active platform
+
+LIBCXX_PACKAGE_INCLUDE="!include LibCXX/LibCXXPkg.inc"
+
+if grep -q "$LIBCXX_PACKAGE_INCLUDE" "$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM"; then
+    : # found already, do nothing
+else
+    echo -e "$LIBCXX_PACKAGE_INCLUDE\n" >>"$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM"
+fi
+
 EDK2_TARGET_PROPERTIES_BUILDTYPE="$(echo "$BUILDTYPE" | tr "[:lower:]" "[:upper:]")"
 
 EDK2_TARGET_PROPERTIES_ARCH="X64"

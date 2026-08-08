@@ -288,6 +288,7 @@ FLAGS_TARGET="CC"
 
 if [ "$MESON_TARGETS_INFO_LIB_LANGUAGE" == "cpp" ]; then
   FLAGS_TARGET="CXX"
+  DEP_CLASSES+=("LibCXX")
 elif [ "$MESON_TARGETS_INFO_LIB_LANGUAGE" == "c" ]; then
   FLAGS_TARGET="CC"
 else
@@ -396,6 +397,7 @@ $(expand_array_inf "${DEP_PACKAGES[@]}")
   UefiApplicationEntryPoint
   UefiLib
   LibC
+  LibCXX
 $(expand_array_inf "${DEP_CLASSES[@]}")
 
 [Guids]
