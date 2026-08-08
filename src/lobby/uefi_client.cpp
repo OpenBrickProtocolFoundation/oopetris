@@ -352,7 +352,7 @@ namespace {
         if (data.has_value()) {
             const auto& [mime_type, raw_data] = data.value();
 
-            Body = const_cast<void*>(raw_data.data());
+            Body = const_cast<char*>(raw_data.data());
             BodyLength = raw_data.size();
             raw_headers.push_back(EFI_HTTP_HEADER{ strdup("Content-Type"), strdup(mime_type.c_str()) });
         }
