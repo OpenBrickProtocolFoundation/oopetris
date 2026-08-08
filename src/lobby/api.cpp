@@ -63,7 +63,16 @@ helper::expected<void, std::string> lobby::API::check_reachability() {
 }
 
 lobby::API::API(ServiceProvider* service_provider, const std::string& api_url)
-    : m_client{ std::make_unique<oopetris::http::implementation::ActualClient>(api_url) },
+    : m_client{
+
+#if defined(__UEFI__)
+          oopetris::http::implementation::ActualClient::construct(api_url)
+#else
+          std::make_unique<oopetris::http::implementation::ActualClient>(api_url)
+
+#endif
+
+      },
       m_secret_storage{ std::make_unique<secret::SecretStorage>(service_provider, secret::KeyringType::User) } {
 
     auto value = m_secret_storage->load(token::constants::api_token_key);
