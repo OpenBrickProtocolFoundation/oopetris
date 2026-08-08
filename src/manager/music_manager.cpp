@@ -30,13 +30,17 @@ MusicManager::MusicManager(ServiceProvider* service_provider, u8 channel_size)
 
     const auto result = SDL_InitSubSystem(SDL_INIT_AUDIO);
     if (result != 0) {
-        throw helper::InitializationError{ fmt::format("Failed to initialize the audio system: {}", SDL_GetError()) };
+        utils::throw_(
+                helper::InitializationError{ fmt::format("Failed to initialize the audio system: {}", SDL_GetError()) }
+        );
     }
 
     //TODO(Totto): dynamically handle codecs
     const auto initialized_codecs = Mix_Init(MIX_INIT_FLAC | MIX_INIT_MP3);
     if (initialized_codecs == 0) {
-        throw helper::InitializationError{ fmt::format("Failed to initialize any audio codec: {}", SDL_GetError()) };
+        utils::throw_(
+                helper::InitializationError{ fmt::format("Failed to initialize any audio codec: {}", SDL_GetError()) }
+        );
     }
 
     // retrieve allocated channels
@@ -49,10 +53,12 @@ MusicManager::MusicManager(ServiceProvider* service_provider, u8 channel_size)
         // see: https://wiki.libsdl.org/SDL2_mixer/Mix_AllocateChannels
         auto newly_allocated_channels = Mix_AllocateChannels(channel_size);
         if (newly_allocated_channels != channel_size) {
-            throw helper::InitializationError{ fmt::format(
-                    "Failed to initialize the requested channels, requested {} but only got {}: {}", channel_size,
-                    newly_allocated_channels, SDL_GetError()
-            ) };
+            utils::throw_(
+                    helper::InitializationError{ fmt::format(
+                            "Failed to initialize the requested channels, requested {} but only got {}: {}",
+                            channel_size, newly_allocated_channels, SDL_GetError()
+                    ) }
+            );
         }
     }
 
@@ -69,7 +75,7 @@ MusicManager::MusicManager(ServiceProvider* service_provider, u8 channel_size)
 
 
     if (audio_result != 0) {
-        throw helper::InitializationError{ fmt::format("Failed to open an audio device: {}", SDL_GetError()) };
+        utils::throw_(helper::InitializationError{ fmt::format("Failed to open an audio device: {}", SDL_GetError()) });
     }
 #endif
 
@@ -238,7 +244,7 @@ void MusicManager::hook_music_finished() {
     }
 
     if (m_queued_music == nullptr) {
-        throw std::runtime_error{ "implementation error: m_queued_music is null but it shouldn't be" };
+        utils::throw_(std::runtime_error{ "implementation error: m_queued_music is null but it shouldn't be" });
     }
 
     if (m_music != nullptr) {
@@ -247,8 +253,10 @@ void MusicManager::hook_music_finished() {
 
     const int result = Mix_FadeInMusic(m_queued_music, -1, static_cast<int>(m_delay));
     if (result != 0) {
-        throw std::runtime_error(
-                "an error occurred while trying to play the music (fading in): " + std::string{ Mix_GetError() }
+        utils::throw_(
+                std::runtime_error(
+                        "an error occurred while trying to play the music (fading in): " + std::string{ Mix_GetError() }
+                )
         );
     }
     m_music = m_queued_music;
@@ -313,8 +321,10 @@ void MusicManager::set_volume(
         if (m_music != nullptr) {
             const int result = Mix_PlayMusic(m_music, -1);
             if (result != 0) {
-                throw std::runtime_error(
-                        "an error occurred while trying to play the music: " + std::string{ Mix_GetError() }
+                utils::throw_(
+                        std::runtime_error(
+                                "an error occurred while trying to play the music: " + std::string{ Mix_GetError() }
+                        )
                 );
             }
         }

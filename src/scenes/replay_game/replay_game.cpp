@@ -25,7 +25,7 @@ namespace scenes {
         layouts.reserve(parameters.size());
 
         if (parameters.empty()) {
-            throw std::runtime_error("An empty recording file isn't supported");
+            utils::throw_(std::runtime_error("An empty recording file isn't supported"));
         } else if (parameters.size() == 1) { // NOLINT(readability-else-after-return,llvm-else-after-return)
             layouts.push_back(ui::RelativeLayout{ layout, 0.02, 0.01, 0.96, 0.98 });
         } else if (parameters.size() == 2) {
@@ -47,9 +47,12 @@ namespace scenes {
         for (decltype(parameters.size()) i = 0; i < parameters.size(); ++i) {
             auto [input, starting_parameters] = std::move(parameters.at(i));
 
-            m_games.emplace_back(std::make_unique<Game>(
-                    service_provider, std::move(input), starting_parameters, simulation_frequency, layouts.at(i), false
-            ));
+            m_games.emplace_back(
+                    std::make_unique<Game>(
+                            service_provider, std::move(input), starting_parameters, simulation_frequency,
+                            layouts.at(i), false
+                    )
+            );
         }
 
 
@@ -67,11 +70,13 @@ namespace scenes {
 #endif
 
 
-        m_service_provider->music_manager()
-                .load_and_play_music(
-                        utils::get_assets_folder() / "music" / utils::get_supported_music_extension("02. Game Theme")
-                )
-                .and_then(utils::log_error);
+        auto _ignore = m_service_provider->music_manager()
+                               .load_and_play_music(
+                                       utils::get_assets_folder() / "music"
+                                       / utils::get_supported_music_extension("02. Game Theme")
+                               )
+                               .and_then(utils::log_error);
+        UNUSED(_ignore);
     }
 
 

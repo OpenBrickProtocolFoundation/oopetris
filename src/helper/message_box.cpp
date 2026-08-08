@@ -1,6 +1,8 @@
 
 #include "message_box.hpp"
 
+#include <core/helper/utils.hpp>
+
 #include <SDL.h>
 #include <fmt/format.h>
 
@@ -17,6 +19,6 @@ void helper::MessageBox::show_simple(
     const int result = SDL_ShowSimpleMessageBox(flags, title.c_str(), content.c_str(), window);
 
     if (result < 0) {
-        throw std::runtime_error{ fmt::format("Failed to show Simple MessageBox: {}", SDL_GetError()) };
+        utils::throw_(std::runtime_error{ fmt::format("Failed to show Simple MessageBox: {}", SDL_GetError()) });
     }
 }

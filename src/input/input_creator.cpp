@@ -145,7 +145,7 @@ input::get_game_parameters_for_replay(
         auto recording_writer_create_result =
                 recorder::RecordingWriter::get_writer(file_path, std::move(tetrion_headers), std::move(information));
         if (not recording_writer_create_result.has_value()) {
-            throw std::runtime_error(recording_writer_create_result.error());
+            utils::throw_(std::runtime_error(recording_writer_create_result.error()));
         }
 
         const auto recording_writer =
