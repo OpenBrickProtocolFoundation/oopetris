@@ -370,6 +370,8 @@ EOF
 
 if [ "$COMPILE_TYPE" == "complete_rebuild" ] || [ ! -e "$BUILD_DIR" ]; then
 
+    rm -rf "$WORKSPACE/Build/"
+
     meson setup "$BUILD_DIR" \
         "--prefix=$SYS_ROOT" \
         "--wipe" \
