@@ -63,6 +63,9 @@ else
   exit 1
 fi
 
+C_LIBRARIES=("LibC" "LibCType" "LibLocale" "LibMath" "LibSignal" "LibStdio" "LibStdLib" "LibString" "LibTime" "LibUefi" "LibWchar")
+CPP_LIBRARIES=("LibCXX" "LibCXXABI")
+
 MAPPINGS_FILE="$(realpath "$SCRIPT_DIR/../../src/executables/platforms/uefi/mappings.json")"
 
 DEST_FILE_DIR=$(dirname -- "$DEST_FILE")
@@ -288,8 +291,9 @@ FLAGS_TARGET="CC"
 
 if [ "$MESON_TARGETS_INFO_LIB_LANGUAGE" == "cpp" ]; then
   FLAGS_TARGET="CXX"
-  DEP_CLASSES+=("LibCXX")
-  DEP_CLASSES+=("LibCXXABI")
+  for CPP_LIBRARY in "${CPP_LIBRARIES[@]}"; do
+    DEP_CLASSES+=("$CPP_LIBRARY")
+  done
 elif [ "$MESON_TARGETS_INFO_LIB_LANGUAGE" == "c" ]; then
   FLAGS_TARGET="CC"
 else
@@ -397,9 +401,7 @@ $(expand_array_inf "${DEP_PACKAGES[@]}")
 [LibraryClasses]
   UefiApplicationEntryPoint
   UefiLib
-  LibC
-  LibCXX
-  LibCXXABI
+$(expand_array_inf "${C_LIBRARIES[@]}")
 $(expand_array_inf "${DEP_CLASSES[@]}")
 
 [Guids]
@@ -468,7 +470,8 @@ $(expand_array_inf "${DEP_PACKAGES[@]}")
 
 [LibraryClasses]
   UefiLib
-  LibC
+$(expand_array_inf "${C_LIBRARIES[@]}")
+$(expand_array_inf "${CPP_LIBRARIES[@]}")
 $(expand_array_inf "${DEP_CLASSES[@]}")
 
 [BuildOptions]
