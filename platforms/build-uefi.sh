@@ -132,6 +132,7 @@ if ! [ -e "$EDK2_PATCH_FILE" ]; then
 
     git apply --unsafe-paths -p1 --directory="$EDK2_ROOT" "$PATCH_DIR/cxx_compiler.diff"
     git apply --unsafe-paths -p1 --directory="$EDK2_ROOT" "$PATCH_DIR/ssl_lib.diff"
+    git apply --unsafe-paths -p1 --directory="$EDK2_ROOT" "$PATCH_DIR/ssl_lib_compile_with_libc.diff"
 
     touch "$EDK2_PATCH_FILE"
 fi
