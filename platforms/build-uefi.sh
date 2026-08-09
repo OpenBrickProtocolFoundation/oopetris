@@ -111,14 +111,12 @@ export EDK2_LLVM_ROOT="$TOOLCHAIN_DIR/llvm-project"
 if [ ! -d "$EDK2_LLVM_ROOT" ]; then
 
     git clone --filter=blob:none --sparse https://github.com/llvm/llvm-project.git "$EDK2_LLVM_ROOT"
-    git -C "$EDK2_LLVM_ROOT" sparse-checkout set libcxx
+    git -C "$EDK2_LLVM_ROOT" sparse-checkout set libcxx libc libcxxabi
 else
     git -C "$EDK2_LLVM_ROOT" fetch
 fi
 
-git -C "$EDK2_LLVM_ROOT" checkout "$EDK2_LIBCXX_RELEASE_TAG"
-
-export EDK2_LIBCXX_ROOT="$EDK2_LLVM_ROOT/libcxx"
+git -C "$EDK2_LLVM_ROOT" checkout "$EDK2_LLVM_RELEASE_TAG"
 
 export EDK_TOOLS_PATH="$EDK2_ROOT/BaseTools"
 export PACKAGES_PATH="$EDK2_ROOT"
@@ -174,14 +172,14 @@ else
     echo -e "$STDLIB_PACKAGE_INCLUDE\n" >>"$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM"
 fi
 
-# add libcxx to active platform
+# add llvm to active platform
 
-LIBCXX_PACKAGE_INCLUDE="!include LibCXX/LibCXXPkg.inc"
+LLVM_PACKAGE_INCLUDE="!include LLVM/LLVMPkg.inc"
 
-if grep -q "$LIBCXX_PACKAGE_INCLUDE" "$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM"; then
+if grep -q "$LLVM_PACKAGE_INCLUDE" "$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM"; then
     : # found already, do nothing
 else
-    echo -e "$LIBCXX_PACKAGE_INCLUDE\n" >>"$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM"
+    echo -e "$LLVM_PACKAGE_INCLUDE\n" >>"$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM"
 fi
 
 EDK2_TARGET_PROPERTIES_BUILDTYPE="$(echo "$BUILDTYPE" | tr "[:lower:]" "[:upper:]")"
@@ -214,8 +212,8 @@ for EDK2_LIB_PACKAGE in "${EDK2_LIB_PACKAGES[@]}"; do
 
 done
 
-if ! [ -e "$WORKSPACE/LibCXX" ]; then
-    link_files_checked "$EDK2_LIBCXX_ROOT" "$WORKSPACE/LibCXX"
+if ! [ -e "$WORKSPACE/LLVM" ]; then
+    link_files_checked "$EDK2_LLVM_ROOT" "$WORKSPACE/LLVM"
 fi
 
 LIBRARY_PKG_ROOT="$WORKSPACE/LibraryPkg"
@@ -278,10 +276,9 @@ export PKG_CONFIG_PATH="$SYS_ROOT/lib/pkgconfig"
 export LINK_FLAGS="$COMMON_FLAGS"
 export COMPILE_FLAGS="$COMMON_FLAGS ,'--sysroot=${SYS_ROOT}', '-D__UEFI__', '-DEFIAPI=__attribute__((ms_abi))', '-fexceptions', '-fshort-wchar', '-fno-builtin', '-fno-strict-aliasing', '-fno-common', '-fstack-protector', '-ffunction-sections', '-fdata-sections', '-fno-asynchronous-unwind-tables', '-fno-omit-frame-pointer', '-DAUDIO_PREFER_MP3'"
 
-export CC_COMPILE_FLAGS="'-nostdinc', '-I$WORKSPACE/StdLib/Include', '-I$WORKSPACE/StdLib/Include/$EDK2_TARGET_PROPERTIES_ARCH'"
+export CC_COMPILE_FLAGS="'-nostdinc', '-I$WORKSPACE/StdLib/Include', '-I$WORKSPACE/StdLib/Include/$EDK2_TARGET_PROPERTIES_ARCH',  '-I$WORKSPACE/MdePkg/Include', '-I$WORKSPACE/MdePkg/Include/$EDK2_TARGET_PROPERTIES_ARCH'"
 
-#TODO use libc++ built for UEFI
-export CXX_COMPILE_FLAGS="'-fno-exceptions', '-fno-threadsafe-statics', '-fno-use-cxa-atexit', '-fno-unwind-tables', '-fno-asynchronous-unwind-tables', '-nostdinc++', '-nodefaultlibs', '-I$WORKSPACE/LibCXX/include'"
+export CXX_COMPILE_FLAGS="'-fno-exceptions', '-fno-threadsafe-statics', '-fno-use-cxa-atexit', '-fno-unwind-tables', '-fno-asynchronous-unwind-tables', '-nostdinc++', '-nodefaultlibs', '-I$WORKSPACE/LLVM/libcxx/include', $CC_COMPILE_FLAGS"
 
 export CROSS_FILE="./platforms/crossbuild/uefi.ini"
 

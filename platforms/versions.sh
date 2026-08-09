@@ -37,4 +37,4 @@ export EDK2_RELEASE_TAG="edk2-stable202605"
 
 export EDK2_LIBC_COMMIT_HASH="c8313c11c2dc43647aa4c9f73baf3b323c68ecba"
 
-export EDK2_LIBCXX_RELEASE_TAG="llvmorg-22.1.8"
+export EDK2_LLVM_RELEASE_TAG="llvmorg-22.1.8"
