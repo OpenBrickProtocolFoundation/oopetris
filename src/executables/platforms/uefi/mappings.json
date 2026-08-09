@@ -56,7 +56,8 @@
             "version": "spdlog",
             "options": [
                 "-DSPDLOG_NO_EXCEPTIONS=1",
-                "-DSPDLOG_NO_TLS=1"
+                "-DSPDLOG_NO_TLS=1",
+                "-DFMT_USE_INT128=0"
             ]
         },
         "SDL2ImagePkg": {

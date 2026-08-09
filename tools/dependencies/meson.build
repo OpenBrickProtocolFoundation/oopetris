@@ -155,6 +155,7 @@ if (
     temp += '-DJSON_NOEXCEPTION=1'
     temp += '-DSPDLOG_NO_EXCEPTIONS=1'
     temp += '-DUTFCPP_NO_EXCEPTIONS=1'
+    temp += '-DFMT_USE_INT128=0'
     core_lib += {
         'compile_args': temp,
     }
