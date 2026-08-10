@@ -25,6 +25,7 @@ EDK2_BUILD_COMMAND="$(jq -M -r -c '.["build"]' "$UEFI_INFO_FILE")"
 EDK2_TARGET_PROPERTIES_ARCH="$(jq -M -r -c '.["arch"]' "$UEFI_INFO_FILE")"
 WORKSPACE="$(jq -M -r -c '.["workspace"]' "$UEFI_INFO_FILE")"
 EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM="$(jq -M -r -c '.["platform"]' "$UEFI_INFO_FILE")"
+EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM_NAME="$(jq -M -r -c '.["platform_name"]' "$UEFI_INFO_FILE")"
 EDK2_TARGET_PROPERTIES_BUILDTYPE="$(jq -M -r -c '.["buildtype"]' "$UEFI_INFO_FILE")"
 EDK2_TARGET_PROPERTIES_TOOLCHAIN="$(jq -M -r -c '.["toolchain"]' "$UEFI_INFO_FILE")"
 
@@ -56,9 +57,20 @@ fi
     -t "$EDK2_TARGET_PROPERTIES_TOOLCHAIN" \
     -w # -v # verbose
 
-OUTPUT_FILE="TODO"
+##TODO: un-hardcode this
+##NOTE: this is just hardcoded
+PACKAGE_NAME="OOPetrisApplication"
+
+if [ "$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM_NAME" == "MdeModulePkg/MdeModulePkg.dsc" ]; then
+    MODULE_NAME="MdeModule"
+else
+    echo "MODULE_NAME mapping not supported for platform: $EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM_NAME" >&2
+    exit 2
+fi
+
+OUTPUT_FILE="$WORKSPACE/Build/$MODULE_NAME/${EDK2_TARGET_PROPERTIES_BUILDTYPE}_${EDK2_TARGET_PROPERTIES_TOOLCHAIN}/${EDK2_TARGET_PROPERTIES_ARCH}/$PACKAGE_NAME.efi"
 
 # link the output .efi to the correct location
-
-echo "TODO"
-exit 45
+if ! [ -e "$DEST_FILE" ]; then
+    link_files_checked "$OUTPUT_FILE" "$DEST_FILE"
+fi
