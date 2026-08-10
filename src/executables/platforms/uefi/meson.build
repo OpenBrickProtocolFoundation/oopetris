@@ -109,22 +109,27 @@ if _qemu_system_exe.found()
             build_by_default: false,
         )
 
+        emulate_command = [
+            _qemu_system_exe,
+            '-cpu',
+            'qemu64',
+            '-drive',
+            'if=pflash,format=raw,unit=0,file=' + OVMF_CODE_fd_path + ',readonly=on',
+            '-drive',
+            'if=pflash,format=raw,unit=1,file=' + OVMF_VARS_fd_path,
+            '-drive',
+            'format=raw,file=fat:rw:' + fat_folder_loc,
+            '-net',
+            'none',
+        ]
+
+        if get_option('buildtype') != 'release'
+            emulate_command += ['-debugcon', 'stdio', '-global', 'isa-debugcon.iobase=0x402']
+        endif
 
         run_target(
             'emulate_efi',
-            command: [
-                _qemu_system_exe,
-                '-cpu',
-                'qemu64',
-                '-drive',
-                'if=pflash,format=raw,unit=0,file=' + OVMF_CODE_fd_path + ',readonly=on',
-                '-drive',
-                'if=pflash,format=raw,unit=1,file=' + OVMF_VARS_fd_path,
-                '-drive',
-                'format=raw,file=fat:rw:' + fat_folder_loc,
-                '-net',
-                'none',
-            ],
+            command: emulate_command,
             depends: [oopetris_efi, fat_folder],
         )
     else

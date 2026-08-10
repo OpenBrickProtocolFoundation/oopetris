@@ -21,9 +21,13 @@ else
     exit 1
 fi
 
-mkdir -p "$FAT_FOLDER_LOC"
+rm -rf "$FAT_FOLDER_LOC"
 
-DEST_FILE="$FAT_FOLDER_LOC/$(basename "$EFI_FILE")"
+BOOT_FOLDER_LOC="$FAT_FOLDER_LOC/EFI/BOOT"
+
+mkdir -p "$BOOT_FOLDER_LOC"
+
+DEST_FILE="$BOOT_FOLDER_LOC/BOOTX64.EFI"
 
 # copy the output .efi to the correct location
 if ! [ -e "$DEST_FILE" ]; then
