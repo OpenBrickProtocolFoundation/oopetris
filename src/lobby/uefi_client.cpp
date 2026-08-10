@@ -433,6 +433,10 @@ static EFI_STATUS FindNetworkController(OUT EFI_HANDLE* Controller) {
     EFI_HANDLE* Handles = NULL;
     UINTN HandleCount = 0;
 
+    if(!gBS){
+        return EFI_NOT_READY;
+    }
+
     EFI_STATUS Status = gBS->LocateHandleBuffer(
             ByProtocol, &gEfiManagedNetworkServiceBindingProtocolGuid, NULL, &HandleCount, &Handles
     );

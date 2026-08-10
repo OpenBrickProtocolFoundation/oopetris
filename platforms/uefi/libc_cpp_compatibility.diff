@@ -1,0 +1,146 @@
+diff --git a/StdLib/Include/assert.h b/StdLib/Include/assert.h
+index 26c7037..5296e9a 100644
+--- a/StdLib/Include/assert.h
++++ b/StdLib/Include/assert.h
+@@ -25,6 +25,9 @@
+   THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+   WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+ **/
++
++#ifndef _ASSERT_H_
++#define _ASSERT_H_
+ #include  <sys/EfiCdefs.h>
+ 
+ #undef  assert        ///< Remove any existing definition for assert.
+@@ -49,6 +52,7 @@
+                   current application and returns to the environment that
+                   the application was launched from.
+ **/
++__BEGIN_DECLS
+ extern void
+ __assert(const char *file, const char *func, int line, const char *failedexpr);
+ 
+@@ -78,5 +82,8 @@ __assert(const char *file, const char *func, int line, const char *failedexpr);
+ #define assert(Expression)   ((Expression) ? (void)0 :\
+                               __assert(__FILE__, __func__, __LINE__, #Expression) )
+ #endif
++__END_DECLS
+ /// @}
+ /* END of file assert.h */
++
++#endif  /* _ASSERT_H_ */
+diff --git a/StdLib/Include/math.h b/StdLib/Include/math.h
+index 3041120..9eb0be2 100644
+--- a/StdLib/Include/math.h
++++ b/StdLib/Include/math.h
+@@ -288,6 +288,14 @@ double  sqrt(double Arg);
+ **/
+ double  ceil(double Arg);
+ 
++/** Compute the smallest integer value not less than Arg.
++
++    @param[in]    Arg   The value to compute the ceiling of.
++
++    @return   The ceiling of Arg expressed as a floating-point number.
++**/
++float  ceilf(float Arg);
++
+ /** Compute the absolute value of Arg.
+ 
+     @param[in]    Arg   The value to compute the absolute value of.
+diff --git a/StdLib/Include/time.h b/StdLib/Include/time.h
+index ecef1e2..7d7f70e 100644
+--- a/StdLib/Include/time.h
++++ b/StdLib/Include/time.h
+@@ -138,6 +138,7 @@
+     broken-down time.  The first nine (9) members are as mandated by the
+     C95 standard.  Additional fields have been added for EFI support.
+ **/
++__BEGIN_DECLS
+ struct tm {
+   int     tm_year;      // years since 1900
+   int     tm_mon;       // months since January  [0, 11]
+@@ -430,5 +431,5 @@ char *strptime(const char *, const char * format, struct tm*);
+ /* #################  Implementation Functions  ########################### */
+ 
+ clock_t __getCPS(void);
+-
++__END_DECLS
+ #endif  /* _TIME_H */
+diff --git a/StdLib/Include/wchar.h b/StdLib/Include/wchar.h
+index 3acc2a4..59e9d61 100644
+--- a/StdLib/Include/wchar.h
++++ b/StdLib/Include/wchar.h
+@@ -455,6 +455,7 @@ struct  tm;
+               transmitted, or a negative value if an output or encoding error
+               occurred.
+ **/
++__BEGIN_DECLS
+ int fwprintf(FILE * __restrict stream, const wchar_t * __restrict format, ...);
+ 
+ /** The fwscanf function reads input from the stream pointed to by stream,
+@@ -1549,4 +1550,6 @@ size_t mbsrtowcs(wchar_t * __restrict dst, const char ** __restrict src, size_t
+ **/
+ size_t wcsrtombs(char * __restrict dst, const wchar_t ** __restrict src, size_t len, mbstate_t * __restrict ps);
+ 
++__END_DECLS
++
+ #endif  /* _WCHAR_H */
+diff --git a/StdLib/LibC/Math/s_ceil.c b/StdLib/LibC/Math/s_ceil.c
+index e9579fa..64611d4 100644
+--- a/StdLib/LibC/Math/s_ceil.c
++++ b/StdLib/LibC/Math/s_ceil.c
+@@ -72,3 +72,7 @@ ceil(double x)
+   INSERT_WORDS(x,i0,i1);
+   return x;
+ }
++
++float  ceilf(float x){
++  return (float)ceil((double)x);
++}
+diff --git a/StdLib/LibC/Stdio/Stdio.inf b/StdLib/LibC/Stdio/Stdio.inf
+index fe87242..df122fa 100644
+--- a/StdLib/LibC/Stdio/Stdio.inf
++++ b/StdLib/LibC/Stdio/Stdio.inf
+@@ -90,6 +90,7 @@
+   swprintf.c          #
+   swscanf.c           #
+   ungetwc.c           #
++  vasprintf.c         #
+   vfwscanf.c          #
+   vswprintf.c         #
+   vswscanf.c          #
+diff --git a/StdLib/LibC/Stdio/vasprintf.c b/StdLib/LibC/Stdio/vasprintf.c
+index 3a36468..e8ba589 100644
+--- a/StdLib/LibC/Stdio/vasprintf.c
++++ b/StdLib/LibC/Stdio/vasprintf.c
+@@ -39,12 +39,9 @@ __RCSID("$NetBSD: vasprintf.c,v 1.10 2005/02/09 21:35:47 kleink Exp $");
+ #include "reentrant.h"
+ #include "local.h"
+ 
+-int
+-vasprintf(str, fmt, ap)
+-  char **str;
+-  const char *fmt;
+-  _BSD_VA_LIST_ ap;
+-{
++#include <stdarg.h>
++
++int vasprintf( char **str, const char *fmt, va_list ap){
+   int ret;
+   FILE f;
+   struct __sfileext fext;
+diff --git a/StdLib/LibC/gdtoa/gdtoa.inf b/StdLib/LibC/gdtoa/gdtoa.inf
+index 9d975bb..44af305 100644
+--- a/StdLib/LibC/gdtoa/gdtoa.inf
++++ b/StdLib/LibC/gdtoa/gdtoa.inf
+@@ -61,6 +61,9 @@
+   sum.c
+   ulp.c
+ 
++  _strtof.c
++  _strtold.c
++
+ [Packages]
+   StdLib/StdLib.dec
+   StdLibPrivateInternalFiles/DoNotUse.dec

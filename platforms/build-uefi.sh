@@ -121,20 +121,28 @@ git -C "$EDK2_LLVM_ROOT" checkout "$EDK2_LLVM_RELEASE_TAG"
 export EDK_TOOLS_PATH="$EDK2_ROOT/BaseTools"
 export PACKAGES_PATH="$EDK2_ROOT"
 
-EDK2_PATCH_FILE="$EDK2_ROOT/.patched_manually.meta"
-
 PATCH_DIR="platforms/uefi"
+
+EDK2_PATCH_FILE="$EDK2_ROOT/.patched_manually.meta"
 
 if ! [ -e "$EDK2_PATCH_FILE" ]; then
     ##TODO: upstream those patches
-    # see: https://github.com/emscripten-core/emscripten/pull/18379
-    # and: https://github.com/emscripten-core/emscripten/pull/22946
 
     git apply --unsafe-paths -p1 --directory="$EDK2_ROOT" "$PATCH_DIR/cxx_compiler.diff"
     git apply --unsafe-paths -p1 --directory="$EDK2_ROOT" "$PATCH_DIR/ssl_lib.diff"
     git apply --unsafe-paths -p1 --directory="$EDK2_ROOT" "$PATCH_DIR/ssl_lib_compile_with_libc.diff"
 
     touch "$EDK2_PATCH_FILE"
+fi
+
+EDK2_LIBC_PATCH_FILE="$EDK2_LIBC_ROOT/.patched_manually.meta"
+
+if ! [ -e "$EDK2_LIBC_PATCH_FILE" ]; then
+    ##TODO: upstream those patches
+
+    git apply --unsafe-paths -p1 --directory="$EDK2_LIBC_ROOT" "$PATCH_DIR/libc_cpp_compatibility.diff"
+
+    touch "$EDK2_LIBC_PATCH_FILE"
 fi
 
 export BUILD_DIR="build/uefi"
