@@ -61,8 +61,10 @@ if [ "$RUNTIME_TARGET" == "emulator" ]; then
     : # noop
 elif [ "$RUNTIME_TARGET" == "hardware" ]; then
     : # noop
+elif [ "$RUNTIME_TARGET" == "ovmf" ]; then
+    : # noop
 else
-    echo "Invalid RUNTIME_TARGET, expected: 'emulator' or 'hardware'" >&2
+    echo "Invalid RUNTIME_TARGET, expected: 'emulator' 'hardware' or 'ovmf'" >&2
     exit 1
 fi
 
@@ -166,6 +168,8 @@ if [ "$RUNTIME_TARGET" == "emulator" ]; then
     EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM="EmulatorPkg/EmulatorPkg.dsc"
 elif [ "$RUNTIME_TARGET" == "hardware" ]; then
     EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM="MdeModulePkg/MdeModulePkg.dsc"
+elif [ "$RUNTIME_TARGET" == "ovmf" ]; then
+    EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM="OvmfPkg/OvmfPkgX64.dsc"
 else
     echo "Invalid RUNTIME_TARGET, expected: 'emulator' or 'hardware'" >&2
     exit 1
@@ -265,8 +269,8 @@ export CXX="$SCRIPT_DIR/uefi/g++-wrapper.sh"
 
 export AR="$SCRIPT_DIR/uefi/ar-wrapper.sh"
 export RANLIB=""
-export STRIP=""
-export NM=""
+export STRIP="false"
+export NM="nm"
 
 export PKG_CONFIG_EXEC="$SCRIPT_DIR/uefi/pkg-config-wrapper.sh"
 
@@ -389,8 +393,9 @@ if [ "$COMPILE_TYPE" == "complete_rebuild" ] || [ ! -e "$BUILD_DIR" ]; then
         -Dtests=false \
         --force-fallback-for="fmt,nlohmann_json,magic_enum,utf8cpp,sdl2_ttf,freetype2,spdlog,argparse,sdl2_image" \
         --wrap-mode=nofallback \
-        "-Drun_in_ci=$RUN_IN_CI" #TODO: enable \
-    #--fatal-meson-warnings
+        "-Drun_in_ci=$RUN_IN_CI" \
+        -Dstrip=false \
+        --fatal-meson-warnings
 
     if ! [ -L "$WORKSPACE/GeneratedPackages" ]; then
 

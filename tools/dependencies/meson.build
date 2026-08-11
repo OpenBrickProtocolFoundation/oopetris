@@ -134,7 +134,7 @@ if meson.is_cross_build()
         }
 
     elif host_machine.system() == 'uefi'
-        warning('TODO: implement')
+        # nothing special to do for uefi
     else
         error('Unhandled cross built system: ' + host_machine.system())
     endif

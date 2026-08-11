@@ -294,6 +294,7 @@ if [ "$MESON_TARGETS_INFO_LIB_LANGUAGE" == "cpp" ]; then
   for CPP_LIBRARY in "${CPP_LIBRARIES[@]}"; do
     DEP_CLASSES+=("$CPP_LIBRARY")
   done
+  DEP_PACKAGES+=("LLVM/LLVMPkg.dec")
 elif [ "$MESON_TARGETS_INFO_LIB_LANGUAGE" == "c" ]; then
   FLAGS_TARGET="CC"
 else
@@ -352,10 +353,11 @@ done
 
 # TODO: what should i do here, archives alias static_libraries don't specify argument, but executables and shared libraries hae -Wl -l or similar arguments
 if [ "$MESON_TARGETS_INFO_LIB_TYPE" == "static library" ]; then
-  echo "TODO"
+  #TODO: maybe do something based on the json information we have?
+  :
 elif [ "$MESON_TARGETS_INFO_LIB_TYPE" == "executable" ] || [ "$MESON_TARGETS_INFO_LIB_TYPE" == "shared library" ]; then
-  echo "TODO"
-  # exit 34
+  #TODO: maybe do something based on the json information we have?
+  :
 else
   echo "Error: invalid meson target type for '$SOURCE_FILE_ENTRY_MESON_NAME': $MESON_TARGETS_INFO_LIB_TYPE" >&2
   exit 2
@@ -394,14 +396,22 @@ if [ "$MAPPING_TYPE" == "application" ]; then
 $(expand_array_inf "${DEP_SOURCES[@]}")
 
 [Packages]
+# basic deps
   MdePkg/MdePkg.dec
   StdLib/StdLib.dec
+  LLVM/LLVMPkg.dec
+# dynamic deps
 $(expand_array_inf "${DEP_PACKAGES[@]}")
 
 [LibraryClasses]
+# MdePkg
   UefiApplicationEntryPoint
   UefiLib
+# C Libs
 $(expand_array_inf "${C_LIBRARIES[@]}")
+# CPP Libs
+$(expand_array_inf "${CPP_LIBRARIES[@]}")
+# Dep Classes
 $(expand_array_inf "${DEP_CLASSES[@]}")
 
 [Guids]
@@ -464,14 +474,18 @@ elif [ "$MAPPING_TYPE" == "library" ]; then
 $(expand_array_inf "${DEP_SOURCES[@]}")
 
 [Packages]
+# basic deps
   MdePkg/MdePkg.dec
   StdLib/StdLib.dec
+# dynamic deps
 $(expand_array_inf "${DEP_PACKAGES[@]}")
 
 [LibraryClasses]
+# MdePkg
   UefiLib
+# C Libs
 $(expand_array_inf "${C_LIBRARIES[@]}")
-$(expand_array_inf "${CPP_LIBRARIES[@]}")
+# Dep Classes
 $(expand_array_inf "${DEP_CLASSES[@]}")
 
 [BuildOptions]

@@ -473,7 +473,7 @@ EOF
 
 done
 
-# TODO only copy the supported music ones (atm we need both for i686 flac is needed!)
+# TODO only copy the supported music ones (atm we need both, for i686 flac is needed!)
 
 cp -r ./assets/ platforms/android/app/src/main
 

@@ -47,7 +47,7 @@ for ARG in "${ARGS[@]}"; do
         change_mode "link"
         LINK_ARG="${ARG:4}"
         case "$LINK_ARG" in
-        --as-needed | --no-undefined | --whole-archive | --no-whole-archive | -O* | -soname,* | -rpath,*)
+        --as-needed | --no-undefined | --fatal-warnings | --whole-archive | --no-whole-archive | -O* | -soname,* | -rpath,*)
             # ignore, valid arguments
             ;;
         --start-group)
