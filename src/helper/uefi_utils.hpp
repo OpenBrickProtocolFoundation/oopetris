@@ -16,7 +16,7 @@
 #include <string>
 
 
-#include <core/helper/uefi_debug.hpp>
+#include <core/helper/uefi_debug.h>
 
 
 namespace uefi {
