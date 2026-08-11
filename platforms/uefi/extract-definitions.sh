@@ -398,8 +398,8 @@ $(expand_array_inf "${DEP_SOURCES[@]}")
 [Packages]
 # basic deps
   MdePkg/MdePkg.dec
-  StdLib/StdLib.dec
   LLVM/LLVMPkg.dec
+  StdLib/StdLib.dec
 # dynamic deps
 $(expand_array_inf "${DEP_PACKAGES[@]}")
 
@@ -476,9 +476,10 @@ $(expand_array_inf "${DEP_SOURCES[@]}")
 [Packages]
 # basic deps
   MdePkg/MdePkg.dec
-  StdLib/StdLib.dec
 # dynamic deps
 $(expand_array_inf "${DEP_PACKAGES[@]}")
+# stdlib
+  StdLib/StdLib.dec
 
 [LibraryClasses]
 # MdePkg
