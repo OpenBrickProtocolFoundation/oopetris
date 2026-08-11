@@ -917,7 +917,7 @@ index 064f838..0dd1d99 100644
 +#if defined(__UEFI__)
 +#define UTFCPP_THROW(exc)                                                                                       \
 +    do {                                                                                                 \
-+        DebugPrint(DEBUG_ERROR, "THROW %s:%d - %s: %s\n", __FILE__, __LINE__, __FUNCTION__, exc.what()); \
++        DEBUG((DEBUG_ERROR, "THROW %s:%d - %s: %s\n", __FILE__, __LINE__, __FUNCTION__, exc.what())); \
 +        abort();                                                                                         \
 +    } while (false)
 +#else

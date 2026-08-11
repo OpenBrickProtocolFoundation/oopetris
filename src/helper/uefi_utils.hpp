@@ -16,12 +16,11 @@
 #include <string>
 
 
-#include <Library/DebugLib.h>
+#include <core/helper/uefi_debug.hpp>
+
 
 namespace uefi {
 
-
     [[nodiscard]] std::shared_ptr<spdlog::sinks::callback_sink_st> get_debug_sink();
-
 
 }; // namespace uefi

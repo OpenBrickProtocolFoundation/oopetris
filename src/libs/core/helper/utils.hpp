@@ -16,7 +16,7 @@
 #include <utility>
 
 #if defined(__UEFI__)
-#include <Library/DebugLib.h>
+#include "./uefi_debug.h"
 #endif
 
 namespace helper {
@@ -132,7 +132,7 @@ namespace utils {
     [[noreturn]] inline void throw_(E&& exc) { //NOLINT(readability-identifier-naming)
 #if defined(__OOPETRIS_NO_EXCEPTIONS)
 #if defined(__UEFI__)
-        DebugPrint(DEBUG_ERROR, "Exception: %s", exc.what());
+        EFI_DEBUG((DEBUG_ERROR, "Exception: %s", exc.what()));
 #else
         std::cerr << "Exception: " << exc.what() << "\n";
 #endif
@@ -156,10 +156,10 @@ namespace utils {
 
 #if !defined(NDEBUG)
 #if defined(__UEFI__)
-#define UNREACHABLE() /* NOLINT(cppcoreguidelines-macro-usage)*/                               \
-    do {              /* NOLINT(cppcoreguidelines-avoid-do-while)*/                            \
-        DebugPrint(DEBUG_ERROR, "UNREACHABLE %s:%d - %s\n", __FILE__, __LINE__, __FUNCTION__); \
-        utils::unreachable();                                                                  \
+#define UNREACHABLE() /* NOLINT(cppcoreguidelines-macro-usage)*/                                \
+    do {              /* NOLINT(cppcoreguidelines-avoid-do-while)*/                             \
+        EFI_DEBUG((DEBUG_ERROR, "UNREACHABLE %s:%d - %s\n", __FILE__, __LINE__, __FUNCTION__)); \
+        utils::unreachable();                                                                   \
     } while (false)
 #else
 #define UNREACHABLE()                             /* NOLINT(cppcoreguidelines-macro-usage)*/                       \

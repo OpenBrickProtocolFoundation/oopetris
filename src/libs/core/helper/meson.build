@@ -29,6 +29,7 @@ _header_files = files(
     'string_manipulation.hpp',
     'timer.hpp',
     'types.hpp',
+    'uefi_debug.h',
     'utils.hpp',
     'versions.hpp',
 )
