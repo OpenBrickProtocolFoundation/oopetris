@@ -109,6 +109,11 @@ if _qemu_system_exe.found()
             build_by_default: false,
         )
 
+        user_vars_fd = fs.copyfile(
+            OVMF_VARS_fd_path,
+            'OVMF_VARS.fd',
+        )
+
         emulate_command = [
             _qemu_system_exe,
             '-cpu',
@@ -116,7 +121,7 @@ if _qemu_system_exe.found()
             '-drive',
             'if=pflash,format=raw,unit=0,file=' + OVMF_CODE_fd_path + ',readonly=on',
             '-drive',
-            'if=pflash,format=raw,unit=1,file=' + OVMF_VARS_fd_path,
+            'if=pflash,format=raw,unit=1,file=' + user_vars_fd.full_path(),
             '-drive',
             'format=raw,file=fat:rw:' + fat_folder_loc,
             '-net',
@@ -124,8 +129,17 @@ if _qemu_system_exe.found()
         ]
 
         if get_option('buildtype') != 'release'
-            emulate_command += ['-debugcon', 'stdio', '-global', 'isa-debugcon.iobase=0x402']
+            emulate_command += [
+                '-debugcon',
+                'stdio',
+                '-global',
+                'isa-debugcon.iobase=0x402',
+                '-s',
+                '-S',
+            ]
         endif
+
+
 
         run_target(
             'emulate_efi',

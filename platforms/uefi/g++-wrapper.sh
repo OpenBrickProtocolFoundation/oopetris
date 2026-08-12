@@ -18,8 +18,6 @@ TOOL="G++"
 # shellcheck source=./platforms/uefi/base.sh
 source "$SCRIPT_DIR/base.sh"
 
-COMPILED=()
-
 # Capture all args
 ARGS=("$@")
 

@@ -95,7 +95,7 @@ else
     git -C "$EDK2_ROOT" fetch
 fi
 
-git -C "$EDK2_ROOT" checkout "$EDK2_RELEASE_TAG"
+git -C "$EDK2_ROOT" checkout "$EDK2_COMMIT_HASH"
 git -C "$EDK2_ROOT" submodule update --init
 
 export EDK2_LIBC_ROOT="$TOOLCHAIN_DIR/edk2-libc"
@@ -112,13 +112,13 @@ export EDK2_LLVM_ROOT="$TOOLCHAIN_DIR/llvm-project"
 
 if [ ! -d "$EDK2_LLVM_ROOT" ]; then
 
-    git clone --filter=blob:none --sparse https://github.com/llvm/llvm-project.git "$EDK2_LLVM_ROOT"
-    git -C "$EDK2_LLVM_ROOT" sparse-checkout set libcxx libc libcxxabi
+    git clone --filter=blob:none --sparse https://github.com/Totto16/llvm-project.git "$EDK2_LLVM_ROOT"
+    git -C "$EDK2_LLVM_ROOT" sparse-checkout set libcxx libc libcxxabi libunwind
 else
     git -C "$EDK2_LLVM_ROOT" fetch
 fi
 
-git -C "$EDK2_LLVM_ROOT" checkout "$EDK2_LLVM_RELEASE_TAG"
+git -C "$EDK2_LLVM_ROOT" checkout "$EDK2_LLVM_PORT_BRANCH"
 
 export EDK_TOOLS_PATH="$EDK2_ROOT/BaseTools"
 export PACKAGES_PATH="$EDK2_ROOT"
@@ -245,9 +245,6 @@ for EDK2_PORT_KEY in "${!EDK2_PORT_NAMES[@]}"; do
 
     EDK2_PORT_ROOT="$TOOLCHAIN_DIR/$EDK2_PORT_NAME"
 
-    #TODO: use after sdl2 packages are ported
-    continue
-
     if [ ! -d "$EDK2_PORT_ROOT" ]; then
         git clone "$EDK2_PORT_URL" "$EDK2_PORT_ROOT"
     else
@@ -365,7 +362,8 @@ export EDK2_INFO_FILE="./platforms/crossbuild/uefi_info.json"
 
 validate_parent_dir "$EDK2_INFO_FILE"
 
-export EDK2_GENERATED_PACKAGES="$(pwd)/$BUILD_DIR/GeneratedPackages"
+EDK2_GENERATED_PACKAGES="$(pwd)/$BUILD_DIR/GeneratedPackages"
+export EDK2_GENERATED_PACKAGES
 
 cat <<EOF >"$EDK2_INFO_FILE"
 {
