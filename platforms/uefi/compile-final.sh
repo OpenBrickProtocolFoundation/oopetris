@@ -28,6 +28,7 @@ EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM="$(jq -M -r -c '.["platform"]' "$UEFI_INF
 EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM_NAME="$(jq -M -r -c '.["platform_name"]' "$UEFI_INFO_FILE")"
 EDK2_TARGET_PROPERTIES_BUILDTYPE="$(jq -M -r -c '.["buildtype"]' "$UEFI_INFO_FILE")"
 EDK2_TARGET_PROPERTIES_TOOLCHAIN="$(jq -M -r -c '.["toolchain"]' "$UEFI_INFO_FILE")"
+EDK2_TARGET_PROPERTIES_RUNTIME_TARGET="$(jq -M -r -c '.["runtime_target"]' "$UEFI_INFO_FILE")"
 
 BUILD_NAME=$(basename -- $"$BUILD_INF")
 
@@ -55,14 +56,15 @@ fi
     -m "$BUILD_FILE_TARGET" \
     -b "$EDK2_TARGET_PROPERTIES_BUILDTYPE" \
     -t "$EDK2_TARGET_PROPERTIES_TOOLCHAIN" \
+    -D "OOPETRIS_RUNTIME_TARGET=$EDK2_TARGET_PROPERTIES_RUNTIME_TARGET" \
     -w # -v # verbose
 
 ##TODO: un-hardcode this
 ##NOTE: this is just hardcoded
 PACKAGE_NAME="OOPetrisApplication"
 
-if [ "$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM_NAME" == "MdeModulePkg/MdeModulePkg.dsc" ]; then
-    MODULE_NAME="MdeModule"
+if [ "$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM_NAME" == "Platforms/OOPetrisPlatform.dsc" ]; then
+    MODULE_NAME="OOPetrisModule"
 else
     echo "MODULE_NAME mapping not supported for platform: $EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM_NAME" >&2
     exit 2

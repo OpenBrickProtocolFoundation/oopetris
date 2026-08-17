@@ -14,7 +14,7 @@ export BUILDTYPE="debug"
 
 export RUN_IN_CI="false"
 
-export RUNTIME_TARGET="hardware"
+export RUNTIME_TARGET="emulator"
 
 if [ "$#" -eq 0 ]; then
     # nothing
@@ -61,10 +61,8 @@ if [ "$RUNTIME_TARGET" == "emulator" ]; then
     : # noop
 elif [ "$RUNTIME_TARGET" == "hardware" ]; then
     : # noop
-elif [ "$RUNTIME_TARGET" == "ovmf" ]; then
-    : # noop
 else
-    echo "Invalid RUNTIME_TARGET, expected: 'emulator' 'hardware' or 'ovmf'" >&2
+    echo "Invalid RUNTIME_TARGET, expected: 'emulator' or 'hardware'" >&2
     exit 1
 fi
 
@@ -95,7 +93,7 @@ else
     git -C "$EDK2_ROOT" fetch
 fi
 
-git -C "$EDK2_ROOT" checkout "$EDK2_COMMIT_HASH"
+git -C "$EDK2_ROOT" checkout "$EDK2_RELEASE_TAG"
 git -C "$EDK2_ROOT" submodule update --init
 
 export EDK2_LIBC_ROOT="$TOOLCHAIN_DIR/edk2-libc"
@@ -123,16 +121,21 @@ git -C "$EDK2_LLVM_ROOT" checkout "$EDK2_LLVM_PORT_BRANCH"
 export EDK_TOOLS_PATH="$EDK2_ROOT/BaseTools"
 export PACKAGES_PATH="$EDK2_ROOT"
 
-PATCH_DIR="platforms/uefi"
+PLATFORMS_DIR="$(pwd)/platforms/uefi"
+
+PATCH_DIR="$PLATFORMS_DIR"
 
 EDK2_PATCH_FILE="$EDK2_ROOT/.patched_manually.meta"
 
 if ! [ -e "$EDK2_PATCH_FILE" ]; then
     ##TODO: upstream those patches
 
+    #TODO: use loop for this patches
+
     git apply --unsafe-paths -p1 --directory="$EDK2_ROOT" "$PATCH_DIR/cxx_compiler.diff"
     git apply --unsafe-paths -p1 --directory="$EDK2_ROOT" "$PATCH_DIR/ssl_lib.diff"
     git apply --unsafe-paths -p1 --directory="$EDK2_ROOT" "$PATCH_DIR/ssl_lib_compile_with_libc.diff"
+    git apply --unsafe-paths -p1 --directory="$EDK2_ROOT" "$PATCH_DIR/use_arch_x86_64_v1.diff"
 
     touch "$EDK2_PATCH_FILE"
 fi
@@ -162,45 +165,14 @@ set -u
 
 export EDK2_CONF_TARGET="$EDK2_ROOT/Conf/target.txt"
 
-EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM="EmulatorPkg/EmulatorPkg.dsc"
-
-if [ "$RUNTIME_TARGET" == "emulator" ]; then
-    EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM="EmulatorPkg/EmulatorPkg.dsc"
-elif [ "$RUNTIME_TARGET" == "hardware" ]; then
-    EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM="MdeModulePkg/MdeModulePkg.dsc"
-elif [ "$RUNTIME_TARGET" == "ovmf" ]; then
-    EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM="OvmfPkg/OvmfPkgX64.dsc"
-else
-    echo "Invalid RUNTIME_TARGET, expected: 'emulator' or 'hardware'" >&2
-    exit 1
-fi
-
-# add stdlib to active platform
-
-STDLIB_PACKAGE_INCLUDE="!include StdLib/StdLib.inc"
-
-if grep -q "$STDLIB_PACKAGE_INCLUDE" "$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM"; then
-    : # found already, do nothing
-else
-    echo -e "$STDLIB_PACKAGE_INCLUDE\n" >>"$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM"
-fi
-
-# add llvm to active platform
-
-LLVM_PACKAGE_INCLUDE="!include LLVM/LLVMPkg.inc"
-
-if grep -q "$LLVM_PACKAGE_INCLUDE" "$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM"; then
-    : # found already, do nothing
-else
-    echo -e "$LLVM_PACKAGE_INCLUDE\n" >>"$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM"
-fi
+EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM_NAME="Platforms/OOPetrisPlatform.dsc"
 
 EDK2_TARGET_PROPERTIES_BUILDTYPE="$(echo "$BUILDTYPE" | tr "[:lower:]" "[:upper:]")"
 
 EDK2_TARGET_PROPERTIES_ARCH="X64"
 EDK2_TARGET_PROPERTIES_TOOLCHAIN="GCC"
 
-declare -A EDK2_TARGET_PROPERTIES=(["ACTIVE_PLATFORM"]="$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM" ["TARGET"]="$EDK2_TARGET_PROPERTIES_BUILDTYPE" ["TARGET_ARCH"]="$EDK2_TARGET_PROPERTIES_ARCH" ["TOOL_CHAIN_TAG"]="$EDK2_TARGET_PROPERTIES_TOOLCHAIN")
+declare -A EDK2_TARGET_PROPERTIES=(["ACTIVE_PLATFORM"]="$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM_NAME" ["TARGET"]="$EDK2_TARGET_PROPERTIES_BUILDTYPE" ["TARGET_ARCH"]="$EDK2_TARGET_PROPERTIES_ARCH" ["TOOL_CHAIN_TAG"]="$EDK2_TARGET_PROPERTIES_TOOLCHAIN")
 
 for EDK2_TARGET_PROPERTY in "${!EDK2_TARGET_PROPERTIES[@]}"; do
     EDK2_TARGET_PROPERTY_VALUE="${EDK2_TARGET_PROPERTIES[$EDK2_TARGET_PROPERTY]}"
@@ -277,7 +249,7 @@ export ENDIANESS="little"
 
 export ROMFS="platforms/romfs"
 
-export COMMON_FLAGS="'-m64', '-maccumulate-outgoing-args', '-mno-red-zone', '-mcmodel=small'"
+export COMMON_FLAGS="'-m64', '-march=x86-64', '-maccumulate-outgoing-args', '-mno-red-zone', '-mcmodel=small'"
 
 export SYS_ROOT="$WORKSPACE"
 
@@ -293,6 +265,8 @@ export CXX_COMPILE_FLAGS="'-fno-exceptions', '-fno-threadsafe-statics', '-fno-us
 export CROSS_FILE="./platforms/crossbuild/uefi.ini"
 
 validate_parent_dir "$CROSS_FILE"
+
+## note: UEFI_USE_GDB can be set via environment variables, to use gdb
 
 cat <<EOF >"$CROSS_FILE"
 [host_machine]
@@ -338,6 +312,8 @@ sys_root = '${SYS_ROOT}'
 needs_exe_wrapper = true
 
 APP_ROMFS='$ROMFS/assets/'
+RUNTIME_TARGET='$RUNTIME_TARGET'
+USE_GDB='${UEFI_USE_GDB:-false}'
 
 [cmake]
 
@@ -365,21 +341,54 @@ validate_parent_dir "$EDK2_INFO_FILE"
 EDK2_GENERATED_PACKAGES="$(pwd)/$BUILD_DIR/GeneratedPackages"
 export EDK2_GENERATED_PACKAGES
 
+export EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM="$WORKSPACE/$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM_NAME"
+
 cat <<EOF >"$EDK2_INFO_FILE"
 {
     "build": "$EDK2_BUILD_COMMAND",
     "arch": "$EDK2_TARGET_PROPERTIES_ARCH",
     "workspace": "$WORKSPACE",
-    "platform": "$WORKSPACE/$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM",
-    "platform_name": "$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM",
+    "platform": "$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM",
+    "platform_name": "$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM_NAME",
     "buildtype": "$EDK2_TARGET_PROPERTIES_BUILDTYPE",
     "toolchain": "$EDK2_TARGET_PROPERTIES_TOOLCHAIN",
-    "generated_packages": "$EDK2_GENERATED_PACKAGES"
+    "generated_packages": "$EDK2_GENERATED_PACKAGES",
+    "runtime_target": "$RUNTIME_TARGET"
 }
 EOF
 
-if [ "$COMPILE_TYPE" == "complete_rebuild" ] || [ ! -e "$BUILD_DIR" ]; then
+if [ "$COMPILE_TYPE" == "complete_rebuild" ] || [ ! -e "${EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM:?}" ]; then
+    rm -f "${EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM:?}"
 
+    # copy template for oopetris platform
+
+    mkdir -p "$(dirname "${EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM:?}")"
+
+    cp "$PLATFORMS_DIR/OOPetrisPlatform.template.dsc" "${EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM:?}"
+
+    # add stdlib to active platform
+
+    STDLIB_PACKAGE_INCLUDE="!include StdLib/StdLib.inc"
+
+    if grep -q "$STDLIB_PACKAGE_INCLUDE" "$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM"; then
+        : # found already, do nothing
+    else
+        echo -e "$STDLIB_PACKAGE_INCLUDE\n" >>"$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM"
+    fi
+
+    # add llvm to active platform
+
+    LLVM_PACKAGE_INCLUDE="!include LLVM/LLVMPkg.inc"
+
+    if grep -q "$LLVM_PACKAGE_INCLUDE" "$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM"; then
+        : # found already, do nothing
+    else
+        echo -e "$LLVM_PACKAGE_INCLUDE\n" >>"$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM"
+    fi
+
+fi
+
+if [ "$COMPILE_TYPE" == "complete_rebuild" ] || [ ! -e "$BUILD_DIR" ]; then
     rm -rf "$WORKSPACE/Build/"
 
     meson setup "$BUILD_DIR" \
@@ -400,6 +409,7 @@ if [ "$COMPILE_TYPE" == "complete_rebuild" ] || [ ! -e "$BUILD_DIR" ]; then
         echo "mkdir: $EDK2_GENERATED_PACKAGES"
         mkdir -p "$EDK2_GENERATED_PACKAGES"
         link_files_checked "$EDK2_GENERATED_PACKAGES" "$WORKSPACE/GeneratedPackages"
+
     fi
 
 fi
