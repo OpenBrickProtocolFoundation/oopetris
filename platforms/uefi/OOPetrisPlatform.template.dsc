@@ -15,7 +15,7 @@
 
   #
   # RUNTIME TARGET related defintions
-  # 
+  #
 
 !if $(OOPETRIS_RUNTIME_TARGET) == "hardware"
   DEFINE PLAT_QEMU               = FALSE
@@ -49,9 +49,9 @@
   DEFINE SECURE_BOOT_ENABLE       = FALSE
   DEFINE NETWORK_PXE_BOOT_ENABLE         = FALSE
 
-  # 
+  #
   # Other defintions
-  # 
+  #
 
   DEFINE CUSTOM_STACK_CHECK_LIB = "STATIC"
 
@@ -62,7 +62,7 @@
   #
   DEFINE REDFISH_ENABLE = FALSE
 
-  !include MdePkg/MdeLibs.dsc.inc
+!include MdePkg/MdeLibs.dsc.inc
 
 [Packages]
   MdePkg/MdePkg.dec
@@ -71,8 +71,12 @@
 
 [LibraryClasses]
   #
-  # Entry point (only application supported)
+  # Entry point
   #
+  PeiCoreEntryPoint|MdePkg/Library/PeiCoreEntryPoint/PeiCoreEntryPoint.inf
+  PeimEntryPoint|MdePkg/Library/PeimEntryPoint/PeimEntryPoint.inf
+  DxeCoreEntryPoint|MdePkg/Library/DxeCoreEntryPoint/DxeCoreEntryPoint.inf
+  UefiDriverEntryPoint|MdePkg/Library/UefiDriverEntryPoint/UefiDriverEntryPoint.inf
   UefiApplicationEntryPoint|MdePkg/Library/UefiApplicationEntryPoint/UefiApplicationEntryPoint.inf
 
   #
@@ -98,6 +102,8 @@
   UefiRuntimeServicesTableLib|MdePkg/Library/UefiRuntimeServicesTableLib/UefiRuntimeServicesTableLib.inf
   UefiRuntimeLib|MdePkg/Library/UefiRuntimeLib/UefiRuntimeLib.inf
   UefiLib|MdePkg/Library/UefiLib/UefiLib.inf
+  UefiHiiServicesLib|MdeModulePkg/Library/UefiHiiServicesLib/UefiHiiServicesLib.inf
+  HiiLib|MdeModulePkg/Library/UefiHiiLib/UefiHiiLib.inf
   DevicePathLib|MdePkg/Library/UefiDevicePathLib/UefiDevicePathLib.inf
   UefiDecompressLib|MdePkg/Library/BaseUefiDecompressLib/BaseUefiDecompressLib.inf
   UefiBootManagerLib|MdeModulePkg/Library/UefiBootManagerLib/UefiBootManagerLib.inf
@@ -157,17 +163,24 @@
   IpmiCommandLib|MdeModulePkg/Library/BaseIpmiCommandLibNull/BaseIpmiCommandLibNull.inf
   SpiHcPlatformLib|MdeModulePkg/Library/BaseSpiHcPlatformLibNull/BaseSpiHcPlatformLibNull.inf
 
+[LibraryClasses.common.DXE_CORE]
+  HobLib|MdePkg/Library/DxeCoreHobLib/DxeCoreHobLib.inf
+  MemoryAllocationLib|MdeModulePkg/Library/DxeCoreMemoryAllocationLib/DxeCoreMemoryAllocationLib.inf
+  ExtractGuidedSectionLib|MdePkg/Library/DxeExtractGuidedSectionLib/DxeExtractGuidedSectionLib.inf
 
-  ###TODO:
-### 
-### 
-  ### RegisterFilterLib|MdePkg/Library/RegisterFilterLibNull/RegisterFilterLibNull.inf
-  ### StackCheckLib|MdePkg/Library/StackCheckLib/StackCheckLib.inf
-  ### StackCheckFailureHookLib|MdePkg/Library/StackCheckFailureHookLibNull/StackCheckFailureHookLibNull.inf
-  ### PlatformHookLib|MdeModulePkg/Library/BasePlatformHookLibNull/BasePlatformHookLibNull.inf
-  ### PciExpressLib|MdePkg/Library/BasePciExpressLib/BasePciExpressLib.inf
-### 
-###
+[LibraryClasses.common.DXE_DRIVER]
+  HobLib|MdePkg/Library/DxeHobLib/DxeHobLib.inf
+  LockBoxLib|MdeModulePkg/Library/SmmLockBoxLib/SmmLockBoxDxeLib.inf
+  MemoryAllocationLib|MdePkg/Library/UefiMemoryAllocationLib/UefiMemoryAllocationLib.inf
+  ExtractGuidedSectionLib|MdePkg/Library/DxeExtractGuidedSectionLib/DxeExtractGuidedSectionLib.inf
+  CapsuleLib|MdeModulePkg/Library/DxeCapsuleLibFmp/DxeCapsuleLib.inf
+
+[LibraryClasses.common.UEFI_DRIVER]
+  HobLib|MdePkg/Library/DxeHobLib/DxeHobLib.inf
+  MemoryAllocationLib|MdePkg/Library/UefiMemoryAllocationLib/UefiMemoryAllocationLib.inf
+  DebugLib|MdePkg/Library/UefiDebugLibConOut/UefiDebugLibConOut.inf
+  LockBoxLib|MdeModulePkg/Library/SmmLockBoxLib/SmmLockBoxDxeLib.inf
+
 
 [LibraryClasses.common.UEFI_APPLICATION]
   HobLib|MdePkg/Library/DxeHobLib/DxeHobLib.inf
@@ -199,4 +212,5 @@ gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0x80400042
   gEfiMdePkgTokenSpaceGuid.PcdDebugPropertyMask|0x2F
 !endif
 
-# inserted components after that
+# inserted components / includes after that
+

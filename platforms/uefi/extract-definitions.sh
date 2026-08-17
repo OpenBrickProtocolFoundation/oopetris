@@ -398,6 +398,7 @@ $(expand_array_inf "${DEP_SOURCES[@]}")
 [Packages]
 # basic deps
   MdePkg/MdePkg.dec
+  OvmfPkg/OvmfPkg.dec
   LLVM/LLVMPkg.dec
   StdLib/StdLib.dec
 # dynamic deps
@@ -407,6 +408,7 @@ $(expand_array_inf "${DEP_PACKAGES[@]}")
 # MdePkg
   UefiApplicationEntryPoint
   UefiLib
+  DebugLib
 # C Libs
 $(expand_array_inf "${C_LIBRARIES[@]}")
 # CPP Libs
