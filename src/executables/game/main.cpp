@@ -185,29 +185,20 @@ namespace {
 } // namespace
 
 
-int main(int argc, char** argv) {
-    return main_no_sdl_replace(argc, argv);
-}
-
 #if defined(__UEFI__)
-
-#include <Library/UefiBootServicesTableLib.h>
-#include <Library/UefiLib.h>
-#include <Uefi.h>
 
 extern "C" {
 
-EFI_STATUS EFIAPI UefiMain(IN EFI_HANDLE imgHandle, IN EFI_SYSTEM_TABLE* sysTable) {
-    //TODO: correctly initialize every systems, even that edk2 supports constructors for used libraries
-    gST = sysTable;
-    gBS = sysTable->BootServices;
-    gImageHandle = imgHandle;
+// link it as C function, the rest is done by the StdLib Wrapper, but argc might be 0 and argv NULL
 
-    int result = main(0, nullptr);
-
-    return result == 0 ? EFI_SUCCESS : RETURN_LOAD_ERROR;
+int main(int argc, char** argv) {
+    return main_no_sdl_replace(argc, argv);
 }
 }
+#else
 
+int main(int argc, char** argv) {
+    return main_no_sdl_replace(argc, argv);
+}
 
 #endif

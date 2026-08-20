@@ -97,6 +97,9 @@ if [ ! -d "$WORKSPACE" ]; then
     mkdir -p "$WORKSPACE"
 fi
 
+# needed by the setup script
+mkdir -p "$WORKSPACE/Conf/"
+
 if [ ! -d "$EDK2_ROOT" ]; then
     git clone https://github.com/tianocore/edk2 "$EDK2_ROOT"
 else
@@ -116,20 +119,12 @@ fi
 
 git -C "$EDK2_LIBC_ROOT" checkout "$EDK2_LIBC_COMMIT_HASH"
 
-export EDK2_LLVM_ROOT="$EDK2_TOOLS_DIR/llvm-project"
+export EDK2_GENERATED_PACKAGES_ROOT="$EDK2_TOOLS_DIR/GeneratedPackages"
 
-if [ ! -d "$EDK2_LLVM_ROOT" ]; then
-
-    git clone --filter=blob:none --sparse https://github.com/Totto16/llvm-project.git "$EDK2_LLVM_ROOT"
-    git -C "$EDK2_LLVM_ROOT" sparse-checkout set libcxx libc libcxxabi libunwind
-else
-    git -C "$EDK2_LLVM_ROOT" fetch
-fi
-
-git -C "$EDK2_LLVM_ROOT" checkout "$EDK2_LLVM_PORT_BRANCH"
+export LIBRARY_PKG_ROOT="$EDK2_TOOLS_DIR/LibraryPkg"
 
 export EDK_TOOLS_PATH="$EDK2_ROOT/BaseTools"
-export PACKAGES_PATH="$EDK2_ROOT;$EDK2_LIBC_ROOT;$EDK2_LLVM_ROOT;$EDK2_TOOLS_DIR/GeneratedPackages;$EDK2_TOOLS_DIR/LibraryPkg"
+export PACKAGES_PATH="$EDK2_ROOT:$EDK2_LIBC_ROOT:$EDK2_GENERATED_PACKAGES_ROOT:$LIBRARY_PKG_ROOT"
 
 PLATFORMS_DIR="$(pwd)/platforms/uefi"
 
@@ -174,9 +169,9 @@ source "$EDK2_ROOT/edksetup.sh" "--reconfig"
 
 set -u
 
-export EDK2_CONF_TARGET="$EDK2_ROOT/Conf/target.txt"
+export EDK2_CONF_TARGET="$WORKSPACE/Conf/target.txt"
 
-EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM_NAME="GeneratedPackages/Platforms/OOPetrisPlatform.dsc"
+EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM_NAME="Platforms/OOPetrisPlatform.dsc"
 
 EDK2_TARGET_PROPERTIES_BUILDTYPE="$(echo "$BUILDTYPE" | tr "[:lower:]" "[:upper:]")"
 
@@ -198,12 +193,10 @@ export EDK2_BUILD_COMMAND="$EDK2_POSIX_BIN_PATH/build"
 
 # add links to needed packages
 
-LIBRARY_PKG_ROOT="$EDK2_TOOLS_DIR/LibraryPkg"
-
 mkdir -p "$LIBRARY_PKG_ROOT"
 
 EDK2_PORT_NAMES=("SDL2Pkg" "SDL2MixerPkg" "SupportLib")
-EDK2_PORT_URLS=("https://github.com/Totto16/SDL2_UEFI" "https://github.com/Totto16/SDL2_mixer_UEFI" "https://github.com/Totto16/UefiEdk2SupportLib.git ")
+EDK2_PORT_URLS=("https://github.com/Totto16/SDL2_UEFI" "https://github.com/Totto16/SDL2_mixer_UEFI" "https://github.com/Totto16/UefiEdk2SupportLib.git")
 EDK2_PORT_TAGS=("uefi_port" "uefi_port" "main")
 
 for EDK2_PORT_KEY in "${!EDK2_PORT_NAMES[@]}"; do
@@ -224,7 +217,21 @@ for EDK2_PORT_KEY in "${!EDK2_PORT_NAMES[@]}"; do
 
 done
 
+export EDK2_LLVM_ROOT="$LIBRARY_PKG_ROOT/LLVM"
+
+if [ ! -d "$EDK2_LLVM_ROOT" ]; then
+
+    git clone --filter=blob:none --sparse https://github.com/Totto16/llvm-project.git "$EDK2_LLVM_ROOT"
+    git -C "$EDK2_LLVM_ROOT" sparse-checkout set libcxx libc libcxxabi libunwind
+else
+    git -C "$EDK2_LLVM_ROOT" fetch
+fi
+
+git -C "$EDK2_LLVM_ROOT" checkout "$EDK2_LLVM_PORT_BRANCH"
+
+
 popd
+
 
 export CC="$SCRIPT_DIR/uefi/gcc-wrapper.sh"
 export CXX="$SCRIPT_DIR/uefi/g++-wrapper.sh"
@@ -253,7 +260,7 @@ export COMPILE_FLAGS="$COMMON_FLAGS ,'--sysroot=${SYS_ROOT}', '-D__UEFI__', '-DE
 
 export CC_COMPILE_FLAGS="'-nostdinc', '-I$EDK2_LIBC_ROOT/StdLib/Include', '-I$EDK2_LIBC_ROOT/StdLib/Include/$EDK2_TARGET_PROPERTIES_ARCH',  '-I$EDK2_ROOT/MdePkg/Include', '-I$EDK2_ROOT/MdePkg/Include/$EDK2_TARGET_PROPERTIES_ARCH'"
 
-export CXX_COMPILE_FLAGS="'-fno-exceptions', '-fno-threadsafe-statics', '-fno-use-cxa-atexit', '-fno-unwind-tables', '-fno-asynchronous-unwind-tables', '-nostdinc++', '-nodefaultlibs', '-I$EDK2_LLVM_ROOT/LLVM/libcxx/include', $CC_COMPILE_FLAGS"
+export CXX_COMPILE_FLAGS="'-fno-exceptions', '-fno-threadsafe-statics', '-fno-use-cxa-atexit', '-fno-unwind-tables', '-fno-asynchronous-unwind-tables', '-nostdinc++', '-nodefaultlibs', '-I$EDK2_LLVM_ROOT/libcxx/include', $CC_COMPILE_FLAGS"
 
 export CROSS_FILE="./platforms/crossbuild/uefi.ini"
 
@@ -334,7 +341,7 @@ validate_parent_dir "$EDK2_INFO_FILE"
 EDK2_GENERATED_PACKAGES="$(pwd)/$BUILD_DIR/GeneratedPackages"
 export EDK2_GENERATED_PACKAGES
 
-export EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM="$WORKSPACE/$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM_NAME"
+export EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM="$LIBRARY_PKG_ROOT/$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM_NAME"
 
 cat <<EOF >"$EDK2_INFO_FILE"
 {
@@ -353,6 +360,7 @@ cat <<EOF >"$EDK2_INFO_FILE"
     "runtime_target": "$RUNTIME_TARGET"
 }
 EOF
+
 
 if [ "$COMPILE_TYPE" == "complete_rebuild" ] || [ ! -e "${EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM:?}" ]; then
     rm -f "${EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM:?}"
@@ -401,11 +409,10 @@ if [ "$COMPILE_TYPE" == "complete_rebuild" ] || [ ! -e "$BUILD_DIR" ]; then
         -Dstrip=false \
         --fatal-meson-warnings
 
-    if ! [ -L "$EDK2_TOOLS_DIR/GeneratedPackages" ]; then
+    if ! [ -L "$EDK2_GENERATED_PACKAGES_ROOT" ]; then
 
-        echo "mkdir: $EDK2_GENERATED_PACKAGES"
         mkdir -p "$EDK2_GENERATED_PACKAGES"
-        link_files_checked "$EDK2_GENERATED_PACKAGES" "$EDK2_TOOLS_DIR/GeneratedPackages"
+        link_files_checked "$EDK2_GENERATED_PACKAGES" "$EDK2_GENERATED_PACKAGES_ROOT"
 
     fi
 

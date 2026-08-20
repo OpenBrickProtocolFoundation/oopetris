@@ -16,13 +16,15 @@
             "pkg": "NetworkPkg/NetworkPkg",
             "lib": "HttpIoLib",
             "inf": "NetworkPkg/Library/DxeHttpIoLib/DxeHttpIoLib.inf",
-            "inc": "NetworkPkg/Network.dsc.inc"
+            "inc": "NetworkPkg/Network.dsc.inc",
+            "tool_prefix": "edk2"
         },
         "BaseCryptLib": {
             "pkg": "CryptoPkg/CryptoPkg",
             "lib": "BaseCryptLib",
             "inf": "CryptoPkg/Library/BaseCryptLib/BaseCryptLib.inf",
-            "inc": "CryptoPkg/CryptoPkgCustom.dsc.inc"
+            "inc": "CryptoPkg/CryptoPkgCustom.dsc.inc",
+            "tool_prefix": "edk2"
         }
     }
 }

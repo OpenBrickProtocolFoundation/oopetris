@@ -103,7 +103,7 @@ EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM="$(jq -M -r -c '.["platform"]' "$UEFI_INF
 add_component_to_platform() {
   local PACKAGE_NAME="$1"
 
-  local FINAL_PKG_NAME="GeneratedPackages/$PACKAGE_NAME"
+  local FINAL_PKG_NAME="$PACKAGE_NAME"
 
   if grep -q "$FINAL_PKG_NAME" "$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM"; then
     : # found already, do nothing
@@ -121,7 +121,7 @@ EOF
 add_include_to_platform() {
   local PACKAGE_NAME="$1"
 
-  local FINAL_PKG_INC_NAME="GeneratedPackages/$PACKAGE_NAME"
+  local FINAL_PKG_INC_NAME="$PACKAGE_NAME"
 
   if grep -q "$FINAL_PKG_INC_NAME" "$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM"; then
     : # found already, do nothing
@@ -219,7 +219,7 @@ for FILE_DEPENDENCY in "${FILE_DEPENDENCIES[@]}"; do
       exit 2
     fi
 
-    PACKAGE_NAME="GeneratedPackages/Lib/$MAPPING_ENTRY_DEP_NAME.dec"
+    PACKAGE_NAME="GenPkg/$MAPPING_ENTRY_DEP_NAME.dec"
 
     DEP_OUTPUT_FILE="$DEST_FILE_DIR/$MAPPING_ENTRY_DEP_NAME.inf"
 
@@ -295,6 +295,7 @@ if [ "$MESON_TARGETS_INFO_LIB_LANGUAGE" == "cpp" ]; then
     DEP_CLASSES+=("$CPP_LIBRARY")
   done
   DEP_PACKAGES+=("LLVM/LLVMPkg.dec")
+  DEP_PACKAGES+=("SupportLib/SupportLib.dec") # needed by LLVM
 elif [ "$MESON_TARGETS_INFO_LIB_LANGUAGE" == "c" ]; then
   FLAGS_TARGET="CC"
 else
@@ -318,7 +319,7 @@ for MESON_TARGETS_INFO_LIB_PARAMATER in "${MESON_TARGETS_INFO_LIB_PARAMATERS[@]}
     ;;
   -t:use-lib:pkg=*)
     DEP_PACKAGE_NAME="${MESON_TARGETS_INFO_LIB_PARAMATER:15}"
-    DEP_PACKAGES+=("LibraryPkg/$DEP_PACKAGE_NAME/$DEP_PACKAGE_NAME.dec")
+    DEP_PACKAGES+=("$DEP_PACKAGE_NAME/$DEP_PACKAGE_NAME.dec")
     ;;
   -t:use-pkg:pkg=*)
     DEP_PACKAGE_NAME="${MESON_TARGETS_INFO_LIB_PARAMATER:15}"
@@ -390,7 +391,7 @@ if [ "$MAPPING_TYPE" == "application" ]; then
   FILE_GUID = $MAPPING_GUID
   MODULE_TYPE = UEFI_APPLICATION
   VERSION_STRING = $MAPPING_VERSION
-  ENTRY_POINT = UefiMain
+  ENTRY_POINT = ShellCEntryLibDynamical
 
 [Sources]
 $(expand_array_inf "${DEP_SOURCES[@]}")
@@ -401,6 +402,7 @@ $(expand_array_inf "${DEP_SOURCES[@]}")
   OvmfPkg/OvmfPkg.dec
   LLVM/LLVMPkg.dec
   StdLib/StdLib.dec
+  SupportLib/SupportLib.dec
 # dynamic deps
 $(expand_array_inf "${DEP_PACKAGES[@]}")
 
@@ -409,6 +411,8 @@ $(expand_array_inf "${DEP_PACKAGES[@]}")
   UefiApplicationEntryPoint
   UefiLib
   DebugLib
+# shell libs
+  ShellCEntryLibDynamical
 # C Libs
 $(expand_array_inf "${C_LIBRARIES[@]}")
 # CPP Libs
@@ -457,7 +461,7 @@ elif [ "$MAPPING_TYPE" == "library" ]; then
 
   MAPPING_LIB_NAME="$(echo "$MAPPING_ENTRY" | jq -M -r -c ".[\"lib\"]")"
 
-  LIB_DEST_DIR="$DEST_FILE_DIR/Lib"
+  LIB_DEST_DIR="$DEST_FILE_DIR/GenPkg"
 
   validate_parent_dir "$LIB_DEST_DIR/dummy"
 
@@ -498,7 +502,7 @@ $(expand_array_inf "${DEP_CLASSES[@]}")
 $(expand_array_inf "${DEP_BUILD_OPTIONS[@]}")
 EOF
 
-  link_package "Lib/$DEST_FILE_STEM.inf" "$LIB_DEST_FILE_INF"
+  link_package "GenPkg/$DEST_FILE_STEM.inf" "$LIB_DEST_FILE_INF"
 
   LIB_DEST_FILE_DEC="$LIB_DEST_DIR/$DEST_FILE_STEM.dec"
 
@@ -516,16 +520,16 @@ $(expand_array_inf "${DEP_INCLUDES[@]}")
 # None # TODO, also add dsc? with ,.inf mappings
 EOF
 
-  link_package "Lib/$DEST_FILE_STEM.dec" "$LIB_DEST_FILE_DEC"
+  link_package "GenPkg/$DEST_FILE_STEM.dec" "$LIB_DEST_FILE_DEC"
 
   LIB_DEST_FILE_INC="$LIB_DEST_DIR/$DEST_FILE_STEM.inc"
 
   cat <<EOF >"$LIB_DEST_FILE_INC"
 [LibraryClasses.common]
-  $MAPPING_LIB_NAME|GeneratedPackages/Lib/$DEST_FILE_STEM.inf
+  $MAPPING_LIB_NAME|GenPkg/$DEST_FILE_STEM.inf
 EOF
 
-  link_package "Lib/$DEST_FILE_STEM.inc" "$LIB_DEST_FILE_INC"
+  link_package "GenPkg/$DEST_FILE_STEM.inc" "$LIB_DEST_FILE_INC"
 
 else
   echo "Error: invalid mapping type: $MAPPING_TYPE" >&2

@@ -70,9 +70,9 @@ EOF
 link_built_libray() {
     local PACKAGE_NAME_PKG="$1"
 
-    local FINAL_PKG_NAME="LibraryPkg/$PACKAGE_NAME_PKG/$PACKAGE_NAME_PKG.inf"
+    local FINAL_PKG_NAME="$PACKAGE_NAME_PKG/$PACKAGE_NAME_PKG.inf"
 
-    local FINAL_PKG_INC_NAME="LibraryPkg/$PACKAGE_NAME_PKG/$PACKAGE_NAME_PKG.inc"
+    local FINAL_PKG_INC_NAME="$PACKAGE_NAME_PKG/$PACKAGE_NAME_PKG.inc"
 
     link_uefi_libray "$FINAL_PKG_NAME" "$FINAL_PKG_INC_NAME"
 
@@ -136,9 +136,10 @@ elif [[ "$MODE" == "get" ]]; then
         LIB_NAME_UEFI="$(echo "$LIBRARY_ENTRY_UEFI" | jq -M -r -c ".[\"lib\"]")"
         INF_FILE_UEFI="$(echo "$LIBRARY_ENTRY_UEFI" | jq -M -r -c ".[\"inf\"]")"
         INC_FILE_UEFI="$(echo "$LIBRARY_ENTRY_UEFI" | jq -M -r -c ".[\"inc\"]")"
+        TOOL_PREFIX_UEFI="$(echo "$LIBRARY_ENTRY_UEFI" | jq -M -r -c ".[\"tool_prefix\"]")"
 
         PACKAGE_NAME_DEC="$PACKAGE_NAME_UEFI.dec"
-        PACKAGE_DESC_FILE="$EDK2_TOOLS_DIR/LibraryPkg/$PACKAGE_NAME_DEC"
+        PACKAGE_DESC_FILE="$EDK2_TOOLS_DIR/$TOOL_PREFIX_UEFI/$PACKAGE_NAME_DEC"
 
         if ! [ -e "$PACKAGE_DESC_FILE" ]; then
             exit 1

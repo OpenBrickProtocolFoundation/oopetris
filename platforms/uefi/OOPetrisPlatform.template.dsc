@@ -66,8 +66,7 @@
 
 [Packages]
   MdePkg/MdePkg.dec
-
-
+  UefiCpuPkg/UefiCpuPkg.dec
 
 [LibraryClasses]
   #
@@ -115,14 +114,47 @@
   UefiUsbLib|MdePkg/Library/UefiUsbLib/UefiUsbLib.inf
   UefiScsiLib|MdePkg/Library/UefiScsiLib/UefiScsiLib.inf
   SecurityManagementLib|MdeModulePkg/Library/DxeSecurityManagementLib/DxeSecurityManagementLib.inf
-  TimerLib|MdePkg/Library/BaseTimerLibNullTemplate/BaseTimerLibNullTemplate.inf
+  ## see below: TimerLib|MdePkg/Library/BaseTimerLibNullTemplate/BaseTimerLibNullTemplate.inf
 
 !if $(OOPETRIS_RUNTIME_TARGET) == "hardware"
+  # DebugLib
   DebugLib|MdePkg/Library/BaseDebugLibNull/BaseDebugLibNull.inf
+
+  # Support and TimerLib
+  #TODO: doesn't work on qemu, but maybe on CPU??
+  TimerLib|UefiCpuPkg/Library/CpuTimerLib/BaseCpuTimerLib.inf
+  LibUEfiSupportNanosleep|SupportLib/Library/Default/SupportLibDefaultNanosleep.inf
+  LibUEfiSupportClock|SupportLib/Library/TimerLib/SupportLibTimerClock.inf
 !else
-  MemDebugLogLib|OvmfPkg/Library/MemDebugLogLib/MemDebugLogLibNull.inf
+  # DebugLib
   DebugLib|OvmfPkg/Library/PlatformDebugLibIoPort/PlatformDebugLibIoPort.inf
+  MemDebugLogLib|OvmfPkg/Library/MemDebugLogLib/MemDebugLogLibNull.inf
+
+  # Support and TimerLib
+  LibUEfiSupportNanosleep|SupportLib/Library/Default/SupportLibDefaultNanosleep.inf
+  LibUEfiSupportClock|SupportLib/Library/TimerLib/SupportLibTimerClock.inf
+  #LibUEfiSupportClock|LibraryPkg/SupportLib/Library/Default/SupportLibDefaultClock.inf
+  #LibUEfiSupportClock|LibraryPkg/SupportLib/Library/Null/SupportLibNullClock.inf
+
+  ## doesn't work on qemu, setup (cpuid leaf 0x15) error
+  ## TimerLib|UefiCpuPkg/Library/CpuTimerLib/BaseCpuTimerLib.inf
+
+  ## not supported for DXE or UEFI_APPLICATION:
+  ## TimerLib|OvmfPkg/Library/AcpiTimerLib/BaseAcpiTimerLib.inf
+
+  ## NOT WORKING on some machines, works with q35, but not the default (pc?),
+  ## the reason is Pmba reading is incorrect in the timerlib Constructor :(
+  ## TimerLib|OvmfPkg/Library/AcpiTimerLib/DxeAcpiTimerLib.inf
+
+  ## not working: need special emulator?
+  ## TimerLib|EmulatorPkg/Library/DxeTimerLib/DxeTimerLib.inf
+
+  TimerLib|OvmfPkg/Library/AcpiTimerLib/DxeAcpiTimerLib.inf
+
 !endif
+
+  ShellCEntryLibDynamical|SupportLib/Library/UefiShellCEntryLibDynamical/UefiShellCEntryLibDynamical.inf
+
 
   CapsuleLib|MdeModulePkg/Library/DxeCapsuleLibNull/DxeCapsuleLibNull.inf
   PcdLib|MdePkg/Library/BasePcdLibNull/BasePcdLibNull.inf
@@ -200,7 +232,7 @@ gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0x80400042
 
 ## This flag is used to control the destination port for PlatformDebugLibIoPort
 # this is the same address as QEMU uses
-  gUefiOvmfPkgTokenSpaceGuid.PcdDebugIoPort|0x402|UINT16|4
+  gUefiOvmfPkgTokenSpaceGuid.PcdDebugIoPort|0x402
 
 #define DEBUG_PROPERTY_DEBUG_ASSERT_ENABLED       0x01
 #define DEBUG_PROPERTY_DEBUG_PRINT_ENABLED        0x02

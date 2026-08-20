@@ -8,13 +8,13 @@ index 8190968a53..83d474e95a 100644
    XCODE:*_*_*_CC_FLAGS = -std=c99
 +  # define or undefine this based on the usage of StdLib
 +  *_*_*_CC_FLAGS                    =  -U__CRYPTO_COMPILE_STANDALONE
-+  *_*_*_CC_FLAGS                    =  -I$(WORKSPACE)
-+  *_*_*_CC_FLAGS                    =  -I$(WORKSPACE)/CryptoPkg/Library/Include
-+  *_*_*_CC_FLAGS                    =  -I$(WORKSPACE)/StdLib/Include
++  *_*_*_CC_FLAGS                    =  -I$(EDK2_LIBC_ROOT)
++  *_*_*_CC_FLAGS                    =  -I$(EDK2_ROOT)/CryptoPkg/Library/Include
++  *_*_*_CC_FLAGS                    =  -I$(EDK2_LIBC_ROOT)/StdLib/Include
 +
 +[BuildOptions.X64]
-+  *_*_*_CC_FLAGS                    =  -I$(WORKSPACE)/StdLib/Include/X64
-+  *_*_*_CC_FLAGS                    =  -I$(WORKSPACE)/MdePkg/Include/X64
++  *_*_*_CC_FLAGS                    =  -I$(EDK2_LIBC_ROOT)/StdLib/Include/X64
++  *_*_*_CC_FLAGS                    =  -I$(EDK2_ROOT)/MdePkg/Include/X64
 diff --git a/CryptoPkg/Library/BaseCryptLib/Kdf/CryptHkdf.c b/CryptoPkg/Library/BaseCryptLib/Kdf/CryptHkdf.c
 index 34e81246ed..8b260495a1 100644
 --- a/CryptoPkg/Library/BaseCryptLib/Kdf/CryptHkdf.c
@@ -304,10 +304,10 @@ index 094d4439b1..f9ddaa4d26 100644
 +
 +  # define or undefine this based on the usage of StdLib
 +  *_*_*_CC_FLAGS                    =  -U__CRYPTO_COMPILE_STANDALONE
-+  *_*_*_CC_FLAGS                    =  -I$(WORKSPACE)
-+  *_*_*_CC_FLAGS                    =  -I$(WORKSPACE)/CryptoPkg/Library/Include
-+  *_*_*_CC_FLAGS                    =  -I$(WORKSPACE)/StdLib/Include
++  *_*_*_CC_FLAGS                    =  -I$(EDK2_LIBC_ROOT)
++  *_*_*_CC_FLAGS                    =  -I$(EDK2_ROOT)/CryptoPkg/Library/Include
++  *_*_*_CC_FLAGS                    =  -I$(EDK2_LIBC_ROOT)/StdLib/Include
 +
 +[BuildOptions.X64]
-+  *_*_*_CC_FLAGS                    =  -I$(WORKSPACE)/StdLib/Include/X64
-+  *_*_*_CC_FLAGS                    =  -I$(WORKSPACE)/MdePkg/Include/X64
++  *_*_*_CC_FLAGS                    =  -I$(EDK2_LIBC_ROOT)/StdLib/Include/X64
++  *_*_*_CC_FLAGS                    =  -I$(EDK2_ROOT)/MdePkg/Include/X64
