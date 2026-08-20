@@ -1,0 +1,62 @@
+diff --git a/StdLib/LibC/Locale/Locale.inf b/StdLib/LibC/Locale/Locale.inf
+index 1bbb611..1c81272 100644
+--- a/StdLib/LibC/Locale/Locale.inf
++++ b/StdLib/LibC/Locale/Locale.inf
+@@ -61,4 +61,4 @@
+ 
+ [LibraryClasses]
+   LibC
+-  LibCType
++  LibCtype
+diff --git a/StdLib/LibC/StdLib/StdLib.inf b/StdLib/LibC/StdLib/StdLib.inf
+index e7bdf5a..968e6a7 100644
+--- a/StdLib/LibC/StdLib/StdLib.inf
++++ b/StdLib/LibC/StdLib/StdLib.inf
+@@ -53,7 +53,7 @@
+   MemoryAllocationLib
+   ShellLib
+   LibC
+-  LibCType
++  LibCtype
+   LibSignal
+ 
+ ################################################################
+diff --git a/StdLib/LibC/Stdio/Stdio.inf b/StdLib/LibC/Stdio/Stdio.inf
+index fe87242..daffb34 100644
+--- a/StdLib/LibC/Stdio/Stdio.inf
++++ b/StdLib/LibC/Stdio/Stdio.inf
+@@ -128,7 +128,7 @@
+ 
+ [LibraryClasses]
+   LibC
+-  LibCType
++  LibCtype
+   LibGdtoa
+   LibLocale
+   LibStdLib
+diff --git a/StdLib/LibC/String/String.inf b/StdLib/LibC/String/String.inf
+index c8b4d88..4bd06da 100644
+--- a/StdLib/LibC/String/String.inf
++++ b/StdLib/LibC/String/String.inf
+@@ -48,7 +48,7 @@
+   PrintLib              # Used for strerror()
+   PcdLib
+   LibC
+-  LibCType
++  LibCtype
+   LibStdLib
+ 
+ ################################################################
+diff --git a/StdLib/StdLib.inc b/StdLib/StdLib.inc
+index 8083e2b..4d08302 100644
+--- a/StdLib/StdLib.inc
++++ b/StdLib/StdLib.inc
+@@ -29,7 +29,7 @@
+   # C Standard Libraries
+   #
+   LibC|StdLib/LibC/LibC.inf
+-  LibCType|StdLib/LibC/Ctype/Ctype.inf
++  LibCtype|StdLib/LibC/Ctype/Ctype.inf
+   LibLocale|StdLib/LibC/Locale/Locale.inf
+   LibMath|StdLib/LibC/Math/Math.inf
+   LibSignal|StdLib/LibC/Signal/Signal.inf

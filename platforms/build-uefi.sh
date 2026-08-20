@@ -66,10 +66,6 @@ else
     exit 1
 fi
 
-if [ ! -d "toolchains" ]; then
-    mkdir -p toolchains
-fi
-
 # source dependency version information
 
 SCRIPT_DIR="$(realpath "$(dirname -- "${BASH_SOURCE[0]}")")"
@@ -83,9 +79,23 @@ source "$SCRIPT_DIR/helper.sh"
 TOOLCHAIN_DIR="$(pwd)/toolchains"
 export TOOLCHAIN_DIR
 
-export EDK2_ROOT="$TOOLCHAIN_DIR/edk2"
+if [ ! -d "$TOOLCHAIN_DIR" ]; then
+    mkdir -p "$TOOLCHAIN_DIR"
+fi
 
-export WORKSPACE="$EDK2_ROOT"
+export EDK2_TOOLS_DIR="$TOOLCHAIN_DIR/EDK2_TOOLS"
+
+if [ ! -d "$EDK2_TOOLS_DIR" ]; then
+    mkdir -p "$EDK2_TOOLS_DIR"
+fi
+
+export EDK2_ROOT="$EDK2_TOOLS_DIR/edk2"
+
+export WORKSPACE="$EDK2_TOOLS_DIR/workspace"
+
+if [ ! -d "$WORKSPACE" ]; then
+    mkdir -p "$WORKSPACE"
+fi
 
 if [ ! -d "$EDK2_ROOT" ]; then
     git clone https://github.com/tianocore/edk2 "$EDK2_ROOT"
@@ -96,7 +106,7 @@ fi
 git -C "$EDK2_ROOT" checkout "$EDK2_RELEASE_TAG"
 git -C "$EDK2_ROOT" submodule update --init
 
-export EDK2_LIBC_ROOT="$TOOLCHAIN_DIR/edk2-libc"
+export EDK2_LIBC_ROOT="$EDK2_TOOLS_DIR/edk2-libc"
 
 if [ ! -d "$EDK2_LIBC_ROOT" ]; then
     git clone https://github.com/tianocore/edk2-libc "$EDK2_LIBC_ROOT"
@@ -106,7 +116,7 @@ fi
 
 git -C "$EDK2_LIBC_ROOT" checkout "$EDK2_LIBC_COMMIT_HASH"
 
-export EDK2_LLVM_ROOT="$TOOLCHAIN_DIR/llvm-project"
+export EDK2_LLVM_ROOT="$EDK2_TOOLS_DIR/llvm-project"
 
 if [ ! -d "$EDK2_LLVM_ROOT" ]; then
 
@@ -119,7 +129,7 @@ fi
 git -C "$EDK2_LLVM_ROOT" checkout "$EDK2_LLVM_PORT_BRANCH"
 
 export EDK_TOOLS_PATH="$EDK2_ROOT/BaseTools"
-export PACKAGES_PATH="$EDK2_ROOT"
+export PACKAGES_PATH="$EDK2_ROOT;$EDK2_LIBC_ROOT;$EDK2_LLVM_ROOT;$EDK2_TOOLS_DIR/GeneratedPackages;$EDK2_TOOLS_DIR/LibraryPkg"
 
 PLATFORMS_DIR="$(pwd)/platforms/uefi"
 
@@ -132,10 +142,10 @@ if ! [ -e "$EDK2_PATCH_FILE" ]; then
 
     #TODO: use loop for this patches
 
-    git apply --unsafe-paths -p1 --directory="$EDK2_ROOT" "$PATCH_DIR/cxx_compiler.diff"
-    git apply --unsafe-paths -p1 --directory="$EDK2_ROOT" "$PATCH_DIR/ssl_lib.diff"
-    git apply --unsafe-paths -p1 --directory="$EDK2_ROOT" "$PATCH_DIR/ssl_lib_compile_with_libc.diff"
-    git apply --unsafe-paths -p1 --directory="$EDK2_ROOT" "$PATCH_DIR/use_arch_x86_64_v1.diff"
+    git apply --unsafe-paths -p1 --directory="$EDK2_ROOT" "$PATCH_DIR/edk2_cxx_compiler.diff"
+    git apply --unsafe-paths -p1 --directory="$EDK2_ROOT" "$PATCH_DIR/edk2_ssl_lib.diff"
+    git apply --unsafe-paths -p1 --directory="$EDK2_ROOT" "$PATCH_DIR/edk2_ssl_lib_compile_with_libc.diff"
+    git apply --unsafe-paths -p1 --directory="$EDK2_ROOT" "$PATCH_DIR/edk2_use_arch_x86_64_v1.diff"
 
     touch "$EDK2_PATCH_FILE"
 fi
@@ -145,7 +155,8 @@ EDK2_LIBC_PATCH_FILE="$EDK2_LIBC_ROOT/.patched_manually.meta"
 if ! [ -e "$EDK2_LIBC_PATCH_FILE" ]; then
     ##TODO: upstream those patches
 
-    git apply --unsafe-paths -p1 --directory="$EDK2_LIBC_ROOT" "$PATCH_DIR/libc_cpp_compatibility.diff"
+    git apply --unsafe-paths -p1 --directory="$EDK2_LIBC_ROOT" "$PATCH_DIR/edk2_libc_cpp_compatibility.diff"
+    git apply --unsafe-paths -p1 --directory="$EDK2_LIBC_ROOT" "$PATCH_DIR/edk2_libc_ctype_lib_name_fix.diff"
 
     touch "$EDK2_LIBC_PATCH_FILE"
 fi
@@ -165,7 +176,7 @@ set -u
 
 export EDK2_CONF_TARGET="$EDK2_ROOT/Conf/target.txt"
 
-EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM_NAME="Platforms/OOPetrisPlatform.dsc"
+EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM_NAME="GeneratedPackages/Platforms/OOPetrisPlatform.dsc"
 
 EDK2_TARGET_PROPERTIES_BUILDTYPE="$(echo "$BUILDTYPE" | tr "[:lower:]" "[:upper:]")"
 
@@ -187,27 +198,13 @@ export EDK2_BUILD_COMMAND="$EDK2_POSIX_BIN_PATH/build"
 
 # add links to needed packages
 
-EDK2_LIB_PACKAGES=("AppPkg" "StdLib" "StdLibPrivateInternalFiles")
-
-for EDK2_LIB_PACKAGE in "${EDK2_LIB_PACKAGES[@]}"; do
-
-    if ! [ -e "$WORKSPACE/$EDK2_LIB_PACKAGE" ]; then
-        link_files_checked "$EDK2_LIBC_ROOT/$EDK2_LIB_PACKAGE" "$WORKSPACE/$EDK2_LIB_PACKAGE"
-    fi
-
-done
-
-if ! [ -e "$WORKSPACE/LLVM" ]; then
-    link_files_checked "$EDK2_LLVM_ROOT" "$WORKSPACE/LLVM"
-fi
-
-LIBRARY_PKG_ROOT="$WORKSPACE/LibraryPkg"
+LIBRARY_PKG_ROOT="$EDK2_TOOLS_DIR/LibraryPkg"
 
 mkdir -p "$LIBRARY_PKG_ROOT"
 
-EDK2_PORT_NAMES=("SDL2Pkg" "SDL2MixerPkg")
-EDK2_PORT_URLS=("https://github.com/Totto16/SDL2_UEFI" "https://github.com/Totto16/SDL2_mixer_UEFI")
-EDK2_PORT_TAGS=("uefi_port" "uefi_port")
+EDK2_PORT_NAMES=("SDL2Pkg" "SDL2MixerPkg" "SupportLib")
+EDK2_PORT_URLS=("https://github.com/Totto16/SDL2_UEFI" "https://github.com/Totto16/SDL2_mixer_UEFI" "https://github.com/Totto16/UefiEdk2SupportLib.git ")
+EDK2_PORT_TAGS=("uefi_port" "uefi_port" "main")
 
 for EDK2_PORT_KEY in "${!EDK2_PORT_NAMES[@]}"; do
 
@@ -215,7 +212,7 @@ for EDK2_PORT_KEY in "${!EDK2_PORT_NAMES[@]}"; do
     EDK2_PORT_URL="${EDK2_PORT_URLS[$EDK2_PORT_KEY]}"
     EDK2_PORT_TAG="${EDK2_PORT_TAGS[$EDK2_PORT_KEY]}"
 
-    EDK2_PORT_ROOT="$TOOLCHAIN_DIR/$EDK2_PORT_NAME"
+    EDK2_PORT_ROOT="$LIBRARY_PKG_ROOT/$EDK2_PORT_NAME"
 
     if [ ! -d "$EDK2_PORT_ROOT" ]; then
         git clone "$EDK2_PORT_URL" "$EDK2_PORT_ROOT"
@@ -224,10 +221,6 @@ for EDK2_PORT_KEY in "${!EDK2_PORT_NAMES[@]}"; do
     fi
 
     git -C "$EDK2_PORT_ROOT" checkout "$EDK2_PORT_TAG"
-
-    if ! [ -e "$LIBRARY_PKG_ROOT/$EDK2_PORT_NAME" ]; then
-        link_files_checked "$EDK2_PORT_ROOT" "$LIBRARY_PKG_ROOT/$EDK2_PORT_NAME"
-    fi
 
 done
 
@@ -258,9 +251,9 @@ export PKG_CONFIG_PATH="$SYS_ROOT/lib/pkgconfig"
 export LINK_FLAGS="$COMMON_FLAGS"
 export COMPILE_FLAGS="$COMMON_FLAGS ,'--sysroot=${SYS_ROOT}', '-D__UEFI__', '-DEFIAPI=__attribute__((ms_abi))', '-fexceptions', '-fshort-wchar', '-fno-builtin', '-fno-strict-aliasing', '-fno-common', '-fstack-protector', '-ffunction-sections', '-fdata-sections', '-fno-asynchronous-unwind-tables', '-fno-omit-frame-pointer', '-DAUDIO_PREFER_MP3'"
 
-export CC_COMPILE_FLAGS="'-nostdinc', '-I$WORKSPACE/StdLib/Include', '-I$WORKSPACE/StdLib/Include/$EDK2_TARGET_PROPERTIES_ARCH',  '-I$WORKSPACE/MdePkg/Include', '-I$WORKSPACE/MdePkg/Include/$EDK2_TARGET_PROPERTIES_ARCH'"
+export CC_COMPILE_FLAGS="'-nostdinc', '-I$EDK2_LIBC_ROOT/StdLib/Include', '-I$EDK2_LIBC_ROOT/StdLib/Include/$EDK2_TARGET_PROPERTIES_ARCH',  '-I$EDK2_ROOT/MdePkg/Include', '-I$EDK2_ROOT/MdePkg/Include/$EDK2_TARGET_PROPERTIES_ARCH'"
 
-export CXX_COMPILE_FLAGS="'-fno-exceptions', '-fno-threadsafe-statics', '-fno-use-cxa-atexit', '-fno-unwind-tables', '-fno-asynchronous-unwind-tables', '-nostdinc++', '-nodefaultlibs', '-I$WORKSPACE/LLVM/libcxx/include', $CC_COMPILE_FLAGS"
+export CXX_COMPILE_FLAGS="'-fno-exceptions', '-fno-threadsafe-statics', '-fno-use-cxa-atexit', '-fno-unwind-tables', '-fno-asynchronous-unwind-tables', '-nostdinc++', '-nodefaultlibs', '-I$EDK2_LLVM_ROOT/LLVM/libcxx/include', $CC_COMPILE_FLAGS"
 
 export CROSS_FILE="./platforms/crossbuild/uefi.ini"
 
@@ -348,6 +341,10 @@ cat <<EOF >"$EDK2_INFO_FILE"
     "build": "$EDK2_BUILD_COMMAND",
     "arch": "$EDK2_TARGET_PROPERTIES_ARCH",
     "workspace": "$WORKSPACE",
+    "edk2_tools_dir": "$EDK2_TOOLS_DIR",
+    "edk2_root": "$EDK2_ROOT",
+    "edk2_libc_root": "$EDK2_LIBC_ROOT",
+    "edk2_llvm_root": "$EDK2_LLVM_ROOT",
     "platform": "$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM",
     "platform_name": "$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM_NAME",
     "buildtype": "$EDK2_TARGET_PROPERTIES_BUILDTYPE",
@@ -404,11 +401,11 @@ if [ "$COMPILE_TYPE" == "complete_rebuild" ] || [ ! -e "$BUILD_DIR" ]; then
         -Dstrip=false \
         --fatal-meson-warnings
 
-    if ! [ -L "$WORKSPACE/GeneratedPackages" ]; then
+    if ! [ -L "$EDK2_TOOLS_DIR/GeneratedPackages" ]; then
 
         echo "mkdir: $EDK2_GENERATED_PACKAGES"
         mkdir -p "$EDK2_GENERATED_PACKAGES"
-        link_files_checked "$EDK2_GENERATED_PACKAGES" "$WORKSPACE/GeneratedPackages"
+        link_files_checked "$EDK2_GENERATED_PACKAGES" "$EDK2_TOOLS_DIR/GeneratedPackages"
 
     fi
 

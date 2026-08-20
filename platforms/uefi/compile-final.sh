@@ -24,6 +24,7 @@ UEFI_INFO_FILE="$(realpath "$SCRIPT_DIR/../crossbuild/uefi_info.json")"
 EDK2_BUILD_COMMAND="$(jq -M -r -c '.["build"]' "$UEFI_INFO_FILE")"
 EDK2_TARGET_PROPERTIES_ARCH="$(jq -M -r -c '.["arch"]' "$UEFI_INFO_FILE")"
 WORKSPACE="$(jq -M -r -c '.["workspace"]' "$UEFI_INFO_FILE")"
+EDK2_TOOLS_DIR="$(jq -M -r -c '.["edk2_tools_dir"]' "$UEFI_INFO_FILE")"
 EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM="$(jq -M -r -c '.["platform"]' "$UEFI_INFO_FILE")"
 EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM_NAME="$(jq -M -r -c '.["platform_name"]' "$UEFI_INFO_FILE")"
 EDK2_TARGET_PROPERTIES_BUILDTYPE="$(jq -M -r -c '.["buildtype"]' "$UEFI_INFO_FILE")"
@@ -34,10 +35,10 @@ BUILD_NAME=$(basename -- $"$BUILD_INF")
 
 BUILD_FILE_TARGET="GeneratedPackages/$BUILD_NAME"
 
-BUILD_FILE_TARGET_ABS="$WORKSPACE/$BUILD_FILE_TARGET"
+BUILD_FILE_TARGET_ABS="$EDK2_TOOLS_DIR/$BUILD_FILE_TARGET"
 
 if ! [ -e "$BUILD_FILE_TARGET_ABS" ]; then
-    echo "Build file is not in the workspace: $BUILD_FILE_TARGET" >&2
+    echo "Build file is not in the expected place: $BUILD_FILE_TARGET" >&2
     exit 2
 elif ! readlink "$BUILD_FILE_TARGET_ABS"; then
     echo "Build file is not a symlink: $BUILD_FILE_TARGET_ABS" >&2

@@ -63,7 +63,7 @@ else
   exit 1
 fi
 
-C_LIBRARIES=("LibC" "LibCType" "LibLocale" "LibMath" "LibSignal" "LibStdio" "LibStdLib" "LibString" "LibTime" "LibUefi" "LibWchar" "LibGdtoa")
+C_LIBRARIES=("LibC" "LibCtype" "LibLocale" "LibMath" "LibSignal" "LibStdio" "LibStdLib" "LibString" "LibTime" "LibUefi" "LibWchar" "LibGdtoa")
 CPP_LIBRARIES=("LibCXX" "LibCXXABI")
 
 MAPPINGS_FILE="$(realpath "$SCRIPT_DIR/../../src/executables/platforms/uefi/mappings.json")"

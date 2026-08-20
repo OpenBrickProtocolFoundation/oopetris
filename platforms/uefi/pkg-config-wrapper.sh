@@ -38,7 +38,7 @@ change_mode() {
 
 UEFI_INFO_FILE="$(realpath "$SCRIPT_DIR/../crossbuild/uefi_info.json")"
 EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM="$(jq -M -r -c '.["platform"]' "$UEFI_INFO_FILE")"
-EDK2_WORKSPACE="$(jq -M -r -c '.["workspace"]' "$UEFI_INFO_FILE")"
+EDK2_TOOLS_DIR="$(jq -M -r -c '.["edk2_tools_dir"]' "$UEFI_INFO_FILE")"
 
 link_uefi_libray() {
     local LIB_NAME_INF="$1"
@@ -138,7 +138,7 @@ elif [[ "$MODE" == "get" ]]; then
         INC_FILE_UEFI="$(echo "$LIBRARY_ENTRY_UEFI" | jq -M -r -c ".[\"inc\"]")"
 
         PACKAGE_NAME_DEC="$PACKAGE_NAME_UEFI.dec"
-        PACKAGE_DESC_FILE="$EDK2_WORKSPACE/$PACKAGE_NAME_DEC"
+        PACKAGE_DESC_FILE="$EDK2_TOOLS_DIR/LibraryPkg/$PACKAGE_NAME_DEC"
 
         if ! [ -e "$PACKAGE_DESC_FILE" ]; then
             exit 1
