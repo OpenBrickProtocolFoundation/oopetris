@@ -132,7 +132,7 @@ namespace utils {
     [[noreturn]] inline void throw_(E&& exc) { //NOLINT(readability-identifier-naming)
 #if defined(__OOPETRIS_NO_EXCEPTIONS)
 #if defined(__UEFI__)
-        EFI_DEBUG((DEBUG_ERROR, "Exception: %a", exc.what()));
+        EFI_DEBUG((DEBUG_ERROR, "Exception: %a\n", exc.what()));
 #else
         std::cerr << "Exception: " << exc.what() << "\n";
 #endif

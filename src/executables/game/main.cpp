@@ -59,6 +59,8 @@ namespace {
         sinks.push_back(std::make_shared<console::debug_sink_mt>());
 #elif defined(__UEFI__)
         sinks.push_back(uefi::get_debug_sink());
+        // is outputted to serial, handled by edk2-libc
+        sinks.push_back(std::make_shared<spdlog::sinks::stdout_color_sink_st>(spdlog::color_mode::never));
 #elif defined(__EMSCRIPTEN__)
         sinks.push_back(web::get_console_sink());
 #else
@@ -66,7 +68,7 @@ namespace {
 #endif
 
 
-#if !(defined(__EMSCRIPTEN__))
+#if !(defined(__EMSCRIPTEN__) || defined(__UEFI__))
 
         const auto logs_path = utils::get_root_folder() / "logs";
 
