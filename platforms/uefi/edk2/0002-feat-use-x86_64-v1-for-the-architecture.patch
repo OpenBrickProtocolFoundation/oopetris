@@ -1,7 +1,7 @@
 From 18bc84f196e6689834f6c13c6d0aeb41bc5b6e9f Mon Sep 17 00:00:00 2001
 From: Totto16 <tobiausgais@gmail.com>
 Date: Tue, 25 Aug 2026 17:34:06 +0200
-Subject: [PATCH 2/5] feat: use x86_64 v1 for the architecture
+Subject: [PATCH 2/4] feat: use x86_64 v1 for the architecture
 
 ---
  BaseTools/Conf/tools_def.template | 64 +++++++++++++++----------------

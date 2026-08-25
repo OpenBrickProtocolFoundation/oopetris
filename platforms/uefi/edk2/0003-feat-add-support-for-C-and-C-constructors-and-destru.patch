@@ -1,7 +1,7 @@
 From 4a7b560f9b4e960a2a3046bcbf84716eea63035d Mon Sep 17 00:00:00 2001
 From: Totto16 <tobiausgais@gmail.com>
 Date: Tue, 25 Aug 2026 17:35:20 +0200
-Subject: [PATCH 3/5] feat: add support for C and C++ constructors and
+Subject: [PATCH 3/4] feat: add support for C and C++ constructors and
  destructors - this requires as linker script change and GenFW modifications -
  this can 5than be used by edk2-libc and libcxx for uefi
 

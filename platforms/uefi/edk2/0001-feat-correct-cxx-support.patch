@@ -1,7 +1,7 @@
 From 588d56df90b1ff3ef3543f904ead16987507d67e Mon Sep 17 00:00:00 2001
 From: Totto16 <tobiausgais@gmail.com>
 Date: Tue, 25 Aug 2026 17:33:06 +0200
-Subject: [PATCH 1/5] feat: correct cxx support - make C++ correctly supported
+Subject: [PATCH 1/4] feat: correct cxx support - make C++ correctly supported
 
 ---
  BaseTools/Conf/build_rule.template | 12 ++++++------

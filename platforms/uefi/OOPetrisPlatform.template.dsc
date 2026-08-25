@@ -118,9 +118,10 @@
 
 !if $(OOPETRIS_RUNTIME_TARGET) == "hardware"
   # DebugLib
-  DebugLib|MdePkg/Library/BaseDebugLibNull/BaseDebugLibNull.inf
+  DebugLib|MdePkg/Library/BaseDebugLibNull/BaseDebugLibNull.inf-TODO-not-implemented-and-checked-yet
 
-  # Support and TimerLib
+  TODO|not implemented and checked yet
+  # SupportLib and TimerLib
   #TODO: doesn't work on qemu, but maybe on CPU??
   TimerLib|UefiCpuPkg/Library/CpuTimerLib/BaseCpuTimerLib.inf
   LibUEfiSupportNanosleep|SupportLib/Library/Default/SupportLibDefaultNanosleep.inf
@@ -220,6 +221,29 @@
   #see above: DebugLib|MdePkg/Library/UefiDebugLibStdErr/UefiDebugLibStdErr.inf
   FileHandleLib|MdePkg/Library/UefiFileHandleLib/UefiFileHandleLib.inf
 
+#start crypto related libs
+[LibraryClasses]
+  ## TimerLib|MdePkg/Library/BaseTimerLibNullTemplate/BaseTimerLibNullTemplate.inf
+  RngLib|MdePkg/Library/BaseRngLibNull/BaseRngLibNull.inf
+  OemHookStatusCodeLib|MdeModulePkg/Library/OemHookStatusCodeLibNull/OemHookStatusCodeLibNull.inf
+  HashApiLib|CryptoPkg/Library/BaseHashApiLib/BaseHashApiLib.inf
+  OpensslLib|CryptoPkg/Library/OpensslLib/OpensslLib.inf
+  IntrinsicLib|CryptoPkg/Library/IntrinsicLib/IntrinsicLib.inf
+
+[LibraryClasses.IA32, LibraryClasses.X64, LibraryClasses.AARCH64]
+  RngLib|MdePkg/Library/BaseRngLib/BaseRngLib.inf
+
+[LibraryClasses.AARCH64]
+  ArmLib|MdePkg/Library/ArmLib/ArmBaseLib.inf
+
+[LibraryClasses.common]
+  BaseCryptLib|CryptoPkg/Library/BaseCryptLib/BaseCryptLib.inf
+  TlsLib|CryptoPkg/Library/TlsLib/TlsLib.inf
+
+#end crypto related libs
+
+
+
 [PcdsFixedAtBuild]
 !if $(OOPETRIS_RUNTIME_TARGET) == "hardware"
 # nothing
@@ -228,7 +252,7 @@
 #define DEBUG_INFO      0x00000040       // Informational debug messages
 #define DEBUG_VERBOSE   0x00400000       // Detailed debug messages that may
 #define DEBUG_ERROR     0x80000000       // Error
-gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0x80400042
+  gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0x80400042
 
 ## This flag is used to control the destination port for PlatformDebugLibIoPort
 # this is the same address as QEMU uses

@@ -107,6 +107,8 @@ elif RUNTIME_TARGET == 'emulator'
 
             fat_folder_loc = fs.parent(oopetris_efi.full_path()) / 'FAT_FOLDER'
 
+            serial_debug_file = fs.parent(oopetris_efi.full_path()) / 'serial_debug.log'
+
             fat_folder = custom_target(
                 'fat_folder',
                 command: [_uefi_create_fat_folder_exe, fat_folder_loc, '@INPUT@', '@OUTPUT@'],
@@ -146,6 +148,8 @@ elif RUNTIME_TARGET == 'emulator'
                     'stdio',
                     '-global',
                     'isa-debugcon.iobase=0x402',
+                    '-serial',
+                    'file:' + serial_debug_file,
                 ]
 
 

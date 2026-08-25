@@ -1,7 +1,7 @@
-From ad98f39ff45efb2ee7ef034caea724bc3ab29d32 Mon Sep 17 00:00:00 2001
+From c79476b209aa2b390894c1e367f9efea1e7ed2da Mon Sep 17 00:00:00 2001
 From: Totto16 <tobiausgais@gmail.com>
-Date: Tue, 25 Aug 2026 17:38:22 +0200
-Subject: [PATCH 5/5] feat: support compiling crypto library with stdlib -
+Date: Tue, 25 Aug 2026 17:36:28 +0200
+Subject: [PATCH 4/4] feat: support compiling crypto library with stdlib -
  don't use compatibility layer for crypto library as that creates link errors,
  when using edk2-libc too
 
@@ -20,8 +20,8 @@ Subject: [PATCH 5/5] feat: support compiling crypto library with stdlib -
  CryptoPkg/Library/IntrinsicLib/CopyMem.c      |  4 ++++
  .../Library/IntrinsicLib/IntrinsicLib.inf     |  2 ++
  .../Library/IntrinsicLib/MemoryIntrinsics.c   |  3 +++
- CryptoPkg/Library/OpensslLib/OpensslLib.inf   | 10 ++++++++
- 15 files changed, 99 insertions(+), 15 deletions(-)
+ CryptoPkg/Library/OpensslLib/OpensslLib.inf   | 11 +++++++++
+ 15 files changed, 100 insertions(+), 15 deletions(-)
 
 diff --git a/CryptoPkg/Library/BaseCryptLib/BaseCryptLib.inf b/CryptoPkg/Library/BaseCryptLib/BaseCryptLib.inf
 index bf8f1f86af..8f50a77911 100644
@@ -391,10 +391,18 @@ index 9b091f1901..faedee2d9e 100644
  }
 +#endif
 diff --git a/CryptoPkg/Library/OpensslLib/OpensslLib.inf b/CryptoPkg/Library/OpensslLib/OpensslLib.inf
-index 629ceec139..1aaf224333 100644
+index 1456be7320..1aaf224333 100644
 --- a/CryptoPkg/Library/OpensslLib/OpensslLib.inf
 +++ b/CryptoPkg/Library/OpensslLib/OpensslLib.inf
-@@ -836,3 +836,13 @@
+@@ -795,6 +795,7 @@
+   #   -Werror=unused-but-set-variable: Warn whenever a local variable is assigned to, but otherwise unused (aside from its declaration).
+   #
+   GCC:RELEASE_*_*_CC_FLAGS = -DNDEBUG
++  *_*_*_CC_FLAGS = -D__STDC_NO_ATOMICS__
+   GCC:*_*_IA32_CC_FLAGS    = -U_WIN32 -UWIN32 -U_WIN64 -U_MSC_VER $(OPENSSL_FLAGS) $(OPENSSL_FLAGS_NOASM) -Wno-error=maybe-uninitialized -Wno-error=unused-but-set-variable
+   GCC:*_*_X64_CC_FLAGS     = -U_WIN32 -UWIN32 -U_WIN64 -U_MSC_VER $(OPENSSL_FLAGS) $(OPENSSL_FLAGS_NOASM) -Wno-error=maybe-uninitialized -Wno-error=format -Wno-format -Wno-error=unused-but-set-variable -DNO_MSABI_VA_FUNCS
+   GCC:*_*_AARCH64_CC_FLAGS = $(OPENSSL_FLAGS) -Wno-error=maybe-uninitialized -Wno-format -Wno-error=unused-but-set-variable -Wno-error=format
+@@ -835,3 +836,13 @@
    # use floating point types, so clear the flags here.
    #
    GCC:*_*_AARCH64_CC_XIPFLAGS ==
