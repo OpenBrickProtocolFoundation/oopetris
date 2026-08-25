@@ -1,4 +1,4 @@
-From 9f530a8bdad4b3cb5bbddbce5b6c02f5490b8a5f Mon Sep 17 00:00:00 2001
+From ad98f39ff45efb2ee7ef034caea724bc3ab29d32 Mon Sep 17 00:00:00 2001
 From: Totto16 <tobiausgais@gmail.com>
 Date: Tue, 25 Aug 2026 17:38:22 +0200
 Subject: [PATCH 5/5] feat: support compiling crypto library with stdlib -
@@ -8,8 +8,11 @@ Subject: [PATCH 5/5] feat: support compiling crypto library with stdlib -
 ---
  .../Library/BaseCryptLib/BaseCryptLib.inf     |  9 +++++++
  .../Library/BaseCryptLib/Kdf/CryptHkdf.c      |  9 ++++---
+ .../Library/BaseCryptLib/Pk/CryptEdDsa.c      |  6 +++--
+ .../Library/BaseCryptLib/Pk/CryptMlDsa.c      |  6 +++--
  .../Library/BaseCryptLib/Pk/CryptPkcs1Oaep.c  | 12 ++++++----
  .../Library/BaseCryptLib/Pk/CryptRsaPssSign.c |  6 +++--
+ .../Library/BaseCryptLib/Pk/CryptSlhDsa.c     |  6 +++--
  .../BaseCryptLib/SysCall/BaseMemAllocation.c  |  7 ++++++
  .../Library/BaseCryptLib/SysCall/CrtWrapper.c |  5 ++++
  .../BaseCryptLib/SysCall/TimerWrapper.c       |  5 ++++
@@ -18,7 +21,7 @@ Subject: [PATCH 5/5] feat: support compiling crypto library with stdlib -
  .../Library/IntrinsicLib/IntrinsicLib.inf     |  2 ++
  .../Library/IntrinsicLib/MemoryIntrinsics.c   |  3 +++
  CryptoPkg/Library/OpensslLib/OpensslLib.inf   | 10 ++++++++
- 12 files changed, 87 insertions(+), 9 deletions(-)
+ 15 files changed, 99 insertions(+), 15 deletions(-)
 
 diff --git a/CryptoPkg/Library/BaseCryptLib/BaseCryptLib.inf b/CryptoPkg/Library/BaseCryptLib/BaseCryptLib.inf
 index bf8f1f86af..8f50a77911 100644
@@ -71,6 +74,54 @@ index 34e81246ed..8b260495a1 100644
    }
  
    EVP_PKEY_CTX_free (pHkdfCtx);
+diff --git a/CryptoPkg/Library/BaseCryptLib/Pk/CryptEdDsa.c b/CryptoPkg/Library/BaseCryptLib/Pk/CryptEdDsa.c
+index 0b75f9542a..1ee91ebf20 100644
+--- a/CryptoPkg/Library/BaseCryptLib/Pk/CryptEdDsa.c
++++ b/CryptoPkg/Library/BaseCryptLib/Pk/CryptEdDsa.c
+@@ -378,7 +378,8 @@ EdDsaGetPubKey (
+ 
+   *PublicKeySize = FinalPublicKeySize;
+ 
+-  Result = EVP_PKEY_get_raw_public_key (Ctx->EvpPkey, PublicKey, PublicKeySize);
++  _Static_assert(sizeof(UINTN) == sizeof(size_t));
++  Result = EVP_PKEY_get_raw_public_key (Ctx->EvpPkey, PublicKey, (size_t*)PublicKeySize);
+   if (Result != 1) {
+     return FALSE;
+   }
+@@ -498,7 +499,8 @@ EdDsaSign (
+     return FALSE;
+   }
+ 
+-  if (EVP_DigestSign (SignCtx, Signature, SigSize, Message, MessageSize) != 1) {
++  _Static_assert(sizeof(UINTN) == sizeof(size_t));
++  if (EVP_DigestSign (SignCtx, Signature, (size_t*)SigSize, Message, MessageSize) != 1) {
+     EVP_MD_CTX_free (SignCtx);
+     return FALSE;
+   }
+diff --git a/CryptoPkg/Library/BaseCryptLib/Pk/CryptMlDsa.c b/CryptoPkg/Library/BaseCryptLib/Pk/CryptMlDsa.c
+index d17459daf9..b869bb6b73 100644
+--- a/CryptoPkg/Library/BaseCryptLib/Pk/CryptMlDsa.c
++++ b/CryptoPkg/Library/BaseCryptLib/Pk/CryptMlDsa.c
+@@ -471,7 +471,8 @@ MlDsaGetPubKey (
+ 
+   *PublicKeySize = FinalPublicKeySize;
+ 
+-  Result = EVP_PKEY_get_raw_public_key (Ctx->EvpPkey, PublicKey, PublicKeySize);
++  _Static_assert(sizeof(UINTN) == sizeof(size_t));
++  Result = EVP_PKEY_get_raw_public_key (Ctx->EvpPkey, PublicKey, (size_t*)PublicKeySize);
+   if (Result != 1) {
+     return FALSE;
+   }
+@@ -580,7 +581,8 @@ MlDsaSign (
+     return FALSE;
+   }
+ 
+-  Result = EVP_DigestSign (SignCtx, Signature, SigSize, Message, MessageSize);
++  _Static_assert(sizeof(UINTN) == sizeof(size_t));
++  Result = EVP_DigestSign (SignCtx, Signature, (size_t*)SigSize, Message, MessageSize);
+   if (Result != 1) {
+     EVP_MD_CTX_free (SignCtx);
+     return FALSE;
 diff --git a/CryptoPkg/Library/BaseCryptLib/Pk/CryptPkcs1Oaep.c b/CryptoPkg/Library/BaseCryptLib/Pk/CryptPkcs1Oaep.c
 index 7634ab1f6f..e0c12dc264 100644
 --- a/CryptoPkg/Library/BaseCryptLib/Pk/CryptPkcs1Oaep.c
@@ -142,6 +193,30 @@ index 4835f81168..cefa40b440 100644
                 Digest,
                 (UINT32)DigestSize
                 ) > 0;
+diff --git a/CryptoPkg/Library/BaseCryptLib/Pk/CryptSlhDsa.c b/CryptoPkg/Library/BaseCryptLib/Pk/CryptSlhDsa.c
+index dc974fde12..3235a43412 100644
+--- a/CryptoPkg/Library/BaseCryptLib/Pk/CryptSlhDsa.c
++++ b/CryptoPkg/Library/BaseCryptLib/Pk/CryptSlhDsa.c
+@@ -471,7 +471,8 @@ SlhDsaGetPubKey (
+ 
+   *PublicKeySize = FinalPublicKeySize;
+ 
+-  Result = EVP_PKEY_get_raw_public_key (Ctx->EvpPkey, PublicKey, PublicKeySize);
++  _Static_assert(sizeof(UINTN) == sizeof(size_t));
++  Result = EVP_PKEY_get_raw_public_key (Ctx->EvpPkey, PublicKey, (size_t*)PublicKeySize);
+   if (Result != 1) {
+     return FALSE;
+   }
+@@ -580,7 +581,8 @@ SlhDsaSign (
+     return FALSE;
+   }
+ 
+-  Result = EVP_DigestSign (SignCtx, Signature, SigSize, Message, MessageSize);
++  _Static_assert(sizeof(UINTN) == sizeof(size_t));
++  Result = EVP_DigestSign (SignCtx, Signature, (size_t*)SigSize, Message, MessageSize);
+   if (Result != 1) {
+     EVP_MD_CTX_free (SignCtx);
+     return FALSE;
 diff --git a/CryptoPkg/Library/BaseCryptLib/SysCall/BaseMemAllocation.c b/CryptoPkg/Library/BaseCryptLib/SysCall/BaseMemAllocation.c
 index b7bed15c18..b1271166a5 100644
 --- a/CryptoPkg/Library/BaseCryptLib/SysCall/BaseMemAllocation.c

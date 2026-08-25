@@ -1,4 +1,4 @@
-From 3cb0101fe1c8a0f2e5390897475bb9ed74b43438 Mon Sep 17 00:00:00 2001
+From 4cdbcf203d7d39ce52630df5cd4a4a57f76af5a9 Mon Sep 17 00:00:00 2001
 From: Totto16 <tobiausgais@gmail.com>
 Date: Tue, 25 Aug 2026 17:36:28 +0200
 Subject: [PATCH 4/5] feat: add ssl lib include for the package I use - this is
