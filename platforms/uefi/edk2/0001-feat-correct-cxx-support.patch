@@ -1,5 +1,14 @@
+From 449c60fbe87e7517f2820ca3c2a2e951a377bbfe Mon Sep 17 00:00:00 2001
+From: Totto16 <tobiausgais@gmail.com>
+Date: Tue, 25 Aug 2026 17:33:06 +0200
+Subject: [PATCH 1/5] feat: correct cxx support - make C++ correctly supported
+
+---
+ BaseTools/Conf/build_rule.template | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
 diff --git a/BaseTools/Conf/build_rule.template b/BaseTools/Conf/build_rule.template
-index 0c454ee3d5..9e13b638f8 100755
+index a89866d700..e804a1c965 100755
 --- a/BaseTools/Conf/build_rule.template
 +++ b/BaseTools/Conf/build_rule.template
 @@ -121,13 +121,13 @@
@@ -36,3 +45,6 @@ index 0c454ee3d5..9e13b638f8 100755
  
  [C-Code-File.BASE.AARCH64,C-Code-File.SEC.AARCH64,C-Code-File.PEI_CORE.AARCH64,C-Code-File.PEIM.AARCH64]
      <InputFile>
+-- 
+2.55.0
+

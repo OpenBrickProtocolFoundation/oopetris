@@ -1,8 +1,30 @@
+From 9f530a8bdad4b3cb5bbddbce5b6c02f5490b8a5f Mon Sep 17 00:00:00 2001
+From: Totto16 <tobiausgais@gmail.com>
+Date: Tue, 25 Aug 2026 17:38:22 +0200
+Subject: [PATCH 5/5] feat: support compiling crypto library with stdlib -
+ don't use compatibility layer for crypto library as that creates link errors,
+ when using edk2-libc too
+
+---
+ .../Library/BaseCryptLib/BaseCryptLib.inf     |  9 +++++++
+ .../Library/BaseCryptLib/Kdf/CryptHkdf.c      |  9 ++++---
+ .../Library/BaseCryptLib/Pk/CryptPkcs1Oaep.c  | 12 ++++++----
+ .../Library/BaseCryptLib/Pk/CryptRsaPssSign.c |  6 +++--
+ .../BaseCryptLib/SysCall/BaseMemAllocation.c  |  7 ++++++
+ .../Library/BaseCryptLib/SysCall/CrtWrapper.c |  5 ++++
+ .../BaseCryptLib/SysCall/TimerWrapper.c       |  5 ++++
+ CryptoPkg/Library/Include/CrtLibSupport.h     | 24 +++++++++++++++++++
+ CryptoPkg/Library/IntrinsicLib/CopyMem.c      |  4 ++++
+ .../Library/IntrinsicLib/IntrinsicLib.inf     |  2 ++
+ .../Library/IntrinsicLib/MemoryIntrinsics.c   |  3 +++
+ CryptoPkg/Library/OpensslLib/OpensslLib.inf   | 10 ++++++++
+ 12 files changed, 87 insertions(+), 9 deletions(-)
+
 diff --git a/CryptoPkg/Library/BaseCryptLib/BaseCryptLib.inf b/CryptoPkg/Library/BaseCryptLib/BaseCryptLib.inf
-index 8190968a53..83d474e95a 100644
+index bf8f1f86af..8f50a77911 100644
 --- a/CryptoPkg/Library/BaseCryptLib/BaseCryptLib.inf
 +++ b/CryptoPkg/Library/BaseCryptLib/BaseCryptLib.inf
-@@ -112,3 +112,12 @@
+@@ -116,3 +116,12 @@
    GCC:*_CLANGPDB_*_CC_FLAGS = -std=c99 -Wno-error=incompatible-pointer-types
  
    XCODE:*_*_*_CC_FLAGS = -std=c99
@@ -294,10 +316,10 @@ index 9b091f1901..faedee2d9e 100644
  }
 +#endif
 diff --git a/CryptoPkg/Library/OpensslLib/OpensslLib.inf b/CryptoPkg/Library/OpensslLib/OpensslLib.inf
-index 094d4439b1..f9ddaa4d26 100644
+index 629ceec139..1aaf224333 100644
 --- a/CryptoPkg/Library/OpensslLib/OpensslLib.inf
 +++ b/CryptoPkg/Library/OpensslLib/OpensslLib.inf
-@@ -815,3 +815,13 @@
+@@ -836,3 +836,13 @@
    # use floating point types, so clear the flags here.
    #
    GCC:*_*_AARCH64_CC_XIPFLAGS ==
@@ -311,3 +333,6 @@ index 094d4439b1..f9ddaa4d26 100644
 +[BuildOptions.X64]
 +  *_*_*_CC_FLAGS                    =  -I$(EDK2_LIBC_ROOT)/StdLib/Include/X64
 +  *_*_*_CC_FLAGS                    =  -I$(EDK2_ROOT)/MdePkg/Include/X64
+-- 
+2.55.0
+

@@ -135,13 +135,7 @@ EDK2_PATCH_FILE="$EDK2_ROOT/.patched_manually.meta"
 if ! [ -e "$EDK2_PATCH_FILE" ]; then
     ##TODO: upstream those patches
 
-    #TODO: use loop for this patches
-
-    git apply --unsafe-paths -p1 --directory="$EDK2_ROOT" "$PATCH_DIR/edk2_cxx_compiler.diff"
-    git apply --unsafe-paths -p1 --directory="$EDK2_ROOT" "$PATCH_DIR/edk2_ssl_lib.diff"
-    git apply --unsafe-paths -p1 --directory="$EDK2_ROOT" "$PATCH_DIR/edk2_ssl_lib_compile_with_libc.diff"
-    git apply --unsafe-paths -p1 --directory="$EDK2_ROOT" "$PATCH_DIR/edk2_use_arch_x86_64_v1.diff"
-    #TODO: GENFW and linker script for constructors
+    git am --directory="$EDK2_ROOT" "$PATCH_DIR/edk2/*.patch"
 
     touch "$EDK2_PATCH_FILE"
 fi
@@ -151,7 +145,7 @@ EDK2_LIBC_PATCH_FILE="$EDK2_LIBC_ROOT/.patched_manually.meta"
 if ! [ -e "$EDK2_LIBC_PATCH_FILE" ]; then
     ##TODO: upstream those patches
 
-    git am --directory="$EDK2_ROOT" "$PATCH_DIR/libc/*.patch"
+    git am --directory="$EDK2_ROOT" "$PATCH_DIR/edk2-libc/*.patch"
 
     touch "$EDK2_LIBC_PATCH_FILE"
 fi
@@ -229,9 +223,7 @@ fi
 
 git -C "$EDK2_LLVM_ROOT" checkout "$EDK2_LLVM_PORT_BRANCH"
 
-
 popd
-
 
 export CC="$SCRIPT_DIR/uefi/gcc-wrapper.sh"
 export CXX="$SCRIPT_DIR/uefi/g++-wrapper.sh"
@@ -360,7 +352,6 @@ cat <<EOF >"$EDK2_INFO_FILE"
     "runtime_target": "$RUNTIME_TARGET"
 }
 EOF
-
 
 if [ "$COMPILE_TYPE" == "complete_rebuild" ] || [ ! -e "${EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM:?}" ]; then
     rm -f "${EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM:?}"

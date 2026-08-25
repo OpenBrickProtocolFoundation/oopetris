@@ -1,3 +1,15 @@
+From 3cb0101fe1c8a0f2e5390897475bb9ed74b43438 Mon Sep 17 00:00:00 2001
+From: Totto16 <tobiausgais@gmail.com>
+Date: Tue, 25 Aug 2026 17:36:28 +0200
+Subject: [PATCH 4/5] feat: add ssl lib include for the package I use - this is
+ just for oopetris, so that it doesn't have to be in git that tree
+
+---
+ CryptoPkg/CryptoPkgCustom.dsc.inc           | 25 +++++++++++++++++++++
+ CryptoPkg/Library/OpensslLib/OpensslLib.inf |  1 +
+ 2 files changed, 26 insertions(+)
+ create mode 100644 CryptoPkg/CryptoPkgCustom.dsc.inc
+
 diff --git a/CryptoPkg/CryptoPkgCustom.dsc.inc b/CryptoPkg/CryptoPkgCustom.dsc.inc
 new file mode 100644
 index 0000000000..b9279e9ce8
@@ -30,10 +42,10 @@ index 0000000000..b9279e9ce8
 +  BaseCryptLib|CryptoPkg/Library/BaseCryptLib/BaseCryptLib.inf
 +  TlsLib|CryptoPkg/Library/TlsLib/TlsLib.inf
 diff --git a/CryptoPkg/Library/OpensslLib/OpensslLib.inf b/CryptoPkg/Library/OpensslLib/OpensslLib.inf
-index 094d4439b1..aa36664108 100644
+index 1456be7320..629ceec139 100644
 --- a/CryptoPkg/Library/OpensslLib/OpensslLib.inf
 +++ b/CryptoPkg/Library/OpensslLib/OpensslLib.inf
-@@ -775,6 +775,7 @@
+@@ -795,6 +795,7 @@
    #   -Werror=unused-but-set-variable: Warn whenever a local variable is assigned to, but otherwise unused (aside from its declaration).
    #
    GCC:RELEASE_*_*_CC_FLAGS = -DNDEBUG
@@ -41,3 +53,6 @@ index 094d4439b1..aa36664108 100644
    GCC:*_*_IA32_CC_FLAGS    = -U_WIN32 -UWIN32 -U_WIN64 -U_MSC_VER $(OPENSSL_FLAGS) $(OPENSSL_FLAGS_NOASM) -Wno-error=maybe-uninitialized -Wno-error=unused-but-set-variable
    GCC:*_*_X64_CC_FLAGS     = -U_WIN32 -UWIN32 -U_WIN64 -U_MSC_VER $(OPENSSL_FLAGS) $(OPENSSL_FLAGS_NOASM) -Wno-error=maybe-uninitialized -Wno-error=format -Wno-format -Wno-error=unused-but-set-variable -DNO_MSABI_VA_FUNCS
    GCC:*_*_AARCH64_CC_FLAGS = $(OPENSSL_FLAGS) -Wno-error=maybe-uninitialized -Wno-format -Wno-error=unused-but-set-variable -Wno-error=format
+-- 
+2.55.0
+
