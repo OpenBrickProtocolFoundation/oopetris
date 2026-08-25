@@ -135,7 +135,11 @@ EDK2_PATCH_FILE="$EDK2_ROOT/.patched_manually.meta"
 if ! [ -e "$EDK2_PATCH_FILE" ]; then
     ##TODO: upstream those patches
 
-    git am --directory="$EDK2_ROOT" "$PATCH_DIR/edk2/*.patch"
+    mapfile -d "" -t PATCH_FILES < <(find "$PATCH_DIR/edk2" -name "*.patch" -print0 | sort -z)
+
+    for PATCH_FILE in "${PATCH_FILES[@]}"; do
+        git apply --unsafe-paths -p1 --directory="$EDK2_ROOT" "$PATCH_FILE"
+    done
 
     touch "$EDK2_PATCH_FILE"
 fi
@@ -145,7 +149,11 @@ EDK2_LIBC_PATCH_FILE="$EDK2_LIBC_ROOT/.patched_manually.meta"
 if ! [ -e "$EDK2_LIBC_PATCH_FILE" ]; then
     ##TODO: upstream those patches
 
-    git am --directory="$EDK2_ROOT" "$PATCH_DIR/edk2-libc/*.patch"
+    mapfile -d "" -t PATCH_FILES < <(find "$PATCH_DIR/edk2-libc" -name "*.patch" -print0 | sort -z)
+
+    for PATCH_FILE in "${PATCH_FILES[@]}"; do
+        git apply --unsafe-paths -p1 --directory="$EDK2_LIBC_ROOT" "$PATCH_FILE"
+    done
 
     touch "$EDK2_LIBC_PATCH_FILE"
 fi

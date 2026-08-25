@@ -33,7 +33,7 @@ export EMSDK_EXECUTE_NODE_VERSION="24.7.0"
 
 # edk2 section
 
-export EDK2_RELEASE_TAG="edk2-stable202605"
+export EDK2_RELEASE_TAG="edk2-stable202608"
 
 export EDK2_LIBC_COMMIT_HASH="e6985d1dd786f89be3c908ec7b19e3e6da463578"
 
