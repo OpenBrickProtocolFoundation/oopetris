@@ -127,7 +127,7 @@ add_include_to_platform() {
     : # found already, do nothing
   else
     cat <<EOF >>"$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM"
-!include $FINAL_PKG_INC_NAME
+!include $FINAL_PKG_INC_NAME #from extract-defintions
 
 EOF
 

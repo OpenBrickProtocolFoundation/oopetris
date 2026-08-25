@@ -23,7 +23,7 @@
             "pkg": "CryptoPkg/CryptoPkg",
             "lib": "BaseCryptLib",
             "inf": "CryptoPkg/Library/BaseCryptLib/BaseCryptLib.inf",
-            "inc": "CryptoPkg/CryptoPkgCustom.dsc.inc",
+            "inc": null,
             "tool_prefix": "edk2"
         }
     }

@@ -55,14 +55,17 @@ EOF
 
     fi
 
-    if grep -q "$PACKAGE_NAME_INC" "$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM"; then
-        : # found already, do nothing
-    else
-        cat <<EOF >>"$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM"
-!include $PACKAGE_NAME_INC
+    if [ "$PACKAGE_NAME_INC" != "null" ]; then
+
+        if grep -q "$PACKAGE_NAME_INC" "$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM"; then
+            : # found already, do nothing
+        else
+            cat <<EOF >>"$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM"
+!include $PACKAGE_NAME_INC # from pkg-config
 
 EOF
 
+        fi
     fi
 
 }
