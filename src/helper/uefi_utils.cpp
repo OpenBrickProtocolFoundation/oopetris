@@ -19,17 +19,17 @@ std::shared_ptr<spdlog::sinks::callback_sink_st> uefi::get_debug_sink() {
                 return;
             case spdlog::level::trace:
             case spdlog::level::debug:
-                EFI_DEBUG((DEBUG_VERBOSE, "%s", message));
+                EFI_DEBUG((DEBUG_VERBOSE, "%a", message));
                 break;
             case spdlog::level::info:
-                EFI_DEBUG((DEBUG_INFO, "%s", message));
+                EFI_DEBUG((DEBUG_INFO, "%a", message));
                 break;
             case spdlog::level::warn:
-                EFI_DEBUG((DEBUG_WARN, "%s", message));
+                EFI_DEBUG((DEBUG_WARN, "%a", message));
                 break;
             case spdlog::level::err:
             case spdlog::level::critical:
-                EFI_DEBUG((DEBUG_ERROR, "%s", message));
+                EFI_DEBUG((DEBUG_ERROR, "%a", message));
                 break;
             default:
                 return;

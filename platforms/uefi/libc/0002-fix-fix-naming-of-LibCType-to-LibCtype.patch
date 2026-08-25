@@ -1,3 +1,16 @@
+From c100be98fc907b9573612503e784618b082f5997 Mon Sep 17 00:00:00 2001
+From: Totto16 <tobiausgais@gmail.com>
+Date: Fri, 21 Aug 2026 18:28:44 +0200
+Subject: [PATCH 2/3] fix: fix naming of LibCType to LibCtype
+
+---
+ StdLib/LibC/Locale/Locale.inf | 2 +-
+ StdLib/LibC/StdLib/StdLib.inf | 2 +-
+ StdLib/LibC/Stdio/Stdio.inf   | 2 +-
+ StdLib/LibC/String/String.inf | 2 +-
+ StdLib/StdLib.inc             | 2 +-
+ 5 files changed, 5 insertions(+), 5 deletions(-)
+
 diff --git a/StdLib/LibC/Locale/Locale.inf b/StdLib/LibC/Locale/Locale.inf
 index 1bbb611..1c81272 100644
 --- a/StdLib/LibC/Locale/Locale.inf
@@ -22,10 +35,10 @@ index e7bdf5a..968e6a7 100644
  
  ################################################################
 diff --git a/StdLib/LibC/Stdio/Stdio.inf b/StdLib/LibC/Stdio/Stdio.inf
-index fe87242..daffb34 100644
+index df122fa..c6e6071 100644
 --- a/StdLib/LibC/Stdio/Stdio.inf
 +++ b/StdLib/LibC/Stdio/Stdio.inf
-@@ -128,7 +128,7 @@
+@@ -129,7 +129,7 @@
  
  [LibraryClasses]
    LibC
@@ -60,3 +73,6 @@ index 8083e2b..4d08302 100644
    LibLocale|StdLib/LibC/Locale/Locale.inf
    LibMath|StdLib/LibC/Math/Math.inf
    LibSignal|StdLib/LibC/Signal/Signal.inf
+-- 
+2.55.0
+

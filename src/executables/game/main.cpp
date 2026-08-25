@@ -187,14 +187,12 @@ namespace {
 
 #if defined(__UEFI__)
 
-extern "C" {
+#include <libc/main.h>
 
-// link it as C function, the rest is done by the StdLib Wrapper, but argc might be 0 and argv NULL
-
-int main(int argc, char** argv) {
+int EDK2_LIBCXX_ENTRY_NAME(int argc, char** argv) {
     return main_no_sdl_replace(argc, argv);
 }
-}
+
 #else
 
 int main(int argc, char** argv) {

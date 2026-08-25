@@ -141,6 +141,7 @@ if ! [ -e "$EDK2_PATCH_FILE" ]; then
     git apply --unsafe-paths -p1 --directory="$EDK2_ROOT" "$PATCH_DIR/edk2_ssl_lib.diff"
     git apply --unsafe-paths -p1 --directory="$EDK2_ROOT" "$PATCH_DIR/edk2_ssl_lib_compile_with_libc.diff"
     git apply --unsafe-paths -p1 --directory="$EDK2_ROOT" "$PATCH_DIR/edk2_use_arch_x86_64_v1.diff"
+    #TODO: GENFW and linker script for constructors
 
     touch "$EDK2_PATCH_FILE"
 fi
@@ -150,8 +151,7 @@ EDK2_LIBC_PATCH_FILE="$EDK2_LIBC_ROOT/.patched_manually.meta"
 if ! [ -e "$EDK2_LIBC_PATCH_FILE" ]; then
     ##TODO: upstream those patches
 
-    git apply --unsafe-paths -p1 --directory="$EDK2_LIBC_ROOT" "$PATCH_DIR/edk2_libc_cpp_compatibility.diff"
-    git apply --unsafe-paths -p1 --directory="$EDK2_LIBC_ROOT" "$PATCH_DIR/edk2_libc_ctype_lib_name_fix.diff"
+    git am --directory="$EDK2_ROOT" "$PATCH_DIR/libc/*.patch"
 
     touch "$EDK2_LIBC_PATCH_FILE"
 fi
@@ -256,7 +256,7 @@ export SYS_ROOT="$WORKSPACE"
 export PKG_CONFIG_PATH="$SYS_ROOT/lib/pkgconfig"
 
 export LINK_FLAGS="$COMMON_FLAGS"
-export COMPILE_FLAGS="$COMMON_FLAGS ,'--sysroot=${SYS_ROOT}', '-D__UEFI__', '-DEFIAPI=__attribute__((ms_abi))', '-fexceptions', '-fshort-wchar', '-fno-builtin', '-fno-strict-aliasing', '-fno-common', '-fstack-protector', '-ffunction-sections', '-fdata-sections', '-fno-asynchronous-unwind-tables', '-fno-omit-frame-pointer', '-DAUDIO_PREFER_MP3'"
+export COMPILE_FLAGS="$COMMON_FLAGS ,'--sysroot=${SYS_ROOT}', '-D__UEFI__', '-DEFIAPI=__attribute__((ms_abi))', '-fshort-wchar', '-fno-builtin', '-fno-strict-aliasing', '-fno-common', '-fstack-protector', '-ffunction-sections', '-fdata-sections', '-fno-asynchronous-unwind-tables', '-fno-omit-frame-pointer', '-DAUDIO_PREFER_MP3'"
 
 export CC_COMPILE_FLAGS="'-nostdinc', '-I$EDK2_LIBC_ROOT/StdLib/Include', '-I$EDK2_LIBC_ROOT/StdLib/Include/$EDK2_TARGET_PROPERTIES_ARCH',  '-I$EDK2_ROOT/MdePkg/Include', '-I$EDK2_ROOT/MdePkg/Include/$EDK2_TARGET_PROPERTIES_ARCH'"
 

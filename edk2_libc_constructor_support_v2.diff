@@ -1,0 +1,106 @@
+diff --git a/StdLib/Include/libc/main.h b/StdLib/Include/libc/main.h
+new file mode 100644
+index 0000000..caae7c1
+--- /dev/null
++++ b/StdLib/Include/libc/main.h
+@@ -0,0 +1,20 @@
++
++#pragma once
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++#define EDK2_LIBC_ENTRY_NAME edk2_libc_main
++
++extern int EDK2_LIBC_ENTRY_NAME(int, char**);
++
++#ifdef __cplusplus
++}
++
++#define EDK2_LIBCXX_ENTRY_NAME edk2_libcxx_main
++
++extern int EDK2_LIBCXX_ENTRY_NAME(int, char**);
++
++
++#endif
+diff --git a/StdLib/LibC/Main/Main.c b/StdLib/LibC/Main/Main.c
+index b203d15..d98e1a0 100644
+--- a/StdLib/LibC/Main/Main.c
++++ b/StdLib/LibC/Main/Main.c
+@@ -31,15 +31,51 @@
+ #include  <MainData.h>
+ #include  <unistd.h>
+ 
+-extern int main( int, char**);
++#include <libc/main.h>
++
+ extern int __sse2_available;
+ 
+ struct  __MainData  *gMD;
+ 
+-/* Worker function to keep GCC happy. */
+-void __main()
+-{
+-  ;
++// these symbols are provided by the linker from the extions .init_array and .fini_array
++typedef void (*init_func_t)(void);
++
++extern init_func_t __init_array_start[] __attribute__ ((section(".init_array"), aligned(sizeof(init_func_t)))) ;
++extern init_func_t __init_array_end[] __attribute__ ((section(".init_array"), aligned(sizeof(init_func_t)))) ;
++
++extern init_func_t __fini_array_start[] __attribute__ ((section(".fini_array"), aligned(sizeof(init_func_t)))) ;
++extern init_func_t __fini_array_end[]; __attribute__ ((section(".fini_array"), aligned(sizeof(init_func_t)))) 
++
++static void run_init_array(void) {
++    size_t size = __init_array_end - __init_array_start;
++    for (size_t i = 0; i < size; ++i) {
++        init_func_t* func = __init_array_start + i ;
++        if (*func != NULL) {
++            (*func)();
++        }
++    }
++}
++
++static void run_fini_array(void) {
++    // iterate reversed
++    size_t size = __fini_array_end - __fini_array_start;
++    for (size_t i = size; i != 0; --i) {
++        init_func_t* func = __fini_array_start + (i - 1);
++        if (*func != NULL) {
++            (*func)();
++        }
++    }
++}
++
++
++//TODO: this can be c or c++ constructors, so these shoul only be run, after libc  or libc AND libcxx is intilized, before we call EDK2_LIBC_ENTRY_NAME or EDK2_LIBCXX_ENTRY_NAME, but how to know if the final entry point is c++ or c? as c++ also uses the c entry point too
++
++void edk2_libc_call_constructors(void) {
++    run_init_array();
++}
++
++void edk2_libc_call_destructors(void) {
++    run_fini_array();
+ }
+ 
+ /** Clean up data as required by the exit() function.
+@@ -67,6 +103,8 @@ exitCleanup(INTN ExitVal)
+       CleanUp();
+     }
+   }
++
++  edk2_libc_call_destructors();
+ }
+ 
+ /* Create mbcs versions of the Argv strings. */
+@@ -179,7 +217,8 @@ ShellAppMain (
+     else {
+       if( setjmp(gMD->MainExit) == 0) {
+         errno   = 0;    // Clean up any "scratch" values from startup.
+-        ExitVal = (INTN)main( (int)Argc, gMD->NArgV);
++        edk2_libc_call_constructors();
++        ExitVal = (INTN)EDK2_LIBC_ENTRY_NAME( (int)Argc, gMD->NArgV);
+         exitCleanup(ExitVal);
+       }
+       /* You reach here if:
