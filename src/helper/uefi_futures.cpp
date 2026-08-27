@@ -2,6 +2,8 @@
 
 
 extern "C" {
+#include <Library/BaseLib.h>
+#include <Library/SynchronizationLib.h>
 #include <Library/UefiBootServicesTableLib.h>
 }
 
@@ -248,4 +250,52 @@ std::shared_ptr<details::DetachedThreadStatePublic> details::start_detached_thre
 
     ASSERT(__cpu_state != nullptr);
     return start_detached_thread_impl(__cpu_state->Mp, cpu_to_execute_on, info);
+}
+
+
+details::helper::ThreadMutex::ThreadMutex() noexcept : locked{ 0 } {
+    //
+}
+
+details::helper::ThreadMutex::ThreadMutex(ThreadMutex&& other) noexcept : locked{ 0 } {
+    ASSERT(!other.locked);
+
+    other.locked = 0;
+}
+
+details::helper::ThreadMutex& details::helper::ThreadMutex::operator=(ThreadMutex&& other) noexcept {
+    ASSERT(!other.locked);
+
+    this->locked = other.locked;
+    other.locked = 0;
+
+    return *this;
+}
+
+details::helper::ThreadMutex::~ThreadMutex() noexcept {
+    ASSERT(!this->locked);
+}
+
+
+void details::helper::ThreadMutex::lock() {
+    while (InterlockedCompareExchange32(
+                   &(this->locked),
+                   0, // Compare: unlocked
+                   1  // Exchange: locked
+           )
+           != 0) {
+        //
+        // Someone else owns it.
+        //
+        CpuPause();
+    }
+}
+
+void details::helper::ThreadMutex::unlock() {
+
+    InterlockedCompareExchange32(
+            &(this->locked),
+            1, // Compare: locked
+            0  // Exchange: unlocked
+    );
 }

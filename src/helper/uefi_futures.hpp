@@ -96,9 +96,12 @@ namespace details {
 
     namespace helper {
 
-
+        //TODO: we could use a c++ wrapper of the SPIN_LOCK from "SynchronizationLib.h" instead
         struct ThreadMutex {
+        private:
+            volatile UINT32 locked;
 
+        public:
             ThreadMutex() noexcept;
 
             ThreadMutex(const ThreadMutex& other) = delete;
