@@ -71,14 +71,14 @@ helper::TimeInfo::TimeInfo(
 helper::LoadingInfo::LoadingInfo(
         std::chrono::nanoseconds sleep_time,
         Uint64 start_time,
-        std::future<void>&& load_everything_thread,
+        oopetris::future<void>&& load_everything_future,
         std::chrono::steady_clock::time_point start_execution_time,
         bool finished_loading,
         scenes::LoadingScreen&& loading_screen
 )
     : m_sleep_time{ sleep_time },
       m_start_time{ start_time },
-      m_load_everything_thread{ std::move(load_everything_thread) },
+      m_load_everything_future{ std::move(load_everything_future) },
       m_start_execution_time{ start_execution_time },
       m_finished_loading{ finished_loading },
       m_loading_screen{ std::move(loading_screen) } { }
@@ -92,8 +92,8 @@ helper::LoadingInfo::LoadingInfo(
 }
 
 
-[[nodiscard]] const std::future<void>& helper::LoadingInfo::load_everything_thread() const {
-    return m_load_everything_thread;
+[[nodiscard]] const oopetris::future<void>& helper::LoadingInfo::load_everything_future() const {
+    return m_load_everything_future;
 }
 
 Application::Application(std::shared_ptr<Window>&& window, CommandLineArguments&& arguments)
@@ -308,9 +308,10 @@ void Application::load_loop() {
     // end waiting
 
     // wait until is faster, since it just compares two time_points instead of getting now() and than adding the wait-for argument
-    m_loading_info->m_finished_loading =
-            m_loading_info->load_everything_thread().wait_until(std::chrono::system_clock::time_point::min())
-            == std::future_status::ready;
+    auto loading_status =
+            m_loading_info->load_everything_future().wait_until(std::chrono::system_clock::time_point::min());
+    ASSERT(loading_status == oopetris::future_status::ready || loading_status == oopetris::future_status::timeout);
+    m_loading_info->m_finished_loading = loading_status == oopetris::future_status::ready;
 }
 
 
@@ -475,7 +476,7 @@ void Application::initialize() {
 
     const auto start_time = SDL_GetTicks64();
 
-    std::future<void> load_everything_thread = std::async(std::launch::async, [this] {
+    oopetris::future<void> load_everything_future = OOPETRIS_ASYNC(OOPETRIS_ASYNC_LAUNCH_ARG, [this]() -> void {
         this->m_settings_manager = std::make_unique<SettingsManager>(this);
 
         this->m_settings_manager->add_callback([this](const auto& settings) { this->reload_api(settings); });
@@ -520,7 +521,7 @@ void Application::initialize() {
     auto start_execution_time_arg = std::chrono::steady_clock::now();
 
     m_loading_info = std::make_unique<helper::LoadingInfo>(
-            sleep_time, start_time, std::move(load_everything_thread), start_execution_time_arg, false,
+            sleep_time, start_time, std::move(load_everything_future), start_execution_time_arg, false,
             std::move(loading_screen_arg)
     );
 

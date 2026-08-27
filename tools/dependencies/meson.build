@@ -134,7 +134,13 @@ if meson.is_cross_build()
         }
 
     elif host_machine.system() == 'uefi'
-        # nothing special to do for uefi
+        temp = core_lib.get('compile_args')
+        temp += '-D__OOPETRIS_HAVE_NO_THREADS'
+
+        core_lib += {
+            'compile_args': temp,
+        }
+        temp = 0
     else
         error('Unhandled cross built system: ' + host_machine.system())
     endif

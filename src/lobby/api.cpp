@@ -3,7 +3,10 @@
 #include "api.hpp"
 
 #include "helper/spdlog_wrapper.hpp"
+
+#if !defined(__OOPETRIS_HAVE_NO_THREADS)
 #include <future>
+#endif
 
 #if !defined(_OOPETRIS_ONLINE_SYSTEM)
 #error "_OOPETRIS_ONLINE_SYSTEM has to be defined"
@@ -132,11 +135,19 @@ void lobby::API::check_url(
 ) {
 
     //TODO(Totto): is this done correctly
+
+#if !defined(__OOPETRIS_HAVE_NO_THREADS)
+
     std::ignore = std::async(std::launch::async, [url, callback = std::move(callback), service_provider] {
         auto result = lobby::API::get_api(service_provider, url);
 
         callback(result.has_value());
     });
+#else
+    auto result = lobby::API::get_api(service_provider, url);
+
+    callback(result.has_value());
+#endif
 }
 
 

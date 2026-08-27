@@ -1,7 +1,5 @@
 
 
-#if defined(__EMSCRIPTEN__)
-
 #include <core/helper/utils.hpp>
 
 #include "./web_utils.hpp"
@@ -190,5 +188,3 @@ void web::WebContext::do_processing() {
 [[nodiscard]] const web::LocalStorage& web::WebContext::local_storage() const {
     return m_local_storage;
 }
-
-#endif

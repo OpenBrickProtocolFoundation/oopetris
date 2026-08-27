@@ -14,11 +14,23 @@ graphics_src_files += files(
     'platform.cpp',
     'platform.hpp',
     'spdlog_wrapper.hpp',
-    'uefi_utils.cpp',
-    'uefi_utils.hpp',
-    'web_utils.cpp',
-    'web_utils.hpp',
 )
+
+if meson.is_cross_build() and host_machine.system() == 'uefi'
+    graphics_src_files += files(
+        'uefi_futures.cpp',
+        'uefi_futures.hpp',
+        'uefi_utils.cpp',
+        'uefi_utils.hpp',
+    )
+elif meson.is_cross_build() and host_machine.system() == 'emscripten'
+    graphics_src_files += files(
+        'web_utils.cpp',
+        'web_utils.hpp',
+    )
+endif
+
+
 
 if have_file_dialogs
     graphics_src_files += files('nfd.cpp', 'nfd_include.hpp')

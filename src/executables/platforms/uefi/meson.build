@@ -132,6 +132,8 @@ elif RUNTIME_TARGET == 'emulator'
                 # this cpu has x86-64 v1 (baseline) support
                 '-cpu',
                 'qemu64-v1',
+                '-smp',
+                'sockets=1,cores=4,threads=1',
                 '-drive',
                 'if=pflash,format=raw,unit=0,file=' + OVMF_CODE_fd_path + ',readonly=on',
                 '-drive',
