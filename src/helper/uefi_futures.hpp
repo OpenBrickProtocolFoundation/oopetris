@@ -139,22 +139,20 @@ namespace uefi::helper {
         };
 
         struct RunningState {
-            details::SecondaryCPUState* const cpu;
+            details::SecondaryCPUState* cpu;
             std::shared_ptr<details::ThreadInfo> info;
             std::shared_ptr<details::DetachedThreadStatePublic> thread;
         };
 
-        std::variant<RunningState, ErrorState, FinishedState> m_state;
+        mutable std::variant<RunningState, ErrorState, FinishedState> m_state;
         //
 
-        void __internal_poll(void) {
-
-
-            auto new_value = std::visit(
+        void __internal_poll(void) const {
+            std::optional<std::variant<RunningState, ErrorState, FinishedState>> new_value = std::visit(
                     ::helper::uefi::future::Overloaded{
                             [this](const RunningState& state)
                                     -> std::optional<std::variant<RunningState, ErrorState, FinishedState>> {
-                                auto thread_st = state.poll();
+                                auto thread_st = state.thread->poll();
 
                                 switch (thread_st) {
                                     case details::thread_state::running:
@@ -185,7 +183,7 @@ namespace uefi::helper {
             );
 
             if (new_value.has_value()) {
-                this->m_state = new_value.value();
+                this->m_state = std::move(new_value.value());
             }
         }
 
