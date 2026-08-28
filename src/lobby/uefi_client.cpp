@@ -4,9 +4,11 @@
 #include <core/helper/magic_enum_wrapper.hpp>
 #include <core/helper/utils.hpp>
 
+extern "C" {
 #include <Library/MemoryAllocationLib.h>
 #include <Library/UefiBootServicesTableLib.h>
 #include <Protocol/ManagedNetwork.h>
+}
 
 #include <vector>
 
@@ -433,7 +435,7 @@ static EFI_STATUS FindNetworkController(OUT EFI_HANDLE* Controller) {
     EFI_HANDLE* Handles = NULL;
     UINTN HandleCount = 0;
 
-    if(!gBS){
+    if (!gBS) {
         return EFI_NOT_READY;
     }
 
