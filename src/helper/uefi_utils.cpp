@@ -142,8 +142,13 @@ extern "C" {
 
 #pragma GCC diagnostic pop
 
+#include <Library/BaseLib.h>
+#include <Library/MemoryAllocationLib.h>
+#include <Uefi.h>
+
 // use stdlib internals, to register a new rom device under romfs:
 #include <StdLibPrivateInternalFiles/Include/kfile.h>
+
 #include <StdLibPrivateInternalFiles/Include/Device/Device.h>
 }
 
@@ -189,7 +194,7 @@ static off_t EFIAPI _f_romfs_Seek(struct __filedes* filp, off_t offset, int when
 
     int result = eseek(file, offset, whence);
     if (result != 0) {
-        errno = eerno;
+        errno = eerrno;
         return EOF;
     }
 
@@ -254,6 +259,12 @@ _f_romfs_Write(IN struct __filedes* filp, IN off_t* offset, IN size_t BufferSize
     return -1;
 }
 
+
+static int EFIAPI _f_romfs_Fcntl(struct __filedes* filp, UINT32 Cmd, void* p3, void* p4) {
+    errno = ENOTSUP;
+    return -1;
+}
+
 /** EFI specific operations for getting information about an open file.
 
     @param[in]    filp        Pointer to a file descriptor structure.
@@ -306,16 +317,31 @@ int EFIAPI _f_romfs_Open(
         return -1;
     }
 
+    char* strPath = (char*) AllocateZeroPool(PATH_MAX);
+    if (strPath == NULL) {
+        errno = ENOMEM;
+        return -1;
+    }
+
+    size_t convert_result = wcstombs(strPath, Path, PATH_MAX);
+
+    if (convert_result == ((size_t) -1) || convert_result > PATH_MAX) {
+        errno = EINVAL;
+        return -1;
+    }
 
     // Call the EFI's Open function
-    EFILE* file = eopen(Path, "r");
+    EFILE* file = eopen(strPath, "r");
     if (file == NULL) {
         filp->f_iflags = 0; // Release our reservation on this FD
         // Set errno based upon Status
         errno = eerrno;
+
+        FreePool(strPath);
         return -1;
     }
 
+    FreePool(strPath);
 
     // Successfully got a regular File (note c-embed doesnÄt support to open directories)
     filp->f_iflags |= S_IFREG;
@@ -323,7 +349,7 @@ int EFIAPI _f_romfs_Open(
     // Update the info in the fd
     filp->devdata = (void*) file;
 
-    Gip = (GenericInstance*) DevNode->InstanceList;
+    GenericInstance* Gip = (GenericInstance*) DevNode->InstanceList;
     filp->f_offset = 0;
     filp->f_ops = &Gip->Abstraction;
 
@@ -347,6 +373,12 @@ static short EFIAPI _f_romfs_Poll(struct __filedes* filp, short events) {
     errno = ENOTSUP;
     return -1;
 }
+
+static int EFIAPI _f_romfs_Flush(struct __filedes* filp) {
+    errno = ENOTSUP;
+    return -1;
+}
+
 
 /** EFI specific operations for renaming a file.
 
@@ -376,6 +408,8 @@ static int EFIAPI _f_romfs_Rmdir(struct __filedes* filp) {
 
 #define ROMFS_NAME ((const CHAR16*) L"romfs:")
 
+GenericInstance* _g_stream_instance = NULL;
+
 RETURN_STATUS
 EFIAPI
 __ctor_rom_fs(void) {
@@ -385,14 +419,15 @@ __ctor_rom_fs(void) {
     }
 
     Stream->Cookie = ROM_COOKIE;
-    Stream->InstanceNum = 1;
+    Stream->InstanceNum = 1; // not used by this
     Stream->Dev = NULL;
+
     Stream->Abstraction.fo_close = &_f_romfs_Close;
     Stream->Abstraction.fo_read = &_f_romfs_Read;
     Stream->Abstraction.fo_write = &_f_romfs_Write;
-    Stream->Abstraction.fo_fcntl = &fnullop_fcntl;
+    Stream->Abstraction.fo_fcntl = &_f_romfs_Fcntl;
     Stream->Abstraction.fo_poll = &_f_romfs_Poll;
-    Stream->Abstraction.fo_flush = &fnullop_flush;
+    Stream->Abstraction.fo_flush = &_f_romfs_Flush;
     Stream->Abstraction.fo_stat = &_f_romfs_Stat;
     Stream->Abstraction.fo_ioctl = &_f_romfs_Ioctl;
     Stream->Abstraction.fo_delete = &_f_romfs_Delete;
@@ -405,6 +440,8 @@ __ctor_rom_fs(void) {
     RETURN_STATUS Status = EFIerrno;
     Stream->Parent = Node;
 
+    _g_stream_instance = Stream;
+
     return Status;
 }
 
@@ -412,11 +449,8 @@ __ctor_rom_fs(void) {
 RETURN_STATUS
 EFIAPI
 __dtor__rom_fs(void) {
-    if (daDefaultDevice != NULL) {
-        if (daDefaultDevice->InstanceList != NULL) {
-            FreePool(daDefaultDevice->InstanceList);
-        }
-        FreePool(daDefaultDevice);
+    if (_g_stream_instance != NULL) {
+        FreePool(_g_stream_instance);
     }
     return RETURN_SUCCESS;
 }
