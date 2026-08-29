@@ -28,6 +28,10 @@ MusicManager::MusicManager(ServiceProvider* service_provider, u8 channel_size)
         return;
     }
 
+#if defined(__UEFI__)
+    SDL_SetHint(SDL_HINT_AUDIODRIVER, "dummy");
+#endif
+
     const auto result = SDL_InitSubSystem(SDL_INIT_AUDIO);
     if (result != 0) {
         utils::throw_(
@@ -65,6 +69,8 @@ MusicManager::MusicManager(ServiceProvider* service_provider, u8 channel_size)
 #if defined(__EMSCRIPTEN__)
     //TODO: do we need this, first do this:
     // https://github.com/libsdl-org/SDL/issues/6385
+#elif defined(__UEFI__)
+// do nothing
 #else
     const auto audio_channels = 2;
 

@@ -32,7 +32,7 @@ std::shared_ptr<spdlog::sinks::callback_sink_st> uefi::get_debug_sink() {
                 break;
             case spdlog::level::err:
             case spdlog::level::critical:
-                EFI_DEBUG((DEBUG_ERROR, "HHEERREE  %a\n", message.c_str()));
+                EFI_DEBUG((DEBUG_ERROR, "%a\n", message.c_str()));
                 break;
             default:
                 return;
@@ -457,19 +457,19 @@ __dtor__rom_fs(void) {
 
 
 void uefi::platform_init() {
-    auto status = __ctor_rom_fs();
-    if (EFI_ERROR(status)) {
-        utils::throw_(
-                std::runtime_error{ fmt::format("can't initialize ROM fs: {}", map_efi_status_to_string(status)) }
-        );
-    }
+    // auto status = __ctor_rom_fs();
+    // if (EFI_ERROR(status)) {
+    //     utils::throw_(
+    //             std::runtime_error{ fmt::format("can't initialize ROM fs: {}", map_efi_status_to_string(status)) }
+    //     );
+    // }
 }
 
 void uefi::platform_exit() {
-    auto status = __dtor__rom_fs();
-    if (EFI_ERROR(status)) {
-        utils::throw_(
-                std::runtime_error{ fmt::format("can't deinitialize ROM fs: {}", map_efi_status_to_string(status)) }
-        );
-    }
+    // auto status = __dtor__rom_fs();
+    // if (EFI_ERROR(status)) {
+    //     utils::throw_(
+    //             std::runtime_error{ fmt::format("can't deinitialize ROM fs: {}", map_efi_status_to_string(status)) }
+    //     );
+    // }
 }

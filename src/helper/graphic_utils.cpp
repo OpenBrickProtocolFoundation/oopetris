@@ -42,6 +42,10 @@ std::vector<std::string> utils::supported_features() {
     return std::filesystem::path{ std::string{ pref_path } };
 #elif defined(__EMSCRIPTEN__)
     return std::filesystem::path{ "/" };
+#elif defined(__UEFI__)
+    //TODO: can i have writable file systems in uefi?
+    //NOTE: UEFI has no writable filesystems, so just use "." and than open calls fail
+    return std::filesystem::path{ "." };
 #elif defined(__CONSOLE__)
     // this is in the sdcard of the switch / 3ds , since internal storage is read-only for applications!
     return std::filesystem::path{ "." };
@@ -103,8 +107,11 @@ std::vector<std::string> utils::supported_features() {
 #if defined(__ANDROID__)
     return std::filesystem::path{ "" };
 #elif defined(__EMSCRIPTEN__)
-    // emscripten mounts a memfs in the / location, we package assest into this dir, see: https://emscripten.org/docs/porting/files/packaging_files.html#packaging-using-emcc
+    // emscripten mounts a memfs in the / location, we package assets into this dir, see: https://emscripten.org/docs/porting/files/packaging_files.html#packaging-using-emcc
     return std::filesystem::path{ "/assets" };
+#elif defined(__UEFI__)
+    // this is a embedded read only file system, created by c-embed and mounted by edk2-libc and our layer above that (fuse like)
+    return std::filesystem::path{ "romfs:/assets" };
 #elif defined(__CONSOLE__)
     // this is in the internal storage of the nintendo switch, it is mounted by libnx (runtime switch support library) and filled at compile time with assets (its called ROMFS there)
     return std::filesystem::path{ "romfs:/assets" };
