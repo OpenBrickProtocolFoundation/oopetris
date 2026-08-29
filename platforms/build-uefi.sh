@@ -258,7 +258,7 @@ export PKG_CONFIG_PATH="$SYS_ROOT/lib/pkgconfig"
 export LINK_FLAGS="$COMMON_FLAGS"
 export COMPILE_FLAGS="$COMMON_FLAGS ,'--sysroot=${SYS_ROOT}', '-D__UEFI__', '-DEFIAPI=__attribute__((ms_abi))', '-fshort-wchar', '-fno-builtin', '-fno-strict-aliasing', '-fno-common', '-fstack-protector', '-ffunction-sections', '-fdata-sections', '-fno-asynchronous-unwind-tables', '-fno-omit-frame-pointer', '-DAUDIO_PREFER_MP3'"
 
-export CC_COMPILE_FLAGS="'-nostdinc', '-I$EDK2_LIBC_ROOT/StdLib/Include', '-I$EDK2_LIBC_ROOT/StdLib/Include/$EDK2_TARGET_PROPERTIES_ARCH',  '-I$EDK2_ROOT/MdePkg/Include', '-I$EDK2_ROOT/MdePkg/Include/$EDK2_TARGET_PROPERTIES_ARCH'"
+export CC_COMPILE_FLAGS="'-nostdinc', '-I$EDK2_LIBC_ROOT/StdLib/Include', '-I$EDK2_LIBC_ROOT/StdLib/Include/$EDK2_TARGET_PROPERTIES_ARCH',  '-I$EDK2_ROOT/MdePkg/Include', '-I$EDK2_ROOT/MdePkg/Include/$EDK2_TARGET_PROPERTIES_ARCH','-I$EDK2_LIBC_ROOT'"
 
 export CXX_COMPILE_FLAGS="'-fno-exceptions', '-fno-threadsafe-statics', '-fno-use-cxa-atexit', '-fno-unwind-tables', '-fno-asynchronous-unwind-tables', '-nostdinc++', '-nodefaultlibs', '-I$EDK2_LLVM_ROOT/libcxx/include', $CC_COMPILE_FLAGS"
 

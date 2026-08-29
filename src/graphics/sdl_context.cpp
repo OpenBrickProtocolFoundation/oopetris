@@ -9,6 +9,8 @@
 
 #if defined(__CONSOLE__)
 #include "helper/console_helpers.hpp"
+#elif defined(__UEFI__)
+#include "helper/uefi_utils.hpp"
 #endif
 
 #if defined(_HAVE_FILE_DIALOGS)
@@ -28,6 +30,8 @@ SdlContext::SdlContext() {
 
 #if defined(__CONSOLE__)
     console::platform_init();
+#elif defined(__UEFI__)
+    uefi::platform_init();
 #endif
 
 #if defined(_HAVE_FILE_DIALOGS)
@@ -49,6 +53,8 @@ SdlContext::~SdlContext() {
 
 #if defined(__CONSOLE__)
     console::platform_exit();
+#elif defined(__UEFI__)
+    uefi::platform_exit();
 #endif
 
     TTF_Quit();

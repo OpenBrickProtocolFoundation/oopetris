@@ -1,8 +1,6 @@
 graphics_src_files += files(
     'clock_source.cpp',
     'clock_source.hpp',
-    'console_helpers.cpp',
-    'console_helpers.hpp',
     'constants.hpp',
     'export_symbols.hpp',
     'git_helper.hpp',
@@ -28,6 +26,15 @@ elif meson.is_cross_build() and host_machine.system() == 'emscripten'
         'web_utils.cpp',
         'web_utils.hpp',
     )
+elif meson.is_cross_build() and (
+    host_machine.system() == '3ds'
+    or host_machine.system() == 'switch'
+)
+    graphics_src_files += files(
+        'console_helpers.cpp',
+        'console_helpers.hpp',
+    )
+
 endif
 
 

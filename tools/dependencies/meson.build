@@ -334,7 +334,10 @@ if build_application
             meson.override_dependency('sdl2_ttf', sdl2_ttf_switch_dep)
         elif host_machine.system() == 'uefi'
             c_embed_dep = dependency('c-embed')
-            graphic_application_deps += c_embed_dep
+
+            graphics_lib += {
+                'deps': [graphics_lib.get('deps'), c_embed_dep],
+            }
         endif
 
     endif

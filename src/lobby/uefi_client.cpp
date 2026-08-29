@@ -1,8 +1,10 @@
 
 #include "./uefi_client.hpp"
+#include "helper/uefi_utils.hpp"
 
 #include <core/helper/magic_enum_wrapper.hpp>
 #include <core/helper/utils.hpp>
+
 
 extern "C" {
 #include <Library/MemoryAllocationLib.h>
@@ -112,95 +114,6 @@ namespace {
         }
     }
 
-    [[nodiscard]] std::string map_efi_status_to_string(EFI_STATUS status) {
-
-        switch (status) {
-            case EFI_SUCCESS:
-                return "SUCCESS";
-            case EFI_LOAD_ERROR:
-                return "LOAD_ERROR";
-            case EFI_INVALID_PARAMETER:
-                return "INVALID_PARAMETER";
-            case EFI_UNSUPPORTED:
-                return "UNSUPPORTED";
-            case EFI_BAD_BUFFER_SIZE:
-                return "BAD_BUFFER_SIZE";
-            case EFI_BUFFER_TOO_SMALL:
-                return "BUFFER_TOO_SMALL";
-            case EFI_NOT_READY:
-                return "NOT_READY";
-            case EFI_DEVICE_ERROR:
-                return "DEVICE_ERROR";
-            case EFI_WRITE_PROTECTED:
-                return "WRITE_PROTECTED";
-            case EFI_OUT_OF_RESOURCES:
-                return "OUT_OF_RESOURCES";
-            case EFI_VOLUME_CORRUPTED:
-                return "VOLUME_CORRUPTED";
-            case EFI_VOLUME_FULL:
-                return "VOLUME_FULL";
-            case EFI_NO_MEDIA:
-                return "NO_MEDIA";
-            case EFI_MEDIA_CHANGED:
-                return "MEDIA_CHANGED";
-            case EFI_NOT_FOUND:
-                return "NOT_FOUND";
-            case EFI_ACCESS_DENIED:
-                return "ACCESS_DENIED";
-            case EFI_NO_RESPONSE:
-                return "NO_RESPONSE";
-            case EFI_NO_MAPPING:
-                return "NO_MAPPING";
-            case EFI_TIMEOUT:
-                return "TIMEOUT";
-            case EFI_NOT_STARTED:
-                return "NOT_STARTED";
-            case EFI_ALREADY_STARTED:
-                return "ALREADY_STARTED";
-            case EFI_ABORTED:
-                return "ABORTED";
-            case EFI_ICMP_ERROR:
-                return "ICMP_ERROR";
-            case EFI_TFTP_ERROR:
-                return "TFTP_ERROR";
-            case EFI_PROTOCOL_ERROR:
-                return "PROTOCOL_ERROR";
-            case EFI_INCOMPATIBLE_VERSION:
-                return "INCOMPATIBLE_VERSION";
-            case EFI_SECURITY_VIOLATION:
-                return "SECURITY_VIOLATION";
-            case EFI_CRC_ERROR:
-                return "CRC_ERROR";
-            case EFI_END_OF_MEDIA:
-                return "END_OF_MEDIA";
-            case EFI_END_OF_FILE:
-                return "END_OF_FILE";
-            case EFI_INVALID_LANGUAGE:
-                return "INVALID_LANGUAGE";
-            case EFI_COMPROMISED_DATA:
-                return "COMPROMISED_DATA";
-            case EFI_IP_ADDRESS_CONFLICT:
-                return "IP_ADDRESS_CONFLICT";
-            case EFI_HTTP_ERROR:
-                return "HTTP_ERROR";
-            case EFI_WARN_UNKNOWN_GLYPH:
-                return "WARN_UNKNOWN_GLYPH";
-            case EFI_WARN_DELETE_FAILURE:
-                return "WARN_DELETE_FAILURE";
-            case EFI_WARN_WRITE_FAILURE:
-                return "WARN_WRITE_FAILURE";
-            case EFI_WARN_BUFFER_TOO_SMALL:
-                return "WARN_BUFFER_TOO_SMALL";
-            case EFI_WARN_STALE_DATA:
-                return "WARN_STALE_DATA";
-            case EFI_WARN_FILE_SYSTEM:
-                return "WARN_FILE_SYSTEM";
-            case EFI_WARN_RESET_REQUIRED:
-                return "WARN_RESET_REQUIRED";
-            default:
-                return "<Unknown State>";
-        }
-    }
 
 } // namespace
 
@@ -259,7 +172,7 @@ oopetris::http::implementation::ActualResult::ActualResult(ActualResult&& other)
 
 
     if (m_response.Status != EFI_SUCCESS) {
-        return fmt::format("Invalid EFI status: {}", map_efi_status_to_string(m_response.Status));
+        return fmt::format("Invalid EFI status: {}", uefi::map_efi_status_to_string(m_response.Status));
     }
 
     return std::nullopt;
@@ -470,7 +383,7 @@ oopetris::http::implementation::ActualClient::construct(const std::string& api_u
     if (EFI_ERROR(status)) {
         utils::throw_(
                 std::runtime_error{
-                        fmt::format("couldn't get network controller: {}", map_efi_status_to_string(status)) }
+                        fmt::format("couldn't get network controller: {}", uefi::map_efi_status_to_string(status)) }
         );
     }
 
