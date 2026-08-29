@@ -30,7 +30,7 @@ std::shared_ptr<spdlog::sinks::callback_sink_st> uefi::get_debug_sink() {
                 break;
             case spdlog::level::err:
             case spdlog::level::critical:
-                EFI_DEBUG((DEBUG_ERROR, "%a\n", message.c_str()));
+                EFI_DEBUG((DEBUG_ERROR, "HHEERREE  %a\n", message.c_str()));
                 break;
             default:
                 return;

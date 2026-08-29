@@ -87,7 +87,7 @@ fi
 
 SOURCE_FILE_TYPE="$(jq -M -r -c '.["type"]' "$SOURCE_FILE")"
 
-if [ "$SOURCE_FILE_TYPE" == "link" ] || [ "$SOURCE_FILE_TYPE" == "archive" ]; then
+if [ "$SOURCE_FILE_TYPE" == "link" ] || [ "$SOURCE_FILE_TYPE" == "extern_object" ] || [ "$SOURCE_FILE_TYPE" == "archive" ]; then
   :
 else
   echo "Error: invalid source file type: $SOURCE_FILE_TYPE" >&2
@@ -176,8 +176,8 @@ for FILE_DEPENDENCY in "${FILE_DEPENDENCIES[@]}"; do
   if [ "$FILE_DEPENDENCY_TYPE" == "compile" ]; then
     mapfile -t FILE_DEPENDENCY_SRC < <(jq -e '.["dependencies"]["src"][]' -M -r -c "$FILE_DEPENDENCY")
 
-    for FILE_DEPENDENCY_SRC in "${FILE_DEPENDENCY_SRC[@]}"; do
-      DEP_SOURCES+=("$FILE_DEPENDENCY_SRC")
+    for FILE_DEPENDENCY_SRC_ENTRY in "${FILE_DEPENDENCY_SRC[@]}"; do
+      DEP_SOURCES+=("$FILE_DEPENDENCY_SRC_ENTRY")
     done
   elif [ "$FILE_DEPENDENCY_TYPE" == "archive" ] || [ "$FILE_DEPENDENCY_TYPE" == "link" ]; then
 
@@ -229,8 +229,14 @@ for FILE_DEPENDENCY in "${FILE_DEPENDENCIES[@]}"; do
 
     DEP_PACKAGES+=("$PACKAGE_NAME")
     DEP_CLASSES+=("$MAPPING_ENTRY_DEP_LIB")
+  elif [ "$FILE_DEPENDENCY_TYPE" == "extern_object" ]; then
+    mapfile -t FILE_DEPENDENCY_EXTERN < <(jq -e '.["dependencies"]["extern"][]' -M -r -c "$FILE_DEPENDENCY")
+
+    for FILE_DEPENDENCY_EXTERN_ENTRY in "${FILE_DEPENDENCY_EXTERN[@]}"; do
+      DEP_SOURCES+=("$FILE_DEPENDENCY_EXTERN_ENTRY")
+    done
   else
-    echo "Error: invalid source file type: $FILE_DEPENDENCY_TYPE" >&2
+    echo "Error: invalid file dependency type: $FILE_DEPENDENCY_TYPE" >&2
     exit 2
   fi
 
@@ -268,99 +274,111 @@ MESON_TARGETS_INFO_LIB="$(
   jq -M -r -c ".[] | select(.[\"name\"] == \"$SOURCE_FILE_ENTRY_MESON_NAME\")" "$MESON_TARGETS_INFO_FILE"
 )"
 
-if [ "$MESON_TARGETS_INFO_LIB" = "null" ]; then
+if [ "$MESON_TARGETS_INFO_LIB" = "null" ] || [ "$MESON_TARGETS_INFO_LIB" = "" ]; then
   echo "Error: invalid name '$SOURCE_FILE_ENTRY_MESON_NAME': not found in meson targets file'" >&2
   exit 2
 fi
 
-MESON_TARGETS_INFO_LIB_TYPE="$(echo "$MESON_TARGETS_INFO_LIB" | jq -M -r -c ".[\"type\"]")"
+if [ "$SOURCE_FILE_TYPE" == "link" ] || [ "$SOURCE_FILE_TYPE" == "archive" ]; then
 
-mapfile -t MESON_TARGETS_INFO_LIB_COMPILER_TARGETS < <(echo "$MESON_TARGETS_INFO_LIB" | jq '.["target_sources"][] | select( has("compiler") )' -M -r -c)
+  MESON_TARGETS_INFO_LIB_TYPE="$(echo "$MESON_TARGETS_INFO_LIB" | jq -M -r -c ".[\"type\"]")"
 
-if [ "${#MESON_TARGETS_INFO_LIB_COMPILER_TARGETS[@]}" -ne 1 ]; then
-  echo "Array is not one element long but ${#MESON_TARGETS_INFO_LIB_COMPILER_TARGETS[@]} long" >&2
-  printf '%s\n' "${MESON_TARGETS_INFO_LIB_COMPILER_TARGETS[@]}" >&2
-  exit 9
-fi
+  mapfile -t MESON_TARGETS_INFO_LIB_COMPILER_TARGETS < <(echo "$MESON_TARGETS_INFO_LIB" | jq '.["target_sources"][] | select( has("compiler") )' -M -r -c)
 
-MESON_TARGETS_INFO_LIB_COMPILER_TARGET="${MESON_TARGETS_INFO_LIB_COMPILER_TARGETS[0]}"
+  if [ "${#MESON_TARGETS_INFO_LIB_COMPILER_TARGETS[@]}" -ne 1 ]; then
+    #this is fine, as some libraries consist of only extern_objects
+    :
+  else
 
-MESON_TARGETS_INFO_LIB_LANGUAGE="$(echo "$MESON_TARGETS_INFO_LIB_COMPILER_TARGET" | jq -M -r -c ".[\"language\"]")"
+    MESON_TARGETS_INFO_LIB_COMPILER_TARGET="${MESON_TARGETS_INFO_LIB_COMPILER_TARGETS[0]}"
 
-FLAGS_TARGET="CC"
+    MESON_TARGETS_INFO_LIB_LANGUAGE="$(echo "$MESON_TARGETS_INFO_LIB_COMPILER_TARGET" | jq -M -r -c ".[\"language\"]")"
 
-if [ "$MESON_TARGETS_INFO_LIB_LANGUAGE" == "cpp" ]; then
-  FLAGS_TARGET="CXX"
-  for CPP_LIBRARY in "${CPP_LIBRARIES[@]}"; do
-    DEP_CLASSES+=("$CPP_LIBRARY")
-  done
-  DEP_PACKAGES+=("LLVM/LLVMPkg.dec")
-  DEP_PACKAGES+=("SupportLib/SupportLib.dec") # needed by LLVM
-elif [ "$MESON_TARGETS_INFO_LIB_LANGUAGE" == "c" ]; then
-  FLAGS_TARGET="CC"
-else
-  echo "Error: invalid meson target language: $MESON_TARGETS_INFO_LIB_LANGUAGE" >&2
-  exit 2
-fi
+    FLAGS_TARGET="CC"
 
-mapfile -t MESON_TARGETS_INFO_LIB_PARAMATERS < <(echo "$MESON_TARGETS_INFO_LIB_COMPILER_TARGET" | jq '.["parameters"][]' -M -r -c)
+    if [ "$MESON_TARGETS_INFO_LIB_LANGUAGE" == "cpp" ]; then
+      FLAGS_TARGET="CXX"
+      for CPP_LIBRARY in "${CPP_LIBRARIES[@]}"; do
+        DEP_CLASSES+=("$CPP_LIBRARY")
+      done
+      DEP_PACKAGES+=("LLVM/LLVMPkg.dec")
+      DEP_PACKAGES+=("SupportLib/SupportLib.dec") # needed by LLVM
+    elif [ "$MESON_TARGETS_INFO_LIB_LANGUAGE" == "c" ]; then
+      FLAGS_TARGET="CC"
+    else
+      echo "Error: invalid meson target language: $MESON_TARGETS_INFO_LIB_LANGUAGE" >&2
+      exit 2
+    fi
 
-for MESON_TARGETS_INFO_LIB_PARAMATER in "${MESON_TARGETS_INFO_LIB_PARAMATERS[@]}"; do
+    mapfile -t MESON_TARGETS_INFO_LIB_PARAMATERS < <(echo "$MESON_TARGETS_INFO_LIB_COMPILER_TARGET" | jq '.["parameters"][]' -M -r -c)
 
-  case "$MESON_TARGETS_INFO_LIB_PARAMATER" in
-  -I*)
-    DEP_INCLUDES+=("${MESON_TARGETS_INFO_LIB_PARAMATER:2}")
-    ;;
-  -W*)
-    # TODO: include warnings
-    ;;
-  -nostdinc | -nostdinc++ | -nodefaultlibs | -D* | --sysroot=* | -isystem*)
-    DEP_BUILD_OPTIONS+=("*_*_*_${FLAGS_TARGET}_FLAGS = \"${MESON_TARGETS_INFO_LIB_PARAMATER}\"")
-    ;;
-  -t:use-lib:pkg=*)
-    DEP_PACKAGE_NAME="${MESON_TARGETS_INFO_LIB_PARAMATER:15}"
-    DEP_PACKAGES+=("$DEP_PACKAGE_NAME/$DEP_PACKAGE_NAME.dec")
-    ;;
-  -t:use-pkg:pkg=*)
-    DEP_PACKAGE_NAME="${MESON_TARGETS_INFO_LIB_PARAMATER:15}"
-    DEP_PACKAGES+=("$DEP_PACKAGE_NAME")
-    ;;
-  -t:use-lib:name=* | -t:use-pkg:name=*)
-    #ignore
-    ;;
-  -t:use-lib:lib=*)
-    DEP_PACKAGE_LIB="${MESON_TARGETS_INFO_LIB_PARAMATER:15}"
-    DEP_CLASSES+=("$DEP_PACKAGE_LIB")
-    ;;
-  -t:use-pkg:lib=*)
-    DEP_PACKAGE_LIB="${MESON_TARGETS_INFO_LIB_PARAMATER:15}"
-    DEP_CLASSES+=("$DEP_PACKAGE_LIB")
-    ;;
-  -pthread)
-    # ignore pthread
-    ;;
-  -f* | -m*)
-    DEP_BUILD_OPTIONS+=("*_*_*_${FLAGS_TARGET}_FLAGS = \"${MESON_TARGETS_INFO_LIB_PARAMATER}\"")
-    ;;
-  -g | -std=* | -O*)
-    #ignore
-    ;;
-  *)
-    echo "Invalid argument detected for compiling '$SOURCE_FILE_ENTRY_MESON_NAME': '$MESON_TARGETS_INFO_LIB_PARAMATER'" >&2
-    exit 6
-    ;;
-  esac
-done
+    for MESON_TARGETS_INFO_LIB_PARAMATER in "${MESON_TARGETS_INFO_LIB_PARAMATERS[@]}"; do
 
-# TODO: what should i do here, archives alias static_libraries don't specify argument, but executables and shared libraries hae -Wl -l or similar arguments
-if [ "$MESON_TARGETS_INFO_LIB_TYPE" == "static library" ]; then
-  #TODO: maybe do something based on the json information we have?
+      case "$MESON_TARGETS_INFO_LIB_PARAMATER" in
+      -I*)
+        DEP_INCLUDES+=("${MESON_TARGETS_INFO_LIB_PARAMATER:2}")
+        ;;
+      -W*)
+        # TODO: include warnings
+        ;;
+      -nostdinc | -nostdinc++ | -nodefaultlibs | -D* | --sysroot=* | -isystem*)
+        DEP_BUILD_OPTIONS+=("*_*_*_${FLAGS_TARGET}_FLAGS = \"${MESON_TARGETS_INFO_LIB_PARAMATER}\"")
+        ;;
+      -t:use-lib:pkg=*)
+        DEP_PACKAGE_NAME="${MESON_TARGETS_INFO_LIB_PARAMATER:15}"
+        DEP_PACKAGES+=("$DEP_PACKAGE_NAME/$DEP_PACKAGE_NAME.dec")
+        ;;
+      -t:use-pkg:pkg=*)
+        DEP_PACKAGE_NAME="${MESON_TARGETS_INFO_LIB_PARAMATER:15}"
+        DEP_PACKAGES+=("$DEP_PACKAGE_NAME")
+        ;;
+      -t:use-lib:name=* | -t:use-pkg:name=*)
+        #ignore
+        ;;
+      -t:use-lib:lib=*)
+        DEP_PACKAGE_LIB="${MESON_TARGETS_INFO_LIB_PARAMATER:15}"
+        DEP_CLASSES+=("$DEP_PACKAGE_LIB")
+        ;;
+      -t:use-pkg:lib=*)
+        DEP_PACKAGE_LIB="${MESON_TARGETS_INFO_LIB_PARAMATER:15}"
+        DEP_CLASSES+=("$DEP_PACKAGE_LIB")
+        ;;
+      -pthread)
+        # ignore pthread
+        ;;
+      -f* | -m*)
+        DEP_BUILD_OPTIONS+=("*_*_*_${FLAGS_TARGET}_FLAGS = \"${MESON_TARGETS_INFO_LIB_PARAMATER}\"")
+        ;;
+      -g | -std=* | -O*)
+        #ignore
+        ;;
+      *)
+        echo "Invalid argument detected for compiling '$SOURCE_FILE_ENTRY_MESON_NAME': '$MESON_TARGETS_INFO_LIB_PARAMATER'" >&2
+        exit 6
+        ;;
+      esac
+    done
+
+  fi
+
+  # TODO: what should i do here, archives alias static_libraries don't specify argument, but executables and shared libraries hae -Wl -l or similar arguments
+  if [ "$MESON_TARGETS_INFO_LIB_TYPE" == "static library" ]; then
+    #TODO: maybe do something based on the json information we have?
+    :
+  elif [ "$MESON_TARGETS_INFO_LIB_TYPE" == "executable" ] || [ "$MESON_TARGETS_INFO_LIB_TYPE" == "shared library" ]; then
+    #TODO: maybe do something based on the json information we have?
+    :
+  else
+    echo "Error: invalid meson target type for '$SOURCE_FILE_ENTRY_MESON_NAME': $MESON_TARGETS_INFO_LIB_TYPE" >&2
+    exit 2
+  fi
+
+elif [ "$SOURCE_FILE_TYPE" == "extern_object" ]; then
   :
-elif [ "$MESON_TARGETS_INFO_LIB_TYPE" == "executable" ] || [ "$MESON_TARGETS_INFO_LIB_TYPE" == "shared library" ]; then
-  #TODO: maybe do something based on the json information we have?
-  :
+  echo "TODO: not implemented yet" >&2
+  exit 35
 else
-  echo "Error: invalid meson target type for '$SOURCE_FILE_ENTRY_MESON_NAME': $MESON_TARGETS_INFO_LIB_TYPE" >&2
+  echo "Error: invalid source file type: $SOURCE_FILE_TYPE" >&2
   exit 2
 fi
 
@@ -425,8 +443,10 @@ $(expand_array_inf "${DEP_CLASSES[@]}")
 [Ppis]
 
 [Protocols]
+  gEfiHiiPackageListProtocolGuid                 ## CONSUMES
   gEfiHttpProtocolGuid                         ## CONSUMES
   gEfiHttpServiceBindingProtocolGuid           ## CONSUMES
+  gEfiManagedNetworkServiceBindingProtocolGuid   ## CONSUMES
 
 [FeaturePcd]
 

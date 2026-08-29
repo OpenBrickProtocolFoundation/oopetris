@@ -48,6 +48,13 @@
             "guid": "cc61c805-2419-4b68-b806-495d11be162c",
             "version": "zlib"
         },
+        "UEFIROMPkg": {
+            "type": "library",
+            "name": "UEFIROMLib",
+            "lib": "LibUEFIROM",
+            "guid": "a917a2c0-7ff6-4da8-a2b2-f1f28077c8c0",
+            "version": "c-embed"
+        },
         "SpdlogPkg": {
             "type": "library",
             "name": "SpdlogLib",
@@ -108,6 +115,10 @@
         "libsdl2image": {
             "name": "SDL2ImagePkg",
             "meson": "sdl2image"
+        },
+        "libuefi_rom": {
+            "name": "UEFIROMPkg",
+            "meson": "uefi_rom"
         }
     }
 }

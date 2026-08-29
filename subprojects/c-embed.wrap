@@ -1,0 +1,9 @@
+[wrap-git]
+url = https://github.com/weigert/c-embed.git
+revision = main
+depth = 1
+patch_directory = c-embed
+
+[provide]
+dependency_names = c-embed
+program_names = c-embed

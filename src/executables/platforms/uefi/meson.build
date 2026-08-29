@@ -4,6 +4,66 @@ _uefi_exe_name = _uefi_options[0]
 _uefi_src_files = _uefi_options[1]
 _uefi_deps = _uefi_options[2]
 
+
+APP_ROMFS = meson.get_external_property('APP_ROMFS', '')
+
+if APP_ROMFS != ''
+    # create uefi_rom.o and add it as dependency
+
+    fs = import('fs')
+
+    if not fs.is_absolute(APP_ROMFS)
+        APP_ROMFS = meson.project_source_root() / APP_ROMFS
+    endif
+
+    if not fs.exists(APP_ROMFS)
+        error('APP_ROMFS should exist, but doesn\'t: \'' + APP_ROMFS + '\'')
+    endif
+
+    if not APP_ROMFS.endswith('/')
+        APP_ROMFS = APP_ROMFS + '/'
+    endif
+
+    __uefi_c_embed_exe = find_program(
+        'c-embed',
+        required: true,
+        native: true,
+    )
+
+    _uefi_c_embed_wrapper_exe = find_program(
+        'c-embed-wrapper.sh',
+        dirs: [meson.project_source_root() / 'platforms' / 'uefi'],
+        required: true,
+    )
+
+    _uefi_rom_o = custom_target(
+        'uefi_rom.o',
+        command: [
+            _uefi_c_embed_wrapper_exe,
+            __uefi_c_embed_exe,
+            APP_ROMFS,
+            '@OUTPUT@',
+        ],
+        output: ['uefi_rom.o'],
+        build_by_default: false,
+    )
+
+    _uefi_rom_lib = library(
+        'uefi_rom',
+        sources: _uefi_rom_o,
+        link_language: 'c',
+    )
+
+    _uefi_rom_dep = declare_dependency(
+        link_with: _uefi_rom_lib
+    )
+
+    _uefi_deps += _uefi_rom_dep
+
+
+endif
+
+
 ## compilation
 
 _uefi_final_description = executable(

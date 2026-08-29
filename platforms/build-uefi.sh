@@ -311,7 +311,7 @@ pkg_config_libdir = '$PKG_CONFIG_PATH'
 sys_root = '${SYS_ROOT}'
 needs_exe_wrapper = true
 
-APP_ROMFS='$ROMFS/assets/'
+APP_ROMFS='$ROMFS'
 RUNTIME_TARGET='$RUNTIME_TARGET'
 USE_GDB='${UEFI_USE_GDB:-false}'
 
@@ -330,7 +330,10 @@ if [ ! -d "$ROMFS" ]; then
 
     mkdir -p "$ROMFS"
 
-    cp -r assets "$ROMFS/"
+    cp -r "./assets" "$ROMFS/"
+
+    # no need for music
+    rm -rf "$ROMFS/assets/music/"
 
 fi
 
@@ -402,7 +405,7 @@ if [ "$COMPILE_TYPE" == "complete_rebuild" ] || [ ! -e "$BUILD_DIR" ]; then
         "-Dbuildtype=$BUILDTYPE" \
         -Ddefault_library=shared \
         -Dtests=false \
-        --force-fallback-for="fmt,nlohmann_json,magic_enum,utf8cpp,sdl2_ttf,freetype2,spdlog,argparse,sdl2_image" \
+        --force-fallback-for="fmt,nlohmann_json,magic_enum,utf8cpp,sdl2_ttf,freetype2,spdlog,argparse,sdl2_image,c-embed" \
         --wrap-mode=nofallback \
         "-Drun_in_ci=$RUN_IN_CI" \
         -Dstrip=false \
