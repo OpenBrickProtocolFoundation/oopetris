@@ -1,12 +1,12 @@
-From 02a3651a93980bb62b3e463fe091ba5b9bedaea0 Mon Sep 17 00:00:00 2001
+From 7ea2fb646693a14f43ae8e85d861b67dc7e4ae43 Mon Sep 17 00:00:00 2001
 From: Totto16 <tobiausgais@gmail.com>
 Date: Tue, 25 Aug 2026 17:06:59 +0200
 Subject: [PATCH 3/3] feat:  add c and c++ constructors - add libcxx and libc
- interlaving constructors and destructors, that are invoked before .init_array
- and .fini_array - use better option to run libc initializer, use the same
- mechanism as the init_array and fini_array one, but with other section names,
- so that irt can be run before any init array (note we have .preinit_array but
- no destructor counterpart)
+ interlaving constructors and destructors, that are   invoked before
+ .init_array and .fini_array - use better option to run libc initializer, use
+ the same mechanism as   the init_array and fini_array one, but with other
+ section names, so that   it can be run before any init array (note we have
+ .preinit_array but no   destructor counterpart)
 
 ---
  StdLib/Include/libc/main.h | 18 ++++++++
@@ -185,5 +185,5 @@ index 4d08302..d6f2b73 100644
 +
 +    GCC:*_*_*_CC_FLAGS = -Wprio-ctor-dtor
 -- 
-2.55.0
+2.53.0
 

@@ -19,6 +19,13 @@
             "inc": "NetworkPkg/Network.dsc.inc",
             "tool_prefix": "edk2"
         },
+        "HttpLib": {
+            "pkg": "NetworkPkg/NetworkPkg",
+            "lib": "HttpLib",
+            "inf": "NetworkPkg/Library/DxeHttpLib/DxeHttpLib.inf",
+            "inc": "NetworkPkg/Network.dsc.inc",
+            "tool_prefix": "edk2"
+        },
         "BaseCryptLib": {
             "pkg": "CryptoPkg/CryptoPkg",
             "lib": "BaseCryptLib",

@@ -425,6 +425,8 @@ $(expand_array_inf "${DEP_CLASSES[@]}")
 [Ppis]
 
 [Protocols]
+  gEfiHttpProtocolGuid                         ## CONSUMES
+  gEfiHttpServiceBindingProtocolGuid           ## CONSUMES
 
 [FeaturePcd]
 

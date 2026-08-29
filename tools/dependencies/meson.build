@@ -477,11 +477,17 @@ if build_application
     elif meson.is_cross_build() and host_machine.system() == 'uefi'
         online_multiplayer_system = 'uefi'
 
-        uefi_network_lib_dep = dependency('uefi:HttpIoLib')
+        uefi_http_lib_dep = dependency('uefi:HttpLib')
+        uefi_http_io_lib_dep = dependency('uefi:HttpIoLib')
         uefi_crypto_lib_dep = dependency('uefi:BaseCryptLib')
 
         graphics_lib += {
-            'deps': [graphics_lib.get('deps'), uefi_network_lib_dep, uefi_crypto_lib_dep],
+            'deps': [
+                graphics_lib.get('deps'),
+                uefi_http_lib_dep,
+                uefi_http_io_lib_dep,
+                uefi_crypto_lib_dep,
+            ],
             'compile_args': [graphics_lib.get('compile_args'), '-D_OOPETRIS_ONLINE_SYSTEM=3'],
         }
 
