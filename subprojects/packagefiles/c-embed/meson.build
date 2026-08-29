@@ -7,7 +7,7 @@ project(
     default_options: {
         'optimization': '3',
         'warning_level': '2',
-        'werror': false,
+        'werror': true,
         'c_std': ['c11'],
         'b_ndebug': 'if-release',
     },

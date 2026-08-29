@@ -275,8 +275,22 @@ static int EFIAPI _f_romfs_Fcntl(struct __filedes* filp, UINT32 Cmd, void* p3, v
     @retval     -1      Operation failed.  Further information is specified by errno.
 **/
 static int EFIAPI _f_romfs_Stat(struct __filedes* filp, struct stat* statbuf, void* Something) {
-    errno = ENOTSUP;
-    return -1;
+    EFILE* file = (EFILE*) (&filp->devdata);
+
+
+    // Got the info, now populate statbuf with it
+    statbuf->st_size = file->size;
+    statbuf->st_physsize = 0;
+    statbuf->st_curpos = 0;
+
+    statbuf->st_birthtime = 0;
+    statbuf->st_atime = 0;
+    statbuf->st_mtime = 0;
+
+    statbuf->st_mode = filp->f_iflags;
+    statbuf->st_blksize = S_BLKSIZE;
+
+    return 0;
 }
 
 /** EFI specific operations for low-level control of a file or device.
