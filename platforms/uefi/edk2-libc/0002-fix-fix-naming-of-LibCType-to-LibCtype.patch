@@ -1,7 +1,7 @@
-From 064d91037d5661b0520c1620f1de61310bd3eae4 Mon Sep 17 00:00:00 2001
+From 05696c4b8475bb9a54f048db298594978c90488a Mon Sep 17 00:00:00 2001
 From: Totto16 <tobiausgais@gmail.com>
 Date: Fri, 21 Aug 2026 18:28:44 +0200
-Subject: [PATCH 2/3] fix: fix naming of LibCType to LibCtype
+Subject: [PATCH 2/5] fix: fix naming of LibCType to LibCtype
 
 ---
  StdLib/LibC/Locale/Locale.inf | 2 +-
@@ -74,5 +74,5 @@ index 8083e2b..4d08302 100644
    LibMath|StdLib/LibC/Math/Math.inf
    LibSignal|StdLib/LibC/Signal/Signal.inf
 -- 
-2.53.0
+2.55.0
 

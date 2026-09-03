@@ -1,7 +1,7 @@
-From 7ea2fb646693a14f43ae8e85d861b67dc7e4ae43 Mon Sep 17 00:00:00 2001
+From b7727eb603653b41282f0543c192e7f9f3707c75 Mon Sep 17 00:00:00 2001
 From: Totto16 <tobiausgais@gmail.com>
 Date: Tue, 25 Aug 2026 17:06:59 +0200
-Subject: [PATCH 3/3] feat:  add c and c++ constructors - add libcxx and libc
+Subject: [PATCH 3/5] feat:  add c and c++ constructors - add libcxx and libc
  interlaving constructors and destructors, that are   invoked before
  .init_array and .fini_array - use better option to run libc initializer, use
  the same mechanism as   the init_array and fini_array one, but with other
@@ -185,5 +185,5 @@ index 4d08302..d6f2b73 100644
 +
 +    GCC:*_*_*_CC_FLAGS = -Wprio-ctor-dtor
 -- 
-2.53.0
+2.55.0
 
