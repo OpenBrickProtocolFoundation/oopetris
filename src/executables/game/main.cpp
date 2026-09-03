@@ -60,7 +60,7 @@ namespace {
 #elif defined(__UEFI__)
         sinks.push_back(uefi::get_debug_sink());
         // is outputted to serial, handled by edk2-libc
-        sinks.push_back(std::make_shared<spdlog::sinks::stdout_color_sink_st>(spdlog::color_mode::never));
+        sinks.push_back(std::make_shared<uefi::spdlog_helper::stderr_color_sink>(spdlog::color_mode::never));
 #elif defined(__EMSCRIPTEN__)
         sinks.push_back(web::get_console_sink());
 #else

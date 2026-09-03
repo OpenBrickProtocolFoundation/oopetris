@@ -27,6 +27,7 @@ extern "C" {
 #include <spdlog/spdlog.h>
 #include <variant>
 #include <vector>
+#include "./uefi_utils.hpp"
 
 
 //COPY from oopetris, to make this header more independent
@@ -43,31 +44,6 @@ namespace helper::uefi::future {
 
 namespace details {
 
-
-    namespace helper {
-
-        //TODO: we could use a c++ wrapper of the SPIN_LOCK from "SynchronizationLib.h" instead
-        struct ThreadMutex {
-        private:
-            volatile UINT32 locked;
-
-        public:
-            ThreadMutex() noexcept;
-
-            ThreadMutex(const ThreadMutex& other) = delete;
-            ThreadMutex& operator=(const ThreadMutex& other) = delete;
-
-            ThreadMutex(ThreadMutex&& other) noexcept;
-            ThreadMutex& operator=(ThreadMutex&& other) noexcept;
-
-            ~ThreadMutex() noexcept;
-
-            void lock();
-            void unlock();
-        };
-
-    } // namespace helper
-
     struct CpuJumpState {
         jmp_buf jump_state;
     };
@@ -82,7 +58,7 @@ namespace details {
 
     struct GlobalSignalState {
         __sighandler_t* old_sig_handler;
-        helper::ThreadMutex mutex;
+        uefi::helper::ThreadMutex mutex;
     };
 
     struct MainCPUState {
@@ -162,7 +138,6 @@ namespace uefi::helper {
         };
 
         mutable std::variant<RunningState, ErrorState, FinishedState> m_state;
-        //
 
         void __internal_poll(void) const {
             std::optional<std::variant<RunningState, ErrorState, FinishedState>> new_value = std::visit(
@@ -181,7 +156,7 @@ namespace uefi::helper {
                                     }
                                     case details::thread_state::aborted:
                                     default: {
-                                        return ErrorState{ state.thread.state() };
+                                        return ErrorState{ state.thread->state() };
                                     }
                                 }
                             },

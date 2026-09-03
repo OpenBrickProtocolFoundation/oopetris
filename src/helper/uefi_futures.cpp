@@ -3,7 +3,6 @@
 
 extern "C" {
 #include <Library/BaseLib.h>
-#include <Library/SynchronizationLib.h>
 #include <Library/UefiBootServicesTableLib.h>
 }
 
@@ -65,7 +64,7 @@ search_cpu_in_array:
 static void __impl_uefi_thread_abort_signal_handler(int actual_signal) {
     //TODO: assert actual_signal == SIGABRT
 
-    const std::lock_guard<details::helper::ThreadMutex> scope_lock(details::__cpu_state->signal_state.mutex);
+    const std::lock_guard<uefi::helper::ThreadMutex> scope_lock(details::__cpu_state->signal_state.mutex);
 
 
     UINTN cpu_id = details::my_cpu_id();
@@ -241,7 +240,7 @@ struct details::DetachedThreadStateImpl {
     details::SecondaryCPUState* cpu_to_execute_on_ref;
 
     // mutex to protect state, that can be used by the AP (when writing the result) and the BSP (when using poll)
-    details::helper::ThreadMutex data_mutex;
+    uefi::helper::ThreadMutex data_mutex;
 
     DetachedThreadStateImpl(ThreadInfo* info_ref, details::SecondaryCPUState* cpu_to_execute_on_ref)
         : DoneEvent{},
@@ -254,7 +253,7 @@ struct details::DetachedThreadStateImpl {
     }
 
     void terminate(std::optional<std::string> error) {
-        const std::lock_guard<details::helper::ThreadMutex> scope_lock(this->data_mutex);
+        const std::lock_guard<uefi::helper::ThreadMutex> scope_lock(this->data_mutex);
 
         this->run_state = { true, error };
     }
@@ -265,7 +264,7 @@ struct details::DetachedThreadStateImpl {
     }
 
     details::thread_state poll(void) {
-        const std::lock_guard<details::helper::ThreadMutex> scope_lock(this->data_mutex);
+        const std::lock_guard<uefi::helper::ThreadMutex> scope_lock(this->data_mutex);
 
         if (this->run_state.first) {
             return details::thread_state::running;
@@ -387,52 +386,4 @@ std::shared_ptr<details::DetachedThreadStatePublic> details::start_detached_thre
 
     ASSERT(__cpu_state != nullptr);
     return start_detached_thread_impl(__cpu_state->Mp, cpu_to_execute_on, info);
-}
-
-
-details::helper::ThreadMutex::ThreadMutex() noexcept : locked{ 0 } {
-    //
-}
-
-details::helper::ThreadMutex::ThreadMutex(ThreadMutex&& other) noexcept : locked{ 0 } {
-    ASSERT(!other.locked);
-
-    other.locked = 0;
-}
-
-details::helper::ThreadMutex& details::helper::ThreadMutex::operator=(ThreadMutex&& other) noexcept {
-    ASSERT(!other.locked);
-
-    this->locked = other.locked;
-    other.locked = 0;
-
-    return *this;
-}
-
-details::helper::ThreadMutex::~ThreadMutex() noexcept {
-    ASSERT(!this->locked);
-}
-
-
-void details::helper::ThreadMutex::lock() {
-    while (InterlockedCompareExchange32(
-                   &(this->locked),
-                   0, // Compare: unlocked
-                   1  // Exchange: locked
-           )
-           != 0) {
-        //
-        // Someone else owns it.
-        //
-        CpuPause();
-    }
-}
-
-void details::helper::ThreadMutex::unlock() {
-
-    InterlockedCompareExchange32(
-            &(this->locked),
-            1, // Compare: locked
-            0  // Exchange: unlocked
-    );
 }

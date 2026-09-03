@@ -11,9 +11,14 @@
 #include <memory>
 #include <string>
 
+extern "C" {
+#include <Library/BaseLib.h>
+#include <Library/SynchronizationLib.h>
+}
 
-std::shared_ptr<spdlog::sinks::callback_sink_st> uefi::get_debug_sink() {
-    return std::make_shared<spdlog::sinks::callback_sink_st>([](const spdlog::details::log_msg& msg) {
+
+std::shared_ptr<uefi::spdlog_helper::callback_sink> uefi::get_debug_sink() {
+    return std::make_shared<uefi::spdlog_helper::callback_sink>([](const spdlog::details::log_msg& msg) {
         const std::string message = std::string{ msg.payload.begin(), msg.payload.end() };
 
 
@@ -40,6 +45,55 @@ std::shared_ptr<spdlog::sinks::callback_sink_st> uefi::get_debug_sink() {
     });
 }
 
+
+uefi::helper::ThreadMutex::ThreadMutex() noexcept : locked{ 0 } {
+    //
+}
+
+uefi::helper::ThreadMutex::ThreadMutex(ThreadMutex&& other) noexcept : locked{ 0 } {
+    ASSERT(!other.locked);
+
+    other.locked = 0;
+}
+
+uefi::helper::ThreadMutex& uefi::helper::ThreadMutex::operator=(ThreadMutex&& other) noexcept {
+    ASSERT(!other.locked);
+
+    this->locked = other.locked;
+    other.locked = 0;
+
+    return *this;
+}
+
+uefi::helper::ThreadMutex::~ThreadMutex() noexcept {
+    ASSERT(!this->locked);
+}
+
+//TODO: use this as kibc mutex, implement std::mutex with this and so the libc and libcxx has correct mutexes!
+// but should i use spinlocks or atomics here?
+// also this doesn't depend on oopetris specific things, so its possible
+void uefi::helper::ThreadMutex::lock() {
+    while (InterlockedCompareExchange32(
+                   &(this->locked),
+                   0, // Compare: unlocked
+                   1  // Exchange: locked
+           )
+           != 0) {
+        //
+        // Someone else owns it.
+        //
+        CpuPause();
+    }
+}
+
+void uefi::helper::ThreadMutex::unlock() {
+
+    InterlockedCompareExchange32(
+            &(this->locked),
+            1, // Compare: locked
+            0  // Exchange: unlocked
+    );
+}
 
 [[nodiscard]] std::string uefi::map_efi_status_to_string(EFI_STATUS status) {
 
@@ -327,12 +381,14 @@ int EFIAPI _f_romfs_Open(
         wchar_t* MPath
 ) {
     if (filp->Oflags != O_RDONLY) {
+        DEBUG((DEBUG_ERROR, "%a %a:%d: IN OPEN %s\n", __func__, __FILE__, __LINE__, Path));
         errno = EINVAL;
         return -1;
     }
 
     char* strPath = (char*) AllocateZeroPool(PATH_MAX);
     if (strPath == NULL) {
+        DEBUG((DEBUG_ERROR, "%a %a:%d: IN OPEN %s\n", __func__, __FILE__, __LINE__, Path));
         errno = ENOMEM;
         return -1;
     }
@@ -340,9 +396,12 @@ int EFIAPI _f_romfs_Open(
     size_t convert_result = wcstombs(strPath, Path, PATH_MAX);
 
     if (convert_result == ((size_t) -1) || convert_result > PATH_MAX) {
+        DEBUG((DEBUG_ERROR, "%a %a:%d: IN OPEN %s\n", __func__, __FILE__, __LINE__, Path));
         errno = EINVAL;
         return -1;
     }
+
+    DEBUG((DEBUG_ERROR, "%a %a:%d: path: %a\n", __func__, __FILE__, __LINE__, strPath));
 
     // Call the EFI's Open function
     EFILE* file = eopen(strPath, "r");
@@ -350,7 +409,7 @@ int EFIAPI _f_romfs_Open(
         filp->f_iflags = 0; // Release our reservation on this FD
         // Set errno based upon Status
         errno = eerrno;
-
+        DEBUG((DEBUG_ERROR, "%a %a:%d: IN OPEN %s\n", __func__, __FILE__, __LINE__, Path));
         FreePool(strPath);
         return -1;
     }
@@ -367,6 +426,7 @@ int EFIAPI _f_romfs_Open(
     filp->f_offset = 0;
     filp->f_ops = &Gip->Abstraction;
 
+    DEBUG((DEBUG_ERROR, "%a %a:%d: IN OPEN %s\n", __func__, __FILE__, __LINE__, Path));
     return 0;
 }
 
