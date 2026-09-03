@@ -16,6 +16,9 @@ extern "C" {
 #include <Pi/PiMultiPhase.h>
 
 #include <Protocol/MpService.h>
+
+#include <setjmp.h>
+#include <signal.h>
 }
 
 #include <chrono>
@@ -40,11 +43,46 @@ namespace helper::uefi::future {
 
 namespace details {
 
+
+    namespace helper {
+
+        //TODO: we could use a c++ wrapper of the SPIN_LOCK from "SynchronizationLib.h" instead
+        struct ThreadMutex {
+        private:
+            volatile UINT32 locked;
+
+        public:
+            ThreadMutex() noexcept;
+
+            ThreadMutex(const ThreadMutex& other) = delete;
+            ThreadMutex& operator=(const ThreadMutex& other) = delete;
+
+            ThreadMutex(ThreadMutex&& other) noexcept;
+            ThreadMutex& operator=(ThreadMutex&& other) noexcept;
+
+            ~ThreadMutex() noexcept;
+
+            void lock();
+            void unlock();
+        };
+
+    } // namespace helper
+
+    struct CpuJumpState {
+        jmp_buf jump_state;
+    };
+
     struct SecondaryCPUState {
         UINT64 UniqueProcessorId;
         UINTN Id;
         UINT32 StatusFlags;
         bool IsBusy;
+        std::optional<CpuJumpState> jump_state;
+    };
+
+    struct GlobalSignalState {
+        __sighandler_t* old_sig_handler;
+        helper::ThreadMutex mutex;
     };
 
     struct MainCPUState {
@@ -52,6 +90,7 @@ namespace details {
         UINTN NumberOfProcessors;
         UINTN BspId;
         std::vector<SecondaryCPUState> cpus;
+        GlobalSignalState signal_state;
     };
 
     extern MainCPUState* __cpu_state;
@@ -89,34 +128,12 @@ namespace details {
         ~DetachedThreadStatePublic();
 
         [[nodiscard]] thread_state poll();
+
+        [[nodiscard]] std::string state() const;
     };
 
     std::shared_ptr<DetachedThreadStatePublic>
-    start_detached_thread(const SecondaryCPUState* const cpu_to_execute_on, const std::shared_ptr<ThreadInfo>& info);
-
-    namespace helper {
-
-        //TODO: we could use a c++ wrapper of the SPIN_LOCK from "SynchronizationLib.h" instead
-        struct ThreadMutex {
-        private:
-            volatile UINT32 locked;
-
-        public:
-            ThreadMutex() noexcept;
-
-            ThreadMutex(const ThreadMutex& other) = delete;
-            ThreadMutex& operator=(const ThreadMutex& other) = delete;
-
-            ThreadMutex(ThreadMutex&& other) noexcept;
-            ThreadMutex& operator=(ThreadMutex&& other) noexcept;
-
-            ~ThreadMutex() noexcept;
-
-            void lock();
-            void unlock();
-        };
-
-    } // namespace helper
+    start_detached_thread(SecondaryCPUState* const cpu_to_execute_on, const std::shared_ptr<ThreadInfo>& info);
 
 
 } // namespace details
@@ -164,8 +181,7 @@ namespace uefi::helper {
                                     }
                                     case details::thread_state::aborted:
                                     default: {
-                                        //TODO: get the error from somewhere
-                                        return ErrorState{ "TODO" };
+                                        return ErrorState{ state.thread.state() };
                                     }
                                 }
                             },

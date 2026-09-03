@@ -32,13 +32,79 @@ UINTN details::my_cpu_id() {
     return my_cpu_id_impl(__cpu_state->Mp);
 }
 
+static details::SecondaryCPUState* __impl_get_cpu_state_by_id(UINTN cpu_id) {
+
+    // likely this is 1 indexed into the cpu array, if it is not, than search the whole array
+
+    if (cpu_id == 0) {
+        goto search_cpu_in_array;
+    }
+
+    if ((cpu_id - 1) < details::__cpu_state->cpus.size()) {
+        details::SecondaryCPUState* state = &(details::__cpu_state->cpus.data()[cpu_id - 1]);
+        if (state->Id == cpu_id) {
+            return state;
+        }
+        goto search_cpu_in_array;
+    }
+
+search_cpu_in_array:
+
+    for (size_t i = 0; i < details::__cpu_state->cpus.size(); ++i) {
+        details::SecondaryCPUState* state = &(details::__cpu_state->cpus.data()[i]);
+        if (state->Id == cpu_id) {
+            return state;
+        }
+    }
+
+    return nullptr;
+}
+
+#define UEFI_THREAD_ABORT_SIGNAL_HANDLER __impl_uefi_thread_abort_signal_handler
+
+static void __impl_uefi_thread_abort_signal_handler(int actual_signal) {
+    //TODO: assert actual_signal == SIGABRT
+
+    const std::lock_guard<details::helper::ThreadMutex> scope_lock(details::__cpu_state->signal_state.mutex);
+
+
+    UINTN cpu_id = details::my_cpu_id();
+
+    if (cpu_id == details::__cpu_state->BspId) {
+        // don't intercept that on the bsp thread
+        return;
+    }
+
+
+    // if this thread is an AP that has a signal_state, don't return, but longjmp to the saved function, where we handle that error
+
+    details::SecondaryCPUState* const state = __impl_get_cpu_state_by_id(cpu_id);
+
+    if (state == nullptr) {
+        // nothing found, just abort it
+        return;
+    }
+
+    if (state->jump_state.has_value()) {
+        auto& jump_state = state->jump_state.value().jump_state;
+
+        longjmp(jump_state, 0x42); // Get out of here.  longjmp can't return 0. Use 0x42 for a non-zero value.
+
+        __builtin_unreachable();
+    }
+
+    // no signal state for that thread, so continue
+    return;
+}
+
 
 void details::init_cpu_state() {
     if (__cpu_state != nullptr) {
         return;
     }
 
-    __cpu_state = new details::MainCPUState(nullptr, 0, 0, {});
+    __cpu_state =
+            new details::MainCPUState(nullptr, 0, 0, std::vector<SecondaryCPUState>{}, GlobalSignalState{ nullptr });
 
 
     if (!gBS) {
@@ -67,6 +133,14 @@ void details::init_cpu_state() {
 
     __cpu_state->BspId = my_cpu_id_impl(__cpu_state->Mp);
 
+    //TODO: this is global, so just reset it once, so when old_sig_handler == __impl_sigabrt_handler, don't add it, have one global old handler
+    __sighandler_t* old_sig_handler = signal(SIGABRT, UEFI_THREAD_ABORT_SIGNAL_HANDLER);
+
+    //TODO: inline this in start_detached_thread
+
+
+    __cpu_state->signal_state = GlobalSignalState{ old_sig_handler, {} };
+
     __cpu_state->cpus = std::vector<SecondaryCPUState>{};
     __cpu_state->cpus.reserve(__cpu_state->NumberOfProcessors - 1);
 
@@ -85,8 +159,13 @@ void details::init_cpu_state() {
             continue;
         }
 
-        __cpu_state->cpus.emplace_back(info.ProcessorId, (UINTN) i, info.StatusFlag, false);
+        __cpu_state->cpus.emplace_back(info.ProcessorId, (UINTN) i, info.StatusFlag, false, std::nullopt);
     }
+}
+
+static void __destroy_cpu_state_impl() {
+    __sighandler_t* old_sig_handler = signal(SIGABRT, details::__cpu_state->signal_state.old_sig_handler);
+    ASSERT(old_sig_handler == UEFI_THREAD_ABORT_SIGNAL_HANDLER);
 }
 
 
@@ -94,6 +173,8 @@ static __attribute__((destructor)) void deinit_cpu_state(void) {
     if (details::__cpu_state == nullptr) {
         return;
     }
+
+    __destroy_cpu_state_impl();
 
     delete details::__cpu_state;
 }
@@ -131,53 +212,105 @@ details::SecondaryCPUState* details::find_cpu_for_new_thread(void) {
     return find_cpu_for_new_thread_impl(__cpu_state);
 }
 
-static void EFIAPI __impl_uefi_new_thread_function(IN OUT VOID* private_data) {
-    details::ThreadInfo* ptr = static_cast<details::ThreadInfo*>(private_data);
+struct ThreadLocalState {
 
-    ptr->info.fn();
-}
+    ThreadLocalState() {
+        //TODO, add some constructores
+    }
 
+    ThreadLocalState(const ThreadLocalState& other) = delete;
+    ThreadLocalState& operator=(const ThreadLocalState& other) = delete;
+
+    ThreadLocalState(ThreadLocalState&& other) noexcept;
+    ThreadLocalState& operator=(ThreadLocalState&& other) noexcept;
+
+
+    ~ThreadLocalState() {
+        //TODO: add some destructors
+    }
+};
 
 struct details::DetachedThreadStateImpl {
-    // inout state
+    // input state
     EFI_EVENT DoneEvent;
     BOOLEAN finished;
     //output state
-    bool terminated;
+    std::pair<bool, std::optional<std::string>> run_state;
+    // thread info state, not owned
+    ThreadInfo* info_ref;
+    details::SecondaryCPUState* cpu_to_execute_on_ref;
 
     // mutex to protect state, that can be used by the AP (when writing the result) and the BSP (when using poll)
     details::helper::ThreadMutex data_mutex;
 
-    DetachedThreadStateImpl() : DoneEvent{}, finished{ FALSE }, terminated{ false }, data_mutex{} {
+    DetachedThreadStateImpl(ThreadInfo* info_ref, details::SecondaryCPUState* cpu_to_execute_on_ref)
+        : DoneEvent{},
+          finished{ FALSE },
+          run_state{ false, std::nullopt },
+          info_ref{ info_ref },
+          cpu_to_execute_on_ref{ cpu_to_execute_on_ref },
+          data_mutex{} {
         //
     }
 
-    void terminate(void) {
+    void terminate(std::optional<std::string> error) {
         const std::lock_guard<details::helper::ThreadMutex> scope_lock(this->data_mutex);
 
-        this->terminated = true;
+        this->run_state = { true, error };
+    }
+
+    void terminate_done_cb() {
+        this->run_state = { true, this->finished ? std::optional<std::string>{ std::nullopt }
+                                                 : std::optional<std::string>{ "Not finished" } };
     }
 
     details::thread_state poll(void) {
         const std::lock_guard<details::helper::ThreadMutex> scope_lock(this->data_mutex);
 
-        // likely for long running async
-        if (!this->terminated) [[likely]] {
+        if (this->run_state.first) {
             return details::thread_state::running;
         }
 
-        // unlikely, as we don't set a timeout
-        if (!this->finished) [[unlikely]] {
+        if (this->run_state.second.has_value()) {
             return details::thread_state::aborted;
         }
 
         return details::thread_state::finished;
     }
 
+    std::string state() const {
+        return this->run_state.second.has_value() ? this->run_state.second.value() : "<No error>";
+    }
+
     ~DetachedThreadStateImpl() noexcept {
         gBS->CloseEvent(DoneEvent);
     }
 };
+
+static void EFIAPI __impl_uefi_new_thread_function(IN OUT VOID* private_data) {
+
+    ThreadLocalState constructors{};
+
+    details::DetachedThreadStateImpl* state = static_cast<details::DetachedThreadStateImpl*>(private_data);
+
+    {
+
+        state->cpu_to_execute_on_ref->jump_state = details::CpuJumpState{};
+        auto& setjmp_state = state->cpu_to_execute_on_ref->jump_state.value().jump_state;
+
+        if (setjmp(setjmp_state) == 0) {
+            // we are executing it the first time
+            state->info_ref->info.fn();
+        } else {
+            // we aborted
+            state->terminate("Thread aborted");
+        }
+
+        // in both cases destroy the state
+        state->cpu_to_execute_on_ref->jump_state = std::nullopt;
+    }
+}
+
 
 details::DetachedThreadStatePublic::DetachedThreadStatePublic(DetachedThreadState* state_impl)
     : m_state_impl{ state_impl } {
@@ -196,24 +329,29 @@ details::thread_state details::DetachedThreadStatePublic::poll() {
     return m_state_impl->poll();
 }
 
+std::string details::DetachedThreadStatePublic::state() const {
+    ASSERT(m_state_impl != nullptr);
+    return m_state_impl->state();
+}
+
 
 static VOID EFIAPI __impl_uefi_thread_done_function(IN EFI_EVENT Event, IN VOID* Context) {
     details::DetachedThreadStateImpl* state = static_cast<details::DetachedThreadStateImpl*>(Context);
 
-    state->terminate();
+    state->terminate_done_cb();
 }
 
 
 std::shared_ptr<details::DetachedThreadStatePublic> start_detached_thread_impl(
         EFI_MP_SERVICES_PROTOCOL* Mp,
-        const details::SecondaryCPUState* const cpu_to_execute_on,
+        details::SecondaryCPUState* const cpu_to_execute_on,
         const std::shared_ptr<details::ThreadInfo>& info
 ) {
 
     ASSERT(Mp != nullptr);
     ASSERT(cpu_to_execute_on != nullptr);
 
-    details::DetachedThreadStateImpl* state = new details::DetachedThreadStateImpl();
+    details::DetachedThreadStateImpl* state = new details::DetachedThreadStateImpl(info.get(), cpu_to_execute_on);
 
     EFI_STATUS Status = gBS->CreateEvent(
             EVT_NOTIFY_SIGNAL, TPL_CALLBACK, __impl_uefi_thread_done_function, state, &(state->DoneEvent)
@@ -226,8 +364,7 @@ std::shared_ptr<details::DetachedThreadStatePublic> start_detached_thread_impl(
 
 
     Status = Mp->StartupThisAP(
-            Mp, __impl_uefi_new_thread_function, cpu_to_execute_on->Id, state->DoneEvent, 0, info.get(),
-            &(state->finished)
+            Mp, __impl_uefi_new_thread_function, cpu_to_execute_on->Id, state->DoneEvent, 0, state, &(state->finished)
     );
 
 
@@ -244,7 +381,7 @@ std::shared_ptr<details::DetachedThreadStatePublic> start_detached_thread_impl(
 
 
 std::shared_ptr<details::DetachedThreadStatePublic> details::start_detached_thread(
-        const details::SecondaryCPUState* const cpu_to_execute_on,
+        details::SecondaryCPUState* const cpu_to_execute_on,
         const std::shared_ptr<details::ThreadInfo>& info
 ) {
 
