@@ -94,22 +94,6 @@ _uefi_extract_defs = custom_target(
     build_by_default: true,
 )
 
-
-_uefi_extract_dep_tree_exe = find_program(
-    'extract-dependency-tree.sh',
-    dirs: [meson.project_source_root() / 'platforms' / 'uefi'],
-    required: true,
-)
-
-_uefi_dependencies = custom_target(
-    _uefi_exe_name + '.deps',
-    command: [_uefi_extract_dep_tree_exe, _uefi_extract_defs, '@OUTPUT@', '@DEPFILE@'],
-    depends: [_uefi_extract_defs],
-    depfile: _uefi_exe_name + '.depfile.deps',
-    output: [_uefi_exe_name + '.pseudo.deps'],
-    build_by_default: false,
-)
-
 _uefi_compile_final_exe = find_program(
     'compile-final.sh',
     dirs: [meson.project_source_root() / 'platforms' / 'uefi'],
@@ -118,8 +102,9 @@ _uefi_compile_final_exe = find_program(
 
 oopetris_efi = custom_target(
     _uefi_exe_name + '.efi',
-    command: [_uefi_compile_final_exe, _uefi_extract_defs, '@OUTPUT@'],
-    depends: [_uefi_extract_defs, _uefi_dependencies],
+    command: [_uefi_compile_final_exe, _uefi_extract_defs, '@OUTPUT@', '@DEPFILE@'],
+    depends: [_uefi_extract_defs],
+    depfile: _uefi_exe_name + '.efi.deps',
     output: [_uefi_exe_name + '.efi'],
     build_by_default: true,
 )

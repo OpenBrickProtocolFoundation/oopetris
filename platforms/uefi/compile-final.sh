@@ -12,9 +12,11 @@ SCRIPT_DIR="$(realpath "$(dirname -- "${BASH_SOURCE[0]}")")"
 # shellcheck source=./platforms/helper.sh
 source "$SCRIPT_DIR/../helper.sh"
 
-if [ "$#" -eq 2 ]; then
+if [ "$#" -eq 3 ]; then
     BUILD_INF="$(realpath "$1")"
     DEST_FILE="$(realpath "$2")"
+    DEST_FILE_ORIG="$2"
+    DEPS_DEST_FILE="$(realpath "$3")"
 else
     echo "Too many arguments given, expected 2" >&2
     exit 1
@@ -51,6 +53,160 @@ else
         exit 2
     fi
 fi
+
+# dep file generation
+
+escape_filename_for_ninja_depfile() {
+    local NAME="$1"
+
+    NAME=${NAME//\\/\\\\} # backslash
+    NAME=${NAME// /\\ }   # spaces
+    NAME=${NAME//#/\\#}   # #
+    NAME=${NAME//$/\$\$}  # $
+    printf '%s' "$NAME"
+
+}
+
+add_dep_file() {
+    local FILE="$1"
+
+    if ! [ -e "$FILE" ]; then
+        echo "Dependency file doesn't exist: '$FILE'" >&2
+        exit 2
+    fi
+
+    echo -n "$(escape_filename_for_ninja_depfile "${FILE}") " >>"$DEPS_DEST_FILE"
+
+}
+
+analyze_inf_file() {
+    local INF_FILE="$1"
+
+    # add inf file
+    add_dep_file "$INF_FILE"
+
+    # add sources
+
+    local PARENT_FOLDER="$(dirname "$INF_FILE")"
+
+    local sources
+
+    mapfile -t sources < <(
+        awk '
+      /^\[Sources\]/ { in_sources=1; next }
+      /^\[/          { in_sources=0 }
+      in_sources {
+          gsub(/^[[:space:]]+|[[:space:]]+$/, "")
+          if ($0 != "" && $0 !~ /^#/)
+              print
+      }
+    ' "$INF_FILE"
+    )
+
+    for SRC in "${sources[@]}"; do
+
+        if [[ "${SRC:0:1}" != "/" ]]; then
+            SRC="${PARENT_FOLDER}/${SRC}"
+        fi
+
+        if [[ "$SRC" =~ ^.*\$\(OPENSSL_PATH\).*$ ]]; then
+            SRC="${SRC//\$(OPENSSL_PATH)/openssl}"
+        fi
+
+        if [[ "$SRC" =~ ^.*\$\(OPENSSL_GEN_PATH\).*$ ]]; then
+            SRC="${SRC//\$(OPENSSL_GEN_PATH)/OpensslGen}"
+        fi
+
+        if [[ "$SRC" =~ ^.*\|.*$ ]]; then
+            SRC="${SRC%%|*}"
+        fi
+
+        if [[ "$SRC" =~ ^.*#.*$ ]]; then
+            SRC="${SRC%%#*}"
+        fi
+
+        SRC="${SRC%"${SRC##*[![:space:]]}"}"
+
+        add_dep_file "$SRC"
+
+    done
+
+}
+
+REPORT_FILE="$WORKSPACE/BuildReport.txt"
+
+# generate build report
+"$EDK2_BUILD_COMMAND" -a "$EDK2_TARGET_PROPERTIES_ARCH" \
+    -p "$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM" \
+    -m "$BUILD_NAME" \
+    -b "$EDK2_TARGET_PROPERTIES_BUILDTYPE" \
+    -t "$EDK2_TARGET_PROPERTIES_TOOLCHAIN" \
+    -D "OOPETRIS_RUNTIME_TARGET=$EDK2_TARGET_PROPERTIES_RUNTIME_TARGET" \
+    -n 0 \
+    -w \
+    -Y PCD \
+    -Y LIBRARY \
+    -Y FLASH \
+    -Y DEPEX \
+    -Y BUILD_FLAGS \
+    -Y FIXED_ADDRESS \
+    -Y HASH \
+    -Y EXECUTION_ORDER \
+    -Y COMPILE_INFO \
+    -y "$REPORT_FILE"
+
+# analyze dependencies
+
+rm -f "$DEPS_DEST_FILE"
+validate_parent_dir "$DEPS_DEST_FILE"
+echo -n "$(escape_filename_for_ninja_depfile "${DEST_FILE_ORIG}"): " >"$DEPS_DEST_FILE"
+
+line=""
+
+analyze_state="unknown"
+analyze_buffer=""
+
+while IFS="" read -r line; do
+
+    if [ "$analyze_state" == "unknown" ]; then
+        if [[ "$line" =~ ^\>-+\<$ ]]; then
+            analyze_state="line"
+        fi
+    elif [ "$analyze_state" == "line" ]; then
+        if [[ "$line" == "Library" ]]; then
+            analyze_state="libs"
+        else
+            analyze_state="unknown"
+        fi
+    elif [ "$analyze_state" == "libs" ]; then
+        if [[ "$line" =~ ^\<-+\>$ ]]; then
+            analyze_state="unknown"
+            if [ "$analyze_buffer" != "" ]; then
+                echo "Line Analyze buffer is not empty" >&2
+                exit 2
+            fi
+        elif [[ "$line" =~ ^\{.*$ ]] || [[ "$line" =~ ^-+$ ]]; then
+            # skip line
+            if [ "$analyze_buffer" != "" ]; then
+                echo "Line Analyze buffer is not empty" >&2
+                exit 2
+            fi
+        else
+            analyze_buffer="${analyze_buffer}${line}"
+
+            if [[ "$analyze_buffer" =~ ^.*\.inf$ ]]; then
+                analyze_inf_file "$analyze_buffer"
+                analyze_buffer=""
+            fi
+
+        fi
+    fi
+
+done <"$REPORT_FILE"
+
+analyze_inf_file "$BUILD_INF"
+
+# final build
 
 "$EDK2_BUILD_COMMAND" -a "$EDK2_TARGET_PROPERTIES_ARCH" \
     -p "$EDK2_TARGET_PROPERTIES_ACTIVE_PLATFORM" \
