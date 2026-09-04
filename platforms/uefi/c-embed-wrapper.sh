@@ -28,8 +28,6 @@ else
     exit 1
 fi
 
-"$C_EMBED_EXE" "$INPUT_FOLDER"
-
 PARENT_DIR="$(dirname "$OUTPUT_FILE")"
 
 if [[ ! -d "$PARENT_DIR" ]]; then
@@ -37,6 +35,8 @@ if [[ ! -d "$PARENT_DIR" ]]; then
 fi
 
 REAL_O_FILE="$PARENT_DIR/c-embed_compiled.o"
+
+"$C_EMBED_EXE" -r -a elf64-x86-64 -o "$REAL_O_FILE" "$INPUT_FOLDER"
 
 mv "./c-embed.o" "$REAL_O_FILE"
 

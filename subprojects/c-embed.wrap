@@ -1,10 +1,7 @@
 [wrap-git]
-url = https://github.com/weigert/c-embed.git
-revision = main
+url = https://github.com/Totto16/c-embed.git
+revision = fork
 depth = 1
-patch_directory = c-embed
-diff_files = c-embed-system-checked.diff, c-embed-thread-local.diff
-
 
 [provide]
 dependency_names = c-embed
