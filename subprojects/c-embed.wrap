@@ -3,7 +3,7 @@ url = https://github.com/weigert/c-embed.git
 revision = main
 depth = 1
 patch_directory = c-embed
-diff_files = c-embed-system-checked.diff
+diff_files = c-embed-system-checked.diff, c-embed-thread-local.diff
 
 
 [provide]
