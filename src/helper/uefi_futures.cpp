@@ -223,8 +223,8 @@ struct ThreadLocalState {
     ThreadLocalState(const ThreadLocalState& other) = delete;
     ThreadLocalState& operator=(const ThreadLocalState& other) = delete;
 
-    ThreadLocalState(ThreadLocalState&& other) noexcept;
-    ThreadLocalState& operator=(ThreadLocalState&& other) noexcept;
+    ThreadLocalState(ThreadLocalState&& other) noexcept = delete;
+    ThreadLocalState& operator=(ThreadLocalState&& other) noexcept = delete;
 
 
     ~ThreadLocalState() {

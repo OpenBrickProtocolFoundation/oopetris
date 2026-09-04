@@ -184,6 +184,8 @@ static int EFIAPI _f_romfs_Delete(struct __filedes* filp) {
     return -1;
 }
 
+[[nodiscard]] static int eerrno_to_errno(int eerrno);
+
 /** EFI specific operations for setting the position within a file.
 
     @param[in]    filp    Pointer to a file descriptor structure.
@@ -199,7 +201,7 @@ static off_t EFIAPI _f_romfs_Seek(struct __filedes* filp, off_t offset, int when
 
     int result = eseek(file, offset, whence);
     if (result != 0) {
-        errno = eerrno;
+        errno = eerrno_to_errno(eerrno);
         return EOF;
     }
 
@@ -312,6 +314,81 @@ static int EFIAPI _f_romfs_Ioctl(struct __filedes* filp, ULONGN cmd, va_list arg
     return -1;
 }
 
+
+struct PathConversion {
+private:
+    const wchar_t* m_original;
+    char* m_converted;
+
+public:
+    PathConversion(const wchar_t* value, char* converted) : m_original{ value }, m_converted{ converted } {
+        //
+    }
+
+    static std::optional<PathConversion> init(const wchar_t* value) {
+        char* converted = (char*) AllocateZeroPool(PATH_MAX + 1);
+        if (converted == NULL) {
+            DEBUG((DEBUG_ERROR, "%a %a:%d: IN PathConversion::init %s\n", __func__, __FILE__, __LINE__, value));
+            errno = ENOMEM;
+            return std::nullopt;
+        }
+
+        size_t convert_result = wcstombs(converted, value, PATH_MAX);
+
+        if (convert_result == ((size_t) -1) || convert_result > PATH_MAX) {
+            DEBUG((DEBUG_ERROR, "%a %a:%d: IN PathConversion::init %s\n", __func__, __FILE__, __LINE__, value));
+            errno = EINVAL;
+            return std::nullopt;
+        }
+
+        converted[convert_result] = '\0';
+
+        // replace "\" with "/" for c-embed
+
+        for (size_t i = 0; i < convert_result; ++i) {
+            if (converted[i] == '\\') {
+                converted[i] = '/';
+            }
+        }
+
+
+        return PathConversion(value, converted);
+    }
+
+    PathConversion(const PathConversion& other) = delete;
+    PathConversion& operator=(const PathConversion& other) = delete;
+
+
+    PathConversion(PathConversion&& other) noexcept : m_original{ other.m_original }, m_converted{ other.m_converted } {
+        other.m_original = nullptr;
+        other.m_converted = nullptr;
+    }
+
+    PathConversion& operator=(PathConversion&& other) noexcept {
+        if (this != &other) {
+            this->m_original = other.m_original;
+            this->m_converted = other.m_converted;
+
+            other.m_original = nullptr;
+            other.m_converted = nullptr;
+        }
+
+        return *this;
+    }
+
+
+    [[nodiscard]] char* path() const {
+        return m_converted;
+    }
+
+    ~PathConversion() {
+        if (m_converted != nullptr) {
+            FreePool(m_converted);
+            m_converted = nullptr;
+        }
+    }
+};
+
 /** EFI specific operations for opening a file.
 
     @param[in]    DevNode       Pointer to the Device control structure for this stream.
@@ -337,35 +414,25 @@ int EFIAPI _f_romfs_Open(
         return -1;
     }
 
-    char* strPath = (char*) AllocateZeroPool(PATH_MAX);
-    if (strPath == NULL) {
-        DEBUG((DEBUG_ERROR, "%a %a:%d: IN OPEN %s\n", __func__, __FILE__, __LINE__, Path));
-        errno = ENOMEM;
+
+    std::optional<PathConversion> conversion = PathConversion::init(Path);
+
+    if (not conversion.has_value()) {
         return -1;
     }
 
-    size_t convert_result = wcstombs(strPath, Path, PATH_MAX);
-
-    if (convert_result == ((size_t) -1) || convert_result > PATH_MAX) {
-        DEBUG((DEBUG_ERROR, "%a %a:%d: IN OPEN %s\n", __func__, __FILE__, __LINE__, Path));
-        errno = EINVAL;
-        return -1;
-    }
-
-    DEBUG((DEBUG_ERROR, "%a %a:%d: path: %a\n", __func__, __FILE__, __LINE__, strPath));
+    DEBUG((DEBUG_ERROR, "%a %a:%d: path: %a\n", __func__, __FILE__, __LINE__, conversion->path()));
 
     // Call the EFI's Open function
-    EFILE* file = eopen(strPath, "r");
+    EFILE* file = eopen(conversion->path(), "r");
     if (file == NULL) {
         filp->f_iflags = 0; // Release our reservation on this FD
         // Set errno based upon Status
-        errno = eerrno;
-        DEBUG((DEBUG_ERROR, "%a %a:%d: IN OPEN %s\n", __func__, __FILE__, __LINE__, Path));
-        FreePool(strPath);
+        errno = eerrno_to_errno(eerrno);
+        DEBUG((DEBUG_ERROR, "%a %a:%d: IN OPEN %s: errno -> %a\n", __func__, __FILE__, __LINE__, Path, eerrstr(eerrno)));
         return -1;
     }
 
-    FreePool(strPath);
 
     // Successfully got a regular File (note c-embed doesnÄt support to open directories)
     filp->f_iflags |= S_IFREG;
@@ -468,6 +535,24 @@ __ctor_rom_fs(void) {
     _g_stream_instance = Stream;
 
     return Status;
+}
+
+
+[[nodiscard]] static int eerrno_to_errno(int eerrno) {
+    switch (eerrno) {
+        case EERRCODE_SUCCESS:
+            return 0;
+        case EERRCODE_NOFILE:
+            return ENOENT;
+        case EERRCODE_NOMAP:
+            return ENODEV;
+        case EERRCODE_NULLSTREAM:
+            return EINVAL;
+        case EERRCODE_OOBSTREAMPOS:
+            return EINVAL;
+        default:
+            return EINVAL;
+    };
 }
 
 
