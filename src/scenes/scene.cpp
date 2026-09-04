@@ -46,7 +46,7 @@ namespace scenes {
             case SceneId::AchievementsPage:
                 return std::make_unique<TODO>(&service_provider, layout); */
             default:
-                throw std::runtime_error("Not implemented ID");
+                utils::throw_(std::runtime_error("Not implemented ID"));
         }
     }
 

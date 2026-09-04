@@ -58,7 +58,16 @@ namespace json {
 
     template<typename T>
     [[nodiscard]] helper::expected<T, std::string> try_parse_json(const std::string& content) noexcept {
+#if defined(__OOPETRIS_NO_EXCEPTIONS)
 
+        auto result_j = nlohmann::json::parse(content, nullptr, false);
+        if (result_j.is_discarded()) {
+            return helper::unexpected<std::string>{ "A JSON error occurred, but no further details available" };
+        }
+        T result = result_j;
+
+        return result;
+#else
         try {
             T result = nlohmann::json::parse(content);
             return result;
@@ -72,6 +81,7 @@ namespace json {
         } catch (std::exception& exception) {
             return helper::unexpected<std::string>{ fmt::format("unknown exception: {}", exception.what()) };
         }
+#endif
     }
 
     template<typename T>
@@ -117,6 +127,11 @@ namespace json {
     template<typename T>
     [[nodiscard]] helper::expected<nlohmann::json, std::string> try_convert_to_json(const T& input) noexcept {
 
+#if defined(__OOPETRIS_NO_EXCEPTIONS)
+        nlohmann::json value = input;
+        //TODO: this may throw exceptions, but they just abort, which is not in the spirit of this function so either use another nlohmann json mechanism or another json library that supports return values for custom subparser
+        return value;
+#else
         try {
             nlohmann::json value = input;
             return value;
@@ -127,33 +142,24 @@ namespace json {
         } catch (std::exception& exception) {
             return helper::unexpected<std::string>{ fmt::format("unknown exception: {}", exception.what()) };
         }
+#endif
     }
 
 
     template<typename T>
     [[nodiscard]] helper::expected<std::string, std::string>
     try_json_to_string(const T& type, const bool pretty = false) noexcept {
-        try {
+        auto value = try_convert_to_json<T>(type);
 
-            auto value = try_convert_to_json<T>(type);
-
-            if (not value.has_value()) {
-                return helper::unexpected<std::string>{ value.error() };
-            }
-
-            if (pretty) {
-                return value.value().dump(1, '\t');
-            }
-
-            return value.value().dump(-1, ' ');
-
-        } catch (nlohmann::json::type_error& type_error) {
-            return helper::unexpected<std::string>{ fmt::format("type error: {}", type_error.what()) };
-        } catch (nlohmann::json::exception& exception) {
-            return helper::unexpected<std::string>{ fmt::format("unknown json exception: {}", exception.what()) };
-        } catch (std::exception& exception) {
-            return helper::unexpected<std::string>{ fmt::format("unknown exception: {}", exception.what()) };
+        if (not value.has_value()) {
+            return helper::unexpected<std::string>{ value.error() };
         }
+
+        if (pretty) {
+            return value.value().dump(1, '\t');
+        }
+
+        return value.value().dump(-1, ' ');
     }
 
 
@@ -169,6 +175,7 @@ namespace json {
         }
 
         std::ofstream file_stream{ file };
+
 
         if (not file_stream.is_open()) {
             return fmt::format("File '{}' couldn't be opened!", file.string());

@@ -140,7 +140,7 @@ ui::FocusLayout::handle_event_result(const std::optional<ui::Widget::InnerState>
         case ui::EventHandleType::RequestFocus: {
             const auto focusable = as_focusable(widget);
             if (not focusable.has_value()) {
-                throw std::runtime_error("Only Focusables can request focus!");
+                utils::throw_(std::runtime_error("Only Focusables can request focus!"));
             }
 
             if (not m_focus_id.has_value()) {
@@ -174,7 +174,7 @@ ui::FocusLayout::handle_event_result(const std::optional<ui::Widget::InnerState>
 
             const auto focusable = as_focusable(widget);
             if (not focusable.has_value()) {
-                throw std::runtime_error("Only Focusables can request un-focus!");
+                utils::throw_(std::runtime_error("Only Focusables can request un-focus!"));
             }
 
 
@@ -235,7 +235,7 @@ ui::FocusLayout::handle_event_result(const std::optional<ui::Widget::InnerState>
     // this works, since result is sorted already
     const auto duplicates = std::ranges::adjacent_find(result);
     if (duplicates != result.cend()) {
-        throw std::runtime_error("Focusables have duplicates: " + std::to_string(*duplicates));
+        utils::throw_(std::runtime_error("Focusables have duplicates: " + std::to_string(*duplicates)));
     }
 #endif
     std::ranges::sort(result);

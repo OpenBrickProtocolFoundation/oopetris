@@ -1,8 +1,6 @@
 graphics_src_files += files(
     'clock_source.cpp',
     'clock_source.hpp',
-    'console_helpers.cpp',
-    'console_helpers.hpp',
     'constants.hpp',
     'export_symbols.hpp',
     'git_helper.hpp',
@@ -14,9 +12,32 @@ graphics_src_files += files(
     'platform.cpp',
     'platform.hpp',
     'spdlog_wrapper.hpp',
-    'web_utils.cpp',
-    'web_utils.hpp',
 )
+
+if meson.is_cross_build() and host_machine.system() == 'uefi'
+    graphics_src_files += files(
+        'uefi_futures.cpp',
+        'uefi_futures.hpp',
+        'uefi_utils.cpp',
+        'uefi_utils.hpp'
+    )
+elif meson.is_cross_build() and host_machine.system() == 'emscripten'
+    graphics_src_files += files(
+        'web_utils.cpp',
+        'web_utils.hpp',
+    )
+elif meson.is_cross_build() and (
+    host_machine.system() == '3ds'
+    or host_machine.system() == 'switch'
+)
+    graphics_src_files += files(
+        'console_helpers.cpp',
+        'console_helpers.hpp',
+    )
+
+endif
+
+
 
 if have_file_dialogs
     graphics_src_files += files('nfd.cpp', 'nfd_include.hpp')

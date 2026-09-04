@@ -3,7 +3,10 @@
 #include "api.hpp"
 
 #include "helper/spdlog_wrapper.hpp"
+
+#if !defined(__OOPETRIS_HAVE_NO_THREADS)
 #include <future>
+#endif
 
 #if !defined(_OOPETRIS_ONLINE_SYSTEM)
 #error "_OOPETRIS_ONLINE_SYSTEM has to be defined"
@@ -15,6 +18,8 @@
 #include "./web_client.hpp"
 #elif _OOPETRIS_ONLINE_SYSTEM == 2
 #include "./curl_client.hpp"
+#elif _OOPETRIS_ONLINE_SYSTEM == 3
+#include "./uefi_client.hpp"
 #else
 #error "_OOPETRIS_ONLINE_SYSTEM has an invalid value"
 #endif
@@ -61,14 +66,23 @@ helper::expected<void, std::string> lobby::API::check_reachability() {
 }
 
 lobby::API::API(ServiceProvider* service_provider, const std::string& api_url)
-    : m_client{ std::make_unique<oopetris::http::implementation::ActualClient>(api_url) },
+    : m_client{
+
+#if defined(__UEFI__)
+          oopetris::http::implementation::ActualClient::construct(api_url)
+#else
+          std::make_unique<oopetris::http::implementation::ActualClient>(api_url)
+
+#endif
+
+      },
       m_secret_storage{ std::make_unique<secret::SecretStorage>(service_provider, secret::KeyringType::User) } {
 
     auto value = m_secret_storage->load(token::constants::api_token_key);
 
     if (value.has_value()) {
         if (not this->setup_authentication(value.value().as_string())) {
-            throw std::runtime_error("Couldn't setup authentication");
+            utils::throw_(std::runtime_error("Couldn't setup authentication"));
         }
     } else {
         spdlog::info("API: Key not found, so probably not logged in already: {}", value.error());
@@ -92,7 +106,9 @@ lobby::API::~API() = default;
 helper::expected<lobby::API, std::string>
 lobby::API::get_api(ServiceProvider* service_provider, const std::string& url) {
 
+#if !defined(__OOPETRIS_NO_EXCEPTIONS)
     try {
+#endif
 
         API api{ service_provider, url };
 
@@ -105,9 +121,11 @@ lobby::API::get_api(ServiceProvider* service_provider, const std::string& url) {
         //TODO(Totto):  once version is standard, check here if the version is supported
 
         return api;
+#if !defined(__OOPETRIS_NO_EXCEPTIONS)
     } catch (const std::exception& error) {
         return helper::unexpected<std::string>{ error.what() };
     }
+#endif
 }
 
 void lobby::API::check_url(
@@ -117,11 +135,19 @@ void lobby::API::check_url(
 ) {
 
     //TODO(Totto): is this done correctly
+
+#if !defined(__OOPETRIS_HAVE_NO_THREADS)
+
     std::ignore = std::async(std::launch::async, [url, callback = std::move(callback), service_provider] {
         auto result = lobby::API::get_api(service_provider, url);
 
         callback(result.has_value());
     });
+#else
+    auto result = lobby::API::get_api(service_provider, url);
+
+    callback(result.has_value());
+#endif
 }
 
 
@@ -238,7 +264,8 @@ helper::expected<void, std::string> lobby::API::start_lobby(int lobby_id) {
     return is_request_ok(res, 204);
 }
 
-helper::expected<lobby::LobbyCreateResponse, std::string> lobby::API::create_lobby(const CreateLobbyRequest& arguments
+helper::expected<lobby::LobbyCreateResponse, std::string> lobby::API::create_lobby(
+        const CreateLobbyRequest& arguments
 ) {
     if (not is_authenticated()) {
         return helper::unexpected<std::string>{

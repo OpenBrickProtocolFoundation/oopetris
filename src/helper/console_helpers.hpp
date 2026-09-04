@@ -2,7 +2,9 @@
 
 #pragma once
 
-#if defined(__CONSOLE__)
+#if !defined(__CONSOLE__)
+#error "Only supported on consoles"
+#endif
 
 #include <spdlog/sinks/base_sink.h>
 
@@ -65,6 +67,3 @@ namespace console {
 
 
 } // namespace console
-
-
-#endif

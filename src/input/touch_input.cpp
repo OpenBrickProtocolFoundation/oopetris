@@ -52,9 +52,8 @@ std::optional<InputEvent> input::TouchGameInput::sdl_event_to_input_event(const 
         const auto timestamp = event.tfinger.timestamp;
 
         m_finger_state.insert_or_assign(
-                finger_id,
-                std::optional<PressedState>{
-                        PressedState{ timestamp, x_pos, y_pos }
+                finger_id, std::optional<PressedState>{
+                                   PressedState{ timestamp, x_pos, y_pos }
         }
         );
     }
@@ -176,7 +175,7 @@ input::TouchGameInput::TouchGameInput(TouchGameInput&& input) noexcept = default
         case input::MenuEvent::Pause:
             return "Back";
         case input::MenuEvent::OpenSettings:
-            throw std::runtime_error("Open Settings is not supported");
+            utils::throw_(std::runtime_error("Open Settings is not supported"));
         default:
             UNREACHABLE();
     }
@@ -213,7 +212,8 @@ input::TouchInput::get_by_device_index(const std::shared_ptr<Window>& window, in
 }
 
 
-[[nodiscard]] std::optional<input::NavigationEvent> input::TouchInput::get_navigation_event(const SDL_Event& event
+[[nodiscard]] std::optional<input::NavigationEvent> input::TouchInput::get_navigation_event(
+        const SDL_Event& event
 ) const {
     //technically no touch event, but it's a navigation event, and by APi design it can also handle those
     if (event.type == SDL_KEYDOWN and event.key.keysym.sym == SDLK_AC_BACK) {
@@ -239,7 +239,8 @@ input::TouchInput::get_by_device_index(const std::shared_ptr<Window>& window, in
     }
 }
 
-[[nodiscard]] std::optional<input::PointerEventHelper> input::TouchInput::get_pointer_event(const SDL_Event& event
+[[nodiscard]] std::optional<input::PointerEventHelper> input::TouchInput::get_pointer_event(
+        const SDL_Event& event
 ) const {
 
     auto pointer_event = input::PointerEvent::PointerUp;
@@ -276,14 +277,14 @@ input::TouchInput::get_by_device_index(const std::shared_ptr<Window>& window, in
 }
 
 
-[[nodiscard]] SDL_Event input::TouchInput::offset_pointer_event(const SDL_Event& event, const shapes::IPoint& point)
-        const {
+[[nodiscard]] SDL_Event
+input::TouchInput::offset_pointer_event(const SDL_Event& event, const shapes::IPoint& point) const {
 
 
     auto new_event = event;
 
     if (event.type != SDL_FINGERMOTION and event.type != SDL_FINGERDOWN and event.type != SDL_FINGERUP) {
-        throw std::runtime_error("Tried to offset event, that is no pointer event: in Touch Input");
+        utils::throw_(std::runtime_error("Tried to offset event, that is no pointer event: in Touch Input"));
     }
 
     using FloatType = decltype(event.tfinger.x);
@@ -293,8 +294,8 @@ input::TouchInput::get_by_device_index(const std::shared_ptr<Window>& window, in
 
     const auto window_size = m_window->size();
 
-    new_event.tfinger.x = x_percent + static_cast<FloatType>(point.x) / static_cast<FloatType>(window_size.x);
-    new_event.tfinger.y = y_percent + static_cast<FloatType>(point.y) / static_cast<FloatType>(window_size.y);
+    new_event.tfinger.x = x_percent + (static_cast<FloatType>(point.x) / static_cast<FloatType>(window_size.x));
+    new_event.tfinger.y = y_percent + (static_cast<FloatType>(point.y) / static_cast<FloatType>(window_size.y));
 
     return new_event;
 }

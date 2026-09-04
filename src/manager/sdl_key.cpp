@@ -151,10 +151,14 @@ namespace {
     [[nodiscard]] std::string sdl_key_name(SDL_KeyCode keycode) {
         const auto* name = SDL_GetKeyName(keycode);
         if (name == nullptr or std::strlen(name) == 0) {
-            throw std::runtime_error(fmt::format(
-                    "No name for the SDL key {}: {}", static_cast<std::underlying_type_t<decltype(keycode)>>(keycode),
-                    SDL_GetError()
-            ));
+            utils::throw_(
+                    std::runtime_error(
+                            fmt::format(
+                                    "No name for the SDL key {}: {}",
+                                    static_cast<std::underlying_type_t<decltype(keycode)>>(keycode), SDL_GetError()
+                            )
+                    )
+            );
         }
         return std::string{ name };
     }

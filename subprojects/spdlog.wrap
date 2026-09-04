@@ -9,7 +9,7 @@ patch_url = https://wrapdb.mesonbuild.com/v2/spdlog_1.17.0-1/get_patch
 patch_fallback_url = https://github.com/mesonbuild/wrapdb/releases/download/spdlog_1.17.0-1/spdlog_1.17.0-1_patch.zip
 patch_hash = 295bcca990facdca84256b60aaa86ba2e2320895cad30bee997d7a463a30b40c
 wrapdb_version = 1.17.0-1
-diff_files = spdlog_1.17.0_fmt_12.0.0_compatibility.diff, spdlog_1.17.0_no_tls_option.diff, spdlog_1.17.0_nintendo_time_fix.diff
+diff_files = spdlog_1.17.0_fmt_12.0.0_compatibility.diff, spdlog_1.17.0_no_tls_option.diff, spdlog_1.17.0_nintendo_time_fix.diff, spdlog_1.17.0_std_format_detection_fix.diff, spdlog_1.17.0_uefi_support.diff
 
 
 [provide]

@@ -1,0 +1,189 @@
+From b7727eb603653b41282f0543c192e7f9f3707c75 Mon Sep 17 00:00:00 2001
+From: Totto16 <tobiausgais@gmail.com>
+Date: Tue, 25 Aug 2026 17:06:59 +0200
+Subject: [PATCH 3/5] feat:  add c and c++ constructors - add libcxx and libc
+ interlaving constructors and destructors, that are   invoked before
+ .init_array and .fini_array - use better option to run libc initializer, use
+ the same mechanism as   the init_array and fini_array one, but with other
+ section names, so that   it can be run before any init array (note we have
+ .preinit_array but no   destructor counterpart)
+
+---
+ StdLib/Include/libc/main.h | 18 ++++++++
+ StdLib/LibC/LibC.inf       |  1 +
+ StdLib/LibC/Main/Main.c    | 94 +++++++++++++++++++++++++++++++++++---
+ StdLib/StdLib.inc          |  2 +
+ 4 files changed, 109 insertions(+), 6 deletions(-)
+ create mode 100644 StdLib/Include/libc/main.h
+
+diff --git a/StdLib/Include/libc/main.h b/StdLib/Include/libc/main.h
+new file mode 100644
+index 0000000..65bd539
+--- /dev/null
++++ b/StdLib/Include/libc/main.h
+@@ -0,0 +1,18 @@
++
++#pragma once
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++#define EDK2_LIBC_ENTRY_NAME edk2_libc_main
++
++extern int EDK2_LIBC_ENTRY_NAME(int, char**);
++
++#ifdef __cplusplus
++}
++
++#define EDK2_LIBCXX_ENTRY_NAME edk2_libcxx_main
++
++extern int EDK2_LIBCXX_ENTRY_NAME(int, char**);
++#endif
+diff --git a/StdLib/LibC/LibC.inf b/StdLib/LibC/LibC.inf
+index 40b2222..4130326 100644
+--- a/StdLib/LibC/LibC.inf
++++ b/StdLib/LibC/LibC.inf
+@@ -118,3 +118,4 @@
+   GCC:*_*_IA32_CC_FLAGS = -fno-lto
+   GCC:*_*_ARM_CC_FLAGS = -fno-lto
+   GCC:*_*_LOONGARCH64_CC_FLAGS = -fno-lto
++  GCC:*_*_*_CC_FLAGS = -Wprio-ctor-dtor
+diff --git a/StdLib/LibC/Main/Main.c b/StdLib/LibC/Main/Main.c
+index b203d15..69204cd 100644
+--- a/StdLib/LibC/Main/Main.c
++++ b/StdLib/LibC/Main/Main.c
+@@ -31,17 +31,95 @@
+ #include  <MainData.h>
+ #include  <unistd.h>
+ 
+-extern int main( int, char**);
++#include <libc/main.h>
++
+ extern int __sse2_available;
+ 
+ struct  __MainData  *gMD;
+ 
+-/* Worker function to keep GCC happy. */
+-void __main()
+-{
+-  ;
++// these symbols are provided by the linker from the extions .init_array and .fini_array
++typedef void (*init_func_t)(void);
++
++extern init_func_t __init_array_start[] __attribute__((section(".init_array"), aligned(sizeof(init_func_t))));
++extern init_func_t __init_array_end[] __attribute__((section(".init_array"), aligned(sizeof(init_func_t))));
++
++extern init_func_t __fini_array_start[] __attribute__((section(".fini_array"), aligned(sizeof(init_func_t))));
++extern init_func_t __fini_array_end[] __attribute__((section(".fini_array"), aligned(sizeof(init_func_t))));
++
++extern init_func_t __libc_init_array_start[] __attribute__((section(".init_array"), aligned(sizeof(init_func_t))));
++extern init_func_t __libc_init_array_end[] __attribute__((section(".init_array"), aligned(sizeof(init_func_t))));
++
++extern init_func_t __libc_fini_array_start[] __attribute__((section(".fini_array"), aligned(sizeof(init_func_t))));
++extern init_func_t __libc_fini_array_end[] __attribute__((section(".fini_array"), aligned(sizeof(init_func_t))));
++
++
++
++// see: https://gcc.gnu.org/onlinedocs/gccint/Initialization.html
++// for more information on how gcc handles initialization
++
++static void run_init_array(void) {
++    size_t size = __init_array_end - __init_array_start;
++    for (size_t i = 0; i < size; ++i) {
++        init_func_t func = __init_array_start[i];
++        if (*func != NULL) {
++            (*func)();
++        }
++    }
++}
++
++static void run_fini_array(void) {
++    // iterate reversed
++    size_t size = __fini_array_end - __fini_array_start;
++    for (size_t i = size; i != 0; --i) {
++        init_func_t func = __fini_array_start[i - 1];
++        if (*func != NULL) {
++            (*func)();
++        }
++    }
++}
++
++// see eg. here for some information:
++// https://maskray.me/blog/2021-11-07-init-ctors-init-array
++
++static void edk2_libc_call_constructors(void) {
++    run_init_array();
++}
++
++static void edk2_libc_call_destructors(void) {
++    run_fini_array();
++}
++
++static void __c_uefi_init_libc(void) {
++    size_t size = __libc_init_array_end - __libc_init_array_start;
++    for (size_t i = 0; i < size; ++i) {
++        init_func_t func = __libc_init_array_start[i];
++        if (*func != NULL) {
++            (*func)();
++        }
++    }
++}
++
++
++init_func_t __libc_init_ref_edk2_libc_call_constructors __attribute__((retain, used, section(".__libc_init.prio_99.libc_constructors"), aligned(sizeof(init_func_t)))) = 
++edk2_libc_call_constructors;
++
++
++static void __c_uefi_deinit_libc(void) {
++    // iterate reversed
++    size_t size = __libc_fini_array_end - __libc_fini_array_start;
++    for (size_t i = size; i != 0; --i) {
++        init_func_t func = __libc_fini_array_start[i - 1];
++        if (*func != NULL) {
++            (*func)();
++        }
++    }
+ }
+ 
++
++init_func_t __libc_init_ref_edk2_libc_call_destructors __attribute__((retain, used, section(".__libc_fini.prio_99.libc_destructors"), aligned(sizeof(init_func_t)))) = 
++edk2_libc_call_destructors;
++
++
+ /** Clean up data as required by the exit() function.
+ 
+ **/
+@@ -67,6 +145,9 @@ exitCleanup(INTN ExitVal)
+       CleanUp();
+     }
+   }
++
++  // this is needed, if we use a c++ standard library, we need to clean up that before we clean up the libc and after custom cleanup and atexit calls
++  __c_uefi_deinit_libc();
+ }
+ 
+ /* Create mbcs versions of the Argv strings. */
+@@ -179,7 +260,8 @@ ShellAppMain (
+     else {
+       if( setjmp(gMD->MainExit) == 0) {
+         errno   = 0;    // Clean up any "scratch" values from startup.
+-        ExitVal = (INTN)main( (int)Argc, gMD->NArgV);
++        __c_uefi_init_libc();
++        ExitVal = (INTN)EDK2_LIBC_ENTRY_NAME( (int)Argc, gMD->NArgV);
+         exitCleanup(ExitVal);
+       }
+       /* You reach here if:
+diff --git a/StdLib/StdLib.inc b/StdLib/StdLib.inc
+index 4d08302..d6f2b73 100644
+--- a/StdLib/StdLib.inc
++++ b/StdLib/StdLib.inc
+@@ -138,3 +138,5 @@
+     MSFT:*_VS2015x86xASL_*_CC_FLAGS   = /Wv:11
+     MSFT:*_VS2017_*_CC_FLAGS          = /Wv:11
+     MSFT:*_VS2019_*_CC_FLAGS          = /Wv:11
++
++    GCC:*_*_*_CC_FLAGS = -Wprio-ctor-dtor
+-- 
+2.55.0
+

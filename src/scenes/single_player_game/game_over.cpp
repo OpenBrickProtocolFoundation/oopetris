@@ -11,28 +11,34 @@
 
 namespace scenes {
 
-    SinglePlayerGameOver::SinglePlayerGameOver(ServiceProvider* service_provider, const ui::Layout& layout,  const std::shared_ptr<input::GameInput>& game_input)
-        : Scene{ service_provider, layout },
-          m_text{
-            service_provider,
-              fmt::format(
-                      "Game Over, Press {} to continue",
-                   game_input->underlying_input()->describe_navigation_event(input::NavigationEvent::BACK)
-              ),
-               service_provider->font_manager().get(FontId::Default),
-              Color::white(),
-              utils::get_orientation() == utils::Orientation::Landscape
-                                       ? std::pair<double, double>{ 0.7, 0.07 }
-                                       : std::pair<double, double>{ 0.95, 0.07 },
-                ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
-                layout,
-                true
-          } ,m_game_input{game_input}{
-        service_provider->music_manager()
-                .load_and_play_music(
-                        utils::get_assets_folder() / "music" / utils::get_supported_music_extension("05. Results")
-                )
-                .and_then(utils::log_error);
+    SinglePlayerGameOver::SinglePlayerGameOver(
+            ServiceProvider* service_provider,
+            const ui::Layout& layout,
+            const std::shared_ptr<input::GameInput>& game_input
+    )
+        : Scene{
+              service_provider, layout
+    },
+          m_text{ service_provider,
+                  fmt::format(
+                          "Game Over, Press {} to continue",
+                          game_input->underlying_input()->describe_navigation_event(input::NavigationEvent::BACK)
+                  ),
+                  service_provider->font_manager().get(FontId::Default),
+                  Color::white(),
+                  utils::get_orientation() == utils::Orientation::Landscape ? std::pair<double, double>{ 0.7, 0.07 }
+                                                                            : std::pair<double, double>{ 0.95, 0.07 },
+                  ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Center },
+                  layout,
+                  true },
+          m_game_input{ game_input } {
+        auto _ignore = service_provider->music_manager()
+                               .load_and_play_music(
+                                       utils::get_assets_folder() / "music"
+                                       / utils::get_supported_music_extension("05. Results")
+                               )
+                               .and_then(utils::log_error);
+        UNUSED(_ignore);
     }
 
     [[nodiscard]] Scene::UpdateResult SinglePlayerGameOver::update() {

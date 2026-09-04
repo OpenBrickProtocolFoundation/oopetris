@@ -29,6 +29,8 @@
 #endif
 #elif defined(__APPLE__)
 #include <machine/endian.h>
+#elif defined(__UEFI__)
+#include <machine/endian.h>
 #else
 #include <endian.h>
 #endif

@@ -30,7 +30,7 @@ helper::expected<
 recorder::RecordingReader::get_header_from_path(const std::filesystem::path& path) {
 
     std::ifstream file{ path, std::ios::in | std::ios::binary };
-    if (not file) {
+    if (file.fail()) {
         return helper::unexpected<std::string>{
             fmt::format("unable to load recording from file \"{}\"", path.string())
         };
@@ -210,7 +210,7 @@ helper::expected<recorder::RecordingReader, std::string> recorder::RecordingRead
 
 [[nodiscard]] helper::reader::ReadResult<recorder::TetrionHeader>
 recorder::RecordingReader::read_tetrion_header_from_file(std::ifstream& file) {
-    if (not file) {
+    if (file.fail()) {
         return helper::unexpected<helper::reader::ReadError>{
             { helper::reader::ReadErrorType::InvalidStream, "failed to read data from file" }
         };
@@ -237,7 +237,7 @@ recorder::RecordingReader::read_tetrion_header_from_file(std::ifstream& file) {
 [[nodiscard]] helper::reader::ReadResult<recorder::Record> recorder::RecordingReader::read_record_from_file(
         std::ifstream& file
 ) {
-    if (not file) {
+    if (file.fail()) {
         return helper::unexpected<helper::reader::ReadError>{
             { helper::reader::ReadErrorType::InvalidStream, "invalid input file stream while trying to read record" }
         };

@@ -8,7 +8,7 @@ patch_url = https://wrapdb.mesonbuild.com/v2/sdl2_mixer_2.6.2-4/get_patch
 patch_hash = 127025fa0666dd3ea66fb7c334182c393a748fb78810c6a44cdc1a85d619d934
 source_fallback_url = https://github.com/mesonbuild/wrapdb/releases/download/sdl2_mixer_2.6.2-4/SDL2_mixer-2.6.2.tar.gz
 wrapdb_version = 2.6.2-4
-diff_files = sdl2_mixer-2.6.2_correct_flac_wrap.diff
+diff_files = sdl2_mixer-2.6.2_correct_flac_wrap.diff, sdl2_mixer-2.6.2_example_option.diff
 
 [provide]
 sdl2_mixer = sdl2_mixer_dep

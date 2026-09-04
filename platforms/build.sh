@@ -17,7 +17,7 @@ SCRIPT_DIR="$(realpath "$(dirname -- "${BASH_SOURCE[0]}")")"
 PLATFORM="$1"
 shift
 
-SUPPORTED_PLATFORMS=("3ds" "android" "switch" "web")
+SUPPORTED_PLATFORMS=("3ds" "android" "switch" "uefi" "web")
 
 for PLTFRM in "${SUPPORTED_PLATFORMS[@]}"; do
     if [ "$PLATFORM" == "$PLTFRM" ]; then
@@ -28,5 +28,5 @@ for PLTFRM in "${SUPPORTED_PLATFORMS[@]}"; do
 
 done
 
-echo "Invalid PLATFORM, expected one of: ${SUPPORTED_PLATFORMS[*]}"
+echo "Invalid PLATFORM, expected one of: ${SUPPORTED_PLATFORMS[*]}" >&2
 exit 1

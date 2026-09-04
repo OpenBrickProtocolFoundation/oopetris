@@ -10,10 +10,15 @@
 
 
 #include "helper/spdlog_wrapper.hpp"
-#include <argparse/argparse.hpp>
 
+#if !defined(__UEFI__)
+#include <argparse/argparse.hpp>
+#endif
 
 helper::expected<CommandLineArguments, std::string> helper::parse_args(const std::vector<std::string>& arguments) {
+#if defined(__UEFI__)
+    return CommandLineArguments{ std::nullopt, std::nullopt };
+#else
     argparse::ArgumentParser parser{ constants::program_name, constants::version, argparse::default_arguments::all };
     parser.add_argument("-r", "--recording").help("the path of a recorded game used for replay");
     parser.add_argument("-f", "--target-fps").help("the number of simulation steps per second").scan<'i', u32>();
@@ -22,7 +27,9 @@ helper::expected<CommandLineArguments, std::string> helper::parse_args(const std
             .scan<'i', CommandLineArguments::Level>()
             .default_value(CommandLineArguments::default_starting_level);
     parser.add_argument("-s", "--silent").help("disable audio output").default_value(false).implicit_value(true);
+
     try {
+
         parser.parse_args(arguments);
 
         CommandLineArguments result{ std::nullopt, std::nullopt };
@@ -63,7 +70,9 @@ helper::expected<CommandLineArguments, std::string> helper::parse_args(const std
         result.silent = parser.get<bool>("--silent");
 
         return result;
+
     } catch (const std::exception& error) {
         return helper::unexpected<std::string>{ error.what() };
     }
+#endif
 }

@@ -35,10 +35,15 @@ namespace scenes {
                 input::get_single_player_game_parameters(service_provider, std::move(additional_information), date);
 
         if (not result.has_value()) {
-            throw helper::MajorError(fmt::format(
-                    "No suitable input was configured, go into the settings to select a suitable input: {}",
-                    result.error()
-            ));
+            utils::throw_(
+                    helper::MajorError(
+                            fmt::format(
+                                    "No suitable input was configured, go into the settings to select a suitable "
+                                    "input: {}",
+                                    result.error()
+                            )
+                    )
+            );
         }
 
         auto [input, starting_parameters] = result.value();
@@ -61,11 +66,13 @@ namespace scenes {
 
 #endif
 
-        m_service_provider->music_manager()
-                .load_and_play_music(
-                        utils::get_assets_folder() / "music" / utils::get_supported_music_extension("02. Game Theme")
-                )
-                .and_then(utils::log_error);
+        auto _ignore = m_service_provider->music_manager()
+                               .load_and_play_music(
+                                       utils::get_assets_folder() / "music"
+                                       / utils::get_supported_music_extension("02. Game Theme")
+                               )
+                               .and_then(utils::log_error);
+        UNUSED(_ignore);
     }
 
 

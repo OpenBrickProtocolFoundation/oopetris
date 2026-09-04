@@ -1,0 +1,78 @@
+From 05696c4b8475bb9a54f048db298594978c90488a Mon Sep 17 00:00:00 2001
+From: Totto16 <tobiausgais@gmail.com>
+Date: Fri, 21 Aug 2026 18:28:44 +0200
+Subject: [PATCH 2/5] fix: fix naming of LibCType to LibCtype
+
+---
+ StdLib/LibC/Locale/Locale.inf | 2 +-
+ StdLib/LibC/StdLib/StdLib.inf | 2 +-
+ StdLib/LibC/Stdio/Stdio.inf   | 2 +-
+ StdLib/LibC/String/String.inf | 2 +-
+ StdLib/StdLib.inc             | 2 +-
+ 5 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/StdLib/LibC/Locale/Locale.inf b/StdLib/LibC/Locale/Locale.inf
+index 1bbb611..1c81272 100644
+--- a/StdLib/LibC/Locale/Locale.inf
++++ b/StdLib/LibC/Locale/Locale.inf
+@@ -61,4 +61,4 @@
+ 
+ [LibraryClasses]
+   LibC
+-  LibCType
++  LibCtype
+diff --git a/StdLib/LibC/StdLib/StdLib.inf b/StdLib/LibC/StdLib/StdLib.inf
+index e7bdf5a..968e6a7 100644
+--- a/StdLib/LibC/StdLib/StdLib.inf
++++ b/StdLib/LibC/StdLib/StdLib.inf
+@@ -53,7 +53,7 @@
+   MemoryAllocationLib
+   ShellLib
+   LibC
+-  LibCType
++  LibCtype
+   LibSignal
+ 
+ ################################################################
+diff --git a/StdLib/LibC/Stdio/Stdio.inf b/StdLib/LibC/Stdio/Stdio.inf
+index df122fa..c6e6071 100644
+--- a/StdLib/LibC/Stdio/Stdio.inf
++++ b/StdLib/LibC/Stdio/Stdio.inf
+@@ -129,7 +129,7 @@
+ 
+ [LibraryClasses]
+   LibC
+-  LibCType
++  LibCtype
+   LibGdtoa
+   LibLocale
+   LibStdLib
+diff --git a/StdLib/LibC/String/String.inf b/StdLib/LibC/String/String.inf
+index c8b4d88..4bd06da 100644
+--- a/StdLib/LibC/String/String.inf
++++ b/StdLib/LibC/String/String.inf
+@@ -48,7 +48,7 @@
+   PrintLib              # Used for strerror()
+   PcdLib
+   LibC
+-  LibCType
++  LibCtype
+   LibStdLib
+ 
+ ################################################################
+diff --git a/StdLib/StdLib.inc b/StdLib/StdLib.inc
+index 8083e2b..4d08302 100644
+--- a/StdLib/StdLib.inc
++++ b/StdLib/StdLib.inc
+@@ -29,7 +29,7 @@
+   # C Standard Libraries
+   #
+   LibC|StdLib/LibC/LibC.inf
+-  LibCType|StdLib/LibC/Ctype/Ctype.inf
++  LibCtype|StdLib/LibC/Ctype/Ctype.inf
+   LibLocale|StdLib/LibC/Locale/Locale.inf
+   LibMath|StdLib/LibC/Math/Math.inf
+   LibSignal|StdLib/LibC/Signal/Signal.inf
+-- 
+2.55.0
+

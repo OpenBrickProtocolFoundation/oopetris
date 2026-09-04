@@ -20,7 +20,7 @@ namespace ui {
         ItemSizeType type;
 
     protected:
-        ItemSize(u32 height, ItemSizeType type);
+        ItemSize(u32 height_a, ItemSizeType type_a);
 
     public:
         [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED u32 get_height() const;
@@ -29,15 +29,15 @@ namespace ui {
     };
 
     struct AbsolutItemSize : public ItemSize {
-        OOPETRIS_GRAPHICS_EXPORTED explicit AbsolutItemSize(u32 height);
+        OOPETRIS_GRAPHICS_EXPORTED explicit AbsolutItemSize(u32 height_a);
     };
 
 
     struct RelativeItemSize : public ItemSize {
-        OOPETRIS_GRAPHICS_EXPORTED RelativeItemSize(const shapes::URect& rect, double height);
-        OOPETRIS_GRAPHICS_EXPORTED RelativeItemSize(const Window* window, double height);
-        OOPETRIS_GRAPHICS_EXPORTED RelativeItemSize(const Window& window, double height);
-        OOPETRIS_GRAPHICS_EXPORTED RelativeItemSize(const Layout& layout, double height);
+        OOPETRIS_GRAPHICS_EXPORTED RelativeItemSize(const shapes::URect& rect, double height_d);
+        OOPETRIS_GRAPHICS_EXPORTED RelativeItemSize(const Window* window, double height_d);
+        OOPETRIS_GRAPHICS_EXPORTED RelativeItemSize(const Window& window, double height_d);
+        OOPETRIS_GRAPHICS_EXPORTED RelativeItemSize(const Layout& layout, double height_d);
     };
 
 

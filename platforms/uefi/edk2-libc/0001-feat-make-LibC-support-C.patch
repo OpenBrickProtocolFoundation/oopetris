@@ -1,0 +1,217 @@
+From 6e93936dd09957371357102cb5ecbb61160b696d Mon Sep 17 00:00:00 2001
+From: Totto16 <tobiausgais@gmail.com>
+Date: Fri, 21 Aug 2026 18:28:16 +0200
+Subject: [PATCH 1/5] feat: make LibC support C++ - make the includes support
+ c++ - fix some other small libc related things
+
+---
+ StdLib/Include/assert.h       |  7 +++++++
+ StdLib/Include/math.h         |  8 ++++++++
+ StdLib/Include/sys/EfiCdefs.h | 17 +++++++++++++++++
+ StdLib/Include/time.h         |  3 ++-
+ StdLib/Include/wchar.h        |  3 +++
+ StdLib/LibC/Math/s_ceil.c     |  4 ++++
+ StdLib/LibC/Stdio/Stdio.inf   |  1 +
+ StdLib/LibC/Stdio/ftello.c    | 13 +++++++++++++
+ StdLib/LibC/Stdio/vasprintf.c |  9 +++------
+ StdLib/LibC/gdtoa/gdtoa.inf   |  3 +++
+ 10 files changed, 61 insertions(+), 7 deletions(-)
+
+diff --git a/StdLib/Include/assert.h b/StdLib/Include/assert.h
+index 26c7037..5296e9a 100644
+--- a/StdLib/Include/assert.h
++++ b/StdLib/Include/assert.h
+@@ -25,6 +25,9 @@
+   THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+   WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+ **/
++
++#ifndef _ASSERT_H_
++#define _ASSERT_H_
+ #include  <sys/EfiCdefs.h>
+ 
+ #undef  assert        ///< Remove any existing definition for assert.
+@@ -49,6 +52,7 @@
+                   current application and returns to the environment that
+                   the application was launched from.
+ **/
++__BEGIN_DECLS
+ extern void
+ __assert(const char *file, const char *func, int line, const char *failedexpr);
+ 
+@@ -78,5 +82,8 @@ __assert(const char *file, const char *func, int line, const char *failedexpr);
+ #define assert(Expression)   ((Expression) ? (void)0 :\
+                               __assert(__FILE__, __func__, __LINE__, #Expression) )
+ #endif
++__END_DECLS
+ /// @}
+ /* END of file assert.h */
++
++#endif  /* _ASSERT_H_ */
+diff --git a/StdLib/Include/math.h b/StdLib/Include/math.h
+index 3041120..9eb0be2 100644
+--- a/StdLib/Include/math.h
++++ b/StdLib/Include/math.h
+@@ -288,6 +288,14 @@ double  sqrt(double Arg);
+ **/
+ double  ceil(double Arg);
+ 
++/** Compute the smallest integer value not less than Arg.
++
++    @param[in]    Arg   The value to compute the ceiling of.
++
++    @return   The ceiling of Arg expressed as a floating-point number.
++**/
++float  ceilf(float Arg);
++
+ /** Compute the absolute value of Arg.
+ 
+     @param[in]    Arg   The value to compute the absolute value of.
+diff --git a/StdLib/Include/sys/EfiCdefs.h b/StdLib/Include/sys/EfiCdefs.h
+index 72862fa..63f19c4 100644
+--- a/StdLib/Include/sys/EfiCdefs.h
++++ b/StdLib/Include/sys/EfiCdefs.h
+@@ -88,6 +88,23 @@
+ #include  <sys/featuretest.h>
+ #define __warn_references(sym,msg)
+ 
++// define USE_WEAK_ALIASES to use them
++
++#ifdef USE_WEAK_ALIASES
++
++// Source - https://stackoverflow.com/a/34893039
++// Posted by Sam Liao
++// Retrieved 2026-08-28, License - CC BY-SA 3.0
++
++/* Define ALIASNAME as a weak alias for NAME.
++   If weak aliases are not available, this defines a strong alias.  */
++# define weak_alias(aliasname, name) _weak_alias (aliasname, name)
++# define _weak_alias(aliasname, name) __weak_alias (aliasname, name)
++# define __weak_alias(aliasname, name) \
++  extern __typeof (name) aliasname __attribute__ ((weak, alias (#name)));
++
++#endif
++
+ /* NULL is defined by the automatic inclusion of Base.h by the build tools. */
+ 
+ #ifdef __GNUC__
+diff --git a/StdLib/Include/time.h b/StdLib/Include/time.h
+index ecef1e2..7d7f70e 100644
+--- a/StdLib/Include/time.h
++++ b/StdLib/Include/time.h
+@@ -138,6 +138,7 @@
+     broken-down time.  The first nine (9) members are as mandated by the
+     C95 standard.  Additional fields have been added for EFI support.
+ **/
++__BEGIN_DECLS
+ struct tm {
+   int     tm_year;      // years since 1900
+   int     tm_mon;       // months since January  [0, 11]
+@@ -430,5 +431,5 @@ char *strptime(const char *, const char * format, struct tm*);
+ /* #################  Implementation Functions  ########################### */
+ 
+ clock_t __getCPS(void);
+-
++__END_DECLS
+ #endif  /* _TIME_H */
+diff --git a/StdLib/Include/wchar.h b/StdLib/Include/wchar.h
+index 3acc2a4..59e9d61 100644
+--- a/StdLib/Include/wchar.h
++++ b/StdLib/Include/wchar.h
+@@ -455,6 +455,7 @@ struct  tm;
+               transmitted, or a negative value if an output or encoding error
+               occurred.
+ **/
++__BEGIN_DECLS
+ int fwprintf(FILE * __restrict stream, const wchar_t * __restrict format, ...);
+ 
+ /** The fwscanf function reads input from the stream pointed to by stream,
+@@ -1549,4 +1550,6 @@ size_t mbsrtowcs(wchar_t * __restrict dst, const char ** __restrict src, size_t
+ **/
+ size_t wcsrtombs(char * __restrict dst, const wchar_t ** __restrict src, size_t len, mbstate_t * __restrict ps);
+ 
++__END_DECLS
++
+ #endif  /* _WCHAR_H */
+diff --git a/StdLib/LibC/Math/s_ceil.c b/StdLib/LibC/Math/s_ceil.c
+index e9579fa..64611d4 100644
+--- a/StdLib/LibC/Math/s_ceil.c
++++ b/StdLib/LibC/Math/s_ceil.c
+@@ -72,3 +72,7 @@ ceil(double x)
+   INSERT_WORDS(x,i0,i1);
+   return x;
+ }
++
++float  ceilf(float x){
++  return (float)ceil((double)x);
++}
+diff --git a/StdLib/LibC/Stdio/Stdio.inf b/StdLib/LibC/Stdio/Stdio.inf
+index fe87242..df122fa 100644
+--- a/StdLib/LibC/Stdio/Stdio.inf
++++ b/StdLib/LibC/Stdio/Stdio.inf
+@@ -90,6 +90,7 @@
+   swprintf.c          #
+   swscanf.c           #
+   ungetwc.c           #
++  vasprintf.c         #
+   vfwscanf.c          #
+   vswprintf.c         #
+   vswscanf.c          #
+diff --git a/StdLib/LibC/Stdio/ftello.c b/StdLib/LibC/Stdio/ftello.c
+index 0677d1a..a9c1031 100644
+--- a/StdLib/LibC/Stdio/ftello.c
++++ b/StdLib/LibC/Stdio/ftello.c
+@@ -98,3 +98,16 @@ ftello(FILE *fp)
+   FUNLOCKFILE(fp);
+   return (pos);
+ }
++
++
++// instead of using weak symbol, define an alias
++
++#ifdef ftello 
++#undef ftello
++#endif
++
++off_t
++ftello(FILE *fp)
++{
++  return _ftello(fp);
++}
+diff --git a/StdLib/LibC/Stdio/vasprintf.c b/StdLib/LibC/Stdio/vasprintf.c
+index 3a36468..e8ba589 100644
+--- a/StdLib/LibC/Stdio/vasprintf.c
++++ b/StdLib/LibC/Stdio/vasprintf.c
+@@ -39,12 +39,9 @@ __RCSID("$NetBSD: vasprintf.c,v 1.10 2005/02/09 21:35:47 kleink Exp $");
+ #include "reentrant.h"
+ #include "local.h"
+ 
+-int
+-vasprintf(str, fmt, ap)
+-  char **str;
+-  const char *fmt;
+-  _BSD_VA_LIST_ ap;
+-{
++#include <stdarg.h>
++
++int vasprintf( char **str, const char *fmt, va_list ap){
+   int ret;
+   FILE f;
+   struct __sfileext fext;
+diff --git a/StdLib/LibC/gdtoa/gdtoa.inf b/StdLib/LibC/gdtoa/gdtoa.inf
+index 9d975bb..44af305 100644
+--- a/StdLib/LibC/gdtoa/gdtoa.inf
++++ b/StdLib/LibC/gdtoa/gdtoa.inf
+@@ -61,6 +61,9 @@
+   sum.c
+   ulp.c
+ 
++  _strtof.c
++  _strtold.c
++
+ [Packages]
+   StdLib/StdLib.dec
+   StdLibPrivateInternalFiles/DoNotUse.dec
+-- 
+2.55.0
+

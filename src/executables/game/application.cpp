@@ -32,7 +32,7 @@
 
 namespace {
 
-    [[nodiscard]] helper::MessageBox::Type get_notification_level(helper::error::Severity severity) {
+    [[nodiscard]] [[maybe_unused]] helper::MessageBox::Type get_notification_level(helper::error::Severity severity) {
         return severity == helper::error::Severity::Fatal   ? helper::MessageBox::Type::Error
                : severity == helper::error::Severity::Major ? helper::MessageBox::Type::Warning
                                                             : helper::MessageBox::Type::Information;
@@ -71,14 +71,14 @@ helper::TimeInfo::TimeInfo(
 helper::LoadingInfo::LoadingInfo(
         std::chrono::nanoseconds sleep_time,
         Uint64 start_time,
-        std::future<void>&& load_everything_thread,
+        oopetris::future<void>&& load_everything_future,
         std::chrono::steady_clock::time_point start_execution_time,
         bool finished_loading,
         scenes::LoadingScreen&& loading_screen
 )
     : m_sleep_time{ sleep_time },
       m_start_time{ start_time },
-      m_load_everything_thread{ std::move(load_everything_thread) },
+      m_load_everything_future{ std::move(load_everything_future) },
       m_start_execution_time{ start_execution_time },
       m_finished_loading{ finished_loading },
       m_loading_screen{ std::move(loading_screen) } { }
@@ -92,11 +92,16 @@ helper::LoadingInfo::LoadingInfo(
 }
 
 
-[[nodiscard]] const std::future<void>& helper::LoadingInfo::load_everything_thread() const {
-    return m_load_everything_thread;
+[[nodiscard]] const oopetris::future<void>& helper::LoadingInfo::load_everything_future() const {
+    return m_load_everything_future;
 }
 
-Application::Application(std::shared_ptr<Window>&& window, CommandLineArguments&& arguments) try
+Application::Application(std::shared_ptr<Window>&& window, CommandLineArguments&& arguments)
+
+#if !defined(__OOPETRIS_NO_EXCEPTIONS)
+        try
+#endif
+
     : m_command_line_arguments{ std::move(arguments) },
       m_window{ std::move(window) },
       m_renderer{ *m_window, m_command_line_arguments.target_fps.has_value() ? Renderer::VSync::Disabled
@@ -109,7 +114,9 @@ Application::Application(std::shared_ptr<Window>&& window, CommandLineArguments&
 #endif
 {
     initialize();
-} catch (const helper::GeneralError& general_error) {
+}
+#if !defined(__OOPETRIS_NO_EXCEPTIONS)
+catch (const helper::GeneralError& general_error) {
     const auto severity = general_error.severity();
     const auto notification_level = get_notification_level(severity);
 
@@ -120,11 +127,12 @@ Application::Application(std::shared_ptr<Window>&& window, CommandLineArguments&
         throw general_error;
     }
 }
+#endif
 
 Application::~Application() = default;
 
 #if defined(__EMSCRIPTEN__)
-void c_loop_entry(void* arg) {
+static void c_loop_entry(void* arg) {
     auto application = reinterpret_cast<Application*>(arg);
     application->emscripten_do_process();
     application->loop_entry_emscripten();
@@ -300,9 +308,10 @@ void Application::load_loop() {
     // end waiting
 
     // wait until is faster, since it just compares two time_points instead of getting now() and than adding the wait-for argument
-    m_loading_info->m_finished_loading =
-            m_loading_info->load_everything_thread().wait_until(std::chrono::system_clock::time_point::min())
-            == std::future_status::ready;
+    auto loading_status =
+            m_loading_info->load_everything_future().wait_until(std::chrono::system_clock::time_point::min());
+    ASSERT(loading_status == oopetris::future_status::ready || loading_status == oopetris::future_status::timeout);
+    m_loading_info->m_finished_loading = loading_status == oopetris::future_status::ready;
 }
 
 
@@ -369,30 +378,32 @@ void Application::update() {
 
     for (usize i = 0; i < num_scenes; ++i) {
         const auto index = num_scenes - i - 1;
+#if !defined(__OOPETRIS_NO_EXCEPTIONS)
         try {
+#endif
             auto [scene_update, scene_change] = m_scene_stack.at(index)->update();
 
             if (scene_change) {
 
                 std::visit(
                         helper::Overloaded{
-                                [this, index](const scenes::Scene::Pop&) {
+                                [this, index](const scenes::Scene::Pop&) -> void {
                                     m_scene_stack.erase(
                                             m_scene_stack.begin()
                                             + static_cast<decltype(m_scene_stack.begin())::difference_type>(index)
                                     );
                                 },
-                                [this](const scenes::Scene::Push& push) {
+                                [this](const scenes::Scene::Push& push) -> void {
                                     spdlog::info("pushing back scene {}", magic_enum::enum_name(push.target_scene));
                                     m_scene_stack.push_back(
                                             scenes::create_scene(*this, push.target_scene, push.layout)
                                     );
                                 },
-                                [this](scenes::Scene::RawPush& raw_push) {
+                                [this](scenes::Scene::RawPush& raw_push) -> void {
                                     spdlog::info("pushing back scene {}", raw_push.name);
                                     m_scene_stack.push_back(std::move(raw_push.scene));
                                 },
-                                [this](const scenes::Scene::Switch& scene_switch) {
+                                [this](const scenes::Scene::Switch& scene_switch) -> void {
                                     spdlog::info(
                                             "switching to scene {}", magic_enum::enum_name(scene_switch.m_target_scene)
                                     );
@@ -421,7 +432,7 @@ void Application::update() {
             // if an error occurred on:
             // - creation:  the creation wasn't finished, so just not pushing / switching to the scene
             // -update: the update failed in the middle, and the scene, that caused the error, has to make sure, that ignoring it, (and not crashing) resets the state, so that this doesn't occur on every frame
-
+#if !defined(__OOPETRIS_NO_EXCEPTIONS)
         } catch (const std::runtime_error& error) {
             m_window->show_simple(helper::MessageBox::Type::Error, "Error on Scene Initialization", error.what());
         } catch (const helper::GeneralError& general_error) {
@@ -429,6 +440,7 @@ void Application::update() {
 
             m_window->show_simple(notification_level, "Error on Scene Initialization", general_error.message());
         }
+#endif
     }
 
 #if defined(_HAVE_DISCORD_SOCIAL_SDK)
@@ -464,7 +476,7 @@ void Application::initialize() {
 
     const auto start_time = SDL_GetTicks64();
 
-    std::future<void> load_everything_thread = std::async(std::launch::async, [this] {
+    oopetris::future<void> load_everything_future = OOPETRIS_ASYNC(OOPETRIS_ASYNC_LAUNCH_ARG, [this]() -> void {
         this->m_settings_manager = std::make_unique<SettingsManager>(this);
 
         this->m_settings_manager->add_callback([this](const auto& settings) { this->reload_api(settings); });
@@ -509,7 +521,7 @@ void Application::initialize() {
     auto start_execution_time_arg = std::chrono::steady_clock::now();
 
     m_loading_info = std::make_unique<helper::LoadingInfo>(
-            sleep_time, start_time, std::move(load_everything_thread), start_execution_time_arg, false,
+            sleep_time, start_time, std::move(load_everything_future), start_execution_time_arg, false,
             std::move(loading_screen_arg)
     );
 

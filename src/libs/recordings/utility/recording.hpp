@@ -37,7 +37,7 @@ namespace recorder {
         Random::Seed seed;
         u32 starting_level;
 
-        OOPETRIS_RECORDINGS_EXPORTED TetrionHeader(Random::Seed seed, u32 starting_level);
+        OOPETRIS_RECORDINGS_EXPORTED TetrionHeader(Random::Seed seed_a, u32 starting_level_a);
     };
 
     struct Recording {

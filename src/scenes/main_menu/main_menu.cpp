@@ -10,10 +10,16 @@
 
 namespace scenes {
 
-    MainMenu::MainMenu(ServiceProvider* service_provider, const  ui::Layout& layout)
-        : Scene{service_provider, layout},
-          m_main_grid{ 0,6,ui::Direction::Vertical, ui::RelativeMargin{layout,ui::Direction::Vertical, 0.05}, std::pair<double, double>{ 0.05, 0.05 
-            } ,ui::RelativeLayout{ layout, 0.0, 0.1, 1.0, 0.8 }} {
+    MainMenu::MainMenu(ServiceProvider* service_provider, const ui::Layout& layout)
+        : Scene{
+              service_provider, layout
+    },
+          m_main_grid{ 0,
+                       6,
+                       ui::Direction::Vertical,
+                       ui::RelativeMargin{ layout, ui::Direction::Vertical, 0.05 },
+                       std::pair<double, double>{ 0.05, 0.05 },
+                       ui::RelativeLayout{ layout, 0.0, 0.1, 1.0, 0.8 } } {
 
         auto focus_helper = ui::FocusHelper{ 1 };
 
@@ -99,11 +105,13 @@ namespace scenes {
 #endif
 
 
-        service_provider->music_manager()
-                .load_and_play_music(
-                        utils::get_assets_folder() / "music" / utils::get_supported_music_extension("01. Main Menu")
-                )
-                .and_then(utils::log_error);
+        auto _ignore = service_provider->music_manager()
+                               .load_and_play_music(
+                                       utils::get_assets_folder() / "music"
+                                       / utils::get_supported_music_extension("01. Main Menu")
+                               )
+                               .and_then(utils::log_error);
+        UNUSED(_ignore);
     }
 
     [[nodiscard]] Scene::UpdateResult MainMenu::update() {

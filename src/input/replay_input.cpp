@@ -73,7 +73,7 @@ void input::ReplayGameInput::late_update(const SimulationStep simulation_step_in
             spdlog::info("snapshots are equal");
         } else {
             spdlog::error("{}", compare_result.error());
-            throw std::runtime_error{ "snapshots are not equal" };
+            utils::throw_(std::runtime_error{ "snapshots are not equal" });
         }
 
         ++m_next_snapshot_index;
@@ -86,7 +86,7 @@ void input::ReplayGameInput::late_update(const SimulationStep simulation_step_in
 }
 
 [[nodiscard]] std::string input::ReplayGameInput::describe_menu_event(MenuEvent /*event*/) const {
-    throw std::runtime_error("not supported");
+    utils::throw_(std::runtime_error("not supported"));
 }
 
 [[nodiscard]] bool input::ReplayGameInput::is_end_of_recording() const {

@@ -1,0 +1,124 @@
+{
+    "file": {
+        "OOPetrisPkg": {
+            "type": "application",
+            "name": "OOPetrisApplication",
+            "guid": "da6e059f-d6bd-4136-8f1b-b19c9062f3cd",
+            "version": "oopetris"
+        },
+        "OOPetrisCorePkg": {
+            "type": "library",
+            "name": "OOPetrisCoreLib",
+            "lib": "LibOOPetrisCore",
+            "guid": "022bf605-571b-4d01-aeb5-e587e0045d6a",
+            "version": "oopetris"
+        },
+        "OOPetrisGraphicsPkg": {
+            "type": "library",
+            "name": "OOPetrisGraphicsLib",
+            "lib": "LibOOPetrisGraphics",
+            "guid": "0bfc59b5-090c-4cd0-a0b7-498dcbed1e6e",
+            "version": "oopetris"
+        },
+        "OOPetrisRecordingsPkg": {
+            "type": "library",
+            "name": "OOPetrisRecordingsLib",
+            "lib": "LibOOPetrisRecordings",
+            "guid": "84b90385-bd32-41e3-ba8d-ba4a056d72f5",
+            "version": "oopetris"
+        },
+        "SDL2TTFPkg": {
+            "type": "library",
+            "name": "SDL2TTFLib",
+            "lib": "LibSDL2TTF",
+            "guid": "2252bce8-bee1-4ab8-9896-2ab58576e9db",
+            "version": "sdl2_ttf"
+        },
+        "FreetypePkg": {
+            "type": "library",
+            "name": "FreetypeLib",
+            "lib": "LibFreetype",
+            "guid": "d6ea8d4f-c8e7-4a8c-988d-e316100b0742",
+            "version": "freetype2"
+        },
+        "ZLibPkg": {
+            "type": "library",
+            "name": "ZLib",
+            "lib": "LibZ",
+            "guid": "cc61c805-2419-4b68-b806-495d11be162c",
+            "version": "zlib"
+        },
+        "UEFIROMPkg": {
+            "type": "library",
+            "name": "UEFIROMLib",
+            "lib": "LibUEFIROM",
+            "guid": "a917a2c0-7ff6-4da8-a2b2-f1f28077c8c0",
+            "version": "c-embed"
+        },
+        "SpdlogPkg": {
+            "type": "library",
+            "name": "SpdlogLib",
+            "lib": "LibSpdlog",
+            "guid": "dee047db-15c9-4d79-ab08-79d6244d9b0e",
+            "version": "spdlog",
+            "options": [
+                "-DSPDLOG_NO_EXCEPTIONS=1",
+                "-DSPDLOG_NO_TLS=1",
+                "-DFMT_USE_INT128=0"
+            ]
+        },
+        "SDL2ImagePkg": {
+            "type": "library",
+            "name": "SDL2ImageLib",
+            "lib": "LibSDL2Image",
+            "guid": "80834111-5231-4b9d-b781-381bc4a7ac38",
+            "version": "sdl2_image",
+            "options": [
+                "-Wno-misleading-indentation",
+                "-DSTBI_NO_SIMD",
+                "-Wno-unused-but-set-variable"
+            ]
+        }
+    },
+    "name": {
+        "liboopetris_graphics": {
+            "name": "OOPetrisGraphicsPkg",
+            "meson": "oopetris_graphics"
+        },
+        "liboopetris_recordings": {
+            "name": "OOPetrisRecordingsPkg",
+            "meson": "oopetris_recordings"
+        },
+        "liboopetris_core": {
+            "name": "OOPetrisCorePkg",
+            "meson": "oopetris_core"
+        },
+        "libsdl2_ttf": {
+            "name": "SDL2TTFPkg",
+            "meson": "sdl2_ttf"
+        },
+        "libfreetype": {
+            "name": "FreetypePkg",
+            "meson": "freetype"
+        },
+        "libz": {
+            "name": "ZLibPkg",
+            "meson": "z"
+        },
+        "libspdlog": {
+            "name": "SpdlogPkg",
+            "meson": "spdlog"
+        },
+        "oopetris": {
+            "meson": "oopetris"
+        },
+        "libsdl2image": {
+            "name": "SDL2ImagePkg",
+            "meson": "sdl2image"
+        },
+        "libuefi_rom": {
+            "name": "UEFIROMPkg",
+            "meson": "uefi_rom"
+        }
+    }
+}

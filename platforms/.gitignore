@@ -1,5 +1,6 @@
 crossbuild.ini
 crossbuild/*.ini
+crossbuild/uefi*.json
 
 *.elf
 *.nacp

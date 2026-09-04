@@ -32,7 +32,7 @@ elif [ "$#" -eq 3 ]; then
         RUN_IN_CI="true"
     fi
 else
-    echo "Too many arguments given, expected 1, 2 or 3"
+    echo "Too many arguments given, expected 1, 2 or 3" >&2
     exit 1
 fi
 
@@ -41,7 +41,7 @@ if [ "$COMPILE_TYPE" == "smart" ]; then
 elif [ "$COMPILE_TYPE" == "complete_rebuild" ]; then
     : # noop
 else
-    echo "Invalid COMPILE_TYPE, expected: 'smart' or 'complete_rebuild'"
+    echo "Invalid COMPILE_TYPE, expected: 'smart' or 'complete_rebuild'" >&2
     exit 1
 fi
 
@@ -66,7 +66,6 @@ export ROMFS="platforms/romfs"
 export BUILD_DIR="build/3ds"
 
 export TOOL_PREFIX="arm-none-eabi"
-
 
 export BIN_DIR="$PORTLIBS_PATH_3DS/bin"
 export PKG_CONFIG_EXEC="$BIN_DIR/$TOOL_PREFIX-pkg-config"

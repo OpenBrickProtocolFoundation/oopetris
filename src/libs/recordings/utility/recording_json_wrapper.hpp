@@ -11,12 +11,14 @@
 #include "./recording_reader.hpp"
 #include "./tetrion_snapshot.hpp"
 
+//TODO: for ALL json wrappers, make a api, that returns std::optional<std::string> so that it can work without exceptions
+// support nlohmann json per using a tenmoplate type, that make an adl_serializer for all these types!
 namespace nlohmann {
     template<>
     struct adl_serializer<recorder::InformationValue> {
         static recorder::InformationValue from_json(const json& /* obj */) {
             //TODO(Totto): Implement
-            throw std::runtime_error{ "NOT IMPLEMENTED" };
+            utils::throw_(std::runtime_error{ "NOT IMPLEMENTED" });
         }
 
         static void to_json(json& obj, const recorder::InformationValue& information) { // NOLINT(misc-no-recursion)
@@ -40,7 +42,7 @@ namespace nlohmann {
     struct adl_serializer<recorder::AdditionalInformation> {
         static recorder::AdditionalInformation from_json(const json& /* obj */) {
             //TODO(Totto): Implement
-            throw std::runtime_error{ "NOT IMPLEMENTED" };
+            utils::throw_(std::runtime_error{ "NOT IMPLEMENTED" });
         }
 
         static void to_json(json& obj, const recorder::AdditionalInformation& information) {
@@ -60,14 +62,16 @@ namespace nlohmann {
     struct adl_serializer<recorder::TetrionHeader> {
         static recorder::TetrionHeader from_json(const json& /* obj */) {
             //TODO(Totto): Implement
-            throw std::runtime_error{ "NOT IMPLEMENTED" };
+            utils::throw_(std::runtime_error{ "NOT IMPLEMENTED" });
         }
 
         static void to_json(json& obj, const recorder::TetrionHeader& tetrion_header) {
-            obj = nlohmann::json::object({
-                    {           "seed",           tetrion_header.seed },
-                    { "starting_level", tetrion_header.starting_level }
-            });
+            obj = nlohmann::json::object(
+                    {
+                            {           "seed",           tetrion_header.seed },
+                            { "starting_level", tetrion_header.starting_level }
+            }
+            );
         }
     };
 
@@ -75,7 +79,7 @@ namespace nlohmann {
     struct adl_serializer<InputEvent> {
         static InputEvent from_json(const json& /* obj */) {
             //TODO(Totto): Implement
-            throw std::runtime_error{ "NOT IMPLEMENTED" };
+            utils::throw_(std::runtime_error{ "NOT IMPLEMENTED" });
         }
 
         static void to_json(json& obj, const InputEvent& event) {
@@ -88,16 +92,18 @@ namespace nlohmann {
     struct adl_serializer<recorder::Record> {
         static recorder::Record from_json(const json& /* obj */) {
             //TODO(Totto): Implement
-            throw std::runtime_error{ "NOT IMPLEMENTED" };
+            utils::throw_(std::runtime_error{ "NOT IMPLEMENTED" });
         }
 
         static void to_json(json& obj, const recorder::Record& record) {
 
-            obj = nlohmann::json::object({
-                    {         "tetrion_index",         record.tetrion_index },
-                    { "simulation_step_index", record.simulation_step_index },
-                    {                 "event",                 record.event }
-            });
+            obj = nlohmann::json::object(
+                    {
+                            {         "tetrion_index",         record.tetrion_index },
+                            { "simulation_step_index", record.simulation_step_index },
+                            {                 "event",                 record.event }
+            }
+            );
         }
     };
 
@@ -106,14 +112,16 @@ namespace nlohmann {
     struct adl_serializer<shapes::AbstractPoint<T>> {
         static shapes::AbstractPoint<T> from_json(const json& /* obj */) {
             //TODO(Totto): Implement
-            throw std::runtime_error{ "NOT IMPLEMENTED" };
+            utils::throw_(std::runtime_error{ "NOT IMPLEMENTED" });
         }
 
         static void to_json(json& obj, const shapes::AbstractPoint<T>& point) {
-            obj = nlohmann::json::object({
-                    { "x", point.x },
-                    { "y", point.y }
-            });
+            obj = nlohmann::json::object(
+                    {
+                            { "x", point.x },
+                            { "y", point.y }
+            }
+            );
         }
     };
 
@@ -122,7 +130,7 @@ namespace nlohmann {
     struct adl_serializer<helper::TetrominoType> {
         static helper::TetrominoType from_json(const json& /* obj */) {
             //TODO(Totto): Implement
-            throw std::runtime_error{ "NOT IMPLEMENTED" };
+            utils::throw_(std::runtime_error{ "NOT IMPLEMENTED" });
         }
 
         static void to_json(json& obj, const helper::TetrominoType& type) {
@@ -135,14 +143,16 @@ namespace nlohmann {
     struct adl_serializer<Mino> {
         static Mino from_json(const json& /* obj */) {
             //TODO(Totto): Implement
-            throw std::runtime_error{ "NOT IMPLEMENTED" };
+            utils::throw_(std::runtime_error{ "NOT IMPLEMENTED" });
         }
 
         static void to_json(json& obj, const Mino& mino) {
-            obj = nlohmann::json::object({
-                    { "position", mino.position() },
-                    {     "type",     mino.type() }
-            });
+            obj = nlohmann::json::object(
+                    {
+                            { "position", mino.position() },
+                            {     "type",     mino.type() }
+            }
+            );
         }
     };
 
@@ -151,7 +161,7 @@ namespace nlohmann {
     struct adl_serializer<TetrionSnapshot> {
         static TetrionSnapshot from_json(const json& /* obj */) {
             //TODO(Totto): Implement
-            throw std::runtime_error{ "NOT IMPLEMENTED" };
+            utils::throw_(std::runtime_error{ "NOT IMPLEMENTED" });
         }
 
         static void to_json(json& obj, const TetrionSnapshot& snapshot) {
@@ -160,14 +170,16 @@ namespace nlohmann {
             nlohmann::adl_serializer<std::vector<Mino>>::to_json(mino_stack_json, snapshot.mino_stack().minos());
 
 
-            obj = nlohmann::json::object({
-                    {         "tetrion_index",         snapshot.tetrion_index() },
-                    {                 "level",                 snapshot.level() },
-                    {                 "score",                 snapshot.score() },
-                    {         "lines_cleared",         snapshot.lines_cleared() },
-                    { "simulation_step_index", snapshot.simulation_step_index() },
-                    {            "mino_stack",                  mino_stack_json }
-            });
+            obj = nlohmann::json::object(
+                    {
+                            {         "tetrion_index",         snapshot.tetrion_index() },
+                            {                 "level",                 snapshot.level() },
+                            {                 "score",                 snapshot.score() },
+                            {         "lines_cleared",         snapshot.lines_cleared() },
+                            { "simulation_step_index", snapshot.simulation_step_index() },
+                            {            "mino_stack",                  mino_stack_json }
+            }
+            );
         }
     };
 
@@ -176,7 +188,7 @@ namespace nlohmann {
     struct adl_serializer<recorder::RecordingReader> {
         static recorder::RecordingReader from_json(const json& /* obj */) {
             //TODO(Totto): Implement
-            throw std::runtime_error{ "NOT IMPLEMENTED" };
+            utils::throw_(std::runtime_error{ "NOT IMPLEMENTED" });
         }
 
         static void to_json(json& obj, const recorder::RecordingReader& recording_reader) {
@@ -199,13 +211,15 @@ namespace nlohmann {
                     snapshots_json, recording_reader.snapshots()
             );
 
-            obj = nlohmann::json::object({
-                    {         "version", recorder::Recording::current_supported_version_number },
-                    {     "information",                                      information_json },
-                    { "tetrion_headers",                                  tetrion_headers_json },
-                    {         "records",                                          records_json },
-                    {       "snapshots",                                        snapshots_json },
-            });
+            obj = nlohmann::json::object(
+                    {
+                            {         "version", recorder::Recording::current_supported_version_number },
+                            {     "information",                                      information_json },
+                            { "tetrion_headers",                                  tetrion_headers_json },
+                            {         "records",                                          records_json },
+                            {       "snapshots",                                        snapshots_json },
+            }
+            );
         }
     };
 } // namespace nlohmann

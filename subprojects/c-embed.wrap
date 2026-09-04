@@ -1,0 +1,8 @@
+[wrap-git]
+url = https://github.com/Totto16/c-embed.git
+revision = fork
+depth = 1
+
+[provide]
+dependency_names = c-embed
+program_names = c-embed

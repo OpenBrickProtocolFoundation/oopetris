@@ -91,8 +91,14 @@ detail::ColorPickerScene::ColorPickerScene(
 )
     : Scene{
           service_provider, layout
-    }, 
-    m_color_picker{ service_provider, starting_color, std::move(callback), std::pair<double, double>{ 0.95, 0.95 }, ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Bottom }, layout, false } { }
+},
+      m_color_picker{ service_provider,
+                      starting_color,
+                      std::move(callback),
+                      std::pair<double, double>{ 0.95, 0.95 },
+                      ui::Alignment{ ui::AlignmentHorizontal::Middle, ui::AlignmentVertical::Bottom },
+                      layout,
+                      false } { }
 
 [[nodiscard]] scenes::Scene::UpdateResult detail::ColorPickerScene::update() {
     if (m_should_exit) {
@@ -142,7 +148,9 @@ custom_ui::ColorSettingRow::ColorSettingRow(
         const ui::Layout& layout,
         bool is_top_level
 )
-    : ui::Widget{ layout, ui::WidgetType::Component, is_top_level },
+    : ui::Widget{
+          layout, ui::WidgetType::Component, is_top_level
+},
       ui::Focusable{ focus_id },
       ui::Hoverable{ layout.get_rect() },
       m_service_provider{ service_provider },
@@ -187,7 +195,9 @@ helper::BoolWrapper<std::pair<ui::EventHandleType, ui::Widget*>> custom_ui::Colo
             };
         }
 
-        throw helper::FatalError(fmt::format("Unsupported Handle Type: {}", magic_enum::enum_name(additional->first)));
+        utils::throw_(
+                helper::FatalError(fmt::format("Unsupported Handle Type: {}", magic_enum::enum_name(additional->first)))
+        );
     }
 
     return result;

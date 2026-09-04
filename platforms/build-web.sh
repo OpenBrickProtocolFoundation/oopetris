@@ -32,7 +32,7 @@ elif [ "$#" -eq 3 ]; then
         RUN_IN_CI="true"
     fi
 else
-    echo "Too many arguments given, expected 1, 2 or 3"
+    echo "Too many arguments given, expected 1, 2 or 3" >&2
     exit 1
 fi
 
@@ -41,7 +41,7 @@ if [ "$COMPILE_TYPE" == "smart" ]; then
 elif [ "$COMPILE_TYPE" == "complete_rebuild" ]; then
     : # noop
 else
-    echo "Invalid COMPILE_TYPE, expected: 'smart' or 'complete_rebuild'"
+    echo "Invalid COMPILE_TYPE, expected: 'smart' or 'complete_rebuild'" >&2
     exit 1
 fi
 
@@ -64,11 +64,11 @@ export EMSCRIPTEN_ROOT
 
 if [ ! -d "$EMSCRIPTEN_ROOT" ]; then
     git clone https://github.com/emscripten-core/emsdk.git "$EMSCRIPTEN_ROOT"
-    git -C "$EMSCRIPTEN_ROOT" checkout "$EMSCRIPTEN_RELEASE_TAG"
 else
     git -C "$EMSCRIPTEN_ROOT" fetch
-    git -C "$EMSCRIPTEN_ROOT" checkout "$EMSCRIPTEN_RELEASE_TAG"
 fi
+
+git -C "$EMSCRIPTEN_ROOT" checkout "$EMSCRIPTEN_RELEASE_TAG"
 
 export EMSDK_NODE_TOOL="node-$EMSDK_EXECUTE_NODE_VERSION-64bit"
 
@@ -77,18 +77,18 @@ export EMSDK_NODE_TOOL="node-$EMSDK_EXECUTE_NODE_VERSION-64bit"
 
 EMSCRIPTEN_UPSTREAM_ROOT="$EMSCRIPTEN_ROOT/upstream/emscripten"
 
-EMSCRIPTEN_PACTH_FILE="$EMSCRIPTEN_UPSTREAM_ROOT/.patched_manually.meta"
+EMSCRIPTEN_PATCH_FILE="$EMSCRIPTEN_UPSTREAM_ROOT/.patched_manually.meta"
 
 PATCH_DIR="platforms/emscripten"
 
-if ! [ -e "$EMSCRIPTEN_PACTH_FILE" ]; then
+if ! [ -e "$EMSCRIPTEN_PATCH_FILE" ]; then
     ##TODO: upstream those patches
     # see: https://github.com/emscripten-core/emscripten/pull/18379
     # and: https://github.com/emscripten-core/emscripten/pull/22946
 
     git apply --unsafe-paths -p1 --directory="$EMSCRIPTEN_UPSTREAM_ROOT" "$PATCH_DIR/sdl2_image_port.diff"
 
-    touch "$EMSCRIPTEN_PACTH_FILE"
+    touch "$EMSCRIPTEN_PATCH_FILE"
 fi
 
 # git apply path
@@ -145,7 +145,7 @@ cpu = '$CPU_ARCH'
 endian = '$ENDIANESS'
 
 [constants]
-emscripten_root = '$(pwd)/emsdk'
+emscripten_root = '$EMSCRIPTEN_ROOT'
 
 [binaries]
 c = '$CC'

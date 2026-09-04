@@ -133,6 +133,14 @@ if meson.is_cross_build()
             'deps': [graphics_lib.get('deps'), native_deps],
         }
 
+    elif host_machine.system() == 'uefi'
+        temp = core_lib.get('compile_args')
+        temp += '-D__OOPETRIS_HAVE_NO_THREADS'
+
+        core_lib += {
+            'compile_args': temp,
+        }
+        temp = 0
     else
         error('Unhandled cross built system: ' + host_machine.system())
     endif
@@ -143,9 +151,21 @@ fmt_use_header_only = false
 if (
     meson.is_cross_build()
     and (host_machine.system() == 'switch'
-    or host_machine.system() == '3ds')
+    or host_machine.system() == '3ds'
+    or host_machine.system() == 'uefi')
 )
     fmt_use_header_only = true
+
+    temp = core_lib.get('compile_args')
+    temp += '-D__OOPETRIS_NO_EXCEPTIONS=1'
+    temp += '-DJSON_NOEXCEPTION=1'
+    temp += '-DSPDLOG_NO_EXCEPTIONS=1'
+    temp += '-DUTFCPP_NO_EXCEPTIONS=1'
+    temp += '-DFMT_USE_INT128=0'
+    core_lib += {
+        'compile_args': temp,
+    }
+    temp = 0
 endif
 
 if fmt_use_header_only
@@ -301,16 +321,24 @@ if build_application
     endif
 
     ## the switch sdl2 packages are not findable with '--fatal-meson-warnings' and cmake, so prefind it and than override the dependency
-    if (meson.is_cross_build() and host_machine.system() == 'switch')
-        sdl2_ttf_switch_dep = dependency(
-            'sdl2_ttf',
-            'SDL2_ttf',
-            method: 'pkg-config',
-            allow_fallback: not only_allow_native_libs,
-            required: true,
-        )
+    if meson.is_cross_build()
+        if host_machine.system() == 'switch'
+            sdl2_ttf_switch_dep = dependency(
+                'sdl2_ttf',
+                'SDL2_ttf',
+                method: 'pkg-config',
+                allow_fallback: not only_allow_native_libs,
+                required: true,
+            )
 
-        meson.override_dependency('sdl2_ttf', sdl2_ttf_switch_dep)
+            meson.override_dependency('sdl2_ttf', sdl2_ttf_switch_dep)
+        elif host_machine.system() == 'uefi'
+            c_embed_dep = dependency('c-embed')
+
+            graphics_lib += {
+                'deps': [graphics_lib.get('deps'), c_embed_dep],
+            }
+        endif
 
     endif
 
@@ -329,6 +357,9 @@ if build_application
         'SDL2_image',
         allow_fallback: not only_allow_native_libs,
         required: true,
+        default_options: {
+            'test': false,
+        },
     )
     graphics_lib += {
         'deps': [graphics_lib.get('deps'), sdl2_image_dep],
@@ -378,8 +409,35 @@ if build_application
 
     spdlog_no_tls = false
 
+
     if (meson.is_cross_build() and host_machine.system() == '3ds')
         spdlog_no_tls = true
+    endif
+
+    spdlog_std_format = 'auto'
+
+    if not cpp.has_header_symbol(
+        'format',
+        '__cpp_lib_format',
+        args: core_lib.get('compile_args'),
+    ) or not cpp.compiles(
+        '''
+        #include <format>
+        int main(void) {
+            /* If it's not defined as a macro, try to use as a symbol */
+            #ifndef __cpp_lib_format
+                __cpp_lib_format;
+            #else
+            #if __cpp_lib_format < 202207L
+                #error "fmt not supported"
+            #endif
+            #endif
+            return 0;
+        }
+        ''',
+        args: core_lib.get('compile_args'),
+    )
+        spdlog_std_format = 'disabled'
     endif
 
     spdlog_dep = dependency(
@@ -388,6 +446,7 @@ if build_application
         default_options: {
             'tests': 'disabled',
             'no_tls': spdlog_no_tls,
+            'std_format': spdlog_std_format,
         },
     )
     graphics_lib += {
@@ -399,8 +458,12 @@ if build_application
         required: false,
         allow_fallback: true,
         default_options: {
-            'openssl': 'enabled',
+            'tls': 'enabled',
+            'tls_backend': 'openssl',
             'zlib': 'enabled',
+            'brotli': 'auto',
+            'zstd': 'auto',
+            'test': false,
         },
     )
 
@@ -419,6 +482,24 @@ if build_application
         graphics_lib += {
             'compile_args': [graphics_lib.get('compile_args'), '-D_OOPETRIS_ONLINE_SYSTEM=1'],
         }
+    elif meson.is_cross_build() and host_machine.system() == 'uefi'
+        online_multiplayer_system = 'uefi'
+
+        uefi_http_lib_dep = dependency('uefi:HttpLib')
+        uefi_http_io_lib_dep = dependency('uefi:HttpIoLib')
+        uefi_crypto_lib_dep = dependency('uefi:BaseCryptLib')
+
+        graphics_lib += {
+            'deps': [
+                graphics_lib.get('deps'),
+                uefi_http_lib_dep,
+                uefi_http_io_lib_dep,
+                uefi_crypto_lib_dep,
+            ],
+            'compile_args': [graphics_lib.get('compile_args'), '-D_OOPETRIS_ONLINE_SYSTEM=3'],
+        }
+
+
     else
 
         online_multiplayer_system = 'curl'

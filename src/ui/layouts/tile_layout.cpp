@@ -11,7 +11,7 @@ void ui::TileLayout::render(const ServiceProvider& service_provider) const {
 
 [[nodiscard]] ui::Layout ui::TileLayout::get_layout_for_index(u32 index) {
     if (index >= this->m_size) {
-        throw std::runtime_error("TileLayout is already full");
+        utils::throw_(std::runtime_error("TileLayout is already full"));
     }
 
     const auto start_point = layout().get_rect().top_left;

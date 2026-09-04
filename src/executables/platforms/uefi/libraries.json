@@ -1,0 +1,37 @@
+{
+    "custom": {
+        "sdl2": {
+            "pkg": "SDL2Pkg",
+            "lib": "LibSDL2",
+            "version": "2.32.10"
+        },
+        "sdl2_mixer": {
+            "pkg": "SDL2MixerPkg",
+            "lib": "LibSDL2Mixer",
+            "version": "2.8.2"
+        }
+    },
+    "uefi": {
+        "HttpIoLib": {
+            "pkg": "NetworkPkg/NetworkPkg",
+            "lib": "HttpIoLib",
+            "inf": "NetworkPkg/Library/DxeHttpIoLib/DxeHttpIoLib.inf",
+            "inc": "NetworkPkg/Network.dsc.inc",
+            "tool_prefix": "edk2"
+        },
+        "HttpLib": {
+            "pkg": "NetworkPkg/NetworkPkg",
+            "lib": "HttpLib",
+            "inf": "NetworkPkg/Library/DxeHttpLib/DxeHttpLib.inf",
+            "inc": "NetworkPkg/Network.dsc.inc",
+            "tool_prefix": "edk2"
+        },
+        "BaseCryptLib": {
+            "pkg": "CryptoPkg/CryptoPkg",
+            "lib": "BaseCryptLib",
+            "inf": "CryptoPkg/Library/BaseCryptLib/BaseCryptLib.inf",
+            "inc": null,
+            "tool_prefix": "edk2"
+        }
+    }
+}
