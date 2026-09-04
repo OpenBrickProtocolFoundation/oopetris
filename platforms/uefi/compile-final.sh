@@ -58,6 +58,7 @@ fi
     -b "$EDK2_TARGET_PROPERTIES_BUILDTYPE" \
     -t "$EDK2_TARGET_PROPERTIES_TOOLCHAIN" \
     -D "OOPETRIS_RUNTIME_TARGET=$EDK2_TARGET_PROPERTIES_RUNTIME_TARGET" \
+    -n 0 \
     -w # -v # verbose
 
 ##TODO: un-hardcode this
