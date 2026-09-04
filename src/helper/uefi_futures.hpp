@@ -21,13 +21,13 @@ extern "C" {
 #include <signal.h>
 }
 
+#include "./uefi_utils.hpp"
 #include <chrono>
 #include <memory>
 #include <mutex>
 #include <spdlog/spdlog.h>
 #include <variant>
 #include <vector>
-#include "./uefi_utils.hpp"
 
 
 //COPY from oopetris, to make this header more independent
@@ -58,7 +58,7 @@ namespace details {
 
     struct GlobalSignalState {
         __sighandler_t* old_sig_handler;
-        uefi::helper::ThreadMutex mutex;
+        std::mutex mutex;
     };
 
     struct MainCPUState {

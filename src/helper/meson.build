@@ -19,8 +19,7 @@ if meson.is_cross_build() and host_machine.system() == 'uefi'
         'uefi_futures.cpp',
         'uefi_futures.hpp',
         'uefi_utils.cpp',
-        'uefi_utils.hpp',
-        'uefi_utils_spdlog_sink.cpp',
+        'uefi_utils.hpp'
     )
 elif meson.is_cross_build() and host_machine.system() == 'emscripten'
     graphics_src_files += files(

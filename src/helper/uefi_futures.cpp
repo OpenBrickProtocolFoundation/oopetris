@@ -4,6 +4,7 @@
 extern "C" {
 #include <Library/BaseLib.h>
 #include <Library/UefiBootServicesTableLib.h>
+#include <sys/threads.h>
 }
 
 details::MainCPUState* details::__cpu_state = nullptr;
@@ -13,16 +14,16 @@ static UINTN my_cpu_id_impl(EFI_MP_SERVICES_PROTOCOL* Mp) {
 
     ASSERT(Mp);
 
-    UINTN BspNumber;
+    UINTN CpuNUmber;
 
-    EFI_STATUS Status = Mp->WhoAmI(Mp, &BspNumber);
+    EFI_STATUS Status = Mp->WhoAmI(Mp, &CpuNUmber);
 
     if (EFI_ERROR(Status)) {
         EFI_DEBUG((DEBUG_ERROR, "ERROR: couldn't execute WhoAmI: %r\n", Status));
         abort();
     }
 
-    return BspNumber;
+    return CpuNUmber;
 }
 
 
@@ -64,7 +65,7 @@ search_cpu_in_array:
 static void __impl_uefi_thread_abort_signal_handler(int actual_signal) {
     //TODO: assert actual_signal == SIGABRT
 
-    const std::lock_guard<uefi::helper::ThreadMutex> scope_lock(details::__cpu_state->signal_state.mutex);
+    const std::lock_guard<std::mutex> scope_lock(details::__cpu_state->signal_state.mutex);
 
 
     UINTN cpu_id = details::my_cpu_id();
@@ -102,8 +103,11 @@ void details::init_cpu_state() {
         return;
     }
 
-    __cpu_state =
-            new details::MainCPUState(nullptr, 0, 0, std::vector<SecondaryCPUState>{}, GlobalSignalState{ nullptr });
+    __cpu_state = new details::MainCPUState(
+            nullptr, 0, 0, std::vector<SecondaryCPUState>{}, GlobalSignalState{ nullptr, {} }
+    );
+
+    efi_threads_init();
 
 
     if (!gBS) {
@@ -137,8 +141,7 @@ void details::init_cpu_state() {
 
     //TODO: inline this in start_detached_thread
 
-
-    __cpu_state->signal_state = GlobalSignalState{ old_sig_handler, {} };
+    __cpu_state->signal_state.old_sig_handler = old_sig_handler;
 
     __cpu_state->cpus = std::vector<SecondaryCPUState>{};
     __cpu_state->cpus.reserve(__cpu_state->NumberOfProcessors - 1);
@@ -240,7 +243,7 @@ struct details::DetachedThreadStateImpl {
     details::SecondaryCPUState* cpu_to_execute_on_ref;
 
     // mutex to protect state, that can be used by the AP (when writing the result) and the BSP (when using poll)
-    uefi::helper::ThreadMutex data_mutex;
+    std::mutex data_mutex;
 
     DetachedThreadStateImpl(ThreadInfo* info_ref, details::SecondaryCPUState* cpu_to_execute_on_ref)
         : DoneEvent{},
@@ -253,7 +256,7 @@ struct details::DetachedThreadStateImpl {
     }
 
     void terminate(std::optional<std::string> error) {
-        const std::lock_guard<uefi::helper::ThreadMutex> scope_lock(this->data_mutex);
+        const std::lock_guard<std::mutex> scope_lock(this->data_mutex);
 
         this->run_state = { true, error };
     }
@@ -264,7 +267,7 @@ struct details::DetachedThreadStateImpl {
     }
 
     details::thread_state poll(void) {
-        const std::lock_guard<uefi::helper::ThreadMutex> scope_lock(this->data_mutex);
+        const std::lock_guard<std::mutex> scope_lock(this->data_mutex);
 
         if (this->run_state.first) {
             return details::thread_state::running;

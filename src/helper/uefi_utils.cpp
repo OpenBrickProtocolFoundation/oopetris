@@ -17,8 +17,8 @@ extern "C" {
 }
 
 
-std::shared_ptr<uefi::spdlog_helper::callback_sink> uefi::get_debug_sink() {
-    return std::make_shared<uefi::spdlog_helper::callback_sink>([](const spdlog::details::log_msg& msg) {
+std::shared_ptr<spdlog::sinks::callback_sink_mt> uefi::get_debug_sink() {
+    return std::make_shared<spdlog::sinks::callback_sink_mt>([](const spdlog::details::log_msg& msg) {
         const std::string message = std::string{ msg.payload.begin(), msg.payload.end() };
 
 
@@ -45,55 +45,6 @@ std::shared_ptr<uefi::spdlog_helper::callback_sink> uefi::get_debug_sink() {
     });
 }
 
-
-uefi::helper::ThreadMutex::ThreadMutex() noexcept : locked{ 0 } {
-    //
-}
-
-uefi::helper::ThreadMutex::ThreadMutex(ThreadMutex&& other) noexcept : locked{ 0 } {
-    ASSERT(!other.locked);
-
-    other.locked = 0;
-}
-
-uefi::helper::ThreadMutex& uefi::helper::ThreadMutex::operator=(ThreadMutex&& other) noexcept {
-    ASSERT(!other.locked);
-
-    this->locked = other.locked;
-    other.locked = 0;
-
-    return *this;
-}
-
-uefi::helper::ThreadMutex::~ThreadMutex() noexcept {
-    ASSERT(!this->locked);
-}
-
-//TODO: use this as kibc mutex, implement std::mutex with this and so the libc and libcxx has correct mutexes!
-// but should i use spinlocks or atomics here?
-// also this doesn't depend on oopetris specific things, so its possible
-void uefi::helper::ThreadMutex::lock() {
-    while (InterlockedCompareExchange32(
-                   &(this->locked),
-                   0, // Compare: unlocked
-                   1  // Exchange: locked
-           )
-           != 0) {
-        //
-        // Someone else owns it.
-        //
-        CpuPause();
-    }
-}
-
-void uefi::helper::ThreadMutex::unlock() {
-
-    InterlockedCompareExchange32(
-            &(this->locked),
-            1, // Compare: locked
-            0  // Exchange: unlocked
-    );
-}
 
 [[nodiscard]] std::string uefi::map_efi_status_to_string(EFI_STATUS status) {
 
