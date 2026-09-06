@@ -35,7 +35,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install ninja-build pkg-config build-essential -y --no-install-recommends
+          sudo apt-get install ninja-build pkg-config build-essential uuid-dev qemu-system-x86 ovmf-generic nasm -y --no-install-recommends
 
       - name: Build
         run: |
