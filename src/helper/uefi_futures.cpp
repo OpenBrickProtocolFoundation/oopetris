@@ -233,47 +233,66 @@ struct ThreadLocalState {
 };
 
 struct details::DetachedThreadStateImpl {
+public:
     // input state
     EFI_EVENT DoneEvent;
     BOOLEAN finished;
+
+private:
     //output state
-    std::pair<bool, std::optional<std::string>> run_state;
+    std::pair<bool, std::optional<std::string>> m_run_state;
     // thread info state, not owned
-    ThreadInfo* info_ref;
-    details::SecondaryCPUState* cpu_to_execute_on_ref;
+    ThreadInfo* m_info_ref;
+    details::SecondaryCPUState* m_cpu_to_execute_on_ref;
 
     // mutex to protect state, that can be used by the AP (when writing the result) and the BSP (when using poll)
-    std::mutex data_mutex;
+    std::mutex m_data_mutex;
 
+public:
     DetachedThreadStateImpl(ThreadInfo* info_ref, details::SecondaryCPUState* cpu_to_execute_on_ref)
         : DoneEvent{},
           finished{ FALSE },
-          run_state{ false, std::nullopt },
-          info_ref{ info_ref },
-          cpu_to_execute_on_ref{ cpu_to_execute_on_ref },
-          data_mutex{} {
+          m_run_state{ false, std::nullopt },
+          m_info_ref{ info_ref },
+          m_cpu_to_execute_on_ref{ cpu_to_execute_on_ref },
+          m_data_mutex{} {
         //
     }
 
-    void terminate(std::optional<std::string> error) {
-        const std::lock_guard<std::mutex> scope_lock(this->data_mutex);
+    [[nodiscard]] const ThreadInfo* info_ref() const {
+        return m_info_ref;
+    }
 
-        this->run_state = { true, error };
+    [[nodiscard]] const details::SecondaryCPUState* cpu_to_execute_on_ref() const {
+        return m_cpu_to_execute_on_ref;
+    }
+
+    [[nodiscard]] details::SecondaryCPUState* cpu_to_execute_on_ref() {
+        return m_cpu_to_execute_on_ref;
+    }
+
+
+    void terminate(std::optional<std::string> error) {
+        const std::lock_guard<std::mutex> scope_lock(this->m_data_mutex);
+
+        this->m_run_state = { true, error };
     }
 
     void terminate_done_cb() {
-        this->run_state = { true, this->finished ? std::optional<std::string>{ std::nullopt }
-                                                 : std::optional<std::string>{ "Not finished" } };
+        this->m_run_state = { true, this->finished ? std::optional<std::string>{ std::nullopt }
+                                                   : std::optional<std::string>{ "Not finished" } };
     }
 
     details::thread_state poll(void) {
-        const std::lock_guard<std::mutex> scope_lock(this->data_mutex);
+        const std::lock_guard<std::mutex> scope_lock(this->m_data_mutex);
 
-        if (this->run_state.first) {
+        const char* ss = this->m_run_state.second.has_value() ? this->m_run_state.second.value().c_str() : "<NONE>";
+
+        if (not this->m_run_state.first) {
             return details::thread_state::running;
         }
 
-        if (this->run_state.second.has_value()) {
+        if (this->m_run_state.second.has_value()) {
             return details::thread_state::aborted;
         }
 
@@ -281,11 +300,11 @@ struct details::DetachedThreadStateImpl {
     }
 
     std::string state() const {
-        return this->run_state.second.has_value() ? this->run_state.second.value() : "<No error>";
+        return this->m_run_state.second.has_value() ? this->m_run_state.second.value() : "<No error>";
     }
 
     ~DetachedThreadStateImpl() noexcept {
-        gBS->CloseEvent(DoneEvent);
+        gBS->CloseEvent(this->DoneEvent);
     }
 };
 
@@ -297,19 +316,23 @@ static void EFIAPI __impl_uefi_new_thread_function(IN OUT VOID* private_data) {
 
     {
 
-        state->cpu_to_execute_on_ref->jump_state = details::CpuJumpState{};
-        auto& setjmp_state = state->cpu_to_execute_on_ref->jump_state.value().jump_state;
+        state->cpu_to_execute_on_ref()->jump_state = details::CpuJumpState{};
+        auto& setjmp_state = state->cpu_to_execute_on_ref()->jump_state.value().jump_state;
 
         if (setjmp(setjmp_state) == 0) {
             // we are executing it the first time
-            state->info_ref->info.fn();
+            state->info_ref()->info.fn();
         } else {
+
+            // we locked the mutex in the signal handler, unlock it here
+            details::__cpu_state->signal_state.mutex.unlock();
+
             // we aborted
             state->terminate("Thread aborted");
         }
 
         // in both cases destroy the state
-        state->cpu_to_execute_on_ref->jump_state = std::nullopt;
+        state->cpu_to_execute_on_ref()->jump_state = std::nullopt;
     }
 }
 
