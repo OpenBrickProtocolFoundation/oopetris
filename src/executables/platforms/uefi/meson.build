@@ -109,17 +109,81 @@ oopetris_efi = custom_target(
     build_by_default: true,
 )
 
+_uefi_create_fat_folder_exe = find_program(
+    'create-fat-folder.sh',
+    dirs: [meson.project_source_root() / 'platforms' / 'uefi'],
+    required: true,
+)
+
+fat_folder_loc = fs.parent(oopetris_efi.full_path()) / 'FAT_FOLDER'
+
+serial_debug_file = fs.parent(oopetris_efi.full_path()) / 'serial_debug.log'
+
+fat_folder = custom_target(
+    'fat_folder',
+    command: [_uefi_create_fat_folder_exe, fat_folder_loc, '@INPUT@', '@OUTPUT@'],
+    depends: [oopetris_efi],
+    input: [oopetris_efi],
+    output: ['FAT_FOLDER_CREATED.meta'],
+    build_by_default: false,
+)
+
 RUNTIME_TARGET = meson.get_external_property('RUNTIME_TARGET', '')
 
 if RUNTIME_TARGET == 'hardware'
-    # nothing to do
+    # add a target to create a bootable img (iso) flash it manually to e.g. an USB
+
+    _dd_exe = find_program(
+        'dd',
+        required: true,
+    )
+
+    _fdisk_exe = find_program(
+        'fdisk',
+        required: true,
+    )
+
+    _mkfs_fat_exe = find_program(
+        'mkfs.fat',
+        required: true,
+    )
+
+    _mcopy_exe = find_program(
+        'mcopy',
+        required: true,
+    )
+
+    _mdir_exe = find_program(
+        'mdir',
+        required: true,
+    )
+
+    _uefi_create_img_file_exe = find_program(
+        'create-img-file.sh',
+        dirs: [meson.project_source_root() / 'platforms' / 'uefi'],
+        required: true,
+    )
+
+    img_file = custom_target(
+        'img_file',
+        command: [_uefi_create_img_file_exe, '@INPUT@', '@OUTPUT@'],
+        depends: [fat_folder, _dd_exe, _fdisk_exe, _mkfs_fat_exe, _mcopy_exe, _mdir_exe],
+        input: [fat_folder],
+        output: ['oopetris_bootable.img'],
+        build_by_default: false,
+    )
+
+    alias_target(
+        'build_img',
+        img_file,
+    )
+
 elif RUNTIME_TARGET == 'emulator'
     # add some qemu related targets
     _qemu_system_exe = find_program(
         'qemu-system-x86_64',
         required: false,
     )
-
 
     if _qemu_system_exe.found()
         cat = find_program('cat')
@@ -157,25 +221,6 @@ elif RUNTIME_TARGET == 'emulator'
 
 
         if fs.exists(OVMF_CODE_fd_path) and fs.exists(OVMF_VARS_fd_path)
-
-            _uefi_create_fat_folder_exe = find_program(
-                'create-fat-folder.sh',
-                dirs: [meson.project_source_root() / 'platforms' / 'uefi'],
-                required: true,
-            )
-
-            fat_folder_loc = fs.parent(oopetris_efi.full_path()) / 'FAT_FOLDER'
-
-            serial_debug_file = fs.parent(oopetris_efi.full_path()) / 'serial_debug.log'
-
-            fat_folder = custom_target(
-                'fat_folder',
-                command: [_uefi_create_fat_folder_exe, fat_folder_loc, '@INPUT@', '@OUTPUT@'],
-                depends: [oopetris_efi],
-                input: [oopetris_efi],
-                output: ['FAT_FOLDER_CREATED.meta'],
-                build_by_default: false,
-            )
 
             user_vars_fd = fs.copyfile(
                 OVMF_VARS_fd_path,
