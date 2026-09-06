@@ -146,9 +146,7 @@ extern "C" {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-compare"
 
-#define rewind erewind
 #include <c-embed.h>
-#undef rewind
 
 #pragma GCC diagnostic pop
 
@@ -215,16 +213,22 @@ static off_t EFIAPI _f_romfs_Seek(struct __filedes* filp, off_t offset, int when
     ASSERT_TYPE(filp->devdata, void*);
     EFILE* file = DEV_DATA_GET(filp->devdata);
 
+
     //NOTE: eseek works differently than the expected seek, so map the behavior
 
     int result = eseek(file, offset, whence);
-    if (result != 0) {
+    if (result < 0) {
         errno = eerrno_to_errno(eerrno);
         return EOF;
     }
 
-    //NOTE: etell cannot fail
-    return etell(file);
+    long int pos = etell(file);
+    if (pos < 0) {
+        errno = EINVAL;
+        return EOF;
+    }
+
+    return (off_t) pos;
 }
 
 /** The directory path is created with the access permissions specified by
@@ -259,17 +263,25 @@ _f_romfs_Read(IN OUT struct __filedes* filp, IN OUT off_t* offset, IN size_t Buf
     EFILE* file = DEV_DATA_GET(filp->devdata);
 
     if (offset != NULL) {
-        //TODO: support
-        errno = ENOTSUP;
-        return -1;
+
+        off_t seek_size = _f_romfs_Seek(filp, *offset, SEEK_SET);
+        if (seek_size == EOF) {
+            errno = eerrno_to_errno(eerrno);
+            return -1;
+        }
+
+        filp->f_offset = seek_size;
+
+        *offset = seek_size;
     }
 
 
-    // NOTE: eread cannot fail, it doesn't return negative values
+    size_t result = eread(Buffer, 1, BufferSize, file);
 
-    ssize_t result = (ssize_t) eread(Buffer, BufferSize, 1, file);
-
-    DEBUG((DEBUG_ERROR, "%a %a:%d: IN READ %lu %ld\n", __func__, __FILE__, __LINE__, BufferSize, result));
+    if (eerrno != EERRCODE_SUCCESS) {
+        errno = eerrno_to_errno(eerrno);
+        return -1;
+    }
 
     return result;
 }
@@ -352,7 +364,6 @@ public:
     static std::optional<PathConversion> init(const wchar_t* value) {
         char* converted = (char*) AllocateZeroPool(PATH_MAX + 1);
         if (converted == NULL) {
-            DEBUG((DEBUG_ERROR, "%a %a:%d: IN PathConversion::init %s\n", __func__, __FILE__, __LINE__, value));
             errno = ENOMEM;
             return std::nullopt;
         }
@@ -360,7 +371,6 @@ public:
         size_t convert_result = wcstombs(converted, value, PATH_MAX);
 
         if (convert_result == ((size_t) -1) || convert_result > PATH_MAX) {
-            DEBUG((DEBUG_ERROR, "%a %a:%d: IN PathConversion::init %s\n", __func__, __FILE__, __LINE__, value));
             errno = EINVAL;
             return std::nullopt;
         }
@@ -449,14 +459,12 @@ int EFIAPI _f_romfs_Open(
         filp->f_iflags = 0; // Release our reservation on this FD
         // Set errno based upon Status
         errno = eerrno_to_errno(eerrno);
-        DEBUG((DEBUG_ERROR, "%a %a:%d: IN OPEN %s: errno -> %a\n", __func__, __FILE__, __LINE__, Path,
-               eerrstr(eerrno)));
         return -1;
     }
 
 
-    // Successfully got a regular File (note c-embed doesnÄt support to open directories)
-    filp->f_iflags |= S_IFREG;
+    // Successfully got a regular File (note c-embed doesn't support to open directories)
+    filp->f_iflags |= S_IFREG | S_IROFS | S_IREADONLY;
 
     // Update the info in the fd
     ASSERT_TYPE(file, EFILE*);
@@ -570,6 +578,10 @@ __ctor_rom_fs(void) {
         case EERRCODE_NULLSTREAM:
             return EINVAL;
         case EERRCODE_OOBSTREAMPOS:
+            return EINVAL;
+        case EERRCODE_INVALIDMODE:
+            return EINVAL;
+        case EERRCODE_INVALIARGUMENTS:
             return EINVAL;
         default:
             return EINVAL;

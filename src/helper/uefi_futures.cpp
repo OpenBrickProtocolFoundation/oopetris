@@ -286,8 +286,6 @@ public:
     details::thread_state poll(void) {
         const std::lock_guard<std::mutex> scope_lock(this->m_data_mutex);
 
-        const char* ss = this->m_run_state.second.has_value() ? this->m_run_state.second.value().c_str() : "<NONE>";
-
         if (not this->m_run_state.first) {
             return details::thread_state::running;
         }
