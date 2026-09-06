@@ -19,6 +19,13 @@ namespace constants {
     constexpr auto recordings_directory = "recordings";
     constexpr u32 simulation_frequency = 60;
 
+#if defined(__UEFI__)
+    constexpr bool recordings_enabled = false;
+#else
+    constexpr bool recordings_enabled = true;
+#endif
+
+
 #undef STRINGIFY
 #undef STRINGIFY_HELPER_
 

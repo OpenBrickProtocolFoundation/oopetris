@@ -31,8 +31,10 @@ namespace scenes {
         additional_information.add("date", date.value());
         //TODO(Totto): add more information, if logged in
 
-        auto result =
-                input::get_single_player_game_parameters(service_provider, std::move(additional_information), date);
+
+        auto result = input::get_single_player_game_parameters(
+                service_provider, std::move(additional_information), date, constants::recordings_enabled
+        );
 
         if (not result.has_value()) {
             utils::throw_(

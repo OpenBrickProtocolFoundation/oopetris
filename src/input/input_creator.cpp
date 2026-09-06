@@ -102,7 +102,8 @@ input::get_game_parameters_for_replay(
 [[nodiscard]] helper::expected<input::AdditionalInfo, std::string> input::get_single_player_game_parameters(
         ServiceProvider* const service_provider,
         recorder::AdditionalInformation&& information,
-        const date::ISO8601Date& date
+        const date::ISO8601Date& date,
+        bool recordings_enabled
 ) {
 
     auto input = service_provider->input_manager().get_game_input(service_provider);
@@ -120,14 +121,12 @@ input::get_game_parameters_for_replay(
 
     AdditionalInfo result{ input.value(), starting_parameters };
 
-
-    auto tetrion_header = create_tetrion_headers_for_one(result);
-    std::vector<recorder::TetrionHeader> tetrion_headers{ tetrion_header };
-
     const auto recording_directory_path = utils::get_root_folder() / constants::recordings_directory;
 
-
-    auto dir_result = utils::create_directory(recording_directory_path, true);
+    std::optional<std::string> dir_result = "Recordings not enabled";
+    if (recordings_enabled) {
+        dir_result = utils::create_directory(recording_directory_path, true);
+    }
     if (not dir_result.has_value()) {
 
         const auto date_time_str = date.to_string();
@@ -140,6 +139,10 @@ input::get_game_parameters_for_replay(
 
         const auto filename = fmt::format("{}.{}", date_time_str.value(), constants::recording::extension);
         const auto file_path = recording_directory_path / filename;
+
+
+        auto tetrion_header = create_tetrion_headers_for_one(result);
+        std::vector<recorder::TetrionHeader> tetrion_headers{ tetrion_header };
 
 
         auto recording_writer_create_result =
