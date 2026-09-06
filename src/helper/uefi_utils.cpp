@@ -11,6 +11,8 @@
 #include <memory>
 #include <string>
 
+#include <sys/threads.h>
+
 extern "C" {
 #include <Library/BaseLib.h>
 #include <Library/SynchronizationLib.h>
@@ -18,26 +20,29 @@ extern "C" {
 
 
 std::shared_ptr<spdlog::sinks::callback_sink_mt> uefi::get_debug_sink() {
+    efi_threads_init();
+
     return std::make_shared<spdlog::sinks::callback_sink_mt>([](const spdlog::details::log_msg& msg) {
         const std::string message = std::string{ msg.payload.begin(), msg.payload.end() };
 
+        UINTN thread_id = efi_thread_id();
 
         switch (msg.level) {
             case spdlog::level::off:
                 return;
             case spdlog::level::trace:
             case spdlog::level::debug:
-                EFI_DEBUG((DEBUG_VERBOSE, "%a\n", message.c_str()));
+                EFI_DEBUG((DEBUG_VERBOSE, "[thread %lu] %a\n", thread_id, message.c_str()));
                 break;
             case spdlog::level::info:
-                EFI_DEBUG((DEBUG_INFO, "%a\n", message.c_str()));
+                EFI_DEBUG((DEBUG_INFO, "[thread %lu] %a\n", thread_id, message.c_str()));
                 break;
             case spdlog::level::warn:
-                EFI_DEBUG((DEBUG_WARN, "%a\n", message.c_str()));
+                EFI_DEBUG((DEBUG_WARN, "[thread %lu] %a\n", thread_id, message.c_str()));
                 break;
             case spdlog::level::err:
             case spdlog::level::critical:
-                EFI_DEBUG((DEBUG_ERROR, "%a\n", message.c_str()));
+                EFI_DEBUG((DEBUG_ERROR, "[thread %lu] %a\n", thread_id, message.c_str()));
                 break;
             default:
                 return;
@@ -159,16 +164,28 @@ extern "C" {
 
 #define ROM_COOKIE 0x464d4f52 ///< 'RomF'
 
+#ifdef __cplusplus
+#define ASSERT_TYPE(expr, type) static_assert(std::is_same_v<decltype(expr), std::remove_cvref_t<type>>, "wrong type")
+#else
+#define ASSERT_TYPE(expr, type) static_assert(_Generic((expr), type: 1, default: 0), "wrong type")
+#endif
+
+#define DEV_DATA_ASSIGN(data) ((void*) data)
+
+#define DEV_DATA_GET(data) ((EFILE*) data)
 
 /** EFI specific operations for close().
 
-    @param[in]    Fp    Pointer to a file descriptor structure.
+    @param[in]    filp    Pointer to a file descriptor structure.
 
     @retval      0      Successful completion.
     @retval     -1      Operation failed.  Further information is specified by errno.
 **/
-static int EFIAPI _f_romfs_Close(IN struct __filedes* Fp) {
-    eclose((EFILE*) (&Fp->devdata));
+static int EFIAPI _f_romfs_Close(IN struct __filedes* filp) {
+    ASSERT_TYPE(filp->devdata, void*);
+    EFILE* file = DEV_DATA_GET(filp->devdata);
+
+    eclose(file);
     return 0;
 }
 
@@ -195,7 +212,8 @@ static int EFIAPI _f_romfs_Delete(struct __filedes* filp) {
     @return     Returns the new file position or EOF if the seek failed.
 **/
 static off_t EFIAPI _f_romfs_Seek(struct __filedes* filp, off_t offset, int whence) {
-    EFILE* file = (EFILE*) (&filp->devdata);
+    ASSERT_TYPE(filp->devdata, void*);
+    EFILE* file = DEV_DATA_GET(filp->devdata);
 
     //NOTE: eseek works differently than the expected seek, so map the behavior
 
@@ -237,17 +255,23 @@ static int EFIAPI _f_romfs_Mkdir(const char* path, __mode_t perms) {
 **/
 static ssize_t EFIAPI
 _f_romfs_Read(IN OUT struct __filedes* filp, IN OUT off_t* offset, IN size_t BufferSize, OUT VOID* Buffer) {
-
-    EFILE* stream = (EFILE*) (&filp->devdata);
+    ASSERT_TYPE(filp->devdata, void*);
+    EFILE* file = DEV_DATA_GET(filp->devdata);
 
     if (offset != NULL) {
         //TODO: support
         errno = ENOTSUP;
         return -1;
     }
+
+
     // NOTE: eread cannot fail, it doesn't return negative values
 
-    return (ssize_t) eread(Buffer, BufferSize, 1, stream);
+    ssize_t result = (ssize_t) eread(Buffer, BufferSize, 1, file);
+
+    DEBUG((DEBUG_ERROR, "%a %a:%d: IN READ %lu %ld\n", __func__, __FILE__, __LINE__, BufferSize, result));
+
+    return result;
 }
 
 /** EFI specific operations for writing to a file.
@@ -282,8 +306,8 @@ static int EFIAPI _f_romfs_Fcntl(struct __filedes* filp, UINT32 Cmd, void* p3, v
     @retval     -1      Operation failed.  Further information is specified by errno.
 **/
 static int EFIAPI _f_romfs_Stat(struct __filedes* filp, struct stat* statbuf, void* Something) {
-    EFILE* file = (EFILE*) (&filp->devdata);
-
+    ASSERT_TYPE(filp->devdata, void*);
+    EFILE* file = DEV_DATA_GET(filp->devdata);
 
     // Got the info, now populate statbuf with it
     statbuf->st_size = file->size;
@@ -409,11 +433,9 @@ int EFIAPI _f_romfs_Open(
         wchar_t* MPath
 ) {
     if (filp->Oflags != O_RDONLY) {
-        DEBUG((DEBUG_ERROR, "%a %a:%d: IN OPEN %s\n", __func__, __FILE__, __LINE__, Path));
         errno = EINVAL;
         return -1;
     }
-
 
     std::optional<PathConversion> conversion = PathConversion::init(Path);
 
@@ -421,15 +443,14 @@ int EFIAPI _f_romfs_Open(
         return -1;
     }
 
-    DEBUG((DEBUG_ERROR, "%a %a:%d: path: %a\n", __func__, __FILE__, __LINE__, conversion->path()));
-
     // Call the EFI's Open function
     EFILE* file = eopen(conversion->path(), "r");
     if (file == NULL) {
         filp->f_iflags = 0; // Release our reservation on this FD
         // Set errno based upon Status
         errno = eerrno_to_errno(eerrno);
-        DEBUG((DEBUG_ERROR, "%a %a:%d: IN OPEN %s: errno -> %a\n", __func__, __FILE__, __LINE__, Path, eerrstr(eerrno)));
+        DEBUG((DEBUG_ERROR, "%a %a:%d: IN OPEN %s: errno -> %a\n", __func__, __FILE__, __LINE__, Path,
+               eerrstr(eerrno)));
         return -1;
     }
 
@@ -438,13 +459,13 @@ int EFIAPI _f_romfs_Open(
     filp->f_iflags |= S_IFREG;
 
     // Update the info in the fd
-    filp->devdata = (void*) file;
+    ASSERT_TYPE(file, EFILE*);
+    filp->devdata = DEV_DATA_ASSIGN(file);
 
     GenericInstance* Gip = (GenericInstance*) DevNode->InstanceList;
     filp->f_offset = 0;
     filp->f_ops = &Gip->Abstraction;
 
-    DEBUG((DEBUG_ERROR, "%a %a:%d: IN OPEN %s\n", __func__, __FILE__, __LINE__, Path));
     return 0;
 }
 
