@@ -142,6 +142,9 @@ if get_option('run_in_ci')
         'cross_switch': {
             'compilers': [gcc_15_compiler],
         },
+        'cross_uefi': {
+            'compilers': [gcc_15_compiler],
+        },
         'cross_emscripten': {
             'compilers': [emscripten_compiler_current],
         },

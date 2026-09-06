@@ -89,6 +89,14 @@ if [ ! -d "$EDK2_TOOLS_DIR" ]; then
     mkdir -p "$EDK2_TOOLS_DIR"
 fi
 
+# detect github CI DEBUG
+if [[ "${RUNNER_DEBUG:-}" == "1" ]]; then
+    echo "GitHub Actions debug logging is enabled"
+    set -x
+else
+    echo "GitHub Actions debug logging is disabled"
+fi
+
 export EDK2_ROOT="$EDK2_TOOLS_DIR/edk2"
 
 export WORKSPACE="$EDK2_TOOLS_DIR/workspace"
