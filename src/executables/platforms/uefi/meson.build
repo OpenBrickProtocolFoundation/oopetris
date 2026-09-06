@@ -168,7 +168,7 @@ if RUNTIME_TARGET == 'hardware'
         'img_file',
         command: [_uefi_create_img_file_exe, '@INPUT@', '@OUTPUT@'],
         depends: [fat_folder, _dd_exe, _fdisk_exe, _mkfs_fat_exe, _mcopy_exe, _mdir_exe],
-        input: [fat_folder],
+        input: [fat_folder_loc],
         output: ['oopetris_bootable.img'],
         build_by_default: false,
     )

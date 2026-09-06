@@ -47,7 +47,7 @@ p
 $PART_START
 $PART_END
 t
-uefi
+0c
 a
 w
 EOF
@@ -57,7 +57,7 @@ mkfs.fat -a -S "$SECTOR_SIZE" -F 32 --offset="$PART_START" "$IMG_FILE"
 
 PART_START_BYTES="$((START_SECTOR_AMOUNT * SECTOR_SIZE))"
 
-mcopy -i "${IMG_FILE}@@$PART_START_BYTES" -s "$FAT_FOLDER_LOC" "::/"
+mcopy -i "${IMG_FILE}@@$PART_START_BYTES" -s "$FAT_FOLDER_LOC/" "::/"
 
 mdir -i "${IMG_FILE}@@$PART_START_BYTES" "::"
 
