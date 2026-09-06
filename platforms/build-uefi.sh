@@ -89,7 +89,11 @@ if [ ! -d "$EDK2_TOOLS_DIR" ]; then
     mkdir -p "$EDK2_TOOLS_DIR"
 fi
 
+VERBOSE_LOGS="false"
+
 if [[ "${CI:-0}" != "0" ]]; then
+    VERBOSE_LOGS="true"
+
     # detect github CI DEBUG
     if [[ "${RUNNER_DEBUG:-}" == "1" ]]; then
         echo "GitHub Actions debug logging is enabled"
@@ -171,7 +175,11 @@ export BUILD_DIR="build/uefi"
 
 pushd "$EDK2_ROOT"
 
-make -C BaseTools --quiet >/dev/null 2>&1
+if [ "$VERBOSE_LOGS" == "true" ]; then
+    make -C BaseTools
+else
+    make -C BaseTools --quiet >/dev/null 2>&1
+fi
 
 set +u
 
