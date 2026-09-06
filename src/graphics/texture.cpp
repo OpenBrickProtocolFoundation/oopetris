@@ -1,3 +1,4 @@
+#include <core/helper/magic_enum_wrapper.hpp>
 #include <core/helper/point.hpp>
 
 #include "helper/graphic_utils.hpp"
@@ -46,7 +47,12 @@ Texture Texture::prerender_text(
     }
     if (surface == nullptr) {
         utils::throw_(
-                std::runtime_error(fmt::format("Failed to pre-render text into surface with error: {}", SDL_GetError()))
+                std::runtime_error(
+                        fmt::format(
+                                "Failed to pre-render text ({}) into surface with error: {}",
+                                magic_enum::enum_name(render_type), SDL_GetError()
+                        )
+                )
         );
     }
 
@@ -54,7 +60,12 @@ Texture Texture::prerender_text(
     SDL_FreeSurface(surface);
     if (texture == nullptr) {
         utils::throw_(
-                std::runtime_error(fmt::format("Failed to pre-render text into texture with error: {}", SDL_GetError()))
+                std::runtime_error(
+                        fmt::format(
+                                "Failed to pre-render text ({}) into texture with error: {}",
+                                magic_enum::enum_name(render_type), SDL_GetError()
+                        )
+                )
         );
     }
 

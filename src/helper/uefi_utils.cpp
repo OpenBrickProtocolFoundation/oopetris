@@ -283,6 +283,10 @@ _f_romfs_Read(IN OUT struct __filedes* filp, IN OUT off_t* offset, IN size_t Buf
         return -1;
     }
 
+    if (offset != NULL) {
+        *offset = *offset + result;
+    }
+
     return result;
 }
 
