@@ -1,7 +1,7 @@
 From 05696c4b8475bb9a54f048db298594978c90488a Mon Sep 17 00:00:00 2001
 From: Totto16 <tobiausgais@gmail.com>
 Date: Fri, 21 Aug 2026 18:28:44 +0200
-Subject: [PATCH 2/5] fix: fix naming of LibCType to LibCtype
+Subject: [PATCH 2/4] fix: fix naming of LibCType to LibCtype
 
 ---
  StdLib/LibC/Locale/Locale.inf | 2 +-
