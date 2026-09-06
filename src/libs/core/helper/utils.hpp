@@ -17,6 +17,7 @@
 
 #if defined(__UEFI__)
 #include "./uefi_debug.h"
+#include <sys/threads.h>
 #endif
 
 namespace helper {
@@ -131,7 +132,11 @@ namespace utils {
     template<typename E>
     [[noreturn]] inline void throw_(E&& exc) { //NOLINT(readability-identifier-naming)
 #if defined(__OOPETRIS_NO_EXCEPTIONS)
+#if defined(__UEFI__)
+        EFI_DEBUG((DEBUG_ERROR, "[thread %lu] Exception: %a\n", efi_thread_id(), exc.what()));
+#else
         std::cerr << "Exception: " << exc.what() << "\n";
+#endif
         abort();
 #else
         throw std::forward<E>(exc);
@@ -151,6 +156,16 @@ namespace utils {
 #endif
 
 #if !defined(NDEBUG)
+#if defined(__UEFI__)
+#define UNREACHABLE() /* NOLINT(cppcoreguidelines-macro-usage)*/                                            \
+    do {              /* NOLINT(cppcoreguidelines-avoid-do-while)*/                                         \
+        EFI_DEBUG(                                                                                          \
+                (DEBUG_ERROR, "[thread %lu] UNREACHABLE %a:%d - %a\n", efi_thread_id(), __FILE__, __LINE__, \
+                 __FUNCTION__)                                                                              \
+        );                                                                                                  \
+        utils::unreachable();                                                                               \
+    } while (false)
+#else
 #define UNREACHABLE()                             /* NOLINT(cppcoreguidelines-macro-usage)*/                       \
     do {                                          /* NOLINT(cppcoreguidelines-avoid-do-while)*/                    \
         std::cerr << "UNREACHABLE " << (__FILE__) /* NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay)*/ \
@@ -159,6 +174,7 @@ namespace utils {
                   << "\n";                                                                                         \
         utils::unreachable();                                                                                      \
     } while (false)
+#endif
 #else
 #define UNREACHABLE() utils::unreachable() // NOLINT(cppcoreguidelines-macro-usage)
 #endif

@@ -265,28 +265,23 @@ void Application::main_loop() {
 }
 
 void Application::load_loop() {
-
     // we can't use the normal event loop, so we have to do it manually
     SDL_Event event;
     while (SDL_PollEvent(&event) != 0) {
         if (event.type == SDL_QUIT) {
             m_is_running = false;
         }
-
         // special event for android and IOS
         if (event.type == SDL_APP_TERMINATING) {
             m_is_running = false;
         }
     }
-
     if (not m_is_running) {
         return;
     }
-
     m_loading_info->m_loading_screen.update();
     // this service_provider only guarantees the renderer + the window to be accessible without race conditions
     m_loading_info->m_loading_screen.render(*this);
-
     // present and  wait (depending if vsync is on or not, this has to be done manually)
     m_renderer.present();
 
@@ -306,7 +301,6 @@ void Application::load_loop() {
         }
     }
     // end waiting
-
     // wait until is faster, since it just compares two time_points instead of getting now() and than adding the wait-for argument
     auto loading_status =
             m_loading_info->load_everything_future().wait_until(std::chrono::system_clock::time_point::min());
@@ -512,19 +506,16 @@ void Application::initialize() {
 #endif
     });
 
-
     using namespace std::chrono_literals;
 
     const auto sleep_time = m_target_framerate.has_value() ? std::chrono::duration_cast<std::chrono::nanoseconds>(1s)
                                                                      / m_target_framerate.value()
                                                            : 0s;
     auto start_execution_time_arg = std::chrono::steady_clock::now();
-
     m_loading_info = std::make_unique<helper::LoadingInfo>(
             sleep_time, start_time, std::move(load_everything_future), start_execution_time_arg, false,
             std::move(loading_screen_arg)
     );
-
     // this is a duplicate of below in some cases, but it's just for the loading screen and can't be factored out easily
     // this also only uses a subset of all things, the real event loop uses, so that nothing breaks while doing multithreading
     // the only things usable are: (since NOT accessed (writing) via the loading thread and already initialized):
@@ -554,7 +545,6 @@ void Application::initialize() {
     ) {
         load_loop();
     }
-
 
     const auto duration = std::chrono::milliseconds(SDL_GetTicks64() - start_time);
 

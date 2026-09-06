@@ -279,6 +279,8 @@ public:
     }
 
     void terminate_done_cb() {
+        const std::lock_guard<std::mutex> scope_lock(this->m_data_mutex);
+
         this->m_run_state = { true, this->finished ? std::optional<std::string>{ std::nullopt }
                                                    : std::optional<std::string>{ "Not finished" } };
     }
@@ -320,6 +322,8 @@ static void EFIAPI __impl_uefi_new_thread_function(IN OUT VOID* private_data) {
         if (setjmp(setjmp_state) == 0) {
             // we are executing it the first time
             state->info_ref()->info.fn();
+            // we didn't abort
+            state->terminate(std::nullopt);
         } else {
 
             // we locked the mutex in the signal handler, unlock it here
