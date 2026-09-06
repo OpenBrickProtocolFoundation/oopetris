@@ -118,9 +118,8 @@
 
 !if $(OOPETRIS_RUNTIME_TARGET) == "hardware"
   # DebugLib
-  DebugLib|MdePkg/Library/BaseDebugLibNull/BaseDebugLibNull.inf-TODO-not-implemented-and-checked-yet
+  DebugLib|MdePkg/Library/BaseDebugLibNull/BaseDebugLibNull.inf
 
-  TODO|not implemented and checked yet
   # SupportLib and TimerLib
   #TODO: doesn't work on qemu, but maybe on CPU??
   TimerLib|UefiCpuPkg/Library/CpuTimerLib/BaseCpuTimerLib.inf
