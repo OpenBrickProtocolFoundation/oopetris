@@ -141,8 +141,6 @@ std::shared_ptr<spdlog::sinks::callback_sink_mt> uefi::get_debug_sink() {
     }
 }
 
-extern "C" {
-
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-compare"
 
@@ -150,6 +148,7 @@ extern "C" {
 
 #pragma GCC diagnostic pop
 
+extern "C" {
 #include <Library/BaseLib.h>
 #include <Library/MemoryAllocationLib.h>
 #include <Uefi.h>
@@ -160,7 +159,10 @@ extern "C" {
 #include <StdLibPrivateInternalFiles/Include/Device/Device.h>
 }
 
-#define ROM_COOKIE 0x464d4f52 ///< 'RomF'
+// ([...('RwFs').split("").map(a=>a.charCodeAt(0).toString(16)), "0x"].reverse().join(""))
+#define ROM_COOKIE 0x466d6f52 ///< 'RomF'
+#define RW_COOKIE 0x73467752  ///< 'RwFs'
+
 
 #ifdef __cplusplus
 #define ASSERT_TYPE(expr, type) static_assert(std::is_same_v<decltype(expr), std::remove_cvref_t<type>>, "wrong type")
@@ -168,9 +170,17 @@ extern "C" {
 #define ASSERT_TYPE(expr, type) static_assert(_Generic((expr), type: 1, default: 0), "wrong type")
 #endif
 
-#define DEV_DATA_ASSIGN(data) ((void*) data)
+#define VALIDATE_INSTANCE(type) \
+    static_assert((sizeof(type) % 8) == 0, "instance structures MUST be a multiple of 8-bytes in length");
 
-#define DEV_DATA_GET(data) ((EFILE*) data)
+#define ROMFS_DEV_DATA_ASSIGN(data) ((void*) data)
+#define ROMFS_DEV_DATA_TYPE EFILE
+#define ROMFS_DEV_DATA_GET(data) ((ROMFS_DEV_DATA_TYPE*) data)
+
+
+#define ROM_INSTANCE GenericInstance
+
+VALIDATE_INSTANCE(ROM_INSTANCE)
 
 /** EFI specific operations for close().
 
@@ -181,7 +191,7 @@ extern "C" {
 **/
 static int EFIAPI _f_romfs_Close(IN struct __filedes* filp) {
     ASSERT_TYPE(filp->devdata, void*);
-    EFILE* file = DEV_DATA_GET(filp->devdata);
+    ROMFS_DEV_DATA_TYPE* file = ROMFS_DEV_DATA_GET(filp->devdata);
 
     eclose(file);
     return 0;
@@ -199,8 +209,6 @@ static int EFIAPI _f_romfs_Delete(struct __filedes* filp) {
     return -1;
 }
 
-[[nodiscard]] static int eerrno_to_errno(int eerrno);
-
 /** EFI specific operations for setting the position within a file.
 
     @param[in]    filp    Pointer to a file descriptor structure.
@@ -211,8 +219,13 @@ static int EFIAPI _f_romfs_Delete(struct __filedes* filp) {
 **/
 static off_t EFIAPI _f_romfs_Seek(struct __filedes* filp, off_t offset, int whence) {
     ASSERT_TYPE(filp->devdata, void*);
-    EFILE* file = DEV_DATA_GET(filp->devdata);
+    ROMFS_DEV_DATA_TYPE* file = ROMFS_DEV_DATA_GET(filp->devdata);
 
+
+    if (estreamtype(file) != EMAP_ENTRY_TYPE_FILE) {
+        errno = EISDIR;
+        return EOF;
+    }
 
     //NOTE: eseek works differently than the expected seek, so map the behavior
 
@@ -260,7 +273,9 @@ static int EFIAPI _f_romfs_Mkdir(const char* path, __mode_t perms) {
 static ssize_t EFIAPI
 _f_romfs_Read(IN OUT struct __filedes* filp, IN OUT off_t* offset, IN size_t BufferSize, OUT VOID* Buffer) {
     ASSERT_TYPE(filp->devdata, void*);
-    EFILE* file = DEV_DATA_GET(filp->devdata);
+    ROMFS_DEV_DATA_TYPE* file = ROMFS_DEV_DATA_GET(filp->devdata);
+
+    //TODO: support directory, how is read used there?
 
     if (offset != NULL) {
 
@@ -323,10 +338,12 @@ static int EFIAPI _f_romfs_Fcntl(struct __filedes* filp, UINT32 Cmd, void* p3, v
 **/
 static int EFIAPI _f_romfs_Stat(struct __filedes* filp, struct stat* statbuf, void* Something) {
     ASSERT_TYPE(filp->devdata, void*);
-    EFILE* file = DEV_DATA_GET(filp->devdata);
+    ROMFS_DEV_DATA_TYPE* file = ROMFS_DEV_DATA_GET(filp->devdata);
 
     // Got the info, now populate statbuf with it
-    statbuf->st_size = file->size;
+
+    // NOTE: we return the same size in the case of a directory, but it isn't the directories detailed size, but an implementation defined size
+    statbuf->st_size = esize(file);
     statbuf->st_physsize = 0;
     statbuf->st_curpos = 0;
 
@@ -458,7 +475,7 @@ int EFIAPI _f_romfs_Open(
     }
 
     // Call the EFI's Open function
-    EFILE* file = eopen(conversion->path(), "r");
+    ROMFS_DEV_DATA_TYPE* file = eopen(conversion->path(), "r");
     if (file == NULL) {
         filp->f_iflags = 0; // Release our reservation on this FD
         // Set errno based upon Status
@@ -466,17 +483,25 @@ int EFIAPI _f_romfs_Open(
         return -1;
     }
 
+    int type = estreamtype(file);
+    if (type == EMAP_ENTRY_TYPE_FILE) {
+        filp->f_iflags |= S_IFREG;
+    } else if (type == EMAP_ENTRY_TYPE_DIR) {
+        filp->f_iflags |= S_IFDIR;
+    } else {
+        errno = EINVAL;
+        return -1;
+    }
 
-    // Successfully got a regular File (note c-embed doesn't support to open directories)
-    filp->f_iflags |= S_IFREG | S_IROFS | S_IREADONLY;
+    filp->f_iflags |= S_IROFS | S_IREADONLY;
 
     // Update the info in the fd
-    ASSERT_TYPE(file, EFILE*);
-    filp->devdata = DEV_DATA_ASSIGN(file);
+    ASSERT_TYPE(file, ROMFS_DEV_DATA_TYPE*);
+    filp->devdata = ROMFS_DEV_DATA_ASSIGN(file);
 
-    GenericInstance* Gip = (GenericInstance*) DevNode->InstanceList;
+    ROM_INSTANCE* Gip = (ROM_INSTANCE*) DevNode->InstanceList;
     filp->f_offset = 0;
-    filp->f_ops = &Gip->Abstraction;
+    filp->f_ops = &(Gip->Abstraction);
 
     return 0;
 }

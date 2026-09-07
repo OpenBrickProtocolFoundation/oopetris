@@ -36,7 +36,7 @@ fi
 
 REAL_O_FILE="$PARENT_DIR/c-embed_compiled.o"
 
-"$C_EMBED_EXE" -r -a elf64-x86-64 -o "$REAL_O_FILE" "$INPUT_FOLDER"
+"$C_EMBED_EXE" -a elf64-x86-64 -o "$REAL_O_FILE" "$INPUT_FOLDER"
 
 # create a "extern_object" json description for the automatic inf creation process to generate the inf for this file, as if it was compiled via the edk2 toolchain, but it wasn't
 cat <<EOF >"$OUTPUT_FILE"

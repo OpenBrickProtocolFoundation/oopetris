@@ -55,6 +55,13 @@
             "guid": "a917a2c0-7ff6-4da8-a2b2-f1f28077c8c0",
             "version": "c-embed"
         },
+        "CEmbedPkg": {
+            "type": "library",
+            "name": "CEmbedLib",
+            "lib": "LibCEmbed",
+            "guid": "d2ccb9c2-4e76-4ebe-82b2-f26203222c2c",
+            "version": "c-embed"
+        },
         "SpdlogPkg": {
             "type": "library",
             "name": "SpdlogLib",
@@ -119,6 +126,10 @@
         "libuefi_rom": {
             "name": "UEFIROMPkg",
             "meson": "uefi_rom"
+        },
+        "libc-embed": {
+            "name": "CEmbedPkg",
+            "meson": "c-embed"
         }
     }
 }
