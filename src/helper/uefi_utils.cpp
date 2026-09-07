@@ -8,15 +8,44 @@
 
 #include "./uefi_utils.hpp"
 
+#include <functional>
 #include <memory>
 #include <string>
 
 #include <sys/threads.h>
+#include <sys/time.h>
 
 extern "C" {
+#include <Guid/FileInfo.h>
 #include <Library/BaseLib.h>
 #include <Library/SynchronizationLib.h>
+#include <Library/UefiBootServicesTableLib.h>
+#include <Protocol/DevicePath.h>
+#include <Protocol/LoadedImage.h>
+#include <Protocol/SimpleFileSystem.h>
+#include <Uefi.h>
 }
+
+struct OnScopeEnd {
+private:
+    std::function<void()> m_destructor;
+
+public:
+    OnScopeEnd(std::function<void()> destructor) : m_destructor{ destructor } {
+        //
+    }
+    OnScopeEnd(const OnScopeEnd& other) = delete;
+    OnScopeEnd& operator=(const OnScopeEnd& other) = delete;
+
+
+    OnScopeEnd(OnScopeEnd&& other) noexcept = delete;
+
+    OnScopeEnd& operator=(OnScopeEnd&& other) noexcept = delete;
+
+    ~OnScopeEnd() {
+        this->m_destructor();
+    }
+};
 
 
 std::shared_ptr<spdlog::sinks::callback_sink_mt> uefi::get_debug_sink() {
@@ -555,22 +584,21 @@ static int EFIAPI _f_romfs_Rmdir(struct __filedes* filp) {
     return -1;
 }
 
-
 #define ROMFS_NAME ((const CHAR16*) L"romfs:")
 
-GenericInstance* _g_stream_instance = NULL;
+ROM_INSTANCE* _g_rom_stream_instance = NULL;
 
 RETURN_STATUS
 EFIAPI
 __ctor_rom_fs(void) {
-    GenericInstance* Stream = (GenericInstance*) AllocateZeroPool(sizeof(GenericInstance));
-    if (Stream == NULL) {
+    ROM_INSTANCE* Stream = (ROM_INSTANCE*) AllocateZeroPool(sizeof(ROM_INSTANCE));
+    if (Stream == nullptr) {
         return RETURN_OUT_OF_RESOURCES;
     }
 
     Stream->Cookie = ROM_COOKIE;
     Stream->InstanceNum = 1; // not used by this
-    Stream->Dev = NULL;
+    Stream->Dev = nullptr;
 
     Stream->Abstraction.fo_close = &_f_romfs_Close;
     Stream->Abstraction.fo_read = &_f_romfs_Read;
@@ -586,47 +614,499 @@ __ctor_rom_fs(void) {
     Stream->Abstraction.fo_rename = &_f_romfs_Rename;
     Stream->Abstraction.fo_lseek = &_f_romfs_Seek;
 
-    DeviceNode* Node = __DevRegister(ROMFS_NAME, NULL, &_f_romfs_Open, Stream, 1, sizeof(GenericInstance), O_RDONLY);
+    DeviceNode* Node = __DevRegister(ROMFS_NAME, nullptr, &_f_romfs_Open, Stream, 1, sizeof(ROM_INSTANCE), O_RDONLY);
     RETURN_STATUS Status = EFIerrno;
     Stream->Parent = Node;
 
-    _g_stream_instance = Stream;
+    _g_rom_stream_instance = Stream;
 
     return Status;
 }
 
 
-[[nodiscard]] static int eerrno_to_errno(int eerrno) {
-    switch (eerrno) {
-        case EERRCODE_SUCCESS:
-            return 0;
-        case EERRCODE_NOFILE:
-            return ENOENT;
-        case EERRCODE_NOMAP:
-            return ENODEV;
-        case EERRCODE_NULLSTREAM:
-            return EINVAL;
-        case EERRCODE_OOBSTREAMPOS:
-            return EINVAL;
-        case EERRCODE_INVALIDMODE:
-            return EINVAL;
-        case EERRCODE_INVALIARGUMENTS:
-            return EINVAL;
-        default:
-            return EINVAL;
-    };
-}
-
-
-RETURN_STATUS
-EFIAPI
-__dtor__rom_fs(void) {
-    if (_g_stream_instance != NULL) {
-        FreePool(_g_stream_instance);
+static RETURN_STATUS EFIAPI __dtor__rom_fs(void) {
+    if (_g_rom_stream_instance != nullptr) {
+        FreePool(_g_rom_stream_instance);
     }
     return RETURN_SUCCESS;
 }
 
+struct RWFileSystemImpl {
+    EFI_LOADED_IMAGE_PROTOCOL* LoadedImage;
+    EFI_SIMPLE_FILE_SYSTEM_PROTOCOL* SimpleFs;
+    EFI_FILE_PROTOCOL* Root;
+
+    ~RWFileSystemImpl() {
+        this->LoadedImage = nullptr;
+        this->SimpleFs = nullptr;
+        this->Root = nullptr;
+    }
+};
+
+#define RW_INSTANCE RWFSInstance
+
+typedef struct {
+    GenericInstance parent;
+    EFI_FILE_PROTOCOL* Root;
+} RWFSInstance;
+
+VALIDATE_INSTANCE(RW_INSTANCE)
+
+struct RWFileSystemImplGlobal {
+    std::optional<RWFileSystemImpl> impl;
+    RW_INSTANCE* stream_instance;
+
+    void reset() {
+        this->~RWFileSystemImplGlobal();
+        *this = { std::nullopt, nullptr };
+    }
+
+    ~RWFileSystemImplGlobal() {
+        if (this->impl.has_value()) {
+            this->impl.value().~RWFileSystemImpl();
+            this->impl = std::nullopt;
+        }
+        if (this->stream_instance != nullptr) {
+            FreePool(this->stream_instance);
+            this->stream_instance = nullptr;
+        }
+    }
+};
+
+
+#define RWFS_DEV_DATA_ASSIGN(data) ((void*) data)
+#define RWFS_DEV_DATA_TYPE EFI_FILE_PROTOCOL
+#define RWFS_DEV_DATA_GET(data) ((RWFS_DEV_DATA_TYPE*) data)
+
+/** EFI specific operations for close().
+
+    @param[in]    filp    Pointer to a file descriptor structure.
+
+    @retval      0      Successful completion.
+    @retval     -1      Operation failed.  Further information is specified by errno.
+**/
+static int EFIAPI _f_rwfs_Close(IN struct __filedes* filp) {
+    ASSERT_TYPE(filp->devdata, void*);
+    RWFS_DEV_DATA_TYPE* file = RWFS_DEV_DATA_GET(filp->devdata);
+
+    file->Close(file);
+    return 0;
+}
+
+/** EFI specific operations for deleting a file or directory.
+
+    @param[in]    filp    Pointer to a file descriptor structure.
+
+    @retval      0      Successful completion.
+    @retval     -1      Operation failed.  Further information is specified by errno.
+**/
+static int EFIAPI _f_rwfs_Delete(struct __filedes* filp) {
+    //TODO
+    errno = ENOTSUP;
+    return -1;
+}
+
+/** EFI specific operations for setting the position within a file.
+
+    @param[in]    filp    Pointer to a file descriptor structure.
+    @param[in]    offset  Relative position to move to.
+    @param[in]    whence  Specifies the location offset is relative to: Beginning, Current, End.
+
+    @return     Returns the new file position or EOF if the seek failed.
+**/
+static off_t EFIAPI _f_rwfs_Seek(struct __filedes* filp, off_t offset, int whence) {
+    ASSERT_TYPE(filp->devdata, void*);
+    RWFS_DEV_DATA_TYPE* file = RWFS_DEV_DATA_GET(filp->devdata);
+
+
+    //TODO
+    (void) file;
+    return -1;
+}
+
+/** The directory path is created with the access permissions specified by
+    perms.
+
+    The directory is closed after it is created.
+
+    @param[in]    path      The directory to be created.
+    @param[in]    perms     Access permissions for the new directory.
+
+    @retval   0   The directory was created successfully.
+    @retval  -1   An error occurred and an error code is stored in errno.
+**/
+static int EFIAPI _f_rwfs_Mkdir(const char* path, __mode_t perms) {
+    errno = ENOTSUP;
+    return -1;
+}
+
+/** EFI specific operations for reading from a file.
+
+    @param[in]    filp        Pointer to a file descriptor structure.
+    @param[in]    offset      Offset into the file to begin reading at, or NULL.
+    @param[in]    BufferSize  Number of bytes in Buffer.  Max number of bytes to read.
+    @param[in]    Buffer      Pointer to a buffer to receive the read data.
+
+    @return     Returns the number of bytes successfully read,
+                or -1 if the operation failed.  Further information is specified by errno.
+**/
+static ssize_t EFIAPI
+_f_rwfs_Read(IN OUT struct __filedes* filp, IN OUT off_t* offset, IN size_t BufferSize, OUT VOID* Buffer) {
+    ASSERT_TYPE(filp->devdata, void*);
+    RWFS_DEV_DATA_TYPE* file = RWFS_DEV_DATA_GET(filp->devdata);
+
+    //TODO: support directory, how is read used there?
+
+    //TODO
+    (void) file;
+    return -1;
+}
+
+/** EFI specific operations for writing to a file.
+
+    @param[in]    filp        Pointer to a file descriptor structure.
+    @param[in]    offset      Offset into the file to begin writing at, or NULL.
+    @param[in]    BufferSize  Number of bytes in Buffer.  Max number of bytes to write.
+    @param[in]    Buffer      Pointer to a buffer containing the data to be written.
+
+    @return     Returns the number of bytes successfully written,
+                or -1 if the operation failed.  Further information is specified by errno.
+**/
+static ssize_t EFIAPI
+_f_rwfs_Write(IN struct __filedes* filp, IN off_t* offset, IN size_t BufferSize, IN const void* Buffer) {
+    //TODO
+    errno = ENOTSUP;
+    return -1;
+}
+
+
+static int EFIAPI _f_rwfs_Fcntl(struct __filedes* filp, UINT32 Cmd, void* p3, void* p4) {
+    //TODO: maybe used in readdir or opendir
+    errno = ENOTSUP;
+    return -1;
+}
+
+/** EFI specific operations for getting information about an open file.
+
+    @param[in]    filp        Pointer to a file descriptor structure.
+    @param[out]   statbuf     Buffer in which to store the file status.
+    @param[in]    Something   This parameter is not used by this device.
+
+    @retval      0      Successful completion.
+    @retval     -1      Operation failed.  Further information is specified by errno.
+**/
+static int EFIAPI _f_rwfs_Stat(struct __filedes* filp, struct stat* statbuf, void* Something) {
+    ASSERT_TYPE(filp->devdata, void*);
+    RWFS_DEV_DATA_TYPE* file = RWFS_DEV_DATA_GET(filp->devdata);
+
+
+    EFI_FILE_INFO* FileInfo = NULL;
+    UINTN FileInfoSize = 0;
+
+    EFI_STATUS Status = file->GetInfo(file, &gEfiFileInfoGuid, &FileInfoSize, FileInfo);
+
+    if (Status == EFI_BUFFER_TOO_SMALL) {
+        FileInfo = (EFI_FILE_INFO*) AllocatePool(FileInfoSize);
+        if (FileInfo == NULL) {
+            errno = ENOMEM;
+            return -1;
+        }
+    }
+    OnScopeEnd end{ [&FileInfo]() -> void { FreePool(FileInfo); } };
+
+
+    Status = file->GetInfo(file, &gEfiFileInfoGuid, &FileInfoSize, FileInfo);
+
+    if (EFI_ERROR(Status)) {
+        errno = EINVAL;
+        return -1;
+    }
+
+
+    // Got the info, now populate statbuf with it
+
+
+    statbuf->st_size = FileInfo->FileSize;
+    statbuf->st_physsize = FileInfo->PhysicalSize;
+    statbuf->st_curpos = 0;
+
+    statbuf->st_birthtime = Efi2Time(&(FileInfo->CreateTime));
+    statbuf->st_atime = Efi2Time(&(FileInfo->LastAccessTime));
+    statbuf->st_mtime = Efi2Time(&(FileInfo->ModificationTime));
+
+    statbuf->st_mode = 0;
+    statbuf->st_blksize = S_BLKSIZE;
+
+    if ((FileInfo->Attribute & EFI_FILE_READ_ONLY) != 0) {
+        statbuf->st_mode |= S_IREADONLY;
+    }
+
+    if ((FileInfo->Attribute & EFI_FILE_HIDDEN) != 0) {
+        statbuf->st_mode |= S_IHIDDEN;
+    }
+
+    if ((FileInfo->Attribute & EFI_FILE_SYSTEM) != 0) {
+        statbuf->st_mode |= S_ISYSTEM;
+    }
+
+    if ((FileInfo->Attribute & EFI_FILE_RESERVED) != 0) {
+        //noop
+    }
+
+    if ((FileInfo->Attribute & EFI_FILE_DIRECTORY) != 0) {
+        statbuf->st_mode |= S_IFDIR | S_IDIRECTORY;
+    } else {
+        statbuf->st_mode |= S_IFREG;
+    }
+
+    if ((FileInfo->Attribute & EFI_FILE_ARCHIVE) != 0) {
+        statbuf->st_mode |= S_IARCHIVE;
+    }
+
+
+    return 0;
+}
+
+/** EFI specific operations for low-level control of a file or device.
+
+    @param[in]      filp    Pointer to a file descriptor structure.
+    @param[in]      cmd     The command this ioctl is to perform.
+    @param[in,out]  argp    Zero or more arguments as needed by the command.
+
+    @retval      0      Successful completion.
+    @retval     -1      Operation failed.  Further information is specified by errno.
+**/
+static int EFIAPI _f_rwfs_Ioctl(struct __filedes* filp, ULONGN cmd, va_list argp) {
+    errno = ENOTSUP;
+    return -1;
+}
+
+
+/** EFI specific operations for opening a file.
+
+    @param[in]    DevNode       Pointer to the Device control structure for this stream.
+    @param[in]    filp          Pointer to the new file control structure for this stream.
+    @param[in]    DevInstance   Not used by this device.
+    @param[in]    Path          File-system path to the file or directory.
+    @param[in]    MPath         Not used by this device.
+
+    @retval   0   This console stream has been successfully opened.
+    @retval   -1  The DevNode or filp pointer is NULL.
+    @retval   -1  DevNode does not point to a valid console stream device.
+**/
+int EFIAPI _f_rwfs_Open(
+        DeviceNode* DevNode,
+        struct __filedes* filp,
+        int DevInstance, /* Not used by romfs */
+        wchar_t* Path,
+        wchar_t* MPath
+) {
+    if ((filp == NULL) || (DevNode == NULL)) {
+        errno = EINVAL;
+        return -1;
+    }
+
+    RW_INSTANCE* Gip = (RW_INSTANCE*) DevNode->InstanceList;
+
+    //TODO
+    /*  RWFS_DEV_DATA_TYPE* file = Gip->Root->Open(Gip->Root, TODO, Path, filp->Oflags);
+    if (file == NULL) {
+        filp->f_iflags = 0; // Release our reservation on this FD
+        // Set errno based upon Status
+        errno = eerrno_to_errno(eerrno);
+        return -1;
+    }
+
+    int type = estreamtype(file);
+    if (type == EMAP_ENTRY_TYPE_FILE) {
+        filp->f_iflags |= S_IFREG;
+    } else if (type == EMAP_ENTRY_TYPE_DIR) {
+        filp->f_iflags |= S_IFDIR | S_IDIRECTORY;
+    } else {
+        errno = EINVAL;
+        return -1;
+    }
+
+    filp->f_iflags |= S_IROFS | S_IREADONLY;
+
+    // Update the info in the fd
+    ASSERT_TYPE(file, RWFS_DEV_DATA_TYPE*);
+    filp->devdata = RWFS_DEV_DATA_ASSIGN(file);
+ */
+
+    filp->f_offset = 0;
+    filp->f_ops = &(Gip->parent.Abstraction);
+
+    return 0;
+}
+
+/** Returns a bit mask describing which operations could be completed immediately.
+
+    For now, assume the file system, via the shell, is always ready.
+
+    (POLLIN | POLLRDNORM)   The file system is ready to be read.
+    (POLLOUT)               The file system is ready for output.
+
+    @param[in]    filp    Pointer to a file descriptor structure.
+    @param[in]    events  Bit mask describing which operations to check.
+
+    @return     The returned value is a bit mask describing which operations
+                could be completed immediately, without blocking.
+**/
+static short EFIAPI _f_rwfs_Poll(struct __filedes* filp, short events) {
+    errno = ENOTSUP;
+    return -1;
+}
+
+static int EFIAPI _f_rwfs_Flush(struct __filedes* filp) {
+    errno = ENOTSUP;
+    return -1;
+}
+
+
+/** EFI specific operations for renaming a file.
+
+    @param[in]    from    Name of the file to be renamed.
+    @param[in]    to      New name for the file.
+
+    @retval      0      Successful completion.
+    @retval     -1      Operation failed.  Further information is specified by errno.
+**/
+static int EFIAPI _f_rwfs_Rename(const char* from, const char* to) {
+    errno = ENOTSUP;
+    return -1;
+}
+
+/** EFI specific operations for deleting directories.
+
+    @param[in]    filp    Pointer to a file descriptor structure.
+
+    @retval      0      Successful completion.
+    @retval     -1      Operation failed.  Further information is specified by errno.
+**/
+static int EFIAPI _f_rwfs_Rmdir(struct __filedes* filp) {
+    errno = ENOTSUP;
+    return -1;
+}
+
+
+#define RWFS_NAME ((const CHAR16*) L"root:")
+
+
+static RWFileSystemImplGlobal g_rw_file_system = { std::nullopt, nullptr };
+
+
+static RETURN_STATUS EFIAPI __ctor_rw_fs(EFI_FILE_PROTOCOL* Root) {
+    RW_INSTANCE* Stream = (RW_INSTANCE*) AllocateZeroPool(sizeof(RW_INSTANCE));
+    if (Stream == nullptr) {
+        return RETURN_OUT_OF_RESOURCES;
+    }
+
+    GenericInstance* GI = &(Stream->parent);
+
+    GI->Cookie = RW_COOKIE;
+    GI->InstanceNum = 1; // not used by this
+    GI->Dev = nullptr;
+
+    GI->Abstraction.fo_close = &_f_rwfs_Close;
+    GI->Abstraction.fo_read = &_f_rwfs_Read;
+    GI->Abstraction.fo_write = &_f_rwfs_Write;
+    GI->Abstraction.fo_fcntl = &_f_rwfs_Fcntl;
+    GI->Abstraction.fo_poll = &_f_rwfs_Poll;
+    GI->Abstraction.fo_flush = &_f_rwfs_Flush;
+    GI->Abstraction.fo_stat = &_f_rwfs_Stat;
+    GI->Abstraction.fo_ioctl = &_f_rwfs_Ioctl;
+    GI->Abstraction.fo_delete = &_f_rwfs_Delete;
+    GI->Abstraction.fo_rmdir = &_f_rwfs_Rmdir;
+    GI->Abstraction.fo_mkdir = &_f_rwfs_Mkdir;
+    GI->Abstraction.fo_rename = &_f_rwfs_Rename;
+    GI->Abstraction.fo_lseek = &_f_rwfs_Seek;
+
+    DeviceNode* Node = __DevRegister(RWFS_NAME, nullptr, &_f_rwfs_Open, Stream, 1, sizeof(RW_INSTANCE), O_RDWR);
+    RETURN_STATUS Status = EFIerrno;
+    GI->Parent = Node;
+
+    Stream->Root = Root;
+
+    g_rw_file_system.stream_instance = Stream;
+
+    return Status;
+}
+
+
+static std::expected<RWFileSystemImpl, EFI_STATUS> get_rw_fs_impl() {
+
+    EFI_LOADED_IMAGE_PROTOCOL* LoadedImage;
+
+    EFI_STATUS Status = gBS->HandleProtocol(gImageHandle, &gEfiLoadedImageProtocolGuid, (VOID**) &LoadedImage);
+
+    if (EFI_ERROR(Status)) {
+        return std::unexpected<EFI_STATUS>{ Status };
+    }
+
+    EFI_SIMPLE_FILE_SYSTEM_PROTOCOL* SimpleFs;
+
+    Status = gBS->HandleProtocol(LoadedImage->DeviceHandle, &gEfiSimpleFileSystemProtocolGuid, (VOID**) &SimpleFs);
+
+    if (EFI_ERROR(Status)) {
+        return std::unexpected<EFI_STATUS>{ Status };
+    }
+
+    EFI_FILE_PROTOCOL* Root;
+    Status = SimpleFs->OpenVolume(SimpleFs, &Root);
+
+    if (EFI_ERROR(Status)) {
+        return std::unexpected<EFI_STATUS>{ Status };
+    }
+
+    return RWFileSystemImpl{ LoadedImage, SimpleFs, Root };
+}
+
+#define RW_AUTOMOUNT_FOLDER "rw_auto_mount"
+
+static RETURN_STATUS EFIAPI __copy_rom_automount_files(void) {
+    //TODO
+
+    //TODO: we need folder support in c-embed for this to work!
+    return RETURN_UNSUPPORTED;
+}
+
+static RETURN_STATUS EFIAPI __ctor_optional_rw_fs(void) {
+
+    // find rw file system
+    auto impl = get_rw_fs_impl();
+
+    if (impl.has_value()) {
+        auto impl_value = impl.value();
+        g_rw_file_system = { impl_value, nullptr };
+
+        // if we have one, mount it for libc
+        auto status = __ctor_rw_fs(impl_value.Root);
+        if (EFI_ERROR(status)) {
+            g_rw_file_system.reset();
+            return status;
+        }
+
+        // copy from auto mount to rw file system. if it not already exists
+        status = __copy_rom_automount_files();
+        if (EFI_ERROR(status)) {
+            g_rw_file_system.reset();
+            return status;
+        }
+
+        return RETURN_SUCCESS;
+    }
+
+    g_rw_file_system.reset();
+
+    return RETURN_SUCCESS;
+}
+
+
+static RETURN_STATUS EFIAPI __dtor__rw_fs(void) {
+    g_rw_file_system.~RWFileSystemImplGlobal();
+    return RETURN_SUCCESS;
+}
 
 void uefi::platform_init() {
     auto status = __ctor_rom_fs();
@@ -635,6 +1115,21 @@ void uefi::platform_init() {
                 std::runtime_error{ fmt::format("can't initialize ROM fs: {}", map_efi_status_to_string(status)) }
         );
     }
+
+    status = __ctor_optional_rw_fs();
+    if (EFI_ERROR(status)) {
+        utils::throw_(
+                std::runtime_error{ fmt::format("can't initialize RW fs: {}", map_efi_status_to_string(status)) }
+        );
+    }
+
+    //TODO: uefi related stuff
+    // have dedicated uefi settings
+    // set GOP mode, auto or 0-<max num>
+    // set keyboard layout in sdl
+    // find fat system where the file is, and than use it to store settings, uefi_settings and recordings
+    // log things when we have a file system
+    // make uefi settings page with info (built for hardware, emulator) cpuid and the settings from above!
 }
 
 void uefi::platform_exit() {
@@ -644,4 +1139,21 @@ void uefi::platform_exit() {
                 std::runtime_error{ fmt::format("can't deinitialize ROM fs: {}", map_efi_status_to_string(status)) }
         );
     }
+
+    status = __dtor__rw_fs();
+    if (EFI_ERROR(status)) {
+        utils::throw_(
+                std::runtime_error{ fmt::format("can't deinitialize RW fs: {}", map_efi_status_to_string(status)) }
+        );
+    }
+}
+
+
+OOPETRIS_GRAPHICS_EXPORTED std::optional<uefi::RWFileSystem> uefi::get_rw_file_system_info() {
+
+    if (true) {
+        return std::nullopt;
+    }
+
+    return std::nullopt;
 }

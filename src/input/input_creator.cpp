@@ -102,8 +102,7 @@ input::get_game_parameters_for_replay(
 [[nodiscard]] helper::expected<input::AdditionalInfo, std::string> input::get_single_player_game_parameters(
         ServiceProvider* const service_provider,
         recorder::AdditionalInformation&& information,
-        const date::ISO8601Date& date,
-        bool recordings_enabled
+        const date::ISO8601Date& date
 ) {
 
     auto input = service_provider->input_manager().get_game_input(service_provider);
@@ -123,10 +122,8 @@ input::get_game_parameters_for_replay(
 
     const auto recording_directory_path = utils::get_root_folder() / constants::recordings_directory;
 
-    std::optional<std::string> dir_result = "Recordings not enabled";
-    if (recordings_enabled) {
-        dir_result = utils::create_directory(recording_directory_path, true);
-    }
+    std::optional<std::string> dir_result = utils::create_directory(recording_directory_path, true);
+
     if (not dir_result.has_value()) {
 
         const auto date_time_str = date.to_string();

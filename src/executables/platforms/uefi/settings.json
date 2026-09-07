@@ -1,0 +1,25 @@
+{
+	"$schema": "https://raw.githubusercontent.com/OpenBrickProtocolFoundation/oopetris/refs/heads/main/assets/schema/oopetris.config.schema.json",
+	"controls": {
+		"selected": null,
+		"inputs": [
+			{
+				"type": "keyboard",
+				"drop": "W",
+				"hold": "E",
+				"move_down": "S",
+				"move_left": "A",
+				"move_right": "D",
+				"rotate_left": "Left",
+				"rotate_right": "Right",
+				"menu": {
+					"pause": "Space",
+					"open_settings": "P"
+				}
+			}
+		]
+	},
+	"volume": 0.0,
+	"discord": false,
+	"api_url": "https://oopetris.totto.lt/api/"
+}

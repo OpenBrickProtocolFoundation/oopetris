@@ -29,4 +29,11 @@ namespace uefi {
 
     OOPETRIS_GRAPHICS_EXPORTED void platform_exit();
 
+    struct RWFileSystem {
+        static constexpr const char* const prefix = "root:";
+        //TODO: do we need more info
+    };
+
+    OOPETRIS_GRAPHICS_EXPORTED std::optional<RWFileSystem> get_rw_file_system_info();
+
 }; // namespace uefi

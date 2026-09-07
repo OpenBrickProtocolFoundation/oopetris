@@ -7,6 +7,10 @@
 #include <emscripten.h>
 #endif
 
+#if defined(__UEFI__)
+#include "uefi_utils.hpp"
+#endif
+
 SDL_Color utils::sdl_color_from_color(const Color& color) {
     return SDL_Color{ color.r, color.g, color.b, color.a };
 }
@@ -43,9 +47,7 @@ std::vector<std::string> utils::supported_features() {
 #elif defined(__EMSCRIPTEN__)
     return std::filesystem::path{ "/" };
 #elif defined(__UEFI__)
-    //TODO: can i have writable file systems in uefi?
-    //NOTE: UEFI has no writable filesystems, so just use "." and than open calls fail
-    return std::filesystem::path{ "." };
+    return std::filesystem::path{ "root:/oopetris" };
 #elif defined(__CONSOLE__)
     // this is in the sdcard of the switch / 3ds , since internal storage is read-only for applications!
     return std::filesystem::path{ "." };
@@ -169,6 +171,12 @@ std::optional<std::string> utils::create_directory(const std::filesystem::path& 
     if (std::filesystem::exists(folder)) {
         return std::nullopt;
     }
+
+#if defined(__UEFI__)
+    if (not uefi::get_rw_file_system_info().has_value()) {
+        return "RW Filesystem not mounted";
+    }
+#endif
 
 #if !defined(__OOPETRIS_NO_EXCEPTIONS)
     try {

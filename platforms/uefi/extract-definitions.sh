@@ -439,14 +439,16 @@ $(expand_array_inf "${CPP_LIBRARIES[@]}")
 $(expand_array_inf "${DEP_CLASSES[@]}")
 
 [Guids]
+  gEfiFileInfoGuid                             ## CONSUMES
 
 [Ppis]
 
 [Protocols]
-  gEfiHiiPackageListProtocolGuid                 ## CONSUMES
+  gEfiHiiPackageListProtocolGuid               ## CONSUMES
   gEfiHttpProtocolGuid                         ## CONSUMES
   gEfiHttpServiceBindingProtocolGuid           ## CONSUMES
-  gEfiManagedNetworkServiceBindingProtocolGuid   ## CONSUMES
+  gEfiManagedNetworkServiceBindingProtocolGuid ## CONSUMES
+  gEfiLoadedImageProtocolGuid                  ## CONSUMES
 
 [FeaturePcd]
 

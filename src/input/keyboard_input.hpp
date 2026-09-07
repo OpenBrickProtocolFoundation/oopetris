@@ -52,12 +52,7 @@ namespace input {
                                      .move_right = sdl::Key{ SDLK_d },
                                      .move_down = sdl::Key{ SDLK_s },
                                      .drop = sdl::Key{ SDLK_w },
-#if defined(__UEFI__)
-                                     //TODO: the sdl2 port for uefi doesn't recognize tab correctly atm, use q instead
-                                     .hold = sdl::Key{ SDLK_q },
-#else
                                      .hold = sdl::Key{ SDLK_TAB },
-#endif
                                      .pause = sdl::Key{ SDLK_SPACE },
                                      .open_settings = sdl::Key{ SDLK_e } };
         }

@@ -48,8 +48,7 @@ namespace input {
     get_single_player_game_parameters(
             ServiceProvider* service_provider,
             recorder::AdditionalInformation&& information,
-            const date::ISO8601Date& date,
-            bool recordings_enabled
+            const date::ISO8601Date& date
     );
 
 } // namespace input

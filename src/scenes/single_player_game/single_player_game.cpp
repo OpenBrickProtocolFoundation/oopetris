@@ -33,7 +33,7 @@ namespace scenes {
 
 
         auto result = input::get_single_player_game_parameters(
-                service_provider, std::move(additional_information), date, constants::recordings_enabled
+                service_provider, std::move(additional_information), date
         );
 
         if (not result.has_value()) {

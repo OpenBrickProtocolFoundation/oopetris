@@ -352,6 +352,12 @@ if [ ! -d "$ROMFS" ]; then
     # no need for music
     rm -rf "$ROMFS/assets/music/"
 
+    # copy uefi settings to move to the rw file system at start
+
+    mkdir -p "$ROMFS/rw_auto_mount/"
+
+    cp "./src/executables/platforms/uefi/settings.json" "$ROMFS/rw_auto_mount/settings.json"
+
 fi
 
 export EDK2_INFO_FILE="./platforms/crossbuild/uefi_info.json"
