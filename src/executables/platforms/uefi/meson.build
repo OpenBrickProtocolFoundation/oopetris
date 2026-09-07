@@ -166,10 +166,10 @@ if RUNTIME_TARGET == 'hardware'
 
     img_file = custom_target(
         'img_file',
-        command: [_uefi_create_img_file_exe, '@INPUT@', '@OUTPUT@'],
+        command: [_uefi_create_img_file_exe, '@INPUT@', '@OUTPUT0@' ,'@OUTPUT1@'],
         depends: [fat_folder, _dd_exe, _fdisk_exe, _mkfs_fat_exe, _mcopy_exe, _mdir_exe],
         input: [fat_folder_loc],
-        output: ['oopetris_bootable.img'],
+        output: ['oopetris_bootable_disk.img','oopetris_bootable_part.img'],
         build_by_default: false,
     )
 

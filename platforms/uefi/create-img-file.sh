@@ -12,34 +12,38 @@ SCRIPT_DIR="$(realpath "$(dirname -- "${BASH_SOURCE[0]}")")"
 # shellcheck source=./platforms/helper.sh
 source "$SCRIPT_DIR/../helper.sh"
 
-if [ "$#" -eq 2 ]; then
+if [ "$#" -eq 3 ]; then
     FAT_FOLDER_LOC="$(realpath "$1")"
-    IMG_FILE="$(realpath "$2")"
+    IMG_DISK_FILE="$(realpath "$2")"
+    IMG_PART_FILE="$(realpath "$3")"
 else
-    echo "Too many arguments given, expected 2" >&2
+    echo "Too many arguments given, expected 3" >&2
     exit 1
 fi
 
-set -x
-
 SIZE_MB=100
+SECTOR_SIZE="512"
 
-validate_parent_dir "$IMG_FILE"
+validate_parent_dir "$IMG_DISK_FILE"
+validate_parent_dir "$IMG_PART_FILE"
 
-rm -f "$IMG_FILE"
+rm -f "$IMG_DISK_FILE"
+rm -f "$IMG_PART_FILE"
+
+## 512b sectors
+TOTAL_SECTORS_COUNT="$((SIZE_MB * 1024 * 1024 / SECTOR_SIZE))"
 
 # Create empty image
-dd "if=/dev/zero" "of=$IMG_FILE" "bs=1M" "count=$SIZE_MB" "status=progress"
+dd "if=/dev/zero" "of=$IMG_DISK_FILE" "bs=$SECTOR_SIZE" "count=$TOTAL_SECTORS_COUNT" "status=progress"
 
-# 2048 sectors = 1 MiB offset
-START_SECTOR_AMOUNT="2048"
-SECTOR_SIZE="512"
+# 1 MiB offset
+START_SECTOR_AMOUNT="$((1024 * 1024 / SECTOR_SIZE))"
 PART_START="$((START_SECTOR_AMOUNT * 1))"
 PART_END="$(((SIZE_MB * START_SECTOR_AMOUNT) - 1))"
 
 # Create MBR partition table and one ESP (EF) partition, with the boot flag enabled
 # Partition starts at 1 MiB for proper alignment.
-fdisk "$IMG_FILE" <<EOF
+fdisk "$IMG_DISK_FILE" <<EOF
 o
 n
 p
@@ -47,18 +51,29 @@ p
 $PART_START
 $PART_END
 t
-0c
+uefi
 a
 w
 EOF
 
+## 512b sectors
+FAT_IMG_SECTORS_COUNT="$((PART_END - PART_START + 1))"
+
+## create temporary image, where we create raw fat32 partition
+dd "if=/dev/zero" "of=$IMG_PART_FILE" "bs=$SECTOR_SIZE" "count=$FAT_IMG_SECTORS_COUNT" "status=progress"
+
 # make fat32 partition
-mkfs.fat -a -S "$SECTOR_SIZE" -F 32 --offset="$PART_START" "$IMG_FILE"
+mkfs.fat -F 32 -n "OOPetrisEfi" "$IMG_PART_FILE"
 
-PART_START_BYTES="$((START_SECTOR_AMOUNT * SECTOR_SIZE))"
+while IFS= read -r -d '' FILE; do
+    mcopy -i "$IMG_PART_FILE" -s "$FILE" "::/"
+done < <(find "$FAT_FOLDER_LOC" -mindepth 1 -maxdepth 1 -print0)
 
-mcopy -i "${IMG_FILE}@@$PART_START_BYTES" -s "$FAT_FOLDER_LOC/" "::/"
+mdir -i "$IMG_PART_FILE" "::"
 
-mdir -i "${IMG_FILE}@@$PART_START_BYTES" "::"
+## copy the raw fat32 partition over to the whole img file
+dd "if=$IMG_PART_FILE" "of=$IMG_DISK_FILE" "bs=$SECTOR_SIZE" "count=$FAT_IMG_SECTORS_COUNT" "seek=$PART_START" "conv=notrunc" "status=progress"
 
-fdisk -l "$IMG_FILE"
+fsck.fat -vn "$IMG_PART_FILE"
+
+fdisk -l "$IMG_DISK_FILE"
