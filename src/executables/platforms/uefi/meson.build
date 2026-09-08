@@ -232,6 +232,7 @@ elif RUNTIME_TARGET == 'emulator'
                 # this machine supports the tcd timer frequency ACPI getter call
                 '-machine',
                 'q35',
+                '-enable-kvm',
                 # see https://www.qemu.org/docs/master/system/qemu-cpu-models.html#id1
                 # this cpu has x86-64 v1 (baseline) support
                 '-cpu',
