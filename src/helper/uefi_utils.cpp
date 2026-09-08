@@ -24,6 +24,8 @@ extern "C" {
 #include <Protocol/LoadedImage.h>
 #include <Protocol/SimpleFileSystem.h>
 #include <Uefi.h>
+
+#include <sys/dirent.h>
 }
 
 struct OnScopeEnd {
@@ -250,12 +252,6 @@ static off_t EFIAPI _f_romfs_Seek(struct __filedes* filp, off_t offset, int when
     ASSERT_TYPE(filp->devdata, void*);
     ROMFS_DEV_DATA_TYPE* file = ROMFS_DEV_DATA_GET(filp->devdata);
 
-
-    if (estreamtype(file) != EMAP_ENTRY_TYPE_FILE) {
-        errno = EISDIR;
-        return EOF;
-    }
-
     //NOTE: eseek works differently than the expected seek, so map the behavior
 
     int result = eseek(file, offset, whence);
@@ -289,6 +285,17 @@ static int EFIAPI _f_romfs_Mkdir(const char* path, __mode_t perms) {
     return -1;
 }
 
+static EFI_TIME Time2EfiStruct(IN time_t CalTime) {
+    struct tm* IT;
+    IT = gmtime(&CalTime);
+    EFI_TIME ET;
+    if (IT != NULL) {
+        Tm2Efi(IT, &ET);
+    }
+    return ET;
+}
+
+
 /** EFI specific operations for reading from a file.
 
     @param[in]    filp        Pointer to a file descriptor structure.
@@ -304,7 +311,6 @@ _f_romfs_Read(IN OUT struct __filedes* filp, IN OUT off_t* offset, IN size_t Buf
     ASSERT_TYPE(filp->devdata, void*);
     ROMFS_DEV_DATA_TYPE* file = ROMFS_DEV_DATA_GET(filp->devdata);
 
-    //TODO: support directory, how is read used there?
 
     if (offset != NULL) {
 
@@ -320,15 +326,89 @@ _f_romfs_Read(IN OUT struct __filedes* filp, IN OUT off_t* offset, IN size_t Buf
     }
 
 
-    size_t result = eread(Buffer, 1, BufferSize, file);
+    size_t result;
 
-    if (eerrno != EERRCODE_SUCCESS) {
-        errno = eerrno_to_errno(eerrno);
+    int type = estreamtype(file);
+    if (type == EMAP_ENTRY_TYPE_FILE) {
+        result = eread(Buffer, 1, BufferSize, file);
+
+        if (eerrno != EERRCODE_SUCCESS) {
+            errno = eerrno_to_errno(eerrno);
+            return -1;
+        }
+    } else if (type == EMAP_ENTRY_TYPE_DIR) {
+        result = 0;
+
+        edirent ent;
+        while (true) {
+            const size_t dir_offset = etell(file);
+            int res = ereaddir(file, &ent);
+
+            if (res == EREADDIR_FINISHED) {
+                break;
+            }
+
+            if (res != EERRCODE_SUCCESS) {
+                errno = eerrno_to_errno(res);
+                return -1;
+            }
+
+            UINT64 Attribute = DT_READ_ONLY;
+
+            if (ent.type == EMAP_ENTRY_TYPE_DIR) {
+                Attribute |= DT_DIRECTORY;
+            }
+
+            const size_t dirent_struct_size = offsetof(struct dirent, FileName);
+            const size_t name_len = strlen(ent.name);
+            const UINT64 Size = dirent_struct_size + 1 + name_len;
+
+            if (Size + result > BufferSize) {
+                // we can't place this in the Buffer anymore
+                int seek_res = eseek(file, dir_offset, SEEK_SET);
+                if (seek_res < 0) {
+                    errno = eerrno_to_errno(eerrno);
+                    return -1;
+                }
+
+                // edge case, if we have result == 0, we have not placed a single one in the buffer, the callee may think 0 is returned and we are done, but we just have not enough space
+                if (result == 0) {
+                    errno = ENOMEM;
+                    return -1;
+                }
+
+                // it is fine. return the existing things
+                break;
+            }
+
+            struct dirent dir_result = {
+                .Size = Size,
+                .FileSize = ent.size,
+                .PhysicalSize = ent.size,
+                .CreateTime = Time2EfiStruct(0),
+                .LastAccessTime = Time2EfiStruct(0),
+                .ModificationTime = Time2EfiStruct(0),
+                .Attribute = Attribute,
+                .FileName = { '\0' },
+            };
+
+            // copy the struct and the filename into the buffer
+            char* location = ((char*) Buffer) + result;
+
+            memcpy(location, &dir_result, dirent_struct_size);
+            memcpy(location + dirent_struct_size, ent.name, name_len);
+            location[dirent_struct_size + name_len] = '\0';
+
+            result += Size;
+        }
+    } else {
+        errno = EINVAL;
         return -1;
     }
 
-    if (offset != NULL) {
-        *offset = *offset + result;
+
+    if (offset != nullptr) {
+        *offset = *offset + static_cast<off_t>(result);
     }
 
     return result;
@@ -372,8 +452,10 @@ static int EFIAPI _f_romfs_Stat(struct __filedes* filp, struct stat* statbuf, vo
     // Got the info, now populate statbuf with it
 
     // NOTE: we return the same size in the case of a directory, but it isn't the directories detailed size, but an implementation defined size
-    statbuf->st_size = esize(file);
-    statbuf->st_physsize = 0;
+    const off_t size = (off_t) esize(file);
+
+    statbuf->st_size = size;
+    statbuf->st_physsize = size;
     statbuf->st_curpos = 0;
 
     statbuf->st_birthtime = 0;
@@ -492,7 +574,19 @@ int EFIAPI _f_romfs_Open(
         wchar_t* Path,
         wchar_t* MPath
 ) {
-    if (filp->Oflags != O_RDONLY) {
+
+    const int oflags_acc = filp->Oflags & O_ACCMODE;
+
+    if (oflags_acc != O_RDONLY) {
+        errno = EINVAL;
+        return -1;
+    }
+
+    const int other_oflags = filp->Oflags & (~(O_ACCMODE));
+
+    if (other_oflags == O_NONBLOCK) {
+        // ok
+    } else {
         errno = EINVAL;
         return -1;
     }
