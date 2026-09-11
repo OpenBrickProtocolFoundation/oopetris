@@ -24,6 +24,11 @@
 #include "helper/console_helpers.hpp"
 #endif
 
+#if defined(__UEFI__)
+#include "helper/uefi_utils.hpp"
+#endif
+
+
 #if defined(__EMSCRIPTEN__)
 #include "helper/web_utils.hpp"
 #endif
@@ -52,6 +57,10 @@ namespace {
         sinks.push_back(std::make_shared<spdlog::sinks::android_sink_mt>(constants::program_name.c_str()));
 #elif defined(__CONSOLE__)
         sinks.push_back(std::make_shared<console::debug_sink_mt>());
+#elif defined(__UEFI__)
+        sinks.push_back(uefi::get_debug_sink());
+        // is outputted to serial, handled by edk2-libc
+        sinks.push_back(std::make_shared<spdlog::sinks::stderr_color_sink_mt>(spdlog::color_mode::never));
 #elif defined(__EMSCRIPTEN__)
         sinks.push_back(web::get_console_sink());
 #else
@@ -59,7 +68,7 @@ namespace {
 #endif
 
 
-#if !(defined(__EMSCRIPTEN__))
+#if !(defined(__EMSCRIPTEN__) || defined(__UEFI__))
 
         const auto logs_path = utils::get_root_folder() / "logs";
 
@@ -71,9 +80,11 @@ namespace {
 
 
         if (not created_log_dir.has_value()) {
-            sinks.push_back(std::make_shared<spdlog::sinks::rotating_file_sink_mt>(
-                    fmt::format("{}/oopetris.log", logs_path.string()), 1024 * 1024 * 10, 5, true
-            ));
+            sinks.push_back(
+                    std::make_shared<spdlog::sinks::rotating_file_sink_mt>(
+                            fmt::format("{}/oopetris.log", logs_path.string()), 1024 * 1024 * 10, 5, true
+                    )
+            );
         }
 #endif
 
@@ -92,8 +103,9 @@ namespace {
 
         std::shared_ptr<Window> window{ nullptr };
 
+#if !defined(__OOPETRIS_NO_EXCEPTIONS)
         try {
-
+#endif
             initialize_spdlog();
 
             std::vector<std::string> arguments_vector{};
@@ -118,18 +130,21 @@ namespace {
 
             [[maybe_unused]] constexpr auto window_name = constants::program_name.c_str();
 
-
+#if !defined(__OOPETRIS_NO_EXCEPTIONS)
             try {
+#endif
 #if defined(__ANDROID__) or defined(__CONSOLE__) or defined(__SERENITY__) or defined(__EMSCRIPTEN__)
                 window = std::make_shared<Window>(window_name, WindowPosition::Centered);
 #else
-                [[maybe_unused]] static constexpr int width = 1280;
-                [[maybe_unused]] static constexpr int height = 720;
-                window = std::make_shared<Window>(window_name, WindowPosition::Centered, width, height);
+        [[maybe_unused]] static constexpr int width = 1280;
+        [[maybe_unused]] static constexpr int height = 720;
+        window = std::make_shared<Window>(window_name, WindowPosition::Centered, width, height);
 #endif
+#if !defined(__OOPETRIS_NO_EXCEPTIONS)
             } catch (const helper::GeneralError& general_error) {
                 spdlog::error("Couldn't initialize window: {}", general_error.message());
             }
+#endif
 
             if (window == nullptr) {
                 helper::MessageBox::show_simple(
@@ -142,7 +157,7 @@ namespace {
 
             app.run();
             return EXIT_SUCCESS;
-
+#if !defined(__OOPETRIS_NO_EXCEPTIONS)
         } catch (const helper::GeneralError& general_error) {
             spdlog::error("{}", general_error.message());
 
@@ -165,12 +180,25 @@ namespace {
             std::cerr << error.what();
             return EXIT_FAILURE;
         }
+#endif
     }
 
 
 } // namespace
 
 
+#if defined(__UEFI__)
+
+#include <libc/main.h>
+
+int EDK2_LIBCXX_ENTRY_NAME(int argc, char** argv) {
+    return main_no_sdl_replace(argc, argv);
+}
+
+#else
+
 int main(int argc, char** argv) {
     return main_no_sdl_replace(argc, argv);
 }
+
+#endif

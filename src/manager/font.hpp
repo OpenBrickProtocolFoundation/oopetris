@@ -1,5 +1,7 @@
 #pragma once
 
+#include <core/helper/utils.hpp>
+
 #include <SDL_ttf.h>
 #include <filesystem>
 #include <memory>

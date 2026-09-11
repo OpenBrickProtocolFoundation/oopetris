@@ -3,6 +3,9 @@
 #include "./parse_json.hpp"
 
 
+#include "./utils.hpp"
+
+
 std::string json::get_json_type(const nlohmann::json::value_t& type) {
     switch (type) {
 
@@ -41,8 +44,10 @@ bool json::is_meta_key(const std::string& key) {
 void json::check_for_no_additional_keys(const nlohmann::json& obj, const std::vector<std::string>& keys) {
 
     if (not obj.is_object()) {
-        throw nlohmann::json::type_error::create(
-                302, fmt::format("expected an object, but got type '{}'", get_json_type(obj.type())), &obj
+        utils::throw_(
+                nlohmann::json::type_error::create(
+                        302, fmt::format("expected an object, but got type '{}'", get_json_type(obj.type())), &obj
+                )
         );
     }
 
@@ -54,8 +59,10 @@ void json::check_for_no_additional_keys(const nlohmann::json& obj, const std::ve
             continue;
         }
         if (std::ranges::find(keys, key) == keys.cend()) {
-            throw nlohmann::json::type_error::create(
-                    302, fmt::format("object may only contain expected keys, but contained '{}'", key), &obj
+            utils::throw_(
+                    nlohmann::json::type_error::create(
+                            302, fmt::format("object may only contain expected keys, but contained '{}'", key), &obj
+                    )
             );
         }
     }

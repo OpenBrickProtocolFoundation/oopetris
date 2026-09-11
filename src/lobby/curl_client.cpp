@@ -107,6 +107,7 @@ void oopetris::http::implementation::ActualClient::set_url(const std::string& ur
 
     auto [content, content_type] = payload.value();
 
+    //TODO: set content_type
     m_session->SetBody(cpr::Body{ content });
 
     return TRANSFORM_RESULT(m_session->Post());
@@ -123,7 +124,7 @@ void oopetris::http::implementation::ActualClient::set_url(const std::string& ur
     }
 
     auto [content, content_type] = payload.value();
-
+    //TODO: set content_type
     m_session->SetBody(cpr::Body{ content });
 
     return TRANSFORM_RESULT(m_session->Put());
@@ -144,7 +145,7 @@ void oopetris::http::implementation::ActualClient::ResetBearerAuth() {
 
 
 #if CPR_LIBCURL_VERSION_NUM >= 0x073D00
-    m_session->SetBearer(cpr::Bearer{""});
+    m_session->SetBearer(cpr::Bearer{ "" });
 #else
     m_session->SetHeader();
 #endif

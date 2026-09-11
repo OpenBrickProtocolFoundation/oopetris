@@ -1,0 +1,46 @@
+diff --git a/meson.build b/meson.build
+index b354993..563c3cc 100644
+--- a/meson.build
++++ b/meson.build
+@@ -73,14 +73,17 @@ sdl2_mixer_dep = declare_dependency(
+   link_with: sdl2_mixer_lib,
+ )
+ 
+-if sdl2_dep.type_name() == 'internal'
+-  sdl2main_dep = dependency('sdl2main')
+-else
+-  sdl2main_dep = cc.find_library('SDL2main')
+-endif
++if get_option('example') 
++  if sdl2_dep.type_name() == 'internal'
++    sdl2main_dep = dependency('sdl2main')
++  else
++    sdl2main_dep = cc.find_library('SDL2main')
++  endif
+ 
+-executable(
+-  'playmus',
+-  'playmus.c',
+-  dependencies: [sdl2_dep, sdl2main_dep, sdl2_mixer_dep],
+-)
++  executable(
++    'playmus',
++    'playmus.c',
++    dependencies: [sdl2_dep, sdl2main_dep, sdl2_mixer_dep],
++  )
++
++endif
+diff --git a/meson_options.txt b/meson_options.txt
+index 34a5d2a..58ee5ab 100644
+--- a/meson_options.txt
++++ b/meson_options.txt
+@@ -15,3 +15,9 @@ option(
+   description: 'Opus support',
+ )
+ 
++option(
++  'example',
++  type: 'boolean',
++  description: 'compile the example',
++  value: false
++)

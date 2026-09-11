@@ -14,6 +14,7 @@
 #include <utility>
 #include <vector>
 
+
 namespace helper {
 
     namespace reader {
@@ -31,7 +32,7 @@ namespace helper {
 
         template<std::integral Integral>
         [[nodiscard]] ReadResult<std::remove_cv_t<Integral>> read_integral_from_file(std::ifstream& file) {
-            if (not file) {
+            if (file.fail()) {
                 return helper::unexpected<ReadError>{
                     { ReadErrorType::InvalidStream, "failed to read data from file (before reading)" }
                 };
@@ -43,7 +44,7 @@ namespace helper {
                     sizeof(little_endian_data)
             );
 
-            if (not file) {
+            if (file.fail()) {
                 return helper::unexpected<ReadError>{
                     { ReadErrorType::Incomplete, "failed to read data from file (after reading)" }
                 };
@@ -54,7 +55,7 @@ namespace helper {
 
         template<typename Type, usize Size>
         [[nodiscard]] ReadResult<std::array<Type, Size>> read_array_from_file(std::ifstream& file) {
-            if (not file) {
+            if (file.fail()) {
                 return helper::unexpected<ReadError>{
                     { ReadErrorType::InvalidStream, "failed to read data from file (before reading)" }
                 };
@@ -69,7 +70,7 @@ namespace helper {
                 result.at(i) = read_data.value();
             }
 
-            if (not file) {
+            if (file.fail()) {
                 return helper::unexpected<ReadError>{
                     { ReadErrorType::Incomplete, "failed to read data from file (after reading)" }
                 };
@@ -80,7 +81,7 @@ namespace helper {
 
         template<std::integral Integral>
         [[nodiscard]] std::optional<Integral> read_from_istream(std::istream& istream) {
-            if (not istream) {
+            if (istream.fail()) {
                 return std::nullopt;
             }
             auto value = Integral{};
@@ -89,7 +90,7 @@ namespace helper {
                     sizeof(Integral)
             );
 
-            if (not istream) {
+            if (istream.fail()) {
                 return std::nullopt;
             }
 
@@ -98,7 +99,7 @@ namespace helper {
 
         template<typename Type, usize Size>
         [[nodiscard]] std::optional<std::array<Type, Size>> read_array_from_istream(std::istream& istream) {
-            if (not istream) {
+            if (istream.fail()) {
                 return std::nullopt;
             }
 
@@ -111,7 +112,7 @@ namespace helper {
                 result.at(i) = read_data.value();
             }
 
-            if (not istream) {
+            if (istream.fail()) {
                 return std::nullopt;
             }
 
@@ -125,7 +126,7 @@ namespace helper {
 
         template<std::integral Integral>
         helper::expected<void, std::string> write_integral_to_file(std::ofstream& file, const Integral data) {
-            if (not file) {
+            if (file.fail()) {
                 return helper::unexpected<std::string>{ fmt::format("failed to write data \"{}\"", data) };
             }
 
@@ -141,7 +142,8 @@ namespace helper {
         }
 
         template<typename T>
-        helper::expected<void, std::string> write_vector_to_file(std::ofstream& file, const std::vector<T>& values) {
+        helper::expected<void, std::string>
+        write_vector_to_file(std::ofstream& file, const std::vector<T>& values) {
             helper::expected<void, std::string> result{};
             for (const auto& value : values) {
                 result = write_integral_to_file<T>(file, value);

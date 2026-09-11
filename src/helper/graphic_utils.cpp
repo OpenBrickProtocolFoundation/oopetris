@@ -7,6 +7,10 @@
 #include <emscripten.h>
 #endif
 
+#if defined(__UEFI__)
+#include "uefi_utils.hpp"
+#endif
+
 SDL_Color utils::sdl_color_from_color(const Color& color) {
     return SDL_Color{ color.r, color.g, color.b, color.a };
 }
@@ -42,6 +46,8 @@ std::vector<std::string> utils::supported_features() {
     return std::filesystem::path{ std::string{ pref_path } };
 #elif defined(__EMSCRIPTEN__)
     return std::filesystem::path{ "/" };
+#elif defined(__UEFI__)
+    return std::filesystem::path{ "root:/oopetris" };
 #elif defined(__CONSOLE__)
     // this is in the sdcard of the switch / 3ds , since internal storage is read-only for applications!
     return std::filesystem::path{ "." };
@@ -103,8 +109,11 @@ std::vector<std::string> utils::supported_features() {
 #if defined(__ANDROID__)
     return std::filesystem::path{ "" };
 #elif defined(__EMSCRIPTEN__)
-    // emscripten mounts a memfs in the / location, we package assest into this dir, see: https://emscripten.org/docs/porting/files/packaging_files.html#packaging-using-emcc
+    // emscripten mounts a memfs in the / location, we package assets into this dir, see: https://emscripten.org/docs/porting/files/packaging_files.html#packaging-using-emcc
     return std::filesystem::path{ "/assets" };
+#elif defined(__UEFI__)
+    // this is a embedded read only file system, created by c-embed and mounted by edk2-libc and our layer above that (fuse like)
+    return std::filesystem::path{ "romfs:/assets" };
 #elif defined(__CONSOLE__)
     // this is in the internal storage of the nintendo switch, it is mounted by libnx (runtime switch support library) and filled at compile time with assets (its called ROMFS there)
     return std::filesystem::path{ "romfs:/assets" };
@@ -163,7 +172,15 @@ std::optional<std::string> utils::create_directory(const std::filesystem::path& 
         return std::nullopt;
     }
 
+#if defined(__UEFI__)
+    if (not uefi::get_rw_file_system_info().has_value()) {
+        return "RW Filesystem not mounted";
+    }
+#endif
+
+#if !defined(__OOPETRIS_NO_EXCEPTIONS)
     try {
+#endif
         if (recursive) {
             auto result = std::filesystem::create_directories(folder);
             if (not result) {
@@ -178,9 +195,11 @@ std::optional<std::string> utils::create_directory(const std::filesystem::path& 
             return "an unknown error occurred";
         }
         return std::nullopt;
+#if !defined(__OOPETRIS_NO_EXCEPTIONS)
     } catch (const std::exception& error) {
         return error.what();
     }
+#endif
 }
 
 void utils::exit(int status_code) {

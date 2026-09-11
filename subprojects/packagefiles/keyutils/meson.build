@@ -9,7 +9,7 @@ project(
         'warning_level': '2',
         'werror': true,
         'strip': true,
-        'cpp_std': ['c++23', 'c++latest', 'vc++latest', 'c++20'],
+        'c_std': ['c11'],
         'b_ndebug': 'if-release',
     },
 )

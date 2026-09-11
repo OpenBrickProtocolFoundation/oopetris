@@ -306,12 +306,14 @@ void SimulatedTetrion::clear_fully_occupied_lines() {
                     spdlog::info("new level: {}", m_level);
                     if (level == constants::music_change_level) {
                         if (m_service_provider != nullptr) {
-                            m_service_provider->music_manager()
-                                    .load_and_play_music(
-                                            utils::get_assets_folder() / "music"
-                                            / utils::get_supported_music_extension("03. Game Theme (50 Left)")
-                                    )
-                                    .and_then(utils::log_error);
+                            auto _ignore =
+                                    m_service_provider->music_manager()
+                                            .load_and_play_music(
+                                                    utils::get_assets_folder() / "music"
+                                                    / utils::get_supported_music_extension("03. Game Theme (50 Left)")
+                                            )
+                                            .and_then(utils::log_error);
+                            UNUSED(_ignore);
                         }
                     }
                 }

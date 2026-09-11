@@ -46,14 +46,14 @@ struct HSVColor {
         } else {
 
             if (h < 0.0 || h > 360.0) {
-                throw std::runtime_error{ fmt::format("h has to be in range 0.0 - 360.0 but was: {}", h) };
+                utils::throw_(std::runtime_error{ fmt::format("h has to be in range 0.0 - 360.0 but was: {}", h) });
             }
             if (s < 0.0 || s > 1.0) {
 
-                throw std::runtime_error{ fmt::format("s has to be in range 0.0 - 1.0 but was: {}", s) };
+                utils::throw_(std::runtime_error{ fmt::format("s has to be in range 0.0 - 1.0 but was: {}", s) });
             }
             if (v < 0.0 || v > 1.0) {
-                throw std::runtime_error{ fmt::format("v has to be in range 0.0 - 1.0 but was: {}", v) };
+                utils::throw_(std::runtime_error{ fmt::format("v has to be in range 0.0 - 1.0 but was: {}", v) });
             }
         }
     }
@@ -223,9 +223,9 @@ struct Color {
 
         const FloatType offset = value - chroma;
 
-        const auto finish_value = [offset](FloatType value) -> u8 {
+        const auto finish_value = [offset](FloatType f_value) -> u8 {
             const auto result =
-                    std::clamp<FloatType>(value + offset, static_cast<FloatType>(0.0), static_cast<FloatType>(1.0))
+                    std::clamp<FloatType>(f_value + offset, static_cast<FloatType>(0.0), static_cast<FloatType>(1.0))
                     * static_cast<FloatType>(0xFF);
 
             return static_cast<u8>(round_constexpr(result));

@@ -1,6 +1,7 @@
 
 #include "sdl_controller_key.hpp"
 
+#include <core/helper/utils.hpp>
 
 sdl::ControllerKey::ControllerKey(SDL_GameControllerButton button) : m_button{ button } { }
 
@@ -25,10 +26,14 @@ helper::expected<sdl::ControllerKey, std::string> sdl::ControllerKey::from_strin
 
     const auto* name = SDL_GameControllerGetStringForButton(m_button);
     if (name == nullptr or std::strlen(name) == 0) {
-        throw std::runtime_error(fmt::format(
-                "No name for the SDL key {}: {}", static_cast<std::underlying_type_t<decltype(m_button)>>(m_button),
-                SDL_GetError()
-        ));
+        utils::throw_(
+                std::runtime_error(
+                        fmt::format(
+                                "No name for the SDL key {}: {}",
+                                static_cast<std::underlying_type_t<decltype(m_button)>>(m_button), SDL_GetError()
+                        )
+                )
+        );
     }
     return std::string{ name };
 }

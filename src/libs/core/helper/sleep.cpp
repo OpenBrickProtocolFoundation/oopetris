@@ -20,6 +20,13 @@ using namespace std::chrono_literals;
 #endif
 
 
+#if defined(__UEFI__)
+
+
+#include <UEfiTimeSupport.h>
+
+#endif
+
 bool helper::sleep_nanoseconds(std::chrono::nanoseconds nano_seconds) {
 
 #if defined(_MSC_VER)

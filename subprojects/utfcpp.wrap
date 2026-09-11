@@ -8,6 +8,7 @@ patch_filename = utfcpp_4.0.8-1_patch.zip
 patch_url = https://wrapdb.mesonbuild.com/v2/utfcpp_4.0.8-1/get_patch
 patch_hash = 83888527bbd2ee13f49f3d791ecdc698b95c614da3e23c44b87c185bd5c19989
 wrapdb_version = 4.0.8-1
+diff_files = utfcpp-4.0.8_no_exceptions.diff
 
 [provide]
 dependency_names = utf8cpp

@@ -1,0 +1,49 @@
+name: UEFI CI
+
+on:
+  release:
+    types: [published]
+  push:
+    branches: ['main']
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  web-build:
+    name: Build for UEFI - ${{ matrix.config.name }}
+    runs-on: ubuntu-26.04
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - name: emulator (qemu)
+            runtime_target: emulator
+
+          - name: hardware
+            runtime_target: hardware
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: '0'
+
+      # NOTE: meson has no dependencies, so --break-system-packages doesn't really break anything!
+      - name: Setup Meson
+        run: |
+          pip install meson --break-system-packages
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install ninja-build pkg-config build-essential uuid-dev qemu-system-x86 ovmf-generic nasm -y --no-install-recommends
+
+      - name: Build
+        run: |
+          bash ./platforms/build.sh uefi complete_rebuild release CI ${{ matrix.config.runtime_target }}
+
+      # TODO upload page to gh-pages!
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: oopetris-assets
+          path: build/uefi/src/executables/platforms/uefi/oopetris.efi

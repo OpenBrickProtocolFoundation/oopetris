@@ -1,3 +1,4 @@
+#include <core/helper/magic_enum_wrapper.hpp>
 #include <core/helper/point.hpp>
 
 #include "helper/graphic_utils.hpp"
@@ -10,8 +11,13 @@ Texture Texture::from_image(SDL_Renderer* renderer, const std::filesystem::path&
     SDL_Texture* image = IMG_LoadTexture(renderer, image_path.string().c_str());
 
     if (image == nullptr) {
-        throw std::runtime_error(
-                fmt::format("Failed to load image from path '{}' with error: {}", image_path.string(), SDL_GetError())
+        utils::throw_(
+                std::runtime_error(
+                        fmt::format(
+                                "Failed to load image from path '{}' with error: {}", image_path.string(),
+                                SDL_GetError()
+                        )
+                )
         );
     }
     return Texture{ image };
@@ -40,13 +46,27 @@ Texture Texture::prerender_text(
         UNREACHABLE();
     }
     if (surface == nullptr) {
-        throw std::runtime_error(fmt::format("Failed to pre-render text into surface with error: {}", SDL_GetError()));
+        utils::throw_(
+                std::runtime_error(
+                        fmt::format(
+                                "Failed to pre-render text ({}) into surface with error: {}",
+                                magic_enum::enum_name(render_type), SDL_GetError()
+                        )
+                )
+        );
     }
 
     SDL_Texture* const texture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_FreeSurface(surface);
     if (texture == nullptr) {
-        throw std::runtime_error(fmt::format("Failed to pre-render text into texture with error: {}", SDL_GetError()));
+        utils::throw_(
+                std::runtime_error(
+                        fmt::format(
+                                "Failed to pre-render text ({}) into texture with error: {}",
+                                magic_enum::enum_name(render_type), SDL_GetError()
+                        )
+                )
+        );
     }
 
 
@@ -58,19 +78,19 @@ Texture Texture::get_for_render_target(SDL_Renderer* renderer, const shapes::UPo
     SDL_DisplayMode mode{};
     const int result = SDL_GetCurrentDisplayMode(0, &mode);
     if (result != 0) {
-        throw std::runtime_error{ "failed in getting display mode: " + std::string{ SDL_GetError() } };
+        utils::throw_(std::runtime_error{ "failed in getting display mode: " + std::string{ SDL_GetError() } });
     }
 
     auto* const texture = SDL_CreateTexture(
             renderer, mode.format, SDL_TEXTUREACCESS_TARGET, static_cast<int>(size.x), static_cast<int>(size.y)
     );
     if (texture == nullptr) {
-        throw std::runtime_error(fmt::format("Failed to create texture with error: {}", SDL_GetError()));
+        utils::throw_(std::runtime_error(fmt::format("Failed to create texture with error: {}", SDL_GetError())));
     }
 
     const auto target_result = SDL_SetRenderTarget(renderer, texture);
     if (target_result < 0) {
-        throw std::runtime_error(fmt::format("Failed to set render target with error: {}", SDL_GetError()));
+        utils::throw_(std::runtime_error(fmt::format("Failed to set render target with error: {}", SDL_GetError())));
     }
 
 
@@ -113,6 +133,8 @@ Texture::~Texture() {
 void Texture::set_as_render_target(SDL_Renderer* renderer) const {
     const auto result = SDL_SetRenderTarget(renderer, m_raw_texture);
     if (result < 0) {
-        throw std::runtime_error(fmt::format("Failed to set render texture target with error: {}", SDL_GetError()));
+        utils::throw_(
+                std::runtime_error(fmt::format("Failed to set render texture target with error: {}", SDL_GetError()))
+        );
     }
 }

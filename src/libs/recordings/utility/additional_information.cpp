@@ -6,7 +6,8 @@
 #include <algorithm>
 #include <functional>
 
-[[nodiscard]] std::string recorder::InformationValue::to_string(u32 recursion_depth // NOLINT(misc-no-recursion)
+[[nodiscard]] std::string recorder::InformationValue::to_string(
+        u32 recursion_depth // NOLINT(misc-no-recursion)
 ) const {
     return std::visit(
             helper::Overloaded{
@@ -20,12 +21,16 @@
                     [](const i32& value) { return std::to_string(value); },
                     [](const u64& value) { return std::to_string(value); },
                     [](const i64& value) { return std::to_string(value); },
-                    [recursion_depth](const std::vector<recorder::InformationValue>& value // NOLINT(misc-no-recursion)
+                    [recursion_depth](
+                            const std::vector<recorder::InformationValue>& value // NOLINT(misc-no-recursion)
                     ) {
                         if (recursion_depth >= max_recursion_depth) {
-                            throw std::runtime_error{ fmt::format(
-                                    "Reached maximum recursion depth of {} while printing vectors!", max_recursion_depth
-                            ) };
+                            utils::throw_(
+                                    std::runtime_error{ fmt::format(
+                                            "Reached maximum recursion depth of {} while printing vectors!",
+                                            max_recursion_depth
+                                    ) }
+                            );
                         }
 
                         std::vector<std::string> strings{};
@@ -461,7 +466,7 @@ helper::expected<recorder::AdditionalInformation, std::string> recorder::Additio
 
 void recorder::AdditionalInformation::add_value(const std::string& key, const InformationValue& value, bool overwrite) {
     if (m_values.contains(key) and not overwrite) {
-        throw std::runtime_error("Can't overwrite already existing key");
+        utils::throw_(std::runtime_error("Can't overwrite already existing key"));
     }
 
     m_values.insert_or_assign(key, value);
@@ -519,8 +524,8 @@ std::optional<recorder::InformationValue> recorder::AdditionalInformation::get(c
     return bytes;
 }
 
-[[nodiscard]] helper::expected<Sha256Stream::Checksum, std::string> recorder::AdditionalInformation::get_checksum(
-) const {
+[[nodiscard]] helper::expected<Sha256Stream::Checksum, std::string>
+recorder::AdditionalInformation::get_checksum() const {
     Sha256Stream sha256_creator{};
 
     static_assert(sizeof(u32) == 4);

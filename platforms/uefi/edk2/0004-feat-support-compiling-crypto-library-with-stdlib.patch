@@ -1,0 +1,421 @@
+From c79476b209aa2b390894c1e367f9efea1e7ed2da Mon Sep 17 00:00:00 2001
+From: Totto16 <tobiausgais@gmail.com>
+Date: Tue, 25 Aug 2026 17:36:28 +0200
+Subject: [PATCH 4/4] feat: support compiling crypto library with stdlib -
+ don't use compatibility layer for crypto library as that creates link errors,
+ when using edk2-libc too
+
+---
+ .../Library/BaseCryptLib/BaseCryptLib.inf     |  9 +++++++
+ .../Library/BaseCryptLib/Kdf/CryptHkdf.c      |  9 ++++---
+ .../Library/BaseCryptLib/Pk/CryptEdDsa.c      |  6 +++--
+ .../Library/BaseCryptLib/Pk/CryptMlDsa.c      |  6 +++--
+ .../Library/BaseCryptLib/Pk/CryptPkcs1Oaep.c  | 12 ++++++----
+ .../Library/BaseCryptLib/Pk/CryptRsaPssSign.c |  6 +++--
+ .../Library/BaseCryptLib/Pk/CryptSlhDsa.c     |  6 +++--
+ .../BaseCryptLib/SysCall/BaseMemAllocation.c  |  7 ++++++
+ .../Library/BaseCryptLib/SysCall/CrtWrapper.c |  5 ++++
+ .../BaseCryptLib/SysCall/TimerWrapper.c       |  5 ++++
+ CryptoPkg/Library/Include/CrtLibSupport.h     | 24 +++++++++++++++++++
+ CryptoPkg/Library/IntrinsicLib/CopyMem.c      |  4 ++++
+ .../Library/IntrinsicLib/IntrinsicLib.inf     |  2 ++
+ .../Library/IntrinsicLib/MemoryIntrinsics.c   |  3 +++
+ CryptoPkg/Library/OpensslLib/OpensslLib.inf   | 11 +++++++++
+ 15 files changed, 100 insertions(+), 15 deletions(-)
+
+diff --git a/CryptoPkg/Library/BaseCryptLib/BaseCryptLib.inf b/CryptoPkg/Library/BaseCryptLib/BaseCryptLib.inf
+index bf8f1f86af..8f50a77911 100644
+--- a/CryptoPkg/Library/BaseCryptLib/BaseCryptLib.inf
++++ b/CryptoPkg/Library/BaseCryptLib/BaseCryptLib.inf
+@@ -116,3 +116,12 @@
+   GCC:*_CLANGPDB_*_CC_FLAGS = -std=c99 -Wno-error=incompatible-pointer-types
+ 
+   XCODE:*_*_*_CC_FLAGS = -std=c99
++  # define or undefine this based on the usage of StdLib
++  *_*_*_CC_FLAGS                    =  -U__CRYPTO_COMPILE_STANDALONE
++  *_*_*_CC_FLAGS                    =  -I$(EDK2_LIBC_ROOT)
++  *_*_*_CC_FLAGS                    =  -I$(EDK2_ROOT)/CryptoPkg/Library/Include
++  *_*_*_CC_FLAGS                    =  -I$(EDK2_LIBC_ROOT)/StdLib/Include
++
++[BuildOptions.X64]
++  *_*_*_CC_FLAGS                    =  -I$(EDK2_LIBC_ROOT)/StdLib/Include/X64
++  *_*_*_CC_FLAGS                    =  -I$(EDK2_ROOT)/MdePkg/Include/X64
+diff --git a/CryptoPkg/Library/BaseCryptLib/Kdf/CryptHkdf.c b/CryptoPkg/Library/BaseCryptLib/Kdf/CryptHkdf.c
+index 34e81246ed..8b260495a1 100644
+--- a/CryptoPkg/Library/BaseCryptLib/Kdf/CryptHkdf.c
++++ b/CryptoPkg/Library/BaseCryptLib/Kdf/CryptHkdf.c
+@@ -73,7 +73,8 @@ HkdfMdExtractAndExpand (
+   }
+ 
+   if (Result) {
+-    Result = EVP_PKEY_derive (pHkdfCtx, Out, &OutSize) > 0;
++    _Static_assert(sizeof(UINTN) == sizeof(size_t));
++    Result = EVP_PKEY_derive (pHkdfCtx, Out, (size_t*)&OutSize) > 0;
+   }
+ 
+   EVP_PKEY_CTX_free (pHkdfCtx);
+@@ -153,7 +154,8 @@ HkdfMdExtract (
+   }
+ 
+   if (Result) {
+-    Result = EVP_PKEY_derive (pHkdfCtx, PrkOut, &PrkOutSize) > 0;
++    _Static_assert(sizeof(UINTN) == sizeof(size_t));
++    Result = EVP_PKEY_derive (pHkdfCtx, PrkOut, (size_t*)&PrkOutSize) > 0;
+   }
+ 
+   EVP_PKEY_CTX_free (pHkdfCtx);
+@@ -220,7 +222,8 @@ HkdfMdExpand (
+   }
+ 
+   if (Result) {
+-    Result = EVP_PKEY_derive (pHkdfCtx, Out, &OutSize) > 0;
++    _Static_assert(sizeof(UINTN) == sizeof(size_t));
++    Result = EVP_PKEY_derive (pHkdfCtx, Out, (size_t*)&OutSize) > 0;
+   }
+ 
+   EVP_PKEY_CTX_free (pHkdfCtx);
+diff --git a/CryptoPkg/Library/BaseCryptLib/Pk/CryptEdDsa.c b/CryptoPkg/Library/BaseCryptLib/Pk/CryptEdDsa.c
+index 0b75f9542a..1ee91ebf20 100644
+--- a/CryptoPkg/Library/BaseCryptLib/Pk/CryptEdDsa.c
++++ b/CryptoPkg/Library/BaseCryptLib/Pk/CryptEdDsa.c
+@@ -378,7 +378,8 @@ EdDsaGetPubKey (
+ 
+   *PublicKeySize = FinalPublicKeySize;
+ 
+-  Result = EVP_PKEY_get_raw_public_key (Ctx->EvpPkey, PublicKey, PublicKeySize);
++  _Static_assert(sizeof(UINTN) == sizeof(size_t));
++  Result = EVP_PKEY_get_raw_public_key (Ctx->EvpPkey, PublicKey, (size_t*)PublicKeySize);
+   if (Result != 1) {
+     return FALSE;
+   }
+@@ -498,7 +499,8 @@ EdDsaSign (
+     return FALSE;
+   }
+ 
+-  if (EVP_DigestSign (SignCtx, Signature, SigSize, Message, MessageSize) != 1) {
++  _Static_assert(sizeof(UINTN) == sizeof(size_t));
++  if (EVP_DigestSign (SignCtx, Signature, (size_t*)SigSize, Message, MessageSize) != 1) {
+     EVP_MD_CTX_free (SignCtx);
+     return FALSE;
+   }
+diff --git a/CryptoPkg/Library/BaseCryptLib/Pk/CryptMlDsa.c b/CryptoPkg/Library/BaseCryptLib/Pk/CryptMlDsa.c
+index d17459daf9..b869bb6b73 100644
+--- a/CryptoPkg/Library/BaseCryptLib/Pk/CryptMlDsa.c
++++ b/CryptoPkg/Library/BaseCryptLib/Pk/CryptMlDsa.c
+@@ -471,7 +471,8 @@ MlDsaGetPubKey (
+ 
+   *PublicKeySize = FinalPublicKeySize;
+ 
+-  Result = EVP_PKEY_get_raw_public_key (Ctx->EvpPkey, PublicKey, PublicKeySize);
++  _Static_assert(sizeof(UINTN) == sizeof(size_t));
++  Result = EVP_PKEY_get_raw_public_key (Ctx->EvpPkey, PublicKey, (size_t*)PublicKeySize);
+   if (Result != 1) {
+     return FALSE;
+   }
+@@ -580,7 +581,8 @@ MlDsaSign (
+     return FALSE;
+   }
+ 
+-  Result = EVP_DigestSign (SignCtx, Signature, SigSize, Message, MessageSize);
++  _Static_assert(sizeof(UINTN) == sizeof(size_t));
++  Result = EVP_DigestSign (SignCtx, Signature, (size_t*)SigSize, Message, MessageSize);
+   if (Result != 1) {
+     EVP_MD_CTX_free (SignCtx);
+     return FALSE;
+diff --git a/CryptoPkg/Library/BaseCryptLib/Pk/CryptPkcs1Oaep.c b/CryptoPkg/Library/BaseCryptLib/Pk/CryptPkcs1Oaep.c
+index 7634ab1f6f..e0c12dc264 100644
+--- a/CryptoPkg/Library/BaseCryptLib/Pk/CryptPkcs1Oaep.c
++++ b/CryptoPkg/Library/BaseCryptLib/Pk/CryptPkcs1Oaep.c
+@@ -166,7 +166,8 @@ InternalPkcs1v2Encrypt (
+   //
+   // Determine the required buffer length for malloc'ing.
+   //
+-  if (EVP_PKEY_encrypt (PkeyCtx, NULL, &OutDataSize, InData, InDataSize) <= 0) {
++  _Static_assert(sizeof(UINTN) == sizeof(size_t));
++  if (EVP_PKEY_encrypt (PkeyCtx, NULL, (size_t*)&OutDataSize, InData, InDataSize) <= 0) {
+     //
+     // Fail to determine output buffer size.
+     //
+@@ -187,7 +188,8 @@ InternalPkcs1v2Encrypt (
+   //
+   // Encrypt Data.
+   //
+-  if (EVP_PKEY_encrypt (PkeyCtx, OutData, &OutDataSize, InData, InDataSize) <= 0) {
++  _Static_assert(sizeof(UINTN) == sizeof(size_t));
++  if (EVP_PKEY_encrypt (PkeyCtx, OutData, (size_t*)&OutDataSize, InData, InDataSize) <= 0) {
+     //
+     // Fail to encrypt data, need to free the output buffer.
+     //
+@@ -514,7 +516,8 @@ InternalPkcs1v2Decrypt (
+   //
+   // Determine the required buffer length for malloc'ing.
+   //
+-  ReturnCode = EVP_PKEY_decrypt (PkeyCtx, NULL, &TempDataSize, EncryptedData, EncryptedDataSize);
++  _Static_assert(sizeof(UINTN) == sizeof(size_t));
++  ReturnCode = EVP_PKEY_decrypt (PkeyCtx, NULL, (size_t*)&TempDataSize, EncryptedData, EncryptedDataSize);
+   if (ReturnCode <= 0) {
+     //
+     // Fail to determine output buffer size.
+@@ -537,7 +540,8 @@ InternalPkcs1v2Decrypt (
+   //
+   // Decrypt Data.
+   //
+-  ReturnCode = EVP_PKEY_decrypt (PkeyCtx, TempData, &TempDataSize, EncryptedData, EncryptedDataSize);
++  _Static_assert(sizeof(UINTN) == sizeof(size_t));
++  ReturnCode = EVP_PKEY_decrypt (PkeyCtx, TempData, (size_t*)&TempDataSize, EncryptedData, EncryptedDataSize);
+   if (ReturnCode <= 0) {
+     //
+     // Fail to decrypt data, need to free the output buffer.
+diff --git a/CryptoPkg/Library/BaseCryptLib/Pk/CryptRsaPssSign.c b/CryptoPkg/Library/BaseCryptLib/Pk/CryptRsaPssSign.c
+index 4835f81168..cefa40b440 100644
+--- a/CryptoPkg/Library/BaseCryptLib/Pk/CryptRsaPssSign.c
++++ b/CryptoPkg/Library/BaseCryptLib/Pk/CryptRsaPssSign.c
+@@ -165,7 +165,8 @@ RsaPssSign (
+   }
+ 
+   if (Result) {
+-    Result = EVP_DigestSignFinal (EvpVerifyCtx, Signature, SigSize) > 0;
++  _Static_assert(sizeof(UINTN) == sizeof(size_t));
++    Result = EVP_DigestSignFinal (EvpVerifyCtx, Signature, (size_t*)SigSize) > 0;
+   }
+ 
+ _Exit:
+@@ -284,10 +285,11 @@ RsaPssSignDigest (
+   }
+ 
+   if (Result) {
++    _Static_assert(sizeof(UINTN) == sizeof(size_t));
+     Result = EVP_PKEY_sign (
+                EvpSignCtx,
+                Signature,
+-               SigSize,
++               (size_t*)SigSize,
+                Digest,
+                (UINT32)DigestSize
+                ) > 0;
+diff --git a/CryptoPkg/Library/BaseCryptLib/Pk/CryptSlhDsa.c b/CryptoPkg/Library/BaseCryptLib/Pk/CryptSlhDsa.c
+index dc974fde12..3235a43412 100644
+--- a/CryptoPkg/Library/BaseCryptLib/Pk/CryptSlhDsa.c
++++ b/CryptoPkg/Library/BaseCryptLib/Pk/CryptSlhDsa.c
+@@ -471,7 +471,8 @@ SlhDsaGetPubKey (
+ 
+   *PublicKeySize = FinalPublicKeySize;
+ 
+-  Result = EVP_PKEY_get_raw_public_key (Ctx->EvpPkey, PublicKey, PublicKeySize);
++  _Static_assert(sizeof(UINTN) == sizeof(size_t));
++  Result = EVP_PKEY_get_raw_public_key (Ctx->EvpPkey, PublicKey, (size_t*)PublicKeySize);
+   if (Result != 1) {
+     return FALSE;
+   }
+@@ -580,7 +581,8 @@ SlhDsaSign (
+     return FALSE;
+   }
+ 
+-  Result = EVP_DigestSign (SignCtx, Signature, SigSize, Message, MessageSize);
++  _Static_assert(sizeof(UINTN) == sizeof(size_t));
++  Result = EVP_DigestSign (SignCtx, Signature, (size_t*)SigSize, Message, MessageSize);
+   if (Result != 1) {
+     EVP_MD_CTX_free (SignCtx);
+     return FALSE;
+diff --git a/CryptoPkg/Library/BaseCryptLib/SysCall/BaseMemAllocation.c b/CryptoPkg/Library/BaseCryptLib/SysCall/BaseMemAllocation.c
+index b7bed15c18..b1271166a5 100644
+--- a/CryptoPkg/Library/BaseCryptLib/SysCall/BaseMemAllocation.c
++++ b/CryptoPkg/Library/BaseCryptLib/SysCall/BaseMemAllocation.c
+@@ -7,9 +7,14 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
+ 
+ **/
+ 
++
++
+ #include <CrtLibSupport.h>
+ #include <Library/MemoryAllocationLib.h>
+ 
++#if defined(__CRYPTO_COMPILE_STANDALONE)
++
++
+ //
+ // Extra header to record the memory buffer size from malloc routine.
+ //
+@@ -120,3 +125,5 @@ free (
+     FreePool (PoolHdr);
+   }
+ }
++
++#endif
+diff --git a/CryptoPkg/Library/BaseCryptLib/SysCall/CrtWrapper.c b/CryptoPkg/Library/BaseCryptLib/SysCall/CrtWrapper.c
+index 8a8fdfefc7..0b9541267f 100644
+--- a/CryptoPkg/Library/BaseCryptLib/SysCall/CrtWrapper.c
++++ b/CryptoPkg/Library/BaseCryptLib/SysCall/CrtWrapper.c
+@@ -9,6 +9,8 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
+ 
+ #include <CrtLibSupport.h>
+ 
++#if defined(__CRYPTO_COMPILE_STANDALONE)
++
+ int  errno = 0;
+ 
+ FILE  *stderr = NULL;
+@@ -22,6 +24,7 @@ int
+   IN  VOID  *Buffer2
+   );
+ 
++
+ //
+ // Duplicated from EDKII BaseSortLib for qsort() wrapper
+ //
+@@ -651,3 +654,5 @@ printf (
+ {
+   return 0;
+ }
++
++#endif
+diff --git a/CryptoPkg/Library/BaseCryptLib/SysCall/TimerWrapper.c b/CryptoPkg/Library/BaseCryptLib/SysCall/TimerWrapper.c
+index 894aeb016f..eca712b348 100644
+--- a/CryptoPkg/Library/BaseCryptLib/SysCall/TimerWrapper.c
++++ b/CryptoPkg/Library/BaseCryptLib/SysCall/TimerWrapper.c
+@@ -12,6 +12,9 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
+ #include <Library/UefiBootServicesTableLib.h>
+ #include <Library/UefiRuntimeServicesTableLib.h>
+ 
++#if defined(__CRYPTO_COMPILE_STANDALONE)
++
++
+ //
+ // -- Time Management Routines --
+ //
+@@ -249,3 +252,5 @@ gettimeofday (
+   tv->tv_usec = 0;
+   return 0;
+ }
++
++#endif
+diff --git a/CryptoPkg/Library/Include/CrtLibSupport.h b/CryptoPkg/Library/Include/CrtLibSupport.h
+index dc5a357d8f..6c4a32186f 100644
+--- a/CryptoPkg/Library/Include/CrtLibSupport.h
++++ b/CryptoPkg/Library/Include/CrtLibSupport.h
+@@ -42,14 +42,34 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
+ // SIXTY_FOUR_BIT, because 'long' is 32-bit and only 'long long' is
+ // 64-bit. Since using 'long long' works fine on GCC too, just do that.
+ //
++#define SSL_HAVE_ARCH_DEFINE
+ #define SIXTY_FOUR_BIT
+   #elif defined (MDE_CPU_IA32) || defined (MDE_CPU_EBC)
+ #define THIRTY_TWO_BIT
++#define SSL_HAVE_ARCH_DEFINE
+   #else
+     #error Unknown target architecture
+   #endif
+ #endif
+ 
++#if !defined(__CRYPTO_COMPILE_STANDALONE)
++#include <StdLib/Include/stdlib.h>
++#include <StdLib/Include/time.h>
++#include <StdLib/Include/sys/time.h>
++#include <StdLib/Include/stddef.h>
++#include <StdLib/Include/stdint.h>
++#include <StdLib/Include/limits.h>
++#include <StdLib/Include/string.h>
++#include <StdLib/Include/stdarg.h>
++#include <StdLib/Include/stdio.h>
++#include <StdLib/Include/assert.h>
++#include <StdLib/Include/ctype.h>
++#include <StdLib/Include/errno.h>
++#include <StdLib/Include/sys/types.h>
++#include <StdLib/Include/unistd.h>
++#include <ProcessorBind.h>
++#else
++
+ //
+ // Map all va_xxxx elements to VA_xxx defined in MdePkg/Include/Base.h
+ //
+@@ -58,6 +78,8 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
+ #define va_start  VA_START
+ #define va_end    VA_END
+ 
++
++
+ //
+ // Definitions for global constants used by CRT library routines
+ //
+@@ -492,3 +514,5 @@ memcpy (
+ #else
+ #define UINTPTR_MAX  0xFFFFFFFFUL
+ #endif
++
++#endif
+diff --git a/CryptoPkg/Library/IntrinsicLib/CopyMem.c b/CryptoPkg/Library/IntrinsicLib/CopyMem.c
+index 5e346728c5..666ecc61d1 100644
+--- a/CryptoPkg/Library/IntrinsicLib/CopyMem.c
++++ b/CryptoPkg/Library/IntrinsicLib/CopyMem.c
+@@ -35,6 +35,8 @@ memcpy (
+   );
+ 
+ #else
++
++#if defined(__CRYPTO_COMPILE_STANDALONE)
+ /* Copies bytes between buffers */
+ void *
+ memcpy (
+@@ -47,3 +49,5 @@ memcpy (
+ }
+ 
+ #endif
++
++#endif
+diff --git a/CryptoPkg/Library/IntrinsicLib/IntrinsicLib.inf b/CryptoPkg/Library/IntrinsicLib/IntrinsicLib.inf
+index 6dd9f5d5b9..a80bfe2949 100644
+--- a/CryptoPkg/Library/IntrinsicLib/IntrinsicLib.inf
++++ b/CryptoPkg/Library/IntrinsicLib/IntrinsicLib.inf
+@@ -84,3 +84,5 @@
+    MSFT:DEBUG_*_X64_CC_FLAGS              == /nologo /c /WX /GS- /X /W4 /Gs32768 /D UNICODE /O1b2s /Gy /FIAutoGen.h /EHs-c- /GR- /GF /Zi /Gm
+    MSFT:RELEASE_*_X64_CC_FLAGS            == /nologo /c /WX /GS- /X /W4 /Gs32768 /D UNICODE /O1b2s /Gy /FIAutoGen.h /EHs-c- /GR- /GF
+   INTEL:*_*_*_CC_FLAGS                    =  /Oi-
++  # define or undefine this based on the usage of StdLib
++  *_*_*_CC_FLAGS                    =  -U__CRYPTO_COMPILE_STANDALONE
+diff --git a/CryptoPkg/Library/IntrinsicLib/MemoryIntrinsics.c b/CryptoPkg/Library/IntrinsicLib/MemoryIntrinsics.c
+index 9b091f1901..faedee2d9e 100644
+--- a/CryptoPkg/Library/IntrinsicLib/MemoryIntrinsics.c
++++ b/CryptoPkg/Library/IntrinsicLib/MemoryIntrinsics.c
+@@ -19,6 +19,8 @@ typedef UINTN size_t;
+ #define GLOBAL_USED
+ #endif
+ 
++#if defined(__CRYPTO_COMPILE_STANDALONE)
++
+ /* OpenSSL will use floating point support, and C compiler produces the _fltused
+    symbol by default. Simply define this symbol here to satisfy the linker. */
+ int  GLOBAL_USED  _fltused = 1;
+@@ -63,3 +65,4 @@ memcmp (
+ {
+   return (int)CompareMem (buf1, buf2, count);
+ }
++#endif
+diff --git a/CryptoPkg/Library/OpensslLib/OpensslLib.inf b/CryptoPkg/Library/OpensslLib/OpensslLib.inf
+index 1456be7320..1aaf224333 100644
+--- a/CryptoPkg/Library/OpensslLib/OpensslLib.inf
++++ b/CryptoPkg/Library/OpensslLib/OpensslLib.inf
+@@ -795,6 +795,7 @@
+   #   -Werror=unused-but-set-variable: Warn whenever a local variable is assigned to, but otherwise unused (aside from its declaration).
+   #
+   GCC:RELEASE_*_*_CC_FLAGS = -DNDEBUG
++  *_*_*_CC_FLAGS = -D__STDC_NO_ATOMICS__
+   GCC:*_*_IA32_CC_FLAGS    = -U_WIN32 -UWIN32 -U_WIN64 -U_MSC_VER $(OPENSSL_FLAGS) $(OPENSSL_FLAGS_NOASM) -Wno-error=maybe-uninitialized -Wno-error=unused-but-set-variable
+   GCC:*_*_X64_CC_FLAGS     = -U_WIN32 -UWIN32 -U_WIN64 -U_MSC_VER $(OPENSSL_FLAGS) $(OPENSSL_FLAGS_NOASM) -Wno-error=maybe-uninitialized -Wno-error=format -Wno-format -Wno-error=unused-but-set-variable -DNO_MSABI_VA_FUNCS
+   GCC:*_*_AARCH64_CC_FLAGS = $(OPENSSL_FLAGS) -Wno-error=maybe-uninitialized -Wno-format -Wno-error=unused-but-set-variable -Wno-error=format
+@@ -835,3 +836,13 @@
+   # use floating point types, so clear the flags here.
+   #
+   GCC:*_*_AARCH64_CC_XIPFLAGS ==
++
++  # define or undefine this based on the usage of StdLib
++  *_*_*_CC_FLAGS                    =  -U__CRYPTO_COMPILE_STANDALONE
++  *_*_*_CC_FLAGS                    =  -I$(EDK2_LIBC_ROOT)
++  *_*_*_CC_FLAGS                    =  -I$(EDK2_ROOT)/CryptoPkg/Library/Include
++  *_*_*_CC_FLAGS                    =  -I$(EDK2_LIBC_ROOT)/StdLib/Include
++
++[BuildOptions.X64]
++  *_*_*_CC_FLAGS                    =  -I$(EDK2_LIBC_ROOT)/StdLib/Include/X64
++  *_*_*_CC_FLAGS                    =  -I$(EDK2_ROOT)/MdePkg/Include/X64
+-- 
+2.55.0
+

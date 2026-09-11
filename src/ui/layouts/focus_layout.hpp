@@ -76,15 +76,17 @@ namespace ui {
         template<typename T>
         [[nodiscard]] T* get(const u32 index) {
             if (index >= m_widgets.size()) {
-                throw std::runtime_error{ fmt::format(
-                        "Invalid get of FocusLayout item: index out of bound: {} is not in range [{} - {})", index, 0,
-                        m_widgets.size()
-                ) };
+                utils::throw_(
+                        std::runtime_error{ fmt::format(
+                                "Invalid get of FocusLayout item: index out of bound: {} is not in range [{} - {})",
+                                index, 0, m_widgets.size()
+                        ) }
+                );
             }
 
             auto item = utils::is_child_class<T>(m_widgets.at(index));
             if (not item.has_value()) {
-                throw std::runtime_error("Invalid get of FocusLayout item!");
+                utils::throw_(std::runtime_error("Invalid get of FocusLayout item!"));
             }
 
             return item.value();
@@ -93,12 +95,12 @@ namespace ui {
         template<typename T>
         [[nodiscard]] const T* get(const u32 index) const {
             if (index >= m_widgets.size()) {
-                throw std::runtime_error("Invalid get of FocusLayout item: index out of bound!");
+                utils::throw_(std::runtime_error("Invalid get of FocusLayout item: index out of bound!"));
             }
 
             const auto item = utils::is_child_class<T>(m_widgets.at(index).get());
             if (item == nullptr) {
-                throw std::runtime_error("Invalid get of FocusLayout item!");
+                utils::throw_(std::runtime_error("Invalid get of FocusLayout item!"));
             }
 
             return item.value();

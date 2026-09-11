@@ -77,7 +77,8 @@ input::ControllerInput::get_by_device_index(int device_index) {
 }
 
 
-[[nodiscard]] std::optional<input::NavigationEvent> input::ControllerInput::get_navigation_event(const SDL_Event& event
+[[nodiscard]] std::optional<input::NavigationEvent> input::ControllerInput::get_navigation_event(
+        const SDL_Event& event
 ) const {
     if (event.type == SDL_CONTROLLERBUTTONDOWN) {
 
@@ -123,7 +124,7 @@ input::ControllerInput::get_by_device_index(int device_index) {
         case NavigationEvent::RIGHT:
             return "Right";
         case NavigationEvent::TAB:
-            throw std::runtime_error("Tab is not supported");
+            utils::throw_(std::runtime_error("Tab is not supported"));
         default:
             UNREACHABLE();
     }
@@ -238,7 +239,8 @@ input::ControllerGameInput::ControllerGameInput(
 }
 
 
-[[nodiscard]] std::optional<InputEvent> input::ControllerGameInput::sdl_event_to_input_event(const SDL_Event& event
+[[nodiscard]] std::optional<InputEvent> input::ControllerGameInput::sdl_event_to_input_event(
+        const SDL_Event& event
 ) const {
     if (event.type == SDL_CONTROLLERBUTTONDOWN) {
 
@@ -314,9 +316,12 @@ sdl::ControllerKey json_helper::get_controller_key(const nlohmann::json& obj, co
     const auto& value = sdl::ControllerKey::from_string(string::to_lower_case(input));
 
     if (not value.has_value()) {
-        throw nlohmann::json::type_error::create(
-                302, fmt::format("Expected a valid Key for key '{}', but got '{}': {}", name, input, value.error()),
-                &context
+        utils::throw_(
+                nlohmann::json::type_error::create(
+                        302,
+                        fmt::format("Expected a valid Key for key '{}', but got '{}': {}", name, input, value.error()),
+                        &context
+                )
         );
     }
     return value.value();

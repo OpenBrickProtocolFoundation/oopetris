@@ -89,7 +89,8 @@ oopetris::http::implementation::ActualResult::ActualResult(ActualResult&& other)
     : m_request{ std::move(other.m_request) },
       m_response_headers{ std::move(other.m_response_headers) } { }
 
-[[nodiscard]] std::optional<std::string> oopetris::http::implementation::ActualResult::get_header(const std::string& key
+[[nodiscard]] std::optional<std::string> oopetris::http::implementation::ActualResult::get_header(
+        const std::string& key
 ) const {
     if (m_response_headers.contains(key)) {
         return std::nullopt;
@@ -239,8 +240,6 @@ oopetris::http::implementation::ActualClient::ActualClient(const std::string& ap
         return TRANSFORM_RESULT(make_request("POST", final_url, m_headers));
     }
 
-    auto [content, content_type] = payload.value();
-
     return TRANSFORM_RESULT(make_request_with_data("POST", final_url, m_headers, payload.value()));
 }
 
@@ -253,8 +252,6 @@ oopetris::http::implementation::ActualClient::ActualClient(const std::string& ap
     if (not payload.has_value()) {
         return TRANSFORM_RESULT(make_request("PUT", final_url, m_headers));
     }
-
-    auto [content, content_type] = payload.value();
 
     return TRANSFORM_RESULT(make_request_with_data("PUT", final_url, m_headers, payload.value()));
 }

@@ -19,17 +19,17 @@ namespace tetrion {
         std::optional<std::shared_ptr<recorder::RecordingWriter>> recording_writer;
 
         StartingParameters(
-                u32 target_fps,
-                Random::Seed seed,
-                u32 starting_level, // NOLINT(bugprone-easily-swappable-parameters)
-                u8 tetrion_index,
-                std::optional<std::shared_ptr<recorder::RecordingWriter>> recording_writer = std::nullopt
+                u32 target_fps_a, // NOLINT(bugprone-easily-swappable-parameters)
+                Random::Seed seed_a,
+                u32 starting_level_a,
+                u8 tetrion_index_a,
+                std::optional<std::shared_ptr<recorder::RecordingWriter>> recording_writer_a = std::nullopt
         )
-            : target_fps{ target_fps },
-              seed{ seed },
-              starting_level{ starting_level },
-              tetrion_index{ tetrion_index },
-              recording_writer{ std::move(recording_writer) } { }
+            : target_fps{ target_fps_a },
+              seed{ seed_a },
+              starting_level{ starting_level_a },
+              tetrion_index{ tetrion_index_a },
+              recording_writer{ std::move(recording_writer_a) } { }
     };
 } // namespace tetrion
 

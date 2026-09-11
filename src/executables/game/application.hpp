@@ -17,9 +17,40 @@
 #include "ui/components/label.hpp"
 
 #include <chrono>
-#include <future>
 #include <memory>
 #include <vector>
+
+#if !defined(__OOPETRIS_HAVE_NO_THREADS)
+#include <future>
+
+#define OOPETRIS_ASYNC std::async
+#define OOPETRIS_ASYNC_LAUNCH_ARG std::launch::async
+
+namespace oopetris {
+    template<typename T>
+    using future = std::future<T>;
+    using future_status = std::future_status;
+} // namespace oopetris
+
+#else
+#if defined(__UEFI__)
+
+
+#include "helper/uefi_futures.hpp"
+
+#define OOPETRIS_ASYNC uefi::helper::async
+#define OOPETRIS_ASYNC_LAUNCH_ARG (std::monostate{})
+
+namespace oopetris {
+    template<typename T>
+    using future = uefi::helper::future<T>;
+    using future_status = uefi::helper::future_status;
+} // namespace oopetris
+#else
+#error "We need threads in this environment"
+#endif
+
+#endif
 
 
 #if defined(__EMSCRIPTEN__)
@@ -61,7 +92,7 @@ namespace helper {
         std::chrono::nanoseconds m_sleep_time;
         Uint64 m_start_time;
 
-        std::future<void> m_load_everything_thread;
+        oopetris::future<void> m_load_everything_future;
 
     public:
         std::chrono::steady_clock::time_point m_start_execution_time;
@@ -71,7 +102,7 @@ namespace helper {
         LoadingInfo(
                 std::chrono::nanoseconds sleep_time,
                 Uint64 start_time,
-                std::future<void>&& load_everything_thread,
+                oopetris::future<void>&& m_load_everything_future,
                 std::chrono::steady_clock::time_point start_execution_time,
                 bool finished_loading,
                 scenes::LoadingScreen&& loading_screen
@@ -81,7 +112,7 @@ namespace helper {
 
         [[nodiscard]] Uint64 start_time() const;
 
-        [[nodiscard]] const std::future<void>& load_everything_thread() const;
+        [[nodiscard]] const oopetris::future<void>& load_everything_future() const;
     };
 } // namespace helper
 

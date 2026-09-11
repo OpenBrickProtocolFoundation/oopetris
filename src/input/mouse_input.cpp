@@ -8,8 +8,8 @@
 
 input::MouseInput::MouseInput() : PointerInput("mouse") { }
 
-[[nodiscard]] SDL_Event input::MouseInput::offset_pointer_event(const SDL_Event& event, const shapes::IPoint& point)
-        const {
+[[nodiscard]] SDL_Event
+input::MouseInput::offset_pointer_event(const SDL_Event& event, const shapes::IPoint& point) const {
 
     auto new_event = event;
 
@@ -28,23 +28,24 @@ input::MouseInput::MouseInput() : PointerInput("mouse") { }
             new_event.button.y = event.button.y + point.y;
             break;
         default:
-            throw std::runtime_error("Tried to offset event, that is no pointer event: in Mouse Input");
+            utils::throw_(std::runtime_error("Tried to offset event, that is no pointer event: in Mouse Input"));
     }
 
     return new_event;
 }
 
 
-[[nodiscard]] std::optional<input::NavigationEvent> input::MouseInput::get_navigation_event(const SDL_Event& /*event*/)
-        const {
+[[nodiscard]] std::optional<input::NavigationEvent>
+input::MouseInput::get_navigation_event(const SDL_Event& /*event*/) const {
     return std::nullopt;
 }
 
 [[nodiscard]] std::string input::MouseInput::describe_navigation_event(NavigationEvent /*event*/) const {
-    throw std::runtime_error("not supported");
+    utils::throw_(std::runtime_error("not supported"));
 }
 
-[[nodiscard]] std::optional<input::PointerEventHelper> input::MouseInput::get_pointer_event(const SDL_Event& event
+[[nodiscard]] std::optional<input::PointerEventHelper> input::MouseInput::get_pointer_event(
+        const SDL_Event& event
 ) const {
 
     auto pointer_event = input::PointerEvent::PointerUp;

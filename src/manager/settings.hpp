@@ -36,7 +36,7 @@ namespace nlohmann {
                 return Controls{ nlohmann::adl_serializer<input::TouchSettings>::from_json(obj) };
             }
 
-            throw std::runtime_error{ fmt::format("unsupported control type '{}'", to_string(type)) };
+            utils::throw_(std::runtime_error{ fmt::format("unsupported control type '{}'", to_string(type)) });
         }
 
         static void to_json(json& obj, Controls controls) { // NOLINT(misc-no-recursion)

@@ -254,7 +254,8 @@ namespace input {
         [[nodiscard]] JoystickLikeGameInput& operator=(const JoystickLikeGameInput& input) = delete;
 
         OOPETRIS_GRAPHICS_EXPORTED JoystickLikeGameInput(JoystickLikeGameInput&& input) noexcept;
-        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED JoystickLikeGameInput& operator=(JoystickLikeGameInput&& input
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED JoystickLikeGameInput& operator=(
+                JoystickLikeGameInput&& input
         ) noexcept;
 
         OOPETRIS_GRAPHICS_EXPORTED void handle_event(const SDL_Event& event) override;
@@ -360,8 +361,11 @@ namespace nlohmann {
             const auto& value = sdl::GUID::from_string(input);
 
             if (not value.has_value()) {
-                throw nlohmann::json::type_error::create(
-                        302, fmt::format("Expected a valid GUID but got '{}': {}", input, value.error()), &context
+                utils::throw_(
+                        nlohmann::json::type_error::create(
+                                302, fmt::format("Expected a valid GUID but got '{}': {}", input, value.error()),
+                                &context
+                        )
                 );
             }
 
@@ -375,10 +379,12 @@ namespace nlohmann {
         }
 
         static void to_json(json& obj, const input::JoystickIdentification& identification) {
-            obj = nlohmann::json::object({
-                    { "guid", identification.guid.to_string() },
-                    { "name",             identification.name }
-            });
+            obj = nlohmann::json::object(
+                    {
+                            { "guid", identification.guid.to_string() },
+                            { "name",             identification.name }
+            }
+            );
         }
     };
 
@@ -422,7 +428,7 @@ namespace nlohmann {
 
             const auto is_valid = settings.validate();
             if (not is_valid.has_value()) {
-                throw std::runtime_error(is_valid.error());
+                utils::throw_(std::runtime_error(is_valid.error()));
             }
 
             return settings;
@@ -433,18 +439,22 @@ namespace nlohmann {
             auto identification = nlohmann::json::object();
             adl_serializer<input::JoystickIdentification>::to_json(identification, settings.identification);
 
-            obj = nlohmann::json::object({
-                    { "identification",                                                                                       identification },
-                    {    "rotate_left",                                                                                 settings.rotate_left },
-                    {   "rotate_right",                                                                                settings.rotate_right },
-                    {      "move_left",                                                                                   settings.move_left },
-                    {     "move_right",                                                                                  settings.move_right },
-                    {      "move_down",                                                                                   settings.move_down },
-                    {           "drop",                                                                                        settings.drop },
-                    {           "hold",                                                                                        settings.hold },
-                    {           "menu", nlohmann::json::object({ { "pause", settings.pause },
- { "open_settings", settings.open_settings } })                                                      }
-            });
+            obj = nlohmann::json::object(
+                    {
+                            { "identification",identification                                               },
+                            {    "rotate_left",  settings.rotate_left },
+                            {   "rotate_right", settings.rotate_right },
+                            {      "move_left",    settings.move_left },
+                            {     "move_right",   settings.move_right },
+                            {      "move_down",    settings.move_down },
+                            {           "drop",         settings.drop },
+                            {           "hold",         settings.hold },
+                            {           "menu",
+                             nlohmann::json::object(
+                             { { "pause", settings.pause }, { "open_settings", settings.open_settings } }
+                             )                                       }
+            }
+            );
         }
     };
 } // namespace nlohmann

@@ -1,0 +1,798 @@
+From 1f925c2e18dd15f84beb7ae3872cc659e1742dfb Mon Sep 17 00:00:00 2001
+From: Totto16 <tobiausgais@gmail.com>
+Date: Sun, 6 Sep 2026 21:12:28 +0200
+Subject: [PATCH 4/4] feat: make the stdlib thread safe in some places - make
+ malloc thread safe - add mutex support, using the C11 interface, not pthread
+ - make certain IO operations thread safe
+
+---
+ StdLib/Include/sys/threads.h                 |  13 +
+ StdLib/Include/threads.h                     |  93 ++++++
+ StdLib/LibC/StdLib/Malloc.c                  |  66 +++-
+ StdLib/LibC/StdLib/StdLib.inf                |   2 +
+ StdLib/LibC/Thread/Thread.inf                |  48 +++
+ StdLib/LibC/Thread/Threads.c                 | 331 +++++++++++++++++++
+ StdLib/LibC/Uefi/Devices/Console/daConsole.c |  22 ++
+ StdLib/LibC/Uefi/SysCalls.c                  |   3 +
+ StdLib/StdLib.dsc                            |   1 +
+ StdLib/StdLib.inc                            |   1 +
+ 10 files changed, 576 insertions(+), 4 deletions(-)
+ create mode 100644 StdLib/Include/sys/threads.h
+ create mode 100644 StdLib/Include/threads.h
+ create mode 100644 StdLib/LibC/Thread/Thread.inf
+ create mode 100644 StdLib/LibC/Thread/Threads.c
+
+diff --git a/StdLib/Include/sys/threads.h b/StdLib/Include/sys/threads.h
+new file mode 100644
+index 0000000..e5d22a1
+--- /dev/null
++++ b/StdLib/Include/sys/threads.h
+@@ -0,0 +1,13 @@
++#pragma once
++
++// internal threads api
++
++#include <sys/EfiCdefs.h>
++
++__BEGIN_DECLS
++
++void efi_threads_init(void);
++
++[[nodiscard]] UINTN efi_thread_id(void);
++
++__END_DECLS
+diff --git a/StdLib/Include/threads.h b/StdLib/Include/threads.h
+new file mode 100644
+index 0000000..253aa02
+--- /dev/null
++++ b/StdLib/Include/threads.h
+@@ -0,0 +1,93 @@
++#pragma once
++
++// partial C11 Threads support
++
++#include <sys/EfiCdefs.h>
++
++#include <sys/time.h>
++#include <time.h>
++
++// only mutexes implemented
++// see: https://github.com/esmil/musl/blob/master/include/threads.h
++// and: https://en.cppreference.com/c/header/threads
++// and: https://www.sourceware.org/glibc/manual/2.44/html_node/ISO-C-Mutexes.html
++
++__BEGIN_DECLS
++enum {
++    mtx_plain = 0,
++    mtx_recursive = 1,
++    mtx_timed = 2,
++};
++
++
++enum {
++    thrd_success = 0,
++    thrd_busy = 1,
++    thrd_error = 2,
++    thrd_nomem = 3,
++    thrd_timedout = 4,
++};
++
++
++typedef struct mtx_t_impl mtx_t;
++
++int mtx_init(mtx_t* mtx, int type);
++void mtx_destroy(mtx_t* mtx);
++
++int mtx_lock(mtx_t* mtx);
++int mtx_timedlock(mtx_t* __restrict mtx, const struct timespec* __restrict ts);
++int mtx_trylock(mtx_t* mtx);
++int mtx_unlock(mtx_t* mtx);
++
++#ifndef LIBC_USE_MUTEX_TYPE
++#define LIBC_USE_MUTEX_TYPE 1
++#endif
++
++#if LIBC_USE_MUTEX_TYPE == 0
++#error "TODO"
++#elif LIBC_USE_MUTEX_TYPE == 1
++#define __LIBC_IMPL_MUTEX_TYPE __Libc_Impl_Mutex_atomic
++#define __LIBC_IMPL_MUTEX_PREFIX __Libc_Impl_Mutex_atomic_fn_
++#define __LIBC_IMPL_MUTEX_CONST_INIT ((__LIBC_IMPL_MUTEX_TYPE) { .locked = 0 })
++#else
++#error "Invalid LIBC_USE_MUTEX_TYPE value"
++#endif
++
++typedef struct {
++    volatile UINT32 locked;
++} __Libc_Impl_Mutex_atomic;
++
++typedef struct {
++    bool locked;
++    UINTN amount;
++    UINTN thread_id;
++} __Libc_Impl_Mutex_recursive_state;
++
++typedef struct {
++    __LIBC_IMPL_MUTEX_TYPE mutex;
++    __Libc_Impl_Mutex_recursive_state state;
++} __Libc_Impl_Mutex_recursive;
++
++typedef enum {
++    __Libc_Impl_Mutex_type_plain = 0,
++    __Libc_Impl_Mutex_type_recursive = 1,
++} __Libc_Impl_Mutex_type;
++
++
++struct mtx_t_impl {
++    __Libc_Impl_Mutex_type type;
++    union {
++        __LIBC_IMPL_MUTEX_TYPE plain;
++        __Libc_Impl_Mutex_recursive recursive;
++    } data;
++};
++
++#define MTX_T_MEMBER_TYPE __LIBC_IMPL_MUTEX_TYPE
++
++
++extern UINT32 g_id;
++#define MTX_T_STATIC_INITIALIZER \
++    ((mtx_t) { .type = __Libc_Impl_Mutex_type_plain, .data = { .plain = __LIBC_IMPL_MUTEX_CONST_INIT } })
++
++
++__END_DECLS
+diff --git a/StdLib/LibC/StdLib/Malloc.c b/StdLib/LibC/StdLib/Malloc.c
+index 7bf8827..cc10cb0 100644
+--- a/StdLib/LibC/StdLib/Malloc.c
++++ b/StdLib/LibC/StdLib/Malloc.c
+@@ -29,12 +29,15 @@
+ #include  <Library/BaseLib.h>
+ #include  <Library/BaseMemoryLib.h>
+ #include  <Library/DebugLib.h>
++#include  <Library/SynchronizationLib.h>
+ 
+ #include  <LibConfig.h>
+ 
+ #include  <assert.h>
+ #include  <stdlib.h>
+ #include  <errno.h>
++#include  <threads.h>
++#include  <sys/threads.h>
+ 
+ #define CPOOL_HEAD_SIGNATURE   SIGNATURE_32('C','p','h','d')
+ 
+@@ -62,6 +65,39 @@ typedef struct {
+ // List of memory allocated by malloc/calloc/etc.
+ static  LIST_ENTRY      MemPoolHead = INITIALIZE_LIST_HEAD_VARIABLE(MemPoolHead);
+ 
++static mtx_t g_MemoryMutex = {};
++
++#define MUTEX_ACQUIRE(lock) ASSERT(mtx_lock(lock) == thrd_success)
++#define MUTEX_RELEASE(lock) ASSERT(mtx_unlock(lock) == thrd_success)
++
++
++EFI_STATUS
++EFIAPI
++LibStdLibConstructor (
++  IN EFI_HANDLE        ImageHandle,
++  IN EFI_SYSTEM_TABLE  *SystemTable
++  )
++{
++  int result = mtx_init(&g_MemoryMutex, mtx_plain);
++
++  if(result != thrd_success){
++    return EFI_LOAD_ERROR;
++  }
++  return EFI_SUCCESS;
++}
++
++EFI_STATUS
++EFIAPI
++LibStdLibDestructor (
++  IN EFI_HANDLE        ImageHandle,
++  IN EFI_SYSTEM_TABLE  *SystemTable
++  )
++{
++  mtx_destroy(&g_MemoryMutex);
++  return EFI_SUCCESS;
++}
++
++
+ /****************************/
+ 
+ /** The malloc function allocates space for an object whose size is specified
+@@ -103,11 +139,15 @@ malloc(size_t Size)
+   NodeSize = (UINTN)(Size + sizeof(CPOOL_HEAD));
+ 
+   DEBUG((DEBUG_POOL, "malloc(%d): NodeSz: %d", Size, NodeSize));
++  
++  MUTEX_ACQUIRE(&g_MemoryMutex);
++  {
+ 
+   Status = gBS->AllocatePool( EfiLoaderData, NodeSize, (void**)&Head);
+   if( Status != EFI_SUCCESS) {
+     RetVal  = NULL;
+     errno   = ENOMEM;
++    DEBUG((DEBUG_ERROR, "malloc(%d): NodeSz: %d", Size, NodeSize));
+     DEBUG((DEBUG_ERROR, "\nERROR malloc: AllocatePool returned %r\n", Status));
+   }
+   else {
+@@ -124,6 +164,9 @@ malloc(size_t Size)
+     DEBUG((DEBUG_POOL, " Head: %p, Returns %p\n", Head, RetVal));
+   }
+ 
++  }
++  MUTEX_RELEASE(&g_MemoryMutex);
++
+   return RetVal;
+ }
+ 
+@@ -176,6 +219,9 @@ free(void *Ptr)
+ {
+   CPOOL_HEAD   *Head;
+ 
++    MUTEX_ACQUIRE(&g_MemoryMutex);
++  {
++
+   Head = BASE_CR(Ptr, CPOOL_HEAD, Data);
+   assert(Head != NULL);
+   DEBUG((DEBUG_POOL, "free(%p): Head: %p\n", Ptr, Head));
+@@ -187,10 +233,14 @@ free(void *Ptr)
+     }
+     else {
+       errno = EFAULT;
+-      DEBUG((DEBUG_ERROR, "ERROR free(0x%p): Signature is 0x%8X, expected 0x%8X\n",
+-             Ptr, Head->Signature, CPOOL_HEAD_SIGNATURE));
++      DEBUG((DEBUG_ERROR, "ERROR free(0x%p): [%lu] Signature is 0x%8X, expected 0x%8X\n",
++             Ptr, efi_thread_id(), Head->Signature, CPOOL_HEAD_SIGNATURE));
+     }
+   }
++
++  }
++  MUTEX_RELEASE(&g_MemoryMutex);
++
+   DEBUG((DEBUG_POOL, "free Done\n"));
+ }
+ 
+@@ -245,19 +295,27 @@ realloc(void *Ptr, size_t ReqSize)
+   size_t      NewSize;
+   size_t      NumCpy;
+ 
++  MUTEX_ACQUIRE(&g_MemoryMutex);
++  {
++
+   // Find out the size of the OLD memory region
+   if( Ptr != NULL) {
+     Head = BASE_CR (Ptr, CPOOL_HEAD, Data);
+     assert(Head != NULL);
+     if (Head->Signature != CPOOL_HEAD_SIGNATURE) {
+       errno = EFAULT;
+-      DEBUG((DEBUG_ERROR, "ERROR realloc(0x%p): Signature is 0x%8X, expected 0x%8X\n",
+-             Ptr, Head->Signature, CPOOL_HEAD_SIGNATURE));
++      DEBUG((DEBUG_ERROR, "ERROR realloc(0x%p): [%lu] Signature is 0x%8X, expected 0x%8X\n",
++             Ptr, efi_thread_id(), Head->Signature, CPOOL_HEAD_SIGNATURE));
++
++      MUTEX_RELEASE(&g_MemoryMutex);
+       return NULL;
+     }
+     OldSize = (size_t)Head->Size;
+   }
+ 
++  }
++  MUTEX_RELEASE(&g_MemoryMutex);
++
+   // At this point, Ptr is either NULL or a valid pointer to an allocated space
+   NewSize = (size_t)(ReqSize + (sizeof(CPOOL_HEAD)));
+ 
+diff --git a/StdLib/LibC/StdLib/StdLib.inf b/StdLib/LibC/StdLib/StdLib.inf
+index 968e6a7..299dbfa 100644
+--- a/StdLib/LibC/StdLib/StdLib.inf
++++ b/StdLib/LibC/StdLib/StdLib.inf
+@@ -20,6 +20,8 @@
+   MODULE_TYPE                    = UEFI_APPLICATION
+   VERSION_STRING                 = 1.0
+   LIBRARY_CLASS                  = LibStdLib
++  CONSTRUCTOR                    = LibStdLibConstructor
++  DESTRUCTOR                     = LibStdLibDestructor
+ 
+ #
+ #  VALID_ARCHITECTURES           = IA32 X64
+diff --git a/StdLib/LibC/Thread/Thread.inf b/StdLib/LibC/Thread/Thread.inf
+new file mode 100644
+index 0000000..a96e297
+--- /dev/null
++++ b/StdLib/LibC/Thread/Thread.inf
+@@ -0,0 +1,48 @@
++## @file
++#  Standard C library: Time implementations.
++#
++#  Copyright (c) 2010 - 2018, Intel Corporation. All rights reserved.<BR>
++#
++#  This program and the accompanying materials
++#  are licensed and made available under the terms and conditions of the BSD License
++#  which accompanies this distribution. The full text of the license may be found at
++#  http://opensource.org/licenses/bsd-license.php.
++#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
++#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
++#
++#
++##
++
++[Defines]
++  INF_VERSION                    = 0x00010005
++  BASE_NAME                      = LibThread
++  FILE_GUID                      = 5dd405b1-a51e-4755-9d04-67d5ae869f4b
++  MODULE_TYPE                    = UEFI_APPLICATION
++  VERSION_STRING                 = 1.0
++  LIBRARY_CLASS                  = LibThread
++
++#
++#  VALID_ARCHITECTURES           = IA32 X64
++#
++
++[Sources]
++  Threads.c
++
++[Packages]
++  StdLib/StdLib.dec
++  MdePkg/MdePkg.dec
++
++[LibraryClasses]
++  UefiLib
++  BaseLib
++  UefiRuntimeServicesTableLib
++  SynchronizationLib
++
++################################################################
++#
++# The Build Options, below, are only used when building the C library.
++# DO NOT use them when building your application!
++# Nasty things could happen if you do.
++#
++[BuildOptions]
++   GCC:*_*_*_CC_FLAGS    = -fno-strict-overflow
+diff --git a/StdLib/LibC/Thread/Threads.c b/StdLib/LibC/Thread/Threads.c
+new file mode 100644
+index 0000000..d4821b5
+--- /dev/null
++++ b/StdLib/LibC/Thread/Threads.c
+@@ -0,0 +1,331 @@
++#include <stdlib.h>
++#include <sys/threads.h>
++#include <threads.h>
++
++#include <Library/BaseLib.h>
++#include <Library/DebugLib.h>
++#include <Library/SynchronizationLib.h>
++#include <Library/UefiBootServicesTableLib.h>
++#include <Pi/PiMultiPhase.h>
++#include <Protocol/MpService.h>
++
++#define CONCAT(a, b) CONCAT_IMPL(a, b)
++#define CONCAT_IMPL(a, b) a##b
++
++#define IMPL_MUTEX_PLAIN_CALL(name) CONCAT(__LIBC_IMPL_MUTEX_PREFIX, name)
++#define IMPL_MUTEX_REC_CALL(name) CONCAT(__Libc_Impl_Mutex_recursive_fn_, name)
++
++
++static void __Libc_Impl_Mutex_atomic_fn_init(__Libc_Impl_Mutex_atomic* value) {
++    *value = (__Libc_Impl_Mutex_atomic){ .locked = 0 };
++}
++
++static void __Libc_Impl_Mutex_atomic_fn_destroy(const __Libc_Impl_Mutex_atomic* value) {
++    ASSERT(value->locked == 0);
++}
++
++static void __Libc_Impl_Mutex_atomic_fn_lock(__Libc_Impl_Mutex_atomic* value) {
++    while (InterlockedCompareExchange32(
++                   &(value->locked),
++                   0, // Compare: unlocked
++                   1  // Exchange: locked
++           )
++           != 0) {
++        //
++        // Someone else owns it.
++        //
++        CpuPause();
++    }
++}
++
++[[nodiscard]] static int __Libc_Impl_Mutex_atomic_fn_trylock(__Libc_Impl_Mutex_atomic* value) {
++    UINT32 result = InterlockedCompareExchange32(
++            &(value->locked),
++            0, // Compare: unlocked
++            1  // Exchange: locked
++    );
++
++    if (result != 0) {
++        return thrd_busy;
++    }
++
++    return thrd_success;
++}
++
++static void __Libc_Impl_Mutex_atomic_fn_unlock(__Libc_Impl_Mutex_atomic* value) {
++    UINT32 result = InterlockedCompareExchange32(
++            &(value->locked),
++            1, // Compare: locked
++            0  // Exchange: unlocked
++    );
++    ASSERT(result == 1);
++}
++
++#if LIBC_USE_MUTEX_TYPE == 0
++#error "TODO"
++
++//TODO use the spinlock
++
++// #define SPIN_LOCK_ACQUIRE(lock) ASSERT(AcquireSpinLock(lock) != NULL)
++// #define SPIN_LOCK_RELEASE(lock) ASSERT(ReleaseSpinLock(lock) != NULL)
++
++//   SPIN_LOCK * spin_lock = InitializeSpinLock(&MemorySpinLock);
++
++#endif
++
++
++static void __Libc_Impl_Mutex_recursive_fn_init(__Libc_Impl_Mutex_recursive* value) {
++    *value = (__Libc_Impl_Mutex_recursive){
++        .mutex = {},
++        .state = (__Libc_Impl_Mutex_recursive_state){ .locked = false, .amount = 0, .thread_id = 0 }
++    };
++
++    IMPL_MUTEX_PLAIN_CALL(init)(&(value->mutex));
++}
++
++
++static void __Libc_Impl_Mutex_recursive_fn_destroy(const __Libc_Impl_Mutex_recursive* value) {
++    IMPL_MUTEX_PLAIN_CALL(destroy)(&(value->mutex));
++    ASSERT(!value->state.locked);
++}
++
++static void __Libc_Impl_Mutex_recursive_fn_lock(__Libc_Impl_Mutex_recursive* value) {
++    while (true) {
++        IMPL_MUTEX_PLAIN_CALL(lock)(&(value->mutex));
++
++#define RETURN                                      \
++    IMPL_MUTEX_PLAIN_CALL(unlock)(&(value->mutex)); \
++    return
++
++        UINTN current_thread = efi_thread_id();
++
++        if (!value->state.locked) {
++
++            // we can lock the mutex the first time
++            value->state =
++                    (__Libc_Impl_Mutex_recursive_state){ .locked = true, .amount = 1, .thread_id = current_thread };
++
++            RETURN;
++        }
++
++        // check if it is locked by the current thread
++
++        if (value->state.thread_id == current_thread) {
++            // if it is, we increment the amount and succeed
++            (value->state.amount)++;
++            RETURN;
++        }
++
++        //otherwise we unlock the mutex and redo the same thing again, until one condition is met
++        IMPL_MUTEX_PLAIN_CALL(unlock)(&(value->mutex));
++
++        CpuPause();
++    }
++}
++#undef RETURN
++
++[[nodiscard]] static int __Libc_Impl_Mutex_recursive_fn_trylock(__Libc_Impl_Mutex_recursive* value) {
++    int try_lock_result = IMPL_MUTEX_PLAIN_CALL(trylock)(&(value->mutex));
++
++    if (try_lock_result != thrd_success) {
++        return thrd_busy;
++    }
++
++#define RETURN(ret)                                 \
++    IMPL_MUTEX_PLAIN_CALL(unlock)(&(value->mutex)); \
++    return ret
++
++    UINTN current_thread = efi_thread_id();
++
++    if (!value->state.locked) {
++
++        // we can lock the mutex the first time
++        value->state = (__Libc_Impl_Mutex_recursive_state){ .locked = true, .amount = 1, .thread_id = current_thread };
++
++        RETURN(thrd_success);
++    }
++
++    // check if it is locked by the current thread
++
++    if (value->state.thread_id == current_thread) {
++        // if it is, we increment the amount and succeed
++        (value->state.amount)++;
++        RETURN(thrd_success);
++    }
++
++    //otherwise we unlock the mutex and say it is busy
++    RETURN(thrd_busy);
++}
++#undef RETURN
++
++
++static void __Libc_Impl_Mutex_recursive_fn_unlock(__Libc_Impl_Mutex_recursive* value) {
++    IMPL_MUTEX_PLAIN_CALL(lock)(&(value->mutex));
++
++#define RETURN                                      \
++    IMPL_MUTEX_PLAIN_CALL(unlock)(&(value->mutex)); \
++    return
++
++    UINTN current_thread = efi_thread_id();
++
++    ASSERT(value->state.locked);
++    ASSERT(value->state.thread_id == current_thread);
++
++    // decremrement the amount
++    (value->state.amount)--;
++
++    // unlock if the amount == 0
++    if (value->state.amount == 0) {
++        value->state = (__Libc_Impl_Mutex_recursive_state){ .locked = false, .amount = 0, .thread_id = 0 };
++    }
++
++
++    RETURN;
++}
++#undef RETURN
++
++
++int mtx_init_plain(mtx_t* mtx) {
++    mtx->type = __Libc_Impl_Mutex_type_plain;
++    IMPL_MUTEX_PLAIN_CALL(init)(&(mtx->data.plain));
++    return thrd_success;
++}
++
++
++int mtx_init_recursive(mtx_t* mtx) {
++    mtx->type = __Libc_Impl_Mutex_type_recursive;
++    IMPL_MUTEX_REC_CALL(init)(&(mtx->data.recursive));
++    return thrd_success;
++}
++
++
++// impl
++
++int mtx_init(mtx_t* mtx, int type) {
++    if (mtx == NULL) {
++        return thrd_error;
++    }
++
++    if (type == mtx_plain) {
++        return mtx_init_plain(mtx);
++    }
++
++
++    if (type == (mtx_plain | mtx_recursive)) {
++        return mtx_init_recursive(mtx);
++    }
++
++
++    return thrd_error;
++}
++
++void mtx_destroy(mtx_t* mtx) {
++    if (mtx == NULL) {
++        return;
++    }
++
++    switch (mtx->type) {
++        case __Libc_Impl_Mutex_type_plain:
++            IMPL_MUTEX_PLAIN_CALL(destroy)(&(mtx->data.plain));
++            return;
++        case __Libc_Impl_Mutex_type_recursive:
++            IMPL_MUTEX_REC_CALL(destroy)(&(mtx->data.recursive));
++            return;
++        default:
++            return;
++    }
++}
++
++int mtx_lock(mtx_t* mtx) {
++    if (mtx == NULL) {
++        return thrd_error;
++    }
++
++    switch (mtx->type) {
++        case __Libc_Impl_Mutex_type_plain:
++            IMPL_MUTEX_PLAIN_CALL(lock)(&(mtx->data.plain));
++            return thrd_success;
++        case __Libc_Impl_Mutex_type_recursive:
++            IMPL_MUTEX_REC_CALL(lock)(&(mtx->data.recursive));
++            return thrd_success;
++        default:
++            return thrd_error;
++    }
++}
++
++int mtx_timedlock(mtx_t* restrict mtx, const struct timespec* restrict ts) {
++    // not implemented yet
++    return thrd_error;
++}
++
++int mtx_trylock(mtx_t* mtx) {
++    if (mtx == NULL) {
++        return thrd_error;
++    }
++
++    switch (mtx->type) {
++        case __Libc_Impl_Mutex_type_plain:
++            return IMPL_MUTEX_PLAIN_CALL(trylock)(&(mtx->data.plain));
++        case __Libc_Impl_Mutex_type_recursive:
++            return IMPL_MUTEX_REC_CALL(trylock)(&(mtx->data.recursive));
++        default:
++            return thrd_error;
++    }
++}
++
++int mtx_unlock(mtx_t* mtx) {
++    if (mtx == NULL) {
++        return thrd_error;
++    }
++
++    switch (mtx->type) {
++        case __Libc_Impl_Mutex_type_plain:
++            IMPL_MUTEX_PLAIN_CALL(unlock)(&(mtx->data.plain));
++            return thrd_success;
++        case __Libc_Impl_Mutex_type_recursive:
++            IMPL_MUTEX_REC_CALL(unlock)(&(mtx->data.recursive));
++            return thrd_success;
++        default:
++            return thrd_error;
++    }
++}
++
++typedef struct {
++    EFI_MP_SERVICES_PROTOCOL* Mp;
++} EfiThreadState;
++
++static EfiThreadState __efi_thread_state = { .Mp = NULL };
++
++void efi_threads_init(void) {
++
++    if (__efi_thread_state.Mp != NULL) {
++        return;
++    }
++
++    if (!gBS) {
++        DEBUG((DEBUG_ERROR, "ERROR: gBS is NULL\n"));
++        abort();
++    }
++
++    EFI_STATUS Status = gBS->LocateProtocol(&gEfiMpServiceProtocolGuid, NULL, (VOID**) (&(__efi_thread_state.Mp)));
++
++    if (EFI_ERROR(Status)) {
++        DEBUG((DEBUG_ERROR, "ERROR: couldn't get the EfiMpServiceProtocolGuid: %r\n", Status));
++        abort();
++    }
++}
++
++[[nodiscard]] UINTN efi_thread_id(void) {
++    ASSERT(__efi_thread_state.Mp != NULL);
++
++    UINTN CpuNUmber;
++
++    EFI_STATUS Status = __efi_thread_state.Mp->WhoAmI(__efi_thread_state.Mp, &CpuNUmber);
++
++    if (EFI_ERROR(Status)) {
++        DEBUG((DEBUG_ERROR, "ERROR: couldn't execute WhoAmI: %r\n", Status));
++        abort();
++    }
++
++    return CpuNUmber;
++}
+diff --git a/StdLib/LibC/Uefi/Devices/Console/daConsole.c b/StdLib/LibC/Uefi/Devices/Console/daConsole.c
+index ba031d6..1e5a32b 100644
+--- a/StdLib/LibC/Uefi/Devices/Console/daConsole.c
++++ b/StdLib/LibC/Uefi/Devices/Console/daConsole.c
+@@ -35,6 +35,7 @@
+ #include  <wctype.h>
+ #include  <wchar.h>
+ #include  <stdarg.h>
++#include <threads.h>
+ #include  <sys/fcntl.h>
+ #include  <unistd.h>
+ #include  <sys/termios.h>
+@@ -64,6 +65,13 @@ static cIIO          *IIO;
+ static BOOLEAN        TtyCooked;
+ static BOOLEAN        TtyEcho;
+ 
++static mtx_t g_ConIOMutex = {};
++
++
++#define MUTEX_ACQUIRE(lock) ASSERT(mtx_lock(lock) == thrd_success)
++#define MUTEX_RELEASE(lock) ASSERT(mtx_unlock(lock) == thrd_success)
++
++
+ /** Convert string from MBCS to WCS and translate \n to \r\n.
+ 
+     It is the caller's responsibility to ensure that dest is
+@@ -204,6 +212,9 @@ da_ConWrite(
+     EFIerrno = RETURN_UNSUPPORTED;
+     return -1;
+   }
++
++  MUTEX_ACQUIRE(&g_ConIOMutex);
++
+   // Everything is OK to do the write.
+   Proto = (EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL *)Stream->Dev;
+ 
+@@ -227,6 +238,9 @@ da_ConWrite(
+     Stream->NumWritten += NumChar;
+   }
+   EFIerrno = Status;      // Make error reason available to caller
++
++  MUTEX_RELEASE(&g_ConIOMutex);
++
+   return NumChar;
+ }
+ 
+@@ -718,6 +732,12 @@ __Cons_construct(
+   RETURN_STATUS   Status;
+   int             i;
+ 
++  int result = mtx_init(&g_ConIOMutex, mtx_plain);
++
++  if(result != thrd_success){
++    return EFI_LOAD_ERROR;
++  }
++
+   Status = RETURN_OUT_OF_RESOURCES;
+   ConInstanceList = (ConInstance *)AllocateZeroPool(NUM_SPECIAL * sizeof(ConInstance));
+   if(ConInstanceList != NULL) {
+@@ -813,6 +833,8 @@ __Cons_deconstruct(
+     IIO = NULL;
+   }
+ 
++  mtx_destroy(&g_ConIOMutex);
++
+   return RETURN_SUCCESS;
+ }
+ 
+diff --git a/StdLib/LibC/Uefi/SysCalls.c b/StdLib/LibC/Uefi/SysCalls.c
+index 23b5984..6e0532b 100644
+--- a/StdLib/LibC/Uefi/SysCalls.c
++++ b/StdLib/LibC/Uefi/SysCalls.c
+@@ -722,6 +722,9 @@ open(
+       }
+     }
+     free(NewPath);
++  }else{
++      errno   = EFI2errno(Status);
++      fd = -1;
+   }
+   free(MPath);    // We don't need this any more.
+ 
+diff --git a/StdLib/StdLib.dsc b/StdLib/StdLib.dsc
+index d56a76c..85ccfc8 100644
+--- a/StdLib/StdLib.dsc
++++ b/StdLib/StdLib.dsc
+@@ -106,6 +106,7 @@
+   StdLib/LibC/Wchar/Wchar.inf
+   StdLib/LibC/Ctype/Ctype.inf
+   StdLib/LibC/Time/Time.inf
++  StdLib/LibC/Thread/Thread.inf
+   StdLib/LibC/Stdio/Stdio.inf
+   StdLib/LibC/Locale/Locale.inf
+   StdLib/LibC/Uefi/Uefi.inf
+diff --git a/StdLib/StdLib.inc b/StdLib/StdLib.inc
+index d6f2b73..4b5a777 100644
+--- a/StdLib/StdLib.inc
++++ b/StdLib/StdLib.inc
+@@ -37,6 +37,7 @@
+   LibStdLib|StdLib/LibC/StdLib/StdLib.inf
+   LibString|StdLib/LibC/String/String.inf
+   LibTime|StdLib/LibC/Time/Time.inf
++  LibThread|StdLib/LibC/Thread/Thread.inf
+   LibUefi|StdLib/LibC/Uefi/Uefi.inf
+   LibWchar|StdLib/LibC/Wchar/Wchar.inf
+ 
+-- 
+2.55.0
+

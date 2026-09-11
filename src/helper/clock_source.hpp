@@ -2,6 +2,7 @@
 
 
 #include <core/helper/types.hpp>
+#include <core/helper/utils.hpp>
 
 #include "./export_symbols.hpp"
 
@@ -15,7 +16,7 @@ struct ClockSource {
     [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED virtual bool can_be_paused() = 0;
 
     OOPETRIS_GRAPHICS_EXPORTED virtual void pause() {
-        throw std::runtime_error("not implemented");
+        utils::throw_(std::runtime_error("not implemented"));
     }
 
     /**
@@ -23,7 +24,7 @@ struct ClockSource {
      * @return The duration of the pause.
      */
     OOPETRIS_GRAPHICS_EXPORTED virtual double resume() {
-        throw std::runtime_error("not implemented");
+        utils::throw_(std::runtime_error("not implemented"));
     };
 };
 

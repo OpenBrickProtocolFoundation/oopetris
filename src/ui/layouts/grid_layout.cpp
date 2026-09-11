@@ -3,21 +3,23 @@
 
 
 ui::GridLayout::GridLayout(
-                u32 focus_id, // NOLINT(bugprone-easily-swappable-parameters)
-                u32 size,
-                Direction direction,
-                Margin gap,
-                std::pair<double, double> margin,
-                const Layout& layout,
-                bool is_top_level 
-        )
-            : FocusLayout{ layout, focus_id, FocusOptions{ .wrap_around=is_top_level, .allow_tab=is_top_level }, is_top_level },
-              m_size{ size },
-              m_direction{ direction },
-              m_gap{ gap },
-              m_margin{ static_cast<u32>(margin.first * layout.get_rect().width()),
-                      static_cast<u32>(margin.second * layout.get_rect().height()) } {
-        }
+        u32 focus_id, // NOLINT(bugprone-easily-swappable-parameters)
+        u32 size,
+        Direction direction,
+        Margin gap,
+        std::pair<double, double> margin,
+        const Layout& layout,
+        bool is_top_level
+)
+    : FocusLayout{
+          layout, focus_id, FocusOptions{ .wrap_around = is_top_level, .allow_tab = is_top_level },
+            is_top_level
+},
+      m_size{ size },
+      m_direction{ direction },
+      m_gap{ gap },
+      m_margin{ static_cast<u32>(margin.first * layout.get_rect().width()),
+                static_cast<u32>(margin.second * layout.get_rect().height()) } { }
 
 [[nodiscard]] u32 ui::GridLayout::total_size() const {
     return m_size;
@@ -32,7 +34,7 @@ void ui::GridLayout::render(const ServiceProvider& service_provider) const {
 
 [[nodiscard]] ui::Layout ui::GridLayout::get_layout_for_index(u32 index) {
     if (index >= this->m_size) {
-        throw std::runtime_error("GridLayout is already full");
+        utils::throw_(std::runtime_error("GridLayout is already full"));
     }
 
     const auto start_point = layout().get_rect().top_left;

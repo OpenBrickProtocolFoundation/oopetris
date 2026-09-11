@@ -8,7 +8,8 @@
 input::KeyboardInput::KeyboardInput() : input::Input{ "keyboard", InputType::Keyboard } { }
 
 
-[[nodiscard]] std::optional<input::NavigationEvent> input::KeyboardInput::get_navigation_event(const SDL_Event& event
+[[nodiscard]] std::optional<input::NavigationEvent> input::KeyboardInput::get_navigation_event(
+        const SDL_Event& event
 ) const {
 
 
@@ -159,8 +160,8 @@ input::KeyboardGameInput::~KeyboardGameInput() {
 
 
 input::KeyboardGameInput::KeyboardGameInput(KeyboardGameInput&& input) noexcept = default;
-[[nodiscard]] input::KeyboardGameInput& input::KeyboardGameInput::operator=(KeyboardGameInput&& input
-) noexcept = default;
+[[nodiscard]] input::KeyboardGameInput& input::KeyboardGameInput::operator=(KeyboardGameInput&& input) noexcept =
+        default;
 
 
 [[nodiscard]] helper::expected<void, std::string> input::KeyboardSettings::validate() const {
@@ -181,9 +182,12 @@ sdl::Key json_helper::get_key(const nlohmann::json& obj, const std::string& name
     const auto& value = sdl::Key::from_string(input);
 
     if (not value.has_value()) {
-        throw nlohmann::json::type_error::create(
-                302, fmt::format("Expected a valid Key for key '{}', but got '{}': {}", name, input, value.error()),
-                &context
+        utils::throw_(
+                nlohmann::json::type_error::create(
+                        302,
+                        fmt::format("Expected a valid Key for key '{}', but got '{}': {}", name, input, value.error()),
+                        &context
+                )
         );
     }
     return value.value();

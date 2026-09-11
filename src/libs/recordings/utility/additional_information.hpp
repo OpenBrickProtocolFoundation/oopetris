@@ -46,7 +46,7 @@ namespace recorder {
         template<typename T>
         [[nodiscard]] T& as() {
             if (!is<T>()) {
-                throw std::runtime_error(fmt::format("Bad cast: can't cast to type '{}' !", typeid(T).name()));
+                utils::throw_(std::runtime_error(fmt::format("Bad cast: can't cast to type '{}' !", typeid(T).name())));
             }
 
             return std::get<T>(m_value);
@@ -55,7 +55,7 @@ namespace recorder {
         template<typename T>
         [[nodiscard]] const T& as() const {
             if (!is<T>()) {
-                throw std::runtime_error(fmt::format("Bad cast: can't cast to type '{}' !", typeid(T).name()));
+                utils::throw_(std::runtime_error(fmt::format("Bad cast: can't cast to type '{}' !", typeid(T).name())));
             }
 
             return std::get<T>(m_value);
@@ -97,14 +97,14 @@ namespace recorder {
                                     return false;
                                 }
 
-                                const auto& other = this->as<std::vector<InformationValue>>();
+                                const auto& nested_other = this->as<std::vector<InformationValue>>();
 
-                                if (other.size() != value.size()) {
+                                if (nested_other.size() != value.size()) {
                                     return false;
                                 }
 
-                                for (decltype(other.size()) i = 0; i < other.size(); ++i) {
-                                    if (other.at(i) != value.at(i)) {
+                                for (decltype(nested_other.size()) i = 0; i < nested_other.size(); ++i) {
+                                    if (nested_other.at(i) != value.at(i)) {
                                         return false;
                                     }
                                 }
@@ -180,8 +180,8 @@ namespace recorder {
 
         [[nodiscard]] OOPETRIS_RECORDINGS_EXPORTED helper::expected<std::vector<char>, std::string> to_bytes() const;
 
-        [[nodiscard]] OOPETRIS_RECORDINGS_EXPORTED helper::expected<Sha256Stream::Checksum, std::string> get_checksum(
-        ) const;
+        [[nodiscard]] OOPETRIS_RECORDINGS_EXPORTED helper::expected<Sha256Stream::Checksum, std::string>
+        get_checksum() const;
 
         // iterator trait
         using iterator = UnderlyingContainer::iterator;               //NOLINT(readability-identifier-naming)

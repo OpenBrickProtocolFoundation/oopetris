@@ -21,11 +21,21 @@
 s*/
 
 #else
+#if defined(__OOPETRIS_NO_EXCEPTIONS)
+
+#define CONSTEVAL_ONLY_STATIC_ASSERT(CHECK, MSG) /*NOLINT(cppcoreguidelines-macro-usage)*/                                                      \
+    ((CHECK) ? void(0) : [] {                                                                                                                   \
+        /* If you see this really bad c++ error message, follow the origin of MSG, to see the real error message, c++ error messages suck xD */ \
+        /* MSG*/                                                                                                                                \
+        abort();                                                                                                                                \
+    }())
+#else
 #define CONSTEVAL_ONLY_STATIC_ASSERT(CHECK, MSG) /*NOLINT(cppcoreguidelines-macro-usage)*/                                                      \
     ((CHECK) ? void(0) : [] {                                                                                                                   \
         /* If you see this really bad c++ error message, follow the origin of MSG, to see the real error message, c++ error messages suck xD */ \
         throw(MSG);                                                                                                                             \
     }())
+#endif
 #endif
 
 #define CONSTEVAL_STATIC_ASSERT(CHECK, MSG) /*NOLINT(cppcoreguidelines-macro-usage)*/    \

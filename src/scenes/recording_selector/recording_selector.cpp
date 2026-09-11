@@ -28,16 +28,16 @@ namespace scenes {
     using namespace details::recording::selector; //NOLINT(google-build-using-namespace)
 
     RecordingSelector::RecordingSelector(ServiceProvider* service_provider, const ui::Layout& layout)
-        : Scene{ service_provider, layout },
-          m_main_layout{ 
-                utils::SizeIdentity<3>(),
-                0,
-                ui::Direction::Vertical,
-                { 0.1, 0.9 },
-                ui::AbsolutMargin{ 10 },
-                std::pair<double, double>{ 0.05, 0.03 },
-                layout
-          } {
+        : Scene{
+              service_provider, layout
+    },
+          m_main_layout{ utils::SizeIdentity<3>(),
+                         0,
+                         ui::Direction::Vertical,
+                         { 0.1, 0.9 },
+                         ui::AbsolutMargin{ 10 },
+                         std::pair<double, double>{ 0.05, 0.03 },
+                         layout } {
 
         auto focus_helper = ui::FocusHelper{ 1 };
 
@@ -118,7 +118,9 @@ namespace scenes {
                                 }
 
 #endif
-                                throw std::runtime_error("Requested action on unknown widget, this is a fatal error");
+                                utils::throw_(
+                                        std::runtime_error("Requested action on unknown widget, this is a fatal error")
+                                );
                             } },
                     m_next_command.value().m_value
             );

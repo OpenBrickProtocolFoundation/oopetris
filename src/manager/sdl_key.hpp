@@ -98,13 +98,14 @@ namespace sdl {
  * @param ignore_special_modifiers 
  * @return bool 
  */
-        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED bool is_equal(const Key& other, bool ignore_special_modifiers = true)
-                const;
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED bool
+        is_equal(const Key& other, bool ignore_special_modifiers = true) const;
 
         [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED std::string to_string() const;
 
     private:
-        [[nodiscard]] static helper::expected<SDL_KeyCode, std::string> sdl_keycode_from_string(const std::string& value
+        [[nodiscard]] static helper::expected<SDL_KeyCode, std::string> sdl_keycode_from_string(
+                const std::string& value
         );
 
         [[nodiscard]] static UnderlyingModifierType sdl_modifier_from_modifiers(const std::vector<Modifier>& modifiers);

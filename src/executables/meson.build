@@ -12,6 +12,7 @@ if build_application
                 'oopetris',
                 main_files,
                 dependencies: [liboopetris_graphics_dep, graphic_application_deps],
+                cpp_args: common_cpp_compiler_args,
                 override_options: {
                     'warning_level': '3',
                     'werror': true,
@@ -132,6 +133,14 @@ if build_application
                 )
             endif
 
+        elif host_machine.system() == 'uefi'
+
+            _uefi_options = [
+                app_name,
+                main_files,
+                [liboopetris_graphics_dep, graphic_application_deps],
+            ]
+            subdir('platforms/uefi')
         else
             error('Unhandled cross built system: ' + host_machine.system())
         endif

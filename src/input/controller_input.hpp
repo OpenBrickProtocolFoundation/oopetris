@@ -142,7 +142,7 @@ namespace nlohmann {
 
             const auto is_valid = settings.validate();
             if (not is_valid.has_value()) {
-                throw std::runtime_error(is_valid.error());
+                utils::throw_(std::runtime_error(is_valid.error()));
             }
 
             return settings;

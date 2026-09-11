@@ -1,7 +1,9 @@
 
 #include <core/helper/errors.hpp>
 
-#if defined(__NINTENDO_CONSOLE__)
+#if !defined(__NINTENDO_CONSOLE__)
+#error "only supported on consoles"
+#endif
 
 #include "console_helpers.hpp"
 
@@ -84,6 +86,3 @@ bool console::inMainLoop() {
 #error "not implemented"
 #endif
 }
-
-
-#endif

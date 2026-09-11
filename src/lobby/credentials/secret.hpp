@@ -11,9 +11,24 @@
 #include "helper/export_symbols.hpp"
 #include "manager/service_provider.hpp"
 
-#if defined(__linux__)
+#if (defined(__linux__) && !defined(__UEFI__)) || defined(__ANDROID__)
+#define _HAVE_KEYUTILS
+#endif
+
+#if defined(_HAVE_KEYUTILS)
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wshadow"
+#endif
 
 #include <keyutils.h>
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
+
+
 #elif defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
 
 #include <basetsd.h>
@@ -21,6 +36,10 @@ namespace oopetris::secret::details {
     using NCRYPT_PROV_HANDLE = ULONG_PTR;
 } // namespace oopetris::secret::details
 
+#endif
+
+#if defined(__CONSOLE__) || defined(__APPLE__) || defined(__UEFI__)
+#define _SECRET_USE_JSON_FILE
 #endif
 
 namespace secret {
@@ -32,9 +51,9 @@ namespace secret {
         [[maybe_unused]] ServiceProvider* m_service_provider;
         KeyringType m_type;
 
-#if defined(__linux__) || defined(__ANDROID__)
+#if defined(_HAVE_KEYUTILS)
         key_serial_t m_ring_id;
-#elif defined(__CONSOLE__) || defined(__APPLE__)
+#elif defined(_SECRET_USE_JSON_FILE)
         std::string m_file_path;
 #elif defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
         oopetris::secret::details::NCRYPT_PROV_HANDLE m_phProvider;
@@ -52,7 +71,8 @@ namespace secret {
         OOPETRIS_GRAPHICS_EXPORTED SecretStorage(SecretStorage&& other) noexcept;
         SecretStorage& operator=(SecretStorage&& other) noexcept = delete;
 
-        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED helper::expected<Buffer, std::string> load(const std::string& key
+        [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED helper::expected<Buffer, std::string> load(
+                const std::string& key
         ) const;
 
         [[nodiscard]] OOPETRIS_GRAPHICS_EXPORTED std::optional<std::string>

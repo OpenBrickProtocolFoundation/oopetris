@@ -26,6 +26,13 @@ std::string oopetris::http::status_message([[maybe_unused]] int status) {
 std::string oopetris::http::status_message([[maybe_unused]] int status) {
     return "Not Available";
 }
+#elif _OOPETRIS_ONLINE_SYSTEM == 3
+
+#include "./uefi_client.hpp"
+
+std::string oopetris::http::status_message([[maybe_unused]] int status) {
+    return "Not Available";
+}
 
 #else
 #error "_OOPETRIS_ONLINE_SYSTEM has an invalid value"

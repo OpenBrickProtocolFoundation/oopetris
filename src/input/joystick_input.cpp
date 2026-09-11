@@ -75,7 +75,7 @@ input::JoystickInput& input::JoystickInput::operator=(JoystickInput&& input) noe
     const auto guid = sdl::GUID{ SDL_JoystickGetGUID(m_joystick) };
 
     if (guid == sdl::GUID{}) {
-        throw std::runtime_error{ fmt::format("Failed to get joystick GUID: {}", SDL_GetError()) };
+        utils::throw_(std::runtime_error{ fmt::format("Failed to get joystick GUID: {}", SDL_GetError()) });
     }
 
     return guid;
@@ -268,10 +268,12 @@ void input::JoyStickInputManager::remove_device(
     }
 
     //this happens way to often, since Sdl outputs both  SDL_JOYDEVICEREMOVED and SDL_CONTROLLERDEVICEREMOVED at the same time, in case of a controller, so the second time, this is reached :(
-    spdlog::debug(fmt::format(
-            "Failed to remove removed {} from internal input vector",
-            type == input::JoystickLikeType::Joystick ? "joystick" : "controller"
-    ));
+    spdlog::debug(
+            fmt::format(
+                    "Failed to remove removed {} from internal input vector",
+                    type == input::JoystickLikeType::Joystick ? "joystick" : "controller"
+            )
+    );
 }
 
 [[nodiscard]] bool input::JoyStickInputManager::process_special_inputs(
@@ -673,7 +675,8 @@ input::JoystickLikeGameInput::~JoystickLikeGameInput() {
 }
 
 input::JoystickLikeGameInput::JoystickLikeGameInput(JoystickLikeGameInput&& input) noexcept = default;
-[[nodiscard]] input::JoystickLikeGameInput& input::JoystickLikeGameInput::operator=(JoystickLikeGameInput&& input
+[[nodiscard]] input::JoystickLikeGameInput& input::JoystickLikeGameInput::operator=(
+        JoystickLikeGameInput&& input
 ) noexcept = default;
 
 void input::JoystickLikeGameInput::handle_event(const SDL_Event& event) {
@@ -742,7 +745,9 @@ input::JoystickGameInput::get_game_input_by_settings(
         if (const auto joystick_input = utils::is_child_class<input::JoystickInput>(input);
             joystick_input.has_value()) {
 
+#if !defined(__OOPETRIS_NO_EXCEPTIONS)
             try {
+#endif
                 auto result = get_game_joystick_by_guid(
                         settings.identification.guid, settings, event_dispatcher, joystick_input.value()
                 );
@@ -750,10 +755,11 @@ input::JoystickGameInput::get_game_input_by_settings(
                 if (result.has_value()) {
                     return result.value();
                 }
-
+#if !defined(__OOPETRIS_NO_EXCEPTIONS)
             } catch (const std::exception& exception) {
                 spdlog::warn("Couldn't construct JoystickGameInput: {}", exception.what());
             }
+#endif
         }
     }
 
@@ -775,8 +781,8 @@ input::ConsoleJoystickInput::ConsoleJoystickInput(
     : JoystickInput{ joystick, instance_id, name },
       m_key_mappings{ key_mappings } { }
 
-[[nodiscard]] const input::MappingType<input::console::SettingsType>& input::ConsoleJoystickInput::key_mappings(
-) const {
+[[nodiscard]] const input::MappingType<input::console::SettingsType>&
+input::ConsoleJoystickInput::key_mappings() const {
     return m_key_mappings;
 }
 
@@ -925,7 +931,8 @@ std::optional<InputEvent> input::ConsoleJoystickGameInput::sdl_event_to_input_ev
     return std::nullopt;
 }
 
-[[nodiscard]] std::optional<input::MenuEvent> input::ConsoleJoystickGameInput::get_menu_event(const SDL_Event& event
+[[nodiscard]] std::optional<input::MenuEvent> input::ConsoleJoystickGameInput::get_menu_event(
+        const SDL_Event& event
 ) const {
     if (event.type == SDL_JOYBUTTONDOWN) {
 

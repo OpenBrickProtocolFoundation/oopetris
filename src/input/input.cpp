@@ -96,7 +96,8 @@ input::InputManager::InputManager(const std::shared_ptr<Window>& window) {
 }
 
 
-[[nodiscard]] std::optional<input::NavigationEvent> input::InputManager::get_navigation_event(const SDL_Event& event
+[[nodiscard]] std::optional<input::NavigationEvent> input::InputManager::get_navigation_event(
+        const SDL_Event& event
 ) const {
     for (const auto& input : m_inputs) {
 
@@ -108,7 +109,8 @@ input::InputManager::InputManager(const std::shared_ptr<Window>& window) {
     return std::nullopt;
 }
 
-[[nodiscard]] std::optional<input::PointerEventHelper> input::InputManager::get_pointer_event(const SDL_Event& event
+[[nodiscard]] std::optional<input::PointerEventHelper> input::InputManager::get_pointer_event(
+        const SDL_Event& event
 ) const {
     for (const auto& input : m_inputs) {
         if (const auto pointer_input = utils::is_child_class<input::PointerInput>(input); pointer_input.has_value()) {
@@ -122,8 +124,8 @@ input::InputManager::InputManager(const std::shared_ptr<Window>& window) {
 }
 
 
-[[nodiscard]] SDL_Event input::InputManager::offset_pointer_event(const SDL_Event& event, const shapes::IPoint& point)
-        const {
+[[nodiscard]] SDL_Event
+input::InputManager::offset_pointer_event(const SDL_Event& event, const shapes::IPoint& point) const {
     for (const auto& input : m_inputs) {
         if (const auto pointer_input = utils::is_child_class<input::PointerInput>(input); pointer_input.has_value()) {
             if (const auto pointer_event = pointer_input.value()->get_pointer_event(event); pointer_event.has_value()) {
@@ -132,7 +134,7 @@ input::InputManager::InputManager(const std::shared_ptr<Window>& window) {
         }
     }
 
-    throw std::runtime_error("Tried to offset event, that is no pointer event");
+    utils::throw_(std::runtime_error("Tried to offset event, that is no pointer event"));
 }
 
 

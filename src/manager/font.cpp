@@ -13,7 +13,7 @@ Font::Font(const std::filesystem::path& path, int size)
         if (not std::filesystem::exists(path)) {
             error = "path '" + path.string() + "' doesn't exist!";
         }
-        throw FontLoadingError{ "error loading font: '" + error + "'" };
+        utils::throw_(FontLoadingError{ "error loading font: '" + error + "'" });
     }
 }
 

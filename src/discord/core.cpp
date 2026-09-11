@@ -38,6 +38,15 @@ namespace {
     }
 }
 
+static std::string_view no_newline_sv_discord_rpc(const std::string& str) {
+    std::string_view sv{ str };
+
+    sv.remove_suffix('\n');
+    sv.remove_suffix('\r');
+
+    return sv;
+}
+
 
 DiscordInstance::DiscordInstance() : m_current_user{ discordpp::UserHandle::nullobj } {
 
@@ -45,18 +54,21 @@ DiscordInstance::DiscordInstance() : m_current_user{ discordpp::UserHandle::null
 
     m_client.AddLogCallback(
             [](std::string message, discordpp::LoggingSeverity severity) -> void {
+                std::string_view sv = no_newline_sv_discord_rpc(message);
+
+
                 switch (severity) {
                     case discordpp::LoggingSeverity::Error:
-                        spdlog::error("DISCORD SDK: {}", message);
+                        spdlog::error("DISCORD SDK: {}", sv);
                         break;
                     case discordpp::LoggingSeverity::Warning:
-                        spdlog::warn("DISCORD SDK: {}", message);
+                        spdlog::warn("DISCORD SDK: {}", sv);
                         break;
                     case discordpp::LoggingSeverity::Info:
-                        spdlog::info("DISCORD SDK: {}", message);
+                        spdlog::info("DISCORD SDK: {}", sv);
                         break;
                     case discordpp::LoggingSeverity::Verbose:
-                        spdlog::debug("DISCORD SDK: {}", message);
+                        spdlog::debug("DISCORD SDK: {}", sv);
                         break;
                     case discordpp::LoggingSeverity::None:
                         break;

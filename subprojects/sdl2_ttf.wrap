@@ -8,6 +8,7 @@ patch_url = https://wrapdb.mesonbuild.com/v2/sdl2_ttf_2.20.1-4/get_patch
 patch_hash = 44311aba31c9d5a3366101e5afd439a1d95e64d2079e9d5487e4d0790b6858f1
 source_fallback_url = https://github.com/mesonbuild/wrapdb/releases/download/sdl2_ttf_2.20.1-4/SDL2_ttf-2.20.1.tar.gz
 wrapdb_version = 2.20.1-4
+diff_files = sdl2_ttf-2.20.1_sdl_uefi_sse_fix.diff
 
 [provide]
 sdl2_ttf = sdl2_ttf_dep

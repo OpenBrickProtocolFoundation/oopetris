@@ -2,7 +2,7 @@ project(
     'discord-social-sdk',
     'cpp',
     'c',
-    version: '1.4.9649',
+    version: '1.10.18247',
     meson_version: '>=1.4.0',
     default_options: {
         'cpp_std': ['c++17'],
@@ -66,6 +66,8 @@ if not meson.is_cross_build()
     elif host_machine.system() == 'windows'
         if host_machine.cpu_family() == 'x86_64'
             lib_base_dir = get_option('default_library') == 'static' ? 'bin' : 'lib'
+        elif host_machine.cpu_family() == 'aarch64'
+            lib_base_dir = (get_option('default_library') == 'static' ? 'bin' : 'lib') / 'arm64'
         else
             error('unsupported architecture for windows: ' + host_machine.cpu_family())
         endif
@@ -84,6 +86,21 @@ if not meson.is_cross_build()
         dirs: [meson.project_source_root() / lib_dir],
         required: true,
     )
+
+
+    if host_machine.system() == 'linux'
+        install_lib_dir = get_option('prefix') / get_option('libdir')
+
+        discord_partner_sdk_file = files(
+            meson.project_source_root() / lib_dir / 'libdiscord_partner_sdk.so'
+        )
+
+        install_data(
+            discord_partner_sdk_file,
+            install_dir: install_lib_dir,
+            install_tag: 'runtime',
+        )
+    endif
 
     ## NOTE: this is a static library, as it doesn't export the symbols correctly, so on windows the dll would fail to link
     discord_social_sdk_lib = static_library(

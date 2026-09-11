@@ -6,7 +6,7 @@ _3ds_deps = _3ds_options[2]
 
 # libraries
 
-_3ds_dependencies = ['flac', 'freetype2', 'ogg', 'ogg', 'opus', 'opusfile', 'vorbisidec', 'zlib']
+_3ds_dependencies = ['flac', 'freetype2', 'ogg', 'opus', 'opusfile', 'vorbisidec', 'zlib']
 
 _3ds_dependencies_native = ['bz2', 'ctru', 'mad', 'mikmod', 'modplug', 'png16', 'SDL2main']
 
