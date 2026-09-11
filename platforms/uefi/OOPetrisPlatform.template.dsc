@@ -67,6 +67,14 @@
 [Packages]
   MdePkg/MdePkg.dec
   UefiCpuPkg/UefiCpuPkg.dec
+  ShellPkg/ShellPkg.dec
+
+!if $(OOPETRIS_RUNTIME_TARGET) == "hardware"
+
+!else
+  OvmfPkg/OvmfPkg.dec
+!endif
+
 
 [LibraryClasses]
   #
@@ -125,6 +133,9 @@
   TimerLib|UefiCpuPkg/Library/CpuTimerLib/BaseCpuTimerLib.inf
   LibUEfiSupportNanosleep|SupportLib/Library/Default/SupportLibDefaultNanosleep.inf
   LibUEfiSupportClock|SupportLib/Library/TimerLib/SupportLibTimerClock.inf
+
+  #SerialPortLib|MdePkg/Library/BaseSerialPortLibNull/BaseSerialPortLibNull.inf
+  #CcExitLib|UefiCpuPkg/Library/CcExitLibNull/CcExitLibNull.inf
 !else
   # DebugLib
   DebugLib|OvmfPkg/Library/PlatformDebugLibIoPort/PlatformDebugLibIoPort.inf
@@ -151,6 +162,8 @@
 
   TimerLib|OvmfPkg/Library/AcpiTimerLib/DxeAcpiTimerLib.inf
 
+  #SerialPortLib|OvmfPkg/Library/XenConsoleSerialPortLib/XenConsoleSerialPortLib.inf
+  #CcExitLib|OvmfPkg/Library/CcExitLib/CcExitLib.inf
 !endif
 
   ShellCEntryLibDynamical|SupportLib/Library/UefiShellCEntryLibDynamical/UefiShellCEntryLibDynamical.inf
@@ -175,6 +188,8 @@
   SmbusLib|MdePkg/Library/DxeSmbusLib/DxeSmbusLib.inf
   S3BootScriptLib|MdeModulePkg/Library/PiDxeS3BootScriptLib/DxeS3BootScriptLib.inf
   CpuExceptionHandlerLib|MdeModulePkg/Library/CpuExceptionHandlerLibNull/CpuExceptionHandlerLibNull.inf
+  ## TODO: investigate CPU exceptions
+  ##CpuExceptionHandlerLib|UefiCpuPkg/Library/CpuExceptionHandlerLib/DxeCpuExceptionHandlerLib.inf
   PlatformBootManagerLib|MdeModulePkg/Library/PlatformBootManagerLibNull/PlatformBootManagerLibNull.inf
   PciHostBridgeLib|MdeModulePkg/Library/PciHostBridgeLibNull/PciHostBridgeLibNull.inf
   TpmMeasurementLib|MdeModulePkg/Library/TpmMeasurementLibNull/TpmMeasurementLibNull.inf
@@ -219,6 +234,8 @@
   MemoryAllocationLib|MdePkg/Library/UefiMemoryAllocationLib/UefiMemoryAllocationLib.inf
   #see above: DebugLib|MdePkg/Library/UefiDebugLibStdErr/UefiDebugLibStdErr.inf
   FileHandleLib|MdePkg/Library/UefiFileHandleLib/UefiFileHandleLib.inf
+
+  ## CcExitLib|UefiCpuPkg/Library/CcExitLibNull/CcExitLibNull.inf
 
 #start crypto related libs
 [LibraryClasses]

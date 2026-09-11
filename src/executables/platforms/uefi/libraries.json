@@ -32,6 +32,13 @@
             "inf": "CryptoPkg/Library/BaseCryptLib/BaseCryptLib.inf",
             "inc": null,
             "tool_prefix": "edk2"
+        },
+        "CpuExceptionHandlerLib": {
+            "pkg": "UefiCpuPkg/UefiCpuPkg",
+            "lib": "CpuExceptionHandlerLib",
+            "inf": "UefiCpuPkg/Library/CpuExceptionHandlerLib/DxeCpuExceptionHandlerLib.inf",
+            "inc": null,
+            "tool_prefix": "edk2"
         }
     }
 }

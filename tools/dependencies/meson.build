@@ -488,6 +488,7 @@ if build_application
         uefi_http_lib_dep = dependency('uefi:HttpLib')
         uefi_http_io_lib_dep = dependency('uefi:HttpIoLib')
         uefi_crypto_lib_dep = dependency('uefi:BaseCryptLib')
+      ##  uefi_cpu_exceptions_handler_lib_dep = dependency('uefi:CpuExceptionHandlerLib')
 
         graphics_lib += {
             'deps': [
@@ -495,6 +496,7 @@ if build_application
                 uefi_http_lib_dep,
                 uefi_http_io_lib_dep,
                 uefi_crypto_lib_dep,
+            ##    uefi_cpu_exceptions_handler_lib_dep,
             ],
             'compile_args': [graphics_lib.get('compile_args'), '-D_OOPETRIS_ONLINE_SYSTEM=3'],
         }

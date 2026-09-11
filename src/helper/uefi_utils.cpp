@@ -8,6 +8,7 @@
 
 #include "./uefi_utils.hpp"
 
+#include <filesystem>
 #include <functional>
 #include <memory>
 #include <string>
@@ -285,15 +286,87 @@ static int EFIAPI _f_romfs_Mkdir(const char* path, __mode_t perms) {
     return -1;
 }
 
-static EFI_TIME Time2EfiStruct(IN time_t CalTime) {
-    struct tm* IT;
-    IT = gmtime(&CalTime);
-    EFI_TIME ET;
-    if (IT != NULL) {
-        Tm2Efi(IT, &ET);
+#define EFI_TIME_NULL              \
+    ((EFI_TIME) { .Year = 0,       \
+                  .Month = 0,      \
+                  .Day = 0,        \
+                  .Hour = 0,       \
+                  .Minute = 0,     \
+                  .Second = 0,     \
+                  .Pad1 = 0,       \
+                  .Nanosecond = 0, \
+                  .TimeZone = 0,   \
+                  .Daylight = 0,   \
+                  .Pad2 = 0 })
+
+
+//Normal to Wide
+struct NameConversionNtoW {
+private:
+    const char* m_original;
+    wchar_t* m_converted;
+
+public:
+    NameConversionNtoW(const char* value, wchar_t* converted) : m_original{ value }, m_converted{ converted } {
+        //
     }
-    return ET;
-}
+
+    static std::optional<NameConversionNtoW> init(const char* value) {
+
+        wchar_t* converted = (wchar_t*) AllocateZeroPool(PATH_MAX + 1);
+        if (converted == NULL) {
+            errno = ENOMEM;
+            return std::nullopt;
+        }
+
+        size_t convert_result = mbstowcs(converted, value, PATH_MAX);
+
+        if (convert_result == ((size_t) -1) || convert_result > PATH_MAX) {
+            errno = EINVAL;
+            return std::nullopt;
+        }
+
+        converted[convert_result] = '\0';
+
+
+        return NameConversionNtoW(value, converted);
+    }
+
+    NameConversionNtoW(const NameConversionNtoW& other) = delete;
+    NameConversionNtoW& operator=(const NameConversionNtoW& other) = delete;
+
+
+    NameConversionNtoW(NameConversionNtoW&& other) noexcept
+        : m_original{ other.m_original },
+          m_converted{ other.m_converted } {
+        other.m_original = nullptr;
+        other.m_converted = nullptr;
+    }
+
+    NameConversionNtoW& operator=(NameConversionNtoW&& other) noexcept {
+        if (this != &other) {
+            this->m_original = other.m_original;
+            this->m_converted = other.m_converted;
+
+            other.m_original = nullptr;
+            other.m_converted = nullptr;
+        }
+
+        return *this;
+    }
+
+
+    [[nodiscard]] wchar_t* name() const {
+        return m_converted;
+    }
+
+    ~NameConversionNtoW() {
+        if (m_converted != nullptr) {
+            FreePool(m_converted);
+            m_converted = nullptr;
+        }
+    }
+};
 
 
 /** EFI specific operations for reading from a file.
@@ -311,14 +384,19 @@ _f_romfs_Read(IN OUT struct __filedes* filp, IN OUT off_t* offset, IN size_t Buf
     ASSERT_TYPE(filp->devdata, void*);
     ROMFS_DEV_DATA_TYPE* file = ROMFS_DEV_DATA_GET(filp->devdata);
 
+    DEBUG((DEBUG_ERROR, "%a %a:%d HERE\n", __func__, __FILE__, __LINE__));
 
     if (offset != NULL) {
+        DEBUG((DEBUG_ERROR, "%a %a:%d HERE\n", __func__, __FILE__, __LINE__));
 
         off_t seek_size = _f_romfs_Seek(filp, *offset, SEEK_SET);
         if (seek_size == EOF) {
+            DEBUG((DEBUG_ERROR, "%a %a:%d HERE %d\n", __func__, __FILE__, __LINE__, etell(file)));
+
             errno = eerrno_to_errno(eerrno);
             return -1;
         }
+        DEBUG((DEBUG_ERROR, "%a %a:%d HERE\n", __func__, __FILE__, __LINE__));
 
         filp->f_offset = seek_size;
 
@@ -326,92 +404,146 @@ _f_romfs_Read(IN OUT struct __filedes* filp, IN OUT off_t* offset, IN size_t Buf
     }
 
 
-    size_t result;
-
     int type = estreamtype(file);
     if (type == EMAP_ENTRY_TYPE_FILE) {
-        result = eread(Buffer, 1, BufferSize, file);
+        DEBUG((DEBUG_ERROR, "%a %a:%d HERE\n", __func__, __FILE__, __LINE__));
+
+
+        const size_t result = eread(Buffer, 1, BufferSize, file);
 
         if (eerrno != EERRCODE_SUCCESS) {
             errno = eerrno_to_errno(eerrno);
             return -1;
         }
+
+        if (offset != nullptr) {
+            *offset = *offset + static_cast<off_t>(result);
+        }
+
+        return result;
     } else if (type == EMAP_ENTRY_TYPE_DIR) {
-        result = 0;
+        DEBUG((DEBUG_ERROR, "%a %a:%d HERE ISDIR\n", __func__, __FILE__, __LINE__));
+
+        const size_t dir_offset = etell(file);
+        DEBUG((DEBUG_ERROR, "%a %a:%d HERE\n", __func__, __FILE__, __LINE__));
 
         edirent ent;
-        while (true) {
-            const size_t dir_offset = etell(file);
-            int res = ereaddir(file, &ent);
+        int res = ereaddir(file, &ent);
+        DEBUG((DEBUG_ERROR, "%a %a:%d HERE\n", __func__, __FILE__, __LINE__));
 
-            if (res == EREADDIR_FINISHED) {
-                break;
-            }
+        if (res == EREADDIR_FINISHED) {
+            DEBUG((DEBUG_ERROR, "%a %a:%d HERE\n", __func__, __FILE__, __LINE__));
+            return 0;
+        }
+        DEBUG((DEBUG_ERROR, "%a %a:%d HERE\n", __func__, __FILE__, __LINE__));
 
-            if (res != EERRCODE_SUCCESS) {
-                errno = eerrno_to_errno(res);
+        if (res != EERRCODE_SUCCESS) {
+            errno = eerrno_to_errno(res);
+            return -1;
+        }
+        DEBUG((DEBUG_ERROR, "%a %a:%d HERE\n", __func__, __FILE__, __LINE__));
+
+        UINT64 Attribute = DT_READ_ONLY;
+
+        if (ent.type == EMAP_ENTRY_TYPE_DIR) {
+            Attribute |= DT_DIRECTORY;
+        }
+        DEBUG((DEBUG_ERROR, "%a %a:%d HERE\n", __func__, __FILE__, __LINE__));
+
+        const UINT64 dirent_struct_size = offsetof(struct dirent, FileName);
+        DEBUG((DEBUG_ERROR, "%a %a:%d HERE\n", __func__, __FILE__, __LINE__));
+        DEBUG((DEBUG_ERROR, "%a %a:%d HERE\n", __func__, __FILE__, __LINE__));
+
+        // convert the ent name to CHAR16
+        std::optional<NameConversionNtoW> conversion = NameConversionNtoW::init(ent.name);
+        DEBUG((DEBUG_ERROR, "%a %a:%d HERE\n", __func__, __FILE__, __LINE__));
+
+        if (not conversion.has_value()) {
+            DEBUG((DEBUG_ERROR, "%a %a:%d HERE\n", __func__, __FILE__, __LINE__));
+
+            // we can't convert the name to wchar
+            int seek_res = eseek(file, dir_offset, SEEK_SET);
+            if (seek_res < 0) {
+                errno = eerrno_to_errno(eerrno);
                 return -1;
             }
 
-            UINT64 Attribute = DT_READ_ONLY;
-
-            if (ent.type == EMAP_ENTRY_TYPE_DIR) {
-                Attribute |= DT_DIRECTORY;
-            }
-
-            const size_t dirent_struct_size = offsetof(struct dirent, FileName);
-            const size_t name_len = strlen(ent.name);
-            const UINT64 Size = dirent_struct_size + 1 + name_len;
-
-            if (Size + result > BufferSize) {
-                // we can't place this in the Buffer anymore
-                int seek_res = eseek(file, dir_offset, SEEK_SET);
-                if (seek_res < 0) {
-                    errno = eerrno_to_errno(eerrno);
-                    return -1;
-                }
-
-                // edge case, if we have result == 0, we have not placed a single one in the buffer, the callee may think 0 is returned and we are done, but we just have not enough space
-                if (result == 0) {
-                    errno = ENOMEM;
-                    return -1;
-                }
-
-                // it is fine. return the existing things
-                break;
-            }
-
-            struct dirent dir_result = {
-                .Size = Size,
-                .FileSize = ent.size,
-                .PhysicalSize = ent.size,
-                .CreateTime = Time2EfiStruct(0),
-                .LastAccessTime = Time2EfiStruct(0),
-                .ModificationTime = Time2EfiStruct(0),
-                .Attribute = Attribute,
-                .FileName = { '\0' },
-            };
-
-            // copy the struct and the filename into the buffer
-            char* location = ((char*) Buffer) + result;
-
-            memcpy(location, &dir_result, dirent_struct_size);
-            memcpy(location + dirent_struct_size, ent.name, name_len);
-            location[dirent_struct_size + name_len] = '\0';
-
-            result += Size;
+            errno = EINVAL;
+            return -1;
         }
+        DEBUG((DEBUG_ERROR, "%a %a:%d HERE\n", __func__, __FILE__, __LINE__));
+
+        static_assert(sizeof(CHAR16) == sizeof(wchar_t), "libc types and std types don't match");
+        const UINT64 name_len = wcslen(conversion->name());
+        const UINT64 size = dirent_struct_size + ((1 + name_len) * sizeof(CHAR16));
+
+        DEBUG((DEBUG_ERROR, "%a %a:%d HERE\n", __func__, __FILE__, __LINE__));
+        DEBUG((DEBUG_ERROR, "%a %a:%d HERE\n", __func__, __FILE__, __LINE__));
+
+
+        if (size > BufferSize) {
+            DEBUG((DEBUG_ERROR, "%a %a:%d HERE\n", __func__, __FILE__, __LINE__));
+
+            // we can't place this in the Buffer anymore
+            int seek_res = eseek(file, dir_offset, SEEK_SET);
+            if (seek_res < 0) {
+                errno = eerrno_to_errno(eerrno);
+                return -1;
+            }
+
+            // we have not enough space for the buffer
+            errno = ENOMEM;
+            return -1;
+        }
+        DEBUG((DEBUG_ERROR, "%a %a:%d HERE\n", __func__, __FILE__, __LINE__));
+
+        struct dirent dir_result = {
+            .Size = size,
+            .FileSize = ent.size,
+            .PhysicalSize = ent.size,
+            .CreateTime = EFI_TIME_NULL,
+            .LastAccessTime = EFI_TIME_NULL,
+            .ModificationTime = EFI_TIME_NULL,
+            .Attribute = Attribute,
+            .FileName = { L'\0' },
+        };
+
+        // copy the struct and the filename into the buffer
+        char* const location = (char*) Buffer;
+
+        memcpy(location, &dir_result, dirent_struct_size);
+        memcpy(location + dirent_struct_size, conversion->name(), name_len * sizeof(CHAR16));
+        *(((CHAR16*) (location + dirent_struct_size)) + name_len) = L'\0';
+
+
+        DEBUG((DEBUG_ERROR, "%a %a:%d HERE\n", __func__, __FILE__, __LINE__));
+
+
+        long int pos = etell(file);
+        if (pos < 0) {
+            // we can't place this in the Buffer anymore
+            int seek_res = eseek(file, dir_offset, SEEK_SET);
+            if (seek_res < 0) {
+                errno = eerrno_to_errno(eerrno);
+                return -1;
+            }
+            DEBUG((DEBUG_ERROR, "%a %a:%d HERE\n", __func__, __FILE__, __LINE__));
+
+            errno = EINVAL;
+            return -1;
+        }
+
+        if (offset != nullptr) {
+            *offset = static_cast<off_t>(pos);
+        }
+        DEBUG((DEBUG_ERROR, "%a %a:%d HERE\n", __func__, __FILE__, __LINE__));
+
+        return size;
+
     } else {
         errno = EINVAL;
         return -1;
     }
-
-
-    if (offset != nullptr) {
-        *offset = *offset + static_cast<off_t>(result);
-    }
-
-    return result;
 }
 
 /** EFI specific operations for writing to a file.
@@ -449,6 +581,8 @@ static int EFIAPI _f_romfs_Stat(struct __filedes* filp, struct stat* statbuf, vo
     ASSERT_TYPE(filp->devdata, void*);
     ROMFS_DEV_DATA_TYPE* file = ROMFS_DEV_DATA_GET(filp->devdata);
 
+    DEBUG((DEBUG_ERROR, "%a %a:%d HERE\n", __func__, __FILE__, __LINE__));
+
     // Got the info, now populate statbuf with it
 
     // NOTE: we return the same size in the case of a directory, but it isn't the directories detailed size, but an implementation defined size
@@ -483,17 +617,18 @@ static int EFIAPI _f_romfs_Ioctl(struct __filedes* filp, ULONGN cmd, va_list arg
 }
 
 
-struct PathConversion {
+// Wide to Normal
+struct PathConversionWtoN {
 private:
     const wchar_t* m_original;
     char* m_converted;
 
 public:
-    PathConversion(const wchar_t* value, char* converted) : m_original{ value }, m_converted{ converted } {
+    PathConversionWtoN(const wchar_t* value, char* converted) : m_original{ value }, m_converted{ converted } {
         //
     }
 
-    static std::optional<PathConversion> init(const wchar_t* value) {
+    static std::optional<PathConversionWtoN> init(const wchar_t* value) {
         char* converted = (char*) AllocateZeroPool(PATH_MAX + 1);
         if (converted == NULL) {
             errno = ENOMEM;
@@ -518,19 +653,21 @@ public:
         }
 
 
-        return PathConversion(value, converted);
+        return PathConversionWtoN(value, converted);
     }
 
-    PathConversion(const PathConversion& other) = delete;
-    PathConversion& operator=(const PathConversion& other) = delete;
+    PathConversionWtoN(const PathConversionWtoN& other) = delete;
+    PathConversionWtoN& operator=(const PathConversionWtoN& other) = delete;
 
 
-    PathConversion(PathConversion&& other) noexcept : m_original{ other.m_original }, m_converted{ other.m_converted } {
+    PathConversionWtoN(PathConversionWtoN&& other) noexcept
+        : m_original{ other.m_original },
+          m_converted{ other.m_converted } {
         other.m_original = nullptr;
         other.m_converted = nullptr;
     }
 
-    PathConversion& operator=(PathConversion&& other) noexcept {
+    PathConversionWtoN& operator=(PathConversionWtoN&& other) noexcept {
         if (this != &other) {
             this->m_original = other.m_original;
             this->m_converted = other.m_converted;
@@ -547,7 +684,7 @@ public:
         return m_converted;
     }
 
-    ~PathConversion() {
+    ~PathConversionWtoN() {
         if (m_converted != nullptr) {
             FreePool(m_converted);
             m_converted = nullptr;
@@ -577,23 +714,28 @@ int EFIAPI _f_romfs_Open(
 
     const int oflags_acc = filp->Oflags & O_ACCMODE;
 
+    DEBUG((DEBUG_ERROR, "%a %a:%d HERE\n", __func__, __FILE__, __LINE__));
+
     if (oflags_acc != O_RDONLY) {
+        DEBUG((DEBUG_ERROR, "%a %a:%d HERE\n", __func__, __FILE__, __LINE__));
         errno = EINVAL;
         return -1;
     }
 
     const int other_oflags = filp->Oflags & (~(O_ACCMODE));
 
-    if (other_oflags == O_NONBLOCK) {
+    if (other_oflags == 0 || other_oflags == O_NONBLOCK) {
         // ok
     } else {
+        DEBUG((DEBUG_ERROR, "%a %a:%d HERE 0x%x\n", __func__, __FILE__, __LINE__, other_oflags));
         errno = EINVAL;
         return -1;
     }
 
-    std::optional<PathConversion> conversion = PathConversion::init(Path);
+    std::optional<PathConversionWtoN> conversion = PathConversionWtoN::init(Path);
 
     if (not conversion.has_value()) {
+        errno = EINVAL;
         return -1;
     }
 
@@ -602,6 +744,7 @@ int EFIAPI _f_romfs_Open(
     if (file == NULL) {
         filp->f_iflags = 0; // Release our reservation on this FD
         // Set errno based upon Status
+        DEBUG((DEBUG_ERROR, "%a %a:%d HERE\n", __func__, __FILE__, __LINE__));
         errno = eerrno_to_errno(eerrno);
         return -1;
     }
@@ -612,6 +755,7 @@ int EFIAPI _f_romfs_Open(
     } else if (type == EMAP_ENTRY_TYPE_DIR) {
         filp->f_iflags |= S_IFDIR;
     } else {
+        DEBUG((DEBUG_ERROR, "%a %a:%d HERE\n", __func__, __FILE__, __LINE__));
         errno = EINVAL;
         return -1;
     }
@@ -626,6 +770,7 @@ int EFIAPI _f_romfs_Open(
     filp->f_offset = 0;
     filp->f_ops = &(Gip->Abstraction);
 
+    DEBUG((DEBUG_ERROR, "%a %a:%d HERE\n", __func__, __FILE__, __LINE__));
     return 0;
 }
 
@@ -751,11 +896,14 @@ struct RWFileSystemImplGlobal {
     RW_INSTANCE* stream_instance;
 
     void reset() {
+        DEBUG((DEBUG_ERROR, "%a %a:%d HERE\n", __func__, __FILE__, __LINE__));
         this->~RWFileSystemImplGlobal();
         *this = { std::nullopt, nullptr };
     }
 
+
     ~RWFileSystemImplGlobal() {
+        DEBUG((DEBUG_ERROR, "%a %a:%d HERE\n", __func__, __FILE__, __LINE__));
         if (this->impl.has_value()) {
             this->impl.value().~RWFileSystemImpl();
             this->impl = std::nullopt;
@@ -1156,13 +1304,30 @@ static std::expected<RWFileSystemImpl, EFI_STATUS> get_rw_fs_impl() {
     return RWFileSystemImpl{ LoadedImage, SimpleFs, Root };
 }
 
-#define RW_AUTOMOUNT_FOLDER "rw_auto_mount"
-
 static RETURN_STATUS EFIAPI __copy_rom_automount_files(void) {
-    //TODO
 
-    //TODO: we need folder support in c-embed for this to work!
-    return RETURN_UNSUPPORTED;
+
+    const auto rw_automount_folder = std::filesystem::path{ "romfs:/rw_auto_mount" };
+
+    if (not std::filesystem::exists(rw_automount_folder)) {
+        return RETURN_NOT_FOUND;
+    }
+
+
+    std::cerr << "FOLDER: " << rw_automount_folder << "\n";
+
+    for (const auto& file : std::filesystem::recursive_directory_iterator(rw_automount_folder)) {
+
+        if (file.is_directory()) {
+            std::cerr << "FOLDER: " << file << "\n";
+        } else {
+            std::cerr << "FILE: " << file << "\n";
+        }
+    }
+
+    DEBUG((DEBUG_ERROR, "%a %a:%d HERE\n", __func__, __FILE__, __LINE__));
+
+    return RETURN_SUCCESS;
 }
 
 static RETURN_STATUS EFIAPI __ctor_optional_rw_fs(void) {
@@ -1184,10 +1349,13 @@ static RETURN_STATUS EFIAPI __ctor_optional_rw_fs(void) {
         // copy from auto mount to rw file system. if it not already exists
         status = __copy_rom_automount_files();
         if (EFI_ERROR(status)) {
+            DEBUG((DEBUG_ERROR, "%a %a:%d HERE\n", __func__, __FILE__, __LINE__));
             g_rw_file_system.reset();
+            DEBUG((DEBUG_ERROR, "%a %a:%d HERE\n", __func__, __FILE__, __LINE__));
             return status;
         }
 
+        DEBUG((DEBUG_ERROR, "%a %a:%d HERE\n", __func__, __FILE__, __LINE__));
         return RETURN_SUCCESS;
     }
 
@@ -1217,6 +1385,8 @@ void uefi::platform_init() {
         );
     }
 
+    DEBUG((DEBUG_ERROR, "%a %a:%d HERE %d\n", __func__, __FILE__, __LINE__, status));
+
     //TODO: uefi related stuff
     // have dedicated uefi settings
     // set GOP mode, auto or 0-<max num>
@@ -1245,8 +1415,10 @@ void uefi::platform_exit() {
 
 OOPETRIS_GRAPHICS_EXPORTED std::optional<uefi::RWFileSystem> uefi::get_rw_file_system_info() {
 
-    if (true) {
-        return std::nullopt;
+    DEBUG((DEBUG_ERROR, "%a %a:%d HERE\n", __func__, __FILE__, __LINE__));
+
+    if (g_rw_file_system.stream_instance != nullptr) {
+        return RWFileSystem{};
     }
 
     return std::nullopt;
